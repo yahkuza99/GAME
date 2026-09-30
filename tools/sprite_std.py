@@ -33,6 +33,7 @@ ACTIONS = {         # ท่า: (จำนวนเฟรมแนะนำ, �
     'hurt': (2, False), 'sit': (2, True), 'dead': (4, False),
 }
 TOL = 0.06          # ความสูงเพี้ยนเกิน 6% = เตือน
+FIT_TOL = 0.04      # ท่ายืน: เพี้ยนเกิน 4% ปรับกลับเท่าค่ากลาง (กันหัวกระตุกขึ้นลงระหว่างเฟรม)
 STANDING = ('idle', 'walk', 'cast')   # ท่ายืน: ใช้ความสูงวัดสเกล ท่าอื่น (นั่ง/ล้ม/ฟัน) ใช้สเกลของท่ายืน
 TPL_W, TPL_BODY = 1536, 0.60
 # ทิศ 8 ทาง (ลำดับเดียวกับ dirFromVec ในเกม: 0=ขวา แล้ววนตามเข็มนาฬิกา) — แถวที่ i ของแถบเฟรม = ทิศ i
@@ -234,7 +235,7 @@ def normalize(frames, scale=None, fit=False):
     out, rep = [], []
     for i, (f, m) in enumerate(keep):
         dev = m['h'] / med - 1
-        kk = k / (1 + dev) if fit and abs(dev) > TOL else k
+        kk = k / (1 + dev) if fit and abs(dev) > FIT_TOL else k
         fixed = kk != k
         s = f.resize((max(1, round(f.width * kk)), max(1, round(f.height * kk))), Image.LANCZOS)
         c = Image.new('RGBA', (CELL, CELL), (0, 0, 0, 0))

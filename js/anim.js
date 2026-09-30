@@ -54,7 +54,12 @@ const Anim = {
     else if (st.cast) action = 'cast';
     else if (st.sit) action = 'sit';
     else if (st.moving) action = 'walk';
-    const s = this.strip(key, action); if (!s) return null;
+    let s = this.strip(key, action); if (!s) return null;
+    // ท่ายืนมีแค่มุมหน้า แต่ท่าเดินมี 8 ทิศ: ตอนหันหลังให้ยืนด้วยเฟรมแรกของท่าเดินทิศนั้น (ไม่หมุนกลับมาหันหน้า)
+    if (s.dirs === 1 && s.action === 'idle' && st.dir >= 5) {
+      const w = this.strip(key, 'walk');
+      if (w && w.dirs === 8) return { img: w.img, f: 0, row: st.dir, flip: false };
+    }
     const def = this.ACTIONS[s.action];
     let f;
     if (s.action === 'walk' && action !== 'walk') f = 0; // ยืนนิ่งด้วยเฟรมแรกของท่าเดิน
