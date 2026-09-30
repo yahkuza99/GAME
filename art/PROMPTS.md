@@ -339,25 +339,25 @@ Class emblem icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD. Each e
 
 ## ⑪ ภาพแผนที่ (แบนเนอร์ตอนเข้าแมพ)
 
-### `map_eldheim.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง
+### `map_eldheim.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง ✓ ได้รับแล้ว
 
 ```
 Anime game background art, painterly cel-shaded scenery, rich lighting and atmosphere, sci-fi Norse mythology world of androids called NEO MIDGARD, wide establishing shot from a slightly high angle, no characters, no text, no logo. Horizontal 3:2 image (1536x1024). Location: Neo Eldheim, the android capital city: plaza of metal floor tiles with cyan light strips around a glowing blue energy-core fountain, sci-fi Norse buildings with neon signs, green lawns and trees, daytime.
 ```
 
-### `map_meadow.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง
+### `map_meadow.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง ✓ ได้รับแล้ว
 
 ```
 Anime game background art, painterly cel-shaded scenery, rich lighting and atmosphere, sci-fi Norse mythology world of androids called NEO MIDGARD, wide establishing shot from a slightly high angle, no characters, no text, no logo. Horizontal 3:2 image (1536x1024). Location: Emerald Meadow: rolling green grass fields with wildflowers, metal pylons with glowing tips, a steel road crossing the field, small lakes, bright sunny sky.
 ```
 
-### `map_mistlake.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง
+### `map_mistlake.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง ✓ ได้รับแล้ว
 
 ```
 Anime game background art, painterly cel-shaded scenery, rich lighting and atmosphere, sci-fi Norse mythology world of androids called NEO MIDGARD, wide establishing shot from a slightly high angle, no characters, no text, no logo. Horizontal 3:2 image (1536x1024). Location: Mistlake Plains: calm misty lakes with soft fog, tall reeds, floating light particles, distant ancient tech ruins, dawn light.
 ```
 
-### `map_wolfwood.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง
+### `map_wolfwood.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง ✓ ได้รับแล้ว
 
 ```
 Anime game background art, painterly cel-shaded scenery, rich lighting and atmosphere, sci-fi Norse mythology world of androids called NEO MIDGARD, wide establishing shot from a slightly high angle, no characters, no text, no logo. Horizontal 3:2 image (1536x1024). Location: Wolfwood: a dark pine forest with glowing green mushrooms and fireflies, mossy rocks, abandoned robot parts, moonlight through the trees.
