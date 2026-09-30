@@ -109,6 +109,18 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round
 .cmp-row { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
 .cmp-h { color: var(--ink-dim); }
 .cmp { font-weight: 600; } .cmp.up { color: #7fdc8f; } .cmp.down { color: #ff8a7a; }
+.wm-grid { position: relative; display: grid; gap: 14px; padding: 4px; }
+.wm-links { position: absolute; inset: 4px; width: calc(100% - 8px); height: calc(100% - 8px); pointer-events: none; }
+.wm-links line { stroke: rgba(98,227,255,.55); stroke-width: 3; stroke-dasharray: 6 5; vector-effect: non-scaling-stroke; }
+.wm-card { position: relative; z-index: 1; min-height: 92px; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: 1px; padding: 8px 9px;
+  background: #0d1624 center/cover no-repeat; border: 1px solid var(--line-2); color: var(--ink); text-align: left; cursor: pointer; font: inherit; }
+.wm-card:hover { border-color: var(--cy); }
+.wm-card.here { border-color: #ffd34a; box-shadow: 0 0 0 1px #ffd34a, 0 0 16px rgba(255,211,74,.35); cursor: default; }
+.wm-card b { font-size: 13.5px; text-shadow: 0 1px 3px #000; }
+.wm-card small { font-size: 11.5px; color: #bfe6ff; text-shadow: 0 1px 3px #000; }
+.wm-tags { position: absolute; top: 6px; left: 6px; right: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+.wm-tags i { font-style: normal; font-size: 10.5px; padding: 1px 6px; background: rgba(4,8,16,.8); border: 1px solid var(--line-2); }
+.wm-here { color: #ffd34a; } .wm-mvp { color: #ff8a7a; } .wm-q { color: #ffe08a; }
 .mb-head { display: flex; gap: 12px; align-items: center; }
 .mb-cv { width: 96px; height: 96px; flex: none; background: radial-gradient(circle, #2a3448, #0a0f1a 75%); border: 1px solid var(--line-2); }
 .mb-name { font-size: 17px; font-weight: 600; color: var(--ink); display: flex; gap: 6px; align-items: center; }

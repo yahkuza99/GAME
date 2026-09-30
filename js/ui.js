@@ -564,6 +564,7 @@ const UI = {
     if (this.isOpen('w-emote')) this.renderEmote();
     if (this.isOpen('w-storage')) this.renderStorage();
     if (this.isOpen('w-mob')) this.renderMob();
+    if (this.isOpen('w-world')) this.renderWorld();
     if (this.isOpen('w-bot')) this.renderBot();
     if (this.isOpen('w-map')) $('#w-map .win-title span').textContent = `แผนที่ — ${G.map.def.name}`;
     if (this.isOpen('w-shop') && this.shop) this.renderShop();
@@ -740,6 +741,44 @@ const UI = {
     const left = (G.mvpNext[m] || 0) - G.time;
     if (left > 0) return `⏳ เกิดใหม่ในอีก ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')} นาที`;
     return `✦ พร้อมปรากฏที่ ${MAP_DEFS[m].name} (เข้าแผนที่เพื่อเจอ)`;
+  },
+  // ---------------- แผนที่โลก: วางแผนที่ตามทิศของประตู (E/W/S/N) จากเมืองหลัก ----------------
+  worldLayout() {
+    if (this._world) return this._world;
+    const pos = { [HOME_MAP]: [0, 0] }, q = [HOME_MAP], D = { E: [1, 0], W: [-1, 0], S: [0, 1], N: [0, -1] };
+    while (q.length) { const id = q.shift(); for (const [s, to] of Object.entries(MAP_DEFS[id].links || {})) if (!pos[to]) { pos[to] = [pos[id][0] + D[s][0], pos[id][1] + D[s][1]]; q.push(to); } }
+    const xs = Object.values(pos).map(v => v[0]), ys = Object.values(pos).map(v => v[1]);
+    const x0 = Math.min(...xs), y0 = Math.min(...ys);
+    for (const k in pos) pos[k] = [pos[k][0] - x0, pos[k][1] - y0];
+    return (this._world = { pos, cols: Math.max(...xs) - x0 + 1, rows: Math.max(...ys) - y0 + 1 });
+  },
+  renderWorld() {
+    const body = $('#w-world .win-body'), W = this.worldLayout();
+    const qt = typeof Quest !== 'undefined' ? Quest.navTarget() : null;
+    const key = `${G.map.id}|${qt ? qt.map : ''}|${Nav.target ? Nav.target.map : ''}`;
+    if (body.dataset.key === key) return;
+    body.dataset.key = key; body.innerHTML = '';
+    const grid = h('div', { class: 'wm-grid', style: `grid-template-columns:repeat(${W.cols},1fr);grid-template-rows:repeat(${W.rows},auto)` });
+    // เส้นเชื่อมประตู (SVG ใต้การ์ด ใช้พิกัดสัดส่วนของตาราง)
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'wm-links'); svg.setAttribute('viewBox', `0 0 ${W.cols * 100} ${W.rows * 100}`); svg.setAttribute('preserveAspectRatio', 'none');
+    const seen = new Set();
+    for (const [id, [x, y]] of Object.entries(W.pos)) for (const to of Object.values(MAP_DEFS[id].links || {})) {
+      const k = [id, to].sort().join('-'); if (seen.has(k) || !W.pos[to]) continue; seen.add(k);
+      const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      ln.setAttribute('x1', x * 100 + 50); ln.setAttribute('y1', y * 100 + 50); ln.setAttribute('x2', W.pos[to][0] * 100 + 50); ln.setAttribute('y2', W.pos[to][1] * 100 + 50);
+      svg.append(ln);
+    }
+    grid.append(svg);
+    for (const [id, [x, y]] of Object.entries(W.pos)) {
+      const d = MAP_DEFS[id], art = Art.get('map_' + id), here = id === G.map.id;
+      const card = h('button', { class: 'wm-card' + (here ? ' here' : ''), style: `grid-column:${x + 1};grid-row:${y + 1}` + (art ? `;background-image:linear-gradient(transparent 30%, rgba(4,8,16,.92)), url(${art.src})` : ''),
+        onclick: () => { if (!here) { Nav.goTo({ kind: 'map', map: id, name: d.name }); this.close('w-world'); } } },
+        h('b', {}, d.name), h('small', {}, d.kind === 'town' ? 'เมือง • ปลอดภัย' : `Lv ${String(d.level || '').replace(/\s*\(.*\)/, '')}`),
+        h('span', { class: 'wm-tags' }, here ? h('i', { class: 'wm-here' }, '📍 อยู่ที่นี่') : null, d.mvp ? h('i', { class: 'wm-mvp' }, 'MVP') : null, qt && qt.map === id ? h('i', { class: 'wm-q' }, '📜 เควสต์') : null));
+      grid.append(card);
+    }
+    body.append(grid, h('div', { class: 'hint' }, 'แตะแผนที่เพื่อเดินทางไปเอง (ผ่านประตูอัตโนมัติ) • เส้นคือทางเชื่อมระหว่างแผนที่'));
   },
   // ---------------- สมุดมอนสเตอร์ ----------------
   showMob(id) { this.mobInfo = id; const b = $('#w-mob .win-body'); if (b) b.dataset.key = ''; this.open('w-mob'); this.renderMob(); },
