@@ -902,6 +902,9 @@ const UI = {
       h('label', { class: 'opt' }, 'ความดังเพลง ',
         h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: o.musicVol != null ? o.musicVol : 0.7, oninput: e => { o.musicVol = +e.target.value; Music.setVolume(o.musicVol); }, onchange: () => saveGame() })),
       chk('expMsg', 'แสดงข้อความ EXP ในแชท'),
+      h('div', { class: 'opt-lbl' }, 'คุณภาพกราฟิก'),
+      h('div', { class: 'seg' }, ...[['high', 'สวย (ค่าเริ่มต้น)'], ['low', 'ประหยัด (มือถือรุ่นเก่า)']].map(([v, l]) =>
+        h('button', { type: 'button', class: (o.gfx || 'high') === v ? 'on' : '', onclick: () => { o.gfx = v; R.setQuality(v); saveGame(); this.renderOptions(); } }, l))),
       h('div', { class: 'opt-lbl' }, 'ปุ่มควบคุมบนจอ (จอย + ปุ่มโจมตี)'),
       h('div', { class: 'seg' }, ...[['auto', 'อัตโนมัติ'], ['on', 'เปิด'], ['off', 'ปิด']].map(([v, l]) =>
         h('button', { type: 'button', class: Pad.mode === v ? 'on' : '', onclick: () => { Pad.setMode(v); this.renderOptions(); } }, l))),

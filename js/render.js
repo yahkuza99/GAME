@@ -4,7 +4,7 @@
 // ============================================================
 
 const R = {
-  cv: null, g: null, W: 0, H: 0, dpr: 1, zoom: 1, camX: 0, camY: 0,
+  cv: null, g: null, W: 0, H: 0, dpr: 1, zoom: 1, camX: 0, camY: 0, quality: 'high',
   // มุมกล้อง 2.5D แบบ RO: พื้นถูกบีบแนวตั้ง (มองเฉียง) แต่ตัวละคร/ต้นไม้ยืนตรง
   K: 0.76, ZMIN: 0.7, ZMAX: 2.2,
   dark: null, mouse: { x: -1, y: -1, wx: 0, wy: 0, down: false },
@@ -20,8 +20,10 @@ R.init = () => {
   R.zoom = short < 500 ? 1.2 : short < 800 ? 1.3 : 1.45;
   window.addEventListener('resize', R.resize);
 };
+// คุณภาพกราฟิก: 'low' = ความละเอียด 1x ไม่มีหญ้าพลิ้ว/หมอก/ฝุ่นลอย (มือถือรุ่นเก่าลื่นขึ้นมาก)
+R.setQuality = q => { R.quality = q === 'low' ? 'low' : 'high'; R.resize(); };
 R.resize = () => {
-  R.dpr = Math.min(window.devicePixelRatio || 1, 2);
+  R.dpr = Math.min(window.devicePixelRatio || 1, R.quality === 'low' ? 1 : 2);
   R.W = window.innerWidth; R.H = window.innerHeight;
   R.cv.width = Math.floor(R.W * R.dpr); R.cv.height = Math.floor(R.H * R.dpr);
   R.cv.style.width = R.W + 'px'; R.cv.style.height = R.H + 'px';
@@ -93,7 +95,7 @@ R.render = () => {
   const sx = Math.max(0, Math.floor(R.camX)), sy = Math.max(0, Math.floor(wTop));
   const sw = Math.min(map.ground.width - sx, Math.ceil(vw) + 2), sh = Math.min(map.ground.height - sy, Math.ceil(wH) + 2);
   if (sw > 0 && sh > 0) g.drawImage(map.ground, sx, sy, sw, sh, sx, sy, sw, sh);
-  R.drawGrassWind(g, map, t, sx, sy, sw, sh);
+  if (R.quality !== 'low') R.drawGrassWind(g, map, t, sx, sy, sw, sh);
   // น้ำพุมีชีวิต
   g.restore();
   if (map.fountain && !map.fountainImg) upright(map.fountain.y * TILE, () => {
@@ -261,7 +263,7 @@ R.render = () => {
   g.restore();
 
   // หมอกระยะไกลด้านบนจอ ช่วยให้รู้สึกถึงความลึกแบบมุมกล้องเฉียง
-  if (map.def.kind !== 'cave') {
+  if (map.def.kind !== 'cave' && R.quality !== 'low') {
     if (!R.haze || R.haze.h !== R.H) {
       const hz = g.createLinearGradient(0, 0, 0, R.H * 0.42);
       hz.addColorStop(0, 'rgba(190,220,255,0.16)'); hz.addColorStop(1, 'rgba(190,220,255,0)');
@@ -269,7 +271,7 @@ R.render = () => {
     }
     g.fillStyle = R.haze.grad; g.fillRect(0, 0, R.W, R.H * 0.42);
   }
-  R.drawAtmosphere(g, map, t);
+  if (R.quality !== 'low') R.drawAtmosphere(g, map, t);
   // ความมืดในถ้ำ
   if (map.def.dark) {
     const dc = R.dark, dg = dc.getContext('2d');

@@ -188,6 +188,18 @@ function bindInput() {
 //  ลูปหลัก
 // ------------------------------------------------------------
 let lastTs = 0, hudAcc = 0, lastSimReal = performance.now();
+// วัด FPS ช่วงแรกของการเล่น: ถ้าเครื่องช้า แนะนำโหมดกราฟิกประหยัด (ครั้งเดียว ถ้ายังไม่เคยเลือกเอง)
+let fpsWatch = { done: true };
+function watchFps(now) {
+  const w = fpsWatch; if (w.done || document.hidden) return;
+  if (now < w.t0) return;
+  w.n++;
+  if (now - w.t0 >= 8000) {
+    w.done = true;
+    const fps = w.n / ((now - w.t0) / 1000);
+    if (fps < 38 && R.quality !== 'low') UI.msg(`⚙ เครื่องนี้แสดงผลได้ ~${Math.round(fps)} FPS — ลองตั้งค่า → คุณภาพกราฟิก: "ประหยัด" จะลื่นขึ้นมาก`, 'info');
+  }
+}
 const MAX_CATCHUP = 600; // จำลองย้อนหลังได้สูงสุด 10 นาที
 
 // จำลองเกมแบบเร่งความเร็ว (ใช้เมื่อสลับแท็บ/ล็อกจอขณะเปิดบอท)
@@ -215,6 +227,7 @@ function advanceSim() {
 }
 
 function loop(ts) {
+  if (G.started) watchFps(ts);
   const dt = Math.min(0.05, lastTs ? (ts - lastTs) / 1000 : 0);
   lastTs = ts;
   if (G.started) {
@@ -451,6 +464,8 @@ function startGame(p, isNew) {
   $('#title').classList.add('leaving');
   setTimeout(() => { $('#title').classList.add('hidden'); $('#title').classList.remove('leaving', 'creating'); }, 650);
   $('#hud').classList.remove('hidden');
+  R.setQuality(p.options.gfx);
+  fpsWatch = { t0: performance.now() + 4000, n: 0, done: !!p.options.gfx };
   recalc();
   if (isNew) { p.hp = p.d.maxHp; p.sp = p.d.maxSp; }
   changeMap(p.map, p.x, p.y);
