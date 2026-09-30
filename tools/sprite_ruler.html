@@ -1,0 +1,370 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sprite Ruler</title>
+<meta name="description" content="เครื่องวัดขนาดสไปรต์ตามมาตรฐาน NMS-1 ของ NEO MIDGARD">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1218; --panel: #151c25; --panel2: #1b2430; --line: #2a3644; --fg: #dfe8f1; --dim: #8a9aab;
+    --accent: #5fe0ff; --ok: #6fdc8c; --warn: #ffc15e; --bad: #ff6f66; --ground: #e8504a; --head: #5a8cf0;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--fg); }
+  body { font: 15px/1.55 Kanit, "Noto Sans Thai", system-ui, sans-serif; margin: 0; padding-inline: 16px; padding-block: 18px 40px; }
+  .wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 18px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+  h1 { font-size: 24px; font-weight: 600; margin: 0; letter-spacing: .02em; }
+  h1 b { color: var(--accent); font-weight: 600; }
+  h2 { font-size: 15px; font-weight: 500; margin: 0 0 10px; color: var(--dim); text-transform: uppercase; letter-spacing: .08em; }
+  .spec { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 12px; color: var(--dim); }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  label.drop { display: block; }
+  .drop { border: 2px dashed var(--line); border-radius: 10px; padding: 26px 16px; text-align: center; cursor: pointer; transition: border-color .15s, background .15s; }
+  .drop:hover, .drop.over { border-color: var(--accent); background: rgba(95,224,255,.05); }
+  .drop strong { display: block; font-size: 17px; font-weight: 500; }
+  .drop span { color: var(--dim); font-size: 13px; }
+  label { font-size: 13px; color: var(--dim); display: flex; gap: 6px; align-items: center; }
+  select, input[type=number] { background: var(--panel2); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; font: inherit; font-size: 14px; }
+  input[type=number] { width: 58px; }
+  button { background: var(--panel2); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; font: inherit; font-size: 14px; cursor: pointer; }
+  button.on { border-color: var(--accent); color: var(--accent); }
+  .verdict { border-radius: 10px; padding: 14px 16px; border: 1px solid var(--line); background: var(--panel2); display: grid; gap: 4px; }
+  .verdict .big { font-size: 20px; font-weight: 600; }
+  .verdict.ok .big { color: var(--ok); } .verdict.warn .big { color: var(--warn); } .verdict.bad .big { color: var(--bad); }
+  .verdict ul { margin: 4px 0 0; padding-left: 20px; color: var(--fg); }
+  .main { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 18px; }
+  @media (max-width: 760px) { .main { grid-template-columns: minmax(0, 1fr); } }
+  .strip { overflow-x: auto; border-radius: 8px; background: #0a0e13; }
+  .strip canvas { display: block; }
+  #preview { width: 100%; max-width: 260px; aspect-ratio: 1; image-rendering: auto; background: #3f6a3a; border-radius: 8px; display: block; margin: 0 auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--dim); font-weight: 500; }
+  td.n { font-family: "JetBrains Mono", monospace; }
+  .ok { color: var(--ok); } .warn { color: var(--warn); } .bad { color: var(--bad); }
+  .tblwrap { overflow-x: auto; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--dim); margin-top: 8px; }
+  .legend i { display: inline-block; width: 16px; height: 3px; vertical-align: middle; margin-right: 5px; }
+  .tpl img { width: 100%; max-width: 640px; border-radius: 8px; border: 1px solid var(--line); display: block; }
+  .tpl p { color: var(--dim); font-size: 13px; margin: 8px 0 0; max-width: 65ch; }
+  .std { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .std div { background: var(--panel2); border-radius: 8px; padding: 10px 12px; }
+  .std b { display: block; font-family: "JetBrains Mono", monospace; font-size: 18px; color: var(--accent); font-weight: 600; }
+  .std span { font-size: 12px; color: var(--dim); }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Sprite <b>Ruler</b></h1>
+    <span class="spec">NEO MIDGARD • มาตรฐาน NMS-1</span>
+  </header>
+
+  <section class="panel">
+    <h2>มาตรฐานขนาด (ทุกเฟรมในเกมต้องตรงตามนี้)</h2>
+    <div class="std">
+      <div><b>240×240</b><span>ขนาดช่องเฟรม</span></div>
+      <div><b>150 px</b><span>ความสูงยืนตรง หัวจรดเท้า</span></div>
+      <div><b>y = 220</b><span>เส้นพื้น (ฝ่าเท้า)</span></div>
+      <div><b>≈ 3.5 หัว</b><span>หัวสูง 28% ของตัว (แบบ RO)</span></div>
+      <div><b>±6%</b><span>ความสูงเพี้ยนได้ไม่เกิน</span></div>
+      <div><b>หันซ้าย</b><span>มุม 3/4 เกมกลับด้านให้เอง</span></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <label class="drop" id="drop" for="file">
+      <strong>วางภาพชีตจาก ChatGPT ที่นี่ หรือแตะเพื่อเลือกไฟล์</strong>
+      <span>ภาพ 1 แผ่น = 1 ชุดท่า เช่น เดิน 8 เฟรม ในตาราง 4×2</span>
+    </label>
+    <input type="file" id="file" accept="image/*" hidden>
+    <div class="row" style="margin-top:12px">
+      <label>ตาราง <input type="number" id="cols" value="4" min="1" max="12"> × <input type="number" id="rows" value="2" min="1" max="8"></label>
+      <label>ท่า
+        <select id="action">
+          <option value="walk">walk — เดิน (8)</option>
+          <option value="idle">idle — ยืน (4)</option>
+          <option value="attack">attack — โจมตี (6)</option>
+          <option value="cast">cast — ร่าย (4)</option>
+          <option value="hurt">hurt — โดนตี (2)</option>
+          <option value="sit">sit — นั่ง (2)</option>
+          <option value="dead">dead — ล้ม (4)</option>
+        </select>
+      </label>
+      <label>ใช้เฟรม <input type="text" id="order" placeholder="ทั้งหมด เช่น 1-4" style="width:110px;background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 8px;font:inherit;font-size:14px"></label>
+      <button id="fit" class="on" type="button">ปรับขนาดเฟรมที่เพี้ยน</button>
+    </div>
+  </section>
+
+  <div id="result" hidden class="wrap" style="gap:18px">
+    <div id="verdict" class="verdict"></div>
+    <div class="main">
+      <section class="panel">
+        <h2>เฟรมหลังจัดตามมาตรฐาน</h2>
+        <div class="strip"><canvas id="strip"></canvas></div>
+        <div class="legend">
+          <span><i style="background:var(--ground)"></i>เส้นพื้น</span>
+          <span><i style="background:var(--head)"></i>หัว (150 px)</span>
+          <span><i style="background:#39507c"></i>คาง (28%)</span>
+          <span><i style="background:#4a5566"></i>แกนกลาง</span>
+        </div>
+        <div class="tblwrap" style="margin-top:14px"><table id="tbl"></table></div>
+      </section>
+      <section class="panel">
+        <h2>เล่นแอนิเมชัน</h2>
+        <canvas id="preview" width="240" height="240"></canvas>
+        <div class="row" style="margin-top:12px;justify-content:center">
+          <label>เร็ว <input type="range" id="fps" min="2" max="20" value="10"> <span id="fpsv" class="spec">10 fps</span></label>
+        </div>
+        <div class="row" style="margin-top:8px;justify-content:center">
+          <button id="flip" type="button">กลับด้าน</button>
+          <button id="onion" type="button">ซ้อนเฟรม</button>
+          <button id="small" type="button">ขนาดในเกม</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <section class="panel tpl">
+    <h2>เทมเพลตสำหรับแนบให้ ChatGPT</h2>
+    <img id="tpl" alt="เทมเพลตตาราง 4×2 มีเส้นพื้นสีแดง เส้นหัวสีน้ำเงิน">
+    <p>กดค้างที่ภาพ (มือถือ) หรือคลิกขวา แล้วบันทึก จากนั้นแนบไปพร้อม prompt ให้ ChatGPT วาดตัวละครในแต่ละช่อง เท้าแตะเส้นแดง หัวแตะเส้นน้ำเงิน ถ้า ChatGPT วาดเส้นไกด์ติดมา เครื่องมือนี้และตัวติดตั้งจะลบให้เอง</p>
+  </section>
+</div>
+
+<script>
+'use strict';
+const CELL = 240, GROUND = 220, CX = 120, STD_H = 150, HEAD = 0.28, HIP = 0.40, TOL = 0.06;
+const EXPECT = { walk: 8, idle: 4, attack: 6, cast: 4, hurt: 2, sit: 2, dead: 4 };
+const STANDING = { walk: 1, idle: 1, cast: 1 };
+const $ = s => document.querySelector(s);
+let srcImg = null, frames = [], rep = [], flip = false, onion = false, small = false, fit = true;
+
+// ---------- เทมเพลต (ตรงกับ tools/sprite_std.py) ----------
+function template(cols = 4, rows = 2, W = 1536, H = 1024) {
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
+  g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
+  const cw = W / cols, ch = H / rows, gy = ch * 0.9, top = ch * 0.3, hh = gy - top;
+  const ln = (x0, y0, x1, y1, col, w) => { g.strokeStyle = col; g.lineWidth = w; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); };
+  for (let r = 0; r < rows; r++) for (let q = 0; q < cols; q++) {
+    const x0 = q * cw, y0 = r * ch;
+    g.strokeStyle = '#c8c8cd'; g.lineWidth = 2; g.strokeRect(x0 + 1, y0 + 1, cw - 2, ch - 2);
+    ln(x0 + cw / 2, y0 + 12, x0 + cw / 2, y0 + ch - 12, '#e1e1e8', 2);
+    ln(x0 + 16, y0 + top, x0 + cw - 16, y0 + top, '#4678eb', 3);
+    ln(x0 + 30, y0 + top + hh * HEAD, x0 + cw - 30, y0 + top + hh * HEAD, '#aabef0', 2);
+    ln(x0 + 30, y0 + gy - hh * HIP, x0 + cw - 30, y0 + gy - hh * HIP, '#ebc896', 2);
+    ln(x0 + 16, y0 + gy, x0 + cw - 16, y0 + gy, '#eb3c3c', 3);
+    g.fillStyle = '#9696a0'; g.font = '16px sans-serif'; g.fillText(String(r * cols + q + 1), x0 + 10, y0 + 22);
+  }
+  return c;
+}
+$('#tpl').src = template().toDataURL('image/png');
+
+// ---------- วิเคราะห์ ----------
+function knockBg(d, W, H) {
+  const p = d.data; let opaque = true;
+  for (let i = 3; i < p.length; i += 4 * 97) if (p[i] < 250) { opaque = false; break; }
+  if (!opaque) return 'alpha';
+  const at = (x, y) => { const i = (y * W + x) * 4; return [p[i], p[i + 1], p[i + 2]]; };
+  const cs = [at(2, 2), at(W - 3, 2), at(2, H - 3), at(W - 3, H - 3)];
+  const bg = [0, 1, 2].map(k => cs.map(c => c[k]).sort((a, b) => a - b)[1]);
+  const spread = Math.max(...cs.map(c => Math.abs(c[0] - bg[0]) + Math.abs(c[1] - bg[1]) + Math.abs(c[2] - bg[2])));
+  for (let i = 0; i < p.length; i += 4) if (Math.abs(p[i] - bg[0]) + Math.abs(p[i + 1] - bg[1]) + Math.abs(p[i + 2] - bg[2]) < 36) p[i + 3] = 0;
+  return spread > 60 ? 'uneven' : 'flat';
+}
+function knockLines(p, W, H) {
+  const op = (x, y) => p[(y * W + x) * 4 + 3] > 60;
+  const row = new Array(H).fill(0), col = new Array(W).fill(0);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (op(x, y)) { row[y]++; col[x]++; }
+  const wipe = (pts, dx, dy) => {
+    const lone = (x, y) => [[x + dx, y + dy], [x - dx, y - dy]].every(([a, b]) => a < 0 || b < 0 || a >= W || b >= H || !op(a, b));
+    const cs = pts.filter(([x, y]) => op(x, y) && lone(x, y)).map(([x, y]) => { const i = (y * W + x) * 4; return [p[i], p[i + 1], p[i + 2]]; });
+    if (!cs.length) return 0;
+    const mc = [0, 1, 2].map(k => cs.map(c => c[k]).sort((a, b) => a - b)[cs.length >> 1]);
+    for (const [x, y] of pts) { const i = (y * W + x) * 4; if (p[i + 3] && Math.abs(p[i] - mc[0]) + Math.abs(p[i + 1] - mc[1]) + Math.abs(p[i + 2] - mc[2]) < 90) p[i + 3] = 0; }
+    return 1;
+  };
+  let n = 0;
+  for (let y = 0; y < H; y++) if (row[y] > W * 0.75 && [y - 6, y + 6].every(j => j < 0 || j >= H || row[y] - row[j] > W * 0.3)) n += wipe(Array.from({ length: W }, (_, x) => [x, y]), 0, 4);
+  for (let x = 0; x < W; x++) if (col[x] > H * 0.75 && [x - 6, x + 6].every(j => j < 0 || j >= W || col[x] - col[j] > H * 0.3)) n += wipe(Array.from({ length: H }, (_, y) => [x, y]), 4, 0);
+  return n;
+}
+function mainBlob(p, W, H, f = 4) {
+  const w = Math.max(1, Math.floor(W / f)), h = Math.max(1, Math.floor(H / f));
+  const solid = new Uint8Array(w * h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    let s = 0; for (let j = 0; j < f; j++) for (let i = 0; i < f; i++) s += p[((y * f + j) * W + x * f + i) * 4 + 3];
+    solid[y * w + x] = s / (f * f) > 70 ? 1 : 0;
+  }
+  const lab = new Int32Array(w * h).fill(-1), comps = [];
+  for (let s0 = 0; s0 < w * h; s0++) {
+    if (!solid[s0] || lab[s0] >= 0) continue;
+    const id = comps.length, st = [s0], pts = []; lab[s0] = id;
+    while (st.length) {
+      const s = st.pop(); pts.push(s); const x = s % w, y = (s / w) | 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+        const k = ny * w + nx; if (solid[k] && lab[k] < 0) { lab[k] = id; st.push(k); }
+      }
+    }
+    comps.push(pts);
+  }
+  if (!comps.length) return false;
+  const big = Math.max(...comps.map(c => c.length)); if (big < 40) return false;
+  const keep = new Uint8Array(w * h);
+  for (const c of comps) if (c.length >= big * 0.12) for (const s of c) keep[s] = 1;
+  const r = f; // ขยายหน้ากากเล็กน้อยให้ขอบนุ่มไม่แหว่ง
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const bx = Math.min(w - 1, (x / f) | 0), by = Math.min(h - 1, (y / f) | 0);
+    let ok = false;
+    for (let j = -1; j <= 1 && !ok; j++) for (let i = -1; i <= 1 && !ok; i++) { const a = bx + i, b = by + j; if (a >= 0 && b >= 0 && a < w && b < h && keep[b * w + a]) ok = true; }
+    if (!ok) p[(y * W + x) * 4 + 3] = 0;
+  }
+  return true;
+}
+function measure(p, W, H) {
+  const rows = new Array(H).fill(0);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (p[(y * W + x) * 4 + 3] > 60) rows[y]++;
+  let bot = -1, fullTop = -1; for (let y = 0; y < H; y++) if (rows[y]) { if (fullTop < 0) fullTop = y; bot = y; }
+  if (bot < 0) return null;
+  const wmax = Math.max(...rows); let top = rows.findIndex(v => v >= wmax * 0.22);
+  const h = bot - top, xs = [];
+  for (let y = Math.floor(top + h * 0.3); y < top + h * 0.65; y++) for (let x = 0; x < W; x += 2) if (p[(y * W + x) * 4 + 3] > 60) xs.push(x);
+  xs.sort((a, b) => a - b);
+  let minX = W, maxX = 0; for (let y = fullTop; y <= bot; y++) for (let x = 0; x < W; x++) if (p[(y * W + x) * 4 + 3] > 60) { if (x < minX) minX = x; if (x > maxX) maxX = x; }
+  return { top, fullTop, bot, h, cx: xs.length ? xs[xs.length >> 1] : W / 2, minX, maxX };
+}
+function parseOrder(s, n) {
+  s = s.trim(); if (!s) return null; const out = [];
+  for (const part of s.split(',')) { const m = part.trim().match(/^(\d+)(?:-(\d+))?$/); if (!m) continue; const a = +m[1], b = +(m[2] || m[1]); for (let i = a; i <= b; i++) if (i >= 1 && i <= n) out.push(i - 1); }
+  return out.length ? out : null;
+}
+
+function analyze() {
+  if (!srcImg) return;
+  const cols = Math.max(1, +$('#cols').value | 0), rows = Math.max(1, +$('#rows').value | 0), action = $('#action').value;
+  const W = srcImg.naturalWidth, H = srcImg.naturalHeight;
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d', { willReadFrequently: true });
+  g.drawImage(srcImg, 0, 0); const all = g.getImageData(0, 0, W, H);
+  const bgMode = knockBg(all, W, H); g.putImageData(all, 0, 0);
+  const cw = W / cols, ch = H / rows, cells = []; let lines = 0;
+  for (let r = 0; r < rows; r++) for (let q = 0; q < cols; q++) {
+    const x0 = Math.round(q * cw), y0 = Math.round(r * ch), w = Math.round((q + 1) * cw) - x0, h = Math.round((r + 1) * ch) - y0;
+    const d = g.getImageData(x0, y0, w, h);
+    lines += knockLines(d.data, w, h);
+    if (!mainBlob(d.data, w, h)) continue;
+    const m = measure(d.data, w, h); if (!m) continue;
+    const cc = document.createElement('canvas'); cc.width = w; cc.height = h; cc.getContext('2d').putImageData(d, 0, 0);
+    cells.push({ cv: cc, m, cell: r * cols + q + 1, edge: m.minX <= 1 || m.maxX >= w - 2 || m.fullTop <= 1 || m.bot >= h - 2 });
+  }
+  const ord = parseOrder($('#order').value, cells.length);
+  const use = ord ? ord.map(i => cells[i]) : cells;
+  if (!use.length) { showVerdict('bad', 'ไม่พบตัวละครในภาพ', ['ตรวจว่าตั้งตารางถูก และพื้นหลังเป็นสีเรียบหรือโปร่งใส']); $('#result').hidden = false; frames = []; return; }
+  const stand = !!STANDING[action];
+  // ท่ายืน: สเกลจากค่ากลางความสูง • ท่าอื่น (ฟัน/นั่ง/ล้ม): สเกลตามเทมเพลต (ตัวยืนสูง 60% ของช่อง)
+  const hs = use.map(u => u.m.h).sort((a, b) => a - b), med = stand ? hs[hs.length >> 1] : ch * 0.6, k = STD_H / med;
+  const doFit = fit && STANDING[action];
+  frames = []; rep = [];
+  use.forEach((u, i) => {
+    const dev = u.m.h / med - 1, fixed = doFit && Math.abs(dev) > TOL, kk = fixed ? k / (1 + dev) : k;
+    const f = document.createElement('canvas'); f.width = f.height = CELL; const fg = f.getContext('2d');
+    fg.imageSmoothingQuality = 'high';
+    const ox = CX - u.m.cx * kk, oy = GROUND - u.m.bot * kk;
+    fg.drawImage(u.cv, ox, oy, u.cv.width * kk, u.cv.height * kk);
+    const clipTop = oy + u.m.fullTop * kk < 0, clipSide = ox + u.m.minX * kk < 0 || ox + u.m.maxX * kk > CELL;
+    frames.push(f);
+    rep.push({ i: i + 1, cell: u.cell, h: Math.round(u.m.h * kk), dev, fixed, ok: !stand || Math.abs(dev) <= TOL, clip: clipTop || clipSide, edge: u.edge, lean: (u.m.cx - (u.m.minX + u.m.maxX) / 2) / (u.m.maxX - u.m.minX || 1) });
+  });
+  drawStrip(); drawTable();
+  // สรุปผล
+  const probs = [], warns = [];
+  const exp = EXPECT[action];
+  if (use.length !== exp) warns.push(`ได้ ${use.length} เฟรม แต่ท่า ${action} ควรมี ${exp} เฟรม`);
+  const off = rep.filter(r => !r.ok);
+  if (off.length) (doFit ? warns : probs).push(`${off.length} เฟรมสูงเพี้ยนเกิน ±6% (เฟรม ${off.map(r => r.i).join(', ')})` + (doFit ? ' — ปรับให้เท่ากันแล้ว' : ''));
+  const spread = Math.max(...rep.map(r => r.dev)) - Math.min(...rep.map(r => r.dev));
+  if (stand && spread > 0.3) probs.push(`ขนาดตัวละครต่างกันมากถึง ${Math.round(spread * 100)}% — ChatGPT วาดไม่สม่ำเสมอ ควรสั่งใหม่`);
+  if (rep.some(r => r.edge)) probs.push(`ตัวละครชนขอบช่อง (เฟรม ${rep.filter(r => r.edge).map(r => r.i).join(', ')}) — อาจถูกตัดหรือล้นไปช่องข้าง ๆ`);
+  if (rep.some(r => r.clip)) warns.push(`บางส่วนล้นกรอบ 240 px (เฟรม ${rep.filter(r => r.clip).map(r => r.i).join(', ')}) เช่น อาวุธยกสูง จะถูกตัดในเกม`);
+  if (bgMode === 'uneven') probs.push('พื้นหลังไม่เรียบ (มุมภาพสีต่างกัน) ลบพื้นได้ไม่สะอาด — สั่งให้ใช้พื้นขาวเรียบหรือโปร่งใส');
+  if (lines) warns.push('พบเส้นไกด์ติดมาในภาพ — ลบให้แล้ว');
+  const leanAvg = rep.reduce((s, r) => s + r.lean, 0) / rep.length;
+  if (leanAvg > 0.12) warns.push('ตัวละครน่าจะหันไปทางขวา — มาตรฐานคือหันซ้าย (ติดตั้งแล้วจะเดินถอยหลัง)');
+  if (probs.length) showVerdict('bad', 'ยังไม่ผ่านมาตรฐาน', probs.concat(warns));
+  else if (warns.length) showVerdict('warn', 'ใช้ได้ มีข้อสังเกต', warns);
+  else showVerdict('ok', 'ผ่านมาตรฐาน NMS-1 — ส่งมาติดตั้งได้เลย', [stand ? `${use.length} เฟรม • ความสูงเฉลี่ย ${STD_H} px • คลาดเคลื่อนสูงสุด ${Math.round(Math.max(...rep.map(r => Math.abs(r.dev))) * 1000) / 10}%` : `${use.length} เฟรม • ท่านี้ไม่ใช่ท่ายืน ใช้สเกลตามเทมเพลต (ตัวยืน = เส้นน้ำเงินถึงเส้นแดง)`]);
+  $('#result').hidden = false; fi = 0;
+}
+function showVerdict(kind, big, items) {
+  const v = $('#verdict'); v.className = 'verdict ' + kind;
+  v.innerHTML = `<div class="big">${big}</div>` + (items.length ? `<ul>${items.map(t => `<li>${t}</li>`).join('')}</ul>` : '');
+}
+function guides(g, x0) {
+  const ln = (a, b, c, d, col, w) => { g.strokeStyle = col; g.lineWidth = w; g.beginPath(); g.moveTo(a, b); g.lineTo(c, d); g.stroke(); };
+  ln(x0 + CX, 0, x0 + CX, CELL, '#4a5566', 1);
+  ln(x0 + 20, GROUND - STD_H * (1 - HEAD), x0 + CELL - 20, GROUND - STD_H * (1 - HEAD), '#39507c', 1);
+  ln(x0, GROUND - STD_H, x0 + CELL, GROUND - STD_H, '#5a8cf0', 1.5);
+  ln(x0, GROUND, x0 + CELL, GROUND, '#e8504a', 2);
+}
+function drawStrip() {
+  const c = $('#strip'), n = frames.length; c.width = n * CELL; c.height = CELL + 22;
+  c.style.width = Math.min(n * CELL, n * 150) + 'px';
+  const g = c.getContext('2d'); g.fillStyle = '#0a0e13'; g.fillRect(0, 0, c.width, c.height);
+  frames.forEach((f, i) => {
+    const x0 = i * CELL; g.strokeStyle = '#1f2935'; g.strokeRect(x0 + .5, .5, CELL - 1, CELL - 1);
+    guides(g, x0); g.drawImage(f, x0, 0);
+    const r = rep[i]; g.font = '600 13px "JetBrains Mono", monospace';
+    g.fillStyle = r.ok ? '#6fdc8c' : r.fixed ? '#ffc15e' : '#ff6f66';
+    g.fillText(`#${r.i}  ${r.h}px  ${r.dev >= 0 ? '+' : ''}${(r.dev * 100).toFixed(1)}%${r.fixed ? ' fit' : ''}`, x0 + 8, CELL + 16);
+  });
+}
+function drawTable() {
+  $('#tbl').innerHTML = '<tr><th>เฟรม</th><th>ช่อง</th><th>สูง (px)</th><th>เพี้ยน</th><th>สถานะ</th></tr>' + rep.map(r =>
+    `<tr><td class="n">${r.i}</td><td class="n">${r.cell}</td><td class="n">${r.h}</td><td class="n">${r.dev >= 0 ? '+' : ''}${(r.dev * 100).toFixed(1)}%</td>
+     <td class="${r.ok && !r.edge ? 'ok' : r.fixed ? 'warn' : 'bad'}">${r.edge ? 'ชนขอบช่อง' : r.ok ? 'ตรงมาตรฐาน' : r.fixed ? 'ปรับให้แล้ว' : 'ขนาดเพี้ยน'}${r.clip ? ' • ล้นกรอบ' : ''}</td></tr>`).join('');
+}
+
+// ---------- เล่นแอนิเมชัน ----------
+let fi = 0, last = 0;
+function tick(ts) {
+  requestAnimationFrame(tick);
+  if (!frames.length) return;
+  const fps = +$('#fps').value;
+  if (ts - last >= 1000 / fps) { last = ts; fi = (fi + 1) % frames.length; }
+  const c = $('#preview'), g = c.getContext('2d');
+  g.fillStyle = '#3f6a3a'; g.fillRect(0, 0, CELL, CELL);
+  g.fillStyle = 'rgba(0,0,0,.28)'; g.beginPath(); g.ellipse(CX, GROUND, 34, 10, 0, 0, 7); g.fill();
+  g.save();
+  const s = small ? 68 / STD_H * 1.6 : 1; // ขนาดในเกมที่ซูม 1.6
+  g.translate(CX, GROUND); g.scale(flip ? -s : s, s); g.translate(-CX, -GROUND);
+  if (onion && frames.length > 1) { g.globalAlpha = .28; g.drawImage(frames[(fi + frames.length - 1) % frames.length], 0, 0); g.globalAlpha = 1; }
+  g.drawImage(frames[fi], 0, 0);
+  g.restore();
+  g.fillStyle = 'rgba(255,255,255,.75)'; g.font = '12px "JetBrains Mono", monospace'; g.fillText(`${fi + 1}/${frames.length}`, 8, 18);
+}
+requestAnimationFrame(tick);
+
+// ---------- อินพุต ----------
+function load(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const url = URL.createObjectURL(file), im = new Image();
+  im.onload = () => { srcImg = im; analyze(); };
+  im.src = url;
+}
+$('#file').addEventListener('change', e => load(e.target.files[0]));
+const drop = $('#drop');
+['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => load(e.dataTransfer.files[0]));
+document.addEventListener('paste', e => { const it = [...(e.clipboardData || {}).items || []].find(i => i.type.startsWith('image/')); if (it) load(it.getAsFile()); });
+['#cols', '#rows', '#action', '#order'].forEach(s => $(s).addEventListener('change', analyze));
+$('#action').addEventListener('change', () => { $('#fps').value = { walk: 10, idle: 4, attack: 12, cast: 7, hurt: 6, sit: 2, dead: 6 }[$('#action').value]; $('#fpsv').textContent = $('#fps').value + ' fps'; });
+$('#fps').addEventListener('input', () => { $('#fpsv').textContent = $('#fps').value + ' fps'; });
+const tog = (id, fn) => $(id).addEventListener('click', () => { const v = fn(); $(id).classList.toggle('on', v); });
+tog('#flip', () => (flip = !flip));
+tog('#onion', () => (onion = !onion));
+tog('#small', () => (small = !small));
+tog('#fit', () => { fit = !fit; analyze(); return fit; });
+</script>

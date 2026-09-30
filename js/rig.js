@@ -10,6 +10,7 @@
 const RIG_PARTS = ['hair_back', 'arm_back', 'leg_back', 'leg_front', 'torso', 'head', 'weapon', 'arm_front'];
 
 const Rig = {
+  enabled: false, // ปิดไว้: ใช้แอนิเมชันแบบวาดทีละเฟรม (anim.js) แทน
   cache: {},
   // โหลดชิ้นส่วนของตัวละคร key (เช่น novice_f) คืน null ถ้ายังไม่ครบชิ้นหลัก
   get(key) {

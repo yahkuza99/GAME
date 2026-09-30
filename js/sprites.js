@@ -752,7 +752,13 @@ Sprites.drawMob = (g, m, t) => {
   if (m.dead) g.globalAlpha = Math.max(0, 1 - m.deathT / 0.8);
   if (m.hitFlash > 0) g.filter = 'brightness(2.2)';
   const art = typeof Art !== 'undefined' && Art.get('mobsprite_' + m.def.id);
-  if (art) Sprites.mobImage(g, x, y, m, t, art);
+  const ak = 'mob_' + m.def.id;
+  if (typeof Anim !== 'undefined' && Anim.has(ak)) {
+    const d = m.def, motion = d.wings ? 'fly' : (MOB_MOTION[d.sprite] || 'walk');
+    const base = { hop: 40, fly: 40, crawl: 34, sway: 50, float: 52, walk: d.sprite === 'quad' ? 44 : 60 }[motion];
+    Anim.draw(g, x, y, ak, { facing: m.facing || 1, moving: m.moving, atk: m.atkAnim, hurt: m.hitFlash > 0 ? 0.5 : 0, dead: m.dead, deathT: m.deathT, seed: m.x * 0.37 }, t, base * (d.scale || 1) * (d.size || 1));
+  }
+  else if (art) Sprites.mobImage(g, x, y, m, t, art);
   else switch (m.def.sprite) {
     case 'poring': Sprites.poring(g, x, y, m, t); break;
     case 'lunatic': Sprites.lunatic(g, x, y, m, t); break;
@@ -808,6 +814,7 @@ const NPC_LOOKS = {
 };
 Sprites.drawNpc = (g, n, t) => {
   const x = n.x * TILE + TILE / 2, y = n.y * TILE + TILE / 2 + 10;
+  if (typeof Anim !== 'undefined' && Anim.has('npc_' + n.id)) { Anim.draw(g, x, y, 'npc_' + n.id, { facing: -1, seed: n.x * 0.1 }, t, 74); return; }
   const img = typeof Art !== 'undefined' && Art.get('npcsprite_' + n.id);
   if (img) { Sprites.drawImageActor(g, x, y, { facing: -1, moving: false, seed: n.x * 0.1 }, t, img, 74, 'walk', true); return; }
   Sprites.shadow(g, x, y, 12, 4);
@@ -826,7 +833,15 @@ Sprites.drawPlayer = (g, p, t) => {
   const hatMap = { hat: 'hat', iron_helm: 'cap', ribbon: 'ribbon', seraph_wings: 'angel_wing' };
   const garment = p.equip.garment ? ITEMS[p.equip.garment.id].icon.c : job.cape || null;
   const gk = `${p.job}_${p.gender === 'm' ? 'm' : 'f'}`;
-  if (typeof Rig !== 'undefined' && Rig.get(gk)) {
+  if (typeof Anim !== 'undefined' && Anim.has(gk)) {
+    if (Object.keys(p.buffs).length) { g.strokeStyle = `rgba(255,240,150,${0.25 + Math.sin(t * 4) * 0.15})`; g.lineWidth = 2; g.beginPath(); g.ellipse(x, y, 16, 6, 0, 0, 7); g.stroke(); }
+    Anim.draw(g, x, y, gk, {
+      facing: p.facing || 1, moving: p.moving && !p.sitting, atk: p.atkAnim, cast: !!p.cast, sit: p.sitting, dead: p.dead,
+      hurt: Math.max(0, (p.hurtFlash || 0) / 0.15),
+    }, t, 68);
+    return;
+  }
+  if (typeof Rig !== 'undefined' && Rig.enabled && Rig.get(gk)) {
     if (Object.keys(p.buffs).length) { g.strokeStyle = `rgba(255,240,150,${0.25 + Math.sin(t * 4) * 0.15})`; g.lineWidth = 2; g.beginPath(); g.ellipse(x, y, 16, 6, 0, 0, 7); g.stroke(); }
     const wt = wItem ? wItem.wtype : 'none';
     const casting = !!p.cast;
