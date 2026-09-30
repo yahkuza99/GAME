@@ -608,6 +608,25 @@ const UI = {
     return lines;
   },
 
+  // ค่าพลังของอุปกรณ์ 1 ชิ้น (รวมตีบวกและชิป) ตามสูตรใน recalc()
+  equipStats(e, slot) {
+    const out = {}; if (!e) return out;
+    const it = ITEMS[e.id], add = o => { if (o) for (const k in o) out[k] = (out[k] || 0) + o[k]; };
+    if (slot === 'weapon') { add({ atk: (it.atk || 0) + (e.refine || 0) * 3 }); if (it.matk || e.refine) add({ matk: (it.matk || 0) + (e.refine || 0) * 2 }); }
+    else add({ def: (it.def || 0) + (e.refine || 0), mdef: it.mdef || 0 });
+    add(it.b); for (const c of e.cards || []) add(ITEMS[c].b);
+    return out;
+  },
+  // เทียบกับชิ้นที่สวมอยู่ในช่องเดียวกัน: ▲ เขียว = ดีขึ้น ▼ แดง = แย่ลง
+  compareLine(e) {
+    const it = ITEMS[e.id]; if (!isEquipType(it)) return null;
+    const slot = it.type === 'weapon' ? 'weapon' : it.slot, cur = G.player.equip[slot];
+    const a = this.equipStats(e, slot), b = this.equipStats(cur, slot);
+    const LBL = { atk: 'ATK', matk: 'MATK', def: 'DEF', mdef: 'MDEF', str: 'STR', agi: 'AGI', vit: 'VIT', int: 'INT', dex: 'DEX', luk: 'LUK', hp: 'HP', sp: 'SP', hit: 'HIT', flee: 'FLEE', crit: 'CRIT', range: 'ระยะ' };
+    const keys = [...new Set([...Object.keys(a), ...Object.keys(b)])].filter(k => LBL[k] && (a[k] || 0) !== (b[k] || 0));
+    const chips = keys.map(k => { const d = (a[k] || 0) - (b[k] || 0); return h('span', { class: 'cmp ' + (d > 0 ? 'up' : 'down') }, `${LBL[k]} ${d > 0 ? '+' : ''}${d}`); });
+    return h('div', { class: 'det-line cmp-row' }, h('span', { class: 'cmp-h' }, cur ? `เทียบกับ ${itemDisplayName(cur)}:` : 'ช่องนี้ยังว่าง:'), ...(chips.length ? chips : [h('span', { class: 'cmp' }, 'เท่ากัน')]));
+  },
   renderInv() {
     const p = G.player;
     const body = $('#w-inv .win-body');
@@ -645,6 +664,7 @@ const UI = {
         h('div', { class: 'det-head' }, h('img', { src: itemIconUrl(e.id), alt: '' }), h('b', {}, itemDisplayName(e)), e.qty > 1 ? ` ×${e.qty}` : ''),
         h('div', { class: 'det-desc' }, it.desc || ''),
         ...this.itemTooltip(e).map(l => h('div', { class: 'det-line' }, l)),
+        this.compareLine(e),
         h('div', { class: 'det-line' }, `ราคาขาย: ${U.fmt(Math.floor(it.price / 2))} z`),
         h('div', { class: 'det-acts' }, acts));
     } else det.append(h('div', { class: 'hint' }, 'คลิกเพื่อดูรายละเอียด • ดับเบิลคลิกเพื่อใช้/สวมใส่ • ลากไปวางที่ปุ่มลัดได้'));
