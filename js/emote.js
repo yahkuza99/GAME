@@ -1,0 +1,70 @@
+'use strict';
+// ============================================================
+//  อีโมต (แบบ RO): ฟองไอคอนเหนือหัว 3 วินาที
+//  ใช้ได้ทาง: พิมพ์ /คำสั่ง ในแชต • Alt+1..9 • หน้าต่างอีโมต (เมนู) • ออนไลน์ส่งให้คนอื่นเห็น
+// ============================================================
+
+const EMOTES = [
+  { k: '!', sym: '!', col: '#ff4a4a', name: 'ตกใจ' },
+  { k: '?', sym: '?', col: '#4a8cff', name: 'สงสัย' },
+  { k: 'lv', sym: '♥', col: '#ff5fa2', name: 'รัก' },
+  { k: 'ho', sym: '♪', col: '#e0a820', name: 'ร้องเพลง' },
+  { k: 'swt', sym: 'drop', col: '#5fb8ff', name: 'เหงื่อตก' },
+  { k: 'ic', sym: 'bulb', col: '#ffd34a', name: 'ไอเดีย' },
+  { k: 'gg', sym: 'GG', col: '#3fae5a', name: 'GG' },
+  { k: 'thx', sym: 'THX', col: '#e07830', name: 'ขอบคุณ' },
+  { k: 'zzz', sym: 'zZ', col: '#8a7ae0', name: 'ง่วง' },
+  { k: 'heh', sym: '^^', col: '#e0a820', name: 'ยิ้ม' },
+  { k: 'omg', sym: '!?', col: '#ff7a3a', name: 'อะไรนะ' },
+  { k: 'sob', sym: 'T_T', col: '#5fb8ff', name: 'ร้องไห้' },
+  { k: 'ok', sym: 'OK', col: '#3fae5a', name: 'โอเค' },
+  { k: 'go', sym: 'GO!', col: '#ff4a4a', name: 'ลุย' },
+  { k: 'angry', sym: 'anger', col: '#e03030', name: 'โกรธ' },
+  { k: 'dots', sym: '...', col: '#667', name: 'เงียบ' },
+];
+const EMOTE_BY = Object.fromEntries(EMOTES.map(e => [e.k, e]));
+
+const Emote = {
+  DUR: 3,
+  play(k, who = G.player) {
+    const e = EMOTE_BY[k]; if (!e || !who) return false;
+    who.emote = { k, at: G.time, until: G.time + this.DUR };
+    if (who === G.player) { Sound.play('click'); Online.sendEmote(k); }
+    return true;
+  },
+  fromChat(cmd) { return EMOTE_BY[cmd] ? this.play(cmd) : false; },
+
+  // ฟองอีโมต: เด้งเข้า แกว่งเบา ๆ แล้วจางออก
+  draw(g, x, y, em, t) {
+    const e = EMOTE_BY[em.k]; if (!e) return;
+    const age = G.time - em.at, left = em.until - G.time;
+    const pop = Math.min(1, age / 0.18), s = pop < 1 ? 0.4 + pop * 0.75 : 1 + Math.sin(age * 8) * 0.03;
+    g.save();
+    g.globalAlpha = Math.min(1, left / 0.35);
+    g.translate(x, y - Math.sin(age * 3) * 2); g.scale(s, s);
+    // ฟอง
+    g.fillStyle = '#ffffff'; g.strokeStyle = 'rgba(30,40,60,0.85)'; g.lineWidth = 1.6;
+    rr(g, -17, -15, 34, 26, 9); g.fill(); g.stroke();
+    g.beginPath(); g.moveTo(-4, 11); g.lineTo(0, 17); g.lineTo(4, 11); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(-4, 11); g.lineTo(0, 17); g.lineTo(4, 11); g.stroke();
+    g.fillStyle = e.col; g.strokeStyle = e.col;
+    if (e.sym === 'drop') {
+      g.beginPath(); g.moveTo(0, -10); g.quadraticCurveTo(8, 2, 0, 6); g.quadraticCurveTo(-8, 2, 0, -10); g.fill();
+      g.fillStyle = 'rgba(255,255,255,.7)'; g.beginPath(); g.ellipse(-2, 0, 1.5, 3, 0, 0, 7); g.fill();
+    } else if (e.sym === 'bulb') {
+      g.beginPath(); g.arc(0, -3, 7, 0, 7); g.fill();
+      g.fillStyle = '#9a8a60'; g.fillRect(-3.5, 4, 7, 4);
+      g.strokeStyle = '#ffd34a'; g.lineWidth = 1.4;
+      for (const a of [-2.4, -1.57, -0.7]) { g.beginPath(); g.moveTo(Math.cos(a) * 9, -3 + Math.sin(a) * 9); g.lineTo(Math.cos(a) * 12, -3 + Math.sin(a) * 12); g.stroke(); }
+    } else if (e.sym === 'anger') {
+      g.lineWidth = 2.6; g.lineCap = 'round';
+      for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { g.beginPath(); g.moveTo(sx * 2.5, sy * 7 - 2); g.quadraticCurveTo(sx * 2.5, sy * 2.5 - 2, sx * 7, sy * 2.5 - 2); g.stroke(); }
+    } else {
+      const big = e.sym.length <= 2;
+      g.font = `900 ${big ? 18 : e.sym.length === 3 ? 12 : 11}px Kanit, "Noto Sans Thai", sans-serif`;
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(e.sym, 0, -1.5);
+    }
+    g.restore();
+  },
+};

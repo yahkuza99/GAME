@@ -167,6 +167,7 @@ const Online = {
     const ch = this.sb.channel(`map:${mapId}`, { config: { presence: { key: this.user.id }, broadcast: { self: false } } });
     ch.on('broadcast', { event: 'pos' }, ({ payload }) => this.onPos(payload));
     ch.on('broadcast', { event: 'say' }, ({ payload }) => this.onSay(payload));
+    ch.on('broadcast', { event: 'emote' }, ({ payload }) => { const o = payload && this.others.get(payload.id); if (o && EMOTE_BY[payload.k]) Emote.play(payload.k, o); });
     ch.on('presence', { event: 'sync' }, () => {
       const st = ch.presenceState();
       this.count = Object.keys(st).length;
@@ -236,6 +237,11 @@ const Online = {
         UI.msg(`${m.name}${where} : ${m.text}`, 'say');
       })
       .subscribe();
+  },
+  // อีโมตส่งเฉพาะคนในแผนที่เดียวกัน (ไม่บันทึกลงห้องแชต)
+  sendEmote(k) {
+    if (!this.online || !this.mapChannel) return;
+    this.mapChannel.send({ type: 'broadcast', event: 'emote', payload: { id: this.user.id, k } });
   },
   async sendChat(text) {
     if (!this.online) return false;

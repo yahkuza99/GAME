@@ -213,7 +213,11 @@ R.render = () => {
   // ป้ายชื่อ / หลอด HP
   g.textAlign = 'center'; g.textBaseline = 'middle';
   const P = R.py;
-  for (const n of G.npcs) R.label(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 12, n.name, '#9fd0ff');
+  const qt = G.started && Quest.current() ? Quest.current().obj : null, qNpc = qt && (qt.type === 'talk' || qt.type === 'event' || qt.type === 'job') ? qt.npc : null;
+  for (const n of G.npcs) {
+    R.label(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 12, n.name, '#9fd0ff');
+    if (n.id === qNpc) R.questMark(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) - 92, t); // เครื่องหมายเควสต์เหนือหัว NPC
+  }
   for (const m of G.mobs) {
     if (m.dead) continue;
     const x = m.x * TILE, y = P(m.y * TILE), s = (m.def.scale || 1);
@@ -228,6 +232,7 @@ R.render = () => {
     R.label(g, x, y + 24, o.name, '#ffe9a0');
     R.label(g, x, y + 37, `${JOBS[o.job].name} Lv ${o.baseLv}${o.bot ? ' • AUTO' : ''}`, '#c8d4e8');
     if (o.speech) R.speech(g, x, y - 62, o.speech.text, false);
+    if (o.emote && o.emote.until > G.time) Emote.draw(g, x + 2, y - (o.speech ? 96 : 84), o.emote, t);
   }
   for (const a of G.allies) R.label(g, a.x * TILE, P(a.y * TILE) + 14, `${a.name} ${Math.ceil(a.until - G.time)}s`, '#b8e0ff');
   if (G.hover && G.hover.kind === 'drop') {
@@ -247,7 +252,8 @@ R.render = () => {
       g.fillStyle = '#60ff60'; g.fillRect(x - 29, y - 65, 58 * k, 6);
     }
     if (p.speech) R.speech(g, x, y - (p.cast ? 76 : 62), p.speech.text, p.speech.shout);
-    if (p.sitting) R.emote(g, x + 14, y - 46, 'z');
+    if (p.sitting && !(p.emote && p.emote.until > G.time)) R.emote(g, x + 14, y - 46, 'z');
+    if (p.emote && p.emote.until > G.time) Emote.draw(g, x + 2, y - (p.speech ? 96 : 84), p.emote, t);
   }
   // ตัวเลขลอย
   for (const f of G.floaters) R.drawFloater(g, f);
@@ -461,6 +467,16 @@ R.emote = (g, x, y, ch) => {
   g.beginPath(); g.ellipse(x, y, 9, 9, 0, 0, 7); g.fill(); g.stroke();
   g.beginPath(); g.moveTo(x - 4, y + 7); g.lineTo(x - 7, y + 13); g.lineTo(x, y + 8); g.fill();
   g.fillStyle = ch === '!' ? '#e02020' : '#4060c0'; g.font = 'bold 13px Tahoma'; g.fillText(ch, x, y + 1);
+};
+// เครื่องหมาย "!" สีทองเด้งเหนือหัว NPC ที่ต้องไปคุยตามเควสต์
+R.questMark = (g, x, y, t) => {
+  const b = Math.abs(Math.sin(t * 3.2)) * 6;
+  g.save(); g.translate(x, y - b);
+  g.shadowColor = '#ffb020'; g.shadowBlur = 12;
+  g.fillStyle = '#ffd34a'; g.strokeStyle = '#6a4000'; g.lineWidth = 2;
+  g.beginPath(); g.moveTo(-4.5, -16); g.lineTo(4.5, -16); g.lineTo(2.6, 3); g.lineTo(-2.6, 3); g.closePath(); g.fill(); g.stroke();
+  g.beginPath(); g.arc(0, 9, 3.6, 0, 7); g.fill(); g.stroke();
+  g.restore();
 };
 R.speech = (g, x, y, text, shout) => {
   g.font = 'bold 13px "Noto Sans Thai", Tahoma, sans-serif';
