@@ -105,6 +105,7 @@ NPC.scripts.storage = async n => {
   if (p.zeny < fee) { await UI.say(nm, 'ขออภัย Zeny ไม่พอค่าบริการค่ะ'); return; }
   p.zeny -= fee;
   UI.dlgClose();
+  Sound.play('storage');
   UI.open('w-storage');
 };
 

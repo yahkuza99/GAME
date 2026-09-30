@@ -58,6 +58,11 @@ const Sound = {
       case 'buy': this.tone(1200, 0.06, 'square', 0.035); this.tone(1600, 0.1, 'square', 0.03, 0, 0.06); break;
       case 'die': [400, 300, 200, 120].forEach((f, i) => this.tone(f, 0.3, 'sawtooth', 0.05, 0, i * 0.15)); break;
       case 'refine_ok': [784, 988, 1175, 1568].forEach((f, i) => this.tone(f, 0.2, 'triangle', 0.06, 0, i * 0.08)); break;
+      // เควสต์สำเร็จ: แตรสั้นแบบ RO (ขึ้น-ค้าง)
+      case 'quest': [[523, 0], [659, 0.09], [784, 0.18], [1047, 0.3]].forEach(([f, d], i) => this.tone(f, i === 3 ? 0.45 : 0.14, 'triangle', 0.065, 0, d)); this.tone(1568, 0.35, 'sine', 0.03, 0, 0.3); break;
+      case 'quest_new': this.tone(784, 0.1, 'triangle', 0.05); this.tone(988, 0.16, 'triangle', 0.05, 0, 0.08); break;
+      case 'emote': this.tone(1320, 0.05, 'sine', 0.04, 300); this.tone(1760, 0.06, 'sine', 0.03, 0, 0.04); break;
+      case 'storage': this.tone(520, 0.08, 'square', 0.03); this.tone(780, 0.1, 'square', 0.03, 0, 0.07); this.noise(0.06, 0.02, 4000); break;
       case 'refine_fail': this.noise(0.4, 0.12, 300); this.tone(200, 0.4, 'sawtooth', 0.05, -150); break;
     }
   },

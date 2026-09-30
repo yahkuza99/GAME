@@ -150,7 +150,8 @@ const Quest = {
     if (r.bexp || r.jexp) gainExp(r.bexp || 0, r.jexp || 0);
     addFloater(p.x, p.y - 1.8, 'QUEST CLEAR!', '#ffd34a', true);
     addFx({ type: 'buff', ref: p, dur: 1.2 });
-    Sound.play('levelup');
+    Sound.play('quest');
+    if (this.current()) setTimeout(() => Sound.play('quest_new'), 900);
     UI.msg(`📜 เควสต์สำเร็จ: ${q.title} — รางวัล ${this.rewardText(q)}`, 'lvl');
     const nx = this.current();
     if (nx) UI.msg(`📜 เควสต์ใหม่: ${nx.title} — ${nx.desc}`, 'info');

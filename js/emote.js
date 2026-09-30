@@ -29,7 +29,7 @@ const Emote = {
   play(k, who = G.player) {
     const e = EMOTE_BY[k]; if (!e || !who) return false;
     who.emote = { k, at: G.time, until: G.time + this.DUR };
-    if (who === G.player) { Sound.play('click'); Online.sendEmote(k); }
+    if (who === G.player) { Sound.play('emote'); Online.sendEmote(k); }
     return true;
   },
   fromChat(cmd) { return EMOTE_BY[cmd] ? this.play(cmd) : false; },
