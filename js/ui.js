@@ -37,6 +37,7 @@ const UI = {
     });
     $('#chat-log').addEventListener('click', () => { const c = $('#chat'); if (c.classList.contains('folded')) this.setFold(c, false); });
     $('#death-btn').onclick = () => respawnPlayer();
+    $('#nav-cancel').onclick = () => Nav.cancel();
     $('#auto-btn').onclick = () => Bot.toggle();
     this.bindMapClick($('#minimap-cv'));
     this.bindMapClick($('#bigmap-cv'));
@@ -358,6 +359,14 @@ const UI = {
       let tx, ty;
       if (cv.id === 'minimap-cv' && this._mmView) { const v = this._mmView; tx = Math.floor(v.x0 + fx * v.span); ty = Math.floor(v.y0 + fy * v.span); }
       else { tx = Math.floor(fx * G.map.w); ty = Math.floor(fy * G.map.h); }
+      if (cv.id === 'bigmap-cv') {
+        // แตะใกล้ NPC / ประตู บนแผนที่ใหญ่ = นำทางไปที่นั่น
+        const near = (x, y) => Math.abs(x - tx) <= 1 && Math.abs(y - ty) <= 1;
+        const n = G.npcs.find(n => near(n.x, n.y));
+        if (n) { Nav.goTo({ kind: 'npc', map: G.map.id, x: n.x, y: n.y, name: n.name, npcId: n.id }); return; }
+        const pt = G.map.portals.find(q => near(q.x, q.y));
+        if (pt) { Nav.goTo({ kind: 'map', map: pt.to, name: MAP_DEFS[pt.to].name }); return; }
+      }
       mapWalkTo(tx, ty);
     });
   },
@@ -452,13 +461,14 @@ const UI = {
       map: '<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/>',
       bot: '<rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 4v4"/><circle cx="12" cy="3.5" r="1"/><circle cx="9.5" cy="13" r="1.3"/><circle cx="14.5" cy="13" r="1.3"/><path d="M2 12v3M22 12v3"/>',
       options: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
+      nav: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
       help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7"/><circle cx="12" cy="17" r=".6"/>',
       sit: '<path d="M6 21v-5h9l3 5"/><circle cx="10" cy="5" r="2.5"/><path d="M10 8v8M10 11h5"/>',
     };
     const icon = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${P[k]}</svg>`;
     const items = [
       ['w-status', 'สถานะ', 'A', 'status'], ['w-inv', 'ไอเทม', 'E', 'bag'], ['w-equip', 'อุปกรณ์', 'Q', 'equip'],
-      ['w-skills', 'สกิล', 'S', 'skill'], ['w-map', 'แผนที่', 'M', 'map'], ['w-bot', 'บอท', 'N', 'bot'], ['w-options', 'ตั้งค่า', 'O', 'options'], ['w-help', 'วิธีเล่น', 'H', 'help'],
+      ['w-skills', 'สกิล', 'S', 'skill'], ['w-map', 'แผนที่', 'M', 'map'], ['w-nav', 'นำทาง', 'G', 'nav'], ['w-bot', 'บอท', 'N', 'bot'], ['w-options', 'ตั้งค่า', 'O', 'options'], ['w-help', 'วิธีเล่น', 'H', 'help'],
     ];
     const m = $('#menubar');
     for (const [id, label, key, ic] of items) {
@@ -506,6 +516,7 @@ const UI = {
     if (this.isOpen('w-equip')) this.renderEquip();
     if (this.isOpen('w-skills')) this.renderSkills();
     if (this.isOpen('w-options')) this.renderOptions();
+    if (this.isOpen('w-nav')) this.renderNav();
     if (this.isOpen('w-bot')) this.renderBot();
     if (this.isOpen('w-map')) $('#w-map .win-title span').textContent = `แผนที่ — ${G.map.def.name}`;
     if (this.isOpen('w-shop') && this.shop) this.renderShop();
@@ -653,6 +664,23 @@ const UI = {
     if (p.job === 'novice') body.append(h('div', { class: 'hint' }, `เก็บ Job Lv ${JOB_CHANGE_LV} แล้วไปหา Mimir AI ในนีโอเอลด์ไฮม์ เพื่ออัปเกรดร่างเป็น 1 ใน 6 คลาส`));
   },
 
+  // ---------------- นำทาง ----------------
+  navTab: 'place',
+  renderNav() {
+    const body = $('#w-nav .win-body');
+    const key = this.navTab + '|' + G.map.id;
+    if (body.dataset.key === key) return;
+    body.dataset.key = key; body.innerHTML = '';
+    const tabs = [['place', 'สถานที่'], ['map', 'แผนที่'], ['mob', 'มอนสเตอร์']];
+    body.append(h('div', { class: 'tabs' }, ...tabs.map(([k, l]) => h('button', { class: 'tab' + (this.navTab === k ? ' on' : ''), onclick: () => { this.navTab = k; body.dataset.key = ''; this.renderNav(); } }, l))));
+    const list = h('div', { class: 'nav-list' });
+    const row = (t, sub, extra) => h('button', { class: 'nav-row' + (t.map === G.map.id ? ' here' : ''), onclick: () => Nav.goTo(t) },
+      h('span', { class: 'nav-n' }, t.name, extra ? h('span', { class: 'tag' }, extra) : null), h('span', { class: 'nav-s' }, sub));
+    if (this.navTab === 'place') for (const t of Nav.places()) list.append(row(t, MAP_DEFS[t.map].name));
+    else if (this.navTab === 'map') for (const t of Nav.maps()) list.append(row(t, `${t.thai}${t.level ? ` • Lv ${t.level}` : ''}`, t.map === G.map.id ? 'อยู่ที่นี่' : null));
+    else for (const t of Nav.mobs()) list.append(row(t, `${t.mapName} • Lv ${t.lv}`, t.mvp ? 'MVP' : null));
+    body.append(list, h('div', { class: 'hint' }, 'เลือกแล้วตัวละครจะเดินไปเอง ข้ามแผนที่ได้ • คลิกที่พื้นเพื่อยกเลิก'));
+  },
   renderOptions() {
     const p = G.player, o = p.options;
     const body = $('#w-options .win-body');

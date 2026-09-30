@@ -402,6 +402,7 @@ function changeMap(id, x, y) {
   for (const [mid, n] of map.def.spawns) for (let i = 0; i < n; i++) spawnMob(mid);
   if (map.def.mvp && (!G.mvpNext[id] || G.time >= G.mvpNext[id])) spawnMvp(map.def.mvp);
   UI.onMapChange(map);
+  if (typeof Nav !== 'undefined') Nav.onMapChange();
   Online.joinMap(id);
   Sound.play('warp');
   saveGame(true, true);

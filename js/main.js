@@ -22,7 +22,7 @@ function mapWalkTo(tx, ty) {
   const p = G.player;
   tx = U.clamp(tx, 0, G.map.w - 1); ty = U.clamp(ty, 0, G.map.h - 1);
   p.target = null; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.cast = null; p.sitting = false;
-  Bot.manualOverride();
+  Bot.manualOverride(); Nav.cancel(true);
   p.path = findPath(G.map, Math.floor(p.x), Math.floor(p.y), tx, ty, 20000);
   if (!p.path.length) UI.msg('ไปจุดนั้นไม่ได้', 'err');
   else addFx({ type: 'click', x: p.path[p.path.length - 1].x + 0.5, y: p.path[p.path.length - 1].y + 0.5, dur: 0.6 });
@@ -46,7 +46,7 @@ function stepMove(dx, dy) {
   if (G.time < (p.kbAt || 0)) return;
   p.kbAt = G.time + 0.08;
   p.target = null; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.sitting = false;
-  Bot.manualOverride();
+  Bot.manualOverride(); Nav.cancel(true);
   const cx = Math.floor(p.x), cy = Math.floor(p.y);
   // ลองทิศตรงก่อน ถ้าติดให้ไถลตามแนวแกน
   for (const [ax, ay] of [[dx, dy], [dx, 0], [0, dy]]) {
@@ -107,7 +107,7 @@ function handleClick() {
   if (hv && hv.kind === 'npc') { p.npcTarget = hv.ref; p.path = []; return; }
   if (hv && hv.kind === 'drop') { p.pickTarget = hv.ref; p.path = []; return; }
   const tx = Math.floor(R.mouse.wx / TILE), ty = Math.floor(R.mouse.wy / TILE);
-  Bot.manualOverride();
+  Bot.manualOverride(); Nav.cancel(true);
   playerWalkTo(tx, ty);
   addFx({ type: 'click', x: (tx + 0.5), y: (ty + 0.5), dur: 0.4 });
 }
@@ -162,6 +162,7 @@ function bindInput() {
       case 's': case 'k': UI.toggle('w-skills'); break;
       case 'o': UI.toggle('w-options'); break;
       case 'h': UI.toggle('w-help'); break;
+      case 'g': UI.toggle('w-nav'); break;
       case 'b': Bot.toggle(); break;
       case 'm': UI.toggle('w-map'); break;
       case 'u': UI.toggleHud(); break;
@@ -225,6 +226,7 @@ function loop(ts) {
     }
     keyboardMove();
     Pad.update();
+    Nav.update();
     Music.update();
     Online.update(dt);
     R.render();

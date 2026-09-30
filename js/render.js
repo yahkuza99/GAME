@@ -235,6 +235,7 @@ R.render = () => {
     const x = p.x * TILE, y = P(p.y * TILE);
     R.label(g, x, y + 24, p.name, '#ffffff');
     if (Bot.on) R.label(g, x, y - 58, Bot.resting ? '[AUTO • พัก]' : '[AUTO]', '#7dffb0', true);
+    if (Nav.target) Nav.draw(g, t);
     R.bar(g, x, y + 10, 38, p.hp / p.d.maxHp, p.hp / p.d.maxHp < 0.25 ? '#b83232' : '#3a9a44', p.sp / p.d.maxSp);
     if (p.cast) {
       const k = U.clamp((G.time - p.cast.start) / (p.cast.end - p.cast.start), 0, 1);

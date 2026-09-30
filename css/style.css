@@ -107,6 +107,21 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round
 #map-banner.has-img { width: min(760px, 94vw); padding: 70px 20px 22px; background-size: cover; background-position: center;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent); mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent); }
 
+/* ---------------- นำทาง ---------------- */
+#nav-pill { position: fixed; left: 50%; top: calc(66px + var(--st)); transform: translateX(-50%); z-index: 21; display: flex; align-items: center; gap: 8px;
+  padding: 5px 6px 5px 12px; font-size: 13px; color: #d8f6ff; background: rgba(6,14,28,.88); border: 1px solid var(--line-2); border-left: 3px solid var(--cy);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)); max-width: min(92vw, 420px); }
+#nav-pill[hidden] { display: none; }
+#nav-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#nav-cancel { width: 24px; height: 24px; padding: 0; border: 1px solid var(--line); background: rgba(0,0,0,.3); color: var(--ink-dim); font-size: 16px; line-height: 20px; }
+#nav-cancel:hover { background: var(--bad); color: #fff; border-color: var(--bad); }
+.nav-list { display: flex; flex-direction: column; gap: 4px; max-height: min(52vh, 420px); overflow-y: auto; }
+.nav-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; text-align: left; padding: 7px 10px; background: rgba(14,26,46,.7); border: 1px solid var(--line); color: var(--ink); }
+.nav-row:hover { border-color: var(--cy); background: rgba(98,227,255,.12); }
+.nav-row.here { border-left: 3px solid var(--cy); }
+.nav-n { font-weight: 600; }
+.nav-s { font-size: 11px; color: var(--ink-dim); white-space: nowrap; }
+
 /* ---------------- ปุ่มพับ ---------------- */
 .fold-btn { position: absolute; top: 0; right: 0; width: 22px; height: 20px; padding: 0; z-index: 3; border: 0; background: transparent;
   color: var(--ink-dim); font-size: 11px; line-height: 20px; }
@@ -546,6 +561,7 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
   #chat-log { height: 76px; font-size: 12px; }
   #announce { top: calc(270px + var(--st)); font-size: 14px; max-width: calc(100vw - 32px); }
   #target { top: calc(122px + var(--st)); width: min(250px, 64vw); padding: 4px 10px 4px 4px; }
+  #nav-pill { top: calc(176px + var(--st)); left: calc(8px + var(--sl)); transform: none; font-size: 12px; }
   #tg-cv { width: 34px; height: 34px; }
   .pad-mode #chat { top: calc(206px + var(--st)); bottom: auto; width: min(66vw, 300px); }
   /* ไม่ใช่โหมด PAD บนจอเล็ก: แถบสกิล 2 แถว */
@@ -607,6 +623,7 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
   body:not(.pad-mode) #dock .hb { width: 40px; height: 40px; }
   #announce { top: calc(40px + var(--st)); font-size: 13px; }
   #target { top: calc(6px + var(--st)); width: 200px; }
+  #nav-pill { top: calc(100px + var(--st)); left: calc(6px + var(--sl)); transform: none; font-size: 12px; }
   .win { max-height: calc(100dvh - 12px - var(--st) - var(--sb)) !important; top: calc(6px + var(--st)) !important; width: min(440px, calc(100vw - 120px)) !important;
     left: calc(8px + var(--sl)) !important; right: auto !important; transform: none !important; }
   .win.dialog { left: 50% !important; transform: translateX(-50%) !important; top: auto !important; bottom: calc(6px + var(--sb)); }
