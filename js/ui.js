@@ -389,11 +389,13 @@ const UI = {
   // ภาพหน้าตัวละครในกรอบวงกลม (วาดใหม่เมื่ออาชีพ/อุปกรณ์หัวเปลี่ยน)
   drawPortrait() {
     const p = G.player, cv = $('#bi-portrait');
-    const key = [p.job, p.hair, p.gender, p.equip.head && p.equip.head.id].join('|');
+    const artKey = Art.jobKey(p.job, p.gender);
+    const key = [p.job, p.hair, p.gender, p.equip.head && p.equip.head.id, artKey].join('|');
     if (cv.dataset.key === key) return;
     cv.dataset.key = key;
     const g = cv.getContext('2d');
     g.clearRect(0, 0, cv.width, cv.height);
+    if (artKey) { Art.drawCover(g, Art.get(artKey), cv.width, cv.height, 0.12); return; }
     const bg = g.createRadialGradient(cv.width / 2, cv.height * 0.4, 4, cv.width / 2, cv.height / 2, cv.width * 0.7);
     bg.addColorStop(0, '#4a5a78'); bg.addColorStop(1, '#1a1c28');
     g.fillStyle = bg; g.fillRect(0, 0, cv.width, cv.height);
@@ -632,6 +634,24 @@ const UI = {
     });
   },
   dlgClose() { this.dialog = null; $('#w-dialog').classList.add('hidden'); },
+  // ภาพประกอบตัวละครข้างกล่องบทสนทนา (แบบเกมอนิเมะ)
+  illust(key) {
+    const el = $('#illust');
+    const img = key && Art.get(key);
+    if (!img) { el.classList.remove('show'); return; }
+    if (el.dataset.key !== key) { el.innerHTML = ''; el.append(Object.assign(new Image(), { src: img.src, alt: '' })); el.dataset.key = key; }
+    el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  },
+  // ฉากเปิดตัวบอส
+  splash(key, title, sub) {
+    const img = Art.get(key);
+    const el = $('#splash');
+    el.innerHTML = '';
+    if (img) el.append(Object.assign(new Image(), { src: img.src, alt: '' }));
+    el.append(h('div', { class: 'sp-text' }, h('small', {}, sub || 'WARNING'), h('b', {}, title)));
+    el.classList.toggle('noimg', !img);
+    el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  },
 
   // ---------------- ร้านค้า ----------------
   openShop(name, list) {

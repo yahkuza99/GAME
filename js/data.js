@@ -373,7 +373,7 @@ const MOBS = {
                sprite: 'quad', variant: 'boar', color: '#6e6258', color2: '#3a342e', size: 1.15, tusk: true, drops: [['iron_tusk', 0.6], ['meat', 0.3], ['boar_card', 0.01]] },
 
   draugr:    { name: 'Draugr Husk',        lv: 17, hp: 700,  atk: [45, 60],  def: 5,  mdef: 10, vit: 17, flee: 20,  hit: 45,  exp: 330, jexp: 220, speed: 0.9, aggro: true, element: 'undead', race: 'undead',
-               glow: '#ff4a3a', sprite: 'human', skin: '#9a8a78', outfit: '#5a4a3a', hair: '#6a5a4a', viking: true, joint: '#3a2a22', drops: [['grave_dust', 0.6], ['moss_gel', 0.3], ['draugr_card', 0.01]] },
+               glow: '#ff4a3a', sprite: 'human', skin: '#9a8a78', face: '#b4aaa4', outfit: '#5a4a3a', hair: '#6a5a4a', viking: true, joint: '#3a2a22', drops: [['grave_dust', 0.6], ['moss_gel', 0.3], ['draugr_card', 0.01]] },
   bone_warden: { name: 'Frame Warden', lv: 24, hp: 1000, atk: [70, 90],  def: 20, mdef: 10, vit: 20, flee: 50,  hit: 60,  exp: 520, jexp: 360, speed: 1.6, aggro: true, element: 'undead', race: 'undead',
                glow: '#ff3030', sprite: 'human', skin: '#f0ecd8', outfit: '#f0ecd8', hair: null, bones: true, weapon: 'sword', drops: [['old_bone', 0.5], ['falchion', 0.01], ['warden_card', 0.01]] },
   hel_maiden:{ name: 'Hel Maiden Unit',    lv: 30, hp: 1500, atk: [90, 115], def: 30, mdef: 30, vit: 25, flee: 55,  hit: 75,  exp: 720, jexp: 500, speed: 1.5, aggro: true, element: 'undead', race: 'undead',

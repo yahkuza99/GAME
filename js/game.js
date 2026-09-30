@@ -410,6 +410,7 @@ function spawnMvp(id) {
   const m = spawnMob(id);
   m.isMvp = true;
   UI.announce(`⚠ ${MOBS[id].name} (MVP) ได้ปรากฏตัวขึ้นใน ${G.map.def.name}!`);
+  if (!G.fastSim) UI.splash(`mvp_${id}`, MOBS[id].name, 'MVP BOSS APPEARED');
   UI.msg(`[MVP] ${MOBS[id].name} ปรากฏตัวแล้ว!`, 'mvp');
 }
 

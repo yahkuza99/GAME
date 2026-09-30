@@ -132,17 +132,30 @@ Sprites.human = (g, x, y, o) => {
     g.strokeStyle = glow; g.globalAlpha = 0.5; g.lineWidth = 1; g.stroke(); g.globalAlpha = 1;
   };
   // สายเคเบิลยาวด้านหลัง (ทรงผมยาว)
-  const longCables = crest && (o.hairStyle === 'long' || o.hairStyle === 'twin');
-  const drawCables = () => {
-    for (const cx of (front || back) ? [-7, -3, 3, 7] : [-8, -4, -1]) {
-      g.strokeStyle = U.shade(crest, -0.15); g.lineWidth = 3.2; g.lineCap = 'round';
-      g.beginPath(); g.moveTo(cx * 0.8, hy - 4); g.quadraticCurveTo(cx * 1.3, hy + 8, cx * 1.1 + Math.sin(t * 2 + cx) * 1.2, hy + 19); g.stroke();
-      g.strokeStyle = glow; g.globalAlpha = 0.6; g.lineWidth = 0.9;
-      g.beginPath(); g.moveTo(cx * 0.8, hy - 2); g.quadraticCurveTo(cx * 1.3, hy + 8, cx * 1.1 + Math.sin(t * 2 + cx) * 1.2, hy + 18); g.stroke();
-      g.globalAlpha = 1; g.lineCap = 'butt';
+  // ผมยาวด้านหลัง (อนิเมะ): พลิ้วตามการเดิน
+  const longHair = crest && (o.hairStyle === 'long' || o.hairStyle === 'twin');
+  const hairGrad = (y0, y1) => { const gr = g.createLinearGradient(0, y0, 0, y1); gr.addColorStop(0, U.shade(crest, 0.18)); gr.addColorStop(1, U.shade(crest, -0.22)); return gr; };
+  const drawBackHair = () => {
+    const sway = Math.sin(t * 2.2) * 1.5 + (o.moving ? Math.sin(t * 7) * 1.5 : 0);
+    g.fillStyle = hairGrad(hy - 10, -12);
+    g.beginPath();
+    if (o.hairStyle === 'twin') {
+      for (const sx of [-1, 1]) {
+        g.moveTo(sx * 8, hy - 4);
+        g.quadraticCurveTo(sx * 17 + sway, hy + 10, sx * 12 + sway, -12);
+        g.lineTo(sx * 9 + sway, -14); g.quadraticCurveTo(sx * 12, hy + 8, sx * 5, hy - 2);
+      }
+    } else {
+      g.moveTo(-10.5, hy - 2);
+      g.quadraticCurveTo(-15 + sway * 0.5, hy + 14, -11 + sway, -13);
+      g.lineTo(-6 + sway, -16); g.lineTo(-3 + sway, -12.5); g.lineTo(0 + sway, -16); g.lineTo(4 + sway, -12.5); g.lineTo(7 + sway, -15.5);
+      g.lineTo(11 + sway, -13); g.quadraticCurveTo(15 + sway * 0.5, hy + 14, 10.5, hy - 2); g.closePath();
     }
+    g.fill(); ol(1);
+    g.strokeStyle = 'rgba(255,255,255,0.18)'; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(-6, hy + 2); g.quadraticCurveTo(-8 + sway, hy + 12, -7 + sway, -16); g.stroke();
   };
-  if (longCables && !back) drawCables();
+  if (longHair && !back) drawBackHair();
   if (!back) drawCape();
 
   // แขน: ต้นแขนโครงโลหะ → ข้อศอก → ปลายแขนเกราะ → มือกลไก
@@ -239,59 +252,96 @@ Sprites.human = (g, x, y, o) => {
   if (front) drawArm(-10, -walk * 0.35, false, -0.12);
   if (back) drawArm(-9, -walk * 0.4, false, -0.22);
 
-  // คอ
+  // คอ (ข้อต่อกลไก)
   g.fillStyle = joint; g.fillRect(-2.6, -32, 5.2, 4);
-  if (longCables && back) drawCables();
-  // หัว: ทรงแคปซูลโลหะ
-  g.fillStyle = metal(chassis, -11, hy - 10, 11, hy + 10);
-  g.beginPath(); g.ellipse(0, hy, 11, 11.8, 0, 0, 7); g.fill(); ol(1.2);
-  // รอยต่อแผ่นเกราะหัว
-  g.strokeStyle = 'rgba(40,46,60,0.35)'; g.lineWidth = 0.9;
-  g.beginPath(); g.moveTo(-10, hy - 3); g.quadraticCurveTo(0, hy - 6, 10, hy - 3); g.stroke();
-  // ใบหน้า: แผ่นกระจกดำ + แถบไฟวิเซอร์ (ไม่มีตา)
-  if (!back) {
-    const fx = front ? 0 : side ? 5.5 : 3.2, fw = front ? 8.2 : side ? 5 : 6.8;
-    g.fillStyle = '#10131c';
-    g.beginPath(); g.ellipse(fx, hy + 2, fw, 6.2, 0, 0, 7); g.fill();
-    const vg = g.createLinearGradient(fx - fw, hy, fx + fw, hy);
-    vg.addColorStop(0, 'rgba(255,255,255,0.05)'); vg.addColorStop(0.5, 'rgba(255,255,255,0.18)'); vg.addColorStop(1, 'rgba(255,255,255,0.02)');
-    g.fillStyle = vg; g.beginPath(); g.ellipse(fx, hy + 0.5, fw * 0.9, 3.5, 0, Math.PI, 0); g.fill();
-    glowFill(0.95);
-    rr(g, fx - fw * 0.78, hy + 0.8, fw * 1.56, 2.2, 1.1); g.fill();
-    glowOff();
-    // แสงสแกนวิ่งบนวิเซอร์
-    const sx = fx - fw * 0.7 + ((t * 0.9) % 1) * fw * 1.4;
-    g.fillStyle = 'rgba(255,255,255,0.85)'; g.fillRect(sx, hy + 1, 1.6, 1.8);
+  glowFill(0.6 * pulse); g.fillRect(-2.6, -30.5, 5.2, 0.9); glowOff();
+  if (longHair && back) drawBackHair();
+  if (o.bones) {
+    // หัวโลหะเปลือยพร้อมวิเซอร์แดง (หุ่นที่เสียหาย)
+    g.fillStyle = metal(chassis, -11, hy - 10, 11, hy + 10);
+    g.beginPath(); g.ellipse(0, hy, 10.5, 11, 0, 0, 7); g.fill(); ol(1.2);
+    if (!back) { g.fillStyle = '#10131c'; rr(g, front ? -7 : 0, hy - 1, front ? 14 : 10, 5, 2.5); g.fill(); glowFill(1); rr(g, front ? -6 : 1, hy + 0.5, front ? 12 : 8, 2, 1); g.fill(); glowOff(); }
   } else {
-    g.fillStyle = joint;
-    for (const vy of [hy - 1, hy + 2, hy + 5]) rr(g, -5, vy, 10, 1.4, 0.7), g.fill();
-    glowFill(0.7 * pulse); g.fillRect(-3, hy + 7.5, 6, 1.2); glowOff();
-  }
-  // จานหู/เซ็นเซอร์ข้างหัว
-  const ear = ex => { g.fillStyle = metal(plate, ex - 3, hy - 3, ex + 3, hy + 3); g.beginPath(); g.arc(ex, hy + 1, 3.3, 0, 7); g.fill(); ol(0.9); glowFill(pulse); g.beginPath(); g.arc(ex, hy + 1, 1.2, 0, 7); g.fill(); glowOff(); };
-  if (front || back) { ear(-11); ear(11); } else if (side) ear(-2.5); else ear(-9.5);
-  // แผ่นเกราะหัวตามสีที่เลือก (ครีบ/หงอน)
-  if (crest) {
-    g.fillStyle = metal(crest, -10, hy - 12, 10, hy - 4);
-    g.beginPath(); g.ellipse(0, hy - 5.5, 10.6, 6.8, 0, Math.PI * 1.02, Math.PI * 1.98); g.lineTo(9, hy - 4); g.quadraticCurveTo(0, hy - 7, -9, hy - 4); g.closePath(); g.fill(); ol(1);
-    if (o.hairStyle === 'spiky') {
-      g.beginPath();
-      if (side) { g.moveTo(-6, hy - 10); g.lineTo(-13, hy - 17); g.lineTo(-2, hy - 12.5); }
-      else { g.moveTo(-2.2, hy - 11); g.lineTo(0, hy - 20); g.lineTo(2.2, hy - 11); }
-      g.closePath(); g.fill(); ol(1);
-      glowFill(0.8); g.fillRect(-0.5, hy - 16, 1, 5); glowOff();
-    } else if (longCables) {
-      g.fillStyle = metal(crest, -12, hy, 12, hy);
-      for (const sx of front || back ? [-1, 1] : [-1]) { g.beginPath(); g.moveTo(sx * 9.5, hy - 5); g.lineTo(sx * 13.5, hy + 6); g.lineTo(sx * 10, hy + 7); g.closePath(); g.fill(); ol(0.9); }
-    } else {
-      g.fillStyle = joint; g.fillRect(-0.7, hy - 17, 1.4, 6);
-      glowFill(pulse); g.beginPath(); g.arc(0, hy - 17.5, 1.6, 0, 7); g.fill(); glowOff();
+    // ใบหน้าอนิเมะ (ผิวสังเคราะห์)
+    const skinC = o.face || '#f6e8e2';
+    const hg = g.createRadialGradient(-3, hy - 3, 2, 0, hy, 12);
+    hg.addColorStop(0, U.shade(skinC, 0.06)); hg.addColorStop(1, U.shade(skinC, -0.1));
+    g.fillStyle = hg;
+    g.beginPath(); g.ellipse(0, hy + 0.5, 10.8, 11.4, 0, 0, 7); g.fill(); ol(1.1);
+    if (!back) {
+      const blink = (Math.floor((t + (o.seedT || 0)) * 10) % 43) === 0;
+      const eyes = front ? [-4.4, 4.4] : side ? [6.2] : [1.6, 7.4];
+      eyes.forEach((ex, i) => {
+        const nar = !front && !side && i === 0 ? 0.75 : 1;
+        const ey = hy + 2.2;
+        if (blink) { g.strokeStyle = '#3a2430'; g.lineWidth = 1.4; g.beginPath(); g.arc(ex, ey - 1, 2.6 * nar, 0.2, Math.PI - 0.2); g.stroke(); return; }
+        // ตาขาว
+        g.fillStyle = '#ffffff'; g.beginPath(); g.ellipse(ex, ey, 2.7 * nar, 3.5, 0, 0, 7); g.fill();
+        // ม่านตาเรืองแสงสีอาชีพ
+        const ig = g.createLinearGradient(0, ey - 3.3, 0, ey + 3.3);
+        ig.addColorStop(0, U.shade(glow, -0.55)); ig.addColorStop(0.55, U.shade(glow, -0.1)); ig.addColorStop(1, U.shade(glow, 0.45));
+        g.fillStyle = ig; g.beginPath(); g.ellipse(ex + (front ? 0 : 0.4), ey + 0.2, 2.1 * nar, 3.2, 0, 0, 7); g.fill();
+        g.fillStyle = '#10131c'; g.beginPath(); g.ellipse(ex + (front ? 0 : 0.4), ey + 0.3, 0.9 * nar, 1.5, 0, 0, 7); g.fill();
+        g.fillStyle = '#ffffff'; g.beginPath(); g.arc(ex - 0.8 * nar, ey - 1.3, 0.9, 0, 7); g.fill();
+        g.globalAlpha = 0.8; g.beginPath(); g.arc(ex + 0.9 * nar, ey + 1.4, 0.45, 0, 7); g.fill(); g.globalAlpha = 1;
+        // ขนตาบน
+        g.strokeStyle = '#2a1a24'; g.lineWidth = o.hairStyle === 'long' || o.hairStyle === 'twin' ? 1.7 : 1.3; g.lineCap = 'round';
+        g.beginPath(); g.moveTo(ex - 2.9 * nar, ey - 2.2); g.quadraticCurveTo(ex, ey - 4.4, ex + 2.9 * nar, ey - 2.4);
+        if (o.hairStyle === 'long' || o.hairStyle === 'twin') g.lineTo(ex + 3.6 * nar, ey - 3.3);
+        g.stroke(); g.lineCap = 'butt';
+      });
+      // ปาก + แก้ม + เส้นเรืองแสงแบบแอนดรอยด์ใต้ตา
+      const mx = front ? 0 : side ? 8 : 4.8;
+      g.strokeStyle = 'rgba(150,70,80,0.9)'; g.lineWidth = 1; g.beginPath(); g.arc(mx, hy + 7.4, 1.3, 0.3, Math.PI - 0.3); g.stroke();
+      g.fillStyle = 'rgba(255,130,150,0.3)';
+      if (front) { g.beginPath(); g.ellipse(-6.5, hy + 6, 2.2, 1.3, 0, 0, 7); g.fill(); g.beginPath(); g.ellipse(6.5, hy + 6, 2.2, 1.3, 0, 0, 7); g.fill(); }
+      else { g.beginPath(); g.ellipse(side ? 5 : 8.3, hy + 6, 2, 1.2, 0, 0, 7); g.fill(); }
+      glowFill(0.75);
+      if (front) { g.fillRect(-8.5, hy + 4.2, 2.4, 0.7); g.fillRect(6.1, hy + 4.2, 2.4, 0.7); }
+      else g.fillRect(side ? 3 : 9, hy + 4.2, 2.2, 0.7);
+      glowOff();
+      if (o.beard) { g.fillStyle = o.beard; const bx = front ? 0 : side ? 6 : 4; g.beginPath(); g.moveTo(bx - 7, hy + 6); g.lineTo(bx + 7, hy + 6); g.lineTo(bx, hy + 17); g.closePath(); g.fill(); ol(1); }
     }
-    g.fillStyle = 'rgba(255,255,255,0.35)'; g.beginPath(); g.ellipse(-4, hy - 8.5, 3.5, 1.3, -0.3, 0, 7); g.fill();
-  }
-  if (o.beard && !back) { // เครา → ตะแกรงลำโพงคาง
-    g.fillStyle = U.shade(o.beard, -0.3); rr(g, (front ? 0 : 4) - 5, hy + 7, 10, 5, 2); g.fill(); ol(0.8);
-    g.fillStyle = joint; for (let i = 0; i < 3; i++) g.fillRect((front ? 0 : 4) - 3.5 + i * 2.8, hy + 8, 1, 3);
+    // ผมอนิเมะ
+    if (crest) {
+      g.fillStyle = hairGrad(hy - 13, hy + 10);
+      if (back) {
+        g.beginPath(); g.ellipse(0, hy - 0.5, 12, 12.2, 0, 0, 7); g.fill(); ol();
+        g.beginPath(); g.moveTo(-11.5, hy + 2); g.lineTo(-10, hy + 11); g.lineTo(-6, hy + 8); g.lineTo(-3, hy + 12); g.lineTo(0, hy + 8.5); g.lineTo(3, hy + 12); g.lineTo(6, hy + 8); g.lineTo(10, hy + 11); g.lineTo(11.5, hy + 2); g.closePath(); g.fill();
+      } else if (front) {
+        g.beginPath();
+        g.moveTo(-12, hy + 9); g.quadraticCurveTo(-14, hy - 11, 0, hy - 12.8); g.quadraticCurveTo(14, hy - 11, 12, hy + 9);
+        g.lineTo(9.6, hy + 1); g.lineTo(8.2, hy - 1.5); g.lineTo(6.2, hy + 1.2); g.lineTo(4.2, hy - 4); g.lineTo(1.8, hy - 0.8); g.lineTo(0, hy - 4.5);
+        g.lineTo(-2.2, hy - 0.6); g.lineTo(-4.6, hy - 4); g.lineTo(-6.4, hy + 1.2); g.lineTo(-8.4, hy - 1.5); g.lineTo(-9.8, hy + 1);
+        g.closePath(); g.fill(); ol();
+        // ปอยข้างแก้ม
+        for (const sx of [-1, 1]) { g.beginPath(); g.moveTo(sx * 10.5, hy - 1); g.quadraticCurveTo(sx * 12.8, hy + 8, sx * 10.2, hy + 13); g.lineTo(sx * 8.8, hy + 4); g.closePath(); g.fill(); }
+      } else {
+        g.beginPath();
+        g.moveTo(-11.5, hy + 8); g.quadraticCurveTo(-13.5, hy - 11, 0, hy - 12.6); g.quadraticCurveTo(12, hy - 11.5, 12.6, hy - 1);
+        g.lineTo(10.4, hy + 0.5); g.lineTo(9, hy - 2.5); g.lineTo(6.8, hy); g.lineTo(5, hy - 4.2); g.lineTo(2.5, hy - 1.2); g.lineTo(0.5, hy - 5); g.lineTo(-2.5, hy - 2);
+        g.lineTo(-4, hy + 4); g.lineTo(-7, hy + 10); g.closePath(); g.fill(); ol();
+        if (!side) { g.beginPath(); g.moveTo(10, hy - 1); g.quadraticCurveTo(12.2, hy + 7, 10, hy + 12); g.lineTo(8.8, hy + 3); g.closePath(); g.fill(); }
+      }
+      // วงแสงผมแบบอนิเมะ (angel ring)
+      g.strokeStyle = 'rgba(255,255,255,0.45)'; g.lineWidth = 1.6;
+      g.beginPath(); g.arc(back ? 0 : front ? 0 : 1.5, hy - 1, 8.5, Math.PI * 1.12, Math.PI * 1.55); g.stroke();
+      if (o.hairStyle === 'spiky') {
+        g.fillStyle = hairGrad(hy - 20, hy - 8);
+        g.beginPath(); g.moveTo(-8, hy - 8); g.lineTo(-7, hy - 17); g.lineTo(-3, hy - 11); g.lineTo(0, hy - 19); g.lineTo(3, hy - 11); g.lineTo(7, hy - 16); g.lineTo(8, hy - 8); g.closePath(); g.fill(); ol(1);
+      }
+      if (o.hairStyle === 'twin' && !back) {
+        g.fillStyle = hairGrad(hy - 12, hy);
+        for (const sx of front ? [-1, 1] : [-1]) { g.beginPath(); g.ellipse(sx * 10, hy - 9, 3.6, 3, sx * 0.5, 0, 7); g.fill(); ol(0.8); }
+      }
+    }
+    // หูฟัง/เซ็นเซอร์กลไกข้างหัว (สัญลักษณ์แอนดรอยด์)
+    const ear = ex => {
+      g.fillStyle = metal(plate, ex - 3.4, hy - 3, ex + 3.4, hy + 3); g.beginPath(); g.arc(ex, hy + 0.5, 3.5, 0, 7); g.fill(); ol(0.9);
+      glowFill(pulse); g.beginPath(); g.arc(ex, hy + 0.5, 1.3, 0, 7); g.fill(); glowOff();
+      g.strokeStyle = metal(plate, ex, hy - 12, ex, hy); g.lineWidth = 1.6; g.beginPath(); g.moveTo(ex, hy - 2); g.lineTo(ex + (ex < 0 ? -2 : 2), hy - 10); g.stroke();
+    };
+    if (front || back) { ear(-11.5); ear(11.5); } else if (side) ear(-3); else ear(-10);
   }
   if (o.jiangshi) {
     if (back) { g.fillStyle = '#1a1a2a'; g.fillRect(-11, hy - 14, 22, 8); g.fillRect(-7, hy - 20, 14, 7); } else {
@@ -567,7 +617,7 @@ Sprites.mobHuman = (g, x, y, m, t) => {
   const sway = d.jiangshi ? Math.abs(Math.sin(t * 6 + m.seed)) * 4 : 0;
   Sprites.human(g, x, y - sway, {
     facing: m.facing, dir: m.dir, t: t + m.seed * 10, moving: m.moving && !d.jiangshi, atk: m.atkAnim,
-    skin: d.skin, glow: d.glow, joint: d.joint, hair: d.hair, outfit: d.outfit, outfit2: U.shade(d.outfit, -0.3), pants: U.shade(d.outfit, -0.4),
+    skin: d.skin, face: d.face, glow: d.glow, joint: d.joint, hair: d.hair, outfit: d.outfit, outfit2: U.shade(d.outfit, -0.3), pants: U.shade(d.outfit, -0.4),
     bones: d.bones, jiangshi: d.jiangshi, fox: d.fox, wtype: d.weapon || 'none',
     hat: d.viking ? 'viking' : d.hood ? 'hood' : null, hatColor: d.viking ? '#6a6a60' : d.hood,
     hairStyle: d.fox || d.hood ? 'long' : 'short', scale: d.scale || 1, eye: d.element === 'undead' && !d.bones ? '#60f0e0' : undefined,

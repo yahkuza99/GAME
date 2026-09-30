@@ -10,9 +10,10 @@ const NPC = {
     const fn = this.scripts[n.id];
     if (!fn) return;
     this.busy = true;
+    UI.illust(`npc_${n.id}`);
     try { await fn(n); }
     catch (e) { if (e !== 'closed') console.error(e); }
-    finally { this.busy = false; UI.dlgClose(); }
+    finally { this.busy = false; UI.dlgClose(); UI.illust(null); }
   },
   scripts: {},
 };
@@ -56,9 +57,12 @@ NPC.scripts.jobmaster = async n => {
       const i = await UI.menu(nm, 'เจ้าพร้อมแล้ว! จงเลือกเส้นทางแห่งโชคชะตา:', [...FIRST_JOBS.map(j => `${JOBS[j].name} (${JOBS[j].thai}) — ${JOBS[j].role}`), 'ขอคิดดูก่อน']);
       if (i >= FIRST_JOBS.length) return;
       const j = FIRST_JOBS[i], J = JOBS[j];
+      UI.illust(Art.jobKey(j, p.gender));
       const ok = await UI.menu(nm, `<b>${J.name}</b> — ${J.thai}<br>${J.desc}<br><br>สเตตัสแนะนำ: ${B(J.stats)}<br>สกิล: ${J.skills.map(s => SKILLS[s].name).join(', ')}<br><br>ยืนยันที่จะเป็น ${B(J.name)} หรือไม่? (เปลี่ยนกลับไม่ได้)`, ['ยืนยัน!', 'ย้อนกลับ']);
+      UI.illust(`npc_${n.id}`);
       if (ok === 0) {
         changeJob(j);
+        UI.illust(Art.jobKey(j, p.gender));
         await UI.say(nm, `จากนี้ไปเจ้าคือ ${B(J.name)}!<br>ข้ามอบอาวุธประจำอาชีพให้เจ้าแล้ว เก็บ Job Level เพื่อรับ Skill Point แล้วเรียนสกิลใหม่ (กด S)`);
         return;
       }

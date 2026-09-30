@@ -401,6 +401,7 @@ function startGame(p, isNew) {
 
 window.addEventListener('load', () => {
   R.init();
+  Art.load();
   Online.init();
   UI.init();
   bindInput();
