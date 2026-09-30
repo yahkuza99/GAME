@@ -21,9 +21,9 @@
   },
   "attack": {
    "frames": 6,
-   "dirs": 1,
-   "scale_src": 0.3036,
-   "median_src_h": 494.00605980766693
+   "dirs": 8,
+   "scale_src": 0.6466,
+   "median_src_h": 232.0
   },
   "hurt": {
    "frames": 2,

@@ -187,16 +187,30 @@ def frames_from_grid(im, cols, rows):
     a = im.getchannel('A').point(lambda v: 1 if v > 60 else 0); px = a.load()
     xc = cuts([sum(px[x, y] for y in range(0, H, 2)) for x in range(W)], cols)
     out, grid = [], []
+    touch_y = 0
     for c in range(cols):
         x0, x1 = xc[c], xc[c + 1]
-        yc = cuts([sum(px[x, y] for x in range(x0, x1, 2)) for y in range(H)], rows)
+        prof = [sum(px[x, y] for x in range(x0, x1, 2)) for y in range(H)]
+        yc = cuts(prof, rows)
+        touch_y = max(touch_y, max((prof[y] for y in yc[1:-1]), default=0) * 2 / max(1, x1 - x0))
         grid.append([(x0, yc[r], x1, yc[r + 1]) for r in range(rows)])
+    # ขยายกรอบเฉพาะแกนที่ตัวละคร "ไม่ชนกัน" (เส้นแบ่งแทบว่าง) — แกนที่ชนกันตัดตรงตามเส้นแบ่ง
+    mx = 0.35  # แนวนอน: ก้อนที่ชนกันจริงถูกจับได้จากความกว้าง (main_blob) แล้วถอยไปตัดตรง
+    my = 0.15 if touch_y < 0.02 else 0.0
     for r in range(rows):
         for c in range(cols):
-            cell = im.crop(grid[c][r])
-            cell = knock_lines(cell)
-            m = main_blob(cell.getchannel('A'))
-            if m is None: continue
+            x0, y0, x1, y1 = grid[c][r]
+            cw_, ch_ = x1 - x0, y1 - y0
+            # ขยายกรอบออกไปรอบ ๆ แล้วเก็บเฉพาะก้อนที่ "จุดศูนย์กลางอยู่ในช่องนี้" — ผม/อาวุธที่ล้นช่องไม่โดนตัด
+            ex = (max(0, int(x0 - cw_ * mx)), max(0, int(y0 - ch_ * my)), min(W, int(x1 + cw_ * mx)), min(H, int(y1 + ch_ * my)))
+            big = knock_lines(im.crop(ex))
+            m = main_blob(big.getchannel('A'), core=(x0 - ex[0], y0 - ex[1], x1 - ex[0], y1 - ex[1]))
+            if m is not None:
+                cell = big
+            else:  # ตัวละครชนกับช่องข้าง ๆ (ก้อนเดียวกัน) → ตัดตามเส้นแบ่งแบบเดิม
+                cell = knock_lines(im.crop(grid[c][r]))
+                m = main_blob(cell.getchannel('A'))
+                if m is None: continue
             cell.putalpha(Image.composite(cell.getchannel('A'), Image.new('L', cell.size, 0), m))
             out.append(cell)
     return out
@@ -229,7 +243,7 @@ def knock_lines(cell):
     return cell
 
 
-def main_blob(a, f=4):
+def main_blob(a, f=4, core=None):
     """หน้ากากของก้อนหลัก (ตัวละคร) + ก้อนที่ใหญ่พอจะเป็นส่วนของมัน (อาวุธ/เอฟเฟกต์ที่หลุดออกไป)"""
     W, H = a.size; w, h = max(1, W // f), max(1, H // f)
     sm = a.resize((w, h), Image.BOX).load()
@@ -248,8 +262,20 @@ def main_blob(a, f=4):
                             lab[ny][nx] = cid; st.append((nx, ny))
             comps.append(pts)
     if not comps: return None
-    big = max(len(p) for p in comps)
-    if big < 40: return None
+    if core is not None:
+        # เลือกเฉพาะก้อนที่จุดศูนย์กลางอยู่ในช่องหลัก • ก้อนที่กว้างเกินช่องมาก = ชนกับตัวข้าง ๆ → ใช้ไม่ได้
+        cx0, cy0, cx1, cy1 = (v / f for v in core)
+        inside = [p for p in comps if cx0 <= sum(q[0] for q in p) / len(p) < cx1 and cy0 <= sum(q[1] for q in p) / len(p) < cy1]
+        if not inside: return None
+        big = max(len(p) for p in inside)
+        if big < 40: return None
+        main = max(inside, key=len); xs = [q[0] for q in main]
+        ys = [q[1] for q in main]
+        if max(xs) - min(xs) > (cx1 - cx0) * 1.55 or max(ys) - min(ys) > (cy1 - cy0) * 1.12: return None
+        comps = inside
+    else:
+        big = max(len(p) for p in comps)
+        if big < 40: return None
     m = Image.new('L', (w, h), 0); mp = m.load()
     for pts in comps:
         if len(pts) >= big * 0.12:
@@ -328,6 +354,7 @@ def main():
     ap.add_argument('--grid', default='4x2'); ap.add_argument('--cols', type=int, default=4); ap.add_argument('--rows', type=int, default=2)
     ap.add_argument('--frames', type=int, default=0, help='ใช้แค่ N เฟรมแรก')
     ap.add_argument('--dirs', default='', help='ทิศของแต่ละแถวในชีต เช่น S,SW,W,NW,N,E,SE')
+    ap.add_argument('--ref-frames', default='', help='คอลัมน์ที่เป็นท่ายืนตรง เช่น 1,6 — ใช้ความสูงของเฟรมพวกนี้ตั้งสเกลให้เท่าท่าเดิน (ChatGPT มักวาดแต่ละชีตขนาดไม่เท่ากัน)')
     ap.add_argument('--still', action='store_true', help='เก็บแค่เฟรมที่เท้าชิดกันที่สุด (ยืนสองขา) แถวละ 1 เฟรม — ใช้ทำท่ายืนจากชีตเดิน')
     ap.add_argument('--nofit', action='store_true', help='ไม่ปรับขนาดเฟรมที่เพี้ยนอัตโนมัติ')
     ap.add_argument('--order', default='', help='ลำดับเฟรมใหม่ เช่น 1,2,3,4,3,2')
@@ -349,6 +376,12 @@ def main():
         # ใช้สเกลเดียวกับท่ายืนของตัวละครนี้ (ไม่มีก็ใช้สเกลเทมเพลต)
         scale = (ref * TPL_W / src_w) if ref else STD_H / (TPL_BODY * Image.open(a.src).height / rows)
         print(f"  สเกลจาก{'ท่ายืนที่ติดตั้งไว้' if ref else 'เทมเพลต'}: {scale:.3f}")
+    if a.ref_frames:
+        refs = {int(x) for x in a.ref_frames.split(',')}
+        hs = sorted(m['h'] for i, f in enumerate(frames) if (i % cols) + 1 in refs for m in [measure(f)] if m)
+        if hs:
+            scale = STD_H / hs[len(hs) // 2]
+            print(f"  สเกลจากเฟรมยืน {sorted(refs)}: {scale:.3f}")
     out, rep, k, med = normalize(frames, scale=scale, fit=(a.action in STANDING) and not a.nofit)
     if a.action in STANDING and ref:
         diff = (k * src_w / TPL_W) / ref - 1
