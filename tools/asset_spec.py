@@ -274,6 +274,27 @@ MAPS = [
  ("map_wolfwood", "Wolfwood: a dark pine forest with glowing green mushrooms and fireflies, mossy rocks, abandoned robot parts, moonlight through the trees"),
  ("map_helcave", "Hel's Hollow: a dark cave with glowing purple crystals, circuit lines on the rock floor, red warning lights, eerie teal fog"),
 ]
+RIG_STYLE = ("Character CUTOUT PARTS sheet for 2D skeletal animation (like Spine / paper-doll rigs) for a cute classic 2000s Korean MMORPG style game. "
+ "It is ONE chibi android character (big head, about 2.5 heads tall) broken apart into separate body parts, each part drawn as its own clean piece, "
+ "ALL parts at exactly the SAME SCALE as if the character were assembled, from the same 3/4 view FACING LEFT, neutral straight pose. "
+ "Joint ends are rounded and slightly extended (shoulder, hip, neck) so the parts overlap cleanly when rotated. Arms are fully straight hanging down, legs fully straight. "
+ "FACE RULE: smooth metal faceplate with ONE glowing visor strip, NO eyes, NO mouth. "
+ "FULLY TRANSPARENT background (PNG), parts must NOT touch each other, empty space between parts. Cel-shaded anime game art, crisp dark outline. "
+ "No text, no labels, no grid lines, no frames, no shadows. Square 1024x1024, exactly 4 columns x 2 rows = 8 equal cells, one part centered in each cell.")
+RIG_CELLS = lambda who: [
+  (f"rig_{who}_head", "HEAD only: the head with hair plates, visor and ear headset, cut off at the neck, no neck"),
+  (f"rig_{who}_torso", "TORSO only: chest, jacket and hips/belt down to the top of the thighs, NO head, NO arms, NO legs, short neck stub on top"),
+  (f"rig_{who}_arm_front", "FRONT ARM (the arm nearer to the viewer): one whole straight arm from shoulder to hand, hanging down, hand slightly closed as if holding a handle"),
+  (f"rig_{who}_arm_back", "BACK ARM (the arm farther from the viewer): one whole straight arm from shoulder to hand, hanging down, slightly darker shading"),
+  (f"rig_{who}_leg_front", "FRONT LEG (nearer to the viewer): one whole straight leg from hip to boot, vertical"),
+  (f"rig_{who}_leg_back", "BACK LEG (farther from the viewer): one whole straight leg from hip to boot, vertical, slightly darker shading"),
+  (f"rig_{who}_hair_back", "BACK HAIR: only the long back part of the hair plates that hangs behind the body (if the hair is short, a small back tuft)"),
+  (f"rig_{who}_weapon", "WEAPON only: the character's weapon drawn vertically, handle/grip at the BOTTOM, blade or tip pointing UP"),
+]
+RIG_SHEETS = [("sheet_rig_novice_f.png", "rig_novice_f", "Novice Type-A (slim feminine frame): white and graphite android body, khaki utility jacket, long silver-white hair plates, cyan visor, small energy knife")]
+for f, who, desc in RIG_SHEETS:
+    cells = RIG_CELLS(who.replace('rig_', ''))
+    SHEETS.append(dict(file=f, cols=4, rows=2, mode="alpha", style=RIG_STYLE + " CHARACTER: " + desc + ".", group="ชิ้นส่วนกระดูก (animation)", cells=cells))
 for f, cells in SPRITE_SHEETS:
     SHEETS.append(dict(file=f, cols=2, rows=2, mode="alpha", style=SPRITE_STYLE, group="สไปรต์มอนสเตอร์ในเกม (สไตล์ RO หุ่นยนต์)", cells=cells))
 for f, cells in ACTOR_SHEETS:

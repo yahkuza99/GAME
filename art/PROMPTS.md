@@ -23,7 +23,15 @@
 
 **กฎสำคัญ:** ทุกตัวเป็นหุ่นแอนดรอยด์ ไม่มีมนุษย์ และ **ไม่มีลูกตา** — ใบหน้าเป็นแผ่นเหล็กเรียบ + แถบไฟวิเซอร์ ถ้า ChatGPT ใส่ตามา ให้พิมพ์ต่อว่า "remove the eyes, use only a glowing visor strip"
 
-## ① สไปรต์ NPC / ผู้เล่น ในเกม (ชิบิ)
+## ① ชิ้นส่วนกระดูก (animation)
+
+### `sheet_rig_novice_f.png` — แนวนอน 3:2 (1536x1024) • ชีต 4×2 • พื้นหลัง: โปร่งใส
+
+```
+Character CUTOUT PARTS sheet for 2D skeletal animation (like Spine / paper-doll rigs) for a cute classic 2000s Korean MMORPG style game. It is ONE chibi android character (big head, about 2.5 heads tall) broken apart into separate body parts, each part drawn as its own clean piece, ALL parts at exactly the SAME SCALE as if the character were assembled, from the same 3/4 view FACING LEFT, neutral straight pose. Joint ends are rounded and slightly extended (shoulder, hip, neck) so the parts overlap cleanly when rotated. Arms are fully straight hanging down, legs fully straight. FACE RULE: smooth metal faceplate with ONE glowing visor strip, NO eyes, NO mouth. FULLY TRANSPARENT background (PNG), parts must NOT touch each other, empty space between parts. Cel-shaded anime game art, crisp dark outline. No text, no labels, no grid lines, no frames, no shadows. Square 1024x1024, exactly 4 columns x 2 rows = 8 equal cells, one part centered in each cell. CHARACTER: Novice Type-A (slim feminine frame): white and graphite android body, khaki utility jacket, long silver-white hair plates, cyan visor, small energy knife. Layout: exactly 4 columns x 2 rows = 8 equal cells, Horizontal 3:2 image (1536x1024). Cells in reading order (left to right, top to bottom): 1) HEAD only: the head with hair plates, visor and ear headset, cut off at the neck, no neck. 2) TORSO only: chest, jacket and hips/belt down to the top of the thighs, NO head, NO arms, NO legs, short neck stub on top. 3) FRONT ARM (the arm nearer to the viewer): one whole straight arm from shoulder to hand, hanging down, hand slightly closed as if holding a handle. 4) BACK ARM (the arm farther from the viewer): one whole straight arm from shoulder to hand, hanging down, slightly darker shading. 5) FRONT LEG (nearer to the viewer): one whole straight leg from hip to boot, vertical. 6) BACK LEG (farther from the viewer): one whole straight leg from hip to boot, vertical, slightly darker shading. 7) BACK HAIR: only the long back part of the hair plates that hangs behind the body (if the hair is short, a small back tuft). 8) WEAPON only: the character's weapon drawn vertically, handle/grip at the BOTTOM, blade or tip pointing UP.
+```
+
+## ② สไปรต์ NPC / ผู้เล่น ในเกม (ชิบิ)
 
 ### `sheet_npcs_1.png` — สี่เหลี่ยมจัตุรัส 1:1 (1024x1024) • ชีต 2×2 • พื้นหลัง: โปร่งใส ✓ ได้รับแล้ว
 
@@ -61,7 +69,7 @@ In-game character sprite sheet for a cute classic 2000s Korean MMORPG style game
 In-game character sprite sheet for a cute classic 2000s Korean MMORPG style game (chibi proportions: big head, about 2.5 heads tall, round readable silhouette, like classic isometric MMO player sprites), sci-fi Norse world where every character is a humanoid ANDROID. FACE RULE: smooth glossy metal faceplate with ONE glowing visor strip — NO eyes, NO mouth. 'Hair' is layered synthetic metal plates. Each character is a single full-body figure standing in 3/4 view FACING LEFT, centered in its own equal cell with empty space around it, on a FULLY TRANSPARENT background (PNG). Cel-shaded anime game art, crisp dark outline, glossy highlights, readable at 64 pixels tall. No text, no grid lines, no frames, no ground shadow, figures must not touch. Layout: exactly 2 columns x 2 rows = 4 equal cells, Square 1:1 image (1024x1024). Cells in reading order (left to right, top to bottom): 1) Berserker Type-A: bronze and brown rugged armor, metal wolf-head hood, long wild silver hair plates, huge two-handed orange energy axe, orange visor. 2) Berserker Type-B: bulky bronze and brown armor, metal wolf-head hood, short spiky silver hair plates, huge orange energy axe, orange visor. 3) a spare: a small hovering delivery drone. 4) a spare: a small repair bot on wheels.
 ```
 
-## ② ฉาก: ต้นไม้ / ของประดับ / อาคาร
+## ③ ฉาก: ต้นไม้ / ของประดับ / อาคาร
 
 ### `sheet_props_1.png` — สี่เหลี่ยมจัตุรัส 1:1 (1024x1024) • ชีต 2×2 • พื้นหลัง: โปร่งใส ✓ ได้รับแล้ว
 
@@ -87,7 +95,7 @@ Environment prop sprite sheet for a cute classic 2000s Korean MMORPG style isome
 Environment prop sprite sheet for a cute classic 2000s Korean MMORPG style isometric game, sci-fi Norse android world. Each prop is a single object in 3/4 top-down view (camera looking down at about 45 degrees) centered in its own equal cell with empty space around it, on a FULLY TRANSPARENT background (PNG). Painterly cel-shaded game art, crisp outline, consistent lighting from top-left. No text, no grid lines, no frames, no ground shadow, objects must not touch. Layout: exactly 2 columns x 2 rows = 4 equal cells, Square 1:1 image (1024x1024). Cells in reading order (left to right, top to bottom): 1) a small sci-fi Norse shop building with a curved metal roof and a neon sign, front entrance facing down-left. 2) a forge workshop building with a chimney glowing orange and an anvil sign. 3) a two-story metal-and-wood longhouse with rune carvings and cyan light strips. 4) a tall tech tower with a glowing rune ring near the top.
 ```
 
-## ③ สไปรต์มอนสเตอร์ในเกม (สไตล์ RO หุ่นยนต์)
+## ④ สไปรต์มอนสเตอร์ในเกม (สไตล์ RO หุ่นยนต์)
 
 ### `sheet_monsters_1.png` — สี่เหลี่ยมจัตุรัส 1:1 (1024x1024) • ชีต 2×2 • พื้นหลัง: โปร่งใส ✓ ได้รับแล้ว
 
@@ -119,7 +127,7 @@ In-game monster sprite sheet for a cute classic 2000s Korean MMORPG style game (
 In-game monster sprite sheet for a cute classic 2000s Korean MMORPG style game (chibi, round, readable silhouettes, like classic isometric MMO field monsters), but every monster is a ROBOT / mechanical version of the creature: glossy painted metal shell, visible bolts and panel lines, small glowing core lights, antennas, tiny thrusters. Each monster is a single full-body creature in its own equal cell, 3/4 view FACING LEFT, standing on the ground, centered with empty space around it, on a FULLY TRANSPARENT background (PNG). Cel-shaded anime game art, crisp dark outline, soft glossy highlights, readable at 64 pixels tall. No text, no grid lines, no frames, no ground shadow, creatures must not touch each other. Layout: exactly 2 columns x 2 rows = 4 equal cells, Square 1:1 image (1024x1024). Cells in reading order (left to right, top to bottom): 1) a floating GHOST-like robot: a hooded navy cloak with no legs, pale metal face mask with a teal visor light, holding a lantern. 2) a hulking dark ARMOR KNIGHT robot with horned helmet, dark red cape and a big axe, red visor light. 3) BOSS: an elegant fox-eared android lady with long orange metal hair and NINE long mechanical fox tails fanned out behind her, orange V visor, graceful pose. 4) a small pile of scrap metal parts (spare).
 ```
 
-## ④ ไอคอนสกิล
+## ⑤ ไอคอนสกิล
 
 ### `sheet_skills_0.png` — แนวนอน 3:2 (1536x1024) • ชีต 2×1 • พื้นหลัง: เต็มช่อง ✓ ได้รับแล้ว
 
@@ -145,7 +153,7 @@ Game skill icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD (android 
 Game skill icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD (android heroes). Each icon is a square painted tile that fills its whole cell edge to edge with its own dark atmospheric background and a bold, glowing, easy-to-read central symbol or action; cel-shaded, crisp lineart, strong rim light, high contrast so it reads at 40 pixels. No characters' faces, no text, no numbers, no letters, no frames or borders. Separate the tiles with thin straight black gutters so the grid is perfectly even. Layout: exactly 4 columns x 2 rows = 8 equal cells, Horizontal 3:2 image (1536x1024). Cells in reading order (left to right, top to bottom): 1) Shadow Step: a violet afterimage silhouette of a dashing foot/boot leaving purple shadow trails. 2) Backstab: a violet energy dagger stabbing from behind with a critical slash flash. 3) Smoke Veil: swirling dark purple smoke cloud hiding a faint figure outline. 4) Venom Blade: a dagger dripping glowing green poison with toxic bubbles. 5) Wolf Blood: a red glowing drop of energy blood in front of a snarling metal wolf silhouette. 6) Rage Strike: a huge orange energy axe crashing down with a cracked-ground red shockwave. 7) Blood Frenzy: a burning red heart-shaped power core with speed lines and orange flames. 8) Howl: a metal wolf head howling upward with circular orange-red sound waves.
 ```
 
-## ⑤ ไอคอนไอเทม
+## ⑥ ไอคอนไอเทม
 
 ### `sheet_items_1.png` — สี่เหลี่ยมจัตุรัส 1:1 (1024x1024) • ชีต 4×4 • พื้นหลัง: โปร่งใส ✓ ได้รับแล้ว
 
@@ -177,7 +185,7 @@ Game inventory item icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD 
 Game inventory item icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD (a world of androids and robots, items are tech parts). Each item is a single object centered in its own equal cell with generous empty space around it, on a FULLY TRANSPARENT background (PNG), cel-shaded, crisp dark outline, soft glow accents, readable at 32 pixels, three-quarter view, consistent lighting from the top-left. No text, no numbers, no letters, no grid lines, no frames, no shadows on the ground, objects must not touch or overlap each other. Layout: exactly 4 columns x 4 rows = 16 equal cells, Square 1:1 image (1024x1024). Cells in reading order (left to right, top to bottom): 1) a signal ribbon hair accessory with a glowing node. 2) an iron helmet. 3) a pair of small white-gold mechanical angel wing head ornaments. 4) a small round wooden-and-metal shield. 5) a round energy buckler with a cyan hexagon shield field. 6) a folded dark hood. 7) a cable scarf made of braided wires. 8) a pair of hover pads (flat glowing foot pads). 9) a pair of servo boots. 10) a pair of heavy magnetic boots. 11) a small hair clip with a data slot. 12) a power ring with a red gem. 13) a signal earring with a blue antenna crystal. 14) a mechanical grip glove. 15) a rune charm pendant with a glowing rune stone. 16) a small wrapped supply crate with a cyan ribbon.
 ```
 
-## ⑥ คลาสอัปเกรด — Frame Type-A (เพรียว)
+## ⑦ คลาสอัปเกรด — Frame Type-A (เพรียว)
 
 ### `job_novice_f.png` — แนวตั้ง 2:3 (1024x1536) • พื้นหลัง: โปร่งใส ✓ ได้รับแล้ว
 
@@ -221,7 +229,7 @@ Anime gacha game character art, polished cel shading with soft gradient lighting
 Anime gacha game character art, polished cel shading with soft gradient lighting and rim light, crisp clean lineart, highly detailed, production-quality, sci-fi Norse mythology fusion world called NEO MIDGARD where every character is a humanoid android robot (there are no humans at all). FACE RULE: the head is a sleek robot head with a smooth glossy metal faceplate and ONE glowing visor strip across where the eyes would be. NO eyes, NO pupils, NO irises, NO eyelashes, NO nose, NO mouth, NO human skin. The 'hair' is made of layered synthetic metal plates and cable strands shaped like a hairstyle, with a soft metallic sheen. Body: white-and-graphite armored robot body with visible mechanical joints at the shoulders, elbows and knees, panel seam lines, ear-mounted headset pieces with small antenna fins, and thin glowing circuit lines. Tasteful full-coverage armor, heroic confident pose, not sexualized. No text, no watermark, no logo. Character: a berserker warrior android, a feminine slim android (Frame Type-A), long wild silver hair plates, a glowing orange visor strip, rugged bronze and brown armor, a hood shaped like a wolf head made of metal plates, a huge two-handed energy axe with a glowing orange edge, sparks and embers. Full body, head to toe fully visible, standing in a 3/4 view facing the viewer, centered with a little empty space around the figure, transparent background (PNG), vertical 2:3 image (1024x1536).
 ```
 
-## ⑦ คลาสอัปเกรด — Frame Type-B (แกร่ง)
+## ⑧ คลาสอัปเกรด — Frame Type-B (แกร่ง)
 
 ### `job_novice_m.png` — แนวตั้ง 2:3 (1024x1536) • พื้นหลัง: โปร่งใส ✓ ได้รับแล้ว
 
@@ -265,7 +273,7 @@ Anime gacha game character art, polished cel shading with soft gradient lighting
 Anime gacha game character art, polished cel shading with soft gradient lighting and rim light, crisp clean lineart, highly detailed, production-quality, sci-fi Norse mythology fusion world called NEO MIDGARD where every character is a humanoid android robot (there are no humans at all). FACE RULE: the head is a sleek robot head with a smooth glossy metal faceplate and ONE glowing visor strip across where the eyes would be. NO eyes, NO pupils, NO irises, NO eyelashes, NO nose, NO mouth, NO human skin. The 'hair' is made of layered synthetic metal plates and cable strands shaped like a hairstyle, with a soft metallic sheen. Body: white-and-graphite armored robot body with visible mechanical joints at the shoulders, elbows and knees, panel seam lines, ear-mounted headset pieces with small antenna fins, and thin glowing circuit lines. Tasteful full-coverage armor, heroic confident pose, not sexualized. No text, no watermark, no logo. Character: a berserker warrior android, a masculine sturdy android (Frame Type-B, broader shoulders and heavier armor), short spiky silver hair plates, a glowing orange visor strip, rugged bronze and brown armor, a hood shaped like a wolf head made of metal plates, a huge two-handed energy axe with a glowing orange edge, sparks and embers. Full body, head to toe fully visible, standing in a 3/4 view facing the viewer, centered with a little empty space around the figure, transparent background (PNG), vertical 2:3 image (1024x1536).
 ```
 
-## ⑧ NPC
+## ⑨ NPC
 
 ### `npc_bifrost.png` — แนวตั้ง 2:3 (1024x1536) • พื้นหลัง: โปร่งใส ✓ ได้รับแล้ว
 
@@ -315,7 +323,7 @@ Anime gacha game character art, polished cel shading with soft gradient lighting
 Anime gacha game character art, polished cel shading with soft gradient lighting and rim light, crisp clean lineart, highly detailed, production-quality, sci-fi Norse mythology fusion world called NEO MIDGARD where every character is a humanoid android robot (there are no humans at all). FACE RULE: the head is a sleek robot head with a smooth glossy metal faceplate and ONE glowing visor strip across where the eyes would be. NO eyes, NO pupils, NO irises, NO eyelashes, NO nose, NO mouth, NO human skin. The 'hair' is made of layered synthetic metal plates and cable strands shaped like a hairstyle, with a soft metallic sheen. Body: white-and-graphite armored robot body with visible mechanical joints at the shoulders, elbows and knees, panel seam lines, ear-mounted headset pieces with small antenna fins, and thin glowing circuit lines. Tasteful full-coverage armor, heroic confident pose, not sexualized. No text, no watermark, no logo. Character: Guard Unit Rolf, a loyal city guard android: silver-grey hair plates, horned Viking-style steel helmet, steel armor with a red cape, holding a tall energy spear, a red glowing visor, friendly salute. Full body, head to toe fully visible, standing in a 3/4 view facing the viewer, centered with a little empty space around the figure, transparent background (PNG), vertical 2:3 image (1024x1536).
 ```
 
-## ⑨ หน้ามอนสเตอร์ (กรอบเป้าหมาย)
+## ⑩ หน้ามอนสเตอร์ (กรอบเป้าหมาย)
 
 ### `sheet_mobs_1.png` — แนวนอน 3:2 (1536x1024) • ชีต 4×3 • พื้นหลัง: เต็มช่อง ✓ ได้รับแล้ว
 
@@ -329,7 +337,7 @@ Monster portrait sheet for an anime sci-fi Norse RPG called NEO MIDGARD where ev
 Monster portrait sheet for an anime sci-fi Norse RPG called NEO MIDGARD where every monster is a humanoid ANDROID robot (no animals, no humans). FACE RULE: every head has a smooth metal faceplate with a glowing visor strip — NO eyes, NO pupils, NO mouth. Hostile units have red or colored glowing visors. Each cell is a square bust portrait (head and shoulders, facing slightly left) that fills its whole cell with a dark moody background tinted in the monster's glow color, cel-shaded anime gacha style, crisp lineart, rim light. Separate the tiles with thin straight black gutters so the grid is perfectly even. No text, no letters, no frames. Layout: exactly 4 columns x 2 rows = 8 equal cells, Horizontal 3:2 image (1536x1024). Cells in reading order (left to right, top to bottom): 1) Tusk Trooper: dark brown armored android with a horned Viking helmet and orange slit visor. 2) Draugr Husk: rusted old android with a battered Viking helmet and red slit visor. 3) Frame Warden: skeletal white-frame android with exposed ribs and red slit visor. 4) Hel Maiden Unit: hooded navy-robed android with long white hair plates and teal band visor. 5) Hel Guard Unit: dark armored android with a horned helmet, dark red cape and red V visor. 6) Seraph Core (boss): angelic pearl-and-gold android with a halo, wings and golden visor. 7) Kitsura EX (boss): orange fox-eared android with long orange hair plates and orange V visor. 8) an empty dark tile with a faint red hexagon pattern.
 ```
 
-## ⑩ ตราคลาส
+## ⑪ ตราคลาส
 
 ### `sheet_emblems.png` — แนวนอน 3:2 (1536x1024) • ชีต 4×2 • พื้นหลัง: โปร่งใส ✓ ได้รับแล้ว
 
@@ -337,7 +345,7 @@ Monster portrait sheet for an anime sci-fi Norse RPG called NEO MIDGARD where ev
 Class emblem icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD. Each emblem is a metallic badge (silver steel with a glowing colored core and Norse rune accents), centered in its own equal cell with empty space around it, on a FULLY TRANSPARENT background (PNG), same size and same style for all. No text, no letters, no grid lines. Layout: exactly 4 columns x 2 rows = 8 equal cells, Horizontal 3:2 image (1536x1024). Cells in reading order (left to right, top to bottom): 1) Novice: a simple silver hexagon badge with a cyan core. 2) Einherjar: a shield with a crossed sword and horned helmet, red core. 3) Rune Caster: a circle of Norse runes around a staff, blue core. 4) Wildhunter: a bow and arrow over a wolf paw, green core. 5) Völva: a golden sun with a staff and wings, gold core. 6) Loki's Trickster: two crossed daggers with a serpent, violet core. 7) Berserker: a wolf head over a two-handed axe, orange core. 8) NEO MIDGARD crest: a stylized Yggdrasil tree inside a circuit ring, cyan core.
 ```
 
-## ⑪ ภาพแผนที่ (แบนเนอร์ตอนเข้าแมพ)
+## ⑫ ภาพแผนที่ (แบนเนอร์ตอนเข้าแมพ)
 
 ### `map_eldheim.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง ✓ ได้รับแล้ว
 
@@ -369,7 +377,7 @@ Anime game background art, painterly cel-shaded scenery, rich lighting and atmos
 Anime game background art, painterly cel-shaded scenery, rich lighting and atmosphere, sci-fi Norse mythology world of androids called NEO MIDGARD, wide establishing shot from a slightly high angle, no characters, no text, no logo. Horizontal 3:2 image (1536x1024). Location: Hel's Hollow: a dark cave with glowing purple crystals, circuit lines on the rock floor, red warning lights, eerie teal fog.
 ```
 
-## ⑫ บอส MVP
+## ⑬ บอส MVP
 
 ### `mvp_seraph_pudding.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง ✓ ได้รับแล้ว
 
@@ -383,7 +391,7 @@ Anime gacha game character art, polished cel shading with soft gradient lighting
 Anime gacha game character art, polished cel shading with soft gradient lighting and rim light, crisp clean lineart, highly detailed, production-quality, sci-fi Norse mythology fusion world called NEO MIDGARD where every character is a humanoid android robot (there are no humans at all). FACE RULE: the head is a sleek robot head with a smooth glossy metal faceplate and ONE glowing visor strip across where the eyes would be. NO eyes, NO pupils, NO irises, NO eyelashes, NO nose, NO mouth, NO human skin. The 'hair' is made of layered synthetic metal plates and cable strands shaped like a hairstyle, with a soft metallic sheen. Body: white-and-graphite armored robot body with visible mechanical joints at the shoulders, elbows and knees, panel seam lines, ear-mounted headset pieces with small antenna fins, and thin glowing circuit lines. Tasteful full-coverage armor, heroic confident pose, not sexualized. No text, no watermark, no logo. Boss splash art: KITSURA EX, a feminine fox-type android boss with long orange hair plates, tall metal fox ears, an orange glowing V-shaped visor, sleek orange and white armor, nine long metallic fox tails with glowing orange lines, surrounded by swirling fire, dramatic battle pose, inside a dark cave with glowing purple crystals and circuit lines on the floor, epic boss reveal. Horizontal 3:2 image (1536x1024).
 ```
 
-## ⑬ ภาพหน้าปก
+## ⑭ ภาพหน้าปก
 
 ### `keyart.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง ✓ ได้รับแล้ว
 
@@ -397,7 +405,7 @@ Anime gacha game character art, polished cel shading with soft gradient lighting
 Game title logo that reads exactly "NEO MIDGARD" in bold futuristic letters, chrome steel metal with a glowing cyan neon edge, small Norse rune accents and a subtle circuit-line pattern, a thin horizontal energy line under the text. Centered, transparent background (PNG), no other text. Horizontal 3:2 image (1536x1024).
 ```
 
-## ⑭ หน้าสร้างตัวละคร (แบบอ้างอิง)
+## ⑮ หน้าสร้างตัวละคร (แบบอ้างอิง)
 
 ### `create_frame_a.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: พื้นเทาเรียบ
 
@@ -435,7 +443,7 @@ Anime gacha game character art, polished cel shading with soft gradient lighting
 Anime gacha game character art, polished cel shading with soft gradient lighting and rim light, crisp clean lineart, highly detailed, production-quality, sci-fi Norse mythology fusion world called NEO MIDGARD where every character is a humanoid android robot (there are no humans at all). FACE RULE: the head is a sleek robot head with a smooth glossy metal faceplate and ONE glowing visor strip across where the eyes would be. NO eyes, NO pupils, NO irises, NO eyelashes, NO nose, NO mouth, NO human skin. The 'hair' is made of layered synthetic metal plates and cable strands shaped like a hairstyle, with a soft metallic sheen. Body: white-and-graphite armored robot body with visible mechanical joints at the shoulders, elbows and knees, panel seam lines, ear-mounted headset pieces with small antenna fins, and thin glowing circuit lines. Tasteful full-coverage armor, heroic confident pose, not sexualized. No text, no watermark, no logo. Upgrade progression sheet: the same slim android shown three times left to right: 1) plain base body (Novice), 2) mid-upgrade with glowing hexagon scan rings around her and armor pieces assembling in mid-air, 3) fully upgraded into a red-caped knight class with horned helmet and energy sword. Arrows made of light between the stages. {SHEET}
 ```
 
-## ⑮ มอนสเตอร์ (แบบอ้างอิง)
+## ⑯ มอนสเตอร์ (แบบอ้างอิง)
 
 ### `monsters_field.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: พื้นเทาเรียบ
 

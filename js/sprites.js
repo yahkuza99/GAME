@@ -825,7 +825,19 @@ Sprites.drawPlayer = (g, p, t) => {
   const head = p.equip.head ? p.equip.head.id : null;
   const hatMap = { hat: 'hat', iron_helm: 'cap', ribbon: 'ribbon', seraph_wings: 'angel_wing' };
   const garment = p.equip.garment ? ITEMS[p.equip.garment.id].icon.c : job.cape || null;
-  const img = typeof Art !== 'undefined' && Art.get(`hero_${p.job}_${p.gender === 'm' ? 'm' : 'f'}`);
+  const gk = `${p.job}_${p.gender === 'm' ? 'm' : 'f'}`;
+  if (typeof Rig !== 'undefined' && Rig.get(gk)) {
+    if (Object.keys(p.buffs).length) { g.strokeStyle = `rgba(255,240,150,${0.25 + Math.sin(t * 4) * 0.15})`; g.lineWidth = 2; g.beginPath(); g.ellipse(x, y, 16, 6, 0, 0, 7); g.stroke(); }
+    const wt = wItem ? wItem.wtype : 'none';
+    const casting = !!p.cast;
+    Rig.draw(g, x, y, gk, {
+      facing: p.facing || 1, moving: p.moving && !p.sitting && !casting, sit: p.sitting, dead: p.dead, deathT: 1,
+      atk: casting ? 0.55 + Math.sin(t * 6) * 0.05 : p.atkAnim, atkKind: casting || wt === 'rod' ? 'cast' : wt === 'bow' ? 'bow' : 'melee',
+      hurt: Math.max(0, (p.hurtFlash || 0) / 0.15) * 0.25,
+    }, t, 68);
+    return;
+  }
+  const img = typeof Art !== 'undefined' && Art.get(`hero_${gk}`);
   if (img) {
     if (Object.keys(p.buffs).length) { g.strokeStyle = `rgba(255,240,150,${0.25 + Math.sin(t * 4) * 0.15})`; g.lineWidth = 2; g.beginPath(); g.ellipse(x, y, 16, 6, 0, 0, 7); g.stroke(); }
     Sprites.drawImageActor(g, x, y, { facing: p.facing || 1, moving: p.moving && !p.sitting, atkAnim: p.atkAnim, hitFlash: p.hurtFlash, seed: 0.3, sit: p.sitting, dead: p.dead, deathT: 1 }, t, img, 66, 'walk', true);

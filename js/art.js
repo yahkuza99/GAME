@@ -53,6 +53,7 @@ const Art = {
         G.map.renderGround(); G.map._imgs = null;
       }, 60);
     }
+    if (k.startsWith('rig_') && typeof Rig !== 'undefined') Rig.reset();
     if (k.startsWith('item_') || k.startsWith('skill_') || k.startsWith('emblem_')) {
       if (typeof clearIconCache === 'function') clearIconCache();
       if (typeof UI !== 'undefined') UI.dirty();

@@ -131,6 +131,20 @@ def slice_sheet(path, name):
         cx, cy = i % spec['cols'], i // spec['cols']
         box = (round(cx * cw), round(cy * ch), round((cx + 1) * cw), round((cy + 1) * ch))
         cell = im.crop(box)
+        if spec['mode'] == 'alpha' and key.startswith('rig_'):
+            # ชิ้นส่วนกระดูก: ต้องคงสเกลเดียวกันทั้งแผ่น ห้ามย่อ/ขยายแยกชิ้น
+            if not hasattr(slice_sheet, '_b') or slice_sheet._b[0] != path:
+                slice_sheet._b = (path, blobs(im, spec['cols'], spec['rows']))
+            got = slice_sheet._b[1].get(i)
+            if got and got[0] != 'grid':
+                bb, m = got; iso = im.copy(); iso.putalpha(ImageChops.multiply(im.getchannel('A'), m)); out = iso.crop(bb)
+            else:
+                cell = smart_cell(im, i, spec['cols'], spec['rows']); ch_ = cell.getchannel('A').point(lambda v: 255 if v > 24 else 0).getbbox()
+                if not ch_: print('  ! ช่องว่าง:', key); continue
+                out = cell.crop(ch_)
+            k = 900 / max(im.size)  # ทุกชิ้นในแผ่นใช้อัตราเดียวกัน
+            out = out.resize((max(1, round(out.width * k)), max(1, round(out.height * k))), Image.LANCZOS)
+            save(out, key); print('  +', key, out.size); continue
         if spec['mode'] == 'alpha' and key.startswith(('mobsprite_', 'npcsprite_', 'hero_', 'prop_')):
             if not hasattr(slice_sheet, '_b') or slice_sheet._b[0] != path:
                 slice_sheet._b = (path, blobs(im, spec['cols'], spec['rows']))
