@@ -230,6 +230,7 @@ function loop(ts) {
     Pad.update();
     Nav.update();
     Quest.tick();
+    Ambient.tick();
     Music.update();
     Online.update(dt);
     R.render();

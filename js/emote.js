@@ -68,3 +68,21 @@ const Emote = {
     g.restore();
   },
 };
+
+// ชีวิตชีวาในเมือง: NPC แสดงอีโมตเป็นระยะ (เฉพาะตอนผู้เล่นอยู่ใกล้ ๆ)
+const NPC_EMOTES = {
+  nurse: ['lv', 'ho'], tool: ['heh', 'thx'], weapon: ['!', 'ok'], armor: ['heh', 'ic'], refine: ['angry', 'gg'],
+  guide: ['ok', '!'], bifrost: ['ic', 'dots'], jobmaster: ['ic', '?'], storage: ['ok', 'thx'],
+};
+const Ambient = {
+  next: 0,
+  tick() {
+    if (!G.started || G.fastSim || G.time < this.next) return;
+    this.next = G.time + 6 + Math.random() * 8;
+    const p = G.player, q = typeof Quest !== 'undefined' && Quest.current() ? Quest.current().obj : null;
+    const near = G.npcs.filter(n => NPC_EMOTES[n.id] && U.dist(n.x, n.y, p.x, p.y) < 12 && !(q && q.npc === n.id) && !(n.emote && n.emote.until > G.time));
+    if (!near.length) return;
+    const n = near[Math.floor(Math.random() * near.length)], list = NPC_EMOTES[n.id];
+    n.emote = { k: list[Math.floor(Math.random() * list.length)], at: G.time, until: G.time + 2.6 };
+  },
+};

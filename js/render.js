@@ -217,6 +217,7 @@ R.render = () => {
   for (const n of G.npcs) {
     R.label(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 12, n.name, '#9fd0ff');
     if (n.id === qNpc) R.questMark(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) - 92, t); // เครื่องหมายเควสต์เหนือหัว NPC
+    else if (n.emote && n.emote.until > G.time) Emote.draw(g, n.x * TILE + TILE / 2 + 4, P((n.y + 0.5) * TILE + 10) - 96, n.emote, t);
   }
   for (const m of G.mobs) {
     if (m.dead) continue;

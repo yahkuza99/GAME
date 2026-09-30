@@ -9,6 +9,7 @@
 | Novice หญิง (Type-A) | ✅ 8 ทิศ | ✅ 8 ทิศ | ✅ 8 ทิศ | ⏳ ดีไซน์เก่า | ⏳ ดีไซน์เก่า | ⏳ ดีไซน์เก่า |
 | Novice ชาย (Type-B) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | มอนแผนที่แรก (5 ตัว) | ❌ ภาพนิ่ง | | ❌ | | | |
+| NPC Kaia (คลังของ) | ❌ วาดด้วยโค้ด (ภาพนิ่งพอ) | | | | | |
 
 ## วิธีสั่ง (ทุกภาพใช้หลักเดียวกัน)
 
@@ -84,6 +85,17 @@ Every frame clearly different. Flat white background, do NOT draw the labels, gr
 | Bunny Unit | `mobsprite_moonbun` | crouch, hop up, in the air ears back, land | crouch, jump kick forward, hit, land |
 | Ember Unit | `mobsprite_ember_pudding` | same as Gel Unit, flame on the antenna flickers | same as Gel Unit, flame bursts bigger on hit |
 | Buzz Unit | `mobsprite_buzzfly` | hovering, wings up / down blur, body bobbing | pull back, dive forward stinger first, sting, fly back |
+
+## D. NPC ใหม่: Storage Unit Kaia (คลังเก็บของ) — ภาพนิ่ง 1 ภาพ
+
+ตอนนี้ Kaia ยังเป็นหุ่นวาดด้วยโค้ด (ดูไม่เข้ากับ NPC ตัวอื่น) สั่งภาพเดียวพอ แนบภาพ NPC เดิม 1 ตัวเป็นแบบสไตล์:
+```
+In-game character sprite for a cute classic 2000s Korean MMORPG (chibi, about 2.5 heads tall), same art style as the attached NPC.
+Storage Unit Kaia: friendly feminine android warehouse clerk. Smooth white faceplate with ONE glowing teal visor strip, NO eyes, NO mouth.
+Dark navy hair plates in a low ponytail, small red ribbon, navy-and-cream clerk uniform with a short cape, a floating holographic crate icon beside her hand, a little cargo drone on her shoulder.
+Single full-body figure, 3/4 view FACING LEFT, standing, centered. Fully transparent background, cel-shaded, crisp dark outline, readable at 64 px. No text, no shadow.
+```
+ติดตั้ง: `python3 tools/slice_sheet.py --add kaia.png npcsprite_storage`
 
 ## ติดตั้ง (ฝั่งผม)
 
