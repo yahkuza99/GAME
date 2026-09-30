@@ -38,6 +38,7 @@ const UI = {
     $('#chat-log').addEventListener('click', () => { const c = $('#chat'); if (c.classList.contains('folded')) this.setFold(c, false); });
     $('#death-btn').onclick = () => respawnPlayer();
     $('#quest-track').onclick = () => Quest.go();
+    $('#target .tg-info').onclick = () => { const t = G.player.target || (G.hover && G.hover.ref); if (t && t.def) this.showMob(t.def.id); };
     $('#death-here').onclick = () => respawnPlayer(true);
     $('#death-hide').onclick = () => { $('#death').classList.add('hidden'); $('#death-mini').classList.remove('hidden'); };
     $('#death-mini').onclick = () => { $('#death-mini').classList.add('hidden'); $('#death').classList.remove('hidden'); };
@@ -539,6 +540,7 @@ const UI = {
     if (this.isOpen('w-quest')) this.renderQuest();
     if (this.isOpen('w-emote')) this.renderEmote();
     if (this.isOpen('w-storage')) this.renderStorage();
+    if (this.isOpen('w-mob')) this.renderMob();
     if (this.isOpen('w-bot')) this.renderBot();
     if (this.isOpen('w-map')) $('#w-map .win-title span').textContent = `แผนที่ — ${G.map.def.name}`;
     if (this.isOpen('w-shop') && this.shop) this.renderShop();
@@ -688,6 +690,36 @@ const UI = {
 
   // ---------------- นำทาง ----------------
   navTab: 'here',
+  // ---------------- สมุดมอนสเตอร์ ----------------
+  showMob(id) { this.mobInfo = id; const b = $('#w-mob .win-body'); if (b) b.dataset.key = ''; this.open('w-mob'); this.renderMob(); },
+  renderMob() {
+    const d = MOBS[this.mobInfo], body = $('#w-mob .win-body');
+    if (!d || body.dataset.key === d.id) return;
+    body.dataset.key = d.id; body.innerHTML = '';
+    const RACE = { brute: 'สัตว์กลไก', plant: 'พืชกลไก', insect: 'แมลงกลไก', undead: 'อมตะ', demon: 'ปีศาจ', angel: 'เทวดา', formless: 'ไร้รูป', fish: 'สัตว์น้ำ', dragon: 'มังกร', human: 'แอนดรอยด์' };
+    const cv = h('canvas', { width: 96, height: 96, class: 'mb-cv' });
+    const spr = Art.get('mobsprite_' + d.id), g = cv.getContext('2d');
+    if (spr) { const k = Math.min(96 / spr.width, 96 / spr.height) * 0.9; g.drawImage(spr, (96 - spr.width * k) / 2, (96 - spr.height * k) / 2, spr.width * k, spr.height * k); }
+    // ธาตุที่ตีแรงที่สุด (แพ้ธาตุ)
+    const weak = Object.keys(ELEM_THAI).map(e => [e, elemMod(e, d.element)]).filter(([, m]) => m > 1).sort((a, b) => b[1] - a[1]);
+    const where = Object.keys(MAP_DEFS).filter(m => (MAP_DEFS[m].spawns || []).some(s => s[0] === d.id) || MAP_DEFS[m].mvp === d.id || (MAP_DEFS[m].dummies && d.dummy));
+    const row = (k, v) => h('div', { class: 'mb-kv' }, h('span', {}, k), h('b', {}, String(v)));
+    body.append(
+      h('div', { class: 'mb-head' }, cv, h('div', {},
+        h('div', { class: 'mb-name' }, d.name, d.boss ? h('span', { class: 'tag' }, 'MVP') : null),
+        h('div', { class: 'mb-sub' }, `Lv ${d.lv} • ธาตุ${ELEM_THAI[d.element] || d.element} • ${RACE[d.race] || d.race}`),
+        h('div', { class: 'mb-sub ' + (d.aggro ? 'bad' : 'ok') }, d.aggro ? '⚠ โจมตีก่อน (Aggressive)' : 'ไม่โจมตีก่อน (Passive)'),
+        weak.length ? h('div', { class: 'mb-sub' }, `แพ้ธาตุ: ${weak.slice(0, 3).map(([e, m]) => `${ELEM_THAI[e]} ×${m}`).join(', ')}`) : null)),
+      h('div', { class: 'mb-grid' }, row('HP', U.fmt(d.hp)), row('ATK', `${d.atk[0]}–${d.atk[1]}`), row('DEF', d.def), row('MDEF', d.mdef),
+        row('HIT', d.hit), row('FLEE', d.flee), row('Base EXP', U.fmt(d.exp)), row('Job EXP', U.fmt(d.jexp))),
+      h('div', { class: 'mb-h' }, 'ไอเทมที่ดรอป'),
+      h('div', { class: 'mb-drops' }, ...(d.drops.length ? d.drops.map(([id, ch]) => h('div', { class: 'mb-drop', title: ITEMS[id].desc || '' },
+        h('img', { src: itemIconUrl(id), alt: '' }), h('span', {}, ITEMS[id].name), h('em', {}, `${ch >= 0.1 ? Math.round(ch * 100) : (ch * 100).toFixed(ch < 0.01 ? 2 : 1)}%`))) : [h('span', { class: 'hint' }, 'ไม่มี')])),
+      h('div', { class: 'mb-h' }, 'พบได้ที่'),
+      h('div', { class: 'mb-where' }, where.length ? where.map(m => `${MAP_DEFS[m].name}${MAP_DEFS[m].level ? ` (Lv ${MAP_DEFS[m].level})` : ''}`).join(' • ') : '-'),
+      where.length ? h('div', { class: 'opt-btns' }, h('button', { class: 'btn', onclick: () => { Nav.goTo({ kind: 'mob', map: where[0], mobId: d.id, name: d.name }); this.close('w-mob'); } }, '🧭 นำทางไปล่า')) : null,
+    );
+  },
   renderStorage() {
     const p = G.player, body = $('#w-storage .win-body');
     body.innerHTML = '';
@@ -757,7 +789,11 @@ const UI = {
     if (this.navTab === 'here') for (const t of Nav.here()) list.append(row(t, `${t.sub} • ${Math.round(t.d)} ช่อง`));
     else if (this.navTab === 'place') for (const t of Nav.places()) list.append(row(t, MAP_DEFS[t.map].name));
     else if (this.navTab === 'map') for (const t of Nav.maps()) list.append(row(t, `${t.thai}${t.level ? ` • Lv ${t.level}` : ''}`, t.map === G.map.id ? 'อยู่ที่นี่' : null));
-    else for (const t of Nav.mobs()) list.append(row(t, `${t.mapName} • Lv ${t.lv}`, t.mvp ? 'MVP' : null));
+    else for (const t of Nav.mobs()) {
+      const r = row(t, `${t.mapName} • Lv ${t.lv}`, t.mvp ? 'MVP' : null);
+      const info = h('span', { class: 'nav-info', title: 'ข้อมูลมอนสเตอร์', onclick: e => { e.stopPropagation(); this.showMob(t.mobId); } }, 'ⓘ');
+      r.append(info); list.append(r);
+    }
     body.append(list, h('div', { class: 'hint' }, 'เลือกแล้วตัวละครจะเดินไปเอง ข้ามแผนที่ได้ • คลิกที่พื้นเพื่อยกเลิก'));
   },
   renderOptions() {
