@@ -19,53 +19,53 @@ STYLE = ("2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Onli
 CHARS = [
     # key, ชื่อไทย, รูปอ้างอิง, คำบรรยาย, ประเภทอาวุธ, ท่าสกิล
     ('novice_f', 'Novice หญิง (Type-A)', 'ภาพเดินล่าสุดของ Novice หญิง', 'female android NOVICE (already designed — follow the attached walk sheet exactly)', 'dagger',
-     'free hand raised forward, a small cyan repair glow forms in the palm'),
+     'free hand raised forward, palm open'),
     ('novice_m', 'Novice ชาย (Type-B)', 'hero_novice_m.webp',
      'male android NOVICE: spiky silver hair plates, cyan visor, olive field jacket with a red cross shoulder patch, brown belt with pouches, white armored legs, short cyan energy dagger in the right hand',
-     'dagger', 'free hand raised forward, a small cyan repair glow forms in the palm'),
+     'dagger', 'free hand raised forward, palm open'),
     ('einherjar_f', 'Einherjar หญิง (นักรบวิญญาณ)', 'hero_einherjar_f.webp',
      'female android EINHERJAR knight: long silver-white hair, small silver winged helmet, red visor, silver plate armor with red trim, red cape, round silver shield with a gold star on the left arm, glowing red longsword in the right hand',
-     'sword', 'shield raised and sword held up to the sky, a red-gold battle aura flares around the body'),
+     'sword', 'shield raised and sword held up to the sky'),
     ('einherjar_m', 'Einherjar ชาย (นักรบวิญญาณ)', 'hero_einherjar_m.webp',
      'male android EINHERJAR knight: full helm with curved horns, red visor, bulky silver plate armor with red trim, red cape, round silver shield with a gold star, glowing red longsword',
-     'sword', 'shield raised and sword held up to the sky, a red-gold battle aura flares around the body'),
+     'sword', 'shield raised and sword held up to the sky'),
     ('runecaster_f', 'Rune Caster หญิง (นักเวทรูน)', 'hero_runecaster_f.webp',
      'female android RUNE CASTER mage: long deep-blue hair, deep blue hooded robe with glowing cyan rune patterns, cyan visor, white armored body under the robe, tall staff topped with a glowing blue orb and floating crystals',
-     'staff', 'staff raised forward, a glowing cyan rune circle forms in front of the staff with runes orbiting'),
+     'staff', 'staff thrust forward with both hands'),
     ('runecaster_m', 'Rune Caster ชาย (นักเวทรูน)', 'hero_runecaster_m.webp',
      'male android RUNE CASTER mage: short blue hair under a deep blue hooded robe with glowing cyan rune patterns, cyan visor, tall staff topped with a glowing blue orb',
-     'staff', 'staff raised forward, a glowing cyan rune circle forms in front of the staff with runes orbiting'),
+     'staff', 'staff thrust forward with both hands'),
     ('wildhunter_f', 'Wildhunter หญิง (นักล่า)', 'hero_wildhunter_f.webp',
      'female android WILDHUNTER archer: long blonde braid, green hooded cloak, green visor, white armor with brown leather straps, quiver of green-fletched arrows on the back, curved wood-and-gold recurve bow with a glowing green string',
-     'bow', 'kneels slightly and draws a glowing green charged arrow, energy spiralling around the arrow tip'),
+     'bow', 'kneels slightly and draws the bow at full stretch, aiming ahead'),
     ('wildhunter_m', 'Wildhunter ชาย (นักล่า)', 'hero_wildhunter_m.webp',
      'male android WILDHUNTER archer: short messy blond hair, green hooded cloak, green visor, white armor with leather straps, quiver of green arrows, curved wood-and-gold recurve bow with a glowing green string',
-     'bow', 'kneels slightly and draws a glowing green charged arrow, energy spiralling around the arrow tip'),
+     'bow', 'kneels slightly and draws the bow at full stretch, aiming ahead'),
     ('volva_f', 'Völva หญิง (นักพยากรณ์แห่งแสง)', 'hero_volva_f.webp',
      'female android VÖLVA priestess: long black hair with a gold circlet, flowing white-and-gold robe with Norse knot patterns, gold visor, golden staff with a sun-ring top and a cyan gem',
-     'staff', 'golden staff raised overhead, warm golden light rays and a halo ring shine down around her'),
+     'staff', 'golden staff raised overhead with both hands'),
     ('volva_m', 'Völva ชาย (นักพยากรณ์แห่งแสง)', 'hero_volva_m.webp',
      'male android VÖLVA priest: shoulder-length black hair with a gold headband, white-and-gold robe with Norse knot patterns, gold visor, golden staff with a sun-ring top',
-     'staff', 'golden staff raised overhead, warm golden light rays and a halo ring shine down around him'),
+     'staff', 'golden staff raised overhead with both hands'),
     ('trickster_f', "Loki's Trickster หญิง (นักลวง)", 'hero_trickster_f.webp',
      "female android LOKI'S TRICKSTER rogue: long crimson hair plates in a high ponytail, purple visor, dark purple-black stealth suit with a ragged purple scarf and small green glowing accents, glowing violet dagger",
-     'dagger', 'crouches low with the dagger reversed, purple shadow smoke swirls up around her body'),
+     'dagger', 'crouches low with the dagger held in reverse grip'),
     ('trickster_m', "Loki's Trickster ชาย (นักลวง)", 'hero_trickster_m.webp',
      "male android LOKI'S TRICKSTER rogue: spiky crimson hair plates, purple visor, dark purple-black stealth suit with a ragged purple scarf and green glowing accents, glowing violet dagger",
-     'dagger', 'crouches low with the dagger reversed, purple shadow smoke swirls up around his body'),
+     'dagger', 'crouches low with the dagger held in reverse grip'),
     ('berserker_f', 'Berserker หญิง (นักรบคลั่ง)', 'hero_berserker_f.webp',
      'female android BERSERKER: wolf-head pelt hood over long silver hair, orange visor, bronze-brown heavy armor trimmed with fur, huge glowing orange battle axe',
-     'axe', 'roars with the axe raised high, a red-orange rage aura of flames bursts around the body'),
+     'axe', 'roars with the axe raised high over the head'),
     ('berserker_m', 'Berserker ชาย (นักรบคลั่ง)', 'hero_berserker_m.webp',
      'male android BERSERKER: wolf-head pelt hood, orange visor, very bulky bronze-brown heavy armor trimmed with fur, huge glowing orange battle axe',
-     'axe', 'roars with the axe raised high, a red-orange rage aura of flames bursts around the body'),
+     'axe', 'roars with the axe raised high over the head'),
 ]
 ATTACK = {
-    'dagger': '1 ready, 2 pull back (dagger arm drawn far back), 3 lunge forward, 4 full SLASH with a short glowing slash arc, 5 follow-through, 6 back to ready',
-    'sword': '1 ready behind the shield, 2 pull back with the sword raised high, 3 step in, 4 full overhead SLASH with a red slash arc, 5 follow-through low, 6 back to ready',
-    'staff': '1 ready holding the staff, 2 staff pulled back, 3 step in swinging, 4 staff HIT with a small bright spark, 5 follow-through, 6 back to ready',
-    'bow': '1 ready with the bow lowered, 2 nock an arrow, 3 full draw aimed ahead, 4 RELEASE with the arrow flying off and a green streak, 5 bow recoil, 6 back to ready',
-    'axe': '1 ready, 2 axe raised overhead with both hands, 3 lunge forward, 4 heavy CHOP with an orange arc, 5 follow-through low to the ground, 6 back to ready',
+    'dagger': '1 ready, 2 pull back (dagger arm drawn far back), 3 lunge forward, 4 full SLASH, arm fully extended, 5 follow-through, 6 back to ready',
+    'sword': '1 ready behind the shield, 2 pull back with the sword raised high, 3 step in, 4 full overhead SLASH, sword low in front, 5 follow-through low, 6 back to ready',
+    'staff': '1 ready holding the staff, 2 staff pulled back, 3 step in swinging, 4 staff HIT, arms fully extended, 5 follow-through, 6 back to ready',
+    'bow': '1 ready with the bow lowered, 2 nock an arrow, 3 full draw aimed ahead, 4 RELEASE, string snapping forward (no arrow in flight), 5 bow recoil, 6 back to ready',
+    'axe': '1 ready, 2 axe raised overhead with both hands, 3 lunge forward, 4 heavy CHOP, axe head low in front, 5 follow-through low to the ground, 6 back to ready',
 }
 SHEETS = [  # ท่า, เทมเพลต, ตาราง, คำอธิบายไทย
     ('walk', 'tpl_walk.png', '4×5', 'เดิน (ภาพแรกของตัวละคร = แบบอ้างอิง)'),
@@ -92,10 +92,10 @@ def char_prompt(c, sheet):
                 "Frames: 1 neutral, 2 breathe in (shoulders a tiny bit higher), 3 neutral, 4 breathe out. The legs and feet must NOT move between frames. "
                 "Each row is a direction as labelled.\n" + TAIL.replace(', every frame clearly different', ''))
     if sheet == 'attack':
-        return f"Draw {ref} into the attached template: ATTACK, 6 frames per direction: {ATTACK[wt]}. Each row is a direction as labelled.\n" + TAIL
+        return f"Draw {ref} into the attached template: ATTACK, 6 frames per direction: {ATTACK[wt]}. Draw the character ONLY: no slash arcs, no motion lines, no effects (the game adds them). Each row is a direction as labelled.\n" + TAIL
     if sheet == 'cast':
         return (f"Draw {ref} into the attached template: SKILL pose (one pose used for every skill), 4 frames per direction: "
-                f"1 ready, 2 charging, 3 release, 4 effect at full size. The pose: {skill}. Each row is a direction as labelled.\n" + TAIL)
+                f"1 ready, 2 gathering power, 3 release, 4 hold the final pose. The pose: {skill}. Draw the character ONLY: no magic circles, no glow, no aura, no smoke, no effects (the game adds skill effects separately). Each row is a direction as labelled.\n" + TAIL)
     if sheet == 'sit_hurt':
         return (f"Draw {ref} into the attached template.\n"
                 "Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).\n"
@@ -152,6 +152,50 @@ KAIA = ("In-game character sprite for a cute classic 2000s Korean MMORPG (chibi,
         "Single full-body figure, 3/4 view FACING LEFT, standing, centered. Fully transparent background, cel-shaded, crisp dark outline, readable at 64 px. No text, no shadow.")
 
 
+# ---------------- แบบแชต: 1 ข้อความเริ่มต้นต่อตัวละคร แล้วพิมพ์ next ----------------
+SHEET_NAME = {'walk': 'WALK', 'idle': 'IDLE', 'attack': 'ATTACK', 'cast': 'SKILL POSE', 'sit_hurt': 'SIT + HURT', 'dead': 'DEAD'}
+TPL = {k: t for k, t, _, _ in SHEETS}
+
+
+def body_of(c, sheet):
+    """เนื้อหาเฉพาะของภาพนั้น (ตัดส่วนหัว/ท้ายที่ซ้ำ ใช้ในข้อความเริ่มต้นแบบแชต)"""
+    p = char_prompt(c, sheet)
+    for cut in ('into the attached template: ', 'into the attached template.\n'):
+        if cut in p: p = p.split(cut, 1)[1]; break
+    else:
+        p = p.split('Draw a WALK cycle into the attached template, ', 1)[1] if 'Draw a WALK' in p else p
+    for tail in (TAIL, TAIL.replace(', every frame clearly different', '')):
+        p = p.replace('\n' + tail, '')
+    p = p.split(' Leave clear space between characters')[0]
+    return p.strip()
+
+
+def chat_starter(c, sheets):
+    key, th, ref, desc, wt, skill = c
+    L = [STYLE, f"Character: {desc}.", '',
+         'RULES FOR EVERY IMAGE: follow the template I attach with each image (rows = directions FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK; columns = frames). '
+         'Standing poses: top of the head on the blue line, feet on the red line. Same character, same size, same colors in every image — after IMAGE 1, the walk sheet you drew is the reference. '
+         'Leave clear space between characters so they never touch. Draw the character ONLY: no effects, no glow auras, no slash arcs, no motion lines (the game adds effects). '
+         'Flat white background. Do NOT draw the labels, grid or guide lines.', '',
+         'I will ask for ONE image at a time and attach its template. After each image, wait until I type "next".', '']
+    for i, sh in enumerate(sheets, 1):
+        L.append(f"IMAGE {i} — {SHEET_NAME[sh]} (template {TPL[sh]}): {body_of(c, sh)}")
+    L += ['', 'Start now with IMAGE 1.']
+    return '\n'.join(L)
+
+
+def mob_starter(mobs):
+    L = ['You are my monster sprite artist for a cute 2000s Korean MMORPG (Ragnarok Online style) where every monster is a cute chibi ROBOT version of a classic monster.',
+         'For each image I attach: (1) the monster design, (2) the 4x2 template. Draw that exact monster (same colors, same size, same art style) into the template, facing LEFT (3/4 view).',
+         'Top row = MOVE loop (4 frames). Bottom row = ATTACK (4 frames). Bottom of the monster on the red line in every cell, even for jumps (the game adds the jump height). '
+         'Every frame clearly different. Draw the monster ONLY: no effects, no motion lines, no impact bursts (the game adds them). Leave clear space between cells. Flat white background. Do NOT draw the labels, grid or guide lines.',
+         'I will ask for ONE monster at a time. After each image, wait until I type "next".', '']
+    for i, m in enumerate(mobs, 1):
+        L.append(f"IMAGE {i} — {m[1]}: MOVE = {m[3]}. ATTACK = {m[4]}.")
+    L += ['', 'Start now with IMAGE 1.']
+    return '\n'.join(L)
+
+
 def build():
     items = []  # สำหรับหน้าเว็บ
     L = ['# 📝 Prompt Notepad — ภาพที่ยังขาดทั้งหมด', '',
@@ -162,6 +206,22 @@ def build():
          '3. มอนสเตอร์ 1 ตัว = 1 ภาพ แนบรูปมอนเดิม (`assets/mobsprite_*.webp`) + `art/tpl_mob.png`',
          '4. ส่งภาพมาได้เลย ผมวัดขนาด ตัดเฟรม ทำทิศขวา และติดตั้งให้เอง', '']
     todo_c = todo_m = 0
+    chats = []
+    for c in CHARS:
+        miss = [sh for sh, *_ in SHEETS if not char_done(c[0], sh)]
+        if not miss: continue
+        if len(miss) == 1:
+            txt = char_prompt(c, miss[0]); how = f"แนบ ภาพเดินของตัวนี้ + {TPL[miss[0]]}"
+        else:
+            txt = chat_starter(c, miss); how = f"แชตใหม่ • แนบ {c[2]} + {TPL[miss[0]]} • จากนั้นพิมพ์ next + แนบเทมเพลตของภาพถัดไป ({', '.join(TPL[m] for m in miss[1:])})"
+        chats.append((c[1], how, txt, len(miss), c[2], [TPL[m] for m in miss]))
+    mobs_left = [m for m in MOBS if f'anim_mob_{m[0]}_walk' not in HAVE]
+    if mobs_left:
+        chats.append(('มอนสเตอร์ทั้งหมด', f'แชตใหม่ • แนบ mobsprite ของตัวที่ 1 ({mobs_left[0][1]}) + tpl_mob.png • จากนั้นพิมพ์ next + แนบ mobsprite ตัวถัดไป + tpl_mob.png', mob_starter(mobs_left), len(mobs_left), f'mobsprite_{mobs_left[0][0]}.webp', ['tpl_mob.png']))
+    L += ['## แบบแชต (วางครั้งเดียวต่อแชต แล้วพิมพ์ next)', '']
+    for th, how, txt, n, ref, tpls in chats:
+        L += [f'### {th} — {n} ภาพ', '', how, '', '```', txt, '```', '']
+        items.append({'group': 'แชตสั่งภาพ (แบบ next)', 'key': 'chat_' + th, 'sheet': 'chat', 'title': f'{th} — {n} ภาพ', 'attach': [ref] + tpls, 'done': False, 'prompt': txt, 'how': how})
     L += ['## ตัวละคร (อาชีพละ 6 ภาพ)', '']
     for c in CHARS:
         key, th, ref = c[0], c[1], c[2]
@@ -245,7 +305,7 @@ PAGE = r'''<title>Prompt Notepad</title>
 const DATA = __DATA__;
 const IMG = __IMG__;
 const $ = s => document.querySelector(s);
-let filter = 'todo';
+let filter = 'chat';
 const store = { get(k) { try { return JSON.parse(localStorage.getItem('pn_sent') || '{}')[k]; } catch (e) { return false; } },
   set(k, v) { try { const o = JSON.parse(localStorage.getItem('pn_sent') || '{}'); o[k] = v; localStorage.setItem('pn_sent', JSON.stringify(o)); } catch (e) {} } };
 function el(t, a = {}, ...kids) { const e = document.createElement(t); for (const k in a) { if (k === 'class') e.className = a[k]; else if (k.startsWith('on')) e.addEventListener(k.slice(2), a[k]); else e.setAttribute(k, a[k]); } for (const c of kids.flat()) if (c != null) e.append(c); return e; }
@@ -255,16 +315,17 @@ function copy(txt, btn) {
   try { navigator.clipboard.writeText(txt).then(done, fb); } catch (e) { fb(); }
 }
 function render() {
-  const todo = DATA.filter(d => !d.done).length, sent = DATA.filter(d => !d.done && store.get(d.key + ':' + d.sheet)).length;
-  $('#sum').innerHTML = `ยังขาด <b>${todo}</b> ภาพ • ส่งไปแล้ว (ในเครื่องนี้) ${sent} • ติดตั้งแล้ว ${DATA.length - todo}`;
+  const todo = DATA.filter(d => !d.done && d.sheet !== 'chat').length, sent = DATA.filter(d => !d.done && store.get(d.key + ':' + d.sheet)).length;
+  $('#sum').innerHTML = `ยังขาด <b>${todo}</b> ภาพ • ส่งไปแล้ว (ในเครื่องนี้) ${sent} • ติดตั้งแล้ว ${DATA.filter(d => d.done).length}`;
   const bar = $('#bar'); bar.innerHTML = '';
-  for (const [k, l] of [['todo', 'ที่ยังขาด'], ['all', 'ทั้งหมด'], ['char', 'ตัวละคร'], ['mob', 'มอนสเตอร์'], ['npc', 'NPC']]) bar.append(el('button', { class: filter === k ? 'on' : '', onclick: () => { filter = k; render(); } }, l));
+  for (const [k, l] of [['chat', 'แบบแชต (next)'], ['todo', 'ที่ยังขาด'], ['all', 'ทั้งหมด'], ['char', 'ตัวละคร'], ['mob', 'มอนสเตอร์'], ['npc', 'NPC']]) bar.append(el('button', { class: filter === k ? 'on' : '', onclick: () => { filter = k; render(); } }, l));
   const list = $('#list'); list.innerHTML = '';
   const groups = {};
   for (const d of DATA) {
-    const kind = d.sheet === 'mob' ? 'mob' : d.sheet === 'npc' ? 'npc' : 'char';
+    const kind = d.sheet === 'chat' ? 'chat' : d.sheet === 'mob' ? 'mob' : d.sheet === 'npc' ? 'npc' : 'char';
     if (filter === 'todo' && d.done) continue;
-    if (['char', 'mob', 'npc'].includes(filter) && kind !== filter) continue;
+    if (['char', 'mob', 'npc', 'chat'].includes(filter) && kind !== filter) continue;
+    if (filter === 'todo' && kind === 'chat') continue;
     (groups[d.group] = groups[d.group] || []).push(d);
   }
   let first = true;
@@ -279,7 +340,7 @@ function render() {
       const cb = el('input', { type: 'checkbox' }); cb.checked = !!sent; cb.addEventListener('change', () => { store.set(id, cb.checked); render(); });
       cards.append(el('div', { class: 'card' + (d.done ? ' done' : '') },
         el('div', { class: 'hd' }, el('b', {}, d.title), el('span', { class: 'chip ' + (d.done ? 'ok' : 'todo') }, d.done ? 'ติดตั้งแล้ว' : sent ? 'ส่งแล้ว รอติดตั้ง' : 'ยังขาด')),
-        att, el('pre', {}, d.prompt),
+        d.how ? el('div', { class: 'hint' }, d.how) : null, att, el('pre', {}, d.prompt),
         el('div', { class: 'acts' }, el('button', { onclick: e => copy(d.prompt, e.target) }, 'คัดลอก prompt'), d.done ? null : el('label', {}, cb, 'ส่งให้ ChatGPT แล้ว'))));
     }
     det.append(cards); list.append(det);
