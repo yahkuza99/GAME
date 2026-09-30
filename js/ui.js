@@ -498,6 +498,12 @@ const UI = {
     cv.dataset.key = key;
     const g = cv.getContext('2d');
     g.clearRect(0, 0, cv.width, cv.height);
+    const gk = `${p.job}_${p.gender === 'm' ? 'm' : 'f'}`;
+    if (Anim.has(gk)) { // มีภาพเคลื่อนไหวแล้ว: ใช้หน้าจากตัวในเกม (ไม่ใช้ภาพประกอบรุ่นเก่า)
+      const bg = g.createLinearGradient(0, 0, 0, cv.height); bg.addColorStop(0, '#1c3450'); bg.addColorStop(1, '#070b14');
+      g.fillStyle = bg; g.fillRect(0, 0, cv.width, cv.height);
+      Anim.drawFace(g, gk, cv.width, cv.height); return;
+    }
     if (artKey) { Art.drawFace(g, Art.get(artKey), cv.width, cv.height); return; }
     const bg = g.createRadialGradient(cv.width / 2, cv.height * 0.4, 4, cv.width / 2, cv.height / 2, cv.width * 0.7);
     const glow = (p.look && p.look.glow) || JOBS[p.job].glow || '#7ad8ff';

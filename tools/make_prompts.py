@@ -111,7 +111,9 @@ ORDER = ["ชิ้นส่วนกระดูก (animation)", "สไปร
 items.sort(key=lambda it: ORDER.index(it['group']))
 NUM = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯"
 for it in items: it['group'] = f"{NUM[ORDER.index(it['group'])]} {it['group']}"
-try: have = {os.path.splitext(f)[0] for f in json.load(open(os.path.join(ROOT, 'assets', 'manifest.json')))}
+try:
+    _m = json.load(open(os.path.join(ROOT, 'assets', 'manifest.json')))
+    have = {os.path.splitext(f)[0] for f in (_m['files'] if isinstance(_m, dict) else _m)}
 except Exception: have = set()
 for it in items:
     keys = it.get('keys') or [it['file'][:-4]]

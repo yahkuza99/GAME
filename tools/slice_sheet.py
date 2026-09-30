@@ -11,9 +11,12 @@ from asset_spec import SHEETS
 ROOT = os.path.join(os.path.dirname(__file__), '..', 'assets')
 
 def manifest():
-    # รายชื่อไฟล์ภาพทั้งหมด (เกมโหลดเฉพาะที่อยู่ในรายการนี้)
+    """รายชื่อไฟล์ภาพทั้งหมด (เกมโหลดเฉพาะที่อยู่ในรายการนี้) + รหัสเวอร์ชันของแต่ละไฟล์
+    (เกมต่อท้าย ?v=รหัส ตอนโหลด ภาพที่แก้แล้วชื่อเดิมจึงไม่ติดแคชของเบราว์เซอร์)"""
+    import hashlib
     files = sorted(f for f in os.listdir(ROOT) if f.endswith(('.webp', '.png')))
-    json.dump(files, open(os.path.join(ROOT, 'manifest.json'), 'w'), indent=0)
+    ver = {f: hashlib.md5(open(os.path.join(ROOT, f), 'rb').read()).hexdigest()[:8] for f in files}
+    json.dump({'files': files, 'v': ver}, open(os.path.join(ROOT, 'manifest.json'), 'w'), indent=0)
     print('manifest:', len(files), 'assets')
 
 def save(im, key):

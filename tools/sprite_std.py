@@ -8,6 +8,7 @@
 
 ใช้:
   python3 tools/sprite_std.py template [--cols 4 --rows 2]          สร้างภาพเทมเพลตไว้แนบให้ ChatGPT
+  python3 tools/sprite_std.py template attack                        เทมเพลต 5 ทิศ มีเลขเฟรม+ชื่อท่า (walk/attack/cast/sit_hurt/dead)
   python3 tools/sprite_std.py measure <ชีต.png> --grid 4x2            วัดอย่างเดียว (ไม่ติดตั้ง)
   python3 tools/sprite_std.py install <ชีต.png> <key> <action> --grid 4x2 [--frames 8]
   python3 tools/sprite_std.py install <ชีต.png> <key> walk --grid 4x7 --dirs S,SW,W,NW,N,E,SE
@@ -72,6 +73,21 @@ def knock_bg(im, tol=40, hole_tol=14, hole_min=700):
     cs = [px[2, 2], px[W - 3, 2], px[2, H - 3], px[W - 3, H - 3]]
     bg = tuple(sorted(c[i] for c in cs)[1] for i in range(3))
     KEY = (255, 0, 254) if bg != (255, 0, 254) else (0, 255, 1)
+    # เส้นตาราง/เส้นไกด์ยาว ๆ (ถ้า ChatGPT วาดติดมา) กั้นไม่ให้พื้นหลังไหลเข้าช่อง: ทาสีพื้นทับก่อน
+    far = lambda c: sum(abs(c[i] - bg[i]) for i in range(3)) >= tol
+    rowc = [sum(1 for x in range(0, W, 2) if far(px[x, y])) * 2 for y in range(H)]
+    colc = [sum(1 for y in range(0, H, 2) if far(px[x, y])) * 2 for x in range(W)]
+    def paint(pts, dx, dy):
+        lone = [px[x, y] for x, y in pts if far(px[x, y]) and all(not (0 <= x + k * dx < W and 0 <= y + k * dy < H) or not far(px[x + k * dx, y + k * dy]) for k in (-3, 3))]
+        if len(lone) < 20: return
+        mc = [sorted(c[i] for c in lone)[len(lone) // 2] for i in range(3)]
+        for x, y in pts:
+            c = px[x, y]
+            if sum(abs(c[i] - mc[i]) for i in range(3)) < 90: px[x, y] = bg
+    for y in range(H):
+        if rowc[y] > W * 0.5 and all(rowc[y] - rowc[j] > W * 0.3 for j in (y - 5, y + 5) if 0 <= j < H): paint([(x, y) for x in range(W)], 0, 1)
+    for x in range(W):
+        if colc[x] > H * 0.5 and all(colc[x] - colc[j] > H * 0.3 for j in (x - 5, x + 5) if 0 <= j < W): paint([(x, y) for y in range(H)], 1, 0)
     fill = rgb.copy()
     seeds = [(x, y) for x in range(0, W, 8) for y in (0, H - 1)] + [(x, y) for y in range(0, H, 8) for x in (0, W - 1)]
     fp = fill.load()
@@ -114,6 +130,42 @@ def knock_bg(im, tol=40, hole_tol=14, hole_min=700):
     # ขอบนุ่ม: ตัดขอบ 1px ที่ติดพื้นขาว (กันขอบขาวรอบตัวเวลาวางบนหญ้า)
     alpha = alpha.filter(ImageFilter.MinFilter(3))
     im.putalpha(alpha); return im
+
+
+# เทมเพลตมีป้ายกำกับ: คอลัมน์ = เฟรม (เลข + ชื่อท่า) • แถว = ทิศ — แนบให้ ChatGPT รู้ว่าแต่ละช่องต้องวาดอะไร
+DIR_LABELS = ['FRONT', 'FRONT-LEFT', 'LEFT', 'BACK-LEFT', 'BACK']
+POSES = {
+    'walk':   ('4x5', 1024, 1536, ['L foot fwd', 'passing', 'R foot fwd', 'passing']),
+    'attack': ('6x5', 1536, 1024, ['ready', 'wind-up', 'lunge', 'SLASH', 'follow', 'ready']),
+    'cast':   ('4x5', 1024, 1536, ['raise hand', 'rune small', 'rune grow', 'rune full']),
+    'sit_hurt': ('4x5', 1024, 1536, ['SIT', 'SIT breathe', 'HURT hit', 'HURT recover']),
+    'dead':   ('4x5', 1024, 1536, ['knees buckle', 'falling', 'on ground', 'still, visor off']),
+}
+
+
+def labeled_template(action):
+    grid, W, H, labels = POSES[action]
+    cols, rows = map(int, grid.split('x'))
+    from PIL import ImageFont
+    def font(sz):
+        for f in ('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf'):
+            try: return ImageFont.truetype(f, sz)
+            except Exception: pass
+        return ImageFont.load_default()
+    cw, ch = W / cols, H / rows
+    f1, f2 = font(max(12, int(ch * 0.075))), font(max(10, int(ch * 0.055)))
+    im = Image.new('RGB', (W, H), (255, 255, 255)); d = ImageDraw.Draw(im)
+    g = ch * 0.93; top = ch * 0.22; hh = g - top
+    for r in range(rows):
+        for c in range(cols):
+            x0, y0 = c * cw, r * ch
+            d.rectangle([x0, y0, x0 + cw - 1, y0 + ch - 1], outline=(205, 205, 212), width=2)
+            d.line([x0 + cw / 2, y0 + top - 6, x0 + cw / 2, y0 + g], fill=(228, 228, 236), width=2)
+            d.line([x0 + 10, y0 + top, x0 + cw - 10, y0 + top], fill=(70, 120, 235), width=2)
+            d.line([x0 + 10, y0 + g, x0 + cw - 10, y0 + g], fill=(235, 60, 60), width=3)
+            d.text((x0 + 6, y0 + 4), f"{c + 1} {labels[c]}", fill=(90, 90, 110), font=f1)
+            if c == 0: d.text((x0 + 6, y0 + 6 + f1.size), DIR_LABELS[r], fill=(200, 80, 60), font=f2)
+    return im
 
 
 def cuts(profile, n, lo=0, hi=None):
@@ -169,10 +221,10 @@ def knock_lines(cell):
             r, g, b, al = px[x, y]
             if al and abs(r - mc[0]) + abs(g - mc[1]) + abs(b - mc[2]) < 90: px[x, y] = (0, 0, 0, 0)
     for y in range(H):
-        if row[y] > W * 0.75 and all(row[y] - row[j] > W * 0.3 for j in (y - 6, y + 6) if 0 <= j < H):
+        if row[y] > W * 0.6 and all(row[y] - row[j] > W * 0.3 for j in (y - 6, y + 6) if 0 <= j < H):
             wipe([(x, y) for x in range(W)], (0, 4))
     for x in range(W):
-        if col[x] > H * 0.75 and all(col[x] - col[j] > H * 0.3 for j in (x - 6, x + 6) if 0 <= j < W):
+        if col[x] > H * 0.6 and all(col[x] - col[j] > H * 0.3 for j in (x - 6, x + 6) if 0 <= j < W):
             wipe([(x, y) for y in range(H)], (4, 0))
     return cell
 
@@ -281,6 +333,9 @@ def main():
     ap.add_argument('--order', default='', help='ลำดับเฟรมใหม่ เช่น 1,2,3,4,3,2')
     a = ap.parse_args()
     if a.cmd == 'template':
+        if a.src in POSES:  # template <ท่า> → เทมเพลต 5 ทิศมีป้ายกำกับ
+            out = os.path.join(HERE, '..', 'art', f'tpl_{a.src}.png')
+            labeled_template(a.src).save(out); print('template →', out); return
         out = os.path.join(HERE, '..', 'art', f'anim_template_{a.cols}x{a.rows}.png')
         template(a.cols, a.rows).save(out); print('template →', out); return
     cols, rows = map(int, a.grid.lower().split('x'))

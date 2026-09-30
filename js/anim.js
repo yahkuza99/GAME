@@ -71,6 +71,26 @@ const Anim = {
     const r = this.feet(img, n)[row];
     return r ? r.still : Math.min(1, n - 1);
   },
+  // รูปหน้าในกรอบโปรไฟล์: ครอปหัวจากท่ายืนหันหน้า (ตัวเดียวกับในเกม)
+  drawFace(g, key, w, h) {
+    const s = this.strip(key, 'idle'); if (!s) return false;
+    const C = this.CELL, row = s.dirs === 8 ? 2 : 0, f = s.dirs === 8 ? 0 : 0;
+    let top = this.GROUND - this.STD_H;
+    try {
+      if (s.img._faceTop == null) {
+        const c = document.createElement('canvas'); c.width = C; c.height = C;
+        const cg = c.getContext('2d'); cg.drawImage(s.img, f * C, row * C, C, C, 0, 0, C, C);
+        const d = cg.getImageData(0, 0, C, C).data;
+        let ty = -1;
+        for (let y = 0; y < C && ty < 0; y++) for (let x = 80; x < 160; x++) if (d[(y * C + x) * 4 + 3] > 100) { ty = y; break; }
+        s.img._faceTop = ty < 0 ? top : ty;
+      }
+      top = s.img._faceTop;
+    } catch (e) { /* อ่านพิกเซลไม่ได้ ใช้ค่ามาตรฐาน */ }
+    const size = 76;
+    g.drawImage(s.img, f * C + this.CX - size / 2, row * C + top - 2, size, size * h / w, 0, 0, w, h);
+    return true;
+  },
   has(key) { return !!Art.get(`anim_${key}_idle`) || !!Art.get(`anim_${key}_walk`); },
 
   // เลือกท่าและเฟรมจากสถานะตัวละคร

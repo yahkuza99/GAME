@@ -17,18 +17,21 @@ const Art = {
   imgs: {},
   load() {
     // f = ชื่อไฟล์ (เช่น skill_fire_rune.webp) หรือ key ล้วน (ลอง .webp แล้วค่อย .png)
+    let ver = {};
     const probe = f => {
       const k = f.replace(/\.(webp|png)$/, ''), exts = /\.(webp|png)$/.test(f) ? [''] : ['.webp', '.png'];
       const tryAt = i => {
         const img = new Image();
         img.onload = () => { this.imgs[k] = img; this.onLoad(k); };
         img.onerror = () => { if (i + 1 < exts.length) tryAt(i + 1); };
-        img.src = `assets/${f}${exts[i]}`;
+        img.src = `assets/${f}${exts[i]}` + (ver[f] ? `?v=${ver[f]}` : '');
       };
       tryAt(0);
     };
     if (location.protocol === 'file:') { ART_KEYS.forEach(probe); return; } // เปิดไฟล์ตรง ๆ อ่าน manifest ไม่ได้
-    fetch('assets/manifest.json').then(r => (r.ok ? r.json() : Promise.reject())).then(list => list.forEach(probe))
+    // manifest ห้ามใช้แคช: มีรหัสเวอร์ชันของภาพทุกไฟล์ (ภาพชื่อเดิมที่แก้ใหม่จะได้โหลดใหม่)
+    fetch('assets/manifest.json', { cache: 'no-store' }).then(r => (r.ok ? r.json() : Promise.reject()))
+      .then(m => { const list = Array.isArray(m) ? m : m.files; ver = (m && m.v) || {}; list.forEach(probe); })
       .catch(() => ART_KEYS.forEach(probe));
   },
   // ไอคอนไอเทม: ภาพเฉพาะชิ้น > ชิปการ์ดรวม > วาดด้วยโค้ด
