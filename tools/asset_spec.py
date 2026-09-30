@@ -22,7 +22,7 @@ SPRITE_STYLE = ("In-game monster sprite sheet for a cute classic 2000s Korean MM
  "Each monster is a single full-body creature in its own equal cell, 3/4 view FACING LEFT, standing on the ground, centered with empty space around it, "
  "on a FULLY TRANSPARENT background (PNG). Cel-shaded anime game art, crisp dark outline, soft glossy highlights, readable at 64 pixels tall. "
  "No text, no grid lines, no frames, no ground shadow, creatures must not touch each other.")
-SPRITE_SHEETS = [
+ACTOR_SHEETS = [
  ("sheet_npcs_1.png", [
   ("npcsprite_bifrost", "Bifrost Keeper: calm feminine android, long lavender hair plates, navy robe with gold trim, a small rainbow ring floating behind her head"),
   ("npcsprite_jobmaster", "Mimir AI: ancient sage android, white hood over navy robe, silver plate-beard, holding a glowing rune tablet staff"),
@@ -74,7 +74,7 @@ ACTOR_STYLE = ("In-game character sprite sheet for a cute classic 2000s Korean M
  "sci-fi Norse world where every character is a humanoid ANDROID. FACE RULE: smooth glossy metal faceplate with ONE glowing visor strip — NO eyes, NO mouth. "
  "'Hair' is layered synthetic metal plates. Each character is a single full-body figure standing in 3/4 view FACING LEFT, centered in its own equal cell with empty space around it, "
  "on a FULLY TRANSPARENT background (PNG). Cel-shaded anime game art, crisp dark outline, glossy highlights, readable at 64 pixels tall. No text, no grid lines, no frames, no ground shadow, figures must not touch.")
-ACTOR_SHEETS = [
+SPRITE_SHEETS = [
  ("sheet_monsters_1.png", [
   ("mobsprite_pudding", "a small bouncy PINK jelly-slime robot: round gummy dome body of glossy pink translucent gel over a metal core, tiny antenna with a light, happy expression made of two small glowing dots"),
   ("mobsprite_leafworm", "a chubby GREEN caterpillar robot: segmented rounded metal body sections, stubby little legs, leaf-shaped antenna, cute"),
