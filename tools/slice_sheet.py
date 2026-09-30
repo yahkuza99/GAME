@@ -11,9 +11,16 @@ from asset_spec import SHEETS
 ROOT = os.path.join(os.path.dirname(__file__), '..', 'assets')
 
 def manifest():
-    keys = sorted(f[:-4] for f in os.listdir(ROOT) if f.endswith('.png'))
-    json.dump(keys, open(os.path.join(ROOT, 'manifest.json'), 'w'), indent=0)
-    print('manifest:', len(keys), 'assets')
+    # รายชื่อไฟล์ภาพทั้งหมด (เกมโหลดเฉพาะที่อยู่ในรายการนี้)
+    files = sorted(f for f in os.listdir(ROOT) if f.endswith(('.webp', '.png')))
+    json.dump(files, open(os.path.join(ROOT, 'manifest.json'), 'w'), indent=0)
+    print('manifest:', len(files), 'assets')
+
+def save(im, key):
+    """บันทึกเป็น WebP (เล็กกว่า PNG ~5 เท่า ยังโปร่งใสได้) และลบ PNG เก่าชื่อเดียวกัน"""
+    im.save(os.path.join(ROOT, key + '.webp'), 'WEBP', quality=90, method=6)
+    old = os.path.join(ROOT, key + '.png')
+    if os.path.exists(old): os.remove(old)
 
 def knock_bg(im):
     """ภาพไม่มีพื้นโปร่งใส: ลบสีพื้นที่เหมือนมุมภาพออก"""
@@ -54,7 +61,7 @@ def slice_sheet(path, name):
             pad = int(max(bb[2] - bb[0], bb[3] - bb[1]) * 0.06)
             bb = (max(0, bb[0] - pad), max(0, bb[1] - pad), min(cell.size[0], bb[2] + pad), min(cell.size[1], bb[3] + pad))
             out = square(cell.crop(bb), 128)
-        out.save(os.path.join(ROOT, key + '.png'), optimize=True)
+        save(out, key)
         print('  +', key)
     manifest()
 
@@ -62,11 +69,15 @@ def add(path, key):
     im = Image.open(path).convert('RGBA')
     lim = 1600 if key.startswith(('map_', 'keyart', 'mvp_')) else 1536
     if max(im.size) > lim: im.thumbnail((lim, lim), Image.LANCZOS)
-    im.save(os.path.join(ROOT, key + '.png'), optimize=True)
+    save(im, key)
     print('  +', key, im.size); manifest()
 
 if __name__ == '__main__':
     a = sys.argv[1:]
     if a[0] == '--manifest': manifest()
+    elif a[0] == '--webp':  # แปลง PNG ที่มีอยู่ทั้งหมดเป็น WebP
+        for f in sorted(os.listdir(ROOT)):
+            if f.endswith('.png'): save(Image.open(os.path.join(ROOT, f)).convert('RGBA'), f[:-4])
+        manifest()
     elif a[0] == '--add': add(a[1], a[2])
     else: slice_sheet(a[0], a[1])

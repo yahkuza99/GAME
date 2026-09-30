@@ -16,11 +16,16 @@ const ART_KEYS = [
 const Art = {
   imgs: {},
   load() {
-    const probe = k => {
-      const img = new Image();
-      img.onload = () => { this.imgs[k] = img; this.onLoad(k); };
-      img.onerror = () => {};
-      img.src = `assets/${k}.png`;
+    // f = ชื่อไฟล์ (เช่น skill_fire_rune.webp) หรือ key ล้วน (ลอง .webp แล้วค่อย .png)
+    const probe = f => {
+      const k = f.replace(/\.(webp|png)$/, ''), exts = /\.(webp|png)$/.test(f) ? [''] : ['.webp', '.png'];
+      const tryAt = i => {
+        const img = new Image();
+        img.onload = () => { this.imgs[k] = img; this.onLoad(k); };
+        img.onerror = () => { if (i + 1 < exts.length) tryAt(i + 1); };
+        img.src = `assets/${f}${exts[i]}`;
+      };
+      tryAt(0);
     };
     if (location.protocol === 'file:') { ART_KEYS.forEach(probe); return; } // เปิดไฟล์ตรง ๆ อ่าน manifest ไม่ได้
     fetch('assets/manifest.json').then(r => (r.ok ? r.json() : Promise.reject())).then(list => list.forEach(probe))

@@ -41,7 +41,7 @@ const UI = {
     this.bindMapClick($('#minimap-cv'));
     this.bindMapClick($('#bigmap-cv'));
     $('#map-open').onclick = () => this.toggle('w-map');
-    $$('#zoom-ctl button').forEach(b => b.onclick = () => { R.zoom = U.clamp(R.zoom * +b.dataset.zoom, 0.5, 1.8); });
+    $$('#zoom-ctl button').forEach(b => b.onclick = () => { R.zoom = U.clamp(R.zoom * +b.dataset.zoom, R.ZMIN, R.ZMAX); });
   },
 
   // ---------------- HUD พับได้ ----------------
@@ -191,7 +191,9 @@ const UI = {
     $('#bi-hp').classList.toggle('low', p.hp / d.maxHp < 0.25);
     $('#bi-hp-t').textContent = `${Math.floor(p.hp)} / ${d.maxHp}`;
     $('#bi-sp-t').textContent = `${Math.floor(p.sp)} / ${d.maxSp}`;
-    $('#bi-zeny').textContent = U.fmt(p.zeny) + ' z';
+    const zi = Art.get('item_zeny'), zHtml = (zi ? `<img src="${zi.src}" alt="">` : '') + U.fmt(p.zeny) + ' z';
+    const ze = $('#bi-zeny');
+    if (ze.innerHTML !== zHtml) { ze.innerHTML = zHtml; ze.classList.toggle('has-ic', !!zi); }
     const pts = [];
     if (p.statPoints > 0) pts.push(`<span class="pt" data-open="w-status">Status +${p.statPoints}</span>`);
     if (p.skillPoints > 0) pts.push(`<span class="pt" data-open="w-skills">Skill +${p.skillPoints}</span>`);
@@ -652,7 +654,10 @@ const UI = {
       h('input', { type: 'checkbox', checked: o[key] ? 'checked' : false, onchange: e => { o[key] = e.target.checked; saveGame(); } }), ' ', label);
     body.append(
       chk('autoLoot', 'เก็บไอเทมอัตโนมัติ (Auto Loot)'),
-      chk('sound', 'เสียงประกอบ'),
+      chk('sound', 'เสียงเอฟเฟกต์'),
+      chk('music', 'เพลงประกอบ (BGM)'),
+      h('label', { class: 'opt' }, 'ความดังเพลง ',
+        h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: o.musicVol != null ? o.musicVol : 0.7, oninput: e => { o.musicVol = +e.target.value; Music.setVolume(o.musicVol); }, onchange: () => saveGame() })),
       chk('expMsg', 'แสดงข้อความ EXP ในแชท'),
       h('div', { class: 'opt-lbl' }, 'ปุ่มควบคุมบนจอ (จอย + ปุ่มโจมตี)'),
       h('div', { class: 'seg' }, ...[['auto', 'อัตโนมัติ'], ['on', 'เปิด'], ['off', 'ปิด']].map(([v, l]) =>

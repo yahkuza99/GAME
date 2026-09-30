@@ -130,7 +130,7 @@ function bindInput() {
   });
   cv.addEventListener('pointermove', e => {
     if (touches.has(e.pointerId)) touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (R.pinch && touches.size >= 2) { R.zoom = U.clamp(R.pinch.z * pinchDist() / R.pinch.d, 0.5, 1.8); return; }
+    if (R.pinch && touches.size >= 2) { R.zoom = U.clamp(R.pinch.z * pinchDist() / R.pinch.d, R.ZMIN, R.ZMAX); return; }
     updateMouse(e);
   });
   cv.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') R.mouse.x = -1; });
@@ -140,7 +140,7 @@ function bindInput() {
   cv.addEventListener('contextmenu', e => e.preventDefault());
   cv.addEventListener('wheel', e => {
     e.preventDefault();
-    R.zoom = U.clamp(R.zoom * (e.deltaY > 0 ? 0.9 : 1.1), 0.5, 1.8);
+    R.zoom = U.clamp(R.zoom * (e.deltaY > 0 ? 0.9 : 1.1), R.ZMIN, R.ZMAX);
   }, { passive: false });
 
   window.addEventListener('keyup', e => keysDown.delete(e.key.toLowerCase()));
@@ -166,8 +166,8 @@ function bindInput() {
       case 'm': UI.toggle('w-map'); break;
       case 'u': UI.toggleHud(); break;
       case 'n': UI.toggle('w-bot'); break;
-      case '-': R.zoom = U.clamp(R.zoom * 0.9, 0.5, 1.8); break;
-      case '=': case '+': R.zoom = U.clamp(R.zoom * 1.1, 0.5, 1.8); break;
+      case '-': R.zoom = U.clamp(R.zoom * 0.9, R.ZMIN, R.ZMAX); break;
+      case '=': case '+': R.zoom = U.clamp(R.zoom * 1.1, R.ZMIN, R.ZMAX); break;
       case 'x': case 'insert': toggleSit(); break;
       case ' ': e.preventDefault(); Pad.interact(); break;
       case 'tab': e.preventDefault(); UI.toggleMenu(); break;
@@ -225,6 +225,7 @@ function loop(ts) {
     }
     keyboardMove();
     Pad.update();
+    Music.update();
     Online.update(dt);
     R.render();
     UI.renderWindows();
@@ -450,6 +451,6 @@ window.addEventListener('load', () => {
   // แท็บถูกซ่อน: requestAnimationFrame หยุด แต่บอทยังทำงานต่อผ่าน timer
   setInterval(() => { if (document.hidden && G.started) advanceSim(); }, 1000);
   window.addEventListener('beforeunload', () => { saveGame(true, true); Online.flushSave(); });
-  document.addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { saveGame(); Music.stop(); } });
   requestAnimationFrame(loop);
 });

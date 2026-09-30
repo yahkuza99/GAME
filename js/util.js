@@ -9,7 +9,7 @@ const U = {
   clamp: (v, a, b) => (v < a ? a : v > b ? b : v),
   dist: (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by),
   chance: p => Math.random() < p,
-  pick: arr => arr[Math.floor(Math.random() * arr.length)],
+  pick: (arr, rnd = Math.random) => arr[Math.floor(rnd() * arr.length)],
   fmt: n => Math.floor(n).toLocaleString('en-US'),
   lerp: (a, b, t) => a + (b - a) * t,
   // RNG แบบกำหนด seed (mulberry32) สำหรับสร้างแผนที่ให้เหมือนเดิมทุกครั้ง

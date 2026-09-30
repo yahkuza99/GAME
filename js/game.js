@@ -23,7 +23,7 @@ function newPlayer(name, gender, hair, look) {
     equip: { head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null },
     hotbar: [null, null, null, null, null, null, null, null], potbar: [null, null, null, null],
     map: HOME_MAP, x: 20.5, y: 24.5, save: { map: HOME_MAP, x: 20.5, y: 24.5 },
-    hp: 1, sp: 1, options: { autoLoot: true, sound: true, expMsg: true }, uidSeq: 1,
+    hp: 1, sp: 1, options: { autoLoot: true, sound: true, music: true, musicVol: 0.7, expMsg: true }, uidSeq: 1,
   };
   initRuntime(p);
   G.player = p;
@@ -351,6 +351,12 @@ function useSlot(h) {
 
 function dropItemOnGround(id, x, y, qty = 1) {
   const p = G.player;
+  if (ITEMS[id] && ITEMS[id].type === 'card') {
+    // การ์ดดรอป: ลำแสงทองพุ่งขึ้นฟ้า + ประกาศ
+    addFx({ type: 'beam', x, y, dur: 2.6 });
+    UI.announce(`✦ ${ITEMS[id].name} ดรอปแล้ว! ✦`);
+    Sound.play('refine_ok');
+  }
   if (p.options.autoLoot && U.dist(x, y, p.x, p.y) < 12) { addItem(id, qty); Sound.play('pickup'); return; }
   G.drops.push({ uid: G.uid++, id, qty, x: x + U.rand(-0.5, 0.5), y: y + U.rand(-0.4, 0.4), born: G.time, pop: 0 });
 }
@@ -368,7 +374,11 @@ function pickUp(drop) {
 const FX_LINGER = { firebolt: 0.3, coldbolt: 0.25, lightning: 0.2, holy: 0.25, soul: 0.2, frost: 0.35, arrow: 0.05 };
 function addFx(f) { f.t = 0; f.linger = FX_LINGER[f.type] || 0; G.fx.push(f); return f; }
 function addFloater(x, y, text, color, big) {
-  G.floaters.push({ x: x + U.rand(-0.15, 0.15), y, text: String(text), color, big, t: 0, dur: big ? 1.6 : 1.1 });
+  const num = typeof text === 'number' || /^[+-]?\d+$/.test(String(text));
+  // ตัวเลขดาเมจแบบ RO: เด้งขึ้นแล้วตกลง ส่ายซ้ายขวาเล็กน้อย / คริ = ตัวเหลืองบนดาวแตก
+  G.floaters.push({ x: x + U.rand(-0.15, 0.15), y, text: String(text), color, big, num, crit: num && big,
+    vx: num ? U.rand(-45, 45) : 0, t: 0, dur: num ? (big ? 1.25 : 1.0) : (big ? 1.6 : 1.1) });
+  if (num && big) R.kick(4, 0.14);
 }
 function later(sec, fn) { G.timers.push({ at: G.time + sec, fn }); }
 function shout(text) { G.player.speech = { text, until: G.time + 1.6, shout: true }; }

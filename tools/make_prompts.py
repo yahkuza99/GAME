@@ -111,7 +111,7 @@ ORDER = ["ไอคอนสกิล", "ไอคอนไอเทม", "ค�
 items.sort(key=lambda it: ORDER.index(it['group']))
 NUM = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫"
 for it in items: it['group'] = f"{NUM[ORDER.index(it['group'])]} {it['group']}"
-try: have = set(json.load(open(os.path.join(ROOT, 'assets', 'manifest.json'))))
+try: have = {os.path.splitext(f)[0] for f in json.load(open(os.path.join(ROOT, 'assets', 'manifest.json')))}
 except Exception: have = set()
 for it in items:
     keys = it.get('keys') or [it['file'][:-4]]

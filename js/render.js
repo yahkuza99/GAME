@@ -5,6 +5,8 @@
 
 const R = {
   cv: null, g: null, W: 0, H: 0, dpr: 1, zoom: 1, camX: 0, camY: 0,
+  // มุมกล้อง 2.5D แบบ RO: พื้นถูกบีบแนวตั้ง (มองเฉียง) แต่ตัวละคร/ต้นไม้ยืนตรง
+  K: 0.76, ZMIN: 0.7, ZMAX: 2.2,
   dark: null, mouse: { x: -1, y: -1, wx: 0, wy: 0, down: false },
 };
 
@@ -13,9 +15,9 @@ R.init = () => {
   R.g = R.cv.getContext('2d');
   R.dark = document.createElement('canvas');
   R.resize();
-  // ซูมเริ่มต้นตามขนาดจอ: มือถือเห็นกว้างขึ้น, แท็บเล็ต/คอมปกติ
+  // ซูมเริ่มต้นแบบ RO: กล้องใกล้ ตัวละครเด่น (จอเล็กซูมน้อยลงเพื่อให้เห็นรอบตัวพอ)
   const short = Math.min(window.innerWidth, window.innerHeight);
-  R.zoom = short < 500 ? 0.95 : 1;
+  R.zoom = short < 500 ? 1.2 : short < 800 ? 1.3 : 1.45;
   window.addEventListener('resize', R.resize);
 };
 R.resize = () => {
@@ -25,13 +27,18 @@ R.resize = () => {
   R.cv.style.width = R.W + 'px'; R.cv.style.height = R.H + 'px';
   R.dark.width = Math.ceil(R.W / 2); R.dark.height = Math.ceil(R.H / 2);
 };
-R.screenToWorld = (sx, sy) => ({ x: sx / R.zoom + R.camX, y: sy / R.zoom + R.camY });
+// กล้องสั่นเบา ๆ (คริติคอล / โดนบอส)
+R.shakeT = 0; R.shakeA = 0;
+R.kick = (amp, dur) => { if (G.fastSim) return; R.shakeA = Math.max(R.shakeA * (R.shakeT > 0 ? 1 : 0), amp); R.shakeT = Math.max(R.shakeT, dur); };
+R.screenToWorld = (sx, sy) => ({ x: sx / R.zoom + R.camX, y: (sy / R.zoom + R.camY) / R.K });
+// พิกัดโลก (พิกเซล) -> พิกัดบนจอก่อนซูม (แกน y ถูกบีบ)
+R.py = wy => wy * R.K;
 
 R.updateCamera = () => {
   const p = G.player, m = G.map;
   const vw = R.W / R.zoom, vh = R.H / R.zoom;
-  let cx = p.x * TILE - vw / 2, cy = p.y * TILE - vh / 2;
-  const mw = m.w * TILE, mh = m.h * TILE;
+  let cx = p.x * TILE - vw / 2, cy = p.y * TILE * R.K - vh / 2 - 20;
+  const mw = m.w * TILE, mh = m.h * TILE * R.K;
   cx = mw < vw ? (mw - vw) / 2 : U.clamp(cx, 0, mw - vw);
   cy = mh < vh ? (mh - vh) / 2 : U.clamp(cy, 0, mh - vh);
   R.camX = Math.round(cx * R.zoom) / R.zoom; R.camY = Math.round(cy * R.zoom) / R.zoom;
@@ -40,10 +47,11 @@ R.updateCamera = () => {
 // หาสิ่งที่อยู่ใต้เมาส์ (มอนสเตอร์ / NPC / ไอเทม)
 R.pick = (wx, wy) => {
   let best = null, bestD = Infinity;
+  wy *= R.K; // เทียบในพิกัดจอ (ตัวละครยืนตรง)
   for (const m of G.mobs) {
     if (m.dead) continue;
     const s = (m.def.scale || 1) * (m.def.size || 1);
-    const mx = m.x * TILE, my = m.y * TILE;
+    const mx = m.x * TILE, my = m.y * TILE * R.K;
     if (Math.abs(wx - mx) < 20 * s && wy > my - 42 * s && wy < my + 8) {
       const d = Math.hypot(wx - mx, wy - (my - 16 * s));
       if (d < bestD) { bestD = d; best = { kind: 'mob', ref: m }; }
@@ -51,11 +59,11 @@ R.pick = (wx, wy) => {
   }
   if (best) return best;
   for (const n of G.npcs) {
-    const nx = n.x * TILE + TILE / 2, ny = n.y * TILE + TILE / 2 + 10;
+    const nx = n.x * TILE + TILE / 2, ny = ((n.y + 0.5) * TILE + 10) * R.K;
     if (Math.abs(wx - nx) < 16 && wy > ny - 52 && wy < ny + 6) return { kind: 'npc', ref: n };
   }
   for (const d of G.drops) {
-    if (Math.hypot(wx - d.x * TILE, wy - d.y * TILE) < 16) return { kind: 'drop', ref: d };
+    if (Math.hypot(wx - d.x * TILE, wy - d.y * TILE * R.K) < 16) return { kind: 'drop', ref: d };
   }
   return null;
 };
@@ -69,15 +77,25 @@ R.render = () => {
   R.updateCamera();
   const vw = R.W / R.zoom, vh = R.H / R.zoom;
   g.save();
+  if (R.shakeT > 0) {
+    R.shakeT -= 1 / 60;
+    const a = R.shakeA * Math.max(0, R.shakeT) * 8;
+    g.translate((Math.random() - 0.5) * a, (Math.random() - 0.5) * a);
+  }
   g.scale(R.zoom, R.zoom);
   g.translate(-R.camX, -R.camY);
+  const K = R.K, wTop = R.camY / K, wH = vh / K; // ขอบบน/ความสูงของพื้นที่เห็นในพิกัดโลก
+  // วาดสิ่งที่ยืนตรง ณ ตำแหน่งโลก wy (เลื่อนแกน y ให้ตรงกับพื้นที่ถูกบีบ)
+  const upright = (wy, fn) => { g.save(); g.translate(0, wy * (K - 1)); fn(); g.restore(); };
 
-  // พื้น
-  const sx = Math.max(0, Math.floor(R.camX)), sy = Math.max(0, Math.floor(R.camY));
-  const sw = Math.min(map.ground.width - sx, Math.ceil(vw) + 2), sh = Math.min(map.ground.height - sy, Math.ceil(vh) + 2);
+  // ---------- ชั้นพื้น (บีบแนวตั้ง) ----------
+  g.save(); g.scale(1, K);
+  const sx = Math.max(0, Math.floor(R.camX)), sy = Math.max(0, Math.floor(wTop));
+  const sw = Math.min(map.ground.width - sx, Math.ceil(vw) + 2), sh = Math.min(map.ground.height - sy, Math.ceil(wH) + 2);
   if (sw > 0 && sh > 0) g.drawImage(map.ground, sx, sy, sw, sh, sx, sy, sw, sh);
   // น้ำพุมีชีวิต
-  if (map.fountain) {
+  g.restore();
+  if (map.fountain) upright(map.fountain.y * TILE, () => {
     const fx = map.fountain.x * TILE, fy = map.fountain.y * TILE;
     for (let i = 0; i < 10; i++) {
       const a = i / 10 * Math.PI * 2, k = (t * 1.2 + i * 0.13) % 1;
@@ -93,14 +111,15 @@ R.render = () => {
     }
     g.fillStyle = 'rgba(200,250,255,0.9)'; g.beginPath(); g.arc(fx, fy - 40 + Math.sin(t * 2) * 3, 4, 0, 7); g.fill();
     g.restore();
-  }
+  });
+  g.save(); g.scale(1, K);
   // ผิวน้ำระยิบระยับ
   if (map.waterTiles) {
     const wt = map.waterTiles;
     g.lineWidth = 1.4;
     for (let i = 0; i < wt.length; i += 2) {
       const x = wt[i], y = wt[i + 1];
-      if (x < R.camX / TILE - 1 || x > (R.camX + vw) / TILE || y < R.camY / TILE - 1 || y > (R.camY + vh) / TILE) continue;
+      if (x < R.camX / TILE - 1 || x > (R.camX + vw) / TILE || y < wTop / TILE - 1 || y > (wTop + wH) / TILE) continue;
       const hh = U.hash2(x, y, 3);
       const k = (Math.sin(t * 1.6 + hh * 12) + 1) / 2;
       g.strokeStyle = `rgba(235,250,255,${0.08 + k * 0.32})`;
@@ -109,8 +128,6 @@ R.render = () => {
       if (hh > 0.7) { g.fillStyle = `rgba(255,255,255,${k * 0.7})`; g.fillRect(ox + 14, oy - 6, 1.5, 1.5); }
     }
   }
-  // พอร์ทัล
-  for (const pt of map.portals) Sprites.drawPortal(g, pt, t);
 
   // ช่องที่เมาส์ชี้
   if (R.mouse.x >= 0 && !G.hover && !p.dead) {
@@ -129,8 +146,26 @@ R.render = () => {
 
   // กับดัก
   for (const tr of G.traps) Sprites.drawTrap(g, tr, t);
+  // เงาเมฆลอยผ่าน (กลางแจ้ง) — อยู่บนพื้น
+  if (map.def.kind !== 'cave') {
+    const mw = map.w * TILE, mh = map.h * TILE;
+    for (let i = 0; i < 5; i++) {
+      const cx = ((U.hash2(i, 1, 9) * mw + t * (14 + i * 3)) % (mw + 600)) - 300;
+      const cy = U.hash2(i, 2, 9) * mh + Math.sin(t * 0.05 + i) * 40;
+      const r = 160 + U.hash2(i, 3, 9) * 140;
+      if (cx + r < R.camX || cx - r > R.camX + vw || cy + r < wTop || cy - r > wTop + wH) continue;
+      const cg = g.createRadialGradient(cx, cy, r * 0.2, cx, cy, r);
+      cg.addColorStop(0, 'rgba(20,30,50,0.13)'); cg.addColorStop(1, 'rgba(20,30,50,0)');
+      g.fillStyle = cg; g.beginPath(); g.ellipse(cx, cy, r * 1.4, r, 0, 0, 7); g.fill();
+    }
+  }
+  g.restore();
+  // ---------- จบชั้นพื้น ----------
+
+  // พอร์ทัล
+  for (const pt of map.portals) upright((pt.y + 0.5) * TILE, () => Sprites.drawPortal(g, pt, t));
   // ไอเทมบนพื้น
-  for (const d of G.drops) {
+  for (const d of G.drops) upright(d.y * TILE, () => {
     const x = d.x * TILE, y = d.y * TILE;
     const age = G.time - d.born;
     const pop = age < 0.35 ? Math.sin(age / 0.35 * Math.PI) * 14 : 0;
@@ -140,10 +175,10 @@ R.render = () => {
       g.strokeStyle = `rgba(255,230,120,${0.5 + Math.sin(t * 6) * 0.4})`; g.lineWidth = 2;
       g.beginPath(); g.arc(x, y - pop, 15, 0, 7); g.stroke();
     }
-  }
+  });
 
   // เรียงวาดตามแกน y
-  const L = R.camX / TILE - 2, Rr = (R.camX + vw) / TILE + 2, Tp = R.camY / TILE - 1, B = (R.camY + vh) / TILE + 3;
+  const L = R.camX / TILE - 2, Rr = (R.camX + vw) / TILE + 2, Tp = wTop / TILE - 1, B = (wTop + wH) / TILE + 4;
   const list = [];
   for (const o of map.objects) if (o.x > L && o.x < Rr && o.y > Tp && o.y < B) list.push({ y: o.y + 0.3, f: () => Sprites.drawTree(g, o, t) });
   for (const n of G.npcs) list.push({ y: n.y + 0.5, f: () => Sprites.drawNpc(g, n, t) });
@@ -167,30 +202,17 @@ R.render = () => {
     g.restore();
   } });
   list.sort((a, b) => a.y - b.y);
-  for (const it of list) it.f();
+  for (const it of list) upright(it.y * TILE, it.f);
 
-  // เอฟเฟกต์
+  // เอฟเฟกต์ (คำนวณตำแหน่งแบบฉายแล้วใน drawFx)
   for (const f of G.fx) R.drawFx(g, f, t);
-  // เงาเมฆลอยผ่าน (กลางแจ้ง)
-  if (map.def.kind !== 'cave') {
-    const mw = map.w * TILE, mh = map.h * TILE;
-    for (let i = 0; i < 5; i++) {
-      const cx = ((U.hash2(i, 1, 9) * mw + t * (14 + i * 3)) % (mw + 600)) - 300;
-      const cy = U.hash2(i, 2, 9) * mh + Math.sin(t * 0.05 + i) * 40;
-      const r = 160 + U.hash2(i, 3, 9) * 140;
-      if (cx + r < R.camX || cx - r > R.camX + vw || cy + r < R.camY || cy - r > R.camY + vh) continue;
-      const cg = g.createRadialGradient(cx, cy, r * 0.2, cx, cy, r);
-      cg.addColorStop(0, 'rgba(20,30,50,0.13)'); cg.addColorStop(1, 'rgba(20,30,50,0)');
-      g.fillStyle = cg; g.beginPath(); g.ellipse(cx, cy, r * 1.4, r, 0, 0, 7); g.fill();
-    }
-  }
-
   // ป้ายชื่อ / หลอด HP
   g.textAlign = 'center'; g.textBaseline = 'middle';
-  for (const n of G.npcs) R.label(g, n.x * TILE + TILE / 2, n.y * TILE + TILE / 2 + 22, n.name, '#9fd0ff');
+  const P = R.py;
+  for (const n of G.npcs) R.label(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 12, n.name, '#9fd0ff');
   for (const m of G.mobs) {
     if (m.dead) continue;
-    const x = m.x * TILE, y = m.y * TILE, s = (m.def.scale || 1);
+    const x = m.x * TILE, y = P(m.y * TILE), s = (m.def.scale || 1);
     if (m.hp < m.maxHp || m.isMvp) R.bar(g, x, y + 10, m.isMvp ? 60 : 36, m.hp / m.maxHp, m.isMvp ? '#c02828' : '#c84040');
     if (m.isMvp) R.label(g, x, y + 22, `★ ${m.def.name} ★`, '#ff8080', true);
     else if ((G.hover && G.hover.ref === m) || p.target === m) R.label(g, x, y + 22, `${m.def.name} (Lv ${m.def.lv})`, m.def.aggro ? '#ffb0a0' : '#ffffff');
@@ -198,19 +220,19 @@ R.render = () => {
   }
   for (const o of Online.others.values()) {
     if (o.stealth) continue;
-    const x = o.x * TILE, y = o.y * TILE;
+    const x = o.x * TILE, y = P(o.y * TILE);
     R.label(g, x, y + 24, o.name, '#ffe9a0');
     R.label(g, x, y + 37, `${JOBS[o.job].name} Lv ${o.baseLv}${o.bot ? ' • AUTO' : ''}`, '#c8d4e8');
     if (o.speech) R.speech(g, x, y - 62, o.speech.text, false);
   }
-  for (const a of G.allies) R.label(g, a.x * TILE, a.y * TILE + 14, `${a.name} ${Math.ceil(a.until - G.time)}s`, '#b8e0ff');
+  for (const a of G.allies) R.label(g, a.x * TILE, P(a.y * TILE) + 14, `${a.name} ${Math.ceil(a.until - G.time)}s`, '#b8e0ff');
   if (G.hover && G.hover.kind === 'drop') {
     const d = G.hover.ref;
-    R.label(g, d.x * TILE, d.y * TILE + 20, `${ITEMS[d.id].name}${d.qty > 1 ? ' ×' + d.qty : ''}`, '#fff6c0');
+    R.label(g, d.x * TILE, P(d.y * TILE) + 20, `${ITEMS[d.id].name}${d.qty > 1 ? ' ×' + d.qty : ''}`, '#fff6c0');
   }
   // ผู้เล่น
   {
-    const x = p.x * TILE, y = p.y * TILE;
+    const x = p.x * TILE, y = P(p.y * TILE);
     R.label(g, x, y + 24, p.name, '#ffffff');
     if (Bot.on) R.label(g, x, y - 58, Bot.resting ? '[AUTO • พัก]' : '[AUTO]', '#7dffb0', true);
     R.bar(g, x, y + 10, 38, p.hp / p.d.maxHp, p.hp / p.d.maxHp < 0.25 ? '#b83232' : '#3a9a44', p.sp / p.d.maxSp);
@@ -223,19 +245,18 @@ R.render = () => {
     if (p.sitting) R.emote(g, x + 14, y - 46, 'z');
   }
   // ตัวเลขลอย
-  for (const f of G.floaters) {
-    const k = f.t / f.dur;
-    const x = f.x * TILE, y = f.y * TILE - k * (f.big ? 40 : 34) - (k < 0.15 ? (0.15 - k) * 60 : 0);
-    g.globalAlpha = k > 0.7 ? (1 - k) / 0.3 : 1;
-    const size = f.big ? 22 : (typeof f.text === 'string' && /^\d+$/.test(f.text) ? 18 : 14);
-    g.font = `800 ${size}px Kanit, "Trebuchet MS", Tahoma, sans-serif`;
-    g.lineWidth = 4; g.strokeStyle = 'rgba(0,0,0,0.85)';
-    g.strokeText(f.text, x, y);
-    g.fillStyle = f.color; g.fillText(f.text, x, y);
-    g.globalAlpha = 1;
-  }
+  for (const f of G.floaters) R.drawFloater(g, f);
   g.restore();
 
+  // หมอกระยะไกลด้านบนจอ ช่วยให้รู้สึกถึงความลึกแบบมุมกล้องเฉียง
+  if (map.def.kind !== 'cave') {
+    if (!R.haze || R.haze.h !== R.H) {
+      const hz = g.createLinearGradient(0, 0, 0, R.H * 0.42);
+      hz.addColorStop(0, 'rgba(190,220,255,0.16)'); hz.addColorStop(1, 'rgba(190,220,255,0)');
+      R.haze = { h: R.H, grad: hz };
+    }
+    g.fillStyle = R.haze.grad; g.fillRect(0, 0, R.W, R.H * 0.42);
+  }
   R.drawAtmosphere(g, map, t);
   // ความมืดในถ้ำ
   if (map.def.dark) {
@@ -249,7 +270,7 @@ R.render = () => {
       const pos = R.fxPos(f); lights.push([pos.x, pos.y, 3]);
     }
     for (const [lx, ly, lr] of lights) {
-      const x = ((lx * TILE - R.camX) * R.zoom) / 2, y = ((ly * TILE - 20 - R.camY) * R.zoom) / 2;
+      const x = ((lx * TILE - R.camX) * R.zoom) / 2, y = ((ly * TILE * R.K - 20 - R.camY) * R.zoom) / 2;
       const r = lr * TILE * R.zoom / 2 * (1 + Math.sin(t * 3) * 0.02);
       const grd = dg.createRadialGradient(x, y, r * 0.2, x, y, r);
       grd.addColorStop(0, 'rgba(0,0,0,1)'); grd.addColorStop(1, 'rgba(0,0,0,0)');
@@ -347,6 +368,40 @@ R.drawVignette = g => {
   g.drawImage(R.vig, 0, 0);
 };
 
+// ตัวเลขดาเมจสไตล์ RO
+R.drawFloater = (g, f) => {
+  const k = f.t / f.dur, P = R.py;
+  let x = f.x * TILE, y = P(f.y * TILE), sc = 1;
+  if (f.num) {
+    const t = f.t;
+    x += f.vx * t;
+    y -= 150 * t - 170 * t * t;              // เด้งขึ้นแล้วตก
+    sc = 1 + 0.9 * Math.max(0, 1 - t / 0.12); // กระแทกตอนโผล่
+    g.globalAlpha = k > 0.65 ? Math.max(0, (1 - k) / 0.35) : 1;
+  } else {
+    y -= k * (f.big ? 40 : 34) + (k < 0.15 ? (0.15 - k) * 60 : 0);
+    g.globalAlpha = k > 0.7 ? (1 - k) / 0.3 : 1;
+  }
+  g.save(); g.translate(x, y); g.scale(sc, sc);
+  if (f.crit) {
+    // ดาวแตกสีแดงส้มด้านหลังตัวเลขคริ
+    g.save(); g.rotate(f.t * 1.5);
+    const r1 = 24, r2 = 12;
+    const grd = g.createRadialGradient(0, 0, 2, 0, 0, r1);
+    grd.addColorStop(0, '#ffe36a'); grd.addColorStop(0.5, '#ff7a2a'); grd.addColorStop(1, '#d0202a');
+    g.fillStyle = grd; g.beginPath();
+    for (let i = 0; i < 20; i++) { const a = i / 20 * Math.PI * 2, r = i % 2 ? r2 : r1; g.lineTo(Math.cos(a) * r, Math.sin(a) * r * 0.8); }
+    g.closePath(); g.fill(); g.restore();
+  }
+  const size = f.crit ? 24 : f.big ? 22 : f.num ? 19 : 14;
+  g.font = `800 ${size}px Kanit, "Trebuchet MS", Tahoma, sans-serif`;
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.lineJoin = 'round'; g.lineWidth = f.crit ? 5 : 4; g.strokeStyle = f.crit ? '#5a0a0a' : 'rgba(0,0,0,0.85)';
+  g.strokeText(f.text, 0, 0);
+  g.fillStyle = f.color; g.fillText(f.text, 0, 0);
+  g.restore();
+  g.globalAlpha = 1;
+};
 R.label = (g, x, y, text, color, bold) => {
   g.font = `${bold ? 'bold ' : ''}12px "Noto Sans Thai", Tahoma, sans-serif`;
   g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,0.8)';
@@ -391,13 +446,13 @@ R.drawFx = (g, f, t) => {
   const k = Math.min(1, f.t / f.dur);
   const after = f.t > f.dur ? (f.t - f.dur) / (f.linger || 1) : -1;
   const pos = R.fxPos(f);
-  const X = pos.x * TILE, Y = pos.y * TILE;
+  const X = pos.x * TILE, Y = pos.y * TILE * R.K;
   const tgtY = Y - 18 * ((f.ref && f.ref.def && f.ref.def.scale) || 1);
   switch (f.type) {
     case 'arrow': {
       if (after >= 0) break;
-      const sx = f.sx * TILE, sy = f.sy * TILE;
-      const ex = f.ref ? X : f.tx * TILE, ey = f.ref ? tgtY : f.ty * TILE - 24;
+      const sx = f.sx * TILE, sy = f.sy * TILE * R.K;
+      const ex = f.ref ? X : f.tx * TILE, ey = f.ref ? tgtY : f.ty * TILE * R.K - 24;
       const x = U.lerp(sx, ex, k), y = U.lerp(sy, ey, k);
       const a = Math.atan2(ey - sy, ex - sx);
       g.save(); g.translate(x, y); g.rotate(a);
@@ -444,7 +499,7 @@ R.drawFx = (g, f, t) => {
     }
     case 'soul': case 'frost': {
       if (after < 0) {
-        const sx = f.sx * TILE, sy = f.sy * TILE;
+        const sx = f.sx * TILE, sy = f.sy * TILE * R.K;
         const x = U.lerp(sx, X, k), y = U.lerp(sy, tgtY, k) - Math.sin(k * Math.PI) * 20;
         g.save(); g.shadowColor = f.type === 'soul' ? '#c0a0ff' : '#a0e8ff'; g.shadowBlur = 14;
         g.fillStyle = f.type === 'soul' ? '#efe6ff' : '#dff6ff';
@@ -528,6 +583,19 @@ R.drawFx = (g, f, t) => {
         rg.addColorStop(0, `rgba(255,255,255,${0.9 * fl})`); rg.addColorStop(1, `rgba(${col},0)`);
         g.fillStyle = rg; g.fillRect(X - 90, Y - 124, 180, 180);
       }
+      g.restore();
+      break;
+    }
+    case 'beam': {
+      // ลำแสงทองตอนการ์ดดรอป
+      const a = k < 0.1 ? k / 0.1 : k > 0.75 ? (1 - k) / 0.25 : 1;
+      const w = 14 + Math.sin(t * 10) * 2;
+      const grd = g.createLinearGradient(X, Y - 260, X, Y);
+      grd.addColorStop(0, 'rgba(255,230,120,0)'); grd.addColorStop(0.7, `rgba(255,236,150,${0.55 * a})`); grd.addColorStop(1, `rgba(255,250,210,${0.9 * a})`);
+      g.save(); g.globalCompositeOperation = 'lighter';
+      g.fillStyle = grd; g.fillRect(X - w / 2, Y - 260, w, 260);
+      g.fillStyle = `rgba(255,240,170,${0.5 * a})`; g.beginPath(); g.ellipse(X, Y, 26 + Math.sin(t * 6) * 3, 9, 0, 0, 7); g.fill();
+      for (let i = 0; i < 10; i++) { const kk = (k * 2 + i / 10) % 1; g.fillStyle = `rgba(255,245,190,${(1 - kk) * a})`; g.fillRect(X + Math.sin(i * 5.1) * 14, Y - kk * 200, 2.5, 2.5); }
       g.restore();
       break;
     }

@@ -78,6 +78,8 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round
 .xrow > span { width: 38px; text-align: right; font-variant-numeric: tabular-nums; }
 .bi-foot { display: flex; justify-content: space-between; align-items: center; gap: 6px; min-height: 16px; font-size: 12px; font-weight: 600; color: var(--exp); }
 #bi-zeny::before { content: "◈ "; color: var(--exp); }
+#bi-zeny.has-ic::before { content: none; }
+#bi-zeny img { width: 16px; height: 16px; vertical-align: -3px; margin-right: 4px; }
 .pt { background: var(--bad); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 7px; cursor: pointer; animation: pulse 1.2s infinite;
   clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%); }
 
@@ -519,7 +521,7 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
   .gauge { height: 13px; } .gauge i, .gauge span { line-height: 13px; font-size: 9.5px; }
   .xrow label { width: 42px; font-size: 8px; } .xrow > span { width: 34px; font-size: 9px; }
   .bi-foot { font-size: 11px; }
-  #buffs { top: calc(116px + var(--st)); max-width: 64vw; }
+  #buffs { top: calc(174px + var(--st)); max-width: 64vw; }
   #hud-toggle { left: 50%; top: var(--st); transform: translateX(-50%); width: 34px; height: 18px; border-radius: 0 0 8px 8px; font-size: 10px; line-height: 16px; }
   #hud.hud-min #hud-toggle { left: 50%; }
   #minimap { width: 104px; }
@@ -534,10 +536,10 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
   #menubar { top: calc(152px + var(--st)); }
   #chat { width: calc(100vw - 16px - var(--sl) - var(--sr)); }
   #chat-log { height: 76px; font-size: 12px; }
-  #announce { top: calc(132px + var(--st)); font-size: 14px; max-width: calc(100vw - 32px); }
-  #target { top: auto; bottom: calc(330px + var(--sb)); width: min(260px, 70vw); }
-  body:not(.pad-mode) #target { bottom: calc(210px + var(--sb)); }
-  .pad-mode #chat { top: calc(150px + var(--st)); bottom: auto; width: min(66vw, 300px); }
+  #announce { top: calc(270px + var(--st)); font-size: 14px; max-width: calc(100vw - 32px); }
+  #target { top: calc(122px + var(--st)); width: min(250px, 64vw); padding: 4px 10px 4px 4px; }
+  #tg-cv { width: 34px; height: 34px; }
+  .pad-mode #chat { top: calc(206px + var(--st)); bottom: auto; width: min(66vw, 300px); }
   /* ไม่ใช่โหมด PAD บนจอเล็ก: แถบสกิล 2 แถว */
   body:not(.pad-mode) #dock { flex-wrap: wrap; justify-content: center; width: calc(100vw - 16px); padding: 6px; gap: 6px; }
   body:not(.pad-mode) #dock .hb { width: 40px; height: 40px; }
