@@ -737,13 +737,13 @@ Sprites.drawMob = (g, m, t) => {
 // ------------------------------------------------------------
 const NPC_LOOKS = {
   keeper:   { skin: '#f2f2f8', glow: '#c9a8ff', hair: '#c4b2ec', hairStyle: 'long', outfit: '#232a5e', outfit2: '#e2c677', hat: 'keeper', robe: true, cape: '#2e3878', halo: 'rainbow', visor: 'band' },
-  jobmaster:{ skin: '#c8ccd6', glow: '#6ae0ff', hair: '#5a6070', outfit: '#3a4a6a', outfit2: '#e0c040', beard: '#9aa2b4', hat: 'runehood', hatColor: '#2a3450', robe: true, cape: '#2a3450' },
-  merchant: { skin: '#e2d6c2', glow: '#ffc04a', hair: '#8a5a2a', outfit: '#a07040', outfit2: '#5a3a1a', apron: '#6a5a4a', hat: 'bandana' },
+  jobmaster:{ skin: '#d8dce4', glow: '#6ac8ff', hair: '#5a6070', outfit: '#1e2a52', outfit2: '#c8a860', beard: '#c8ccd6', hat: 'runehood', hatColor: '#cfd4de', robe: true, cape: '#1e2a52', visor: 'band' },
+  merchant: { skin: '#eceef2', glow: '#ffb43a', hair: '#dfe3ea', hairStyle: 'long', outfit: '#7a5234', outfit2: '#3a2a1a', apron: '#cdb385', hat: 'bandana', visor: 'band' },
   merchant2:{ skin: '#f2f3f6', glow: '#5aff7a', hair: '#7ccf9a', hairStyle: 'twin', outfit: '#2f7a48', outfit2: '#efe6cf', robe: true, visor: 'band' },
-  smith:    { skin: '#b8bcc6', glow: '#ff8a3a', hair: '#4a4e58', hairStyle: 'spiky', outfit: '#6a6a70', outfit2: '#3a3a40', apron: '#5a4a3a' },
+  smith:    { skin: '#c4c8d0', glow: '#ff9a3a', hair: '#2e3038', hairStyle: 'spiky', outfit: '#8a8e96', outfit2: '#3a3a40', apron: '#6e6a64', bulky: 1.15, visor: 'band' },
   refiner:  { skin: '#b8925a', glow: '#ff8a2a', hair: '#9a4a2a', outfit: '#9a7240', outfit2: '#6a2a22', apron: '#7a2e24', beard: '#b0482a', joint: '#3a2e26', hat: 'helmet', hatColor: '#a88048', bulky: 1.3, visor: 'slit' },
-  nurse:    { skin: '#f6f6fa', glow: '#ff7aa0', hair: '#f0a0c0', hairStyle: 'long', outfit: '#ffffff', outfit2: '#e0a0b0', hat: 'nurse', robe: true },
-  guide:    { skin: '#c8ccd6', glow: '#ff5a4a', hair: '#8a9aaa', outfit: '#6a7080', outfit2: '#a03030', hat: 'viking', cape: '#a03030' },
+  nurse:    { skin: '#f6f6fa', glow: '#ff7ac0', hair: '#f4a8c8', hairStyle: 'long', outfit: '#ffffff', outfit2: '#f0a0c0', hat: 'nurse', robe: true, visor: 'band' },
+  guide:    { skin: '#e6e8ee', glow: '#ff4a4a', hair: '#c8ccd4', outfit: '#e6e8ee', outfit2: '#a82a30', hat: 'viking', hatColor: '#d8d2c4', cape: '#a82a30', bulky: 1.1, visor: 'band' },
 };
 Sprites.drawNpc = (g, n, t) => {
   const x = n.x * TILE + TILE / 2, y = n.y * TILE + TILE / 2 + 10;
