@@ -35,6 +35,7 @@ const UI = {
       } else if (e.key === 'Escape') e.target.blur();
       e.stopPropagation();
     });
+    $('#chat-log').addEventListener('click', () => { const c = $('#chat'); if (c.classList.contains('folded')) this.setFold(c, false); });
     $('#death-btn').onclick = () => respawnPlayer();
     $('#auto-btn').onclick = () => Bot.toggle();
     this.bindMapClick($('#minimap-cv'));
@@ -51,7 +52,12 @@ const UI = {
   initFolds() {
     const st = this.foldState();
     const menu = $('#menubar');
-    menu.prepend(h('button', { class: 'fold-btn menu-fold', title: 'ย่อ/ขยายเมนู', 'aria-label': 'ย่อหรือขยายเมนู' }));
+    const mf = h('button', { class: 'fold-btn menu-fold', title: 'เมนู (Tab)', 'aria-label': 'เปิดหรือปิดเมนู' });
+    mf.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+    menu.prepend(mf);
+    // จอเล็ก/จอสัมผัส: เริ่มต้นพับเมนูและแชทไว้ให้เห็นเกมเต็ม ๆ
+    const small = matchMedia('(pointer: coarse)').matches || innerWidth < 760 || innerHeight < 520;
+    if (small) { if (st.menu === undefined) st.menu = true; if (st.chat === undefined) st.chat = true; }
     $$('.foldable').forEach(p => {
       if (st[p.dataset.fold]) p.classList.add('folded');
       const b = $('.fold-btn', p);
@@ -65,6 +71,7 @@ const UI = {
     const st = this.foldState(); st[p.dataset.fold] = on; this.saveFold(st);
     Sound.play('click');
   },
+  toggleMenu() { const m = $('#menubar'); this.setFold(m, !m.classList.contains('folded')); },
   toggleHud() {
     const on = !$('#hud').classList.contains('hud-min');
     $('#hud').classList.toggle('hud-min', on);
@@ -196,8 +203,8 @@ const UI = {
     const be = $('#buffs');
     if (be.innerHTML !== bh) be.innerHTML = bh;
     // ฮอตบาร์ (จำนวน/คูลดาวน์)
-    $$('#hotbar .hb').forEach((el, i) => {
-      const hb = p.hotbar[i];
+    $$('#hotbar .hb, #potbar .hb').forEach(el => {
+      const hb = p[el.dataset.bar][+el.dataset.i];
       const cd = $('.cd', el);
       if (hb && hb.t === 'skill') {
         const left = p.skillReadyAt - G.time;
@@ -269,11 +276,37 @@ const UI = {
     g.beginPath(); g.moveTo(pr, 0); g.lineTo(-pr * 0.7, pr * 0.65); g.lineTo(-pr * 0.35, 0); g.lineTo(-pr * 0.7, -pr * 0.65); g.closePath(); g.fill(); g.stroke();
     g.restore();
   },
+  // เรดาร์วงกลม: ตัดภาพแผนที่รอบตัวผู้เล่น (ผู้เล่นอยู่กลางเสมอ)
   drawMinimap() {
-    const p = G.player;
-    this.drawMapTo($('#minimap-cv'), 3, false);
-    if (this.isOpen('w-map')) this.drawMapTo($('#bigmap-cv'), 8, true);
+    const p = G.player, cv = $('#minimap-cv');
+    const S = 4, full = this._mmFull || (this._mmFull = document.createElement('canvas'));
+    this.drawMapTo(full, S, false);
+    const g = cv.getContext('2d'), W = cv.width, H = cv.height;
+    const span = W / S * (innerWidth < 760 ? 1.15 : 1); // จำนวนช่องที่เห็น
+    const x0 = p.x - span / 2, y0 = p.y - span / 2;
+    this._mmView = { x0, y0, span };
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, W, H);
+    g.save();
+    g.beginPath(); g.arc(W / 2, H / 2, W / 2, 0, 7); g.clip();
+    g.fillStyle = '#060a12'; g.fillRect(0, 0, W, H);
+    g.imageSmoothingEnabled = true;
+    g.drawImage(full, x0 * S, y0 * S, span * S, span * S, 0, 0, W, H);
+    // โทนเรดาร์ + เส้นกริด
+    g.fillStyle = 'rgba(10,30,50,0.28)'; g.fillRect(0, 0, W, H);
+    g.strokeStyle = 'rgba(120,220,255,0.12)'; g.lineWidth = 1;
+    for (let r = W / 6; r < W / 2; r += W / 6) { g.beginPath(); g.arc(W / 2, H / 2, r, 0, 7); g.stroke(); }
+    g.beginPath(); g.moveTo(W / 2, 0); g.lineTo(W / 2, H); g.moveTo(0, H / 2); g.lineTo(W, H / 2); g.stroke();
+    // คลื่นกวาด
+    const sw = (G.time * 1.2) % (Math.PI * 2);
+    const grad = g.createConicGradient ? g.createConicGradient(sw, W / 2, H / 2) : null;
+    if (grad) {
+      grad.addColorStop(0, 'rgba(120,230,255,0.22)'); grad.addColorStop(0.12, 'rgba(120,230,255,0)'); grad.addColorStop(1, 'rgba(120,230,255,0)');
+      g.fillStyle = grad; g.fillRect(0, 0, W, H);
+    }
+    g.restore();
     $('#map-coord').textContent = Online.online ? `👥 ${Math.max(1, Online.count)} • ${Math.floor(p.x)}, ${Math.floor(p.y)}` : `${Math.floor(p.x)}, ${Math.floor(p.y)}`;
+    if (this.isOpen('w-map')) this.drawMapTo($('#bigmap-cv'), 8, true);
   },
   // คลิกบนแผนที่เพื่อเดินไปยังจุดนั้น
   bindMapClick(cv) {
@@ -281,73 +314,86 @@ const UI = {
       e.preventDefault(); e.stopPropagation();
       if (!G.started || G.player.dead) return;
       const r = cv.getBoundingClientRect();
-      const tx = Math.floor((e.clientX - r.left) / r.width * G.map.w), ty = Math.floor((e.clientY - r.top) / r.height * G.map.h);
+      const fx = (e.clientX - r.left) / r.width, fy = (e.clientY - r.top) / r.height;
+      let tx, ty;
+      if (cv.id === 'minimap-cv' && this._mmView) { const v = this._mmView; tx = Math.floor(v.x0 + fx * v.span); ty = Math.floor(v.y0 + fy * v.span); }
+      else { tx = Math.floor(fx * G.map.w); ty = Math.floor(fy * G.map.h); }
       mapWalkTo(tx, ty);
     });
   },
 
-  // ---------------- ฮอตบาร์ ----------------
+  // ---------------- แถบสกิล (8) + แถบไอเทม (4) ----------------
+  // bar: 'hotbar' = สกิลเท่านั้น, 'potbar' = ไอเทมเท่านั้น
+  BARS: { hotbar: { n: 8, t: 'skill', keys: ['1', '2', '3', '4', '5', '6', '7', '8'] }, potbar: { n: 4, t: 'item', keys: ['Z', 'C', 'V', 'F'] } },
   buildHotbar() {
-    const hb = $('#hotbar');
-    for (let i = 0; i < 9; i++) {
-      const el = h('div', { class: 'hb', 'data-i': i, title: `ปุ่มลัด ${i + 1} (คลิกขวาเพื่อลบ)` },
-        h('div', { class: 'ic' }), h('span', { class: 'k' }, String(i + 1)), h('span', { class: 'q' }), h('div', { class: 'cd' }));
-      let lpTimer = null, lpFired = false;
-      el.addEventListener('pointerdown', e => {
-        if (e.pointerType === 'mouse') return;
-        lpFired = false;
-        lpTimer = setTimeout(() => { lpFired = true; if (G.player.hotbar[i]) { G.player.hotbar[i] = null; this.msg(`ล้างปุ่มลัด ${i + 1}`, 'info'); this.dirty(); } }, 650);
-      });
-      const cancelLp = () => clearTimeout(lpTimer);
-      el.addEventListener('pointerup', cancelLp); el.addEventListener('pointerleave', cancelLp); el.addEventListener('pointercancel', cancelLp);
-      el.addEventListener('click', () => { if (lpFired) { lpFired = false; return; } useHotbar(i); });
-      el.addEventListener('contextmenu', e => { e.preventDefault(); G.player.hotbar[i] = null; this.dirty(); });
-      el.addEventListener('dragover', e => e.preventDefault());
-      el.addEventListener('drop', e => {
-        e.preventDefault();
-        try {
-          const d = JSON.parse(e.dataTransfer.getData('text/plain'));
-          if (d.t === 'skill' || d.t === 'item') G.player.hotbar[i] = { t: d.t, id: d.id };
-          if (d.from != null && d.from !== i) G.player.hotbar[d.from] = null;
-          this.dirty();
-        } catch (err) { /* ignore */ }
-      });
-      el.draggable = true;
-      el.addEventListener('dragstart', e => {
-        const x = G.player.hotbar[i];
-        if (!x) { e.preventDefault(); return; }
-        e.dataTransfer.setData('text/plain', JSON.stringify({ t: x.t, id: x.id, from: i }));
-      });
-      hb.append(el);
+    for (const bar of ['hotbar', 'potbar']) {
+      const cfg = this.BARS[bar], root = $('#' + bar);
+      for (let i = 0; i < cfg.n; i++) {
+        const el = h('div', { class: 'hb', 'data-i': i, 'data-bar': bar, title: `ปุ่มลัด ${cfg.keys[i]}` },
+          h('div', { class: 'ic' }), h('span', { class: 'k' }, cfg.keys[i]), h('span', { class: 'q' }), h('div', { class: 'cd' }));
+        const use = () => (bar === 'hotbar' ? useHotbar(i) : usePotbar(i));
+        const clear = () => { if (G.player[bar][i]) { G.player[bar][i] = null; this.msg(`ล้างปุ่มลัด ${cfg.keys[i]}`, 'info'); this.dirty(); } };
+        let lpTimer = null, lpFired = false;
+        el.addEventListener('pointerdown', e => {
+          e.stopPropagation();
+          if (e.pointerType === 'mouse') return;
+          lpFired = false;
+          el.classList.add('press');
+          lpTimer = setTimeout(() => { lpFired = true; clear(); }, 650);
+        });
+        const cancelLp = () => { clearTimeout(lpTimer); el.classList.remove('press'); };
+        el.addEventListener('pointerup', cancelLp); el.addEventListener('pointerleave', cancelLp); el.addEventListener('pointercancel', cancelLp);
+        el.addEventListener('click', () => { if (lpFired) { lpFired = false; return; } use(); });
+        el.addEventListener('contextmenu', e => { e.preventDefault(); clear(); });
+        el.addEventListener('dragover', e => e.preventDefault());
+        el.addEventListener('drop', e => {
+          e.preventDefault();
+          try {
+            const d = JSON.parse(e.dataTransfer.getData('text/plain'));
+            if (d.t !== cfg.t) { this.msg(cfg.t === 'skill' ? 'แถบนี้สำหรับสกิลเท่านั้น' : 'แถบนี้สำหรับไอเทมเท่านั้น', 'err'); return; }
+            G.player[bar][i] = { t: d.t, id: d.id };
+            if (d.bar === bar && d.from != null && d.from !== i) G.player[bar][d.from] = null;
+            this.dirty();
+          } catch (err) { /* ignore */ }
+        });
+        el.draggable = true;
+        el.addEventListener('dragstart', e => {
+          const x = G.player[bar][i];
+          if (!x) { e.preventDefault(); return; }
+          e.dataTransfer.setData('text/plain', JSON.stringify({ t: x.t, id: x.id, from: i, bar }));
+        });
+        root.append(el);
+      }
     }
   },
   renderHotbar() {
     const p = G.player;
-    $$('#hotbar .hb').forEach((el, i) => {
-      const x = p.hotbar[i];
+    $$('#hotbar .hb, #potbar .hb').forEach(el => {
+      const bar = el.dataset.bar, i = +el.dataset.i, key = this.BARS[bar].keys[i];
+      const x = p[bar][i];
       const ic = $('.ic', el), q = $('.q', el);
-      ic.innerHTML = ''; q.textContent = ''; el.title = `ปุ่มลัด ${i + 1}`;
-      el.classList.remove('empty');
-      if (x && x.t === 'skill' && !skillLv(x.id)) { p.hotbar[i] = null; return; }
+      ic.innerHTML = ''; q.textContent = ''; el.title = `ปุ่มลัด ${key}`;
+      el.classList.remove('empty'); el.classList.toggle('blank', !x);
+      if (x && x.t === 'skill' && !skillLv(x.id)) { p[bar][i] = null; el.classList.add('blank'); return; }
       if (!x) return;
       if (x.t === 'skill') {
         ic.append(this.skillIcon(x.id));
         q.textContent = 'Lv' + skillLv(x.id);
-        el.title = `${SKILLS[x.id].name} Lv ${skillLv(x.id)} [${i + 1}]`;
+        el.title = `${SKILLS[x.id].name} Lv ${skillLv(x.id)} [${key}]`;
       } else {
         ic.append(h('img', { src: itemIconUrl(x.id), alt: '' }));
         q.textContent = countItem(x.id);
-        el.title = `${ITEMS[x.id].name} [${i + 1}]`;
+        el.title = `${ITEMS[x.id].name} [${key}]`;
       }
     });
   },
   assignHotbar(t, id) {
-    const p = G.player;
-    if (p.hotbar.some(x => x && x.t === t && x.id === id)) { this.msg('อยู่ในปุ่มลัดแล้ว', 'info'); return; }
-    const i = p.hotbar.findIndex(x => !x);
-    if (i < 0) { this.msg('ปุ่มลัดเต็ม (คลิกขวาที่ช่องเพื่อลบ)', 'err'); return; }
-    p.hotbar[i] = { t, id };
-    this.msg(`ตั้งปุ่มลัด ${i + 1}: ${t === 'skill' ? SKILLS[id].name : ITEMS[id].name}`, 'info');
+    const p = G.player, bar = t === 'skill' ? 'hotbar' : 'potbar', keys = this.BARS[bar].keys;
+    if (p[bar].some(x => x && x.t === t && x.id === id)) { this.msg('อยู่ในปุ่มลัดแล้ว', 'info'); return; }
+    const i = p[bar].findIndex(x => !x);
+    if (i < 0) { this.msg(t === 'skill' ? 'แถบสกิลเต็ม (แตะค้าง/คลิกขวาที่ช่องเพื่อลบ)' : 'แถบไอเทมเต็ม (แตะค้าง/คลิกขวาที่ช่องเพื่อลบ)', 'err'); return; }
+    p[bar][i] = { t, id };
+    this.msg(`ตั้งปุ่มลัด ${keys[i]}: ${t === 'skill' ? SKILLS[id].name : ITEMS[id].name}`, 'info');
     this.dirty();
   },
   skillIcon(id) {
@@ -365,20 +411,21 @@ const UI = {
       map: '<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/>',
       bot: '<rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 4v4"/><circle cx="12" cy="3.5" r="1"/><circle cx="9.5" cy="13" r="1.3"/><circle cx="14.5" cy="13" r="1.3"/><path d="M2 12v3M22 12v3"/>',
       options: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
+      help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7"/><circle cx="12" cy="17" r=".6"/>',
       sit: '<path d="M6 21v-5h9l3 5"/><circle cx="10" cy="5" r="2.5"/><path d="M10 8v8M10 11h5"/>',
     };
     const icon = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${P[k]}</svg>`;
     const items = [
       ['w-status', 'สถานะ', 'A', 'status'], ['w-inv', 'ไอเทม', 'E', 'bag'], ['w-equip', 'อุปกรณ์', 'Q', 'equip'],
-      ['w-skills', 'สกิล', 'S', 'skill'], ['w-map', 'แผนที่', 'M', 'map'], ['w-bot', 'บอท', 'N', 'bot'], ['w-options', 'ตั้งค่า', 'O', 'options'],
+      ['w-skills', 'สกิล', 'S', 'skill'], ['w-map', 'แผนที่', 'M', 'map'], ['w-bot', 'บอท', 'N', 'bot'], ['w-options', 'ตั้งค่า', 'O', 'options'], ['w-help', 'วิธีเล่น', 'H', 'help'],
     ];
     const m = $('#menubar');
     for (const [id, label, key, ic] of items) {
-      const b = h('button', { onclick: () => this.toggle(id), title: `${label} (${key})`, 'data-win': id });
+      const b = h('button', { onclick: () => { this.toggle(id); if (Pad.enabled()) this.setFold(m, true); }, title: `${label} (${key})`, 'data-win': id });
       b.innerHTML = `${icon(ic)}<span>${label}</span><small>${key}</small>`;
       m.append(b);
     }
-    const sit = h('button', { onclick: () => toggleSit(), title: 'นั่งพัก (X)' });
+    const sit = h('button', { onclick: () => { toggleSit(); if (Pad.enabled()) this.setFold(m, true); }, title: 'นั่งพัก (X)' });
     sit.innerHTML = `${icon('sit')}<span>นั่ง</span><small>X</small>`;
     m.append(sit);
     document.addEventListener('click', e => {
@@ -390,16 +437,20 @@ const UI = {
   drawPortrait() {
     const p = G.player, cv = $('#bi-portrait');
     const artKey = Art.jobKey(p.job, p.gender);
-    const key = [p.job, p.hair, p.gender, p.equip.head && p.equip.head.id, artKey].join('|');
+    const key = [p.job, p.hair, p.gender, p.equip.head && p.equip.head.id, artKey, JSON.stringify(p.look || {})].join('|');
     if (cv.dataset.key === key) return;
     cv.dataset.key = key;
     const g = cv.getContext('2d');
     g.clearRect(0, 0, cv.width, cv.height);
     if (artKey) { Art.drawCover(g, Art.get(artKey), cv.width, cv.height, 0.12); return; }
     const bg = g.createRadialGradient(cv.width / 2, cv.height * 0.4, 4, cv.width / 2, cv.height / 2, cv.width * 0.7);
-    bg.addColorStop(0, '#4a5a78'); bg.addColorStop(1, '#1a1c28');
+    const glow = (p.look && p.look.glow) || JOBS[p.job].glow || '#7ad8ff';
+    bg.addColorStop(0, U.rgba(glow, 0.55)); bg.addColorStop(0.55, '#16223a'); bg.addColorStop(1, '#070b14');
     g.fillStyle = bg; g.fillRect(0, 0, cv.width, cv.height);
-    g.save(); g.translate(cv.width / 2, cv.height * 1.62); g.scale(2.1, 2.1);
+    g.strokeStyle = U.rgba(glow, 0.18); g.lineWidth = 1;
+    for (let y = 2; y < cv.height; y += 4) { g.beginPath(); g.moveTo(0, y); g.lineTo(cv.width, y); g.stroke(); }
+    const sc = cv.width / 40;
+    g.save(); g.translate(cv.width / 2, cv.height * 1.55); g.scale(sc, sc);
     Sprites.drawPlayer(g, Object.assign({}, p, { x: 0, y: 0, dir: 2, facing: 1, moving: false, sitting: false, dead: false, atkAnim: 0, buffs: {} }), 0.2);
     g.restore();
   },
@@ -558,7 +609,7 @@ const UI = {
           lv && s.type === 'active' ? h('button', { class: 'btn small', title: 'ตั้งปุ่มลัด', onclick: () => this.assignHotbar('skill', id) }, '📌') : null)));
     }
     body.append(list);
-    if (p.job === 'novice') body.append(h('div', { class: 'hint' }, `เก็บ Job Lv ${JOB_CHANGE_LV} แล้วไปคุยกับ Mimir AI ในนีโอเอลด์ไฮม์ เพื่อเลือก 1 ใน 6 อาชีพ`));
+    if (p.job === 'novice') body.append(h('div', { class: 'hint' }, `เก็บ Job Lv ${JOB_CHANGE_LV} แล้วไปหา Mimir AI ในนีโอเอลด์ไฮม์ เพื่ออัปเกรดร่างเป็น 1 ใน 6 คลาส`));
   },
 
   renderOptions() {
@@ -571,6 +622,9 @@ const UI = {
       chk('autoLoot', 'เก็บไอเทมอัตโนมัติ (Auto Loot)'),
       chk('sound', 'เสียงประกอบ'),
       chk('expMsg', 'แสดงข้อความ EXP ในแชท'),
+      h('div', { class: 'opt-lbl' }, 'ปุ่มควบคุมบนจอ (จอย + ปุ่มโจมตี)'),
+      h('div', { class: 'seg' }, ...[['auto', 'อัตโนมัติ'], ['on', 'เปิด'], ['off', 'ปิด']].map(([v, l]) =>
+        h('button', { type: 'button', class: Pad.mode === v ? 'on' : '', onclick: () => { Pad.setMode(v); this.renderOptions(); } }, l))),
       h('div', { class: 'opt-btns' },
         h('button', { class: 'btn', onclick: () => saveGame(false) }, 'บันทึกเกม'),
         Online.online ? h('button', { class: 'btn', onclick: async () => { saveGame(true, true); await Online.logout(); location.reload(); } }, `ออกจากระบบ (${Online.username})`) : null,
@@ -643,13 +697,14 @@ const UI = {
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   },
   // ฉากเปิดตัวบอส
-  splash(key, title, sub) {
+  splash(key, title, sub, cls) {
     const img = Art.get(key);
     const el = $('#splash');
     el.innerHTML = '';
     if (img) el.append(Object.assign(new Image(), { src: img.src, alt: '' }));
     el.append(h('div', { class: 'sp-text' }, h('small', {}, sub || 'WARNING'), h('b', {}, title)));
     el.classList.toggle('noimg', !img);
+    el.classList.toggle('upgrade', cls === 'upgrade');
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   },
 

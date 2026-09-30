@@ -48,27 +48,27 @@ NPC.scripts.jobmaster = async n => {
   const p = G.player;
   const nm = `[${n.name}]`;
   if (p.job === 'novice') {
-    await UI.say(nm, `ข้าคือ Mimir AI ปัญญาประดิษฐ์ผู้เฝ้าคลังความรู้...<br>หน่วยใหม่อย่างเจ้า ต้องการติดตั้งโปรแกรมอาชีพสินะ`);
+    await UI.say(nm, `ข้าคือ Mimir AI ปัญญาประดิษฐ์ผู้เฝ้าคลังความรู้...<br>หน่วยใหม่อย่างเจ้า มาเพื่อ <b>อัปเกรดร่าง</b> สินะ — ข้าจะติดตั้งโมดูลคลาสใหม่ให้ทั้งโครงร่าง อาวุธ และโปรแกรมต่อสู้`);
     if (p.jobLv < JOB_CHANGE_LV) {
-      await UI.say(nm, `แต่เจ้ายังอ่อนประสบการณ์นัก!<br>จงไปฝึกจนมี ${B('Job Level ' + JOB_CHANGE_LV)} ก่อน (ตอนนี้ ${p.jobLv})<br><br>ทุ่งหญ้ามรกต ${B('ทางตะวันออกของเมือง')} เหมาะกับการเริ่มต้น`);
+      await UI.say(nm, `แต่ข้อมูลการต่อสู้ของเจ้ายังไม่พอให้ระบบรองรับการอัปเกรด!<br>จงไปเก็บข้อมูลจนมี ${B('Job Level ' + JOB_CHANGE_LV)} ก่อน (ตอนนี้ ${p.jobLv})<br><br>ทุ่งหญ้ามรกต ${B('ทางตะวันออกของเมือง')} เหมาะกับการเริ่มต้น`);
       return;
     }
     for (;;) {
-      const i = await UI.menu(nm, 'เจ้าพร้อมแล้ว! จงเลือกเส้นทางแห่งโชคชะตา:', [...FIRST_JOBS.map(j => `${JOBS[j].name} (${JOBS[j].thai}) — ${JOBS[j].role}`), 'ขอคิดดูก่อน']);
+      const i = await UI.menu(nm, 'ข้อมูลครบแล้ว! เลือกโมดูลคลาสที่จะอัปเกรด:', [...FIRST_JOBS.map(j => `${JOBS[j].name} (${JOBS[j].thai}) — ${JOBS[j].role}`), 'ขอคิดดูก่อน']);
       if (i >= FIRST_JOBS.length) return;
       const j = FIRST_JOBS[i], J = JOBS[j];
       UI.illust(Art.jobKey(j, p.gender));
-      const ok = await UI.menu(nm, `<b>${J.name}</b> — ${J.thai}<br>${J.desc}<br><br>สเตตัสแนะนำ: ${B(J.stats)}<br>สกิล: ${J.skills.map(s => SKILLS[s].name).join(', ')}<br><br>ยืนยันที่จะเป็น ${B(J.name)} หรือไม่? (เปลี่ยนกลับไม่ได้)`, ['ยืนยัน!', 'ย้อนกลับ']);
+      const ok = await UI.menu(nm, `<b>${J.name}</b> — ${J.thai}<br>${J.desc}<br><br>สเตตัสแนะนำ: ${B(J.stats)}<br>สกิล: ${J.skills.map(s => SKILLS[s].name).join(', ')}<br><br>ยืนยันการอัปเกรดร่างเป็น ${B(J.name)} หรือไม่? (ย้อนกลับไม่ได้)`, ['เริ่มอัปเกรด!', 'ย้อนกลับ']);
       UI.illust(`npc_${n.id}`);
       if (ok === 0) {
         changeJob(j);
         UI.illust(Art.jobKey(j, p.gender));
-        await UI.say(nm, `จากนี้ไปเจ้าคือ ${B(J.name)}!<br>ข้ามอบอาวุธประจำอาชีพให้เจ้าแล้ว เก็บ Job Level เพื่อรับ Skill Point แล้วเรียนสกิลใหม่ (กด S)`);
+        await UI.say(nm, `อัปเกรดเสร็จสมบูรณ์ — ร่างใหม่ของเจ้าคือ ${B(J.name)}!<br>ติดตั้งอาวุธประจำคลาสให้แล้ว เก็บ Job Level เพื่อรับ Skill Point แล้วติดตั้งสกิลใหม่ (กด S)`);
         return;
       }
     }
   }
-  const i = await UI.menu(nm, `${JOBS[p.job].name} ผู้กล้า... เส้นทางขั้นต่อไปยังซ่อนอยู่ในสายหมอกแห่งอนาคต<br>แต่ปัญญาของข้าช่วยเจ้าได้เรื่องหนึ่ง:`,
+  const i = await UI.menu(nm, `${JOBS[p.job].name} ผู้กล้า... โมดูลอัปเกรดขั้นต่อไปยังอยู่ระหว่างพัฒนา<br>แต่ปัญญาของข้าช่วยเจ้าได้เรื่องหนึ่ง:`,
     ['รีเซ็ตสกิล (5,000 z)', 'รีเซ็ตสเตตัส (10,000 z)', 'ไม่เป็นไร']);
   if (i === 0 || i === 1) {
     const cost = i === 0 ? 5000 : 10000;
@@ -112,10 +112,10 @@ NPC.scripts.guide = async n => {
   const nm = `[${n.name}]`;
   for (;;) {
     const i = await UI.menu(nm, 'ยินดีต้อนรับสู่ <b>นีโอเอลด์ไฮม์</b> ฐานที่มั่นสุดท้ายของแอนดรอยด์!<br>มีอะไรให้ข้าช่วยแนะนำ?',
-      ['วิธีควบคุม', 'แผนที่รอบเมือง', 'ผู้คนในเมือง', 'อาชีพทั้ง 6', 'เคล็ดลับ', 'ขอบคุณ']);
+      ['วิธีควบคุม', 'แผนที่รอบเมือง', 'ผู้คนในเมือง', 'คลาสอัปเกรดทั้ง 6', 'เคล็ดลับ', 'ขอบคุณ']);
     if (i === 0) await UI.say(nm, `• ${B('คลิกซ้าย')} ที่พื้นเพื่อเดิน / คลิกค้างเพื่อเดินตามเมาส์<br>• ${B('คลิกมอนสเตอร์')} เพื่อโจมตีอัตโนมัติ<br>• ${B('คลิกไอเทม')} บนพื้นเพื่อเก็บ<br>• ${B('1-9')} ใช้ปุ่มลัด • ${B('X')} นั่งพัก (ฟื้นฟูเร็วขึ้น)<br>• ${B('A')} สถานะ • ${B('E')} ไอเทม • ${B('Q')} อุปกรณ์ • ${B('S')} สกิล • ${B('Enter')} แชท<br>• ${B('ล้อเมาส์')} ซูมเข้า/ออก`);
     else if (i === 1) await UI.say(nm, `• ${B('ทางตะวันออก')} → Emerald Meadow (Lv 1-6) → Mistlake Plains (Lv 8-16, MVP Seraph Core)<br>• ${B('ทางใต้')} → Wolfwood Forest (Lv 18-30) → Hel's Hollow (Lv 17-45, MVP Kitsura EX)<br><br>วงแสงสีฟ้าคือ ${B('ประตูมิติ')} เดินเข้าไปเพื่อย้ายแผนที่`);
-    else if (i === 2) await UI.say(nm, `• ${B('Bifrost Keeper')} — บันทึกจุดเกิด / เทเลพอร์ต<br>• ${B('Mimir AI')} — เปลี่ยนอาชีพ (Job Lv ${JOB_CHANGE_LV})<br>• ${B('Eir Repair Unit')} — ซ่อมแซมและบัฟฟรี<br>• ${B('Tool / Weapon / Armor Dealer')} — ซื้อขายของ<br>• ${B('Brokk Forge-Bot')} — ตีบวกอาวุธและชุดเกราะ`);
+    else if (i === 2) await UI.say(nm, `• ${B('Bifrost Keeper')} — บันทึกจุดเกิด / เทเลพอร์ต<br>• ${B('Mimir AI')} — อัปเกรดร่าง/คลาส (Job Lv ${JOB_CHANGE_LV})<br>• ${B('Eir Repair Unit')} — ซ่อมแซมและบัฟฟรี<br>• ${B('Tool / Weapon / Armor Dealer')} — ซื้อขายของ<br>• ${B('Brokk Forge-Bot')} — ตีบวกอาวุธและชุดเกราะ`);
     else if (i === 3) await UI.say(nm, FIRST_JOBS.map(j => `• ${B(JOBS[j].name)} (${JOBS[j].thai}) — ${JOBS[j].role} [${JOBS[j].stats}]`).join('<br>'));
     else if (i === 4) await UI.say(nm, `• อัปสเตตัสด้วย Status Point ทุกครั้งที่เลเวลอัป (กด A)<br>• มอนสเตอร์บางชนิดจะ ${B('โจมตีก่อน')}! ระวังตัวด้วย<br>• ${B('ชิป')} ดรอปยาก ใส่ในอุปกรณ์ที่มีช่อง [ ] เพื่อเพิ่มพลัง<br>• ธาตุมีผล! ไฟแรงกับดิน น้ำแรงกับไฟ ศักดิ์สิทธิ์แรงกับอมตะ<br>• สกิลแต่ละอันอัปได้สูงสุด Lv 5`);
     else return;

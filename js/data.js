@@ -310,19 +310,19 @@ const ITEMS = {
   rune_charm:   { name: 'Rune Charm',   type: 'armor', slot: 'acc', price: 20000, slots: 0, jobs: 'all', icon: { s: 'ring', c: '#f0f0f0' }, b: { luk: 2, mdef: 3 }, desc: 'เครื่องรางรูน LUK +2 MDEF 3' },
 
   // --- การ์ด ---
-  pudding_card:    { name: 'Slime Drone Chip',    type: 'card', slot: 'armor',   price: 20, b: { luk: 2, flee: 1 }, icon: { s: 'card', c: '#f0a0c0' }, desc: 'ชิปเสริม — ใส่ชุดเกราะ: LUK +2, FLEE +1' },
+  pudding_card:    { name: 'Gel Unit Chip',    type: 'card', slot: 'armor',   price: 20, b: { luk: 2, flee: 1 }, icon: { s: 'card', c: '#f0a0c0' }, desc: 'ชิปเสริม — ใส่ชุดเกราะ: LUK +2, FLEE +1' },
   leafworm_card:   { name: 'Crawler Chip',   type: 'card', slot: 'armor',   price: 20, b: { vit: 1, hp: 100 }, icon: { s: 'card', c: '#90d060' }, desc: 'ชิปเสริม — ใส่ชุดเกราะ: VIT +1, MaxHP +100' },
-  moonbun_card:    { name: 'Hopper Bunny Chip',    type: 'card', slot: 'garment', price: 20, b: { luk: 1, crit: 1 }, icon: { s: 'card', c: '#f0f0f0' }, desc: 'ชิปเสริม — ใส่ผ้าคลุม: LUK +1, CRIT +1' },
-  ember_card:      { name: 'Ember Drone Chip', type: 'card', slot: 'acc',  price: 20, b: { dex: 1, hit: 3 }, icon: { s: 'card', c: '#f0a040' }, desc: 'ชิปเสริม — ใส่เครื่องประดับ: DEX +1, HIT +3' },
-  buzzfly_card:    { name: 'Buzz Drone Chip',    type: 'card', slot: 'garment', price: 20, b: { agi: 1, flee: 2 }, icon: { s: 'card', c: '#e0d040' }, desc: 'ชิปเสริม — ใส่ผ้าคลุม: AGI +1, FLEE +2' },
-  hopper_card:     { name: 'Hopper Mech Chip', type: 'card', slot: 'acc',   price: 20, b: { dex: 1, atk: 5 }, icon: { s: 'card', c: '#80c040' }, desc: 'ชิปเสริม — ใส่เครื่องประดับ: DEX +1, ATK +5' },
+  moonbun_card:    { name: 'Bunny Unit Chip',    type: 'card', slot: 'garment', price: 20, b: { luk: 1, crit: 1 }, icon: { s: 'card', c: '#f0f0f0' }, desc: 'ชิปเสริม — ใส่ผ้าคลุม: LUK +1, CRIT +1' },
+  ember_card:      { name: 'Ember Unit Chip', type: 'card', slot: 'acc',  price: 20, b: { dex: 1, hit: 3 }, icon: { s: 'card', c: '#f0a040' }, desc: 'ชิปเสริม — ใส่เครื่องประดับ: DEX +1, HIT +3' },
+  buzzfly_card:    { name: 'Buzz Unit Chip',    type: 'card', slot: 'garment', price: 20, b: { agi: 1, flee: 2 }, icon: { s: 'card', c: '#e0d040' }, desc: 'ชิปเสริม — ใส่ผ้าคลุม: AGI +1, FLEE +2' },
+  hopper_card:     { name: 'Hopper Unit Chip', type: 'card', slot: 'acc',   price: 20, b: { dex: 1, atk: 5 }, icon: { s: 'card', c: '#80c040' }, desc: 'ชิปเสริม — ใส่เครื่องประดับ: DEX +1, ATK +5' },
   stumpling_card:  { name: 'Rust Sentry Chip',  type: 'card', slot: 'armor',   price: 20, b: { sp: 80 }, icon: { s: 'card', c: '#a07040' }, desc: 'ชิปเสริม — ใส่ชุดเกราะ: MaxSP +80' },
-  capshroom_card:  { name: 'Mine Bot Chip',  type: 'card', slot: 'head',    price: 20, b: { vit: 2 }, icon: { s: 'card', c: '#e05050' }, desc: 'ชิปเสริม — ใส่หมวก: VIT +2' },
-  mosspud_card:    { name: 'Moss Drone Chip', type: 'card', slot: 'weapon', price: 20, b: { atk: 10, luk: 1 }, icon: { s: 'card', c: '#80d080' }, desc: 'ชิปเสริม — ใส่อาวุธ: ATK +10, LUK +1' },
-  ashtail_card:    { name: 'Ash Hound Chip',    type: 'card', slot: 'garment', price: 20, b: { agi: 2, flee: 3 }, icon: { s: 'card', c: '#909090' }, desc: 'ชิปเสริม — ใส่ผ้าคลุม: AGI +2, FLEE +3' },
+  capshroom_card:  { name: 'Mine Unit Chip',  type: 'card', slot: 'head',    price: 20, b: { vit: 2 }, icon: { s: 'card', c: '#e05050' }, desc: 'ชิปเสริม — ใส่หมวก: VIT +2' },
+  mosspud_card:    { name: 'Moss Unit Chip', type: 'card', slot: 'weapon', price: 20, b: { atk: 10, luk: 1 }, icon: { s: 'card', c: '#80d080' }, desc: 'ชิปเสริม — ใส่อาวุธ: ATK +10, LUK +1' },
+  ashtail_card:    { name: 'Ash Stalker Chip',    type: 'card', slot: 'garment', price: 20, b: { agi: 2, flee: 3 }, icon: { s: 'card', c: '#909090' }, desc: 'ชิปเสริม — ใส่ผ้าคลุม: AGI +2, FLEE +3' },
   fenrir_card:     { name: 'Fenrir Unit Chip', type: 'card', slot: 'weapon',  price: 20, b: { crit: 8 }, icon: { s: 'card', c: '#c0c0d0' }, desc: 'ชิปเสริม — ใส่อาวุธ: CRIT +8' },
-  bear_card:       { name: 'Iron Bear Chip',   type: 'card', slot: 'shield',  price: 20, b: { vit: 1, def: 2 }, icon: { s: 'card', c: '#5a7a3a' }, desc: 'ชิปเสริม — ใส่โล่: VIT +1, DEF +2' },
-  boar_card:       { name: 'Tusk Tank Chip',   type: 'card', slot: 'armor',   price: 20, b: { vit: 3 }, icon: { s: 'card', c: '#6a4020' }, desc: 'ชิปเสริม — ใส่ชุดเกราะ: VIT +3' },
+  bear_card:       { name: 'Iron Brute Chip',   type: 'card', slot: 'shield',  price: 20, b: { vit: 1, def: 2 }, icon: { s: 'card', c: '#5a7a3a' }, desc: 'ชิปเสริม — ใส่โล่: VIT +1, DEF +2' },
+  boar_card:       { name: 'Tusk Trooper Chip',   type: 'card', slot: 'armor',   price: 20, b: { vit: 3 }, icon: { s: 'card', c: '#6a4020' }, desc: 'ชิปเสริม — ใส่ชุดเกราะ: VIT +3' },
   draugr_card:     { name: 'Draugr Husk Chip',     type: 'card', slot: 'shield',  price: 20, b: { hp: 200 }, icon: { s: 'card', c: '#709070' }, desc: 'ชิปเสริม — ใส่โล่: MaxHP +200' },
   warden_card:     { name: 'Frame Warden Chip', type: 'card', slot: 'weapon', price: 20, b: { atk: 10, crit: 2 }, icon: { s: 'card', c: '#f0ecd8' }, desc: 'ชิปเสริม — ใส่อาวุธ: ATK +10, CRIT +2' },
   helmaiden_card:  { name: 'Hel Maiden Chip', type: 'card', slot: 'head',    price: 20, b: { int: 1, mdef: 5 }, icon: { s: 'card', c: '#4050a0' }, desc: 'ชิปเสริม — ใส่หมวก: INT +1, MDEF +5' },
@@ -340,36 +340,36 @@ const EQUIP_SLOTS = ['head', 'weapon', 'shield', 'armor', 'garment', 'shoes', 'a
 //  def = hard def (%)  vit = soft def   sprite = รูปแบบการวาด
 // ------------------------------------------------------------
 const MOBS = {
-  pudding:   { name: 'Slime Drone',       lv: 1,  hp: 50,   atk: [7, 10],   def: 0,  mdef: 5,  vit: 1,  flee: 5,   hit: 8,   exp: 18,  jexp: 12, speed: 1.4, aggro: false, element: 'water', race: 'plant',
+  pudding:   { name: 'Gel Unit',       lv: 1,  hp: 50,   atk: [7, 10],   def: 0,  mdef: 5,  vit: 1,  flee: 5,   hit: 8,   exp: 18,  jexp: 12, speed: 1.4, aggro: false, element: 'water', race: 'plant',
                sprite: 'poring', color: '#f28fb4', drops: [['jelly_drop', 0.7], ['apple', 0.15], ['red_potion', 0.04], ['knife', 0.01], ['pudding_card', 0.01]] },
   leafworm:  { name: 'Crawler Unit',      lv: 2,  hp: 63,   atk: [8, 11],   def: 0,  mdef: 0,  vit: 2,  flee: 7,   hit: 10,  exp: 22,  jexp: 15, speed: 1.2, aggro: false, element: 'earth', race: 'insect',
                sprite: 'fabre', color: '#8fd35a', drops: [['leaf_silk', 0.65], ['clover', 0.1], ['green_herb', 0.2], ['leafworm_card', 0.01]] },
-  moonbun:   { name: 'Hopper Bunny',       lv: 3,  hp: 60,   atk: [9, 12],   def: 0,  mdef: 20, vit: 3,  flee: 12,  hit: 12,  exp: 26,  jexp: 18, speed: 2.0, aggro: false, element: 'neutral', race: 'brute',
+  moonbun:   { name: 'Bunny Unit',       lv: 3,  hp: 60,   atk: [9, 12],   def: 0,  mdef: 20, vit: 3,  flee: 12,  hit: 12,  exp: 26,  jexp: 18, speed: 2.0, aggro: false, element: 'neutral', race: 'brute',
                sprite: 'lunatic', color: '#fafafa', drops: [['moon_fur', 0.6], ['clover', 0.2], ['carrot', 0.3], ['moonbun_card', 0.01]] },
-  ember_pudding: { name: 'Ember Drone', lv: 3, hp: 72, atk: [10, 13], def: 0,  mdef: 0,  vit: 3,  flee: 9,   hit: 12,  exp: 30,  jexp: 20, speed: 1.4, aggro: false, element: 'fire', race: 'plant',
+  ember_pudding: { name: 'Ember Unit', lv: 3, hp: 72, atk: [10, 13], def: 0,  mdef: 0,  vit: 3,  flee: 9,   hit: 12,  exp: 30,  jexp: 20, speed: 1.4, aggro: false, element: 'fire', race: 'plant',
                sprite: 'poring', color: '#f5a442', drops: [['ember_jelly', 0.5], ['orange_potion', 0.04], ['red_herb', 0.2], ['ember_card', 0.01]] },
-  buzzfly:   { name: 'Buzz Drone',       lv: 4,  hp: 67,   atk: [10, 13],  def: 10, mdef: 0,  vit: 4,  flee: 20,  hit: 16,  exp: 35,  jexp: 24, speed: 2.4, aggro: true, element: 'wind', race: 'insect',
+  buzzfly:   { name: 'Buzz Unit',       lv: 4,  hp: 67,   atk: [10, 13],  def: 10, mdef: 0,  vit: 4,  flee: 20,  hit: 16,  exp: 35,  jexp: 24, speed: 2.4, aggro: true, element: 'wind', race: 'insect',
                sprite: 'chonchon', color: '#3a3a3a', drops: [['buzz_wing', 0.55], ['jelly_drop', 0.3], ['blink_feather', 0.05], ['buzzfly_card', 0.01]] },
 
   stumpling: { name: 'Rust Sentry',     lv: 8,  hp: 170,  atk: [18, 22],  def: 35, mdef: 5,  vit: 8,  flee: 10,  hit: 20,  exp: 80,  jexp: 55, speed: 1.0, aggro: false, element: 'earth', race: 'plant',
                sprite: 'willow', color: '#8a6038', drops: [['living_bark', 0.6], ['leaf_silk', 0.3], ['stumpling_card', 0.01]] },
-  fiddlehopper: { name: 'Hopper Mech', lv: 9, hp: 198, atk: [24, 29],  def: 5,  mdef: 10, vit: 10, flee: 22,  hit: 28,  exp: 90,  jexp: 60, speed: 1.6, aggro: false, element: 'earth', race: 'insect',
+  fiddlehopper: { name: 'Hopper Unit', lv: 9, hp: 198, atk: [24, 29],  def: 5,  mdef: 10, vit: 10, flee: 22,  hit: 28,  exp: 90,  jexp: 60, speed: 1.6, aggro: false, element: 'earth', race: 'insect',
                sprite: 'rocker', color: '#7cb342', drops: [['hopper_leg', 0.55], ['green_herb', 0.2], ['cutter', 0.005], ['hopper_card', 0.01]] },
-  capshroom: { name: 'Mine Bot',     lv: 12, hp: 280,  atk: [28, 34],  def: 10, mdef: 10, vit: 12, flee: 20,  hit: 30,  exp: 130, jexp: 90, speed: 1.2, aggro: false, element: 'water', race: 'plant',
+  capshroom: { name: 'Mine Unit',     lv: 12, hp: 280,  atk: [28, 34],  def: 10, mdef: 10, vit: 12, flee: 20,  hit: 30,  exp: 130, jexp: 90, speed: 1.2, aggro: false, element: 'water', race: 'plant',
                sprite: 'spore', color: '#d8433a', drops: [['cap_spore', 0.6], ['red_herb', 0.3], ['hat', 0.01], ['capshroom_card', 0.01]] },
-  moss_pudding: { name: 'Moss Drone', lv: 14, hp: 330, atk: [32, 40], def: 10, mdef: 10, vit: 14, flee: 24,  hit: 34,  exp: 160, jexp: 110, speed: 1.6, aggro: false, element: 'earth', race: 'plant',
+  moss_pudding: { name: 'Moss Unit', lv: 14, hp: 330, atk: [32, 40], def: 10, mdef: 10, vit: 14, flee: 24,  hit: 34,  exp: 160, jexp: 110, speed: 1.6, aggro: false, element: 'earth', race: 'plant',
                sprite: 'poring', color: '#7fcf6f', drops: [['moss_gel', 0.5], ['green_herb', 0.3], ['grape', 0.06], ['mosspud_card', 0.01]] },
   seraph_pudding: { name: 'Seraph Core', lv: 25, hp: 5500, atk: [90, 120], def: 30, mdef: 50, vit: 25, flee: 60, hit: 70, exp: 3500, jexp: 2400, speed: 1.8, aggro: true, element: 'holy', race: 'angel',
                sprite: 'poring', color: '#fff3c4', scale: 2.0, boss: true, wings: true, respawn: 300000, bossSkill: 'heal',
                drops: [['seraph_wings', 0.35], ['white_potion', 0.6], ['blue_potion', 0.5], ['yggdrasil_shard', 0.1], ['seraph_card', 0.15]] },
 
-  ashtail:   { name: 'Ash Hound',       lv: 18, hp: 600,  atk: [45, 58],  def: 10, mdef: 5,  vit: 18, flee: 45,  hit: 48,  exp: 300, jexp: 210, speed: 1.8, aggro: false, element: 'earth', race: 'brute',
+  ashtail:   { name: 'Ash Stalker',       lv: 18, hp: 600,  atk: [45, 58],  def: 10, mdef: 5,  vit: 18, flee: 45,  hit: 48,  exp: 300, jexp: 210, speed: 1.8, aggro: false, element: 'earth', race: 'brute',
                sprite: 'quad', variant: 'raccoon', color: '#8a8e98', color2: '#4e525c', size: 0.8, drops: [['ash_tail', 0.5], ['moon_fur', 0.3], ['muffler', 0.01], ['ashtail_card', 0.01]] },
   fenrir_pup:{ name: 'Fenrir Unit',    lv: 25, hp: 900,  atk: [60, 78],  def: 15, mdef: 0,  vit: 22, flee: 55,  hit: 60,  exp: 460, jexp: 320, speed: 2.4, aggro: true, element: 'earth', race: 'brute',
                sprite: 'quad', variant: 'wolf', color: '#b8c0cc', color2: '#5e6674', size: 1.0, drops: [['fenrir_fang', 0.6], ['meat', 0.3], ['fenrir_card', 0.01]] },
-  mossback:  { name: 'Iron Bear', lv: 26, hp: 1150, atk: [65, 82],  def: 25, mdef: 5,  vit: 26, flee: 40,  hit: 55,  exp: 520, jexp: 350, speed: 1.3, aggro: false, element: 'earth', race: 'brute',
+  mossback:  { name: 'Iron Brute', lv: 26, hp: 1150, atk: [65, 82],  def: 25, mdef: 5,  vit: 26, flee: 40,  hit: 55,  exp: 520, jexp: 350, speed: 1.3, aggro: false, element: 'earth', race: 'brute',
                sprite: 'quad', variant: 'bear', color: '#8a7456', color2: '#4e5a3a', size: 1.35, drops: [['moss_hide', 0.5], ['mead', 0.08], ['bear_card', 0.01]] },
-  tuskboar:  { name: 'Tusk Tank',      lv: 28, hp: 1400, atk: [80, 100], def: 30, mdef: 5,  vit: 28, flee: 50,  hit: 65,  exp: 640, jexp: 450, speed: 1.9, aggro: true, element: 'earth', race: 'brute',
+  tuskboar:  { name: 'Tusk Trooper',      lv: 28, hp: 1400, atk: [80, 100], def: 30, mdef: 5,  vit: 28, flee: 50,  hit: 65,  exp: 640, jexp: 450, speed: 1.9, aggro: true, element: 'earth', race: 'brute',
                sprite: 'quad', variant: 'boar', color: '#6e6258', color2: '#3a342e', size: 1.15, tusk: true, drops: [['iron_tusk', 0.6], ['meat', 0.3], ['boar_card', 0.01]] },
 
   draugr:    { name: 'Draugr Husk',        lv: 17, hp: 700,  atk: [45, 60],  def: 5,  mdef: 10, vit: 17, flee: 20,  hit: 45,  exp: 330, jexp: 220, speed: 0.9, aggro: true, element: 'undead', race: 'undead',
@@ -385,6 +385,34 @@ const MOBS = {
                drops: [['emberfang', 0.4], ['white_potion', 0.8], ['blue_potion', 0.6], ['yggdrasil_shard', 0.15], ['kitsura_card', 0.15]] },
 };
 for (const id in MOBS) MOBS[id].id = id;
+
+// ------------------------------------------------------------
+//  รูปร่างมอนสเตอร์: ทุกตัวเป็นแอนดรอยด์ร่างมนุษย์ (ไม่มีมนุษย์ในโลกนี้)
+//  ค่าที่ใช้ได้: skin (โครง) outfit/outfit2 (เกราะ) hair+hairStyle (แผ่นหัว) glow (ไฟ) visor (band|v|slit)
+//  wtype (อาวุธ) scale bulky hover wings (angel|mech|bee) ears (bunny|wolf|fox) halo robe cape hat
+// ------------------------------------------------------------
+const MOB_LOOKS = {
+  pudding:       { skin: '#f4d6e4', outfit: '#e07aa8', outfit2: '#ffd0e4', hair: '#f28fb4', hairStyle: 'bob', glow: '#ff9ad0', visor: 'band', hover: true, scale: 0.72 },
+  leafworm:      { skin: '#d8e8cc', outfit: '#6aa84a', outfit2: '#bfe08a', hair: '#7cc050', hairStyle: 'short', glow: '#b0ff6a', visor: 'slit', wtype: 'dagger', scale: 0.74 },
+  moonbun:       { skin: '#f2f4f8', outfit: '#c8ccd8', outfit2: '#ffffff', hair: '#e8ecf4', hairStyle: 'bob', ears: 'bunny', earColor: '#f2f4f8', glow: '#ff7aa0', visor: 'band', scale: 0.76 },
+  ember_pudding: { skin: '#f6dcc4', outfit: '#e8803a', outfit2: '#ffd08a', hair: '#f5a442', hairStyle: 'bob', glow: '#ffae40', visor: 'band', hover: true, scale: 0.74 },
+  buzzfly:       { skin: '#2e3038', outfit: '#e0b830', outfit2: '#1e2028', hair: '#e0b830', hairStyle: 'spiky', wings: 'bee', hover: true, glow: '#ffd84a', visor: 'v', wtype: 'dagger', scale: 0.78 },
+  stumpling:     { skin: '#8a6a4a', outfit: '#6a4a30', outfit2: '#a0784a', joint: '#3a2a1a', hat: 'helmet', bulky: 1.25, glow: '#ffb040', visor: 'slit', wtype: 'mace', scale: 0.95 },
+  fiddlehopper:  { skin: '#d0e0c0', outfit: '#7cb342', outfit2: '#3a5a2a', hair: '#8ccf52', hairStyle: 'spiky', glow: '#b0ff6a', visor: 'v', wtype: 'bow', scale: 0.9 },
+  capshroom:     { skin: '#e8e2d0', outfit: '#b8332a', outfit2: '#e8e2d0', hat: 'dome', hatColor: '#d8433a', glow: '#ff5a4a', visor: 'slit', scale: 0.8 },
+  moss_pudding:  { skin: '#d4ecd0', outfit: '#5aa860', outfit2: '#bff0b0', hair: '#7fcf6f', hairStyle: 'bob', hover: true, glow: '#8aff9a', visor: 'band', scale: 0.8 },
+  seraph_pudding:{ skin: '#fbf8ee', outfit: '#e8d8a0', outfit2: '#ffffff', hair: '#fff3c4', hairStyle: 'long', wings: 'angel', halo: true, hover: true, robe: true, glow: '#ffe27a', visor: 'band', wtype: 'rod', scale: 1.7 },
+  ashtail:       { skin: '#9aa0aa', outfit: '#5e626c', outfit2: '#3a3e48', hair: '#7a7e88', hairStyle: 'short', ears: 'wolf', earColor: '#7a7e88', glow: '#8ad8ff', visor: 'v', wtype: 'dagger', cape: '#4e525c' },
+  fenrir_pup:    { skin: '#c8d0dc', outfit: '#8a94a6', outfit2: '#5e6674', hair: '#b8c0cc', hairStyle: 'spiky', ears: 'wolf', earColor: '#b8c0cc', glow: '#8ad8ff', visor: 'v', wtype: 'sword' },
+  mossback:      { skin: '#8a7456', outfit: '#4e5a3a', outfit2: '#8a7456', joint: '#2a2a1e', hat: 'helmet', bulky: 1.35, glow: '#ffb040', visor: 'slit', wtype: 'mace', scale: 1.25 },
+  tuskboar:      { skin: '#6e6258', outfit: '#3a342e', outfit2: '#8a7a6a', hat: 'viking', hatColor: '#6e6258', bulky: 1.2, glow: '#ff7a3a', visor: 'slit', wtype: 'axe', scale: 1.12 },
+  draugr:        { skin: '#8a7a68', face: '#a09488', outfit: '#5a4a3a', outfit2: '#3a2e24', joint: '#3a2a22', hat: 'viking', hatColor: '#6a6a60', glow: '#ff4a3a', visor: 'slit', wtype: 'axe' },
+  bone_warden:   { skin: '#e8e4d8', bones: true, outfit: '#e8e4d8', glow: '#ff3030', visor: 'slit', wtype: 'sword' },
+  hel_maiden:    { skin: '#c8d0e0', outfit: '#3a4a6a', outfit2: '#1e2638', hair: '#e8e8f0', hairStyle: 'long', hat: 'hood', hatColor: '#2a2a3a', glow: '#60f0d0', visor: 'band', robe: true, wtype: 'rod' },
+  hel_guard:     { skin: '#b8c0d0', outfit: '#2a2a3a', outfit2: '#4a4a5a', hat: 'viking', hatColor: '#4a4e58', glow: '#ff4a3a', visor: 'v', wtype: 'axe', cape: '#3a1a1a' },
+  kitsura:       { skin: '#f6ece0', outfit: '#e86a2a', outfit2: '#ffd0a0', hair: '#f0a040', hairStyle: 'long', ears: 'fox', earColor: '#f0a040', fox: true, glow: '#ffae40', visor: 'v', wtype: 'dagger', scale: 1.6 },
+};
+for (const id in MOB_LOOKS) { MOBS[id].sprite = 'android'; MOBS[id].look = MOB_LOOKS[id]; if (MOB_LOOKS[id].scale) MOBS[id].scale = MOB_LOOKS[id].scale; delete MOBS[id].size; }
 
 // ------------------------------------------------------------
 //  ร้านค้า

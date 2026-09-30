@@ -92,8 +92,8 @@ Sprites.human = (g, x, y, o) => {
   g.translate(x, y);
   g.scale(D.m * s, s);
   const t = o.t || 0;
-  const walk = o.moving ? Math.sin(t * 14) : 0;
-  const bob = o.moving ? Math.abs(Math.sin(t * 14)) * 1.4 : Math.sin(t * 2) * 0.5;
+  const walk = o.moving && !o.hover ? Math.sin(t * 14) : 0;
+  const bob = o.moving && !o.hover ? Math.abs(Math.sin(t * 14)) * 1.4 : Math.sin(t * 2) * 0.5;
   const plate = o.outfit || '#6a7a90', trim = o.outfit2 || '#c0c8d4';
   const chassis = o.skin || '#e6e9ef';               // สีโครงโลหะหลัก
   const joint = o.joint || '#2a2e38';                // ข้อต่อ/ส่วนดำ
@@ -107,7 +107,33 @@ Sprites.human = (g, x, y, o) => {
   const glowOff = () => { g.shadowBlur = 0; g.globalAlpha = 1; };
   if (o.dead) { g.rotate(Math.PI / 2); g.translate(-10, -6); }
   if (o.sit) g.translate(0, 7);
+  if (o.bulky) g.scale(o.bulky, 1);
+  if (o.hover && !o.dead) {
+    // ไอพ่นใต้เท้า + ลอยตัว
+    g.save(); g.shadowColor = glow; g.shadowBlur = 10; g.fillStyle = glow; g.globalAlpha = 0.55 + Math.sin(t * 22) * 0.2;
+    g.beginPath(); g.ellipse(-3.5, -1, 2.5, 4, 0, 0, 7); g.ellipse(3.5, -1, 2.5, 4, 0, 0, 7); g.fill(); g.restore();
+    g.translate(0, -7 - Math.sin(t * 3 + (o.seedT || 0)) * 2);
+  }
   const hy = -39;
+  // ปีก (ด้านหลังลำตัว)
+  if (o.wings) {
+    const f = o.wings === 'bee' ? Math.sin(t * 40) * 0.25 : Math.sin(t * 3) * 0.12;
+    for (const sx of [-1, 1]) {
+      g.save(); g.translate(sx * 5, -26); g.rotate(sx * (-0.35 + f));
+      if (o.wings === 'bee') {
+        g.fillStyle = 'rgba(210,235,255,0.45)'; g.beginPath(); g.ellipse(sx * 11, -4, 11, 5, sx * -0.4, 0, 7); g.fill();
+        g.strokeStyle = 'rgba(255,255,255,0.5)'; g.lineWidth = 0.8; g.stroke();
+      } else {
+        const n = o.wings === 'angel' ? 5 : 3;
+        for (let i = 0; i < n; i++) {
+          g.fillStyle = metal(o.wings === 'angel' ? '#f4f2ea' : plate, 0, -14, 0, 4);
+          g.beginPath(); g.moveTo(0, 0); g.lineTo(sx * (14 + i * 4), -14 + i * 5); g.lineTo(sx * (11 + i * 4), -9 + i * 5); g.closePath(); g.fill(); ol(0.8);
+        }
+        glowFill(0.85); g.fillRect(sx > 0 ? 2 : -16, -2, 14, 1); glowOff();
+      }
+      g.restore();
+    }
+  }
   const eyesX = front ? [-4.3, 4.3] : side ? [7] : [2.2, 7.6]; // ใช้กับหมวกบางแบบ
 
   // หางจิ้งจอกกลไก
@@ -134,7 +160,8 @@ Sprites.human = (g, x, y, o) => {
   // สายเคเบิลยาวด้านหลัง (ทรงผมยาว)
   // ผมยาวด้านหลัง (อนิเมะ): พลิ้วตามการเดิน
   const longHair = crest && (o.hairStyle === 'long' || o.hairStyle === 'twin');
-  const hairGrad = (y0, y1) => { const gr = g.createLinearGradient(0, y0, 0, y1); gr.addColorStop(0, U.shade(crest, 0.18)); gr.addColorStop(1, U.shade(crest, -0.22)); return gr; };
+  // "ผม" ของแอนดรอยด์ = แผ่นไฟเบอร์สังเคราะห์ เงาแบบโลหะ
+  const hairGrad = (y0, y1) => { const gr = g.createLinearGradient(0, y0, 0, y1); gr.addColorStop(0, U.shade(crest, 0.3)); gr.addColorStop(0.35, U.shade(crest, 0.02)); gr.addColorStop(0.5, U.shade(crest, 0.22)); gr.addColorStop(1, U.shade(crest, -0.3)); return gr; };
   const drawBackHair = () => {
     const sway = Math.sin(t * 2.2) * 1.5 + (o.moving ? Math.sin(t * 7) * 1.5 : 0);
     g.fillStyle = hairGrad(hy - 10, -12);
@@ -256,93 +283,108 @@ Sprites.human = (g, x, y, o) => {
   g.fillStyle = joint; g.fillRect(-2.6, -32, 5.2, 4);
   glowFill(0.6 * pulse); g.fillRect(-2.6, -30.5, 5.2, 0.9); glowOff();
   if (longHair && back) drawBackHair();
-  if (o.bones) {
-    // หัวโลหะเปลือยพร้อมวิเซอร์แดง (หุ่นที่เสียหาย)
-    g.fillStyle = metal(chassis, -11, hy - 10, 11, hy + 10);
-    g.beginPath(); g.ellipse(0, hy, 10.5, 11, 0, 0, 7); g.fill(); ol(1.2);
-    if (!back) { g.fillStyle = '#10131c'; rr(g, front ? -7 : 0, hy - 1, front ? 14 : 10, 5, 2.5); g.fill(); glowFill(1); rr(g, front ? -6 : 1, hy + 0.5, front ? 12 : 8, 2, 1); g.fill(); glowOff(); }
+  // หูสัตว์กลไก (ด้านหลังหัว)
+  const drawEars = () => {
+    if (!o.ears) return;
+    const ec = o.earColor || plate;
+    for (const sx of (front || back) ? [-1, 1] : [-1, 0.4]) {
+      g.save(); g.translate(sx * 6, hy - 8);
+      g.rotate(sx * (o.ears === 'bunny' ? 0.12 : 0.35) + Math.sin(t * 3 + sx) * 0.04);
+      g.fillStyle = metal(ec, -3, -14, 3, 0);
+      g.beginPath();
+      if (o.ears === 'bunny') { rr(g, -2.6, -18, 5.2, 18, 2.6); }
+      else { g.moveTo(-4, 0); g.lineTo(0, o.ears === 'fox' ? -13 : -11); g.lineTo(4, 0); g.closePath(); }
+      g.fill(); ol(1);
+      glowFill(0.85); g.fillRect(-0.7, o.ears === 'bunny' ? -15 : -8, 1.4, o.ears === 'bunny' ? 11 : 6); glowOff();
+      g.restore();
+    }
+  };
+  drawEars();
+  // หัว: เปลือกโลหะ + แผ่นหน้า (ไม่มีลูกตา)
+  const faceC = o.face || U.shade(chassis, -0.04);
+  g.fillStyle = metal(faceC, -11, hy - 10, 11, hy + 12);
+  g.beginPath(); g.ellipse(0, hy + 0.5, 10.6, 11.4, 0, 0, 7); g.fill(); ol(1.2);
+  // แสงขอบ (rim light) + เงาใต้คาง
+  g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = 1.2;
+  g.beginPath(); g.ellipse(0, hy + 0.5, 9.6, 10.4, 0, Math.PI * 1.05, Math.PI * 1.45); g.stroke();
+  g.fillStyle = 'rgba(10,14,24,0.18)'; g.beginPath(); g.ellipse(0, hy + 9, 7, 2.4, 0, 0, 7); g.fill();
+  if (!back) {
+    const fx = front ? 0 : side ? 5.2 : 2.8, fw = front ? 8.6 : side ? 5.2 : 7.2;
+    const vis = o.visor || 'band';
+    // เส้นรอยต่อแผ่นหน้า
+    g.strokeStyle = 'rgba(30,36,50,0.35)'; g.lineWidth = 0.8;
+    g.beginPath(); g.moveTo(fx - fw * 0.6, hy + 6.2); g.quadraticCurveTo(fx, hy + 8.4, fx + fw * 0.6, hy + 6.2); g.stroke();
+    // วิเซอร์ (แทนตา)
+    g.fillStyle = '#0b0e16';
+    g.beginPath();
+    if (vis === 'v') { g.moveTo(fx - fw, hy - 1.5); g.lineTo(fx, hy + 4.2); g.lineTo(fx + fw, hy - 1.5); g.lineTo(fx + fw, hy + 1.8); g.lineTo(fx, hy + 6.5); g.lineTo(fx - fw, hy + 1.8); g.closePath(); }
+    else if (vis === 'slit') { rr(g, fx - fw, hy - 0.2, fw * 2, 4.2, 2); }
+    else { g.ellipse(fx, hy + 1.6, fw, 4.4, 0, 0, 7); }
+    g.fill();
+    const vg = g.createLinearGradient(0, hy - 2, 0, hy + 5);
+    vg.addColorStop(0, 'rgba(255,255,255,0.25)'); vg.addColorStop(0.45, 'rgba(255,255,255,0)'); vg.addColorStop(1, 'rgba(255,255,255,0.05)');
+    g.fillStyle = vg; g.fill();
+    glowFill(0.95);
+    if (vis === 'v') { g.beginPath(); g.moveTo(fx - fw * 0.8, hy); g.lineTo(fx, hy + 4.4); g.lineTo(fx + fw * 0.8, hy); g.lineTo(fx + fw * 0.8, hy + 1); g.lineTo(fx, hy + 5.4); g.lineTo(fx - fw * 0.8, hy + 1); g.closePath(); g.fill(); }
+    else if (vis === 'slit') { for (const dx of front ? [-fw * 0.5, fw * 0.5] : [fw * 0.35]) rr(g, fx + dx - 2.6, hy + 1.1, 5.2, 1.6, 0.8), g.fill(); }
+    else { rr(g, fx - fw * 0.78, hy + 0.7, fw * 1.56, 2, 1); g.fill(); }
+    glowOff();
+    const sx = fx - fw * 0.7 + (((t + (o.seedT || 0)) * 0.8) % 1) * fw * 1.4;
+    g.fillStyle = 'rgba(255,255,255,0.9)'; g.fillRect(sx, hy + 1, 1.4, 1.6);
+    if (o.beard) { g.fillStyle = metal(o.beard, -6, hy + 6, 6, hy + 14); const bx = front ? 0 : side ? 5 : 3.5; rr(g, bx - 5, hy + 7, 10, 5.5, 2); g.fill(); ol(0.8); g.fillStyle = joint; for (let i = 0; i < 3; i++) g.fillRect(bx - 3.5 + i * 2.8, hy + 8.2, 1, 3.2); }
   } else {
-    // ใบหน้าอนิเมะ (ผิวสังเคราะห์)
-    const skinC = o.face || '#f6e8e2';
-    const hg = g.createRadialGradient(-3, hy - 3, 2, 0, hy, 12);
-    hg.addColorStop(0, U.shade(skinC, 0.06)); hg.addColorStop(1, U.shade(skinC, -0.1));
-    g.fillStyle = hg;
-    g.beginPath(); g.ellipse(0, hy + 0.5, 10.8, 11.4, 0, 0, 7); g.fill(); ol(1.1);
-    if (!back) {
-      const blink = (Math.floor((t + (o.seedT || 0)) * 10) % 43) === 0;
-      const eyes = front ? [-4.4, 4.4] : side ? [6.2] : [1.6, 7.4];
-      eyes.forEach((ex, i) => {
-        const nar = !front && !side && i === 0 ? 0.75 : 1;
-        const ey = hy + 2.2;
-        if (blink) { g.strokeStyle = '#3a2430'; g.lineWidth = 1.4; g.beginPath(); g.arc(ex, ey - 1, 2.6 * nar, 0.2, Math.PI - 0.2); g.stroke(); return; }
-        // ตาขาว
-        g.fillStyle = '#ffffff'; g.beginPath(); g.ellipse(ex, ey, 2.7 * nar, 3.5, 0, 0, 7); g.fill();
-        // ม่านตาเรืองแสงสีอาชีพ
-        const ig = g.createLinearGradient(0, ey - 3.3, 0, ey + 3.3);
-        ig.addColorStop(0, U.shade(glow, -0.55)); ig.addColorStop(0.55, U.shade(glow, -0.1)); ig.addColorStop(1, U.shade(glow, 0.45));
-        g.fillStyle = ig; g.beginPath(); g.ellipse(ex + (front ? 0 : 0.4), ey + 0.2, 2.1 * nar, 3.2, 0, 0, 7); g.fill();
-        g.fillStyle = '#10131c'; g.beginPath(); g.ellipse(ex + (front ? 0 : 0.4), ey + 0.3, 0.9 * nar, 1.5, 0, 0, 7); g.fill();
-        g.fillStyle = '#ffffff'; g.beginPath(); g.arc(ex - 0.8 * nar, ey - 1.3, 0.9, 0, 7); g.fill();
-        g.globalAlpha = 0.8; g.beginPath(); g.arc(ex + 0.9 * nar, ey + 1.4, 0.45, 0, 7); g.fill(); g.globalAlpha = 1;
-        // ขนตาบน
-        g.strokeStyle = '#2a1a24'; g.lineWidth = o.hairStyle === 'long' || o.hairStyle === 'twin' ? 1.7 : 1.3; g.lineCap = 'round';
-        g.beginPath(); g.moveTo(ex - 2.9 * nar, ey - 2.2); g.quadraticCurveTo(ex, ey - 4.4, ex + 2.9 * nar, ey - 2.4);
-        if (o.hairStyle === 'long' || o.hairStyle === 'twin') g.lineTo(ex + 3.6 * nar, ey - 3.3);
-        g.stroke(); g.lineCap = 'butt';
-      });
-      // ปาก + แก้ม + เส้นเรืองแสงแบบแอนดรอยด์ใต้ตา
-      const mx = front ? 0 : side ? 8 : 4.8;
-      g.strokeStyle = 'rgba(150,70,80,0.9)'; g.lineWidth = 1; g.beginPath(); g.arc(mx, hy + 7.4, 1.3, 0.3, Math.PI - 0.3); g.stroke();
-      g.fillStyle = 'rgba(255,130,150,0.3)';
-      if (front) { g.beginPath(); g.ellipse(-6.5, hy + 6, 2.2, 1.3, 0, 0, 7); g.fill(); g.beginPath(); g.ellipse(6.5, hy + 6, 2.2, 1.3, 0, 0, 7); g.fill(); }
-      else { g.beginPath(); g.ellipse(side ? 5 : 8.3, hy + 6, 2, 1.2, 0, 0, 7); g.fill(); }
-      glowFill(0.75);
-      if (front) { g.fillRect(-8.5, hy + 4.2, 2.4, 0.7); g.fillRect(6.1, hy + 4.2, 2.4, 0.7); }
-      else g.fillRect(side ? 3 : 9, hy + 4.2, 2.2, 0.7);
-      glowOff();
-      if (o.beard) { g.fillStyle = o.beard; const bx = front ? 0 : side ? 6 : 4; g.beginPath(); g.moveTo(bx - 7, hy + 6); g.lineTo(bx + 7, hy + 6); g.lineTo(bx, hy + 17); g.closePath(); g.fill(); ol(1); }
-    }
-    // ผมอนิเมะ
-    if (crest) {
-      g.fillStyle = hairGrad(hy - 13, hy + 10);
-      if (back) {
-        g.beginPath(); g.ellipse(0, hy - 0.5, 12, 12.2, 0, 0, 7); g.fill(); ol();
-        g.beginPath(); g.moveTo(-11.5, hy + 2); g.lineTo(-10, hy + 11); g.lineTo(-6, hy + 8); g.lineTo(-3, hy + 12); g.lineTo(0, hy + 8.5); g.lineTo(3, hy + 12); g.lineTo(6, hy + 8); g.lineTo(10, hy + 11); g.lineTo(11.5, hy + 2); g.closePath(); g.fill();
-      } else if (front) {
-        g.beginPath();
-        g.moveTo(-12, hy + 9); g.quadraticCurveTo(-14, hy - 11, 0, hy - 12.8); g.quadraticCurveTo(14, hy - 11, 12, hy + 9);
-        g.lineTo(9.6, hy + 1); g.lineTo(8.2, hy - 1.5); g.lineTo(6.2, hy + 1.2); g.lineTo(4.2, hy - 4); g.lineTo(1.8, hy - 0.8); g.lineTo(0, hy - 4.5);
-        g.lineTo(-2.2, hy - 0.6); g.lineTo(-4.6, hy - 4); g.lineTo(-6.4, hy + 1.2); g.lineTo(-8.4, hy - 1.5); g.lineTo(-9.8, hy + 1);
-        g.closePath(); g.fill(); ol();
-        // ปอยข้างแก้ม
-        for (const sx of [-1, 1]) { g.beginPath(); g.moveTo(sx * 10.5, hy - 1); g.quadraticCurveTo(sx * 12.8, hy + 8, sx * 10.2, hy + 13); g.lineTo(sx * 8.8, hy + 4); g.closePath(); g.fill(); }
-      } else {
-        g.beginPath();
-        g.moveTo(-11.5, hy + 8); g.quadraticCurveTo(-13.5, hy - 11, 0, hy - 12.6); g.quadraticCurveTo(12, hy - 11.5, 12.6, hy - 1);
-        g.lineTo(10.4, hy + 0.5); g.lineTo(9, hy - 2.5); g.lineTo(6.8, hy); g.lineTo(5, hy - 4.2); g.lineTo(2.5, hy - 1.2); g.lineTo(0.5, hy - 5); g.lineTo(-2.5, hy - 2);
-        g.lineTo(-4, hy + 4); g.lineTo(-7, hy + 10); g.closePath(); g.fill(); ol();
-        if (!side) { g.beginPath(); g.moveTo(10, hy - 1); g.quadraticCurveTo(12.2, hy + 7, 10, hy + 12); g.lineTo(8.8, hy + 3); g.closePath(); g.fill(); }
-      }
-      // วงแสงผมแบบอนิเมะ (angel ring)
-      g.strokeStyle = 'rgba(255,255,255,0.45)'; g.lineWidth = 1.6;
-      g.beginPath(); g.arc(back ? 0 : front ? 0 : 1.5, hy - 1, 8.5, Math.PI * 1.12, Math.PI * 1.55); g.stroke();
-      if (o.hairStyle === 'spiky') {
-        g.fillStyle = hairGrad(hy - 20, hy - 8);
-        g.beginPath(); g.moveTo(-8, hy - 8); g.lineTo(-7, hy - 17); g.lineTo(-3, hy - 11); g.lineTo(0, hy - 19); g.lineTo(3, hy - 11); g.lineTo(7, hy - 16); g.lineTo(8, hy - 8); g.closePath(); g.fill(); ol(1);
-      }
-      if (o.hairStyle === 'twin' && !back) {
-        g.fillStyle = hairGrad(hy - 12, hy);
-        for (const sx of front ? [-1, 1] : [-1]) { g.beginPath(); g.ellipse(sx * 10, hy - 9, 3.6, 3, sx * 0.5, 0, 7); g.fill(); ol(0.8); }
-      }
-    }
-    // หูฟัง/เซ็นเซอร์กลไกข้างหัว (สัญลักษณ์แอนดรอยด์)
-    const ear = ex => {
-      g.fillStyle = metal(plate, ex - 3.4, hy - 3, ex + 3.4, hy + 3); g.beginPath(); g.arc(ex, hy + 0.5, 3.5, 0, 7); g.fill(); ol(0.9);
-      glowFill(pulse); g.beginPath(); g.arc(ex, hy + 0.5, 1.3, 0, 7); g.fill(); glowOff();
-      g.strokeStyle = metal(plate, ex, hy - 12, ex, hy); g.lineWidth = 1.6; g.beginPath(); g.moveTo(ex, hy - 2); g.lineTo(ex + (ex < 0 ? -2 : 2), hy - 10); g.stroke();
-    };
-    if (front || back) { ear(-11.5); ear(11.5); } else if (side) ear(-3); else ear(-10);
+    g.fillStyle = joint; for (const vy of [hy + 1, hy + 4]) { rr(g, -5, vy, 10, 1.4, 0.7); g.fill(); }
   }
+  // แผ่นผมสังเคราะห์
+  if (crest) {
+    g.fillStyle = hairGrad(hy - 13, hy + 10);
+    if (back) {
+      g.beginPath(); g.ellipse(0, hy - 0.5, 11.8, 12, 0, 0, 7); g.fill(); ol();
+      g.beginPath(); g.moveTo(-11.3, hy + 2); g.lineTo(-10, hy + 10.5); g.lineTo(-5.5, hy + 8); g.lineTo(-2.5, hy + 11.5); g.lineTo(0, hy + 8.5); g.lineTo(2.5, hy + 11.5); g.lineTo(5.5, hy + 8); g.lineTo(10, hy + 10.5); g.lineTo(11.3, hy + 2); g.closePath(); g.fill();
+    } else if (front) {
+      g.beginPath();
+      g.moveTo(-11.8, hy + 8); g.quadraticCurveTo(-13.8, hy - 11, 0, hy - 12.8); g.quadraticCurveTo(13.8, hy - 11, 11.8, hy + 8);
+      g.lineTo(10, hy - 1.5); g.lineTo(8.5, hy - 3.5); g.lineTo(6, hy - 2); g.lineTo(3.8, hy - 5.2); g.lineTo(1.2, hy - 3.2); g.lineTo(0, hy - 5.8);
+      g.lineTo(-1.2, hy - 3.2); g.lineTo(-3.8, hy - 5.2); g.lineTo(-6, hy - 2); g.lineTo(-8.5, hy - 3.5); g.lineTo(-10, hy - 1.5);
+      g.closePath(); g.fill(); ol();
+      for (const sxx of [-1, 1]) { g.beginPath(); g.moveTo(sxx * 10.4, hy - 2); g.quadraticCurveTo(sxx * 12.6, hy + 7, sxx * 10.3, hy + 12); g.lineTo(sxx * 8.9, hy + 3); g.closePath(); g.fill(); ol(0.8); }
+    } else {
+      g.beginPath();
+      g.moveTo(-11.4, hy + 8); g.quadraticCurveTo(-13.4, hy - 11, 0, hy - 12.6); g.quadraticCurveTo(12, hy - 11.5, 12.4, hy - 2);
+      g.lineTo(10.2, hy - 1.5); g.lineTo(8.8, hy - 4); g.lineTo(6.6, hy - 2.2); g.lineTo(4.8, hy - 5.4); g.lineTo(2.4, hy - 3); g.lineTo(0.4, hy - 6); g.lineTo(-2.4, hy - 3);
+      g.lineTo(-4, hy + 3); g.lineTo(-7, hy + 10); g.closePath(); g.fill(); ol();
+    }
+    // เส้นแบ่งแผ่น + ประกายแข็งแบบโลหะ
+    g.strokeStyle = 'rgba(10,14,24,0.3)'; g.lineWidth = 0.8;
+    for (const lx of back ? [-5, 0, 5] : [-5, 4]) { g.beginPath(); g.moveTo(lx, hy - 11); g.quadraticCurveTo(lx * 1.25, hy - 5, lx * 1.1, hy + (back ? 8 : -3)); g.stroke(); }
+    g.strokeStyle = 'rgba(255,255,255,0.6)'; g.lineWidth = 1.4;
+    g.beginPath(); g.arc(back ? 0 : front ? 0 : 1.5, hy - 1, 8.4, Math.PI * 1.15, Math.PI * 1.5); g.stroke();
+    glowFill(0.7 * pulse); g.fillRect(-0.6, hy - 12.4, 1.2, 3.5); glowOff();
+    if (o.hairStyle === 'spiky') {
+      g.fillStyle = hairGrad(hy - 20, hy - 8);
+      g.beginPath(); g.moveTo(-8, hy - 8); g.lineTo(-7, hy - 17); g.lineTo(-3, hy - 11); g.lineTo(0, hy - 19); g.lineTo(3, hy - 11); g.lineTo(7, hy - 16); g.lineTo(8, hy - 8); g.closePath(); g.fill(); ol(1);
+    } else if (o.hairStyle === 'crest') {
+      g.fillStyle = hairGrad(hy - 22, hy - 8);
+      g.beginPath(); g.moveTo(-2.4, hy - 11); g.lineTo(side ? -6 : 0, hy - 22); g.lineTo(2.4, hy - 11); g.closePath(); g.fill(); ol(1);
+      glowFill(0.9); g.fillRect(-0.5, hy - 19, 1, 7); glowOff();
+    } else if (o.hairStyle === 'bob') {
+      g.fillStyle = hairGrad(hy - 4, hy + 8);
+      for (const sxx of (front || back) ? [-1, 1] : [-1]) { g.beginPath(); g.moveTo(sxx * 11, hy - 4); g.quadraticCurveTo(sxx * 13.5, hy + 5, sxx * 9, hy + 9); g.lineTo(sxx * 8, hy); g.closePath(); g.fill(); ol(0.8); }
+    }
+    if (o.hairStyle === 'twin' && !back) {
+      g.fillStyle = hairGrad(hy - 12, hy);
+      for (const sxx of front ? [-1, 1] : [-1]) { g.beginPath(); g.ellipse(sxx * 10, hy - 9, 3.6, 3, sxx * 0.5, 0, 7); g.fill(); ol(0.8); }
+    }
+  }
+  // หูฟัง/เซ็นเซอร์ข้างหัว
+  const ear = ex => {
+    g.fillStyle = metal(plate, ex - 3.4, hy - 3, ex + 3.4, hy + 3); g.beginPath(); g.arc(ex, hy + 0.5, 3.5, 0, 7); g.fill(); ol(0.9);
+    glowFill(pulse); g.beginPath(); g.arc(ex, hy + 0.5, 1.3, 0, 7); g.fill(); glowOff();
+    g.strokeStyle = metal(plate, ex, hy - 12, ex, hy); g.lineWidth = 1.6; g.beginPath(); g.moveTo(ex, hy - 2); g.lineTo(ex + (ex < 0 ? -2 : 2), hy - 10); g.stroke();
+  };
+  if (!o.ears) { if (front || back) { ear(-11.5); ear(11.5); } else if (side) ear(-3); else ear(-10); }
+  // วงแหวนเทวดา
+  if (o.halo) { g.save(); g.strokeStyle = '#ffe27a'; g.shadowColor = '#ffe27a'; g.shadowBlur = 8; g.lineWidth = 1.8; g.beginPath(); g.ellipse(0, hy - 18 + Math.sin(t * 3) * 1.2, 8, 2.4, 0, 0, 7); g.stroke(); g.restore(); }
   if (o.jiangshi) {
     if (back) { g.fillStyle = '#1a1a2a'; g.fillRect(-11, hy - 14, 22, 8); g.fillRect(-7, hy - 20, 14, 7); } else {
     g.fillStyle = '#1a1a2a'; g.fillRect(-11, hy - 14, 22, 8); g.fillRect(-7, hy - 20, 14, 7);
@@ -354,6 +396,12 @@ Sprites.human = (g, x, y, o) => {
     g.beginPath(); g.moveTo(-8, hy - 7); g.lineTo(-6, hy - 20); g.lineTo(0, hy - 10); g.fill();
     g.beginPath(); g.moveTo(2, hy - 10); g.lineTo(8, hy - 20); g.lineTo(9, hy - 6); g.fill();
     g.fillStyle = '#e04040'; g.beginPath(); g.arc(0, -27, 2.5, 0, 7); g.fill();
+  }
+  if (o.hat === 'dome') {
+    g.fillStyle = metal(o.hatColor || '#d8433a', -12, hy - 16, 12, hy - 4);
+    g.beginPath(); g.ellipse(0, hy - 5, 13, 11, 0, Math.PI, 0); g.closePath(); g.fill(); ol(1);
+    g.fillStyle = '#e8e2d0'; for (const [dx, dy] of [[-6, -10], [1, -13], [7, -9]]) { g.beginPath(); g.arc(dx, hy + dy, 1.6, 0, 7); g.fill(); }
+    glowFill(Math.floor(t * 2) % 2 ? 1 : 0.3); g.beginPath(); g.arc(0, hy - 16, 1.8, 0, 7); g.fill(); glowOff();
   }
   if (o.hat === 'viking') {
     g.fillStyle = o.hatColor || '#9aa2b0'; g.beginPath(); g.arc(0, hy - 2, 12.3, Math.PI, 0); g.fill();
@@ -624,6 +672,15 @@ Sprites.mobHuman = (g, x, y, m, t) => {
   });
 };
 
+// มอนสเตอร์แอนดรอยด์: ไฟเปลี่ยนเป็นสีแดงเมื่อเข้าโจมตี
+Sprites.mobAndroid = (g, x, y, m, t) => {
+  const L = m.def.look, sc = m.def.scale || 1;
+  Sprites.shadow(g, x, y, 12 * sc * (L.bulky || 1), 4 * sc, L.hover ? 0.18 : 0.28);
+  Sprites.human(g, x, y, Object.assign({}, L, {
+    facing: m.facing, dir: m.dir, t: t + m.seed * 10, seedT: m.seed * 7, moving: m.moving, atk: m.atkAnim, scale: sc,
+    glow: m.state === 'chase' && !m.def.boss ? '#ff4a3a' : L.glow, pants: L.outfit2,
+  }));
+};
 Sprites.drawMob = (g, m, t) => {
   const x = m.x * TILE, y = m.y * TILE;
   g.save();
@@ -639,6 +696,7 @@ Sprites.drawMob = (g, m, t) => {
     case 'spore': Sprites.spore(g, x, y, m, t); break;
     case 'quad': Sprites.quad(g, x, y, m, t); break;
     case 'human': Sprites.mobHuman(g, x, y, m, t); break;
+    case 'android': Sprites.mobAndroid(g, x, y, m, t); break;
   }
   g.filter = 'none';
   const hs = (m.def.scale || 1) * (m.def.size || 1);
@@ -705,7 +763,9 @@ Sprites.drawPlayer = (g, p, t) => {
   }
   Sprites.human(g, x, y, {
     facing: p.facing, dir: p.dir, t, moving: p.moving, sit: p.sitting, dead: p.dead, atk: p.atkAnim,
-    skin: '#e6e9ef', glow: job.glow, hair: p.hair, hairStyle: p.gender === 'f' ? 'long' : 'spiky',
+    skin: (p.look && p.look.color) || '#e6e9ef', glow: (p.look && p.look.glow) || job.glow, hair: p.hair,
+    hairStyle: (p.look && p.look.head) || (p.gender === 'f' ? 'long' : 'spiky'), visor: p.look && p.look.visor,
+    bulky: p.gender === 'm' ? 1.08 : 1,
     outfit: job.outfit, outfit2: job.outfit2, pants: job.pants, robe: !!job.robe,
     wtype: wItem ? wItem.wtype : 'none', hat: head ? hatMap[head] : (job.jobHat || null),
     cape: garment,

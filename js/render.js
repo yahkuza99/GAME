@@ -15,7 +15,7 @@ R.init = () => {
   R.resize();
   // ซูมเริ่มต้นตามขนาดจอ: มือถือเห็นกว้างขึ้น, แท็บเล็ต/คอมปกติ
   const short = Math.min(window.innerWidth, window.innerHeight);
-  R.zoom = short < 500 ? 0.75 : short < 800 ? 0.9 : 1;
+  R.zoom = short < 500 ? 0.95 : 1;
   window.addEventListener('resize', R.resize);
 };
 R.resize = () => {
@@ -488,6 +488,47 @@ R.drawFx = (g, f, t) => {
         g.strokeStyle = `rgba(${col},${(1 - kk) * a})`; g.lineWidth = 2;
         g.beginPath(); g.ellipse(X, Y - kk * 60, 22, 8, 0, 0, 7); g.stroke();
       }
+      break;
+    }
+    case 'upgrade': {
+      // อัปเกรดร่าง: กรงหกเหลี่ยมประกอบตัว + เส้นสแกนไล่จากเท้าถึงหัว + แฟลช
+      const col = f.col || '120,220,255';
+      const a = k < 0.85 ? 1 : (1 - k) / 0.15;
+      const build = Math.min(1, k / 0.35), scan = U.clamp((k - 0.25) / 0.45, 0, 1);
+      g.save();
+      g.lineWidth = 1.5;
+      for (let ring = 0; ring < 4; ring++) {
+        const ry = Y - ring * 22 * build, rr = 26 - ring * 3;
+        g.strokeStyle = `rgba(${col},${0.8 * a * build})`;
+        g.beginPath();
+        for (let i = 0; i <= 6; i++) { const t2 = i / 6 * Math.PI * 2 + G.time * (ring % 2 ? 1.5 : -1.5); const px = X + Math.cos(t2) * rr, py = ry + Math.sin(t2) * rr * 0.36; if (i) g.lineTo(px, py); else g.moveTo(px, py); }
+        g.stroke();
+      }
+      for (let i = 0; i < 6; i++) {
+        const t2 = i / 6 * Math.PI * 2 + G.time * 1.5;
+        g.strokeStyle = `rgba(${col},${0.35 * a * build})`;
+        g.beginPath(); g.moveTo(X + Math.cos(t2) * 26, Y + Math.sin(t2) * 9); g.lineTo(X + Math.cos(t2) * 17, Y - 66 * build + Math.sin(t2) * 6); g.stroke();
+      }
+      if (scan > 0 && scan < 1) {
+        const sy = Y - scan * 72;
+        const gr = g.createLinearGradient(X - 30, 0, X + 30, 0);
+        gr.addColorStop(0, `rgba(${col},0)`); gr.addColorStop(0.5, `rgba(255,255,255,0.95)`); gr.addColorStop(1, `rgba(${col},0)`);
+        g.fillStyle = gr; g.fillRect(X - 30, sy - 1.5, 60, 3);
+        g.fillStyle = `rgba(${col},0.18)`; g.fillRect(X - 22, sy, 44, Y - sy);
+      }
+      for (let i = 0; i < 14; i++) {
+        const kk = (k * 1.6 + i / 14) % 1;
+        const px = X + Math.sin(i * 7.3) * 24, py = Y - kk * 90;
+        g.fillStyle = `rgba(${col},${(1 - kk) * a})`;
+        g.fillRect(px - 1.5, py - 1.5, 3, 3);
+      }
+      if (k > 0.68 && k < 0.82) {
+        const fl = 1 - Math.abs(k - 0.75) / 0.07;
+        const rg = g.createRadialGradient(X, Y - 34, 2, X, Y - 34, 90);
+        rg.addColorStop(0, `rgba(255,255,255,${0.9 * fl})`); rg.addColorStop(1, `rgba(${col},0)`);
+        g.fillStyle = rg; g.fillRect(X - 90, Y - 124, 180, 180);
+      }
+      g.restore();
       break;
     }
     case 'firering': {

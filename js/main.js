@@ -3,8 +3,12 @@
 //  จุดเริ่มต้น: หน้าไตเติล, สร้างตัวละคร, ลูปเกม, การควบคุม
 // ============================================================
 
-const HAIR_COLORS = ['#3a2a1a', '#8a4a2a', '#e0b050', '#c83a3a', '#3a5ac8', '#e8e8f0', '#5aa04a', '#d070b0'];
-const creation = { gender: 'm', hair: HAIR_COLORS[2] };
+const HAIR_COLORS = ['#e8ecf4', '#9aa4b8', '#3a3f4c', '#e0b050', '#c83a3a', '#3a8ae0', '#5ad0a0', '#d070d0'];
+const BODY_COLORS = ['#e6e9ef', '#c8ccd6', '#8a94a6', '#3a404e', '#e8dcc8', '#f0d6e0'];
+const GLOW_COLORS = ['#7ad8ff', '#8cff7a', '#ffe27a', '#ff8a2a', '#ff5a6a', '#c07aff', '#ff7ad8', '#ffffff'];
+const HEAD_STYLES = [['long', 'ยาว'], ['twin', 'แฝด'], ['bob', 'บ็อบ'], ['short', 'สั้น'], ['spiky', 'แหลม'], ['crest', 'หงอน']];
+const VISORS = [['band', 'แถบ'], ['v', 'ทรง V'], ['slit', 'คู่']];
+const creation = { gender: 'f', hair: HAIR_COLORS[0], head: 'long', color: BODY_COLORS[0], glow: GLOW_COLORS[0], visor: 'band', dir: 2, spin: true };
 
 function toggleFullscreen() {
   const el = document.documentElement;
@@ -33,6 +37,12 @@ function keyboardMove() {
   if (keysDown.has('arrowleft')) dx--; if (keysDown.has('arrowright')) dx++;
   if (keysDown.has('arrowup')) dy--; if (keysDown.has('arrowdown')) dy++;
   if (!dx && !dy) return;
+  stepMove(dx, dy);
+}
+// ก้าวหนึ่งช่องตามทิศ (ใช้ร่วมกับจอยบนจอและจอยเกม)
+function stepMove(dx, dy) {
+  const p = G.player;
+  if (!G.started || p.dead || p.cast) return;
   if (G.time < (p.kbAt || 0)) return;
   p.kbAt = G.time + 0.08;
   p.target = null; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.sitting = false;
@@ -141,8 +151,10 @@ function bindInput() {
     if (tag === 'INPUT' || tag === 'TEXTAREA') return;
     const k = e.key.toLowerCase();
     if (k.startsWith('arrow')) { e.preventDefault(); keysDown.add(k); return; }
-    if (k >= '1' && k <= '9') { useHotbar(+k - 1); return; }
-    if (/^f[1-9]$/.test(k)) { e.preventDefault(); useHotbar(+k.slice(1) - 1); return; }
+    if (k >= '1' && k <= '8') { useHotbar(+k - 1); return; }
+    if (/^f[1-8]$/.test(k)) { e.preventDefault(); useHotbar(+k.slice(1) - 1); return; }
+    const pot = ['z', 'c', 'v', 'f'].indexOf(k);
+    if (pot >= 0) { usePotbar(pot); return; }
     switch (k) {
       case 'a': UI.toggle('w-status'); break;
       case 'e': case 'i': UI.toggle('w-inv'); break;
@@ -157,6 +169,8 @@ function bindInput() {
       case '-': R.zoom = U.clamp(R.zoom * 0.9, 0.5, 1.8); break;
       case '=': case '+': R.zoom = U.clamp(R.zoom * 1.1, 0.5, 1.8); break;
       case 'x': case 'insert': toggleSit(); break;
+      case ' ': e.preventDefault(); Pad.interact(); break;
+      case 'tab': e.preventDefault(); UI.toggleMenu(); break;
       case 'enter': e.preventDefault(); $('#chat-input').focus(); break;
       case 'escape':
         if (G.pendingSkill) { G.pendingSkill = null; UI.msg('ยกเลิกการใช้สกิล', 'info'); }
@@ -210,6 +224,7 @@ function loop(ts) {
       playerWalkTo(Math.floor(R.mouse.wx / TILE), Math.floor(R.mouse.wy / TILE));
     }
     keyboardMove();
+    Pad.update();
     Online.update(dt);
     R.render();
     UI.renderWindows();
@@ -324,16 +339,31 @@ function setupCreateScreen() {
     if (Online.online) { $('#acct-logout').click(); return; }
     $('#title-menu').classList.remove('hidden');
   };
-  const hc = $('#cr-hair');
-  for (const c of HAIR_COLORS) {
-    const b = h('button', { class: 'swatch' + (c === creation.hair ? ' on' : ''), style: `background:${c}`, title: c, onclick: () => {
-      creation.hair = c; $$('.swatch', hc).forEach(x => x.classList.remove('on')); b.classList.add('on');
-    } });
-    hc.append(b);
-  }
+  const swatchRow = (sel, list, key) => {
+    const el = $(sel); el.innerHTML = '';
+    for (const c of list) {
+      const b = h('button', { type: 'button', class: 'swatch' + (c === creation[key] ? ' on' : ''), style: `background:${c}`, 'aria-label': c, onclick: () => {
+        creation[key] = c; $$('.swatch', el).forEach(x => x.classList.toggle('on', x === b));
+      } });
+      el.append(b);
+    }
+  };
+  const segRow = (sel, list, key) => {
+    const el = $(sel); el.innerHTML = '';
+    for (const [v, label] of list) {
+      const b = h('button', { type: 'button', class: v === creation[key] ? 'on' : '', onclick: () => { creation[key] = v; $$('button', el).forEach(x => x.classList.toggle('on', x === b)); } }, label);
+      el.append(b);
+    }
+  };
+  swatchRow('#cr-hair', HAIR_COLORS, 'hair'); swatchRow('#cr-color', BODY_COLORS, 'color'); swatchRow('#cr-glow', GLOW_COLORS, 'glow');
+  segRow('#cr-head', HEAD_STYLES, 'head'); segRow('#cr-visor', VISORS, 'visor');
   $$('#cr-gender button').forEach(b => b.onclick = () => {
     creation.gender = b.dataset.g; $$('#cr-gender button').forEach(x => x.classList.toggle('on', x === b));
   });
+  const stopSpin = () => { creation.spin = false; $('#cr-spin').classList.remove('on'); };
+  $('#cr-rl').onclick = () => { stopSpin(); creation.dir = (creation.dir + 7) % 8; };
+  $('#cr-rr').onclick = () => { stopSpin(); creation.dir = (creation.dir + 1) % 8; };
+  $('#cr-spin').onclick = () => { creation.spin = !creation.spin; $('#cr-spin').classList.toggle('on', creation.spin); };
   $('#cr-start').onclick = async () => {
     const name = $('#cr-name').value.trim().slice(0, 16);
     if (!name) { $('#cr-err').textContent = 'กรุณาตั้งชื่อตัวละคร'; return; }
@@ -342,7 +372,7 @@ function setupCreateScreen() {
       try { if (!(await Online.nameAvailable(name))) { $('#cr-err').textContent = 'ชื่อตัวละครนี้มีคนใช้แล้ว ลองชื่ออื่น'; return; } }
       catch (e) { $('#cr-err').textContent = e.message; return; }
       G.uid = 1;
-      startGame(newPlayer(name, creation.gender, creation.hair), true);
+      startGame(newPlayer(name, creation.gender, creation.hair, creationLook()), true);
       return;
     }
     const s = peekSave();
@@ -354,29 +384,38 @@ function setupCreateScreen() {
       return;
     }
     G.uid = 1;
-    const p = newPlayer(name, creation.gender, creation.hair);
+    const p = newPlayer(name, creation.gender, creation.hair, creationLook());
     startGame(p, true);
   };
   $('#cr-name').addEventListener('keydown', e => { if (e.key === 'Enter') $('#cr-start').click(); });
 }
+function creationLook() { return { head: creation.head, color: creation.color, glow: creation.glow, visor: creation.visor }; }
 function drawTitlePreview(t) {
   const c = $('#cr-preview');
   if (!c || $('#create').classList.contains('hidden')) return;
   const g = c.getContext('2d');
   g.setTransform(1, 0, 0, 1, 0, 0);
   g.clearRect(0, 0, c.width, c.height);
-  g.fillStyle = 'rgba(111,174,74,0.35)';
-  g.beginPath(); g.ellipse(c.width / 2, c.height - 22, 70, 18, 0, 0, 7); g.fill();
-  g.save(); g.translate(c.width / 2 - 10, c.height - 24); g.scale(2.4, 2.4);
+  // แท่นโฮโลแกรม
+  const cx = c.width / 2, by = c.height - 30;
+  const glow = creation.glow;
+  const rg = g.createRadialGradient(cx, by, 4, cx, by, 80);
+  rg.addColorStop(0, U.rgba(glow, 0.45)); rg.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = rg; g.beginPath(); g.ellipse(cx, by, 80, 22, 0, 0, 7); g.fill();
+  g.strokeStyle = glow; g.lineWidth = 1.5; g.globalAlpha = 0.8;
+  g.beginPath(); g.ellipse(cx, by, 58, 14, 0, 0, 7); g.stroke();
+  g.globalAlpha = 0.35; g.beginPath(); g.ellipse(cx, by, 70 + Math.sin(t * 2) * 4, 18, 0, 0, 7); g.stroke();
+  g.globalAlpha = 1;
+  // เส้นสแกน
+  const sy = by - ((t * 60) % 190);
+  g.fillStyle = glow; g.globalAlpha = 0.12; g.fillRect(cx - 60, sy, 120, 2); g.globalAlpha = 1;
+  g.save(); g.translate(cx, by); g.scale(3.2, 3.2);
+  if (creation.spin) creation.dir = Math.floor(t / 0.9) % 8;
   const fake = {
-    x: 0, y: 0, job: 'novice', hair: creation.hair, gender: creation.gender, facing: 1, moving: false, sitting: false, dead: false,
+    x: 0, y: 0, job: 'novice', hair: creation.hair, gender: creation.gender, look: creationLook(), facing: 1, dir: creation.dir, moving: false, sitting: false, dead: false,
     atkAnim: 0, buffs: {}, equip: { weapon: { id: 'knife' }, head: null, garment: null },
   };
   Sprites.drawPlayer(g, fake, t);
-  g.restore();
-  const poring = { def: MOBS.pudding, facing: -1, moving: true, seed: 0.3, state: 'idle' };
-  g.save(); g.translate(c.width / 2 + 60, c.height - 22); g.scale(1.5, 1.5);
-  Sprites.poring(g, 0, 0, poring, t);
   g.restore();
 }
 
@@ -394,7 +433,7 @@ function startGame(p, isNew) {
   UI.msg('กด H เพื่อดูวิธีเล่น • คุยกับ Guard Unit Rolf (หุ่นหมวกเขา) เพื่อขอคำแนะนำ', 'info');
   if (isNew) {
     UI.open('w-help');
-    UI.msg('เคล็ดลับ: เริ่มต้นด้วยการแจก Status Point (กด A) แล้วออกไปล่า Slime Drone ทางตะวันออกของเมือง', 'info');
+    UI.msg('เคล็ดลับ: เริ่มต้นด้วยการแจก Status Point (กด A) แล้วออกไปล่า Gel Unit ทางตะวันออกของเมือง', 'info');
   }
   saveGame();
 }
@@ -404,6 +443,7 @@ window.addEventListener('load', () => {
   Art.load();
   Online.init();
   UI.init();
+  Pad.init();
   bindInput();
   showTitle();
   setInterval(() => saveGame(), 30000);

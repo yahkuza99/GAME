@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#2b4f8c">
+  <meta name="theme-color" content="#05080f">
   <title>NEO MIDGARD</title>
   <meta name="description" content="NEO MIDGARD — เกม RPG หุ่นยนต์แอนดรอยด์ในโลกตำนานนอร์ส เล่นบนเบราว์เซอร์">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;700&family=Orbitron:wght@700;900&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Orbitron:wght@600;700;900&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -17,36 +17,58 @@
 
   <!-- ================= HUD ================= -->
   <div id="hud" class="hidden">
-    <div id="basic-info" class="panel foldable" data-fold="info">
-      <button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายแผงสถานะ"></button>
-      <div class="bi-top">
-        <div class="bi-face"><canvas id="bi-portrait" width="88" height="88"></canvas><em id="bi-lvbadge"></em></div>
-        <div class="bi-id"><b id="bi-name"></b><span id="bi-job"></span></div>
+    <!-- การ์ดยูนิต (มุมซ้ายบน) -->
+    <div id="basic-info" class="foldable" data-fold="info">
+      <div class="bi-face"><canvas id="bi-portrait" width="112" height="112"></canvas><em id="bi-lvbadge"></em></div>
+      <div class="bi-main">
+        <div class="bi-id"><b id="bi-name"></b><span id="bi-job"></span><button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายแผงสถานะ"></button></div>
+        <div class="gauge hp"><div id="bi-hp" class="fill"></div><i>HP</i><span id="bi-hp-t"></span></div>
+        <div class="gauge sp"><div id="bi-sp" class="fill"></div><i>SP</i><span id="bi-sp-t"></span></div>
+        <div class="bi-exp">
+          <div class="xrow"><label>BASE <b id="bi-blv"></b></label><div class="gauge thin exp"><div id="bi-bexp" class="fill"></div></div><span id="bi-bexp-t"></span></div>
+          <div class="xrow"><label>JOB <b id="bi-jlv"></b></label><div class="gauge thin jexp"><div id="bi-jexp" class="fill"></div></div><span id="bi-jexp-t"></span></div>
+        </div>
+        <div class="bi-foot"><span id="bi-zeny"></span><span id="bi-points"></span></div>
       </div>
-      <div class="bi-row"><label>HP</label><div class="bar"><div id="bi-hp" class="fill hp"></div><span id="bi-hp-t"></span></div></div>
-      <div class="bi-row"><label>SP</label><div class="bar"><div id="bi-sp" class="fill sp"></div><span id="bi-sp-t"></span></div></div>
-      <div class="bi-row"><label>Base <b id="bi-blv"></b></label><div class="bar thin"><div id="bi-bexp" class="fill exp"></div><span id="bi-bexp-t"></span></div></div>
-      <div class="bi-row"><label>Job <b id="bi-jlv"></b></label><div class="bar thin"><div id="bi-jexp" class="fill jexp"></div><span id="bi-jexp-t"></span></div></div>
-      <div class="bi-foot"><span id="bi-zeny"></span><span id="bi-points"></span></div>
     </div>
     <div id="buffs"></div>
 
-    <div id="minimap" class="panel foldable" data-fold="map">
-      <button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายมินิแมพ"></button>
-      <div class="mm-head"><span id="map-name"></span><span id="net" class="net ok" hidden></span><span id="map-coord"></span><button id="map-open" title="แผนที่ใหญ่ (M)">⤢</button></div>
-      <canvas id="minimap-cv"></canvas>
-      <div id="zoom-ctl"><button data-zoom="0.85" title="ซูมออก (-)">−</button><button data-zoom="1.18" title="ซูมเข้า (+)">+</button></div>
+    <!-- เรดาร์ (มุมขวาบน) -->
+    <div id="minimap" class="foldable" data-fold="map">
+      <div class="mm-ring">
+        <canvas id="minimap-cv" width="148" height="148"></canvas>
+        <span class="mm-n">N</span>
+      </div>
+      <div class="mm-head"><span id="net" class="net ok" hidden></span><span id="map-name"></span></div>
+      <div class="mm-sub"><span id="map-coord"></span></div>
+      <button id="map-open" class="mm-btn b1" title="แผนที่ใหญ่ (M)" aria-label="แผนที่ใหญ่"><svg viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></button>
+      <div id="zoom-ctl"><button class="mm-btn" data-zoom="1.18" title="ซูมเข้า (+)" aria-label="ซูมเข้า">+</button><button class="mm-btn" data-zoom="0.85" title="ซูมออก (-)" aria-label="ซูมออก">−</button></div>
+      <button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายเรดาร์"></button>
     </div>
-    <button id="auto-btn" title="บอทล่ามอนอัตโนมัติ (B)"><b>AUTO</b><small>ปิด</small></button>
 
-    <div id="chat" class="panel foldable" data-fold="chat">
+    <!-- เมนู (ใต้เรดาร์) -->
+    <div id="menubar" class="foldable" data-fold="menu"></div>
+
+    <!-- แชท -->
+    <div id="chat" class="foldable" data-fold="chat">
       <button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายแชท"></button>
       <div id="chat-log"></div>
-      <input id="chat-input" placeholder="Enter เพื่อแชท • /help ดูคำสั่ง" maxlength="80" autocomplete="off">
+      <input id="chat-input" placeholder="Enter เพื่อแชท • /help" maxlength="80" autocomplete="off" enterkeyhint="send">
     </div>
 
-    <div id="hotbar"></div>
-    <div id="menubar" class="foldable" data-fold="menu"></div>
+    <!-- แถบแอ็กชัน: AUTO + สกิล 8 ช่อง + ไอเทม 4 ช่อง -->
+    <div id="dock">
+      <button id="auto-btn" title="บอทล่ามอนอัตโนมัติ (B)"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 4v4"/><circle cx="12" cy="3.5" r="1"/><path d="M9 13h6"/></svg><b>AUTO</b><small>ปิด</small></button>
+      <div id="hotbar" aria-label="แถบสกิล"></div>
+      <div id="potbar" aria-label="แถบไอเทม"></div>
+    </div>
+
+    <!-- ปุ่มควบคุมบนจอ (โหมด PAD) -->
+    <div id="pad">
+      <div id="joy-zone"><div id="joy"><div id="joy-knob"></div></div></div>
+      <button id="pad-atk" aria-label="โจมตี / คุย / เก็บของ"><svg viewBox="0 0 24 24"><path d="M5 19l9-9"/><path d="M14 4l6 0 0 6-9 9-6-6z"/><path d="M4 16l4 4"/></svg></button>
+    </div>
+
     <button id="hud-toggle" title="ซ่อน/แสดง HUD ทั้งหมด (U)" aria-label="ซ่อนหรือแสดง HUD"></button>
     <div id="announce"></div>
     <div id="illust" aria-hidden="true"></div>
@@ -93,25 +115,28 @@
           <li><b>คลิกซ้าย</b> ที่พื้น = เดิน (กดค้างเพื่อเดินตามเมาส์)</li>
           <li><b>คลิกมอนสเตอร์</b> = โจมตีต่อเนื่องอัตโนมัติ</li>
           <li><b>คลิกไอเทม</b> บนพื้น = เก็บ • <b>คลิก NPC</b> = คุย</li>
-          <li><b>1-9 / F1-F9</b> = ปุ่มลัด (ลากไอเทม/สกิลมาวางได้)</li>
+          <li><b>1-8</b> = แถบสกิล • <b>Z C V F</b> = แถบไอเทม (ลากสกิล/ไอเทมมาวางได้) • <b>Space</b> = โจมตี/คุย/เก็บของ ที่ใกล้ที่สุด</li>
           <li><b>A</b> สถานะ • <b>E</b> ไอเทม • <b>Q</b> อุปกรณ์ • <b>S</b> สกิล • <b>O</b> ตั้งค่า • <b>H</b> วิธีเล่น</li>
           <li><b>U</b> ซ่อน/แสดง HUD ทั้งหมด • ปุ่ม <b>▾</b> มุมแผงเพื่อพับเก็บทีละแผง</li>
           <li><b>X</b> นั่งพัก • <b>Enter</b> แชท • <b>Esc</b> ปิดหน้าต่าง • <b>ล้อเมาส์ / + −</b> ซูม</li>
           <li><b>B</b> เปิด/ปิดบอท • <b>N</b> ตั้งค่าบอท • <b>M</b> แผนที่ใหญ่ (คลิกเพื่อเดินไปได้)</li>
-          <li><b>ปุ่มลูกศร</b> เดิน 8 ทิศ (กดสองปุ่มพร้อมกันเพื่อเดินแนวทแยง) • คลิกมินิแมพเพื่อเดินไปจุดนั้น</li>
+          <li><b>Tab</b> เปิด/ปิดเมนู • <b>ปุ่มลูกศร</b> เดิน 8 ทิศ (กดสองปุ่มพร้อมกันเพื่อเดินแนวทแยง) • คลิกมินิแมพเพื่อเดินไปจุดนั้น</li>
         </ul>
         <h4>มือถือ / แท็บเล็ต</h4>
         <ul>
+          <li><b>จอยซ้ายล่าง</b> = เดิน 8 ทิศ • <b>ปุ่มดาบขวาล่าง</b> = โจมตีมอนที่ใกล้สุด / คุย NPC / เก็บของ</li>
+          <li>สกิลที่ต้องเลือกเป้า จะเล็งมอนที่ใกล้ที่สุดให้เอง • ปิด/เปิดปุ่มบนจอได้ใน ตั้งค่า</li>
           <li><b>แตะ</b> พื้นเพื่อเดิน, แตะมอนสเตอร์เพื่อโจมตี, แตะค้างเพื่อเดินตามนิ้ว</li>
           <li><b>ถ่างสองนิ้ว</b> เพื่อซูม • <b>แตะค้างที่ปุ่มลัด</b> เพื่อลบ • ใช้ปุ่ม 📌 ในหน้าต่างสกิล/ไอเทมเพื่อตั้งปุ่มลัด</li>
+          <li><b>จอยเกม</b>: สติ๊กซ้ายเดิน • A โจมตี/คุย • B ยกเลิก/นั่ง • X Y LB RB = สกิล 1-4 • D-pad = สกิล 5-8 • LT RT L3 R3 = ไอเทม • Select แผนที่ • Start เมนู</li>
           <li>ปุ่ม <b>AUTO</b> = ปล่อยบอทล่ามอน (ใช้ชุดซ่อม ใช้สกิล นั่งพัก เก็บของเอง) ทำงานต่อแม้สลับแอป สูงสุด 10 นาที</li>
         </ul>
         <h4>เส้นทางการเติบโต</h4>
         <ol>
           <li>แจก Status Point (กด A) — STR สำหรับสายตี, INT สายเวท, DEX สายธนู, AGI ตีเร็ว/หลบ, VIT ถึก</li>
-          <li>ออกไปทางตะวันออกของเมืองเพื่อล่า <b>Slime Drone</b> ใน Emerald Meadow</li>
-          <li>เก็บ <b>Job Lv 10</b> แล้วคุยกับ <b>Mimir AI</b> ในเมืองเพื่อเลือกอาชีพ</li>
-          <li>6 อาชีพ: Einherjar, Rune Caster, Wildhunter, Völva, Loki's Trickster, Berserker</li>
+          <li>ออกไปทางตะวันออกของเมืองเพื่อล่า <b>Gel Unit</b> ใน Emerald Meadow</li>
+          <li>เก็บ <b>Job Lv 10</b> แล้วไปหา <b>Mimir AI</b> ในเมืองเพื่อ <b>อัปเกรดร่าง</b> เป็นคลาสใหม่</li>
+          <li>6 คลาสอัปเกรด: Einherjar, Rune Caster, Wildhunter, Völva, Loki's Trickster, Berserker</li>
           <li>ท้าทาย MVP: <b>Seraph Core</b> (Mistlake Plains) และ <b>Kitsura EX</b> (Hel's Hollow)</li>
         </ol>
         <p class="hint">เกมบันทึกอัตโนมัติทุก 30 วินาทีและทุกครั้งที่ย้ายแผนที่ (เก็บในเบราว์เซอร์นี้)</p>
@@ -153,14 +178,23 @@
         <button id="btn-new" class="tbtn">เริ่มการผจญภัยใหม่</button>
       </div>
       <div id="create" class="create hidden">
-        <div class="cr-left"><canvas id="cr-preview" width="220" height="200"></canvas></div>
+        <div class="cr-left"><canvas id="cr-preview" width="220" height="260"></canvas>
+          <div class="cr-rot"><button id="cr-rl" type="button" aria-label="หมุนซ้าย">⟲</button><button id="cr-spin" type="button" class="on">หมุนอัตโนมัติ</button><button id="cr-rr" type="button" aria-label="หมุนขวา">⟳</button></div></div>
         <div class="cr-right">
           <label>ชื่อตัวละคร</label>
           <input id="cr-name" maxlength="16" placeholder="ตั้งชื่อ (ไม่เกิน 16 ตัวอักษร)" autocomplete="off">
-          <label>เพศ</label>
-          <div id="cr-gender" class="seg"><button data-g="m" class="on">ชาย</button><button data-g="f">หญิง</button></div>
-          <label>สีผม</label>
+          <label>โครงร่าง (Frame)</label>
+          <div id="cr-gender" class="seg"><button data-g="f" class="on">Type-A เพรียว</button><button data-g="m">Type-B แกร่ง</button></div>
+          <label>ทรงแผ่นหัว</label>
+          <div id="cr-head" class="seg seg-wrap"></div>
+          <label>สีแผ่นหัว</label>
           <div id="cr-hair" class="swatches"></div>
+          <label>สีโครงตัว</label>
+          <div id="cr-color" class="swatches"></div>
+          <label>สีไฟพลังงาน</label>
+          <div id="cr-glow" class="swatches"></div>
+          <label>วิเซอร์</label>
+          <div id="cr-visor" class="seg"></div>
           <div id="cr-err" class="err"></div>
           <div class="cr-btns"><button id="cr-back" class="tbtn small">ย้อนกลับ</button><button id="cr-start" class="tbtn small primary">เริ่มเกม!</button></div>
         </div>
@@ -183,6 +217,7 @@
   <script src="js/online.js"></script>
   <script src="js/render.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/pad.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

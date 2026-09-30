@@ -10,18 +10,18 @@ const G = {
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
 const SAVE_FIELDS = ['name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
-  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq'];
+  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq'];
 
 // ------------------------------------------------------------
 //  สร้าง / บันทึก / โหลด
 // ------------------------------------------------------------
-function newPlayer(name, gender, hair) {
+function newPlayer(name, gender, hair, look) {
   const p = {
-    name, gender, hair, job: 'novice', baseLv: 1, jobLv: 1, baseExp: 0, jobExp: 0,
+    name, gender, hair, look: Object.assign({ head: gender === 'f' ? 'long' : 'spiky', color: '#e6e9ef', glow: '#7ad8ff', visor: 'band' }, look || {}), job: 'novice', baseLv: 1, jobLv: 1, baseExp: 0, jobExp: 0,
     stats: { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 }, statPoints: 48, skillPoints: 0,
     skills: { first_aid: 1 }, zeny: 500, inventory: [],
     equip: { head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null },
-    hotbar: [null, null, null, null, null, null, null, null, null],
+    hotbar: [null, null, null, null, null, null, null, null], potbar: [null, null, null, null],
     map: HOME_MAP, x: 20.5, y: 24.5, save: { map: HOME_MAP, x: 20.5, y: 24.5 },
     hp: 1, sp: 1, options: { autoLoot: true, sound: true, expMsg: true }, uidSeq: 1,
   };
@@ -35,9 +35,10 @@ function newPlayer(name, gender, hair) {
   addItem('cotton_shirt', 1, true);
   equipItem(p.inventory.find(e => e.id === 'knife'), true);
   equipItem(p.inventory.find(e => e.id === 'cotton_shirt'), true);
-  p.hotbar[0] = { t: 'item', id: 'red_potion' };
-  p.hotbar[1] = { t: 'skill', id: 'first_aid' };
-  p.hotbar[8] = { t: 'item', id: 'hearth_rune' };
+  p.hotbar[0] = { t: 'skill', id: 'first_aid' };
+  p.potbar[0] = { t: 'item', id: 'red_potion' };
+  p.potbar[1] = { t: 'item', id: 'apple' };
+  p.potbar[3] = { t: 'item', id: 'hearth_rune' };
   recalc();
   p.hp = p.d.maxHp; p.sp = p.d.maxSp;
   return p;
@@ -96,8 +97,14 @@ function loadGameFrom(data) {
   if (!p.save || !MAP_DEFS[p.save.map]) p.save = { map: HOME_MAP, x: 20.5, y: 24.5 };
   // สกิลที่ไม่มีอยู่แล้ว (เช่น ถูกลบออกจาก data.js) คืนแต้มให้
   for (const id in p.skills) if (!SKILLS[id]) { if (!SKILLS.first_aid || id !== 'first_aid') p.skillPoints += p.skills[id]; delete p.skills[id]; }
-  p.hotbar = (p.hotbar || []).slice(0, 9).map(h => (h && ((h.t === 'skill' && SKILLS[h.id]) || (h.t === 'item' && ITEMS[h.id])) ? h : null));
-  while (p.hotbar.length < 9) p.hotbar.push(null);
+  // แถบสกิล (8 ช่อง) แยกจากแถบไอเทม (4 ช่อง) — เซฟเก่าที่ปนกันจะถูกย้ายไอเทมไปแถบไอเทม
+  const oldBar = (p.hotbar || []).filter(h => h && ((h.t === 'skill' && SKILLS[h.id]) || (h.t === 'item' && ITEMS[h.id])));
+  const hadPot = Array.isArray(data.potbar);
+  p.hotbar = hadPot ? (data.hotbar || []).slice(0, 8).map(h => (h && h.t === 'skill' && SKILLS[h.id] ? h : null)) : oldBar.filter(h => h.t === 'skill').slice(0, 8);
+  p.potbar = hadPot ? data.potbar.slice(0, 4).map(h => (h && h.t === 'item' && ITEMS[h.id] ? h : null)) : oldBar.filter(h => h.t === 'item').slice(0, 4);
+  while (p.hotbar.length < 8) p.hotbar.push(null);
+  while (p.potbar.length < 4) p.potbar.push(null);
+  p.look = Object.assign({ head: p.gender === 'f' ? 'long' : 'spiky', color: '#e6e9ef', glow: '#7ad8ff', visor: 'band' }, p.look && typeof p.look === 'object' ? p.look : {});
   G.uid = Math.max(G.uid, data.uidSeq || 1);
   initRuntime(p);
   recalc();
@@ -330,8 +337,10 @@ function useItem(entry) {
   if (it.heal || it.spHeal) Sound.play('potion'); else Sound.play('warp');
   removeEntry(entry, 1);
 }
-function useHotbar(i) {
-  const p = G.player, h = p.hotbar[i];
+function usePotbar(i) { useSlot(G.player.potbar[i]); }
+function useHotbar(i) { useSlot(G.player.hotbar[i]); }
+function useSlot(h) {
+  const p = G.player;
   if (!h || p.dead) return;
   if (h.t === 'skill') useSkill(h.id);
   else {
@@ -647,7 +656,9 @@ function useSkill(id) {
     return;
   }
   if (s.target === 'enemy') {
-    const tgt = p.target && !p.target.dead ? p.target : (G.hover && G.hover.kind === 'mob' ? G.hover.ref : null);
+    let tgt = p.target && !p.target.dead ? p.target : (G.hover && G.hover.kind === 'mob' ? G.hover.ref : null);
+    // โหมด PAD: เล็งมอนที่ใกล้ที่สุดให้อัตโนมัติ
+    if (!tgt && Pad.enabled()) tgt = Pad.nearestMob(12);
     if (!tgt) { G.pendingSkill = id; UI.msg(`คลิกที่มอนสเตอร์เพื่อใช้ ${s.name}`, 'info'); return; }
     beginSkill(id, lv, tgt);
   } else beginSkill(id, lv, null);
@@ -882,9 +893,11 @@ function changeJob(job) {
   if (job === 'runecaster' || job === 'volva') addItem('blue_potion', 3);
   recalc();
   p.hp = p.d.maxHp; p.sp = p.d.maxSp;
-  addFx({ type: 'levelup', ref: p, dur: 2.5, job: true });
-  addFloater(p.x, p.y - 1.5, `${JOBS[job].name}!`, '#ffe36a', true);
-  UI.announce(`🎉 ${p.name} ได้เปลี่ยนอาชีพเป็น ${JOBS[job].name} (${JOBS[job].thai}) แล้ว!`);
+  const gc = (JOBS[job].glow || '#7ad8ff').replace('#', ''), gn = parseInt(gc, 16);
+  addFx({ type: 'upgrade', ref: p, dur: 3.2, col: `${(gn >> 16) & 255},${(gn >> 8) & 255},${gn & 255}` });
+  later(2.2, () => addFloater(p.x, p.y - 1.5, `UPGRADE: ${JOBS[job].name}`, JOBS[job].glow || '#7ad8ff', true));
+  UI.announce(`⚙ ${p.name} อัปเกรดร่างเป็นคลาส ${JOBS[job].name} (${JOBS[job].thai}) สำเร็จ!`);
+  UI.splash(Art.jobKey(job, p.gender), `${JOBS[job].name}`, 'BODY UPGRADE COMPLETE', 'upgrade');
   Sound.play('levelup');
   saveGame();
 }

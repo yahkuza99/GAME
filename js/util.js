@@ -56,6 +56,13 @@ const U = {
     else { r *= 1 + amt; g *= 1 + amt; b *= 1 + amt; }
     return `rgb(${r | 0},${g | 0},${b | 0})`;
   },
+  // สี hex + ความโปร่งใส คืนค่า rgba()
+  rgba(hex, a) {
+    let c = hex.replace('#', '');
+    if (c.length === 3) c = c.split('').map(ch => ch + ch).join('');
+    const n = parseInt(c, 16);
+    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+  },
   esc(s) {
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   },

@@ -142,7 +142,7 @@ const Online = {
       id: this.user.id, n: p.name, j: p.job, l: p.baseLv, h: p.hair, g: p.gender,
       w: e.weapon ? e.weapon.id : null, hd: e.head ? e.head.id : null, ga: e.garment ? e.garment.id : null,
       x: Math.round(p.x * 100) / 100, y: Math.round(p.y * 100) / 100, f: p.facing, dr: p.dir, m: p.moving ? 1 : 0,
-      s: p.sitting ? 1 : 0, d: p.dead ? 1 : 0, a: this.atkSeq, st: p.stealthUntil > G.time ? 1 : 0, b: Bot.on ? 1 : 0,
+      lk: p.look, s: p.sitting ? 1 : 0, d: p.dead ? 1 : 0, a: this.atkSeq, st: p.stealthUntil > G.time ? 1 : 0, b: Bot.on ? 1 : 0,
     };
   },
   sendPos(force) {
@@ -163,7 +163,7 @@ const Online = {
       this.others.set(s.id, o);
     }
     Object.assign(o, {
-      name: s.n, job: JOBS[s.j] ? s.j : 'novice', baseLv: s.l, hair: s.h, gender: s.g,
+      name: s.n, look: s.lk && typeof s.lk === 'object' ? { head: String(s.lk.head || ''), color: String(s.lk.color || ''), glow: String(s.lk.glow || ''), visor: String(s.lk.visor || '') } : null, job: JOBS[s.j] ? s.j : 'novice', baseLv: s.l, hair: s.h, gender: s.g,
       equip: { weapon: s.w && ITEMS[s.w] ? { id: s.w } : null, head: s.hd && ITEMS[s.hd] ? { id: s.hd } : null, garment: s.ga && ITEMS[s.ga] ? { id: s.ga } : null },
       tx: s.x, ty: s.y, facing: s.f || 1, dir: s.dr, moving: !!s.m, sitting: !!s.s, dead: !!s.d, stealth: !!s.st, bot: !!s.b, seen: performance.now(),
     });
