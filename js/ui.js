@@ -507,7 +507,7 @@ const UI = {
     for (let y = 2; y < cv.height; y += 4) { g.beginPath(); g.moveTo(0, y); g.lineTo(cv.width, y); g.stroke(); }
     const sc = cv.width / 40;
     g.save(); g.translate(cv.width / 2, cv.height * 1.55); g.scale(sc, sc);
-    Sprites.drawPlayer(g, Object.assign({}, p, { x: 0, y: 0, dir: 2, facing: 1, moving: false, sitting: false, dead: false, atkAnim: 0, buffs: {} }), 0.2);
+    Sprites.drawPlayer(g, Object.assign({}, p, { x: 0, y: 0, dir: 2, facing: 1, moving: false, sitting: false, dead: false, atkAnim: 0, hurtFlash: 0, cast: null, buffs: {}, _an: null }), 0.2);
     g.restore();
   },
 

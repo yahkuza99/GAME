@@ -30,6 +30,18 @@ const Anim = {
     }
     return null;
   },
+  // ระยะเวลาท่าที่เล่นครั้งเดียว (วินาที) — นับจากเหตุการณ์จริง ไม่ผูกกับตัวแปรเอฟเฟกต์ที่หมดเร็ว
+  DUR: { attack: 0.42, hurt: 0.3, dead: 0.6 },
+  // จับเวลาเริ่มท่าจากสถานะของตัวละคร (เก็บใน o._an) คืนค่าความคืบหน้าให้ pick()
+  track(o, t, atk, hurtOn, dead) {
+    const a = o._an || (o._an = { pa: 0, at: -9, ph: false, ht: -9, pd: false, dt: -9 });
+    if (atk > a.pa + 0.05) a.at = t;
+    if (hurtOn && !a.ph) a.ht = t;
+    if (dead && !a.pd) a.dt = t;
+    a.pa = atk; a.ph = hurtOn; a.pd = dead;
+    const D = this.DUR, ka = (t - a.at) / D.attack, kh = (t - a.ht) / D.hurt;
+    return { atk: ka >= 0 && ka < 1 ? 1 - ka : 0, hurt: kh >= 0 && kh < 1 ? 1 - kh : 0, deathT: dead ? Math.max(0, t - a.dt) * 0.5 / D.dead : 0 };
+  },
   has(key) { return !!Art.get(`anim_${key}_idle`) || !!Art.get(`anim_${key}_walk`); },
 
   // เลือกท่าและเฟรมจากสถานะตัวละคร

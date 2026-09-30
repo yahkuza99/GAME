@@ -1,11 +1,47 @@
 {
  "novice_f": {
   "walk": {
-   "frames": 4,
-   "dirs": 8,
-   "scale_src": 0.9202,
-   "median_src_h": 163
+   "frames": 8,
+   "dirs": 1,
+   "scale_src": 0.3036,
+   "median_src_h": 494
   },
-  "_k1536": 0.75129
+  "_k1536": 0.30364,
+  "idle": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.303,
+   "median_src_h": 495
+  },
+  "cast": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.3043,
+   "median_src_h": 493
+  },
+  "attack": {
+   "frames": 6,
+   "dirs": 1,
+   "scale_src": 0.3036,
+   "median_src_h": 494.00605980766693
+  },
+  "hurt": {
+   "frames": 2,
+   "dirs": 1,
+   "scale_src": 0.3036,
+   "median_src_h": 494.00605980766693
+  },
+  "sit": {
+   "frames": 2,
+   "dirs": 1,
+   "scale_src": 0.3036,
+   "median_src_h": 494.00605980766693
+  },
+  "dead": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.3036,
+   "median_src_h": 494.00605980766693
+  }
  }
 }
