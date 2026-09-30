@@ -189,6 +189,7 @@ const UI = {
     const em = Art.get('emblem_' + p.job), jobHtml = (em ? `<img src="${em.src}" alt="">` : '') + U.esc(JOBS[p.job].name);
     if ($('#bi-job').innerHTML !== jobHtml) $('#bi-job').innerHTML = jobHtml;
     this.updateTarget();
+    if (this.isOpen('w-mob')) { const mv = $('#mb-mvp'); if (mv) { const s = this.mvpStatus(this.mobInfo); if (mv.textContent !== s) mv.textContent = s; } }
     const bNeed = baseExpNeed(p.baseLv), jNeed = jobExpNeed(p.job, p.jobLv);
     const bk = p.baseLv >= MAX_BASE_LV ? 1 : p.baseExp / bNeed, jk = p.jobLv >= JOBS[p.job].jobMax ? 1 : p.jobExp / jNeed;
     $('#bi-blv').textContent = p.baseLv; $('#bi-jlv').textContent = p.jobLv;
@@ -712,6 +713,14 @@ const UI = {
 
   // ---------------- นำทาง ----------------
   navTab: 'here',
+  // สถานะ MVP: กำลังอาละวาด / พร้อมปรากฏ / นับถอยหลังเกิดใหม่
+  mvpStatus(id) {
+    const m = Object.keys(MAP_DEFS).find(k => MAP_DEFS[k].mvp === id); if (!m) return '';
+    if (G.map && G.map.id === m && G.mobs.some(x => x.isMvp && !x.dead)) return `⚔ กำลังอาละวาดอยู่ที่ ${MAP_DEFS[m].name}!`;
+    const left = (G.mvpNext[m] || 0) - G.time;
+    if (left > 0) return `⏳ เกิดใหม่ในอีก ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')} นาที`;
+    return `✦ พร้อมปรากฏที่ ${MAP_DEFS[m].name} (เข้าแผนที่เพื่อเจอ)`;
+  },
   // ---------------- สมุดมอนสเตอร์ ----------------
   showMob(id) { this.mobInfo = id; const b = $('#w-mob .win-body'); if (b) b.dataset.key = ''; this.open('w-mob'); this.renderMob(); },
   renderMob() {
@@ -737,6 +746,7 @@ const UI = {
       h('div', { class: 'mb-h' }, 'ไอเทมที่ดรอป'),
       h('div', { class: 'mb-drops' }, ...(d.drops.length ? d.drops.map(([id, ch]) => h('div', { class: 'mb-drop', title: ITEMS[id].desc || '' },
         h('img', { src: itemIconUrl(id), alt: '' }), h('span', {}, ITEMS[id].name), h('em', {}, `${ch >= 0.1 ? Math.round(ch * 100) : (ch * 100).toFixed(ch < 0.01 ? 2 : 1)}%`))) : [h('span', { class: 'hint' }, 'ไม่มี')])),
+      d.boss ? h('div', { class: 'mb-mvp', id: 'mb-mvp' }, this.mvpStatus(d.id)) : null,
       h('div', { class: 'mb-h' }, 'พบได้ที่'),
       h('div', { class: 'mb-where' }, where.length ? where.map(m => `${MAP_DEFS[m].name}${MAP_DEFS[m].level ? ` (Lv ${MAP_DEFS[m].level})` : ''}`).join(' • ') : '-'),
       where.length ? h('div', { class: 'opt-btns' }, h('button', { class: 'btn', onclick: () => { Nav.goTo({ kind: 'mob', map: where[0], mobId: d.id, name: d.name }); this.close('w-mob'); } }, '🧭 นำทางไปล่า')) : null,
@@ -812,7 +822,7 @@ const UI = {
     else if (this.navTab === 'place') for (const t of Nav.places()) list.append(row(t, MAP_DEFS[t.map].name));
     else if (this.navTab === 'map') for (const t of Nav.maps()) list.append(row(t, `${t.thai}${t.level ? ` • Lv ${t.level}` : ''}`, t.map === G.map.id ? 'อยู่ที่นี่' : null));
     else for (const t of Nav.mobs()) {
-      const r = row(t, `${t.mapName} • Lv ${t.lv}`, t.mvp ? 'MVP' : null);
+      const r = row(t, `${t.mapName} • Lv ${t.lv}${t.mvp ? ` • ${this.mvpStatus(t.mobId).replace(/^[^ ]+ /, '')}` : ''}`, t.mvp ? 'MVP' : null);
       const info = h('span', { class: 'nav-info', title: 'ข้อมูลมอนสเตอร์', onclick: e => { e.stopPropagation(); this.showMob(t.mobId); } }, 'ⓘ');
       r.append(info); list.append(r);
     }
