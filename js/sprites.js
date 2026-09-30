@@ -808,7 +808,7 @@ const NPC_LOOKS = {
 Sprites.drawNpc = (g, n, t) => {
   const x = n.x * TILE + TILE / 2, y = n.y * TILE + TILE / 2 + 10;
   const img = typeof Art !== 'undefined' && Art.get('npcsprite_' + n.id);
-  if (img) { Sprites.drawImageActor(g, x, y, { facing: -1, moving: false, seed: n.x * 0.1 }, t, img, 66, 'walk', true); return; }
+  if (img) { Sprites.drawImageActor(g, x, y, { facing: -1, moving: false, seed: n.x * 0.1 }, t, img, 74, 'walk', true); return; }
   Sprites.shadow(g, x, y, 12, 4);
   const look = NPC_LOOKS[n.look] || NPC_LOOKS.guide;
   Sprites.human(g, x, y, Object.assign({ facing: 1, dir: n.dir != null ? n.dir : 2, t: t + n.x, moving: false }, look));
