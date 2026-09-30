@@ -10,11 +10,14 @@
   python3 tools/sprite_std.py template [--cols 4 --rows 2]          สร้างภาพเทมเพลตไว้แนบให้ ChatGPT
   python3 tools/sprite_std.py measure <ชีต.png> --grid 4x2            วัดอย่างเดียว (ไม่ติดตั้ง)
   python3 tools/sprite_std.py install <ชีต.png> <key> <action> --grid 4x2 [--frames 8]
+  python3 tools/sprite_std.py install <ชีต.png> <key> walk --grid 4x7 --dirs S,SW,W,NW,N,E,SE
+      ชีตหลายทิศ (แบบ RO): แถวละทิศ ทิศที่ขาดสร้างจากการกลับด้านทิศคู่ (NE = กลับ NW ฯลฯ)
+      → แถบเฟรม 8 แถว (แถว i = ทิศ i ตาม DIRS)
       เช่น  install walk.png novice_f walk --grid 4x2
       → assets/anim_novice_f_walk.webp (แถบเฟรมแนวนอน) + ภาพตรวจ art/check/anim_novice_f_walk.png
 """
 import sys, os, json, argparse
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageOps
 sys.path.insert(0, os.path.dirname(__file__))
 from slice_sheet import knock_bg, manifest, ROOT
 
@@ -31,7 +34,10 @@ ACTIONS = {         # ท่า: (จำนวนเฟรมแนะนำ, �
 }
 TOL = 0.06          # ความสูงเพี้ยนเกิน 6% = เตือน
 STANDING = ('idle', 'walk', 'cast')   # ท่ายืน: ใช้ความสูงวัดสเกล ท่าอื่น (นั่ง/ล้ม/ฟัน) ใช้สเกลของท่ายืน
-TPL_W, TPL_BODY = 1536, 0.60          # เทมเพลต 1536 px กว้าง, ตัวยืนสูง 60% ของความสูงช่อง
+TPL_W, TPL_BODY = 1536, 0.60
+# ทิศ 8 ทาง (ลำดับเดียวกับ dirFromVec ในเกม: 0=ขวา แล้ววนตามเข็มนาฬิกา) — แถวที่ i ของแถบเฟรม = ทิศ i
+DIRS = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE']
+MIRROR = {'E': 'W', 'W': 'E', 'SE': 'SW', 'SW': 'SE', 'NE': 'NW', 'NW': 'NE'}          # เทมเพลต 1536 px กว้าง, ตัวยืนสูง 60% ของความสูงช่อง
 HERE = os.path.dirname(__file__)
 SIZES = os.path.join(HERE, '..', 'art', 'anim_sizes.json')
 CHECK = os.path.join(HERE, '..', 'art', 'check')
@@ -56,13 +62,32 @@ def template(cols=4, rows=2, cw=384, chh=512):
     return im
 
 
+def cuts(profile, n, lo=0, hi=None):
+    """ตำแหน่งตัดแบ่ง n ช่อง: หาเส้นที่ "ว่างที่สุด" ใกล้เส้นตารางปกติ (±30% ของช่อง)
+    ตัวละครที่วาดชิดกัน/ล้นช่องเล็กน้อยจึงไม่ถูกตัดกลางตัว"""
+    hi = len(profile) if hi is None else hi
+    size = (hi - lo) / n; out = [lo]
+    for i in range(1, n):
+        e = lo + i * size; a, b = int(max(out[-1] + size * 0.5, e - size * 0.3)), int(min(hi - 1, e + size * 0.3))
+        out.append(min(range(a, b + 1), key=lambda y: (profile[y], abs(y - e))))
+    out.append(hi); return out
+
+
 def frames_from_grid(im, cols, rows):
-    """ตัดตามตาราง แล้วเก็บเฉพาะตัวละครในแต่ละช่อง (ตัดเส้นไกด์ ตัวเลข และเศษเล็ก ๆ ทิ้ง)"""
+    """ตัดตามตาราง (เส้นตัดขยับหาช่องว่างเอง) แล้วเก็บเฉพาะตัวละครในแต่ละช่อง
+    (ตัดเส้นไกด์ ตัวเลข และเศษที่ล้นมาจากช่องข้าง ๆ ทิ้ง)"""
     im = knock_bg(im)
-    W, H = im.size; cw, ch = W / cols, H / rows; out = []
+    W, H = im.size
+    a = im.getchannel('A').point(lambda v: 1 if v > 60 else 0); px = a.load()
+    xc = cuts([sum(px[x, y] for y in range(0, H, 2)) for x in range(W)], cols)
+    out, grid = [], []
+    for c in range(cols):
+        x0, x1 = xc[c], xc[c + 1]
+        yc = cuts([sum(px[x, y] for x in range(x0, x1, 2)) for y in range(H)], rows)
+        grid.append([(x0, yc[r], x1, yc[r + 1]) for r in range(rows)])
     for r in range(rows):
         for c in range(cols):
-            cell = im.crop((int(c * cw), int(r * ch), int((c + 1) * cw), int((r + 1) * ch)))
+            cell = im.crop(grid[c][r])
             cell = knock_lines(cell)
             m = main_blob(cell.getchannel('A'))
             if m is None: continue
@@ -196,6 +221,7 @@ def main():
     ap.add_argument('cmd'); ap.add_argument('src', nargs='?'); ap.add_argument('key', nargs='?'); ap.add_argument('action', nargs='?')
     ap.add_argument('--grid', default='4x2'); ap.add_argument('--cols', type=int, default=4); ap.add_argument('--rows', type=int, default=2)
     ap.add_argument('--frames', type=int, default=0, help='ใช้แค่ N เฟรมแรก')
+    ap.add_argument('--dirs', default='', help='ทิศของแต่ละแถวในชีต เช่น S,SW,W,NW,N,E,SE')
     ap.add_argument('--nofit', action='store_true', help='ไม่ปรับขนาดเฟรมที่เพี้ยนอัตโนมัติ')
     ap.add_argument('--order', default='', help='ลำดับเฟรมใหม่ เช่น 1,2,3,4,3,2')
     a = ap.parse_args()
@@ -209,7 +235,7 @@ def main():
     src_w = Image.open(a.src).width
     sz = load_sizes(); ref = sz.get(a.key or '', {}).get('_k1536')
     scale = None
-    if a.action not in STANDING:
+    if a.action and a.action not in STANDING:
         # ใช้สเกลเดียวกับท่ายืนของตัวละครนี้ (ไม่มีก็ใช้สเกลเทมเพลต)
         scale = (ref * TPL_W / src_w) if ref else STD_H / (TPL_BODY * Image.open(a.src).height / rows)
         print(f"  สเกลจาก{'ท่ายืนที่ติดตั้งไว้' if ref else 'เทมเพลต'}: {scale:.3f}")
@@ -226,10 +252,25 @@ def main():
     name = f"anim_{a.key}_{a.action}" if a.cmd == 'install' else 'measure_' + os.path.splitext(os.path.basename(a.src))[0]
     check_sheet(out, rep, title).save(os.path.join(CHECK, name + '.png')); print('  ภาพตรวจ →', os.path.join(CHECK, name + '.png'))
     if a.cmd != 'install': return
-    strip = Image.new('RGBA', (CELL * len(out), CELL), (0, 0, 0, 0))
-    for i, f in enumerate(out): strip.alpha_composite(f, (i * CELL, 0))
+    if a.dirs:
+        names = [d.strip().upper() for d in a.dirs.split(',')]
+        per = len(out) // len(names)
+        rows_by = {d: out[i * per:(i + 1) * per] for i, d in enumerate(names)}
+        for d in DIRS:  # ทิศที่ขาด: กลับด้านจากทิศคู่ ไม่มีก็ใช้ทิศที่ใกล้ที่สุด
+            if d in rows_by: continue
+            if MIRROR.get(d) in rows_by: rows_by[d] = [ImageOps.mirror(f) for f in rows_by[MIRROR[d]]]; print(f'  ทิศ {d} = กลับด้าน {MIRROR[d]}')
+        for d in DIRS:
+            if d in rows_by: continue
+            i = DIRS.index(d); near = min((x for x in rows_by if x in DIRS), key=lambda x: min((DIRS.index(x) - i) % 8, (i - DIRS.index(x)) % 8))
+            rows_by[d] = rows_by[near]; print(f'  ทิศ {d} = ใช้ {near}')
+        strip = Image.new('RGBA', (CELL * per, CELL * 8), (0, 0, 0, 0))
+        for r, d in enumerate(DIRS):
+            for i, f in enumerate(rows_by[d]): strip.alpha_composite(f, (i * CELL, r * CELL))
+    else:
+        strip = Image.new('RGBA', (CELL * len(out), CELL), (0, 0, 0, 0))
+        for i, f in enumerate(out): strip.alpha_composite(f, (i * CELL, 0))
     strip.save(os.path.join(ROOT, name + '.webp'), 'WEBP', quality=90, method=6)
-    ent = sz.setdefault(a.key, {}); ent[a.action] = {'frames': len(out), 'scale_src': round(k, 4), 'median_src_h': med}
+    ent = sz.setdefault(a.key, {}); ent[a.action] = {'frames': strip.width // CELL, 'dirs': strip.height // CELL, 'scale_src': round(k, 4), 'median_src_h': med}
     if a.action in STANDING and (a.action == 'walk' or '_k1536' not in ent): ent['_k1536'] = round(k * src_w / TPL_W, 5)
     json.dump(sz, open(SIZES, 'w'), indent=1, ensure_ascii=False)
     manifest(); print('ติดตั้ง →', name + '.webp')

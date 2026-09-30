@@ -756,7 +756,7 @@ Sprites.drawMob = (g, m, t) => {
   if (typeof Anim !== 'undefined' && Anim.has(ak)) {
     const d = m.def, motion = d.wings ? 'fly' : (MOB_MOTION[d.sprite] || 'walk');
     const base = { hop: 40, fly: 40, crawl: 34, sway: 50, float: 52, walk: d.sprite === 'quad' ? 44 : 60 }[motion];
-    Anim.draw(g, x, y, ak, { facing: m.facing || 1, moving: m.moving, atk: m.atkAnim, hurt: m.hitFlash > 0 ? 0.5 : 0, dead: m.dead, deathT: m.deathT, seed: m.x * 0.37 }, t, base * (d.scale || 1) * (d.size || 1));
+    Anim.draw(g, x, y, ak, { facing: m.facing || 1, dir: m.dir, moving: m.moving, atk: m.atkAnim, hurt: m.hitFlash > 0 ? 0.5 : 0, dead: m.dead, deathT: m.deathT, seed: m.x * 0.37 }, t, base * (d.scale || 1) * (d.size || 1));
   }
   else if (art) Sprites.mobImage(g, x, y, m, t, art);
   else switch (m.def.sprite) {
@@ -836,7 +836,7 @@ Sprites.drawPlayer = (g, p, t) => {
   if (typeof Anim !== 'undefined' && Anim.has(gk)) {
     if (Object.keys(p.buffs).length) { g.strokeStyle = `rgba(255,240,150,${0.25 + Math.sin(t * 4) * 0.15})`; g.lineWidth = 2; g.beginPath(); g.ellipse(x, y, 16, 6, 0, 0, 7); g.stroke(); }
     Anim.draw(g, x, y, gk, {
-      facing: p.facing || 1, moving: p.moving && !p.sitting, atk: p.atkAnim, cast: !!p.cast, sit: p.sitting, dead: p.dead,
+      facing: p.facing || 1, dir: p.dir, moving: p.moving && !p.sitting, atk: p.atkAnim, cast: !!p.cast, sit: p.sitting, dead: p.dead,
       hurt: Math.max(0, (p.hurtFlash || 0) / 0.15),
     }, t, 68);
     return;

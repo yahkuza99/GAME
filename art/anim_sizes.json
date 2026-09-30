@@ -1,0 +1,11 @@
+{
+ "novice_f": {
+  "walk": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.9202,
+   "median_src_h": 163
+  },
+  "_k1536": 0.75129
+ }
+}

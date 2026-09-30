@@ -123,6 +123,9 @@
           <button id="onion" type="button">ซ้อนเฟรม</button>
           <button id="small" type="button">ขนาดในเกม</button>
         </div>
+        <div class="row" style="margin-top:8px;justify-content:center">
+          <label>เล่น <select id="rowsel"><option value="-1">ทุกเฟรม</option></select></label>
+        </div>
       </section>
     </div>
   </div>
@@ -249,15 +252,37 @@ function analyze() {
   const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d', { willReadFrequently: true });
   g.drawImage(srcImg, 0, 0); const all = g.getImageData(0, 0, W, H);
   const bgMode = knockBg(all, W, H); g.putImageData(all, 0, 0);
-  const cw = W / cols, ch = H / rows, cells = []; let lines = 0;
-  for (let r = 0; r < rows; r++) for (let q = 0; q < cols; q++) {
-    const x0 = Math.round(q * cw), y0 = Math.round(r * ch), w = Math.round((q + 1) * cw) - x0, h = Math.round((r + 1) * ch) - y0;
+  // เส้นตัดแบ่งช่อง: ขยับหาแนวที่ว่างที่สุดใกล้เส้นตาราง (ตัวละครวาดชิดกันก็ไม่โดนตัดกลางตัว)
+  const A = all.data, op = (x, y) => A[(y * W + x) * 4 + 3] > 60;
+  const cuts = (prof, n) => {
+    const size = prof.length / n, out = [0];
+    for (let i = 1; i < n; i++) {
+      const e = i * size, a = Math.floor(Math.max(out[i - 1] + size * 0.5, e - size * 0.3)), b = Math.floor(Math.min(prof.length - 1, e + size * 0.3));
+      let best = a; for (let y = a; y <= b; y++) if (prof[y] < prof[best] || (prof[y] === prof[best] && Math.abs(y - e) < Math.abs(best - e))) best = y;
+      out.push(best);
+    }
+    out.push(prof.length); return out;
+  };
+  const colP = new Array(W).fill(0); for (let y = 0; y < H; y += 2) for (let x = 0; x < W; x++) if (op(x, y)) colP[x]++;
+  const xc = cuts(colP, cols), rects = [];
+  for (let q = 0; q < cols; q++) {
+    const rowP = new Array(H).fill(0); for (let y = 0; y < H; y++) for (let x = xc[q]; x < xc[q + 1]; x += 2) if (op(x, y)) rowP[y]++;
+    const yc = cuts(rowP, rows); for (let r = 0; r < rows; r++) rects.push({ r, q, x0: xc[q], y0: yc[r], w: xc[q + 1] - xc[q], h: yc[r + 1] - yc[r] });
+  }
+  rects.sort((a, b) => a.r - b.r || a.q - b.q);
+  const ch = H / rows, cells = []; let lines = 0;
+  for (const { r, q, x0, y0, w, h } of rects) {
     const d = g.getImageData(x0, y0, w, h);
     lines += knockLines(d.data, w, h);
     if (!mainBlob(d.data, w, h)) continue;
+    // ชนขอบ = ตัวละครถูกเส้นตัดผ่านเป็นแนวยาว (แค่แตะขอบไม่นับ)
+    let eT = 0, eB = 0, eL = 0, eR = 0; const D = d.data, o = (x, y) => D[(y * w + x) * 4 + 3] > 60;
+    for (let x = 0; x < w; x++) { eT += o(x, 0); eB += o(x, h - 1); }
+    for (let y = 0; y < h; y++) { eL += o(0, y); eR += o(w - 1, y); }
+    const edge = Math.max(eT / w, eB / w, eL / h, eR / h) > 0.05;
     const m = measure(d.data, w, h); if (!m) continue;
     const cc = document.createElement('canvas'); cc.width = w; cc.height = h; cc.getContext('2d').putImageData(d, 0, 0);
-    cells.push({ cv: cc, m, cell: r * cols + q + 1, edge: m.minX <= 1 || m.maxX >= w - 2 || m.fullTop <= 1 || m.bot >= h - 2 });
+    cells.push({ cv: cc, m, cell: r * cols + q + 1, row: r, edge });
   }
   const ord = parseOrder($('#order').value, cells.length);
   const use = ord ? ord.map(i => cells[i]) : cells;
@@ -275,13 +300,14 @@ function analyze() {
     fg.drawImage(u.cv, ox, oy, u.cv.width * kk, u.cv.height * kk);
     const clipTop = oy + u.m.fullTop * kk < 0, clipSide = ox + u.m.minX * kk < 0 || ox + u.m.maxX * kk > CELL;
     frames.push(f);
-    rep.push({ i: i + 1, cell: u.cell, h: Math.round(u.m.h * kk), dev, fixed, ok: !stand || Math.abs(dev) <= TOL, clip: clipTop || clipSide, edge: u.edge, lean: (u.m.cx - (u.m.minX + u.m.maxX) / 2) / (u.m.maxX - u.m.minX || 1) });
+    rep.push({ i: i + 1, row: u.row, cell: u.cell, h: Math.round(u.m.h * kk), dev, fixed, ok: !stand || Math.abs(dev) <= TOL, clip: clipTop || clipSide, edge: u.edge, lean: (u.m.cx - (u.m.minX + u.m.maxX) / 2) / (u.m.maxX - u.m.minX || 1) });
   });
   drawStrip(); drawTable();
   // สรุปผล
   const probs = [], warns = [];
   const exp = EXPECT[action];
-  if (use.length !== exp) warns.push(`ได้ ${use.length} เฟรม แต่ท่า ${action} ควรมี ${exp} เฟรม`);
+  if (rows > 2) warns.push(`ชีตหลายทิศ: ${rows} แถว × ${cols} เฟรม — ติดตั้งแบบ 8 ทิศ (ทิศที่ขาดจะกลับด้านจากทิศคู่)`);
+  else if (use.length !== exp) warns.push(`ได้ ${use.length} เฟรม แต่ท่า ${action} ควรมี ${exp} เฟรม`);
   const off = rep.filter(r => !r.ok);
   if (off.length) (doFit ? warns : probs).push(`${off.length} เฟรมสูงเพี้ยนเกิน ±6% (เฟรม ${off.map(r => r.i).join(', ')})` + (doFit ? ' — ปรับให้เท่ากันแล้ว' : ''));
   const spread = Math.max(...rep.map(r => r.dev)) - Math.min(...rep.map(r => r.dev));
@@ -296,6 +322,14 @@ function analyze() {
   else if (warns.length) showVerdict('warn', 'ใช้ได้ มีข้อสังเกต', warns);
   else showVerdict('ok', 'ผ่านมาตรฐาน NMS-1 — ส่งมาติดตั้งได้เลย', [stand ? `${use.length} เฟรม • ความสูงเฉลี่ย ${STD_H} px • คลาดเคลื่อนสูงสุด ${Math.round(Math.max(...rep.map(r => Math.abs(r.dev))) * 1000) / 10}%` : `${use.length} เฟรม • ท่านี้ไม่ใช่ท่ายืน ใช้สเกลตามเทมเพลต (ตัวยืน = เส้นน้ำเงินถึงเส้นแดง)`]);
   $('#result').hidden = false; fi = 0;
+  const rs = $('#rowsel'), keep = rs.value, nr = Math.max(...rep.map(r => r.row)) + 1;
+  rs.innerHTML = '<option value="-1">ทุกเฟรม</option>' + Array.from({ length: nr > 1 ? nr : 0 }, (_, i) => `<option value="${i}">แถว ${i + 1} (ทิศ/ท่า)</option>`).join('');
+  if ([...rs.options].some(o => o.value === keep)) rs.value = keep;
+}
+function playList() {
+  const r = +$('#rowsel').value;
+  const idx = rep.map((x, i) => i).filter(i => r < 0 || rep[i].row === r);
+  return idx.length ? idx : rep.map((x, i) => i);
 }
 function showVerdict(kind, big, items) {
   const v = $('#verdict'); v.className = 'verdict ' + kind;
@@ -332,17 +366,19 @@ function tick(ts) {
   requestAnimationFrame(tick);
   if (!frames.length) return;
   const fps = +$('#fps').value;
-  if (ts - last >= 1000 / fps) { last = ts; fi = (fi + 1) % frames.length; }
+  const list = playList();
+  if (ts - last >= 1000 / fps) { last = ts; fi = (fi + 1) % list.length; }
+  fi %= list.length; const cur = list[fi], prev = list[(fi + list.length - 1) % list.length];
   const c = $('#preview'), g = c.getContext('2d');
   g.fillStyle = '#3f6a3a'; g.fillRect(0, 0, CELL, CELL);
   g.fillStyle = 'rgba(0,0,0,.28)'; g.beginPath(); g.ellipse(CX, GROUND, 34, 10, 0, 0, 7); g.fill();
   g.save();
   const s = small ? 68 / STD_H * 1.6 : 1; // ขนาดในเกมที่ซูม 1.6
   g.translate(CX, GROUND); g.scale(flip ? -s : s, s); g.translate(-CX, -GROUND);
-  if (onion && frames.length > 1) { g.globalAlpha = .28; g.drawImage(frames[(fi + frames.length - 1) % frames.length], 0, 0); g.globalAlpha = 1; }
-  g.drawImage(frames[fi], 0, 0);
+  if (onion && list.length > 1) { g.globalAlpha = .28; g.drawImage(frames[prev], 0, 0); g.globalAlpha = 1; }
+  g.drawImage(frames[cur], 0, 0);
   g.restore();
-  g.fillStyle = 'rgba(255,255,255,.75)'; g.font = '12px "JetBrains Mono", monospace'; g.fillText(`${fi + 1}/${frames.length}`, 8, 18);
+  g.fillStyle = 'rgba(255,255,255,.75)'; g.font = '12px "JetBrains Mono", monospace'; g.fillText(`${cur + 1} (${fi + 1}/${list.length})`, 8, 18);
 }
 requestAnimationFrame(tick);
 
@@ -363,6 +399,7 @@ document.addEventListener('paste', e => { const it = [...(e.clipboardData || {})
 $('#action').addEventListener('change', () => { $('#fps').value = { walk: 10, idle: 4, attack: 12, cast: 7, hurt: 6, sit: 2, dead: 6 }[$('#action').value]; $('#fpsv').textContent = $('#fps').value + ' fps'; });
 $('#fps').addEventListener('input', () => { $('#fpsv').textContent = $('#fps').value + ' fps'; });
 const tog = (id, fn) => $(id).addEventListener('click', () => { const v = fn(); $(id).classList.toggle('on', v); });
+$('#rowsel').addEventListener('change', () => { fi = 0; });
 tog('#flip', () => (flip = !flip));
 tog('#onion', () => (onion = !onion));
 tog('#small', () => (small = !small));
