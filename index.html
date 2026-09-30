@@ -159,11 +159,18 @@
 
   <!-- ================= หน้าไตเติล ================= -->
   <div id="title">
-    <div class="clouds"><i></i><i></i><i></i><i></i></div>
+    <canvas id="title-bg" aria-hidden="true"></canvas>
+    <div class="hero-stage" aria-hidden="true">
+      <div class="hero-ring"></div>
+      <img id="title-hero-a" class="hero" alt=""><img id="title-hero-b" class="hero" alt="">
+    </div>
     <div class="title-inner">
-      <div class="logo">NEO MIDGARD</div>
-      <div class="logo-sub">Android Saga • ตำนานหุ่นยนต์แห่งมิดการ์ด</div>
-      <form id="auth" class="create auth hidden" autocomplete="on">
+      <div class="title-top">
+        <div class="logo">NEO MIDGARD</div>
+        <div class="logo-sub">Android Saga • ตำนานหุ่นยนต์แห่งมิดการ์ด</div>
+        <span id="hero-cap" class="hero-cap"></span>
+      </div>
+      <form id="auth" class="card auth hidden" autocomplete="on">
         <div id="au-tabs" class="seg"><button type="button" data-mode="login" class="on">เข้าสู่ระบบ</button><button type="button" data-mode="register">สมัครสมาชิก</button></div>
         <label for="au-user">ชื่อผู้ใช้</label>
         <input id="au-user" name="username" maxlength="16" autocomplete="username" placeholder="a-z, 0-9 หรือ _ (3-16 ตัว)" autocapitalize="off" spellcheck="false">
@@ -174,15 +181,17 @@
           <input id="au-pass2" type="password" autocomplete="new-password" placeholder="พิมพ์รหัสผ่านอีกครั้ง">
         </div>
         <div id="au-err" class="err"></div>
-        <button id="au-submit" type="submit" class="tbtn small primary">เข้าสู่ระบบ</button>
-        <button id="au-offline" type="button" class="linkbtn">เล่นแบบออฟไลน์ (เซฟในเครื่องนี้)</button>
+        <button id="au-submit" type="submit" class="tbtn primary">เข้าสู่ระบบ</button>
+        <button id="au-offline" type="button" class="linkbtn">เล่นแบบไม่ล็อกอิน (เซฟในเครื่องนี้)</button>
       </form>
       <div id="acct" class="acct hidden">ล็อกอินเป็น <b id="acct-name"></b> · <button id="acct-logout" type="button" class="linkbtn">ออกจากระบบ</button></div>
       <div id="title-menu" class="title-menu">
         <button id="btn-continue" class="tbtn hidden">เล่นต่อ</button>
-        <button id="btn-new" class="tbtn">เริ่มการผจญภัยใหม่</button>
+        <button id="btn-new" class="tbtn primary">เริ่มเล่น<small>สร้างตัวละครใหม่</small></button>
+        <button id="btn-login" class="linkbtn hidden">เข้าสู่ระบบ / สมัครสมาชิก</button>
+        <div class="title-foot"><span class="chip">DEMO</span> ปี 2XXX มนุษย์หายไป เหลือเพียงแอนดรอยด์ผู้สืบทอดตำนานแห่งมิดการ์ด</div>
       </div>
-      <div id="create" class="create hidden">
+      <div id="create" class="card create hidden">
         <div class="cr-left"><canvas id="cr-preview" width="220" height="260"></canvas>
           <div class="cr-rot"><button id="cr-rl" type="button" aria-label="หมุนซ้าย">⟲</button><button id="cr-spin" type="button" class="on">หมุนอัตโนมัติ</button><button id="cr-rr" type="button" aria-label="หมุนขวา">⟳</button></div></div>
         <div class="cr-right">
@@ -204,7 +213,6 @@
           <div class="cr-btns"><button id="cr-back" class="tbtn small">ย้อนกลับ</button><button id="cr-start" class="tbtn small primary">เริ่มเกม!</button></div>
         </div>
       </div>
-      <div class="title-foot">ปี 2XXX มนุษย์หายไป เหลือเพียงแอนดรอยด์ผู้สืบทอดตำนานแห่งมิดการ์ด • กราฟิกวาดด้วยโค้ดทั้งหมด</div>
     </div>
   </div>
 
@@ -217,6 +225,7 @@
   <script src="js/sprites.js"></script>
   <script src="js/sound.js"></script>
   <script src="js/music.js"></script>
+  <script src="js/title.js"></script>
   <script src="js/game.js"></script>
   <script src="js/npc.js"></script>
   <script src="js/bot.js"></script>

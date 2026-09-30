@@ -96,12 +96,6 @@ function applyTitleArt() {
     t.style.backgroundSize = 'cover'; t.style.backgroundPosition = 'center';
     t.classList.add('has-art');
   }
-  // ภาพตัวละครบนหน้าไตเติล (ใช้ภาพอาชีพที่มีอยู่ภาพแรก)
-  const hero = ['job_novice_f', 'job_novice_m', ...ART_KEYS.filter(k => k.startsWith('job_'))].find(k => Art.has(k));
-  if (hero && !document.getElementById('title-hero')) {
-    t.prepend(Object.assign(new Image(), { id: 'title-hero', src: Art.get(hero).src, alt: '' }));
-    t.classList.add('has-hero');
-  }
   if (Art.has('logo')) {
     const l = document.querySelector('.logo');
     if (l && !l.querySelector('img')) { l.textContent = ''; l.append(Object.assign(new Image(), { src: Art.get('logo').src, alt: 'NEO MIDGARD' })); l.classList.add('logo-img'); }

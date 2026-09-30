@@ -233,6 +233,7 @@ function loop(ts) {
     if (hudAcc > 0.08) { hudAcc = 0; UI.updateHud(); }
   } else {
     lastSimReal = performance.now();
+    Title.draw(ts / 1000);
     drawTitlePreview(ts / 1000);
   }
   requestAnimationFrame(loop);
@@ -312,13 +313,15 @@ function bindAuth() {
 
 function showTitle() {
   setupCreateScreen();
+  setupOfflineMenu();
   if (Online.enabled) {
+    // เดโม: เข้าเล่นได้ทันที ล็อกอินเป็นทางเลือก (ลิงก์เล็ก ๆ ใต้ปุ่ม)
     bindAuth();
     setAuthMode('login');
-    Online.restore().then(ok => (ok ? afterLogin() : showAuth()));
-    return;
+    $('#btn-login').classList.remove('hidden');
+    $('#btn-login').onclick = () => showAuth();
+    Online.restore().then(ok => { if (ok) afterLogin(); });
   }
-  setupOfflineMenu();
 }
 function setupOfflineMenu() {
   const s = peekSave();
@@ -327,7 +330,7 @@ function setupOfflineMenu() {
     cont.classList.remove('hidden');
     cont.innerHTML = `เล่นต่อ<small>${U.esc(s.name)} • ${JOBS[s.job] ? JOBS[s.job].name : ''} Lv ${s.baseLv}</small>`;
   }
-  $('#btn-new').onclick = () => { $('#title-menu').classList.add('hidden'); $('#create').classList.remove('hidden'); $('#cr-name').focus(); Sound.ensure(); };
+  $('#btn-new').onclick = () => { $('#title-menu').classList.add('hidden'); $('#create').classList.remove('hidden'); $('#title').classList.add('creating'); if (!matchMedia('(pointer: coarse)').matches) $('#cr-name').focus(); Sound.ensure(); };
   cont.onclick = () => {
     const p = loadGame();
     if (!p) { cont.innerHTML = 'โหลดเซฟไม่สำเร็จ<small>กรุณาเริ่มการผจญภัยใหม่</small>'; return; }
@@ -336,7 +339,7 @@ function setupOfflineMenu() {
 }
 function setupCreateScreen() {
   $('#cr-back').onclick = () => {
-    $('#create').classList.add('hidden');
+    $('#create').classList.add('hidden'); $('#title').classList.remove('creating');
     if (Online.online) { $('#acct-logout').click(); return; }
     $('#title-menu').classList.remove('hidden');
   };
@@ -423,7 +426,8 @@ function drawTitlePreview(t) {
 function startGame(p, isNew) {
   G.player = p;
   G.started = true;
-  $('#title').classList.add('hidden');
+  $('#title').classList.add('leaving');
+  setTimeout(() => { $('#title').classList.add('hidden'); $('#title').classList.remove('leaving', 'creating'); }, 650);
   $('#hud').classList.remove('hidden');
   recalc();
   if (isNew) { p.hp = p.d.maxHp; p.sp = p.d.maxSp; }
@@ -444,6 +448,7 @@ window.addEventListener('load', () => {
   Art.load();
   Online.init();
   UI.init();
+  Title.init();
   Pad.init();
   bindInput();
   showTitle();
