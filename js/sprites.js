@@ -733,7 +733,7 @@ const NPC_LOOKS = {
   keeper:   { skin: '#eef0f6', glow: '#b48aff', hair: '#8a7ae0', hairStyle: 'long', outfit: '#2a3a6a', outfit2: '#f0d060', hat: 'keeper', robe: true, cape: '#4a6ab0' },
   jobmaster:{ skin: '#c8ccd6', glow: '#6ae0ff', hair: '#5a6070', outfit: '#3a4a6a', outfit2: '#e0c040', beard: '#9aa2b4', hat: 'runehood', hatColor: '#2a3450', robe: true, cape: '#2a3450' },
   merchant: { skin: '#e2d6c2', glow: '#ffc04a', hair: '#8a5a2a', outfit: '#a07040', outfit2: '#5a3a1a', apron: '#6a5a4a', hat: 'bandana' },
-  merchant2:{ skin: '#eef0f6', glow: '#6aff9a', hair: '#3a9a5a', hairStyle: 'twin', outfit: '#3a9a5a', outfit2: '#e8e0c8', robe: true },
+  merchant2:{ skin: '#f2f3f6', glow: '#5aff7a', hair: '#7ccf9a', hairStyle: 'twin', outfit: '#2f7a48', outfit2: '#efe6cf', robe: true, visor: 'band' },
   smith:    { skin: '#b8bcc6', glow: '#ff8a3a', hair: '#4a4e58', hairStyle: 'spiky', outfit: '#6a6a70', outfit2: '#3a3a40', apron: '#5a4a3a' },
   refiner:  { skin: '#a8a090', glow: '#ff6a2a', hair: '#7a4a2a', outfit: '#8a5a3a', outfit2: '#3a2a1a', apron: '#4a4a4a', beard: '#7a4a2a', joint: '#3a2a22' },
   nurse:    { skin: '#f6f6fa', glow: '#ff7aa0', hair: '#f0a0c0', hairStyle: 'long', outfit: '#ffffff', outfit2: '#e0a0b0', hat: 'nurse', robe: true },
