@@ -112,6 +112,7 @@ const UI = {
     }
     this.msg(`${p.name} : ${text}`, 'say');
     p.speech = { text, until: G.time + 5 };
+    Online.sendChat(text);
   },
 
   // ---------------- HUD ----------------
@@ -188,7 +189,7 @@ const UI = {
     }
     g.fillStyle = '#ffffff'; g.strokeStyle = '#d02020'; g.lineWidth = 1.5;
     g.beginPath(); g.arc(p.x * S, p.y * S, 3.5, 0, 7); g.fill(); g.stroke();
-    $('#map-coord').textContent = `${Math.floor(p.x)}, ${Math.floor(p.y)}`;
+    $('#map-coord').textContent = Online.online ? `👥 ${Math.max(1, Online.count)} • ${Math.floor(p.x)}, ${Math.floor(p.y)}` : `${Math.floor(p.x)}, ${Math.floor(p.y)}`;
   },
 
   // ---------------- ฮอตบาร์ ----------------
@@ -442,9 +443,10 @@ const UI = {
       chk('expMsg', 'แสดงข้อความ EXP ในแชท'),
       h('div', { class: 'opt-btns' },
         h('button', { class: 'btn', onclick: () => saveGame(false) }, 'บันทึกเกม'),
+        Online.online ? h('button', { class: 'btn', onclick: async () => { saveGame(true, true); await Online.logout(); location.reload(); } }, `ออกจากระบบ (${Online.username})`) : null,
         h('button', { class: 'btn', onclick: () => this.open('w-help') }, 'วิธีเล่น'),
         document.fullscreenEnabled ? h('button', { class: 'btn', onclick: () => toggleFullscreen() }, document.fullscreenElement ? 'ออกจากเต็มจอ' : 'เต็มจอ') : null,
-        h('button', { class: 'btn danger', onclick: async () => {
+        Online.online ? null : h('button', { class: 'btn danger', onclick: async () => {
           if (await this.confirm('ลบข้อมูลตัวละครทั้งหมดและเริ่มใหม่? (ย้อนกลับไม่ได้)')) { deleteSave(); G.started = false; location.reload(); }
         } }, 'ลบเซฟ / เริ่มใหม่')),
     );
@@ -625,6 +627,14 @@ const UI = {
     }
     const hpN = HP_POTS.reduce((a, id) => a + countItem(id), 0), spN = SP_POTS.reduce((a, id) => a + countItem(id), 0);
     body.append(h('div', { class: 'hint' }, `ยา HP คงเหลือ ${hpN} • ยา SP คงเหลือ ${spN} — บอททำงานต่อแม้สลับแท็บ/แอป (จำลองย้อนหลังสูงสุด 10 นาที)`));
+  },
+
+  setNet(state) {
+    const el = $('#net');
+    if (!el) return;
+    el.hidden = !Online.online;
+    el.className = 'net ' + state;
+    el.title = state === 'ok' ? 'เชื่อมต่อเซิร์ฟเวอร์แล้ว' : 'การเชื่อมต่อมีปัญหา กำลังลองใหม่';
   },
 
   showDeath() { $('#death').classList.remove('hidden'); },

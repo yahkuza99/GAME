@@ -28,7 +28,7 @@
     <div id="buffs"></div>
 
     <div id="minimap" class="panel">
-      <div class="mm-head"><span id="map-name"></span><span id="map-coord"></span></div>
+      <div class="mm-head"><span id="map-name"></span><span id="net" class="net ok" hidden></span><span id="map-coord"></span></div>
       <canvas id="minimap-cv"></canvas>
       <div id="zoom-ctl"><button data-zoom="0.85" title="ซูมออก (-)">−</button><button data-zoom="1.18" title="ซูมเข้า (+)">+</button></div>
     </div>
@@ -118,6 +118,21 @@
     <div class="title-inner">
       <div class="logo">RAGNAROK</div>
       <div class="logo-sub">Web Adventure • ตำนานแห่งมิดการ์ด</div>
+      <form id="auth" class="create auth hidden" autocomplete="on">
+        <div id="au-tabs" class="seg"><button type="button" data-mode="login" class="on">เข้าสู่ระบบ</button><button type="button" data-mode="register">สมัครสมาชิก</button></div>
+        <label for="au-user">ชื่อผู้ใช้</label>
+        <input id="au-user" name="username" maxlength="16" autocomplete="username" placeholder="a-z, 0-9 หรือ _ (3-16 ตัว)" autocapitalize="off" spellcheck="false">
+        <label for="au-pass">รหัสผ่าน</label>
+        <input id="au-pass" name="password" type="password" autocomplete="current-password" placeholder="อย่างน้อย 6 ตัวอักษร">
+        <div id="au-pass2-wrap" class="hidden">
+          <label for="au-pass2">ยืนยันรหัสผ่าน</label>
+          <input id="au-pass2" type="password" autocomplete="new-password" placeholder="พิมพ์รหัสผ่านอีกครั้ง">
+        </div>
+        <div id="au-err" class="err"></div>
+        <button id="au-submit" type="submit" class="tbtn small primary">เข้าสู่ระบบ</button>
+        <button id="au-offline" type="button" class="linkbtn">เล่นแบบออฟไลน์ (เซฟในเครื่องนี้)</button>
+      </form>
+      <div id="acct" class="acct hidden">ล็อกอินเป็น <b id="acct-name"></b> · <button id="acct-logout" type="button" class="linkbtn">ออกจากระบบ</button></div>
       <div id="title-menu" class="title-menu">
         <button id="btn-continue" class="tbtn hidden">เล่นต่อ</button>
         <button id="btn-new" class="tbtn">เริ่มการผจญภัยใหม่</button>
@@ -139,6 +154,8 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="js/online.config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/util.js"></script>
   <script src="js/maps.js"></script>
@@ -147,6 +164,7 @@
   <script src="js/game.js"></script>
   <script src="js/npc.js"></script>
   <script src="js/bot.js"></script>
+  <script src="js/online.js"></script>
   <script src="js/render.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/main.js"></script>

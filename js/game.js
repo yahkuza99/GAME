@@ -51,13 +51,23 @@ function initRuntime(p) {
   });
 }
 
-function saveGame(silent = true) {
-  const p = G.player;
-  if (!p || !G.started) return;
-  const data = {};
+function saveData() {
+  const p = G.player, data = {};
   for (const k of SAVE_FIELDS) data[k] = p[k];
   data.uidSeq = G.uid;
   data.savedAt = Date.now();
+  return data;
+}
+function saveGame(silent = true, immediate = false) {
+  const p = G.player;
+  if (!p || !G.started) return;
+  const data = saveData();
+  // โหมดออนไลน์: เซฟบนคลาวด์ (ไม่ทับเซฟออฟไลน์ในเครื่อง)
+  if (Online.online) {
+    Online.queueSave(data, immediate || !silent);
+    if (!silent) UI.msg('บันทึกเกมลงเซิร์ฟเวอร์แล้ว', 'sys');
+    return;
+  }
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     if (!silent) UI.msg('บันทึกเกมเรียบร้อย', 'sys');
@@ -71,6 +81,9 @@ function hasSave() {
 function loadGame() {
   let data;
   try { data = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) { return null; }
+  return loadGameFrom(data);
+}
+function loadGameFrom(data) {
   if (!data || !data.name) return null;
   const p = newPlayer(data.name, data.gender, data.hair);
   for (const k of SAVE_FIELDS) if (data[k] !== undefined) p[k] = data[k];
@@ -370,8 +383,9 @@ function changeMap(id, x, y) {
   for (const [mid, n] of map.def.spawns) for (let i = 0; i < n; i++) spawnMob(mid);
   if (map.def.mvp && (!G.mvpNext[id] || G.time >= G.mvpNext[id])) spawnMvp(map.def.mvp);
   UI.onMapChange(map);
+  Online.joinMap(id);
   Sound.play('warp');
-  saveGame();
+  saveGame(true, true);
 }
 function teleportPlayer(x, y) {
   const p = G.player;

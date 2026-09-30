@@ -333,3 +333,16 @@ html, body { height: 100dvh; }
   .title-menu { margin-top: 12px; }
   .logo { font-size: 44px; }
 }
+
+/* ---------------- ออนไลน์: ล็อกอิน / สถานะเครือข่าย ---------------- */
+.auth { flex-direction: column; gap: 6px; max-width: 360px; }
+.auth input { font: 14px var(--font); padding: 8px 10px; border: 1px solid #93a4c8; border-radius: 6px; outline: none; width: 100%; }
+.auth input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px #cfdcf5; }
+.auth label { font-weight: 700; color: #3a4a70; font-size: 13px; }
+.auth .tbtn { width: 100%; min-width: 0; margin-top: 4px; }
+.auth .tbtn:disabled { opacity: .6; cursor: wait; }
+.linkbtn { background: none; border: 0; color: #2a52a8; text-decoration: underline; font-size: 13px; padding: 4px; }
+.acct { margin: 18px auto 0; color: #fff; font-size: 14px; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.acct .linkbtn { color: #ffe9a8; }
+.net { width: 8px; height: 8px; border-radius: 50%; background: #3cc070; align-self: center; flex-shrink: 0; }
+.net.err { background: #d04040; animation: pulse 1s infinite; }

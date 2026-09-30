@@ -166,6 +166,7 @@ function loop(ts) {
       Bot.manualOverride();
       playerWalkTo(Math.floor(R.mouse.wx / TILE), Math.floor(R.mouse.wy / TILE));
     }
+    Online.update(dt);
     R.render();
     UI.renderWindows();
     hudAcc += dt;
@@ -183,7 +184,83 @@ function loop(ts) {
 function peekSave() {
   try { return JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) { return null; }
 }
+// ---------------- ออนไลน์: สมัคร / ล็อกอิน ----------------
+let authMode = 'login', cloudSave = null;
+function showAuth() {
+  $('#title-menu').classList.add('hidden'); $('#create').classList.add('hidden'); $('#acct').classList.add('hidden');
+  $('#auth').classList.remove('hidden');
+  $('#au-user').focus();
+}
+function setAuthMode(m) {
+  authMode = m;
+  $$('#au-tabs button').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  $('#au-pass2-wrap').classList.toggle('hidden', m !== 'register');
+  $('#au-pass').autocomplete = m === 'register' ? 'new-password' : 'current-password';
+  $('#au-submit').textContent = m === 'register' ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
+  $('#au-err').textContent = '';
+}
+async function afterLogin() {
+  $('#auth').classList.add('hidden');
+  $('#acct').classList.remove('hidden');
+  $('#acct-name').textContent = Online.username;
+  const cont = $('#btn-continue');
+  $('#title-menu').classList.remove('hidden');
+  cont.classList.remove('hidden');
+  cont.innerHTML = 'กำลังโหลดตัวละคร...';
+  $('#btn-new').classList.add('hidden');
+  try { cloudSave = await Online.loadCharacter(); }
+  catch (e) { cont.innerHTML = `โหลดตัวละครไม่สำเร็จ<small>${U.esc(e.message)} — แตะเพื่อลองใหม่</small>`; cont.onclick = () => afterLogin(); return; }
+  if (cloudSave) {
+    cont.innerHTML = `เข้าเกม<small>${U.esc(cloudSave.name)} • ${JOBS[cloudSave.job] ? JOBS[cloudSave.job].name : ''} Lv ${cloudSave.baseLv}</small>`;
+    cont.onclick = () => {
+      const p = loadGameFrom(cloudSave);
+      if (!p) { cont.innerHTML = 'ข้อมูลตัวละครเสียหาย'; return; }
+      startGame(p, false);
+    };
+  } else {
+    // ยังไม่มีตัวละคร → ไปหน้าสร้างตัวละคร
+    $('#title-menu').classList.add('hidden');
+    $('#create').classList.remove('hidden');
+    if (!$('#cr-name').value) $('#cr-name').value = Online.username;
+    $('#cr-name').focus();
+  }
+}
+function bindAuth() {
+  $$('#au-tabs button').forEach(b => b.onclick = () => setAuthMode(b.dataset.mode));
+  $('#auth').addEventListener('submit', async e => {
+    e.preventDefault();
+    const u = $('#au-user').value.trim(), pw = $('#au-pass').value;
+    const err = $('#au-err'), btn = $('#au-submit');
+    if (authMode === 'register' && pw !== $('#au-pass2').value) { err.textContent = 'รหัสผ่านทั้งสองช่องไม่ตรงกัน'; return; }
+    btn.disabled = true; err.textContent = authMode === 'register' ? 'กำลังสมัคร...' : 'กำลังเข้าสู่ระบบ...';
+    try {
+      if (authMode === 'register') await Online.register(u, pw); else await Online.login(u, pw);
+      err.textContent = '';
+      $('#au-pass').value = ''; $('#au-pass2').value = '';
+      await afterLogin();
+    } catch (ex) { err.textContent = ex.message; }
+    finally { btn.disabled = false; }
+  });
+  $('#au-offline').onclick = () => {
+    Online.enabled = false;
+    $('#auth').classList.add('hidden');
+    $('#title-menu').classList.remove('hidden');
+    setupOfflineMenu();
+  };
+  $('#acct-logout').onclick = async () => { await Online.logout(); cloudSave = null; $('#btn-new').classList.remove('hidden'); $('#btn-continue').classList.add('hidden'); showAuth(); };
+}
+
 function showTitle() {
+  setupCreateScreen();
+  if (Online.enabled) {
+    bindAuth();
+    setAuthMode('login');
+    Online.restore().then(ok => (ok ? afterLogin() : showAuth()));
+    return;
+  }
+  setupOfflineMenu();
+}
+function setupOfflineMenu() {
   const s = peekSave();
   const cont = $('#btn-continue');
   if (s && s.name) {
@@ -196,7 +273,13 @@ function showTitle() {
     if (!p) { cont.innerHTML = 'โหลดเซฟไม่สำเร็จ<small>กรุณาเริ่มการผจญภัยใหม่</small>'; return; }
     startGame(p, false);
   };
-  $('#cr-back').onclick = () => { $('#create').classList.add('hidden'); $('#title-menu').classList.remove('hidden'); };
+}
+function setupCreateScreen() {
+  $('#cr-back').onclick = () => {
+    $('#create').classList.add('hidden');
+    if (Online.online) { $('#acct-logout').click(); return; }
+    $('#title-menu').classList.remove('hidden');
+  };
   const hc = $('#cr-hair');
   for (const c of HAIR_COLORS) {
     const b = h('button', { class: 'swatch' + (c === creation.hair ? ' on' : ''), style: `background:${c}`, title: c, onclick: () => {
@@ -207,9 +290,18 @@ function showTitle() {
   $$('#cr-gender button').forEach(b => b.onclick = () => {
     creation.gender = b.dataset.g; $$('#cr-gender button').forEach(x => x.classList.toggle('on', x === b));
   });
-  $('#cr-start').onclick = () => {
+  $('#cr-start').onclick = async () => {
     const name = $('#cr-name').value.trim().slice(0, 16);
     if (!name) { $('#cr-err').textContent = 'กรุณาตั้งชื่อตัวละคร'; return; }
+    if (Online.online) {
+      $('#cr-err').textContent = 'กำลังตรวจสอบชื่อ...';
+      try { if (!(await Online.nameAvailable(name))) { $('#cr-err').textContent = 'ชื่อตัวละครนี้มีคนใช้แล้ว ลองชื่ออื่น'; return; } }
+      catch (e) { $('#cr-err').textContent = e.message; return; }
+      G.uid = 1;
+      startGame(newPlayer(name, creation.gender, creation.hair), true);
+      return;
+    }
+    const s = peekSave();
     // มีเซฟเดิม: กดครั้งแรกเตือน กดซ้ำเพื่อยืนยันเขียนทับ (ไม่ใช้ confirm() ของเบราว์เซอร์)
     if (s && s.name && !creation.overwriteOk) {
       creation.overwriteOk = true;
@@ -254,6 +346,7 @@ function startGame(p, isNew) {
   changeMap(p.map, p.x, p.y);
   UI.dirty(); UI.renderWindows(true); UI.updateHud();
   UI.msg(`ยินดีต้อนรับสู่มิดการ์ด, ${p.name}! แร็กนาร็อกกำลังใกล้เข้ามา...`, 'lvl');
+  if (Online.online) { Online.joinChat(); UI.setNet('ok'); UI.msg(`🌐 ออนไลน์ในชื่อบัญชี ${Online.username} — กด Enter เพื่อแชทกับทุกคน`, 'sys'); }
   UI.msg('กด H เพื่อดูวิธีเล่น • คุยกับ Guard Rolf (ทหารหมวกเขา) เพื่อขอคำแนะนำ', 'info');
   if (isNew) {
     UI.open('w-help');
@@ -264,13 +357,14 @@ function startGame(p, isNew) {
 
 window.addEventListener('load', () => {
   R.init();
+  Online.init();
   UI.init();
   bindInput();
   showTitle();
   setInterval(() => saveGame(), 30000);
   // แท็บถูกซ่อน: requestAnimationFrame หยุด แต่บอทยังทำงานต่อผ่าน timer
   setInterval(() => { if (document.hidden && G.started) advanceSim(); }, 1000);
-  window.addEventListener('beforeunload', () => saveGame());
+  window.addEventListener('beforeunload', () => { saveGame(true, true); Online.flushSave(); });
   document.addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); });
   requestAnimationFrame(loop);
 });

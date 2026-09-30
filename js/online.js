@@ -1,0 +1,218 @@
+'use strict';
+// ============================================================
+//  โหมดออนไลน์ (Supabase): สมัคร/ล็อกอิน, เซฟบนคลาวด์, เห็นผู้เล่นอื่น, แชทรวม
+//  ถ้าไม่ได้ตั้งค่าใน js/online.config.js เกมจะทำงานแบบออฟไลน์ตามเดิม
+// ============================================================
+
+const Online = {
+  enabled: false, sb: null, user: null, username: '',
+  mapChannel: null, chatChannel: null, mapId: null, others: new Map(), count: 0,
+  lastSend: 0, lastState: '', atkSeq: 0, lastAtkAnim: 0,
+  saveTimer: null, pendingSave: null, saving: false, lastChat: 0,
+
+  init() {
+    const cfg = window.ONLINE_CONFIG || {};
+    if (!cfg.url || !cfg.anonKey) return;
+    if (!window.supabase || !window.supabase.createClient) { console.warn('โหลด Supabase ไม่สำเร็จ — เล่นแบบออฟไลน์'); return; }
+    this.sb = window.supabase.createClient(cfg.url, cfg.anonKey, { auth: { persistSession: true, autoRefreshToken: true } });
+    this.enabled = true;
+  },
+  get online() { return this.enabled && !!this.user; },
+
+  // ---------------- บัญชี ----------------
+  validUsername(u) { return /^[a-zA-Z0-9_]{3,16}$/.test(u); },
+  emailFor(u) { return `${u.toLowerCase()}@${(window.ONLINE_CONFIG.emailDomain || 'players.ragnarok-web.game')}`; },
+  errText(err) {
+    const m = String((err && (err.message || err.error_description)) || err || '');
+    if (/invalid login credentials/i.test(m)) return 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+    if (/already registered|already exists/i.test(m)) return 'ชื่อผู้ใช้นี้ถูกใช้แล้ว';
+    if (/password should be at least|weak/i.test(m)) return 'รหัสผ่านต้องยาวอย่างน้อย 6 ตัวอักษร';
+    if (/email not confirmed/i.test(m)) return 'เซิร์ฟเวอร์ยังเปิดการยืนยันอีเมลอยู่ (ผู้ดูแลต้องปิด Confirm email ใน Supabase)';
+    if (/rate limit/i.test(m)) return 'ลองใหม่อีกครั้งในอีกสักครู่';
+    if (/failed to fetch|network/i.test(m)) return 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ตรวจสอบอินเทอร์เน็ต';
+    return m || 'เกิดข้อผิดพลาด';
+  },
+  async register(username, password) {
+    if (!this.validUsername(username)) throw new Error('ชื่อผู้ใช้ต้องเป็น a-z, 0-9 หรือ _ ยาว 3-16 ตัว');
+    if (password.length < 6) throw new Error('รหัสผ่านต้องยาวอย่างน้อย 6 ตัวอักษร');
+    const { data, error } = await this.sb.auth.signUp({ email: this.emailFor(username), password, options: { data: { username } } });
+    if (error) throw new Error(this.errText(error));
+    if (!data.session) throw new Error('สมัครแล้ว แต่เซิร์ฟเวอร์ต้องปิดการยืนยันอีเมล (Confirm email) ก่อนจึงจะเข้าเล่นได้');
+    this.setUser(data.session.user, username);
+  },
+  async login(username, password) {
+    if (!this.validUsername(username)) throw new Error('ชื่อผู้ใช้ไม่ถูกต้อง');
+    const { data, error } = await this.sb.auth.signInWithPassword({ email: this.emailFor(username), password });
+    if (error) throw new Error(this.errText(error));
+    this.setUser(data.user, username);
+  },
+  async restore() {
+    if (!this.enabled) return false;
+    try {
+      const { data } = await this.sb.auth.getSession();
+      if (data && data.session) { this.setUser(data.session.user); return true; }
+    } catch (e) { /* ไม่มีเซสชัน */ }
+    return false;
+  },
+  setUser(user, username) {
+    this.user = user;
+    this.username = username || (user.user_metadata && user.user_metadata.username) || String(user.email || '').split('@')[0];
+  },
+  async logout() {
+    await this.flushSave();
+    this.leaveMap();
+    if (this.chatChannel) { this.sb.removeChannel(this.chatChannel); this.chatChannel = null; }
+    await this.sb.auth.signOut();
+    this.user = null;
+  },
+
+  // ---------------- ตัวละคร ----------------
+  async loadCharacter() {
+    const { data, error } = await this.sb.from('characters').select('data').eq('user_id', this.user.id).maybeSingle();
+    if (error) throw new Error(this.errText(error));
+    return data ? data.data : null;
+  },
+  async nameAvailable(name) {
+    const { data, error } = await this.sb.rpc('name_available', { n: name });
+    if (error) throw new Error(this.errText(error));
+    return !!data;
+  },
+  // บันทึกแบบหน่วงเวลา (รวมหลายครั้งเป็นครั้งเดียว)
+  queueSave(data, immediate) {
+    if (!this.online) return;
+    this.pendingSave = data;
+    // ไม่เลื่อนการบันทึกที่นัดไว้เร็วกว่าออกไป
+    const due = performance.now() + (immediate ? 0 : 4000);
+    if (this.saveTimer && this.saveDue <= due) return;
+    clearTimeout(this.saveTimer);
+    this.saveDue = due;
+    this.saveTimer = setTimeout(() => { this.saveTimer = null; this.flushSave(); }, due - performance.now());
+  },
+  async flushSave() {
+    if (!this.online || !this.pendingSave || this.saving) return;
+    const data = this.pendingSave;
+    this.pendingSave = null;
+    this.saving = true;
+    try {
+      const { error } = await this.sb.from('characters').upsert({ user_id: this.user.id, name: data.name, data, updated_at: new Date().toISOString() });
+      if (error) throw error;
+      UI.setNet('ok');
+    } catch (e) {
+      UI.setNet('err');
+      if (!this.pendingSave) this.pendingSave = data; // ลองใหม่รอบหน้า
+      console.warn('บันทึกบนคลาวด์ไม่สำเร็จ', e);
+    } finally {
+      this.saving = false;
+      if (this.pendingSave && !this.saveTimer) this.queueSave(this.pendingSave, false);
+    }
+  },
+
+  // ---------------- ผู้เล่นในแผนที่เดียวกัน ----------------
+  joinMap(mapId) {
+    if (!this.online) return;
+    if (this.mapId === mapId && this.mapChannel) return;
+    this.leaveMap();
+    this.mapId = mapId;
+    const ch = this.sb.channel(`map:${mapId}`, { config: { presence: { key: this.user.id }, broadcast: { self: false } } });
+    ch.on('broadcast', { event: 'pos' }, ({ payload }) => this.onPos(payload));
+    ch.on('broadcast', { event: 'say' }, ({ payload }) => this.onSay(payload));
+    ch.on('presence', { event: 'sync' }, () => {
+      const st = ch.presenceState();
+      this.count = Object.keys(st).length;
+      for (const id of Array.from(this.others.keys())) if (!st[id]) this.others.delete(id);
+    });
+    ch.on('presence', { event: 'leave' }, ({ key }) => this.others.delete(key));
+    ch.subscribe(status => {
+      if (status === 'SUBSCRIBED') {
+        UI.setNet('ok');
+        ch.track({ name: G.player.name, at: Date.now() });
+        this.lastState = '';
+        this.sendPos(true);
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') UI.setNet('err');
+    });
+    this.mapChannel = ch;
+  },
+  leaveMap() {
+    if (this.mapChannel) { this.sb.removeChannel(this.mapChannel); this.mapChannel = null; }
+    this.others.clear(); this.count = 0; this.mapId = null;
+  },
+  snapshot() {
+    const p = G.player, e = p.equip;
+    return {
+      id: this.user.id, n: p.name, j: p.job, l: p.baseLv, h: p.hair, g: p.gender,
+      w: e.weapon ? e.weapon.id : null, hd: e.head ? e.head.id : null, ga: e.garment ? e.garment.id : null,
+      x: Math.round(p.x * 100) / 100, y: Math.round(p.y * 100) / 100, f: p.facing, m: p.moving ? 1 : 0,
+      s: p.sitting ? 1 : 0, d: p.dead ? 1 : 0, a: this.atkSeq, st: p.stealthUntil > G.time ? 1 : 0, b: Bot.on ? 1 : 0,
+    };
+  },
+  sendPos(force) {
+    if (!this.mapChannel) return;
+    const snap = this.snapshot();
+    const key = JSON.stringify(snap);
+    const now = performance.now();
+    const interval = G.player.moving ? 120 : 1500;
+    if (!force && (now - this.lastSend < interval || (key === this.lastState && now - this.lastSend < 3000))) return;
+    this.lastSend = now; this.lastState = key;
+    this.mapChannel.send({ type: 'broadcast', event: 'pos', payload: snap });
+  },
+  onPos(s) {
+    if (!s || !s.id || (this.user && s.id === this.user.id)) return;
+    let o = this.others.get(s.id);
+    if (!o) {
+      o = { id: s.id, x: s.x, y: s.y, facing: 1, atkAnim: 0, speech: null, buffs: {}, lastA: s.a };
+      this.others.set(s.id, o);
+    }
+    Object.assign(o, {
+      name: s.n, job: JOBS[s.j] ? s.j : 'novice', baseLv: s.l, hair: s.h, gender: s.g,
+      equip: { weapon: s.w && ITEMS[s.w] ? { id: s.w } : null, head: s.hd && ITEMS[s.hd] ? { id: s.hd } : null, garment: s.ga && ITEMS[s.ga] ? { id: s.ga } : null },
+      tx: s.x, ty: s.y, facing: s.f || 1, moving: !!s.m, sitting: !!s.s, dead: !!s.d, stealth: !!s.st, bot: !!s.b, seen: performance.now(),
+    });
+    if (s.a !== o.lastA) { o.lastA = s.a; o.atkAnim = 1; }
+    if (Math.hypot(o.tx - o.x, o.ty - o.y) > 6) { o.x = o.tx; o.y = o.ty; }
+  },
+  onSay(s) {
+    const o = s && this.others.get(s.id);
+    if (o) o.speech = { text: s.t, until: G.time + 5 };
+  },
+
+  // ---------------- แชท ----------------
+  joinChat() {
+    if (!this.online || this.chatChannel) return;
+    this.chatChannel = this.sb.channel('chat-global')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' }, ({ new: m }) => {
+        if (!m || (this.user && m.user_id === this.user.id)) return;
+        const where = m.map && MAP_DEFS[m.map] && m.map !== G.map.id ? ` [${MAP_DEFS[m.map].name}]` : '';
+        UI.msg(`${m.name}${where} : ${m.text}`, 'say');
+      })
+      .subscribe();
+  },
+  async sendChat(text) {
+    if (!this.online) return false;
+    const now = performance.now();
+    if (now - this.lastChat < 1000) { UI.msg('ส่งข้อความเร็วเกินไป', 'err'); return true; }
+    this.lastChat = now;
+    if (this.mapChannel) this.mapChannel.send({ type: 'broadcast', event: 'say', payload: { id: this.user.id, t: text } });
+    const { error } = await this.sb.from('chat_messages').insert({ text, map: G.map.id });
+    if (error) UI.msg(`ส่งแชทไม่สำเร็จ: ${this.errText(error)}`, 'err');
+    return true;
+  },
+
+  // ---------------- ทุกเฟรม ----------------
+  update(dt) {
+    if (!this.online || !G.started) return;
+    if (G.player.atkAnim > this.lastAtkAnim + 0.5) this.atkSeq++;
+    this.lastAtkAnim = G.player.atkAnim;
+    this.sendPos(false);
+    const now = performance.now();
+    for (const [id, o] of this.others) {
+      if (now - o.seen > 8000) { this.others.delete(id); continue; }
+      const k = Math.min(1, dt * 10);
+      const dx = o.tx - o.x, dy = o.ty - o.y;
+      o.x += dx * k; o.y += dy * k;
+      if (Math.abs(dx) > 0.05) o.facing = dx > 0 ? 1 : -1;
+      o.moving = o.moving || Math.hypot(dx, dy) > 0.05;
+      o.atkAnim = Math.max(0, o.atkAnim - dt * 4);
+      if (o.speech && o.speech.until < G.time) o.speech = null;
+    }
+  },
+};

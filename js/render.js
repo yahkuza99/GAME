@@ -125,6 +125,16 @@ R.render = () => {
   for (const n of G.npcs) list.push({ y: n.y + 0.5, f: () => Sprites.drawNpc(g, n, t) });
   for (const m of G.mobs) if (m.x > L && m.x < Rr && m.y > Tp && m.y < B) list.push({ y: m.y, f: () => Sprites.drawMob(g, m, t) });
   for (const a of G.allies) list.push({ y: a.y, f: () => Sprites.drawAlly(g, a, t) });
+  // ผู้เล่นคนอื่น (ออนไลน์)
+  for (const o of Online.others.values()) {
+    if (o.x < L || o.x > Rr || o.y < Tp || o.y > B) continue;
+    list.push({ y: o.y, f: () => {
+      g.save();
+      if (o.stealth) g.globalAlpha = 0.3;
+      Sprites.drawPlayer(g, o, t);
+      g.restore();
+    } });
+  }
   list.push({ y: p.y, f: () => {
     g.save();
     if (p.stealthUntil > G.time) g.globalAlpha = 0.35 + Math.sin(t * 6) * 0.08;
@@ -148,6 +158,13 @@ R.render = () => {
     if (m.isMvp) R.label(g, x, y + 22, `★ ${m.def.name} ★`, '#ff8080', true);
     else if ((G.hover && G.hover.ref === m) || p.target === m) R.label(g, x, y + 22, `${m.def.name} (Lv ${m.def.lv})`, m.def.aggro ? '#ffb0a0' : '#ffffff');
     if (m.emoteUntil > G.time) R.emote(g, x + 12, y - 44 * s, '!');
+  }
+  for (const o of Online.others.values()) {
+    if (o.stealth) continue;
+    const x = o.x * TILE, y = o.y * TILE;
+    R.label(g, x, y + 24, o.name, '#ffe9a0');
+    R.label(g, x, y + 37, `${JOBS[o.job].name} Lv ${o.baseLv}${o.bot ? ' • AUTO' : ''}`, '#c8d4e8');
+    if (o.speech) R.speech(g, x, y - 62, o.speech.text, false);
   }
   for (const a of G.allies) R.label(g, a.x * TILE, a.y * TILE + 14, `${a.name} ${Math.ceil(a.until - G.time)}s`, '#b8e0ff');
   if (G.hover && G.hover.kind === 'drop') {
