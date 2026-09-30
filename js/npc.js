@@ -97,6 +97,17 @@ NPC.scripts.tool = n => shopNpc(n, 'tool', 'ยินดีต้อนรับ
 NPC.scripts.weapon = n => shopNpc(n, 'weapon', 'อาวุธชั้นดีจากโรงงานนีโอเอลด์ไฮม์! เลือกดูได้เลย');
 NPC.scripts.armor = n => shopNpc(n, 'armor', 'เกราะ หมวก โล่ รองเท้า และเครื่องประดับ ป้องกันตัวให้ดีก่อนออกเดินทางนะ!');
 
+NPC.scripts.storage = async n => {
+  const p = G.player, nm = `[${n.name}]`, fee = p.job === 'novice' ? 0 : 40;
+  const i = await UI.menu(nm, `หน่วยคลังเก็บของ Kaia ยินดีให้บริการ!<br>ฝากของไว้ที่นี่ได้ ${B(STORAGE_MAX + ' ช่อง')} (ตอนนี้ใช้ ${p.storage.length})<br>ค่าบริการ ${fee ? B(fee + ' z') : B('ฟรีสำหรับ Novice')}`,
+    ['เปิดคลังเก็บของ', 'ยกเลิก']);
+  if (i !== 0) return;
+  if (p.zeny < fee) { await UI.say(nm, 'ขออภัย Zeny ไม่พอค่าบริการค่ะ'); return; }
+  p.zeny -= fee;
+  UI.dlgClose();
+  UI.open('w-storage');
+};
+
 NPC.scripts.nurse = async n => {
   const p = G.player;
   const nm = `[${n.name}]`;
@@ -117,7 +128,7 @@ NPC.scripts.guide = async n => {
       ['วิธีควบคุม', 'แผนที่รอบเมือง', 'ผู้คนในเมือง', 'คลาสอัปเกรดทั้ง 6', 'เคล็ดลับ', 'ขอบคุณ']);
     if (i === 0) await UI.say(nm, `• ${B('คลิกซ้าย')} ที่พื้นเพื่อเดิน / คลิกค้างเพื่อเดินตามเมาส์<br>• ${B('คลิกมอนสเตอร์')} เพื่อโจมตีอัตโนมัติ<br>• ${B('คลิกไอเทม')} บนพื้นเพื่อเก็บ<br>• ${B('1-9')} ใช้ปุ่มลัด • ${B('X')} นั่งพัก (ฟื้นฟูเร็วขึ้น)<br>• ${B('A')} สถานะ • ${B('E')} ไอเทม • ${B('Q')} อุปกรณ์ • ${B('S')} สกิล • ${B('Enter')} แชท<br>• ${B('ล้อเมาส์')} ซูมเข้า/ออก`);
     else if (i === 1) await UI.say(nm, `• ${B('ทางตะวันออก')} → Emerald Meadow (Lv 1-6) → Mistlake Plains (Lv 8-16, MVP Seraph Core)<br>• ${B('ทางใต้')} → Wolfwood Forest (Lv 18-30) → Hel's Hollow (Lv 17-45, MVP Kitsura EX)<br><br>วงแสงสีฟ้าคือ ${B('ประตูมิติ')} เดินเข้าไปเพื่อย้ายแผนที่`);
-    else if (i === 2) await UI.say(nm, `• ${B('Bifrost Keeper')} — บันทึกจุดเกิด / เทเลพอร์ต<br>• ${B('Mimir AI')} — อัปเกรดร่าง/คลาส (Job Lv ${JOB_CHANGE_LV})<br>• ${B('Eir Repair Unit')} — ซ่อมแซมและบัฟฟรี<br>• ${B('Tool / Weapon / Armor Dealer')} — ซื้อขายของ<br>• ${B('Brokk Forge-Bot')} — ตีบวกอาวุธและชุดเกราะ`);
+    else if (i === 2) await UI.say(nm, `• ${B('Bifrost Keeper')} — บันทึกจุดเกิด / เทเลพอร์ต<br>• ${B('Mimir AI')} — อัปเกรดร่าง/คลาส (Job Lv ${JOB_CHANGE_LV})<br>• ${B('Eir Repair Unit')} — ซ่อมแซมและบัฟฟรี<br>• ${B('Tool / Weapon / Armor Dealer')} — ซื้อขายของ<br>• ${B('Brokk Forge-Bot')} — ตีบวกอาวุธและชุดเกราะ<br>• ${B('Storage Unit Kaia')} — ฝากของ (คลังเก็บของ)`);
     else if (i === 3) await UI.say(nm, FIRST_JOBS.map(j => `• ${B(JOBS[j].name)} (${JOBS[j].thai}) — ${JOBS[j].role} [${JOBS[j].stats}]`).join('<br>'));
     else if (i === 4) await UI.say(nm, `• อัปสเตตัสด้วย Status Point ทุกครั้งที่เลเวลอัป (กด A)<br>• มอนสเตอร์บางชนิดจะ ${B('โจมตีก่อน')}! ระวังตัวด้วย<br>• ${B('ชิป')} ดรอปยาก ใส่ในอุปกรณ์ที่มีช่อง [ ] เพื่อเพิ่มพลัง<br>• ธาตุมีผล! ไฟแรงกับดิน น้ำแรงกับไฟ ศักดิ์สิทธิ์แรงกับอมตะ<br>• สกิลแต่ละอันอัปได้สูงสุด Lv 5`);
     else return;

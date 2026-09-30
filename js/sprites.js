@@ -845,6 +845,7 @@ const NPC_LOOKS = {
   smith:    { skin: '#c4c8d0', glow: '#ff9a3a', hair: '#2e3038', hairStyle: 'spiky', outfit: '#8a8e96', outfit2: '#3a3a40', apron: '#6e6a64', bulky: 1.15, visor: 'band' },
   refiner:  { skin: '#b8925a', glow: '#ff8a2a', hair: '#9a4a2a', outfit: '#9a7240', outfit2: '#6a2a22', apron: '#7a2e24', beard: '#b0482a', joint: '#3a2e26', hat: 'helmet', hatColor: '#a88048', bulky: 1.3, visor: 'slit' },
   nurse:    { skin: '#f6f6fa', glow: '#ff7ac0', hair: '#f4a8c8', hairStyle: 'long', outfit: '#ffffff', outfit2: '#f0a0c0', hat: 'nurse', robe: true, visor: 'band' },
+  storage:  { skin: '#eef0f6', glow: '#7ae0c8', hair: '#3a4a6a', hairStyle: 'long', outfit: '#2e5a8a', outfit2: '#e8e0c8', hat: 'ribbon', robe: true, visor: 'band' },
   guide:    { skin: '#e6e8ee', glow: '#ff4a4a', hair: '#c8ccd4', outfit: '#e6e8ee', outfit2: '#a82a30', hat: 'viking', hatColor: '#d8d2c4', cape: '#a82a30', bulky: 1.1, visor: 'band' },
 };
 Sprites.drawNpc = (g, n, t) => {

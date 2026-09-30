@@ -10,7 +10,7 @@ const G = {
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
 const SAVE_FIELDS = ['name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
-  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests'];
+  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage'];
 
 // ------------------------------------------------------------
 //  สร้าง / บันทึก / โหลด
@@ -23,7 +23,7 @@ function newPlayer(name, gender, hair, look) {
     equip: { head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null },
     hotbar: [null, null, null, null, null, null, null, null], potbar: [null, null, null, null],
     map: HOME_MAP, x: 20.5, y: 24.5, save: { map: HOME_MAP, x: 20.5, y: 24.5 },
-    hp: 1, sp: 1, options: { autoLoot: true, sound: true, music: false, musicVol: 0.7, expMsg: true }, uidSeq: 1, quests: { i: 0, n: 0, done: [] },
+    hp: 1, sp: 1, options: { autoLoot: true, sound: true, music: false, musicVol: 0.7, expMsg: true }, uidSeq: 1, quests: { i: 0, n: 0, done: [] }, storage: [],
   };
   initRuntime(p);
   G.player = p;
@@ -91,6 +91,7 @@ function loadGameFrom(data) {
   // ป้องกันข้อมูลเสีย
   p.equip = Object.assign({ head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null }, p.equip);
   p.inventory = (p.inventory || []).filter(e => e && ITEMS[e.id]);
+  p.storage = (Array.isArray(p.storage) ? p.storage : []).filter(e => e && ITEMS[e.id] && e.qty > 0);
   for (const s in p.equip) if (p.equip[s] && !ITEMS[p.equip[s].id]) p.equip[s] = null;
   if (!JOBS[p.job]) p.job = 'novice';
   if (!MAP_DEFS[p.map]) { p.map = HOME_MAP; p.x = 20.5; p.y = 24.5; }
@@ -262,6 +263,27 @@ function removeEntry(entry, qty = 1) {
   }
   UI.dirty();
 }
+// ---------------- คลังเก็บของ (Storage Unit) ----------------
+const STORAGE_MAX = 300;
+// ย้ายของระหว่างกระเป๋ากับคลัง (อุปกรณ์ย้ายทั้งชิ้นพร้อมค่าตีบวก/ชิป • ของกองรวมกันตาม id)
+function moveStack(from, to, entry, qty) {
+  const it = ITEMS[entry.id];
+  qty = Math.min(qty || entry.qty, entry.qty);
+  if (isEquipType(it)) {
+    if (to.length >= STORAGE_MAX) return false;
+    from.splice(from.indexOf(entry), 1); to.push(entry);
+  } else {
+    const ex = to.find(e => e.id === entry.id);
+    if (!ex && to.length >= STORAGE_MAX) return false;
+    if (ex) ex.qty += qty; else to.push({ id: entry.id, qty });
+    entry.qty -= qty;
+    if (entry.qty <= 0) from.splice(from.indexOf(entry), 1);
+  }
+  UI.dirty();
+  return true;
+}
+function storeItem(entry, qty) { const p = G.player; if (!moveStack(p.inventory, p.storage, entry, qty)) { UI.msg(`คลังเต็มแล้ว (${STORAGE_MAX} ช่อง)`, 'err'); return false; } return true; }
+function takeItem(entry, qty) { const p = G.player; return moveStack(p.storage, p.inventory, entry, qty); }
 function countItem(id) { return G.player.inventory.filter(e => e.id === id).reduce((a, e) => a + e.qty, 0); }
 function itemDisplayName(entry) {
   const it = ITEMS[entry.id];

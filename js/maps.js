@@ -22,6 +22,7 @@ const MAP_DEFS = {
       { id: 'refine', name: 'Brokk Forge-Bot', x: 32, y: 31, look: 'refiner' },
       { id: 'nurse', name: 'Eir Repair Unit', x: 16, y: 25, look: 'nurse' },
       { id: 'guide', name: 'Guard Unit Rolf', x: 24, y: 25, look: 'guide' },
+      { id: 'storage', name: 'Storage Unit Kaia', x: 28, y: 21, look: 'storage' },
     ],
   },
   meadow: {

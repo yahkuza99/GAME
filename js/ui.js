@@ -538,6 +538,7 @@ const UI = {
     if (this.isOpen('w-nav')) this.renderNav();
     if (this.isOpen('w-quest')) this.renderQuest();
     if (this.isOpen('w-emote')) this.renderEmote();
+    if (this.isOpen('w-storage')) this.renderStorage();
     if (this.isOpen('w-bot')) this.renderBot();
     if (this.isOpen('w-map')) $('#w-map .win-title span').textContent = `แผนที่ — ${G.map.def.name}`;
     if (this.isOpen('w-shop') && this.shop) this.renderShop();
@@ -687,6 +688,33 @@ const UI = {
 
   // ---------------- นำทาง ----------------
   navTab: 'here',
+  renderStorage() {
+    const p = G.player, body = $('#w-storage .win-body');
+    body.innerHTML = '';
+    // เดินห่างจาก NPC เกิน 6 ช่อง = ปิดคลัง
+    const kaia = G.npcs.find(n => n.id === 'storage');
+    if (!kaia || U.dist(p.x, p.y, kaia.x, kaia.y) > 6) { this.close('w-storage'); return; }
+    const pane = (title, list, onPick, cap) => {
+      const grid = h('div', { class: 'inv-grid st-pane' });
+      for (const e of list) {
+        const cell = h('div', { class: 'inv-cell', title: `${itemDisplayName(e)}${e.qty > 1 ? ' ×' + e.qty : ''} — แตะเพื่อย้าย` },
+          h('img', { src: itemIconUrl(e.id), alt: '' }),
+          e.qty > 1 || !isEquipType(ITEMS[e.id]) ? h('span', { class: 'q' }, String(e.qty)) : null,
+          e.refine ? h('span', { class: 'rf' }, '+' + e.refine) : null);
+        cell.addEventListener('click', () => { onPick(e); saveGame(); this.renderStorage(); });
+        grid.append(cell);
+      }
+      if (!list.length) grid.append(h('div', { class: 'hint' }, 'ว่าง'));
+      return h('div', { class: 'st-col' }, h('div', { class: 'st-h' }, title, h('small', {}, cap)), grid);
+    };
+    body.append(
+      h('div', { class: 'st-cols' },
+        pane('กระเป๋า', p.inventory, e => storeItem(e), `${p.inventory.length}`),
+        pane('คลัง', p.storage, e => takeItem(e), `${p.storage.length}/${STORAGE_MAX}`)),
+      h('div', { class: 'opt-btns' },
+        h('button', { class: 'btn', onclick: () => { for (const e of p.inventory.filter(x => ['etc', 'card'].includes(ITEMS[x.id].type))) storeItem(e); saveGame(); this.renderStorage(); } }, 'ฝากของอื่น ๆ + ชิปทั้งหมด')),
+      h('div', { class: 'hint' }, 'แตะไอเทมเพื่อย้ายไปอีกฝั่ง (ย้ายทั้งกอง) • ของที่สวมอยู่ต้องถอดก่อน'));
+  },
   renderEmote() {
     const body = $('#w-emote .win-body');
     if (body.childElementCount) return;
