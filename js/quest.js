@@ -66,7 +66,7 @@ const Quest = {
       case 'baseLv': return [Math.min(p.baseLv, o.n), o.n];
       case 'jobLv': return [p.job !== 'novice' ? o.n : Math.min(p.jobLv, o.n), o.n];
       case 'job': return [p.job !== 'novice' ? 1 : 0, 1];
-      case 'skill': return [Object.keys(p.skills).some(k => k !== 'first_aid' && p.skills[k] > 0) ? 1 : 0, 1];
+      case 'skill': return [p.job !== 'novice' && Object.keys(p.skills).some(k => JOBS[p.job].skills.includes(k) && !JOBS.novice.skills.includes(k) && p.skills[k] > 0) ? 1 : 0, 1];
       case 'useskill': return [Math.min(s.n, o.n), o.n];
       default: return [s.n ? 1 : 0, 1];
     }

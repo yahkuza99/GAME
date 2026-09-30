@@ -151,7 +151,7 @@ function bindInput() {
     if (tag === 'INPUT' || tag === 'TEXTAREA') return;
     const k = e.key.toLowerCase();
     if (k.startsWith('arrow')) { e.preventDefault(); keysDown.add(k); return; }
-    if (e.altKey && /^[1-9]$/.test(k)) { e.preventDefault(); Emote.play(EMOTES[+k - 1].k); return; }
+    if (e.altKey && /^Digit[1-9]$/.test(e.code)) { e.preventDefault(); Emote.play(EMOTES[+e.code.slice(5) - 1].k); return; } // ใช้ e.code: Option+เลขบน Mac ให้อักขระพิเศษ
     if (k >= '1' && k <= '8') { useHotbar(+k - 1); return; }
     if (/^f[1-8]$/.test(k)) { e.preventDefault(); useHotbar(+k.slice(1) - 1); return; }
     const pot = ['z', 'c', 'v', 'f'].indexOf(k);

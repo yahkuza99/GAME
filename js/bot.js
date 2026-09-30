@@ -27,7 +27,9 @@ const Bot = {
     const want = force != null ? force : !this.on;
     if (want && p.dead) { UI.msg('ฟื้นคืนชีพก่อนจึงจะเปิดบอทได้', 'err'); return; }
     this.on = want;
-    this.resting = false; this.pauseUntil = 0; this.warnedTown = false; this.mode = null;
+    this.resting = false; this.pauseUntil = 0; this.warnedTown = false;
+    if (this.mode && Nav.target) Nav.cancel(true); // ปิดบอทกลางทางเติมของ = หยุดเดินด้วย
+    this.mode = null;
     if (want) {
       this.stats = { start: G.time, kills: 0, bexp: 0, jexp: 0, items: 0, zenyStart: p.zeny };
       UI.msg('▶ เริ่มบอทล่ามอนสเตอร์อัตโนมัติ (แตะ AUTO อีกครั้งเพื่อหยุด)', 'sys');
@@ -89,7 +91,15 @@ const Bot = {
     const p = G.player, c = this.cfg();
     if (!this.on || p.dead || G.time < this.nextThink) return;
     this.nextThink = G.time + 0.2;
-    if (this.mode) { this.restockStep(); return; }
+    if (this.mode) {
+      // ระหว่างเดินไปเติมของ: ยังกินยาและสู้กลับเมื่อโดนตี (ไม่เดินเฉยจนตาย)
+      const hp = p.hp / p.d.maxHp * 100, sp = p.sp / p.d.maxSp * 100;
+      if (hp < c.hpPot) { const e = this.findItem(HP_POTS); if (e) useItem(e); }
+      if (sp < c.spPot) { const e = this.findItem(SP_POTS); if (e) useItem(e); }
+      const foes = G.mobs.filter(m => !m.dead && m.state === 'chase' && U.dist(m.x, m.y, p.x, p.y) < 7);
+      if (foes.length && hp > 20) { if (!p.target || p.target.dead) p.target = foes.sort((a, b) => U.dist(a.x, a.y, p.x, p.y) - U.dist(b.x, b.y, p.x, p.y))[0]; return; }
+      this.restockStep(); return;
+    }
     if (G.time < this.pauseUntil || NPC.busy) return;
     if (G.map.def.kind === 'town') {
       // เปิดบอทในเมือง: ถ้าเคยล่าที่ไหนไว้ เดินกลับไปล่าที่เดิมเอง
@@ -233,7 +243,7 @@ const Bot = {
       return;
     }
     if (this.mode === 'return') {
-      if (G.map.id === this.home) { if (Nav.target) Nav.cancel(true); this.mode = null; UI.msg(`▶ บอท: กลับมาล่าต่อที่ ${MAP_DEFS[this.home].name}`, 'sys'); return; }
+      if (G.map.id === this.home) { if (Nav.target) { this.navOwned = true; Nav.cancel(true); this.navOwned = false; } this.mode = null; UI.msg(`▶ บอท: กลับมาล่าต่อที่ ${MAP_DEFS[this.home].name}`, 'sys'); return; }
       if (!Nav.target) Nav.goTo({ kind: 'map', map: this.home, name: MAP_DEFS[this.home].name });
     }
   },
