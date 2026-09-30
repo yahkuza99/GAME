@@ -687,30 +687,63 @@ Sprites.mobAndroid = (g, x, y, m, t) => {
     glow: m.state === 'chase' && !m.def.boss ? '#ff4a3a' : L.glow, pants: L.outfit2,
   }));
 };
-// มอนสเตอร์จากภาพ (สไปรต์เดียว) + แอนิเมชันด้วยโค้ด: กระเด้ง/บีบยืด/ลอย/หันซ้ายขวา/ตีเข้า
+// ============================================================
+//  ตัวละครจากภาพเดียว + แอนิเมชันด้วยโค้ด (มอนสเตอร์ / NPC / ผู้เล่น)
+//  ท่าทาง: หายใจตอนนิ่ง, เหลียวมองเป็นครั้งคราว, กระโดดแบบย่อ-พุ่ง-ลงกระแทก,
+//  เดินโยกซ้ายขวา, บินลอยเป็นเลข 8, พุ่งตี, สะดุ้งตอนโดนตี, ล้มตอนตาย
+// ============================================================
 const MOB_MOTION = { poring: 'hop', lunatic: 'hop', fabre: 'crawl', chonchon: 'fly', rocker: 'hop', willow: 'sway', spore: 'hop', quad: 'walk' };
-Sprites.mobImage = (g, x, y, m, t, img) => {
-  const d = m.def, s = (d.scale || 1) * (d.size || 1);
-  const motion = d.wings ? 'fly' : (MOB_MOTION[d.sprite] || 'walk');
-  const base = { hop: 40, fly: 40, crawl: 34, sway: 50, walk: d.sprite === 'quad' ? 44 : 60 }[motion];
-  const H = base * s, W = H * img.width / img.height;
+Sprites.motion = (m, t, motion) => {
   const ph = t * (m.moving ? 7 : 2.2) + (m.seed || 0) * 10;
-  let lift = 0, sx = 1, sy = 1, rot = 0;
-  if (motion === 'hop') { const k = Math.abs(Math.sin(ph)); lift = m.moving ? k * 9 * s : 0; sy = 1 - (1 - k) * 0.12 + (m.moving ? 0 : Math.sin(ph) * 0.04); sx = 2 - sy; }
-  else if (motion === 'fly') { lift = (12 + Math.sin(ph * 1.6) * 3) * s; rot = Math.sin(ph) * 0.05; }
-  else if (motion === 'crawl') { sx = 1 + Math.sin(ph * 2) * 0.05; sy = 2 - sx; }
-  else if (motion === 'sway') { rot = Math.sin(ph * 0.8) * 0.06; }
-  else { lift = m.moving ? Math.abs(Math.sin(ph * 1.2)) * 2.5 * s : 0; rot = m.moving ? Math.sin(ph * 1.2) * 0.04 : 0; sy = 1 + Math.sin(ph) * 0.015; }
-  if (m.atkAnim > 0) { sx *= 1.08; sy *= 0.94; }
-  Sprites.shadow(g, x, y, W * 0.36, W * 0.12, 0.32 - lift * 0.006);
+  const o = { lift: 0, sx: 1, sy: 1, rot: 0, dx: 0 };
+  // หายใจ + เหลียวมองตอนยืนนิ่ง
+  const breath = Math.sin(ph) * 0.02;
+  const glance = Math.sin(t * 0.37 + (m.seed || 0) * 20) > 0.93 ? 0.06 : 0;
+  if (motion === 'hop') {
+    if (m.moving) {
+      const k = (ph * 0.8) % (Math.PI * 2) / (Math.PI * 2);   // รอบกระโดด 0..1
+      if (k < 0.18) { const q = k / 0.18; o.sy = 1 - q * 0.22; o.sx = 1 + q * 0.18; }               // ย่อตัวเตรียม
+      else if (k < 0.72) { const q = (k - 0.18) / 0.54; o.lift = Math.sin(q * Math.PI) * 12; o.sy = 1.12 - Math.abs(q - 0.5) * 0.2; o.sx = 0.92; o.rot = (0.5 - q) * 0.16; }
+      else { const q = (k - 0.72) / 0.28; o.sy = 1 - Math.sin(q * Math.PI) * 0.25; o.sx = 1 + Math.sin(q * Math.PI) * 0.2; }   // ลงกระแทก
+    } else { o.sy = 1 + breath * 1.5; o.sx = 1 - breath; o.rot = glance; }
+  } else if (motion === 'fly') {
+    o.lift = 12 + Math.sin(ph * 1.3) * 3 + Math.sin(ph * 2.6) * 1.2;
+    o.dx = Math.sin(ph * 0.65) * 3;
+    o.rot = Math.sin(ph * 0.65) * 0.08 + (m.moving ? (m.facing || 1) * 0.1 : 0);
+  } else if (motion === 'crawl') {
+    const w = m.moving ? Math.sin(ph * 2) : breath * 3;
+    o.sx = 1 + w * 0.07; o.sy = 1 - w * 0.05; o.dx = m.moving ? Math.max(0, w) * 1.5 : 0;
+  } else if (motion === 'sway') { o.rot = Math.sin(ph * 0.8) * 0.05 + glance; o.sy = 1 + breath; }
+  else if (motion === 'float') { o.lift = 8 + Math.sin(ph * 0.9) * 4; o.rot = Math.sin(ph * 0.5) * 0.05; }
+  else { // walk / human
+    if (m.moving) { o.lift = Math.abs(Math.sin(ph * 1.2)) * 2.6; o.rot = Math.sin(ph * 1.2) * 0.06; o.sy = 1 + Math.abs(Math.sin(ph * 1.2)) * 0.03; }
+    else { o.sy = 1 + breath; o.sx = 1 - breath * 0.5; o.rot = glance; }
+  }
+  // พุ่งตี / สะดุ้ง / ตาย
+  if (m.atkAnim > 0) { const k = m.atkAnim; o.dx += (m.facing || 1) * k * 9; o.rot += (m.facing || 1) * k * 0.18; o.sx *= 1 + k * 0.1; o.sy *= 1 - k * 0.08; }
+  if (m.hitFlash > 0) { o.dx -= (m.facing || 1) * m.hitFlash * 40; o.sx *= 1.06; o.sy *= 0.94; }
+  if (m.dead) { const k = Math.min(1, m.deathT / 0.45); o.rot += (m.facing || 1) * k * 1.35; o.lift = -k * 6; }
+  return o;
+};
+Sprites.drawImageActor = (g, x, y, m, t, img, H, motion, flipSrc) => {
+  const W = H * img.width / img.height;
+  const o = Sprites.motion(m, t, motion);
+  const sh = 1 - Math.min(0.5, Math.max(0, o.lift) / 40);
+  Sprites.shadow(g, x, y, W * 0.36 * sh, W * 0.12 * sh, 0.32 * sh);
   g.save();
-  g.translate(x + (m.atkAnim > 0 ? (m.facing || 1) * 4 : 0), y - lift);
-  g.rotate(rot);
-  g.scale(-(m.facing || 1) * sx, sy); // ภาพต้นฉบับหันซ้าย
-  if (m.state === 'chase' && !d.boss) { g.shadowColor = 'rgba(255,60,50,0.55)'; g.shadowBlur = 10; }
-  else if (d.boss) { g.shadowColor = 'rgba(255,220,120,0.7)'; g.shadowBlur = 16; }
+  g.translate(x + o.dx, y - o.lift);
+  g.rotate(o.rot);
+  g.scale((flipSrc ? -1 : 1) * (m.facing || 1) * o.sx, o.sy);
+  if (m.state === 'chase' && !(m.def && m.def.boss)) { g.shadowColor = 'rgba(255,60,50,0.55)'; g.shadowBlur = 10; }
+  else if (m.def && m.def.boss) { g.shadowColor = 'rgba(255,220,120,0.7)'; g.shadowBlur = 16; }
   g.drawImage(img, -W / 2, -H, W, H);
   g.restore();
+};
+Sprites.mobImage = (g, x, y, m, t, img) => {
+  const d = m.def, s = (d.scale || 1) * (d.size || 1);
+  const motion = d.wings ? 'fly' : d.id === 'hel_maiden' ? 'float' : (MOB_MOTION[d.sprite] || 'walk');
+  const base = { hop: 40, fly: 40, crawl: 34, sway: 50, float: 52, walk: d.sprite === 'quad' ? 44 : 60 }[motion];
+  Sprites.drawImageActor(g, x, y, m, t, img, base * s, motion, true);
 };
 Sprites.drawMob = (g, m, t) => {
   const x = m.x * TILE, y = m.y * TILE;
@@ -774,6 +807,8 @@ const NPC_LOOKS = {
 };
 Sprites.drawNpc = (g, n, t) => {
   const x = n.x * TILE + TILE / 2, y = n.y * TILE + TILE / 2 + 10;
+  const img = typeof Art !== 'undefined' && Art.get('npcsprite_' + n.id);
+  if (img) { Sprites.drawImageActor(g, x, y, { facing: -1, moving: false, seed: n.x * 0.1 }, t, img, 66, 'walk', true); return; }
   Sprites.shadow(g, x, y, 12, 4);
   const look = NPC_LOOKS[n.look] || NPC_LOOKS.guide;
   Sprites.human(g, x, y, Object.assign({ facing: 1, dir: n.dir != null ? n.dir : 2, t: t + n.x, moving: false }, look));
@@ -789,6 +824,12 @@ Sprites.drawPlayer = (g, p, t) => {
   const head = p.equip.head ? p.equip.head.id : null;
   const hatMap = { hat: 'hat', iron_helm: 'cap', ribbon: 'ribbon', seraph_wings: 'angel_wing' };
   const garment = p.equip.garment ? ITEMS[p.equip.garment.id].icon.c : job.cape || null;
+  const img = typeof Art !== 'undefined' && !p.dead && !p.sitting && Art.get(`hero_${p.job}_${p.gender === 'm' ? 'm' : 'f'}`);
+  if (img) {
+    if (Object.keys(p.buffs).length) { g.strokeStyle = `rgba(255,240,150,${0.25 + Math.sin(t * 4) * 0.15})`; g.lineWidth = 2; g.beginPath(); g.ellipse(x, y, 16, 6, 0, 0, 7); g.stroke(); }
+    Sprites.drawImageActor(g, x, y, { facing: p.facing || 1, moving: p.moving, atkAnim: p.atkAnim, hitFlash: p.hurtFlash, seed: 0.3 }, t, img, 66, 'walk', true);
+    return;
+  }
   Sprites.shadow(g, x, y, 12, 4);
   if (Object.keys(p.buffs).length) {
     g.strokeStyle = `rgba(255,240,150,${0.25 + Math.sin(t * 4) * 0.15})`; g.lineWidth = 2;

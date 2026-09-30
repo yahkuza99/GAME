@@ -23,7 +23,7 @@ function newPlayer(name, gender, hair, look) {
     equip: { head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null },
     hotbar: [null, null, null, null, null, null, null, null], potbar: [null, null, null, null],
     map: HOME_MAP, x: 20.5, y: 24.5, save: { map: HOME_MAP, x: 20.5, y: 24.5 },
-    hp: 1, sp: 1, options: { autoLoot: true, sound: true, music: true, musicVol: 0.7, expMsg: true }, uidSeq: 1,
+    hp: 1, sp: 1, options: { autoLoot: true, sound: true, music: false, musicVol: 0.7, expMsg: true }, uidSeq: 1,
   };
   initRuntime(p);
   G.player = p;
@@ -104,6 +104,8 @@ function loadGameFrom(data) {
   p.potbar = hadPot ? data.potbar.slice(0, 4).map(h => (h && h.t === 'item' && ITEMS[h.id] ? h : null)) : oldBar.filter(h => h.t === 'item').slice(0, 4);
   while (p.hotbar.length < 8) p.hotbar.push(null);
   while (p.potbar.length < 4) p.potbar.push(null);
+  // เพลงปิดไว้ก่อน (เดโม) จนกว่าผู้เล่นจะเปิดเองในตั้งค่า
+  if (!p.options.musicSet) p.options.music = false;
   p.look = Object.assign({ head: p.gender === 'f' ? 'long' : 'spiky', color: '#e6e9ef', glow: '#7ad8ff', visor: 'band' }, p.look && typeof p.look === 'object' ? p.look : {});
   G.uid = Math.max(G.uid, data.uidSeq || 1);
   initRuntime(p);

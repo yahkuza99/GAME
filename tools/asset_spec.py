@@ -23,6 +23,58 @@ SPRITE_STYLE = ("In-game monster sprite sheet for a cute classic 2000s Korean MM
  "on a FULLY TRANSPARENT background (PNG). Cel-shaded anime game art, crisp dark outline, soft glossy highlights, readable at 64 pixels tall. "
  "No text, no grid lines, no frames, no ground shadow, creatures must not touch each other.")
 SPRITE_SHEETS = [
+ ("sheet_npcs_1.png", [
+  ("npcsprite_bifrost", "Bifrost Keeper: calm feminine android, long lavender hair plates, navy robe with gold trim, a small rainbow ring floating behind her head"),
+  ("npcsprite_jobmaster", "Mimir AI: ancient sage android, white hood over navy robe, silver plate-beard, holding a glowing rune tablet staff"),
+  ("npcsprite_tool", "Tool Dealer: cheerful merchant android, silver hair, red bandana, khaki apron full of pockets, holding a repair kit"),
+  ("npcsprite_weapon", "Weapon Dealer: gruff bulky smith android, spiky black hair plates, grey armor, soot-stained apron, holding up a glowing sword"),
+ ]),
+ ("sheet_npcs_2.png", [
+  ("npcsprite_armor", "Armor Dealer: friendly feminine android, mint twin-tail hair plates, cream and green robe, showing a shiny chest plate"),
+  ("npcsprite_refine", "Brokk Forge-Bot: stocky bronze dwarf robot, bronze helmet, red plate-beard, glowing orange furnace in chest, huge forge hammer"),
+  ("npcsprite_nurse", "Eir Repair Unit: kind nurse android, long pink hair plates, white and pink medical outfit, nurse cap with a cross, holding a glowing repair tool"),
+  ("npcsprite_guide", "Guard Unit Rolf: city guard android, silver-white armor, horned viking helmet, red cape, tall energy spear, saluting"),
+ ]),
+ ("sheet_heroes_1.png", [
+  ("hero_novice_f", "Novice Type-A (slim feminine frame): white and graphite body, khaki utility jacket, silver-white long hair plates, cyan visor, small knife"),
+  ("hero_novice_m", "Novice Type-B (sturdy masculine frame): white and graphite body, khaki utility jacket, short silver hair plates, cyan visor, small knife"),
+  ("hero_einherjar_f", "Einherjar Type-A: heavy steel plate armor with red trim, crimson cape, horned helmet, energy sword and round shield, red visor"),
+  ("hero_einherjar_m", "Einherjar Type-B: bulkier steel plate armor with red trim, crimson cape, horned helmet, energy sword and shield, red visor"),
+ ]),
+ ("sheet_heroes_2.png", [
+  ("hero_runecaster_f", "Rune Caster Type-A: navy hooded coat with glowing blue runes, long deep blue hair plates, staff with floating cyan orb, light-blue visor"),
+  ("hero_runecaster_m", "Rune Caster Type-B: navy hooded coat with glowing runes, short blue hair plates, rune staff, light-blue visor"),
+  ("hero_wildhunter_f", "Wildhunter Type-A: forest green hooded cloak, gold braid hair plates, energy longbow and quiver, green visor"),
+  ("hero_wildhunter_m", "Wildhunter Type-B: forest green hooded cloak, short gold hair plates, energy longbow and quiver, green visor"),
+ ]),
+ ("sheet_heroes_3.png", [
+  ("hero_volva_f", "Völva Type-A: white and gold flowing robe, very long black hair plates, gold circlet with blue gem, golden scepter-mace, gold visor"),
+  ("hero_volva_m", "Völva Type-B: white and gold robe with gold armor pieces, shoulder-length black hair plates, gold circlet, golden scepter, gold visor"),
+  ("hero_trickster_f", "Loki's Trickster Type-A: sleek dark purple stealth armor, crimson ponytail of cable hair, twin violet daggers, violet visor"),
+  ("hero_trickster_m", "Loki's Trickster Type-B: dark purple stealth armor, short spiky crimson hair plates, twin violet daggers, violet visor"),
+ ]),
+ ("sheet_heroes_4.png", [
+  ("hero_berserker_f", "Berserker Type-A: bronze and brown rugged armor, metal wolf-head hood, long wild silver hair plates, huge two-handed orange energy axe, orange visor"),
+  ("hero_berserker_m", "Berserker Type-B: bulky bronze and brown armor, metal wolf-head hood, short spiky silver hair plates, huge orange energy axe, orange visor"),
+  ("hero_blank1", "a spare: a small hovering delivery drone"),
+  ("hero_blank2", "a spare: a small repair bot on wheels"),
+ ]),
+]
+PROP_STYLE = ("Environment prop sprite sheet for a cute classic 2000s Korean MMORPG style isometric game, sci-fi Norse android world. Each prop is a single object in 3/4 top-down view (camera looking down at about 45 degrees) "
+ "centered in its own equal cell with empty space around it, on a FULLY TRANSPARENT background (PNG). Painterly cel-shaded game art, crisp outline, consistent lighting from top-left. "
+ "No text, no grid lines, no frames, no ground shadow, objects must not touch.")
+PROP_SHEETS = [
+ ("sheet_props_1.png", [("prop_tree_round", "a round leafy green tree with a brown trunk, slightly stylized"), ("prop_tree_pine", "a tall dark green pine tree"), ("prop_bush", "a small round green bush with tiny flowers"), ("prop_rock", "a grey mossy boulder")]),
+ ("sheet_props_2.png", [("prop_pylon", "a slim metal energy pylon with a glowing cyan tip"), ("prop_crate", "a stack of two metal cargo crates with warning stripes"), ("prop_scrap", "a small pile of rusted scrap robot parts"), ("prop_crystal", "a cluster of glowing purple crystals")]),
+ ("sheet_props_3.png", [("prop_mushroom", "a cluster of glowing green mushrooms"), ("prop_lamp", "a sci-fi street lamp post with a cyan light"), ("prop_fountain", "a round plaza fountain with a glowing blue energy core column in the middle"), ("prop_sign", "a holographic neon shop sign on a pole")]),
+ ("sheet_buildings.png", [("prop_bld_shop", "a small sci-fi Norse shop building with a curved metal roof and a neon sign, front entrance facing down-left"), ("prop_bld_forge", "a forge workshop building with a chimney glowing orange and an anvil sign"), ("prop_bld_house", "a two-story metal-and-wood longhouse with rune carvings and cyan light strips"), ("prop_bld_tower", "a tall tech tower with a glowing rune ring near the top")]),
+]
+# ---------------- สไปรต์ NPC / ผู้เล่น / ฉาก (ตัวจริงในเกม) ----------------
+ACTOR_STYLE = ("In-game character sprite sheet for a cute classic 2000s Korean MMORPG style game (chibi proportions: big head, about 2.5 heads tall, round readable silhouette, like classic isometric MMO player sprites), "
+ "sci-fi Norse world where every character is a humanoid ANDROID. FACE RULE: smooth glossy metal faceplate with ONE glowing visor strip — NO eyes, NO mouth. "
+ "'Hair' is layered synthetic metal plates. Each character is a single full-body figure standing in 3/4 view FACING LEFT, centered in its own equal cell with empty space around it, "
+ "on a FULLY TRANSPARENT background (PNG). Cel-shaded anime game art, crisp dark outline, glossy highlights, readable at 64 pixels tall. No text, no grid lines, no frames, no ground shadow, figures must not touch.")
+ACTOR_SHEETS = [
  ("sheet_monsters_1.png", [
   ("mobsprite_pudding", "a small bouncy PINK jelly-slime robot: round gummy dome body of glossy pink translucent gel over a metal core, tiny antenna with a light, happy expression made of two small glowing dots"),
   ("mobsprite_leafworm", "a chubby GREEN caterpillar robot: segmented rounded metal body sections, stubby little legs, leaf-shaped antenna, cute"),
@@ -224,4 +276,8 @@ MAPS = [
 ]
 for f, cells in SPRITE_SHEETS:
     SHEETS.append(dict(file=f, cols=2, rows=2, mode="alpha", style=SPRITE_STYLE, group="สไปรต์มอนสเตอร์ในเกม (สไตล์ RO หุ่นยนต์)", cells=cells))
+for f, cells in ACTOR_SHEETS:
+    SHEETS.append(dict(file=f, cols=2, rows=2, mode="alpha", style=ACTOR_STYLE, group="สไปรต์ NPC / ผู้เล่น ในเกม (ชิบิ)", cells=cells))
+for f, cells in PROP_SHEETS:
+    SHEETS.append(dict(file=f, cols=2, rows=2, mode="alpha", style=PROP_STYLE, group="ฉาก: ต้นไม้ / ของประดับ / อาคาร", cells=cells))
 

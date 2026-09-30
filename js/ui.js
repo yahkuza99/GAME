@@ -38,6 +38,9 @@ const UI = {
     $('#chat-log').addEventListener('click', () => { const c = $('#chat'); if (c.classList.contains('folded')) this.setFold(c, false); });
     $('#death-btn').onclick = () => respawnPlayer();
     $('#nav-cancel').onclick = () => Nav.cancel();
+    // มือถือ: ปุ่มแชทเปิดช่องพิมพ์แบบลอย ปิดเมื่อส่งหรือแตะที่อื่น
+    $('#chat-btn').onclick = () => { const c = $('#chat'); c.classList.toggle('typing'); if (c.classList.contains('typing')) $('#chat-input').focus(); };
+    $('#chat-input').addEventListener('blur', () => setTimeout(() => $('#chat').classList.remove('typing'), 150));
     $('#auto-btn').onclick = () => Bot.toggle();
     this.bindMapClick($('#minimap-cv'));
     this.bindMapClick($('#bigmap-cv'));
@@ -665,18 +668,19 @@ const UI = {
   },
 
   // ---------------- นำทาง ----------------
-  navTab: 'place',
+  navTab: 'here',
   renderNav() {
     const body = $('#w-nav .win-body');
     const key = this.navTab + '|' + G.map.id;
     if (body.dataset.key === key) return;
     body.dataset.key = key; body.innerHTML = '';
-    const tabs = [['place', 'สถานที่'], ['map', 'แผนที่'], ['mob', 'มอนสเตอร์']];
+    const tabs = [['here', 'แผนที่นี้'], ['place', 'สถานที่'], ['map', 'แผนที่'], ['mob', 'มอนสเตอร์']];
     body.append(h('div', { class: 'tabs' }, ...tabs.map(([k, l]) => h('button', { class: 'tab' + (this.navTab === k ? ' on' : ''), onclick: () => { this.navTab = k; body.dataset.key = ''; this.renderNav(); } }, l))));
     const list = h('div', { class: 'nav-list' });
     const row = (t, sub, extra) => h('button', { class: 'nav-row' + (t.map === G.map.id ? ' here' : ''), onclick: () => Nav.goTo(t) },
       h('span', { class: 'nav-n' }, t.name, extra ? h('span', { class: 'tag' }, extra) : null), h('span', { class: 'nav-s' }, sub));
-    if (this.navTab === 'place') for (const t of Nav.places()) list.append(row(t, MAP_DEFS[t.map].name));
+    if (this.navTab === 'here') for (const t of Nav.here()) list.append(row(t, `${t.sub} • ${Math.round(t.d)} ช่อง`));
+    else if (this.navTab === 'place') for (const t of Nav.places()) list.append(row(t, MAP_DEFS[t.map].name));
     else if (this.navTab === 'map') for (const t of Nav.maps()) list.append(row(t, `${t.thai}${t.level ? ` • Lv ${t.level}` : ''}`, t.map === G.map.id ? 'อยู่ที่นี่' : null));
     else for (const t of Nav.mobs()) list.append(row(t, `${t.mapName} • Lv ${t.lv}`, t.mvp ? 'MVP' : null));
     body.append(list, h('div', { class: 'hint' }, 'เลือกแล้วตัวละครจะเดินไปเอง ข้ามแผนที่ได้ • คลิกที่พื้นเพื่อยกเลิก'));
@@ -690,7 +694,7 @@ const UI = {
     body.append(
       chk('autoLoot', 'เก็บไอเทมอัตโนมัติ (Auto Loot)'),
       chk('sound', 'เสียงเอฟเฟกต์'),
-      chk('music', 'เพลงประกอบ (BGM)'),
+      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.music ? 'checked' : false, onchange: e => { o.music = e.target.checked; o.musicSet = true; saveGame(); } }), ' เพลงประกอบ (BGM)'),
       h('label', { class: 'opt' }, 'ความดังเพลง ',
         h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: o.musicVol != null ? o.musicVol : 0.7, oninput: e => { o.musicVol = +e.target.value; Music.setVolume(o.musicVol); }, onchange: () => saveGame() })),
       chk('expMsg', 'แสดงข้อความ EXP ในแชท'),

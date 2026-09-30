@@ -274,6 +274,17 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round
 .pad-mode #auto-btn { position: fixed; right: calc(14px + var(--sr)); bottom: calc(262px + var(--sb)); width: 54px; height: 54px; z-index: 26; }
 .pad-mode #chat { bottom: calc(420px + var(--sb)); width: min(72vw, 360px); }
 .pad-mode #chat-input { font-size: 16px; }
+/* โหมด PAD: แชทเป็นตัวหนังสือลอยบนเกม ไม่มีกรอบ แตะปุ่ม 💬 เพื่อพิมพ์ */
+#chat-btn { display: none; }
+.pad-mode #chat { background: none; border: 0; padding: 0; pointer-events: none; }
+.pad-mode #chat .fold-btn { display: none; }
+.pad-mode #chat-log { height: auto; max-height: 96px; overflow: hidden; padding: 0; font-size: 12px; -webkit-mask-image: linear-gradient(transparent, #000 30%); mask-image: linear-gradient(transparent, #000 30%); }
+.pad-mode #chat-log .cl { text-shadow: 0 0 3px #000, 0 1px 2px #000, 0 0 6px rgba(0,0,0,.8); line-height: 1.35; }
+.pad-mode #chat-input { display: none; position: fixed; left: 8px; right: 8px; bottom: calc(8px + var(--sb)); width: auto; z-index: 90; padding: 10px 12px; background: rgba(6,12,24,.96); border: 1px solid var(--cy); pointer-events: auto; }
+.pad-mode #chat.typing #chat-input { display: block; }
+.pad-mode #chat-btn { display: flex; align-items: center; justify-content: center; position: fixed; z-index: 26; width: 38px; height: 38px; border-radius: 50%; padding: 0;
+  border: 1px solid var(--line-2); background: rgba(8,16,30,.9); color: var(--cy); }
+.pad-mode #chat-btn svg { width: 20px; height: 20px; }
 /* เมนูบนจอสัมผัส: ปุ่ม ☰ + กริดป๊อปอัพ */
 .pad-mode #menubar { flex-direction: row-reverse; flex-wrap: wrap; justify-content: flex-start; align-items: flex-start; width: 44px; }
 .pad-mode #menubar:not(.folded) { width: calc(44px * 5 + 5px * 4); background: none; }
@@ -563,7 +574,8 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
   #target { top: calc(122px + var(--st)); width: min(250px, 64vw); padding: 4px 10px 4px 4px; }
   #nav-pill { top: calc(176px + var(--st)); left: calc(8px + var(--sl)); transform: none; font-size: 12px; }
   #tg-cv { width: 34px; height: 34px; }
-  .pad-mode #chat { top: calc(206px + var(--st)); bottom: auto; width: min(66vw, 300px); }
+  .pad-mode #chat { top: calc(206px + var(--st)); bottom: auto; width: min(70vw, 320px); }
+  .pad-mode #chat-btn { left: calc(14px + var(--sl)); bottom: calc(150px + var(--sb)); }
   /* ไม่ใช่โหมด PAD บนจอเล็ก: แถบสกิล 2 แถว */
   body:not(.pad-mode) #dock { flex-wrap: wrap; justify-content: center; width: calc(100vw - 16px); padding: 6px; gap: 6px; }
   body:not(.pad-mode) #dock .hb { width: 40px; height: 40px; }
@@ -615,6 +627,7 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
   #chat { width: min(40vw, 340px); left: 50%; transform: translateX(-50%); top: calc(58px + var(--st)); bottom: auto; }
   #chat-log { height: 56px; font-size: 11px; }
   .pad-mode #chat { bottom: auto; }
+  .pad-mode #chat-btn { left: calc(120px + var(--sl)); bottom: calc(150px + var(--sb)); }
   .pad-mode #potbar { flex-direction: row; flex-wrap: wrap; width: 100px; bottom: calc(150px + var(--sb)); gap: 6px; }
   .pad-mode #potbar .hb { width: 44px; height: 44px; }
   .pad-mode #auto-btn { right: calc(250px + var(--sr)); bottom: calc(14px + var(--sb)); width: 50px; height: 50px; }

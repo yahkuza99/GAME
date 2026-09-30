@@ -100,7 +100,7 @@ def slice_sheet(path, name):
         cx, cy = i % spec['cols'], i // spec['cols']
         box = (round(cx * cw), round(cy * ch), round((cx + 1) * cw), round((cy + 1) * ch))
         cell = im.crop(box)
-        if spec['mode'] == 'alpha' and key.startswith('mobsprite_'):
+        if spec['mode'] == 'alpha' and key.startswith(('mobsprite_', 'npcsprite_', 'hero_', 'prop_')):
             if not hasattr(slice_sheet, '_b') or slice_sheet._b[0] != path:
                 slice_sheet._b = (path, blobs(im, spec['cols'], spec['rows']))
             got = slice_sheet._b[1].get(i)

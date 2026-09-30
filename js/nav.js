@@ -14,6 +14,20 @@ const Nav = {
     for (const id in MAP_DEFS) for (const n of MAP_DEFS[id].npcs || []) out.push({ kind: 'npc', map: id, x: n.x, y: n.y, name: n.name, npcId: n.id, mapName: MAP_DEFS[id].name });
     return out;
   },
+  // สิ่งที่อยู่ในแผนที่ปัจจุบัน: NPC, ทางออก, มอนสเตอร์ที่มีตัวอยู่จริง
+  here() {
+    const p = G.player, out = [];
+    for (const n of G.npcs) out.push({ kind: 'npc', map: G.map.id, x: n.x, y: n.y, name: n.name, npcId: n.id, sub: 'NPC', d: U.dist(p.x, p.y, n.x, n.y) });
+    for (const q of G.map.portals) out.push({ kind: 'map', map: q.to, name: `ทางไป ${MAP_DEFS[q.to].name}`, sub: `ประตู • Lv ${MAP_DEFS[q.to].level || '-'}`, d: U.dist(p.x, p.y, q.x, q.y) });
+    const seen = {};
+    for (const m of G.mobs) {
+      if (m.dead) continue;
+      const d = U.dist(p.x, p.y, m.x, m.y);
+      if (!seen[m.def.id] || d < seen[m.def.id].d) seen[m.def.id] = { kind: 'mob', map: G.map.id, mobId: m.def.id, name: m.def.name, sub: `มอนสเตอร์ Lv ${m.def.lv}${m.isMvp ? ' • MVP' : ''}`, d };
+    }
+    out.push(...Object.values(seen));
+    return out.sort((a, b) => a.d - b.d);
+  },
   maps() { return Object.keys(MAP_DEFS).map(id => ({ kind: 'map', map: id, name: MAP_DEFS[id].name, thai: MAP_DEFS[id].thai, level: MAP_DEFS[id].level })); },
   mobs() {
     const out = [];

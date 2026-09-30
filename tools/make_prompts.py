@@ -97,7 +97,7 @@ for sh in SHEETS:
     n = len(sh['cells'])
     order = ' '.join(f"{i + 1}) {d}." for i, (_, d) in enumerate(sh['cells']))
     items.append(dict(group=sh['group'], file=sh['file'], size=f"{th} • ชีต {sh['cols']}×{sh['rows']}", bg="โปร่งใส" if sh['mode'] == 'alpha' else "เต็มช่อง",
-      keys=[k for k, _ in sh['cells'] if not k.endswith('_blank')],
+      keys=[k for k, _ in sh['cells'] if not k.endswith('_blank') and '_blank' not in k],
       prompt=f"{sh['style']} Layout: exactly {sh['cols']} columns x {sh['rows']} rows = {n} equal cells, {en}. "
              f"Cells in reading order (left to right, top to bottom): {order}"))
 MAP_STYLE = ("Anime game background art, painterly cel-shaded scenery, rich lighting and atmosphere, sci-fi Norse mythology world of androids called NEO MIDGARD, "
@@ -106,10 +106,10 @@ for k, d in MAPS:
     items.append(dict(group="ภาพแผนที่ (แบนเนอร์ตอนเข้าแมพ)", file=f"{k}.png", size="แนวนอน 3:2 (1536x1024)", bg="มีฉากหลัง", prompt=f"{MAP_STYLE} Location: {d}."))
 
 # เรียงตามความสำคัญ (เห็นบ่อยที่สุดก่อน) + ทำเครื่องหมายภาพที่ได้รับแล้ว
-ORDER = ["สไปรต์มอนสเตอร์ในเกม (สไตล์ RO หุ่นยนต์)", "ไอคอนสกิล", "ไอคอนไอเทม", "คลาสอัปเกรด — Frame Type-A (เพรียว)", "คลาสอัปเกรด — Frame Type-B (แกร่ง)", "NPC",
+ORDER = ["สไปรต์ NPC / ผู้เล่น ในเกม (ชิบิ)", "ฉาก: ต้นไม้ / ของประดับ / อาคาร", "สไปรต์มอนสเตอร์ในเกม (สไตล์ RO หุ่นยนต์)", "ไอคอนสกิล", "ไอคอนไอเทม", "คลาสอัปเกรด — Frame Type-A (เพรียว)", "คลาสอัปเกรด — Frame Type-B (แกร่ง)", "NPC",
  "หน้ามอนสเตอร์ (กรอบเป้าหมาย)", "ตราคลาส", "ภาพแผนที่ (แบนเนอร์ตอนเข้าแมพ)", "บอส MVP", "ภาพหน้าปก", "หน้าสร้างตัวละคร (แบบอ้างอิง)", "มอนสเตอร์ (แบบอ้างอิง)"]
 items.sort(key=lambda it: ORDER.index(it['group']))
-NUM = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬"
+NUM = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮"
 for it in items: it['group'] = f"{NUM[ORDER.index(it['group'])]} {it['group']}"
 try: have = {os.path.splitext(f)[0] for f in json.load(open(os.path.join(ROOT, 'assets', 'manifest.json')))}
 except Exception: have = set()
