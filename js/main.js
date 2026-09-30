@@ -193,7 +193,7 @@ function showTitle() {
   $('#btn-new').onclick = () => { $('#title-menu').classList.add('hidden'); $('#create').classList.remove('hidden'); $('#cr-name').focus(); Sound.ensure(); };
   cont.onclick = () => {
     const p = loadGame();
-    if (!p) { alert('ไม่สามารถโหลดเซฟได้'); return; }
+    if (!p) { cont.innerHTML = 'โหลดเซฟไม่สำเร็จ<small>กรุณาเริ่มการผจญภัยใหม่</small>'; return; }
     startGame(p, false);
   };
   $('#cr-back').onclick = () => { $('#create').classList.add('hidden'); $('#title-menu').classList.remove('hidden'); };
@@ -210,7 +210,13 @@ function showTitle() {
   $('#cr-start').onclick = () => {
     const name = $('#cr-name').value.trim().slice(0, 16);
     if (!name) { $('#cr-err').textContent = 'กรุณาตั้งชื่อตัวละคร'; return; }
-    if (s && s.name && !confirm('มีเซฟเดิมอยู่ การสร้างตัวละครใหม่จะเขียนทับเซฟเดิม ต้องการดำเนินการต่อหรือไม่?')) return;
+    // มีเซฟเดิม: กดครั้งแรกเตือน กดซ้ำเพื่อยืนยันเขียนทับ (ไม่ใช้ confirm() ของเบราว์เซอร์)
+    if (s && s.name && !creation.overwriteOk) {
+      creation.overwriteOk = true;
+      $('#cr-err').textContent = `มีเซฟของ ${s.name} อยู่แล้ว — กด "เริ่มเกม!" อีกครั้งเพื่อเขียนทับ`;
+      $('#cr-start').textContent = 'ยืนยันเขียนทับ';
+      return;
+    }
     G.uid = 1;
     const p = newPlayer(name, creation.gender, creation.hair);
     startGame(p, true);
