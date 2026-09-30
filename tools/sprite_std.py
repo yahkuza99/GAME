@@ -141,11 +141,13 @@ POSES = {
     'cast':   ('4x5', 1024, 1536, ['SKILL ready', 'charge', 'release', 'effect full']),
     'sit_hurt': ('4x5', 1024, 1536, ['SIT', 'SIT breathe', 'HURT hit', 'HURT recover']),
     'dead':   ('4x5', 1024, 1536, ['knees buckle', 'falling', 'on ground', 'still, visor off']),
+    'mob':    ('4x2', 1536, 1024, ['1', '2', '3', '4'], ['MOVE', 'ATTACK']),  # มอนสเตอร์: 1 ทิศ (หันซ้าย)
 }
 
 
 def labeled_template(action):
-    grid, W, H, labels = POSES[action]
+    grid, W, H, labels, *rest = POSES[action]
+    rlabels = rest[0] if rest else DIR_LABELS
     cols, rows = map(int, grid.split('x'))
     from PIL import ImageFont
     def font(sz):
@@ -164,8 +166,8 @@ def labeled_template(action):
             d.line([x0 + cw / 2, y0 + top - 6, x0 + cw / 2, y0 + g], fill=(228, 228, 236), width=2)
             d.line([x0 + 10, y0 + top, x0 + cw - 10, y0 + top], fill=(70, 120, 235), width=2)
             d.line([x0 + 10, y0 + g, x0 + cw - 10, y0 + g], fill=(235, 60, 60), width=3)
-            d.text((x0 + 6, y0 + 4), f"{c + 1} {labels[c]}", fill=(90, 90, 110), font=f1)
-            if c == 0: d.text((x0 + 6, y0 + 6 + f1.size), DIR_LABELS[r], fill=(200, 80, 60), font=f2)
+            d.text((x0 + 6, y0 + 4), f"{c + 1} {labels[c]}" if labels[c] != str(c + 1) else f"{rlabels[r]} {c + 1}", fill=(90, 90, 110), font=f1)
+            if c == 0 and not rest: d.text((x0 + 6, y0 + 6 + f1.size), rlabels[r], fill=(200, 80, 60), font=f2)
     return im
 
 
