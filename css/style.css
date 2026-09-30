@@ -435,6 +435,11 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
   clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px)); }
 .death-t { font: 700 30px var(--display); letter-spacing: .04em; color: var(--bad); text-shadow: 0 0 14px rgba(255,60,80,.6); }
 .death-s { margin: 8px 0 18px; color: #e8c8cc; }
+.death-btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+#death-hide { margin-top: 14px; color: #e8c8cc; }
+#death-mini { position: fixed; left: 50%; bottom: calc(96px + var(--sb, 0px)); transform: translateX(-50%); z-index: 4999; font: 600 15px var(--font); color: #fff; padding: 10px 20px;
+  background: rgba(40,6,14,.9); border: 1px solid rgba(255,90,106,.7); box-shadow: 0 0 18px rgba(255,60,80,.35); cursor: pointer; animation: pulseDead 1.6s ease-in-out infinite; }
+@keyframes pulseDead { 50% { box-shadow: 0 0 28px rgba(255,60,80,.6); } }
 
 /* ---------------- ภาพประกอบ / ฉากบอส ---------------- */
 #illust { position: fixed; left: max(4vw, 20px); bottom: 0; height: min(78vh, 720px); z-index: 90; pointer-events: none; opacity: 0; transform: translateX(-30px); transition: opacity .35s, transform .35s; }

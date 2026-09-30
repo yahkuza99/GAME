@@ -167,7 +167,7 @@ const Bot = {
 
   pickTarget(threats, c) {
     const p = G.player;
-    const ok = m => !m.dead && !(c.avoidMvp && m.isMvp && m.state !== 'chase') && !((this.blacklist.get(m) || 0) > G.time);
+    const ok = m => !m.dead && !m.def.dummy && !(c.avoidMvp && m.isMvp && m.state !== 'chase') && !((this.blacklist.get(m) || 0) > G.time);
     const byDist = (a, b) => U.dist(a.x, a.y, p.x, p.y) - U.dist(b.x, b.y, p.x, p.y);
     const th = threats.filter(ok).sort(byDist);
     if (th.length) return th[0];

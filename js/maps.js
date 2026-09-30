@@ -11,6 +11,7 @@ const MAP_DEFS = {
   eldheim: {
     name: 'Neo Eldheim', thai: 'นครนีโอเอลด์ไฮม์ ฐานที่มั่นแห่งแอนดรอยด์', w: 40, h: 40, kind: 'town', seed: 101,
     links: { E: 'meadow', S: 'wolfwood' }, spawns: [],
+    dummies: [[18, 28], [20, 28], [22, 28]], // หุ่นฝึกซ้อม (ทดสอบการโจมตี)
     grass: '#74b04c',
     npcs: [
       { id: 'bifrost', name: 'Bifrost Keeper', x: 23, y: 15, look: 'keeper' },

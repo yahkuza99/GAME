@@ -398,10 +398,12 @@ function changeMap(id, x, y) {
   G.map = map;
   p.map = id;
   teleportPlayer(x, y);
+  G.mapEntry = { map: id, x, y };
   G.mobs = []; G.drops = []; G.fx = []; G.floaters = []; G.timers = []; G.respawns = []; G.traps = [];
   for (const a of G.allies) { a.x = x + 0.7; a.y = y; a.path = []; a.target = null; }
   G.npcs = (map.def.npcs || []).map(n => Object.assign({}, n));
   for (const [mid, n] of map.def.spawns) for (let i = 0; i < n; i++) spawnMob(mid);
+  for (const [dx, dy] of map.def.dummies || []) { const d = spawnMob('training_dummy', { x: dx, y: dy }); d.facing = 1; d.home = { x: dx + 0.5, y: dy + 0.5 }; }
   if (map.def.mvp && (!G.mvpNext[id] || G.time >= G.mvpNext[id])) spawnMvp(map.def.mvp);
   UI.onMapChange(map);
   if (typeof Nav !== 'undefined') Nav.onMapChange();
@@ -504,6 +506,10 @@ function damageMob(m, dmg, opts = {}) {
   if (m.dead) return;
   m.hp -= dmg;
   m.hitFlash = 0.12;
+  if (m.def.dummy) { // หุ่นฝึก: จดดาเมจไว้คิด DPS และไม่มีวันตาย (เลือดเต็มใหม่เมื่อหมด)
+    (m.dmgLog || (m.dmgLog = [])).push([G.time, dmg]);
+    if (m.hp <= 0) { m.hp = m.maxHp; addFloater(m.x, m.y - 1.8, 'RESET', '#9ff0ff'); }
+  }
   const s = (m.def.scale || 1);
   addFloater(m.x, m.y - 0.9 * s - 0.3, dmg, opts.color || (opts.crit ? '#ffe040' : '#ffffff'), opts.crit);
   if (opts.crit) addFx({ type: 'crit', x: m.x, y: m.y - 0.5, dur: 0.35 });
@@ -608,14 +614,18 @@ function playerDie() {
   Bot.onDeath();
   UI.showDeath();
 }
-function respawnPlayer() {
+// here = เกิดในแมพเดิม (ที่จุดที่เดินเข้าแมพนี้มา) • ไม่งั้นกลับจุดเซฟ
+function respawnPlayer(here) {
   const p = G.player;
   UI.hideDeath();
   p.dead = false;
   p.hp = Math.max(1, Math.floor(p.d.maxHp * (p.job === 'novice' ? 1 : 0.5)));
   p.sp = Math.max(p.sp, Math.floor(p.d.maxSp * 0.3));
   p.poisonUntil = 0;
-  changeMap(p.save.map, p.save.x, p.save.y);
+  if (here && G.mapEntry && G.mapEntry.map === G.map.id) {
+    changeMap(G.map.id, G.mapEntry.x, G.mapEntry.y);
+    UI.msg('รีบูตในแมพเดิมเรียบร้อย', 'info');
+  } else changeMap(p.save.map, p.save.x, p.save.y);
 }
 
 // ------------------------------------------------------------
@@ -1092,6 +1102,13 @@ function updateMob(m, dt) {
   if (hidden && m.state === 'chase') { m.state = 'idle'; m.path = []; }
   if (m.state !== 'chase' && md.aggro && alive && !hidden && dist < 6 && G.map.def.kind !== 'town') {
     m.state = 'chase'; m.emoteUntil = G.time + 0.9; m.path = [];
+  }
+  if (md.dummy) { // หุ่นฝึก: อยู่กับที่ ตีกลับเฉพาะตอนผู้เล่นอยู่ในระยะหลังถูกตี
+    m.moving = false; m.path = [];
+    if (m.state === 'chase' && (!alive || dist > 5)) m.state = 'idle';
+    if (m.state === 'chase' && dist <= md.range + 0.5) { faceTo(m, p.x, p.y); if (G.time >= m.nextAtk) mobAttack(m); }
+    if (m.dmgLog) while (m.dmgLog.length && m.dmgLog[0][0] < G.time - 5) m.dmgLog.shift();
+    return;
   }
   if (m.state === 'chase') {
     if (!alive || dist > 16) { m.state = 'idle'; m.path = []; m.moving = false; return; }

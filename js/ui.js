@@ -37,6 +37,9 @@ const UI = {
     });
     $('#chat-log').addEventListener('click', () => { const c = $('#chat'); if (c.classList.contains('folded')) this.setFold(c, false); });
     $('#death-btn').onclick = () => respawnPlayer();
+    $('#death-here').onclick = () => respawnPlayer(true);
+    $('#death-hide').onclick = () => { $('#death').classList.add('hidden'); $('#death-mini').classList.remove('hidden'); };
+    $('#death-mini').onclick = () => { $('#death-mini').classList.add('hidden'); $('#death').classList.remove('hidden'); };
     $('#nav-cancel').onclick = () => Nav.cancel();
     // มือถือ: ปุ่มแชทเปิดช่องพิมพ์แบบลอย ปิดเมื่อส่งหรือแตะที่อื่น
     $('#chat-btn').onclick = () => { const c = $('#chat'); c.classList.toggle('typing'); if (c.classList.contains('typing')) $('#chat-input').focus(); };
@@ -924,6 +927,6 @@ const UI = {
     el.title = state === 'ok' ? 'เชื่อมต่อเซิร์ฟเวอร์แล้ว' : 'การเชื่อมต่อมีปัญหา กำลังลองใหม่';
   },
 
-  showDeath() { $('#death').classList.remove('hidden'); },
-  hideDeath() { $('#death').classList.add('hidden'); },
+  showDeath() { $('#death').classList.remove('hidden'); $('#death-mini').classList.add('hidden'); },
+  hideDeath() { $('#death').classList.add('hidden'); $('#death-mini').classList.add('hidden'); },
 };

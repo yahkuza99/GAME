@@ -555,6 +555,38 @@ Sprites.fabre = (g, x, y, m, t) => {
 };
 
 // โดรนใบพัด (Buzz Drone)
+// หุ่นฝึกซ้อม (Training Dummy): เสาเหล็ก + ลำตัวทองเหลือง + หัววิเซอร์ • โยกเมื่อโดนตี • ฟาดแขนเมื่อตีกลับ • แสดง DPS
+Sprites.dummy = (g, x, y, m, t) => {
+  const last = m.dmgLog && m.dmgLog.length ? m.dmgLog[m.dmgLog.length - 1][0] : -9;
+  const since = G.time - last, sway = since < 1.2 ? Math.sin(since * 22) * Math.exp(-since * 4) * 0.32 : 0;
+  const swing = m.atkAnim > 0 ? Math.sin((1 - m.atkAnim) * Math.PI) : 0;
+  Sprites.shadow(g, x, y, 15, 5, 0.3);
+  // ฐาน
+  g.fillStyle = MG(g, '#6a6e78', -12, -4, 12, 4); g.beginPath(); g.ellipse(x, y - 1, 13, 4.5, 0, 0, 7); g.fill(); g.strokeStyle = MOL; g.lineWidth = 1; g.stroke();
+  g.save(); g.translate(x, y - 2); g.rotate(sway * (m.facing || 1));
+  // เสา
+  g.fillStyle = MG(g, '#8a8e98', -2, -30, 2, 0); g.fillRect(-2.2, -30, 4.4, 30); g.strokeStyle = MOL; g.strokeRect(-2.2, -30, 4.4, 30);
+  // แขน (คานขวาง) — หมุนตอนตีกลับ
+  g.save(); g.translate(0, -34); g.rotate(-swing * 0.9 * (m.facing || 1));
+  g.fillStyle = MG(g, '#b07a3a', -17, -3, 17, 3); g.fillRect(-17, -2.5, 34, 5); g.strokeRect(-17, -2.5, 34, 5);
+  g.fillStyle = '#3a3e48'; g.beginPath(); g.arc(-17, 0, 3.2, 0, 7); g.arc(17, 0, 3.2, 0, 7); g.fill();
+  g.restore();
+  // ลำตัว (เป้า)
+  g.fillStyle = MG(g, '#d8a860', -9, -46, 9, -22); g.beginPath(); g.ellipse(0, -34, 9.5, 12, 0, 0, 7); g.fill(); g.strokeStyle = MOL; g.stroke();
+  g.strokeStyle = '#a02830'; g.lineWidth = 1.6; g.beginPath(); g.arc(0, -34, 6, 0, 7); g.stroke();
+  g.fillStyle = '#c02a34'; g.beginPath(); g.arc(0, -34, 2.4, 0, 7); g.fill();
+  // หัว + วิเซอร์
+  g.fillStyle = MG(g, '#dfe3ea', -7, -58, 7, -45); g.beginPath(); g.arc(0, -52, 7, 0, 7); g.fill(); g.strokeStyle = MOL; g.lineWidth = 1; g.stroke();
+  GLOW(g, m.state === 'chase' ? '#ff5a4a' : '#62e3ff', () => { g.beginPath(); g.roundRect ? g.roundRect(-5.5, -54, 11, 3, 1.5) : g.rect(-5.5, -54, 11, 3); g.fill(); });
+  g.restore();
+  // DPS (5 วินาทีล่าสุด)
+  if (m.dmgLog && m.dmgLog.length) {
+    const span = Math.max(1, Math.min(5, G.time - m.dmgLog[0][0]));
+    const tot = m.dmgLog.reduce((a, e) => a + e[1], 0);
+    R.label(g, x, y - 72, `DPS ${Math.round(tot / span)}`, '#ffe08a', true);
+  }
+};
+
 Sprites.chonchon = (g, x, y, m, t) => {
   const hov = 15 + Math.sin(t * 5 + m.seed * 9) * 3;
   Sprites.shadow(g, x, y, 9, 3, 0.2);
@@ -765,6 +797,7 @@ Sprites.drawMob = (g, m, t) => {
     case 'lunatic': Sprites.lunatic(g, x, y, m, t); break;
     case 'fabre': Sprites.fabre(g, x, y, m, t); break;
     case 'chonchon': Sprites.chonchon(g, x, y, m, t); break;
+    case 'dummy': Sprites.dummy(g, x, y, m, t); break;
     case 'rocker': Sprites.rocker(g, x, y, m, t); break;
     case 'willow': Sprites.willow(g, x, y, m, t); break;
     case 'spore': Sprites.spore(g, x, y, m, t); break;

@@ -340,6 +340,9 @@ const EQUIP_SLOTS = ['head', 'weapon', 'shield', 'armor', 'garment', 'shoes', 'a
 //  def = hard def (%)  vit = soft def   sprite = รูปแบบการวาด
 // ------------------------------------------------------------
 const MOBS = {
+  // หุ่นฝึกซ้อมในเมือง (ทดสอบท่าโจมตี/ดาเมจ): ไม่ตาย ไม่เดิน ไม่ให้ EXP ตีกลับครั้งละ 1
+  training_dummy: { name: 'Training Dummy', lv: 1, hp: 3000, atk: [1, 1], def: 0, mdef: 0, vit: 1, flee: 0, hit: 200, exp: 0, jexp: 0, speed: 0, aggro: false, element: 'neutral', race: 'formless',
+               sprite: 'dummy', color: '#c8a060', drops: [], dummy: true, range: 1.6, atkDelay: 1.6 },
   pudding:   { name: 'Gel Unit',       lv: 1,  hp: 50,   atk: [7, 10],   def: 0,  mdef: 5,  vit: 1,  flee: 5,   hit: 8,   exp: 18,  jexp: 12, speed: 1.4, aggro: false, element: 'water', race: 'plant',
                sprite: 'poring', color: '#f28fb4', drops: [['jelly_drop', 0.7], ['apple', 0.15], ['red_potion', 0.04], ['knife', 0.01], ['pudding_card', 0.01]] },
   leafworm:  { name: 'Crawler Unit',      lv: 2,  hp: 63,   atk: [8, 11],   def: 0,  mdef: 0,  vit: 2,  flee: 7,   hit: 10,  exp: 22,  jexp: 15, speed: 1.2, aggro: false, element: 'earth', race: 'insect',
