@@ -137,7 +137,7 @@ DIR_LABELS = ['FRONT', 'FRONT-LEFT', 'LEFT', 'BACK-LEFT', 'BACK']
 POSES = {
     'walk':   ('4x5', 1024, 1536, ['L foot fwd', 'passing', 'R foot fwd', 'passing']),
     'idle':   ('4x5', 1024, 1536, ['feet together', 'breathe in', 'feet together', 'breathe out']),
-    'attack': ('6x5', 1536, 1024, ['ready', 'wind-up', 'lunge', 'SLASH', 'follow', 'ready']),
+    'attack': ('6x5', 1536, 1024, ['ready', 'pull back', 'lunge', 'STRIKE', 'follow', 'ready']),
     'cast':   ('4x5', 1024, 1536, ['SKILL ready', 'charge', 'release', 'effect full']),
     'sit_hurt': ('4x5', 1024, 1536, ['SIT', 'SIT breathe', 'HURT hit', 'HURT recover']),
     'dead':   ('4x5', 1024, 1536, ['knees buckle', 'falling', 'on ground', 'still, visor off']),

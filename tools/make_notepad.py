@@ -61,8 +61,8 @@ CHARS = [
      'axe', 'roars with the axe raised high, a red-orange rage aura of flames bursts around the body'),
 ]
 ATTACK = {
-    'dagger': '1 ready, 2 wind-up (dagger arm pulled far back), 3 lunge forward, 4 full SLASH with a short glowing slash arc, 5 follow-through, 6 back to ready',
-    'sword': '1 ready behind the shield, 2 wind-up with the sword raised high, 3 step in, 4 full overhead SLASH with a red slash arc, 5 follow-through low, 6 back to ready',
+    'dagger': '1 ready, 2 pull back (dagger arm drawn far back), 3 lunge forward, 4 full SLASH with a short glowing slash arc, 5 follow-through, 6 back to ready',
+    'sword': '1 ready behind the shield, 2 pull back with the sword raised high, 3 step in, 4 full overhead SLASH with a red slash arc, 5 follow-through low, 6 back to ready',
     'staff': '1 ready holding the staff, 2 staff pulled back, 3 step in swinging, 4 staff HIT with a small bright spark, 5 follow-through, 6 back to ready',
     'bow': '1 ready with the bow lowered, 2 nock an arrow, 3 full draw aimed ahead, 4 RELEASE with the arrow flying off and a green streak, 5 bow recoil, 6 back to ready',
     'axe': '1 ready, 2 axe raised overhead with both hands, 3 lunge forward, 4 heavy CHOP with an orange arc, 5 follow-through low to the ground, 6 back to ready',
@@ -97,11 +97,15 @@ def char_prompt(c, sheet):
         return (f"Draw {ref} into the attached template: SKILL pose (one pose used for every skill), 4 frames per direction: "
                 f"1 ready, 2 charging, 3 release, 4 effect at full size. The pose: {skill}. Each row is a direction as labelled.\n" + TAIL)
     if sheet == 'sit_hurt':
-        return (f"Draw {ref} into the attached template.\nColumns 1-2 SIT: sitting on the ground with legs folded, resting, calm breathing (2 almost identical frames), bottom on the red line.\n"
-                "Columns 3-4 HURT: 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance.\nEach row is a direction as labelled.\n" + TAIL)
+        return (f"Draw {ref} into the attached template.\n"
+                "Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).\n"
+                "Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.\n"
+                "Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. "
+                "Output: flat white background, do NOT draw the labels, grid or guide lines.")
     return (f"Draw {ref} into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, "
-            "3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). "
-            "Each row is a direction as labelled.\n" + TAIL)
+            "3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). "
+            "Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. "
+            "Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.")
 
 
 def char_done(key, sheet):

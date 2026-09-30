@@ -34,17 +34,15 @@ Top of the head on the blue line, feet on the red line, one pose per cell. Same 
 
 ```
 Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, calm breathing (2 almost identical frames), bottom on the red line.
-Columns 3-4 HURT: 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance.
-Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
+Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
+Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ### Novice ชาย (Type-B) — `novice_m`
@@ -70,7 +68,7 @@ Top of the head on the blue line, feet on the red line, one pose per cell. Same 
 ⬜ **โจมตี** — แนบ `tpl_attack.png` (6×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: ATTACK, 6 frames per direction: 1 ready, 2 wind-up (dagger arm pulled far back), 3 lunge forward, 4 full SLASH with a short glowing slash arc, 5 follow-through, 6 back to ready. Each row is a direction as labelled.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: ATTACK, 6 frames per direction: 1 ready, 2 pull back (dagger arm drawn far back), 3 lunge forward, 4 full SLASH with a short glowing slash arc, 5 follow-through, 6 back to ready. Each row is a direction as labelled.
 Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
@@ -85,17 +83,15 @@ Top of the head on the blue line, feet on the red line, one pose per cell, every
 
 ```
 Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, calm breathing (2 almost identical frames), bottom on the red line.
-Columns 3-4 HURT: 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance.
-Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
+Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
+Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ### Einherjar หญิง (นักรบวิญญาณ) — `einherjar_f`
@@ -121,7 +117,7 @@ Top of the head on the blue line, feet on the red line, one pose per cell. Same 
 ⬜ **โจมตี** — แนบ `tpl_attack.png` (6×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: ATTACK, 6 frames per direction: 1 ready behind the shield, 2 wind-up with the sword raised high, 3 step in, 4 full overhead SLASH with a red slash arc, 5 follow-through low, 6 back to ready. Each row is a direction as labelled.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: ATTACK, 6 frames per direction: 1 ready behind the shield, 2 pull back with the sword raised high, 3 step in, 4 full overhead SLASH with a red slash arc, 5 follow-through low, 6 back to ready. Each row is a direction as labelled.
 Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
@@ -136,17 +132,15 @@ Top of the head on the blue line, feet on the red line, one pose per cell, every
 
 ```
 Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, calm breathing (2 almost identical frames), bottom on the red line.
-Columns 3-4 HURT: 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance.
-Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
+Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
+Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ### Einherjar ชาย (นักรบวิญญาณ) — `einherjar_m`
@@ -172,7 +166,7 @@ Top of the head on the blue line, feet on the red line, one pose per cell. Same 
 ⬜ **โจมตี** — แนบ `tpl_attack.png` (6×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: ATTACK, 6 frames per direction: 1 ready behind the shield, 2 wind-up with the sword raised high, 3 step in, 4 full overhead SLASH with a red slash arc, 5 follow-through low, 6 back to ready. Each row is a direction as labelled.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: ATTACK, 6 frames per direction: 1 ready behind the shield, 2 pull back with the sword raised high, 3 step in, 4 full overhead SLASH with a red slash arc, 5 follow-through low, 6 back to ready. Each row is a direction as labelled.
 Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
@@ -187,17 +181,15 @@ Top of the head on the blue line, feet on the red line, one pose per cell, every
 
 ```
 Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, calm breathing (2 almost identical frames), bottom on the red line.
-Columns 3-4 HURT: 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance.
-Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
+Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
+Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ### Rune Caster หญิง (นักเวทรูน) — `runecaster_f`
@@ -238,17 +230,15 @@ Top of the head on the blue line, feet on the red line, one pose per cell, every
 
 ```
 Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, calm breathing (2 almost identical frames), bottom on the red line.
-Columns 3-4 HURT: 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance.
-Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
+Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
+Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ### Rune Caster ชาย (นักเวทรูน) — `runecaster_m`
@@ -289,17 +279,15 @@ Top of the head on the blue line, feet on the red line, one pose per cell, every
 
 ```
 Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, calm breathing (2 almost identical frames), bottom on the red line.
-Columns 3-4 HURT: 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance.
-Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
+Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
+Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ### Wildhunter หญิง (นักล่า) — `wildhunter_f`
@@ -340,17 +328,15 @@ Top of the head on the blue line, feet on the red line, one pose per cell, every
 
 ```
 Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, calm breathing (2 almost identical frames), bottom on the red line.
-Columns 3-4 HURT: 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance.
-Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
+Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
+Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ### Wildhunter ชาย (นักล่า) — `wildhunter_m`
@@ -391,17 +377,15 @@ Top of the head on the blue line, feet on the red line, one pose per cell, every
 
 ```
 Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, calm breathing (2 almost identical frames), bottom on the red line.
-Columns 3-4 HURT: 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance.
-Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
+Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
+Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ### Völva หญิง (นักพยากรณ์แห่งแสง) — `volva_f`
@@ -442,17 +426,15 @@ Top of the head on the blue line, feet on the red line, one pose per cell, every
 
 ```
 Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, calm breathing (2 almost identical frames), bottom on the red line.
-Columns 3-4 HURT: 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance.
-Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
+Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
+Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ### Völva ชาย (นักพยากรณ์แห่งแสง) — `volva_m`
@@ -493,17 +475,15 @@ Top of the head on the blue line, feet on the red line, one pose per cell, every
 
 ```
 Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, calm breathing (2 almost identical frames), bottom on the red line.
-Columns 3-4 HURT: 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance.
-Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
+Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
+Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ### Loki's Trickster หญิง (นักลวง) — `trickster_f`
@@ -529,7 +509,7 @@ Top of the head on the blue line, feet on the red line, one pose per cell. Same 
 ⬜ **โจมตี** — แนบ `tpl_attack.png` (6×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: ATTACK, 6 frames per direction: 1 ready, 2 wind-up (dagger arm pulled far back), 3 lunge forward, 4 full SLASH with a short glowing slash arc, 5 follow-through, 6 back to ready. Each row is a direction as labelled.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: ATTACK, 6 frames per direction: 1 ready, 2 pull back (dagger arm drawn far back), 3 lunge forward, 4 full SLASH with a short glowing slash arc, 5 follow-through, 6 back to ready. Each row is a direction as labelled.
 Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
@@ -544,17 +524,15 @@ Top of the head on the blue line, feet on the red line, one pose per cell, every
 
 ```
 Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, calm breathing (2 almost identical frames), bottom on the red line.
-Columns 3-4 HURT: 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance.
-Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
+Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
+Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ### Loki's Trickster ชาย (นักลวง) — `trickster_m`
@@ -580,7 +558,7 @@ Top of the head on the blue line, feet on the red line, one pose per cell. Same 
 ⬜ **โจมตี** — แนบ `tpl_attack.png` (6×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: ATTACK, 6 frames per direction: 1 ready, 2 wind-up (dagger arm pulled far back), 3 lunge forward, 4 full SLASH with a short glowing slash arc, 5 follow-through, 6 back to ready. Each row is a direction as labelled.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: ATTACK, 6 frames per direction: 1 ready, 2 pull back (dagger arm drawn far back), 3 lunge forward, 4 full SLASH with a short glowing slash arc, 5 follow-through, 6 back to ready. Each row is a direction as labelled.
 Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
@@ -595,17 +573,15 @@ Top of the head on the blue line, feet on the red line, one pose per cell, every
 
 ```
 Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, calm breathing (2 almost identical frames), bottom on the red line.
-Columns 3-4 HURT: 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance.
-Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
+Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
+Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ### Berserker หญิง (นักรบคลั่ง) — `berserker_f`
@@ -646,17 +622,15 @@ Top of the head on the blue line, feet on the red line, one pose per cell, every
 
 ```
 Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, calm breathing (2 almost identical frames), bottom on the red line.
-Columns 3-4 HURT: 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance.
-Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
+Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
+Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ### Berserker ชาย (นักรบคลั่ง) — `berserker_m`
@@ -697,17 +671,15 @@ Top of the head on the blue line, feet on the red line, one pose per cell, every
 
 ```
 Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, calm breathing (2 almost identical frames), bottom on the red line.
-Columns 3-4 HURT: 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance.
-Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
+Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
+Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
+Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ## มอนสเตอร์ (ตัวละ 1 ภาพ)
