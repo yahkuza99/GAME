@@ -322,6 +322,10 @@ const UI = {
       else if (big || m.state === 'chase') { g.fillStyle = m.state === 'chase' ? '#ff5050' : 'rgba(255,170,170,0.8)'; g.beginPath(); g.arc(m.x * S, m.y * S, big ? 2.5 : 1.3, 0, 7); g.fill(); }
     }
     for (const o of Online.others.values()) { g.fillStyle = '#7dffb0'; g.beginPath(); g.arc(o.x * S, o.y * S, big ? 4 : 2.5, 0, 7); g.fill(); }
+    if (big && G.started && typeof Quest !== 'undefined') { // หมุดเควสต์บนแผนที่ใหญ่
+      const qw = Nav.waypoint(Quest.navTarget());
+      if (qw && !qw.none) { g.save(); g.translate((qw.x + 0.5) * S, (qw.y + 0.5) * S); g.scale(1.6, 1.6); this.drawQuestPin(g, 0, 0, null); g.restore(); }
+    }
     // ผู้เล่น: ลูกศรชี้ทิศ
     const ang = (p.dir != null ? p.dir : 2) * Math.PI / 4, pr = big ? 8 : 5;
     g.save(); g.translate(p.x * S, p.y * S); g.rotate(ang);
@@ -358,8 +362,26 @@ const UI = {
       g.fillStyle = grad; g.fillRect(0, 0, W, H);
     }
     g.restore();
+    // เป้าหมายเควสต์บนเรดาร์ (นอกวง = ลูกศรที่ขอบชี้ทาง)
+    const qw = G.started && typeof Quest !== 'undefined' ? Nav.waypoint(Quest.navTarget()) : null;
+    if (qw && !qw.none) {
+      let mx = (qw.x + 0.5 - x0) / span * W, my = (qw.y + 0.5 - y0) / span * H;
+      const dx = mx - W / 2, dy = my - H / 2, d = Math.hypot(dx, dy), R0 = W / 2 - 7;
+      const out = d > R0;
+      if (out) { mx = W / 2 + dx / d * R0; my = H / 2 + dy / d * R0; }
+      this.drawQuestPin(g, mx, my, out ? Math.atan2(dy, dx) : null);
+    }
     $('#map-coord').textContent = Online.online ? `👥 ${Math.max(1, Online.count)} • ${Math.floor(p.x)}, ${Math.floor(p.y)}` : `${Math.floor(p.x)}, ${Math.floor(p.y)}`;
     if (this.isOpen('w-map')) this.drawMapTo($('#bigmap-cv'), 8, true);
+  },
+  // หมุดเควสต์ (ทอง): ไม่มีมุม = อยู่ในระยะ • มีมุม = ลูกศรชี้ออกนอกเรดาร์
+  drawQuestPin(g, x, y, ang) {
+    const pulse = 1 + Math.sin(G.time * 5) * 0.12;
+    g.save(); g.translate(x, y);
+    g.shadowColor = '#ffb020'; g.shadowBlur = 8; g.fillStyle = '#ffd34a'; g.strokeStyle = '#5a3a00'; g.lineWidth = 1.2;
+    if (ang == null) { g.scale(pulse, pulse); g.beginPath(); g.moveTo(0, -6); g.lineTo(5, 0); g.lineTo(0, 6); g.lineTo(-5, 0); g.closePath(); g.fill(); g.stroke(); }
+    else { g.rotate(ang); g.beginPath(); g.moveTo(7, 0); g.lineTo(-4, -5); g.lineTo(-1, 0); g.lineTo(-4, 5); g.closePath(); g.fill(); g.stroke(); }
+    g.restore();
   },
   // คลิกบนแผนที่เพื่อเดินไปยังจุดนั้น
   bindMapClick(cv) {

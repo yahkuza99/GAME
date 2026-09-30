@@ -78,8 +78,8 @@ const Nav = {
   },
 
   // จุดที่ต้องเดินไปในแผนที่ปัจจุบัน (ประตูถัดไป หรือจุดหมายจริง)
-  waypoint() {
-    const t = this.target, map = G.map;
+  waypoint(t = this.target) {
+    const map = G.map;
     if (!t) return null;
     if (t.map !== map.id) {
       const steps = this.route(map.id, t.map);
