@@ -868,7 +868,58 @@ Sprites.drawTrap = (g, tr, t) => {
 // ------------------------------------------------------------
 //  วัตถุฉาก
 // ------------------------------------------------------------
+// ต้นไม้/ของประดับจากภาพ: ตั้งตรง มีเงา ต้นไม้ไหวตามลม เสาพลังงาน/เห็ด/คริสตัลเรืองแสงเป็นจังหวะ
+const PROP_H = { tree: 104, pine: 118, pylon: 50, crate: 34, scrap: 26, bush: 30, rock: 30, mushroom: 34, crystal: 38, lamp: 76, sign: 70 };
+Sprites.drawProp = (g, o, t) => {
+  const img = Art.get(o.img); if (!img) return;
+  const x = o.x * TILE, y = o.y * TILE, H = (PROP_H[o.kind] || 40) * (o.s || 1), W = H * img.width / img.height;
+  const sh = { tree: 0.42, pine: 0.34, lamp: 0.18, sign: 0.2 }[o.kind] || 0.4;
+  Sprites.shadow(g, x + 3, y, W * sh, W * sh * 0.32, 0.3);
+  g.save(); g.translate(x, y);
+  if (o.kind === 'tree' || o.kind === 'pine' || o.kind === 'bush') {
+    const sway = Math.sin(t * 1.1 + o.r * 10) * (o.kind === 'bush' ? 0.012 : 0.022);
+    g.transform(1, 0, sway, 1, 0, 0); // เอียงเฉพาะส่วนบน (โคนอยู่กับที่)
+  }
+  if (o.kind === 'pylon' || o.kind === 'crystal' || o.kind === 'mushroom' || o.kind === 'lamp') {
+    const pulse = 0.5 + 0.5 * Math.sin(t * 2 + o.r * 9);
+    g.shadowColor = o.kind === 'crystal' ? `rgba(190,120,255,${0.6 * pulse})` : o.kind === 'mushroom' ? `rgba(120,255,160,${0.5 * pulse})` : `rgba(110,220,255,${0.6 * pulse})`;
+    g.shadowBlur = 10 + pulse * 8;
+  }
+  g.drawImage(img, -W / 2, -H, W, H);
+  g.restore();
+};
+// อาคารจากภาพ: วางทับฐานอาคาร (footprint) ตั้งตรง หลังคายื่นขึ้นไปด้านบน
+Sprites.drawBuildingImg = (g, b, t) => {
+  const img = Art.get(b.img); if (!img) return;
+  const pw = b.w * TILE, cx = (b.x + b.w / 2) * TILE, by = (b.y + b.h) * TILE;
+  let W = pw * 1.12, H = W * img.height / img.width;
+  if (b.kind === 'castle') { H = Math.min(H, b.h * TILE * 2.4); W = H * img.width / img.height; }
+  Sprites.shadow(g, cx + 8, by - 4, W * 0.44, W * 0.1, 0.16);
+  g.drawImage(img, cx - W / 2, by - H + 6, W, H);
+  if (b.label) {
+    const ly = by - H + 6 - 14;
+    g.font = '700 13px Kanit, "Noto Sans Thai", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    const w = g.measureText(b.label).width + 18;
+    g.fillStyle = 'rgba(6,12,24,0.82)'; g.fillRect(cx - w / 2, ly - 10, w, 20);
+    g.save(); g.shadowColor = b.roof || '#6ad8ff'; g.shadowBlur = 8 + Math.sin(t * 3) * 3;
+    g.strokeStyle = b.roof || '#6ad8ff'; g.lineWidth = 1.5; g.strokeRect(cx - w / 2, ly - 10, w, 20);
+    g.fillStyle = '#fff'; g.fillText(b.label, cx, ly + 1); g.restore();
+  }
+};
+Sprites.drawFountainImg = (g, f, t) => {
+  const img = Art.get('prop_fountain'); if (!img) return;
+  const x = f.x * TILE, y = (f.y + 1.6) * TILE, W = TILE * 3.9, H = W * img.height / img.width;
+  g.drawImage(img, x - W / 2, y - H, W, H);
+  // ประกายน้ำเคลื่อนไหวเหนือแกนพลังงาน
+  for (let i = 0; i < 8; i++) {
+    const k = (t * 0.9 + i / 8) % 1, a = i / 8 * Math.PI * 2 + t * 0.6;
+    g.fillStyle = `rgba(170,240,255,${0.9 * (1 - k)})`;
+    g.beginPath(); g.arc(x + Math.cos(a) * 14, y - H * 0.72 - k * 34, 1.6, 0, 7); g.fill();
+  }
+};
 Sprites.drawTree = (g, o, t) => {
+  const art = typeof Art !== 'undefined' && Art.get(o.kind === 'pine' ? 'prop_tree_pine' : 'prop_tree_round');
+  if (art) { Sprites.drawProp(g, { kind: o.kind === 'pine' ? 'pine' : 'tree', img: o.kind === 'pine' ? 'prop_tree_pine' : 'prop_tree_round', x: o.x, y: o.y + 0.35, s: o.size, r: o.r }, t); return; }
   const x = o.x * TILE, y = o.y * TILE + TILE * 0.35, s = o.size;
   // เงานุ่ม
   const sg = g.createRadialGradient(x + 6, y, 2, x + 6, y, 24 * s);

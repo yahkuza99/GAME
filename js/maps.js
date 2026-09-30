@@ -56,6 +56,10 @@ const PORTAL_SIDE = {
   S: (w, h) => ({ x: w >> 1, y: h - 2, ax: w >> 1, ay: h - 4 }),
 };
 const OPP_SIDE = { E: 'W', W: 'E', N: 'S', S: 'N' };
+// ภาพฉาก (assets/prop_*) — ไม่มีภาพจะวาดด้วยโค้ดแบบเดิม
+const PROP_ART = { pylon: 'prop_pylon', crate: 'prop_crate', scrap: 'prop_scrap', bush: 'prop_bush', rock: 'prop_rock', mushroom: 'prop_mushroom', crystal: 'prop_crystal' };
+const BUILDING_ART = { SUPPLY: 'prop_bld_shop', ARMORY: 'prop_bld_house', PLATING: 'prop_bld_house', FORGE: 'prop_bld_forge' };
+const propArt = k => !!k && typeof Art !== 'undefined' && Art.has(k);
 
 class GameMap {
   constructor(id) {
@@ -356,10 +360,13 @@ class GameMap {
     this.drawWater(g, P, depth);
     // 4) ผนังหิน (ถ้ำ) มีมิติ
     for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) if (this.tile(x, y) === T.ROCK) this.rockTile(g, x, y);
-    // 5) ของตกแต่ง
+    // 5) ของตกแต่ง — ถ้ามีภาพ (assets/prop_*) จะเป็นวัตถุตั้งตรงเรียงความลึก ไม่อบลงพื้น
+    this.props = [];
     this.decorate(g);
-    for (const b of this.buildings) this.drawBuilding(g, b);
-    if (this.fountain) this.drawFountain(g);
+    for (const b of this.buildings) { b.img = BUILDING_ART[b.label] || (b.kind === 'castle' ? 'prop_bld_tower' : null); if (!propArt(b.img)) { b.img = null; this.drawBuilding(g, b); } }
+    this.fountainImg = !!(this.fountain && propArt('prop_fountain'));
+    if (this.fountain && !this.fountainImg) this.drawFountain(g);
+    if (this.def.kind === 'town') this.placeTownProps();
     this.ground = c;
     // เก็บตำแหน่งน้ำไว้ทำคลื่นเคลื่อนไหว
     this.waterTiles = [];
@@ -594,6 +601,23 @@ class GameMap {
   }
 
   // ของตกแต่ง (ไม่กีดขวาง): พุ่มไม้ ก้อนหิน เห็ด คริสตัล
+  // เพิ่มวัตถุภาพ (ต้นไม้/ของประดับ) ถ้ามีภาพ คืนค่า true = ไม่ต้องวาดแบบเดิม
+  addProp(kind, x, y, s = 1) {
+    if (!propArt(PROP_ART[kind])) return false;
+    this.props.push({ kind, img: PROP_ART[kind], x: x / TILE, y: y / TILE, s, r: U.hash2(x | 0, y | 0, this.def.seed) });
+    return true;
+  }
+  // เมือง: เสาไฟรอบลานกลาง + ป้ายนีออนหน้าร้าน
+  placeTownProps() {
+    if (!propArt('prop_lamp')) return;
+    const cx = this.w >> 1, cy = this.h >> 1;
+    for (const [dx, dy] of [[-5, -5], [5, -5], [-5, 5], [5, 5]]) this.props.push({ kind: 'lamp', img: 'prop_lamp', x: cx + dx + 0.5, y: cy + dy + 0.5, s: 1, r: 0.3 });
+    for (let x = 4; x < this.w - 3; x += 6) for (const y of [cy - 2, cy + 2]) if (this.tile(x, y) === T.GRASS && Math.abs(x - cx) > 7) this.props.push({ kind: 'lamp', img: 'prop_lamp', x: x + 0.5, y: y + 0.5, s: 0.9, r: 0.5 });
+    if (propArt('prop_sign')) for (const b of this.buildings) if (b.kind === 'house') {
+      const sx = b.x + (b.x < cx ? b.w + 0.2 : -0.2), sy = b.y + b.h - 0.3;
+      if (this.tile(Math.floor(sx), Math.floor(sy)) !== T.HOUSE) this.props.push({ kind: 'sign', img: 'prop_sign', x: sx, y: sy, s: 0.9, r: 0.2 });
+    }
+  }
   decorate(g) {
     const d = this.def, seed = d.seed;
     for (let y = 2; y < this.h - 2; y++) for (let x = 2; x < this.w - 2; x++) {
@@ -601,16 +625,16 @@ class GameMap {
       if (this.portals.some(p => Math.abs(p.x - x) + Math.abs(p.y - y) < 3)) continue;
       const cx = x * TILE + 8 + U.hash2(x, y, seed + 7) * 24, cy = y * TILE + 10 + U.hash2(y, x, seed + 8) * 22;
       if (d.kind === 'cave' && t === T.CAVE) {
-        if (r < 0.035) this.drawCrystal(g, cx, cy, r);
+        if (r < 0.035) { if (!this.addProp('crystal', cx, cy, 0.8 + r * 6)) this.drawCrystal(g, cx, cy, r); }
         else if (r < 0.08) this.drawStone(g, cx, cy, 0.7, '#6a5a4c');
       } else if (t === T.GRASS && d.kind !== 'town') {
-        if (r < 0.006) this.drawPylon(g, cx, cy);
-        else if (r < 0.012) this.drawCrate(g, cx, cy, r);
-        else if (r < 0.018) this.drawScrap(g, cx, cy, r);
-        else if (r < 0.03) this.drawBush(g, cx, cy, r);
-        else if (r < 0.045) this.drawStone(g, cx, cy, 0.8 + r * 6, '#9a9a90');
-        else if (r < 0.055) this.drawMushroom(g, cx, cy);
-      } else if (t === T.GRASS && d.kind === 'town' && r < 0.03) this.drawBush(g, cx, cy, r);
+        if (r < 0.006) { if (!this.addProp('pylon', cx, cy)) this.drawPylon(g, cx, cy); }
+        else if (r < 0.012) { if (!this.addProp('crate', cx, cy)) this.drawCrate(g, cx, cy, r); }
+        else if (r < 0.018) { if (!this.addProp('scrap', cx, cy)) this.drawScrap(g, cx, cy, r); }
+        else if (r < 0.03) { if (!this.addProp('bush', cx, cy, 0.85 + r * 5)) this.drawBush(g, cx, cy, r); }
+        else if (r < 0.045) { if (!this.addProp('rock', cx, cy, 0.7 + r * 6)) this.drawStone(g, cx, cy, 0.8 + r * 6, '#9a9a90'); }
+        else if (r < 0.055) { if (!this.addProp('mushroom', cx, cy, d.pine ? 1 : 0.8)) this.drawMushroom(g, cx, cy); }
+      } else if (t === T.GRASS && d.kind === 'town' && r < 0.03) { if (!this.addProp('bush', cx, cy, 0.85)) this.drawBush(g, cx, cy, r); }
     }
   }
   // ซากเทคโนโลยีกลางธรรมชาติ

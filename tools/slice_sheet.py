@@ -92,6 +92,10 @@ def blobs(im, cols, rows):
         out[idx] = ('grid', None)
     return out
 
+def lim_for(key):
+    """ขนาดสูงสุดตามชนิด: อาคาร/น้ำพุวาดใหญ่บนจอ จึงเก็บละเอียดกว่า"""
+    return 640 if key.startswith(('prop_bld_', 'prop_fountain')) else 420 if key.startswith('prop_tree') else 320
+
 def smart_cell(im, idx, cols, rows):
     """ตัดช่องโดยเลื่อนเส้นแบ่งไปยังแนวที่โปร่งใสที่สุด (±18%) แล้วลบเศษชิ้นเล็กที่ไม่ติดตัวหลัก"""
     W, H = im.size; a = im.getchannel('A').point(lambda v: 255 if v > 40 else 0)
@@ -137,10 +141,10 @@ def slice_sheet(path, name):
                 cell = smart_cell(im, i, spec['cols'], spec['rows'])
                 ch_ = cell.getchannel('A').point(lambda v: 255 if v > 24 else 0).getbbox()
                 if not ch_: print('  ! ช่องว่าง:', key); continue
-                out = cell.crop(ch_); out.thumbnail((320, 320), Image.LANCZOS)
+                out = cell.crop(ch_); out.thumbnail((lim_for(key),) * 2, Image.LANCZOS)
                 save(out, key); print('  + (grid)', key); continue
             iso = im.copy(); iso.putalpha(ImageChops.multiply(im.getchannel('A'), m))
-            out = iso.crop(bb); out.thumbnail((320, 320), Image.LANCZOS)
+            out = iso.crop(bb); out.thumbnail((lim_for(key),) * 2, Image.LANCZOS)
             save(out, key); print('  +', key); continue
         if spec['mode'] == 'tile':
             # ตัดขอบร่อง (gutter) ออกแล้วครอปกลางให้เป็นจัตุรัส
@@ -154,7 +158,7 @@ def slice_sheet(path, name):
             pad = int(max(bb[2] - bb[0], bb[3] - bb[1]) * 0.06)
             bb = (max(0, bb[0] - pad), max(0, bb[1] - pad), min(cell.size[0], bb[2] + pad), min(cell.size[1], bb[3] + pad))
             out = cell.crop(bb) if key.startswith('mobsprite_') else square(cell.crop(bb), 128)
-            if key.startswith('mobsprite_'): out.thumbnail((320, 320), Image.LANCZOS)
+            if key.startswith('mobsprite_'): out.thumbnail((lim_for(key),) * 2, Image.LANCZOS)
         save(out, key)
         print('  +', key)
     manifest()

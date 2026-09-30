@@ -95,7 +95,7 @@ R.render = () => {
   if (sw > 0 && sh > 0) g.drawImage(map.ground, sx, sy, sw, sh, sx, sy, sw, sh);
   // น้ำพุมีชีวิต
   g.restore();
-  if (map.fountain) upright(map.fountain.y * TILE, () => {
+  if (map.fountain && !map.fountainImg) upright(map.fountain.y * TILE, () => {
     const fx = map.fountain.x * TILE, fy = map.fountain.y * TILE;
     for (let i = 0; i < 10; i++) {
       const a = i / 10 * Math.PI * 2, k = (t * 1.2 + i * 0.13) % 1;
@@ -181,6 +181,9 @@ R.render = () => {
   const L = R.camX / TILE - 2, Rr = (R.camX + vw) / TILE + 2, Tp = wTop / TILE - 1, B = (wTop + wH) / TILE + 4;
   const list = [];
   for (const o of map.objects) if (o.x > L && o.x < Rr && o.y > Tp && o.y < B) list.push({ y: o.y + 0.3, f: () => Sprites.drawTree(g, o, t) });
+  for (const o of map.props || []) if (o.x > L && o.x < Rr && o.y > Tp && o.y < B + 2) list.push({ y: o.y, f: () => Sprites.drawProp(g, o, t) });
+  for (const b of map.buildings) if (b.img) list.push({ y: b.y + b.h - 0.5, f: () => Sprites.drawBuildingImg(g, b, t) });
+  if (map.fountainImg) list.push({ y: map.fountain.y + 1.2, f: () => Sprites.drawFountainImg(g, map.fountain, t) });
   for (const n of G.npcs) list.push({ y: n.y + 0.5, f: () => Sprites.drawNpc(g, n, t) });
   for (const m of G.mobs) if (m.x > L && m.x < Rr && m.y > Tp && m.y < B) list.push({ y: m.y, f: () => Sprites.drawMob(g, m, t) });
   for (const a of G.allies) list.push({ y: a.y, f: () => Sprites.drawAlly(g, a, t) });

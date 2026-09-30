@@ -63,25 +63,25 @@ In-game character sprite sheet for a cute classic 2000s Korean MMORPG style game
 
 ## ② ฉาก: ต้นไม้ / ของประดับ / อาคาร
 
-### `sheet_props_1.png` — สี่เหลี่ยมจัตุรัส 1:1 (1024x1024) • ชีต 2×2 • พื้นหลัง: โปร่งใส
+### `sheet_props_1.png` — สี่เหลี่ยมจัตุรัส 1:1 (1024x1024) • ชีต 2×2 • พื้นหลัง: โปร่งใส ✓ ได้รับแล้ว
 
 ```
 Environment prop sprite sheet for a cute classic 2000s Korean MMORPG style isometric game, sci-fi Norse android world. Each prop is a single object in 3/4 top-down view (camera looking down at about 45 degrees) centered in its own equal cell with empty space around it, on a FULLY TRANSPARENT background (PNG). Painterly cel-shaded game art, crisp outline, consistent lighting from top-left. No text, no grid lines, no frames, no ground shadow, objects must not touch. Layout: exactly 2 columns x 2 rows = 4 equal cells, Square 1:1 image (1024x1024). Cells in reading order (left to right, top to bottom): 1) a round leafy green tree with a brown trunk, slightly stylized. 2) a tall dark green pine tree. 3) a small round green bush with tiny flowers. 4) a grey mossy boulder.
 ```
 
-### `sheet_props_2.png` — สี่เหลี่ยมจัตุรัส 1:1 (1024x1024) • ชีต 2×2 • พื้นหลัง: โปร่งใส
+### `sheet_props_2.png` — สี่เหลี่ยมจัตุรัส 1:1 (1024x1024) • ชีต 2×2 • พื้นหลัง: โปร่งใส ✓ ได้รับแล้ว
 
 ```
 Environment prop sprite sheet for a cute classic 2000s Korean MMORPG style isometric game, sci-fi Norse android world. Each prop is a single object in 3/4 top-down view (camera looking down at about 45 degrees) centered in its own equal cell with empty space around it, on a FULLY TRANSPARENT background (PNG). Painterly cel-shaded game art, crisp outline, consistent lighting from top-left. No text, no grid lines, no frames, no ground shadow, objects must not touch. Layout: exactly 2 columns x 2 rows = 4 equal cells, Square 1:1 image (1024x1024). Cells in reading order (left to right, top to bottom): 1) a slim metal energy pylon with a glowing cyan tip. 2) a stack of two metal cargo crates with warning stripes. 3) a small pile of rusted scrap robot parts. 4) a cluster of glowing purple crystals.
 ```
 
-### `sheet_props_3.png` — สี่เหลี่ยมจัตุรัส 1:1 (1024x1024) • ชีต 2×2 • พื้นหลัง: โปร่งใส
+### `sheet_props_3.png` — สี่เหลี่ยมจัตุรัส 1:1 (1024x1024) • ชีต 2×2 • พื้นหลัง: โปร่งใส ✓ ได้รับแล้ว
 
 ```
 Environment prop sprite sheet for a cute classic 2000s Korean MMORPG style isometric game, sci-fi Norse android world. Each prop is a single object in 3/4 top-down view (camera looking down at about 45 degrees) centered in its own equal cell with empty space around it, on a FULLY TRANSPARENT background (PNG). Painterly cel-shaded game art, crisp outline, consistent lighting from top-left. No text, no grid lines, no frames, no ground shadow, objects must not touch. Layout: exactly 2 columns x 2 rows = 4 equal cells, Square 1:1 image (1024x1024). Cells in reading order (left to right, top to bottom): 1) a cluster of glowing green mushrooms. 2) a sci-fi street lamp post with a cyan light. 3) a round plaza fountain with a glowing blue energy core column in the middle. 4) a holographic neon shop sign on a pole.
 ```
 
-### `sheet_buildings.png` — สี่เหลี่ยมจัตุรัส 1:1 (1024x1024) • ชีต 2×2 • พื้นหลัง: โปร่งใส
+### `sheet_buildings.png` — สี่เหลี่ยมจัตุรัส 1:1 (1024x1024) • ชีต 2×2 • พื้นหลัง: โปร่งใส ✓ ได้รับแล้ว
 
 ```
 Environment prop sprite sheet for a cute classic 2000s Korean MMORPG style isometric game, sci-fi Norse android world. Each prop is a single object in 3/4 top-down view (camera looking down at about 45 degrees) centered in its own equal cell with empty space around it, on a FULLY TRANSPARENT background (PNG). Painterly cel-shaded game art, crisp outline, consistent lighting from top-left. No text, no grid lines, no frames, no ground shadow, objects must not touch. Layout: exactly 2 columns x 2 rows = 4 equal cells, Square 1:1 image (1024x1024). Cells in reading order (left to right, top to bottom): 1) a small sci-fi Norse shop building with a curved metal roof and a neon sign, front entrance facing down-left. 2) a forge workshop building with a chimney glowing orange and an anvil sign. 3) a two-story metal-and-wood longhouse with rune carvings and cyan light strips. 4) a tall tech tower with a glowing rune ring near the top.

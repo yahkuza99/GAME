@@ -46,7 +46,7 @@ const Art = {
   },
   onLoad(k) {
     if (k === 'keyart' || k === 'logo' || k.startsWith('job_')) applyTitleArt();
-    if (k.startsWith('ground_') && typeof G !== 'undefined' && G.map) {
+    if ((k.startsWith('ground_') || k.startsWith('prop_')) && typeof G !== 'undefined' && G.map) {
       clearTimeout(this._regen);
       this._regen = setTimeout(() => {
         for (const id in G.mapCache || {}) if (G.mapCache[id] !== G.map) delete G.mapCache[id];
