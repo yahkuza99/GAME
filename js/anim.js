@@ -42,28 +42,34 @@ const Anim = {
     const D = this.DUR, ka = (t - a.at) / D.attack, kh = (t - a.ht) / D.hurt;
     return { atk: ka >= 0 && ka < 1 ? 1 - ka : 0, hurt: kh >= 0 && kh < 1 ? 1 - kh : 0, deathT: dead ? Math.max(0, t - a.dt) * 0.5 / D.dead : 0 };
   },
-  // เฟรมที่ "เท้าชิดกันที่สุด" ของแต่ละแถว (ใกล้ท่ายืนที่สุด) — วัดความกว้างช่วงเท้าครั้งเดียวแล้วจำไว้
-  stillFrame(img, n, row) {
-    if (!img._still) {
-      img._still = [];
-      try {
-        const C = this.CELL, c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
-        const g = c.getContext('2d'); g.drawImage(img, 0, 0);
-        const rows = Math.round(img.height / C);
-        for (let r = 0; r < rows; r++) {
-          let best = 0, bw = 1e9;
-          for (let f = 0; f < n; f++) {
-            const d = g.getImageData(f * C, r * C + this.GROUND - 28, C, 26).data;
-            let x0 = C, x1 = 0;
-            for (let y = 0; y < 26; y++) for (let x = 0; x < C; x++) if (d[(y * C + x) * 4 + 3] > 80) { if (x < x0) x0 = x; if (x > x1) x1 = x; }
-            const w = x1 - x0; if (w > 0 && w < bw) { bw = w; best = f; }
-          }
-          img._still.push(best);
+  // วัดความกว้างช่วงเท้าของทุกเฟรมครั้งเดียวต่อภาพ: เท้ากางกว้าง = จังหวะเหยียบ (ตัวต่ำ), เท้าชิด = จังหวะก้าวผ่าน (ตัวสูง)
+  feet(img, n) {
+    if (img._feet) return img._feet;
+    img._feet = [];
+    try {
+      const C = this.CELL, c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+      const g = c.getContext('2d'); g.drawImage(img, 0, 0);
+      const rows = Math.round(img.height / C);
+      for (let r = 0; r < rows; r++) {
+        const ws = [];
+        for (let f = 0; f < n; f++) {
+          const d = g.getImageData(f * C, r * C + this.GROUND - 28, C, 26).data;
+          let x0 = C, x1 = 0;
+          for (let y = 0; y < 26; y++) for (let x = 0; x < C; x++) if (d[(y * C + x) * 4 + 3] > 80) { if (x < x0) x0 = x; if (x > x1) x1 = x; }
+          ws.push(Math.max(0, x1 - x0));
         }
-      } catch (e) { /* อ่านพิกเซลไม่ได้ (file://) ใช้เฟรมที่ 2 */ }
-    }
-    const v = img._still[row];
-    return v != null ? v : Math.min(1, n - 1);
+        const lo = Math.min(...ws), hi = Math.max(...ws);
+        const lift = ws.map(w => (hi - lo < 3 ? 0.5 : (hi - w) / (hi - lo)));
+        // จังหวะสม่ำเสมอ: เฟรมคู่/คี่ฝั่งที่เท้าชิดกว่าเฉลี่ย = จังหวะก้าวผ่าน (ตัวสูง)
+        const avg = q => { const v = lift.filter((_, i) => i % 2 === q); return v.reduce((a, b) => a + b, 0) / (v.length || 1); };
+        img._feet.push({ still: ws.indexOf(lo), pass: avg(1) > avg(0) ? 1 : 0 });
+      }
+    } catch (e) { /* อ่านพิกเซลไม่ได้ (file://) */ }
+    return img._feet;
+  },
+  stillFrame(img, n, row) {
+    const r = this.feet(img, n)[row];
+    return r ? r.still : Math.min(1, n - 1);
   },
   has(key) { return !!Art.get(`anim_${key}_idle`) || !!Art.get(`anim_${key}_walk`); },
 
@@ -94,7 +100,11 @@ const Anim = {
     else f = Math.floor((t + (st.seed || 0)) / ((def.cycle || 1) / s.n)) % s.n;
     // แถว: ภาพ 8 ทิศเลือกตามทิศที่หัน, ภาพทิศเดียวใช้แถวแรกแล้วกลับด้านตอนหันขวา
     const dir = st.dir != null ? st.dir : (st.facing > 0 ? 0 : 4);
-    return { img: s.img, f: Math.max(0, f), row: s.dirs === 8 ? dir : 0, flip: s.dirs === 8 ? false : st.facing > 0 };
+    const row = s.dirs === 8 ? dir : 0;
+    // ท่าเดิน: ยกตัวขึ้นเล็กน้อยตอนก้าวผ่าน ลงตอนเหยียบ (ขั้นละเฟรม ตามจังหวะขาในภาพ) ให้เห็นการก้าวชัดขึ้น
+    let lift = 0;
+    if (s.action === 'walk' && action === 'walk') { const fr = this.feet(s.img, s.n)[row]; lift = fr && Math.max(0, f) % 2 === fr.pass ? 4 : 0; }
+    return { img: s.img, f: Math.max(0, f), row, flip: s.dirs === 8 ? false : st.facing > 0, lift };
   },
 
   // วาดที่ตำแหน่งเท้า (x, y), ตัวสูงราว H px, facing>0 = หันขวา (ภาพต้นฉบับหันซ้าย)
@@ -104,6 +114,7 @@ const Anim = {
     Sprites.shadow(g, x, y, H * 0.3, H * 0.09, 0.3);
     g.save();
     g.translate(x, y);
+    if (p.lift) g.translate(0, -p.lift * k);
     g.scale(p.flip ? -k : k, k * (p.breathe ? 1 + Math.sin(t * 2.4 + (st.seed || 0)) * 0.012 : 1));
     if (st.flash) g.filter = 'brightness(1.9)';
     g.drawImage(p.img, p.f * C, p.row * C, C, C, -this.CX, -this.GROUND, C, C);
