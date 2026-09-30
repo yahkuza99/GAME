@@ -46,6 +46,29 @@ const Title = {
     if (!this.skyline) this.buildSkyline();
     const g = this.g, W = this.W, H = this.H, S = this.skyline;
     g.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    // มีภาพหน้าปก (keyart): ใช้เป็นฉากหลัง ซูมช้า ๆ + แสงลอย + ไล่มืดด้านซ้ายให้อ่านเมนูง่าย
+    const key = typeof Art !== 'undefined' && Art.get('keyart');
+    document.getElementById('title').classList.toggle('has-keyart', !!key);
+    if (key) {
+      const z = 1.06 + Math.sin(t * 0.05) * 0.04;
+      const s = Math.max(W / key.width, H / key.height) * z;
+      const dw = key.width * s, dh = key.height * s;
+      // จอแนวตั้ง: เลื่อนให้เห็นกลุ่มฮีโร่ตรงกลาง
+      const fx = W < H ? 0.48 : 0.5;
+      g.drawImage(key, (W - dw) * fx + Math.sin(t * 0.03) * 10, (H - dh) * 0.6, dw, dh);
+      const side = g.createLinearGradient(0, 0, W, 0);
+      side.addColorStop(0, W < 760 ? 'rgba(4,6,15,0.35)' : 'rgba(4,6,15,0.82)'); side.addColorStop(W < 760 ? 1 : 0.55, 'rgba(4,6,15,0)');
+      g.fillStyle = side; g.fillRect(0, 0, W, H);
+      const bot = g.createLinearGradient(0, H * 0.55, 0, H);
+      bot.addColorStop(0, 'rgba(4,6,15,0)'); bot.addColorStop(1, 'rgba(4,6,15,0.7)');
+      g.fillStyle = bot; g.fillRect(0, H * 0.55, W, H * 0.45);
+      for (const m of this.motes) {
+        m.y -= m.v * (1 / 60); if (m.y < -0.02) { m.y = 1.02; m.x = Math.random(); }
+        g.fillStyle = `rgba(170,235,255,${0.25 + 0.35 * Math.sin(t * 2 + m.ph)})`;
+        g.beginPath(); g.arc(m.x * W + Math.sin(t + m.ph) * 8, m.y * H, m.s, 0, 7); g.fill();
+      }
+      return;
+    }
     // ท้องฟ้า
     const sky = g.createLinearGradient(0, 0, 0, H);
     sky.addColorStop(0, '#04060f'); sky.addColorStop(0.45, '#0a1430'); sky.addColorStop(0.78, '#173a5a'); sky.addColorStop(1, '#061018');

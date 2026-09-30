@@ -331,7 +331,7 @@ Monster portrait sheet for an anime sci-fi Norse RPG called NEO MIDGARD where ev
 
 ## ⑩ ตราคลาส
 
-### `sheet_emblems.png` — แนวนอน 3:2 (1536x1024) • ชีต 4×2 • พื้นหลัง: โปร่งใส
+### `sheet_emblems.png` — แนวนอน 3:2 (1536x1024) • ชีต 4×2 • พื้นหลัง: โปร่งใส ✓ ได้รับแล้ว
 
 ```
 Class emblem icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD. Each emblem is a metallic badge (silver steel with a glowing colored core and Norse rune accents), centered in its own equal cell with empty space around it, on a FULLY TRANSPARENT background (PNG), same size and same style for all. No text, no letters, no grid lines. Layout: exactly 4 columns x 2 rows = 8 equal cells, Horizontal 3:2 image (1536x1024). Cells in reading order (left to right, top to bottom): 1) Novice: a simple silver hexagon badge with a cyan core. 2) Einherjar: a shield with a crossed sword and horned helmet, red core. 3) Rune Caster: a circle of Norse runes around a staff, blue core. 4) Wildhunter: a bow and arrow over a wolf paw, green core. 5) Völva: a golden sun with a staff and wings, gold core. 6) Loki's Trickster: two crossed daggers with a serpent, violet core. 7) Berserker: a wolf head over a two-handed axe, orange core. 8) NEO MIDGARD crest: a stylized Yggdrasil tree inside a circuit ring, cyan core.
@@ -363,7 +363,7 @@ Anime game background art, painterly cel-shaded scenery, rich lighting and atmos
 Anime game background art, painterly cel-shaded scenery, rich lighting and atmosphere, sci-fi Norse mythology world of androids called NEO MIDGARD, wide establishing shot from a slightly high angle, no characters, no text, no logo. Horizontal 3:2 image (1536x1024). Location: Wolfwood: a dark pine forest with glowing green mushrooms and fireflies, mossy rocks, abandoned robot parts, moonlight through the trees.
 ```
 
-### `map_helcave.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง
+### `map_helcave.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง ✓ ได้รับแล้ว
 
 ```
 Anime game background art, painterly cel-shaded scenery, rich lighting and atmosphere, sci-fi Norse mythology world of androids called NEO MIDGARD, wide establishing shot from a slightly high angle, no characters, no text, no logo. Horizontal 3:2 image (1536x1024). Location: Hel's Hollow: a dark cave with glowing purple crystals, circuit lines on the rock floor, red warning lights, eerie teal fog.
@@ -371,13 +371,13 @@ Anime game background art, painterly cel-shaded scenery, rich lighting and atmos
 
 ## ⑫ บอส MVP
 
-### `mvp_seraph_pudding.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง
+### `mvp_seraph_pudding.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง ✓ ได้รับแล้ว
 
 ```
 Anime gacha game character art, polished cel shading with soft gradient lighting and rim light, crisp clean lineart, highly detailed, production-quality, sci-fi Norse mythology fusion world called NEO MIDGARD where every character is a humanoid android robot (there are no humans at all). FACE RULE: the head is a sleek robot head with a smooth glossy metal faceplate and ONE glowing visor strip across where the eyes would be. NO eyes, NO pupils, NO irises, NO eyelashes, NO nose, NO mouth, NO human skin. The 'hair' is made of layered synthetic metal plates and cable strands shaped like a hairstyle, with a soft metallic sheen. Body: white-and-graphite armored robot body with visible mechanical joints at the shoulders, elbows and knees, panel seam lines, ear-mounted headset pieces with small antenna fins, and thin glowing circuit lines. Tasteful full-coverage armor, heroic confident pose, not sexualized. No text, no watermark, no logo. Boss splash art: SERAPH CORE, a giant angelic humanoid android goddess in pearl-white and gold armor with a long flowing armored robe, long cream-gold hair plates, a golden glowing visor strip, huge mechanical angel wings made of white metal feather plates with gold edges, a golden halo ring above her head, holding a tall golden staff, hovering with thruster glow under her feet, floating above misty lakes and green plains, dramatic light rays from the clouds, epic boss reveal. Horizontal 3:2 image (1536x1024).
 ```
 
-### `mvp_kitsura.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง
+### `mvp_kitsura.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง ✓ ได้รับแล้ว
 
 ```
 Anime gacha game character art, polished cel shading with soft gradient lighting and rim light, crisp clean lineart, highly detailed, production-quality, sci-fi Norse mythology fusion world called NEO MIDGARD where every character is a humanoid android robot (there are no humans at all). FACE RULE: the head is a sleek robot head with a smooth glossy metal faceplate and ONE glowing visor strip across where the eyes would be. NO eyes, NO pupils, NO irises, NO eyelashes, NO nose, NO mouth, NO human skin. The 'hair' is made of layered synthetic metal plates and cable strands shaped like a hairstyle, with a soft metallic sheen. Body: white-and-graphite armored robot body with visible mechanical joints at the shoulders, elbows and knees, panel seam lines, ear-mounted headset pieces with small antenna fins, and thin glowing circuit lines. Tasteful full-coverage armor, heroic confident pose, not sexualized. No text, no watermark, no logo. Boss splash art: KITSURA EX, a feminine fox-type android boss with long orange hair plates, tall metal fox ears, an orange glowing V-shaped visor, sleek orange and white armor, nine long metallic fox tails with glowing orange lines, surrounded by swirling fire, dramatic battle pose, inside a dark cave with glowing purple crystals and circuit lines on the floor, epic boss reveal. Horizontal 3:2 image (1536x1024).
@@ -385,7 +385,7 @@ Anime gacha game character art, polished cel shading with soft gradient lighting
 
 ## ⑬ ภาพหน้าปก
 
-### `keyart.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง
+### `keyart.png` — แนวนอน 3:2 (1536x1024) • พื้นหลัง: มีฉากหลัง ✓ ได้รับแล้ว
 
 ```
 Anime gacha game character art, polished cel shading with soft gradient lighting and rim light, crisp clean lineart, highly detailed, production-quality, sci-fi Norse mythology fusion world called NEO MIDGARD where every character is a humanoid android robot (there are no humans at all). FACE RULE: the head is a sleek robot head with a smooth glossy metal faceplate and ONE glowing visor strip across where the eyes would be. NO eyes, NO pupils, NO irises, NO eyelashes, NO nose, NO mouth, NO human skin. The 'hair' is made of layered synthetic metal plates and cable strands shaped like a hairstyle, with a soft metallic sheen. Body: white-and-graphite armored robot body with visible mechanical joints at the shoulders, elbows and knees, panel seam lines, ear-mounted headset pieces with small antenna fins, and thin glowing circuit lines. Tasteful full-coverage armor, heroic confident pose, not sexualized. No text, no watermark, no logo. Key visual: six android heroes (a red-caped knight, a blue rune mage, a green-hooded ranger, a white-and-gold priestess, a purple stealth rogue, and a bronze wolf-hooded berserker) standing together on a cliff at twilight, looking over a futuristic city with metal buildings, neon lights and a giant glowing cyan energy core tower; a shimmering rainbow light bridge (Bifrost) arcs across the sky; aurora and stars. Epic cinematic composition, leave clear empty sky in the upper center for a title logo. Horizontal 3:2 image (1536x1024).
