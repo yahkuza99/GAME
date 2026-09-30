@@ -33,8 +33,8 @@ const Rig = {
     if (st.sit) { o.legF = 1.45; o.legB = 1.3; o.drop = 0.72; o.armF = 0.35; o.armB = 0.25; o.lean = 0.12; o.head = 0.05 + Math.sin(t * 1.5) * 0.03; o.bob = Math.sin(t * 1.8) * 0.4; return o; }
     if (st.moving) {
       const s = Math.sin(w), c = Math.cos(w);
-      o.legF = s * 0.55; o.legB = -s * 0.55;
-      o.armF = -s * 0.5 + 0.05; o.armB = s * 0.5 - 0.05;
+      o.legF = s * 0.4; o.legB = -s * 0.4;
+      o.armF = -s * 0.42 + 0.05; o.armB = s * 0.42 - 0.05;
       o.bob = -Math.abs(c) * 2.2; o.lean = -0.07; o.head = s * 0.03; o.hair = -s * 0.06 + 0.08;
     } else {
       const b = Math.sin(t * 2.2);
