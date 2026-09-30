@@ -346,22 +346,22 @@ I will ask for ONE monster at a time. After each image, wait until I type "next"
 IMAGE 1 — Gel Unit: MOVE = squash down, stretch up jumping, in the air, landing squash. ATTACK = squash low, lunge forward stretched, SPLAT hit, bounce back.
 IMAGE 2 — Crawler Unit: MOVE = body segments wave forward like a caterpillar (4 steps of a crawl). ATTACK = rear up, head lunges forward biting, hit, pull back.
 IMAGE 3 — Bunny Unit: MOVE = crouch, hop up, in the air with ears back, land. ATTACK = crouch, jump kick forward, hit, land.
-IMAGE 4 — Ember Unit: MOVE = squash and jump like a slime, the antenna flame flickers. ATTACK = squash low, lunge forward, fiery SPLAT hit with a burst of flame, bounce back.
+IMAGE 4 — Ember Unit: MOVE = squash and jump like a slime, the antenna flame flickers. ATTACK = squash low, lunge forward, SPLAT hit, bounce back.
 IMAGE 5 — Buzz Unit: MOVE = hovering, wings blur up and down, body bobbing. ATTACK = pull back, dive forward stinger first, STING, fly back.
-IMAGE 6 — Rust Sentry: MOVE = root legs shuffle forward one side then the other (a heavy waddle). ATTACK = lean back, swing a wooden root arm, SMASH hit with wood chips, recover.
+IMAGE 6 — Rust Sentry: MOVE = root legs shuffle forward one side then the other (a heavy waddle). ATTACK = lean back, swing a wooden root arm, SMASH hit, recover.
 IMAGE 7 — Hopper Unit: MOVE = crouch, big grasshopper hop, in the air, land (keep the violin). ATTACK = crouch, leap forward, kick with the long hind legs, land.
-IMAGE 8 — Mine Unit: MOVE = waddles on its little red boots, the siren light blinks. ATTACK = cap puffs up, siren flashes red, small BOOM burst in front, deflate.
-IMAGE 9 — Moss Unit: MOVE = squash and jump like a slime, the clover leaf bounces. ATTACK = squash low, lunge forward, mossy SPLAT hit with leaves, bounce back.
-IMAGE 10 — Seraph Core (MVP): MOVE = hovers with the wings flapping, halo glowing, gentle bob. ATTACK = rise up, golden light charge, holy SLAM down with a flash, float back.
+IMAGE 8 — Mine Unit: MOVE = waddles on its little red boots, the siren light blinks. ATTACK = cap puffs up big, siren light turns red, cap slams forward, deflate.
+IMAGE 9 — Moss Unit: MOVE = squash and jump like a slime, the clover leaf bounces. ATTACK = squash low, lunge forward, SPLAT hit, bounce back.
+IMAGE 10 — Seraph Core (MVP): MOVE = hovers with the wings flapping, halo glowing, gentle bob. ATTACK = rise up, wings spread wide, SLAM down, float back.
 IMAGE 11 — Ash Stalker: MOVE = four-legged trot cycle (legs alternate diagonally), striped tail swishing. ATTACK = crouch, pounce forward, claw SWIPE, land.
-IMAGE 12 — Fenrir Unit: MOVE = four-legged run cycle (gallop), glowing cyan fins trail. ATTACK = lower head and snarl, lunge, BITE with a cyan flash, pull back.
-IMAGE 13 — Iron Brute: MOVE = heavy four-legged bear walk, moss sways. ATTACK = rear up on hind legs, both paws raised, heavy SLAM down with dust, back to four legs.
+IMAGE 12 — Fenrir Unit: MOVE = four-legged run cycle (gallop), cyan fins stay the same. ATTACK = lower head and snarl, lunge, BITE, pull back.
+IMAGE 13 — Iron Brute: MOVE = heavy four-legged bear walk, moss sways. ATTACK = rear up on hind legs, both paws raised, heavy SLAM down, back to four legs.
 IMAGE 14 — Tusk Trooper: MOVE = four-legged trot, head bobbing. ATTACK = paw the ground, head down, CHARGE with the tusks forward, skid stop.
 IMAGE 15 — Draugr Husk: MOVE = shambling undead walk, torn cloak swaying, axe dragging. ATTACK = raise the rusty axe, lurch forward, CHOP, stagger back.
 IMAGE 16 — Frame Warden: MOVE = stiff skeleton march with the shield up. ATTACK = shield up, raise the sword, SLASH, back behind the shield.
-IMAGE 17 — Hel Maiden Unit: MOVE = floats forward, the ragged robe trailing, lantern swinging. ATTACK = lantern raised, cyan soul flame charges, FIRE a ghost flame, float back.
+IMAGE 17 — Hel Maiden Unit: MOVE = floats forward, the ragged robe trailing, lantern swinging. ATTACK = lantern raised high, lean back, thrust the lantern forward, float back.
 IMAGE 18 — Hel Guard Unit: MOVE = heavy armored march, cape swaying, halberd upright. ATTACK = halberd raised overhead, step in, heavy CLEAVE, recover.
-IMAGE 19 — Kitsura EX (MVP): MOVE = graceful floating walk, nine tails fanning and waving. ATTACK = tails fan out, fox-fire charges in the palm, CAST a burst of orange fox fire, tails settle.
+IMAGE 19 — Kitsura EX (MVP): MOVE = graceful floating walk, nine tails fanning and waving. ATTACK = tails fan out, palm raised, thrust the palm forward, tails settle.
 
 Start now with IMAGE 1.
 ```
@@ -1063,7 +1063,7 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Ember Unit.
 Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
 Top row = MOVE loop, 4 frames: squash and jump like a slime, the antenna flame flickers.
-Bottom row = ATTACK, 4 frames: squash low, lunge forward, fiery SPLAT hit with a burst of flame, bounce back.
+Bottom row = ATTACK, 4 frames: squash low, lunge forward, SPLAT hit, bounce back.
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
@@ -1083,7 +1083,7 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Rust Sentry.
 Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
 Top row = MOVE loop, 4 frames: root legs shuffle forward one side then the other (a heavy waddle).
-Bottom row = ATTACK, 4 frames: lean back, swing a wooden root arm, SMASH hit with wood chips, recover.
+Bottom row = ATTACK, 4 frames: lean back, swing a wooden root arm, SMASH hit, recover.
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
@@ -1103,7 +1103,7 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Mine Unit.
 Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
 Top row = MOVE loop, 4 frames: waddles on its little red boots, the siren light blinks.
-Bottom row = ATTACK, 4 frames: cap puffs up, siren flashes red, small BOOM burst in front, deflate.
+Bottom row = ATTACK, 4 frames: cap puffs up big, siren light turns red, cap slams forward, deflate.
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
@@ -1113,7 +1113,7 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Moss Unit.
 Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
 Top row = MOVE loop, 4 frames: squash and jump like a slime, the clover leaf bounces.
-Bottom row = ATTACK, 4 frames: squash low, lunge forward, mossy SPLAT hit with leaves, bounce back.
+Bottom row = ATTACK, 4 frames: squash low, lunge forward, SPLAT hit, bounce back.
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
@@ -1123,7 +1123,7 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Seraph Core (MVP).
 Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
 Top row = MOVE loop, 4 frames: hovers with the wings flapping, halo glowing, gentle bob.
-Bottom row = ATTACK, 4 frames: rise up, golden light charge, holy SLAM down with a flash, float back.
+Bottom row = ATTACK, 4 frames: rise up, wings spread wide, SLAM down, float back.
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
@@ -1142,8 +1142,8 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 ```
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Fenrir Unit.
 Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
-Top row = MOVE loop, 4 frames: four-legged run cycle (gallop), glowing cyan fins trail.
-Bottom row = ATTACK, 4 frames: lower head and snarl, lunge, BITE with a cyan flash, pull back.
+Top row = MOVE loop, 4 frames: four-legged run cycle (gallop), cyan fins stay the same.
+Bottom row = ATTACK, 4 frames: lower head and snarl, lunge, BITE, pull back.
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
@@ -1153,7 +1153,7 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Iron Brute.
 Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
 Top row = MOVE loop, 4 frames: heavy four-legged bear walk, moss sways.
-Bottom row = ATTACK, 4 frames: rear up on hind legs, both paws raised, heavy SLAM down with dust, back to four legs.
+Bottom row = ATTACK, 4 frames: rear up on hind legs, both paws raised, heavy SLAM down, back to four legs.
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
@@ -1193,7 +1193,7 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Hel Maiden Unit.
 Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
 Top row = MOVE loop, 4 frames: floats forward, the ragged robe trailing, lantern swinging.
-Bottom row = ATTACK, 4 frames: lantern raised, cyan soul flame charges, FIRE a ghost flame, float back.
+Bottom row = ATTACK, 4 frames: lantern raised high, lean back, thrust the lantern forward, float back.
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
@@ -1213,7 +1213,7 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Kitsura EX (MVP).
 Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
 Top row = MOVE loop, 4 frames: graceful floating walk, nine tails fanning and waving.
-Bottom row = ATTACK, 4 frames: tails fan out, fox-fire charges in the palm, CAST a burst of orange fox fire, tails settle.
+Bottom row = ATTACK, 4 frames: tails fan out, palm raised, thrust the palm forward, tails settle.
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
