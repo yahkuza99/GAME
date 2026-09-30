@@ -1010,7 +1010,7 @@ const UI = {
         if (isEquipType(it)) qty.style.visibility = 'hidden';
         list.append(h('div', { class: 'shop-row' + (usable ? '' : ' dim'), title: it.desc },
           h('img', { src: itemIconUrl(id), alt: '' }),
-          h('div', { class: 'shop-n' }, h('b', {}, it.name + (it.slots ? ` [${it.slots}]` : '')), h('small', {}, it.desc + (it.lv ? ` (Lv ${it.lv}+)` : ''))),
+          h('div', { class: 'shop-n' }, h('b', {}, it.name + (it.slots ? ` [${it.slots}]` : '')), h('small', {}, it.desc + (it.lv ? ` (Lv ${it.lv}+)` : '')), isEquipType(it) && usable ? this.compareLine({ id, refine: 0, cards: [] }) : null),
           h('span', { class: 'shop-p' }, U.fmt(it.price) + ' z'),
           qty,
           h('button', { class: 'btn small', onclick: () => this.buy(id, Math.max(1, Math.min(999, parseInt(qty.value, 10) || 1))) }, 'ซื้อ')));
