@@ -185,6 +185,7 @@ function gainExp(bexp, jexp) {
     jobUp = true;
   }
   if (p.jobLv >= jmax) p.jobExp = 0;
+  Bot.onExp(bexp, jexp);
   if (p.options.expMsg) UI.msg(`ได้รับ ${U.fmt(bexp)} Base EXP / ${U.fmt(jexp)} Job EXP`, 'exp');
   if (baseUp) {
     recalc();
@@ -226,7 +227,7 @@ function addItem(id, qty = 1, silent = false) {
     const ex = p.inventory.find(e => e.id === id);
     if (ex) ex.qty += qty; else p.inventory.push({ id, qty });
   }
-  if (!silent) UI.msg(`ได้รับ ${it.name} ${qty} ชิ้น`, 'item');
+  if (!silent) { UI.msg(`ได้รับ ${it.name} ${qty} ชิ้น`, 'item'); Bot.onItem(qty); }
   UI.dirty();
   return true;
 }
@@ -473,6 +474,7 @@ function killMob(m) {
   const p = G.player, d = m.def;
   m.dead = true; m.deathT = 0; m.hp = 0; m.path = []; m.moving = false;
   if (p.target === m) p.target = null;
+  Bot.onKill(m);
   gainExp(d.exp, d.jexp);
   for (const [id, ch] of d.drops) if (U.chance(ch)) dropItemOnGround(id, m.x, m.y);
   if (m.isMvp) {
@@ -561,6 +563,7 @@ function playerDie() {
   for (const m of G.mobs) if (m.state === 'chase') { m.state = 'idle'; m.path = []; }
   UI.msg(`คุณถูกสังหาร!${lost ? ` เสีย Base EXP ${U.fmt(lost)}` : ''}`, 'err');
   Sound.play('die');
+  Bot.onDeath();
   UI.showDeath();
 }
 function respawnPlayer() {
@@ -900,6 +903,7 @@ function updateGame(dt) {
     G.timers = G.timers.filter(t => t.at > G.time);
     for (const t of due) t.fn();
   }
+  Bot.update();
   updatePlayer(dt);
   updateAllies(dt);
   updateTraps();

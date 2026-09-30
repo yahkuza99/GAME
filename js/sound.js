@@ -31,7 +31,7 @@ const Sound = {
     s.buffer = buf; s.connect(f); f.connect(g); g.connect(c.destination); s.start();
   },
   play(name) {
-    if (!G.player || !G.player.options.sound) return;
+    if (!G.player || !G.player.options.sound || document.hidden || G.fastSim) return;
     if (!this.ensure()) return;
     const now = performance.now();
     if (this.last[name] && now - this.last[name] < 45) return;

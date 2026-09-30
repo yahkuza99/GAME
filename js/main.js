@@ -6,6 +6,13 @@
 const HAIR_COLORS = ['#3a2a1a', '#8a4a2a', '#e0b050', '#c83a3a', '#3a5ac8', '#e8e8f0', '#5aa04a', '#d070b0'];
 const creation = { gender: 'm', hair: HAIR_COLORS[2] };
 
+function toggleFullscreen() {
+  const el = document.documentElement;
+  if (document.fullscreenElement) document.exitFullscreen();
+  else if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+  setTimeout(() => UI.dirty(), 300);
+}
+
 function toggleSit() {
   const p = G.player;
   if (!G.started || p.dead || p.cast) return;
@@ -52,14 +59,20 @@ function handleClick() {
   if (hv && hv.kind === 'npc') { p.npcTarget = hv.ref; p.path = []; return; }
   if (hv && hv.kind === 'drop') { p.pickTarget = hv.ref; p.path = []; return; }
   const tx = Math.floor(R.mouse.wx / TILE), ty = Math.floor(R.mouse.wy / TILE);
+  Bot.manualOverride();
   playerWalkTo(tx, ty);
   addFx({ type: 'click', x: (tx + 0.5), y: (ty + 0.5), dur: 0.4 });
 }
 
 function bindInput() {
   const cv = R.cv;
+  const touches = new Map();
+  const pinchDist = () => { const [a, b] = [...touches.values()]; return Math.hypot(a.x - b.x, a.y - b.y) || 1; };
   cv.addEventListener('pointerdown', e => {
     if (e.button !== 0) return;
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.size === 2) { R.pinch = { d: pinchDist(), z: R.zoom }; R.mouse.down = false; return; }
+    if (touches.size > 2) return;
     Sound.ensure();
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     updateMouse(e);
@@ -67,13 +80,19 @@ function bindInput() {
     R.mouse.holdAt = G.time + 0.35;
     handleClick();
   });
-  cv.addEventListener('pointermove', e => updateMouse(e));
+  cv.addEventListener('pointermove', e => {
+    if (touches.has(e.pointerId)) touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (R.pinch && touches.size >= 2) { R.zoom = U.clamp(R.pinch.z * pinchDist() / R.pinch.d, 0.5, 1.8); return; }
+    updateMouse(e);
+  });
   cv.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') R.mouse.x = -1; });
-  window.addEventListener('pointerup', () => { R.mouse.down = false; });
+  const up = e => { touches.delete(e.pointerId); if (touches.size < 2) R.pinch = null; R.mouse.down = false; };
+  window.addEventListener('pointerup', up);
+  window.addEventListener('pointercancel', up);
   cv.addEventListener('contextmenu', e => e.preventDefault());
   cv.addEventListener('wheel', e => {
     e.preventDefault();
-    R.zoom = U.clamp(R.zoom * (e.deltaY > 0 ? 0.9 : 1.1), 0.6, 1.8);
+    R.zoom = U.clamp(R.zoom * (e.deltaY > 0 ? 0.9 : 1.1), 0.5, 1.8);
   }, { passive: false });
 
   window.addEventListener('keydown', e => {
@@ -90,6 +109,10 @@ function bindInput() {
       case 's': case 'k': UI.toggle('w-skills'); break;
       case 'o': UI.toggle('w-options'); break;
       case 'h': UI.toggle('w-help'); break;
+      case 'b': Bot.toggle(); break;
+      case 'n': UI.toggle('w-bot'); break;
+      case '-': R.zoom = U.clamp(R.zoom * 0.9, 0.5, 1.8); break;
+      case '=': case '+': R.zoom = U.clamp(R.zoom * 1.1, 0.5, 1.8); break;
       case 'x': case 'insert': toggleSit(); break;
       case 'enter': e.preventDefault(); $('#chat-input').focus(); break;
       case 'escape':
@@ -103,17 +126,44 @@ function bindInput() {
 // ------------------------------------------------------------
 //  ลูปหลัก
 // ------------------------------------------------------------
-let lastTs = 0, hudAcc = 0;
+let lastTs = 0, hudAcc = 0, lastSimReal = performance.now();
+const MAX_CATCHUP = 600; // จำลองย้อนหลังได้สูงสุด 10 นาที
+
+// จำลองเกมแบบเร่งความเร็ว (ใช้เมื่อสลับแท็บ/ล็อกจอขณะเปิดบอท)
+function catchUp(sec) {
+  const s0 = Bot.summary();
+  const lv0 = G.player.baseLv;
+  G.fastSim = true;
+  const step = 1 / 15;
+  let left = Math.min(sec, MAX_CATCHUP);
+  while (left > 0 && Bot.on) { updateGame(Math.min(step, left)); left -= step; }
+  G.fastSim = false;
+  const s1 = Bot.summary();
+  if (sec > 20 && s0 && s1) {
+    UI.msg(`⏱ ระหว่างที่ไม่อยู่ ${Math.round(Math.min(sec, MAX_CATCHUP) / 60 * 10) / 10} นาที: ล่าได้ ${s1.kills - s0.kills} ตัว, Base EXP +${U.fmt(s1.bexp - s0.bexp)}, ไอเทม ${s1.items - s0.items} ชิ้น${G.player.baseLv > lv0 ? `, เลเวลอัปเป็น ${G.player.baseLv}!` : ''}`, 'lvl');
+  }
+  UI.dirty();
+}
+function advanceSim() {
+  const now = performance.now();
+  const real = (now - lastSimReal) / 1000;
+  lastSimReal = now;
+  if (!G.started) return;
+  if (real > 0.25 && Bot.on) catchUp(real);
+  else updateGame(Math.min(0.05, real));
+}
+
 function loop(ts) {
   const dt = Math.min(0.05, lastTs ? (ts - lastTs) / 1000 : 0);
   lastTs = ts;
   if (G.started) {
     updateHover();
-    updateGame(dt);
+    advanceSim();
     const p = G.player;
     // กดค้างเพื่อเดินตามเมาส์
-    if (R.mouse.down && !p.target && !p.npcTarget && !p.pickTarget && !p.skillIntent && !p.dead && !G.hover && G.time >= R.mouse.holdAt) {
+    if (R.mouse.down && !R.pinch && !p.target && !p.npcTarget && !p.pickTarget && !p.skillIntent && !p.dead && !G.hover && G.time >= R.mouse.holdAt) {
       R.mouse.holdAt = G.time + 0.2;
+      Bot.manualOverride();
       playerWalkTo(Math.floor(R.mouse.wx / TILE), Math.floor(R.mouse.wy / TILE));
     }
     R.render();
@@ -121,6 +171,7 @@ function loop(ts) {
     hudAcc += dt;
     if (hudAcc > 0.08) { hudAcc = 0; UI.updateHud(); }
   } else {
+    lastSimReal = performance.now();
     drawTitlePreview(ts / 1000);
   }
   requestAnimationFrame(loop);
@@ -211,6 +262,8 @@ window.addEventListener('load', () => {
   bindInput();
   showTitle();
   setInterval(() => saveGame(), 30000);
+  // แท็บถูกซ่อน: requestAnimationFrame หยุด แต่บอทยังทำงานต่อผ่าน timer
+  setInterval(() => { if (document.hidden && G.started) advanceSim(); }, 1000);
   window.addEventListener('beforeunload', () => saveGame());
   document.addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); });
   requestAnimationFrame(loop);

@@ -35,6 +35,8 @@ const UI = {
       e.stopPropagation();
     });
     $('#death-btn').onclick = () => respawnPlayer();
+    $('#auto-btn').onclick = () => Bot.toggle();
+    $$('#zoom-ctl button').forEach(b => b.onclick = () => { R.zoom = U.clamp(R.zoom * +b.dataset.zoom, 0.5, 1.8); });
   },
 
   // ---------------- หน้าต่าง ----------------
@@ -169,8 +171,10 @@ const UI = {
       } else { cd.style.height = '0'; el.classList.remove('nosp'); }
       if (hb && hb.t === 'item') { const q = $('.q', el); const c = countItem(hb.id); if (q.textContent !== String(c)) q.textContent = c; el.classList.toggle('empty', c === 0); }
     });
-    // มินิแมพ
+    // มินิแมพ + บอท
     this.drawMinimap();
+    this.updateBotButton();
+    if (this.isOpen('w-bot')) this.updateBotStats();
   },
   drawMinimap() {
     const mc = $('#minimap-cv'), g = mc.getContext('2d'), map = G.map, S = map.miniScale, p = G.player;
@@ -193,7 +197,15 @@ const UI = {
     for (let i = 0; i < 9; i++) {
       const el = h('div', { class: 'hb', 'data-i': i, title: `ปุ่มลัด ${i + 1} (คลิกขวาเพื่อลบ)` },
         h('div', { class: 'ic' }), h('span', { class: 'k' }, String(i + 1)), h('span', { class: 'q' }), h('div', { class: 'cd' }));
-      el.addEventListener('click', () => useHotbar(i));
+      let lpTimer = null, lpFired = false;
+      el.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'mouse') return;
+        lpFired = false;
+        lpTimer = setTimeout(() => { lpFired = true; if (G.player.hotbar[i]) { G.player.hotbar[i] = null; this.msg(`ล้างปุ่มลัด ${i + 1}`, 'info'); this.dirty(); } }, 650);
+      });
+      const cancelLp = () => clearTimeout(lpTimer);
+      el.addEventListener('pointerup', cancelLp); el.addEventListener('pointerleave', cancelLp); el.addEventListener('pointercancel', cancelLp);
+      el.addEventListener('click', () => { if (lpFired) { lpFired = false; return; } useHotbar(i); });
       el.addEventListener('contextmenu', e => { e.preventDefault(); G.player.hotbar[i] = null; this.dirty(); });
       el.addEventListener('dragover', e => e.preventDefault());
       el.addEventListener('drop', e => {
@@ -251,7 +263,7 @@ const UI = {
   buildMenu() {
     const items = [
       ['w-status', 'สถานะ', 'A'], ['w-inv', 'ไอเทม', 'E'], ['w-equip', 'อุปกรณ์', 'Q'],
-      ['w-skills', 'สกิล', 'S'], ['w-options', 'ตั้งค่า', 'O'],
+      ['w-skills', 'สกิล', 'S'], ['w-bot', 'บอท', 'N'], ['w-options', 'ตั้งค่า', 'O'],
     ];
     const m = $('#menubar');
     for (const [id, label, key] of items) m.append(h('button', { onclick: () => this.toggle(id), title: `${label} (${key})` }, label, h('small', {}, key)));
@@ -272,6 +284,7 @@ const UI = {
     if (this.isOpen('w-equip')) this.renderEquip();
     if (this.isOpen('w-skills')) this.renderSkills();
     if (this.isOpen('w-options')) this.renderOptions();
+    if (this.isOpen('w-bot')) this.renderBot();
     if (this.isOpen('w-shop') && this.shop) this.renderShop();
   },
 
@@ -430,6 +443,7 @@ const UI = {
       h('div', { class: 'opt-btns' },
         h('button', { class: 'btn', onclick: () => saveGame(false) }, 'บันทึกเกม'),
         h('button', { class: 'btn', onclick: () => this.open('w-help') }, 'วิธีเล่น'),
+        document.fullscreenEnabled ? h('button', { class: 'btn', onclick: () => toggleFullscreen() }, document.fullscreenElement ? 'ออกจากเต็มจอ' : 'เต็มจอ') : null,
         h('button', { class: 'btn danger', onclick: async () => {
           if (await this.confirm('ลบข้อมูลตัวละครทั้งหมดและเริ่มใหม่? (ย้อนกลับไม่ได้)')) { deleteSave(); G.started = false; location.reload(); }
         } }, 'ลบเซฟ / เริ่มใหม่')),
@@ -554,6 +568,63 @@ const UI = {
     p.zeny += gain;
     if (!quiet) { this.msg(`ขาย ${it.name} ×${qty} (+${U.fmt(gain)} z)`, 'item'); Sound.play('buy'); }
     this.dirty();
+  },
+
+  // ---------------- บอท ----------------
+  updateBotButton() {
+    const b = $('#auto-btn');
+    b.classList.toggle('on', Bot.on);
+    const t = Bot.on ? (Bot.resting ? 'พัก' : 'เปิด') : 'ปิด';
+    const sm = $('small', b);
+    if (sm.textContent !== t) sm.textContent = t;
+  },
+  updateBotStats() {
+    const el = $('#bot-stats');
+    if (!el) return;
+    const sum = Bot.summary();
+    const html = sum ? [['เวลา', `${sum.mins.toFixed(1)} นาที`], ['ล่าได้', `${sum.kills} ตัว`], ['Base EXP', '+' + U.fmt(sum.bexp)],
+      ['Job EXP', '+' + U.fmt(sum.jexp)], ['ไอเทม', `${sum.items} ชิ้น`], ['EXP/นาที', U.fmt(sum.mins > 0.05 ? sum.bexp / sum.mins : 0)]]
+      .map(([k, v]) => `<div>${k}<b>${v}</b></div>`).join('') : '<div class="hint" style="grid-column:1/-1">สถิติจะแสดงเมื่อเริ่มบอท</div>';
+    if (el.innerHTML !== html) el.innerHTML = html;
+  },
+  renderBot() {
+    const p = G.player, c = Bot.cfg();
+    const body = $('#w-bot .win-body');
+    body.innerHTML = '';
+    body.append(h('button', { class: 'btn big bot-toggle' + (Bot.on ? ' on' : ''), onclick: () => Bot.toggle() }, Bot.on ? '■ หยุดบอท' : '▶ เริ่มบอท'));
+    body.append(h('div', { id: 'bot-stats', class: 'bot-stats' }));
+    this.updateBotStats();
+    const slider = (key, label, min, max, unit = '%') => {
+      const val = h('b', {}, `${c[key]}${unit}`);
+      const inp = h('input', { type: 'range', min, max, value: c[key], oninput: e => { c[key] = +e.target.value; val.textContent = `${c[key]}${unit}`; }, onchange: () => saveGame() });
+      return h('label', { class: 'bot-row' }, h('span', {}, label), inp, val);
+    };
+    const chk = (key, label) => h('label', { class: 'opt' },
+      h('input', { type: 'checkbox', checked: c[key] ? 'checked' : false, onchange: e => { c[key] = e.target.checked; saveGame(); } }), ' ', label);
+    body.append(
+      h('div', { class: 'bot-sec' }, 'การฟื้นฟู'),
+      slider('hpPot', 'ใช้ยา HP เมื่อ HP ต่ำกว่า', 0, 95),
+      slider('spPot', 'ใช้ยา SP เมื่อ SP ต่ำกว่า', 0, 95),
+      slider('healAt', 'ใช้สกิลฮีลเมื่อ HP ต่ำกว่า', 0, 95),
+      slider('restHp', 'นั่งพักเมื่อ HP ต่ำกว่า', 0, 90),
+      slider('restSp', 'นั่งพักเมื่อ SP ต่ำกว่า', 0, 90),
+      h('div', { class: 'bot-sec' }, 'การล่า'),
+      slider('radius', 'ระยะค้นหามอนสเตอร์', 5, 30, ' ช่อง'),
+      chk('useBuffs', 'ใช้บัฟ / เรียกสัตว์คู่ใจอัตโนมัติ'),
+      chk('avoidMvp', 'ไม่เข้าตี MVP เอง'),
+      chk('returnHome', 'กลับเมืองเมื่อยาหมดและ HP วิกฤต'),
+      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: p.options.autoLoot ? 'checked' : false, onchange: e => { p.options.autoLoot = e.target.checked; saveGame(); } }), ' เก็บไอเทมอัตโนมัติ'),
+    );
+    const act = Object.keys(p.skills).filter(id => SKILLS[id] && SKILLS[id].type === 'active');
+    body.append(h('div', { class: 'bot-sec' }, 'สกิลที่ให้บอทใช้'));
+    if (!act.length) body.append(h('div', { class: 'hint' }, 'ยังไม่มีสกิลที่ใช้งานได้'));
+    for (const id of act) {
+      body.append(h('label', { class: 'opt bot-skill' },
+        h('input', { type: 'checkbox', checked: c.skills[id] !== false ? 'checked' : false, onchange: e => { c.skills[id] = e.target.checked; saveGame(); } }),
+        this.skillIcon(id), ` ${SKILLS[id].name}`, h('small', {}, ` (${({ heal: 'ฮีล', summon: 'เรียกสัตว์', opener: 'เปิดฉาก', buff: 'บัฟ', trap: 'กับดัก', aoe: 'โจมตีรอบตัว', attack: 'โจมตี' })[Bot.role(id)] || ''})`)));
+    }
+    const hpN = HP_POTS.reduce((a, id) => a + countItem(id), 0), spN = SP_POTS.reduce((a, id) => a + countItem(id), 0);
+    body.append(h('div', { class: 'hint' }, `ยา HP คงเหลือ ${hpN} • ยา SP คงเหลือ ${spN} — บอททำงานต่อแม้สลับแท็บ/แอป (จำลองย้อนหลังสูงสุด 10 นาที)`));
   },
 
   showDeath() { $('#death').classList.remove('hidden'); },

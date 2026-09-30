@@ -13,6 +13,9 @@ R.init = () => {
   R.g = R.cv.getContext('2d');
   R.dark = document.createElement('canvas');
   R.resize();
+  // ซูมเริ่มต้นตามขนาดจอ: มือถือเห็นกว้างขึ้น, แท็บเล็ต/คอมปกติ
+  const short = Math.min(window.innerWidth, window.innerHeight);
+  R.zoom = short < 500 ? 0.75 : short < 800 ? 0.9 : 1;
   window.addEventListener('resize', R.resize);
 };
 R.resize = () => {
@@ -20,7 +23,6 @@ R.resize = () => {
   R.W = window.innerWidth; R.H = window.innerHeight;
   R.cv.width = Math.floor(R.W * R.dpr); R.cv.height = Math.floor(R.H * R.dpr);
   R.cv.style.width = R.W + 'px'; R.cv.style.height = R.H + 'px';
-  R.zoom = R.W < 700 ? 0.8 : 1;
   R.dark.width = Math.ceil(R.W / 2); R.dark.height = Math.ceil(R.H / 2);
 };
 R.screenToWorld = (sx, sy) => ({ x: sx / R.zoom + R.camX, y: sy / R.zoom + R.camY });
@@ -144,7 +146,7 @@ R.render = () => {
     const x = m.x * TILE, y = m.y * TILE, s = (m.def.scale || 1);
     if (m.hp < m.maxHp || m.isMvp) R.bar(g, x, y + 10, m.isMvp ? 60 : 36, m.hp / m.maxHp, m.isMvp ? '#ff5050' : '#ff7070');
     if (m.isMvp) R.label(g, x, y + 22, `★ ${m.def.name} ★`, '#ff8080', true);
-    else if (G.hover && G.hover.ref === m) R.label(g, x, y + 22, `${m.def.name} (Lv ${m.def.lv})`, m.def.aggro ? '#ffb0a0' : '#ffffff');
+    else if ((G.hover && G.hover.ref === m) || p.target === m) R.label(g, x, y + 22, `${m.def.name} (Lv ${m.def.lv})`, m.def.aggro ? '#ffb0a0' : '#ffffff');
     if (m.emoteUntil > G.time) R.emote(g, x + 12, y - 44 * s, '!');
   }
   for (const a of G.allies) R.label(g, a.x * TILE, a.y * TILE + 14, `${a.name} ${Math.ceil(a.until - G.time)}s`, '#b8e0ff');
@@ -156,6 +158,7 @@ R.render = () => {
   {
     const x = p.x * TILE, y = p.y * TILE;
     R.label(g, x, y + 24, p.name, '#ffffff');
+    if (Bot.on) R.label(g, x, y - 58, Bot.resting ? '[AUTO • พัก]' : '[AUTO]', '#7dffb0', true);
     R.bar(g, x, y + 10, 38, p.hp / p.d.maxHp, p.hp / p.d.maxHp < 0.25 ? '#ff4040' : '#50e050', p.sp / p.d.maxSp);
     if (p.cast) {
       const k = U.clamp((G.time - p.cast.start) / (p.cast.end - p.cast.start), 0, 1);

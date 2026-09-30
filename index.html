@@ -2,7 +2,10 @@
 <html lang="th">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#2b4f8c">
   <title>Ragnarok Web Adventure</title>
   <meta name="description" content="เกม RPG ตำนานนอร์ส เล่นบนเบราว์เซอร์">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,7 +30,9 @@
     <div id="minimap" class="panel">
       <div class="mm-head"><span id="map-name"></span><span id="map-coord"></span></div>
       <canvas id="minimap-cv"></canvas>
+      <div id="zoom-ctl"><button data-zoom="0.85" title="ซูมออก (-)">−</button><button data-zoom="1.18" title="ซูมเข้า (+)">+</button></div>
     </div>
+    <button id="auto-btn" title="บอทล่ามอนอัตโนมัติ (B)"><b>AUTO</b><small>ปิด</small></button>
 
     <div id="chat" class="panel">
       <div id="chat-log"></div>
@@ -58,6 +63,9 @@
     <div id="w-shop" class="win hidden" style="left:50%;top:90px;width:420px;transform:translateX(-50%)">
       <div class="win-title"><span>ร้านค้า</span></div><div class="win-body"></div>
     </div>
+    <div id="w-bot" class="win hidden" style="right:12px;top:200px;width:340px">
+      <div class="win-title"><span>ระบบบอท (Auto Hunt)</span></div><div class="win-body"></div>
+    </div>
     <div id="w-dialog" class="win hidden dialog">
       <div class="win-title"><span>NPC</span></div><div class="win-body"></div>
     </div>
@@ -74,7 +82,14 @@
           <li><b>คลิกไอเทม</b> บนพื้น = เก็บ • <b>คลิก NPC</b> = คุย</li>
           <li><b>1-9 / F1-F9</b> = ปุ่มลัด (ลากไอเทม/สกิลมาวางได้)</li>
           <li><b>A</b> สถานะ • <b>E</b> ไอเทม • <b>Q</b> อุปกรณ์ • <b>S</b> สกิล • <b>O</b> ตั้งค่า • <b>H</b> วิธีเล่น</li>
-          <li><b>X</b> นั่งพัก • <b>Enter</b> แชท • <b>Esc</b> ปิดหน้าต่าง • <b>ล้อเมาส์</b> ซูม</li>
+          <li><b>X</b> นั่งพัก • <b>Enter</b> แชท • <b>Esc</b> ปิดหน้าต่าง • <b>ล้อเมาส์ / + −</b> ซูม</li>
+          <li><b>B</b> เปิด/ปิดบอท • <b>N</b> ตั้งค่าบอท</li>
+        </ul>
+        <h4>มือถือ / แท็บเล็ต</h4>
+        <ul>
+          <li><b>แตะ</b> พื้นเพื่อเดิน, แตะมอนสเตอร์เพื่อโจมตี, แตะค้างเพื่อเดินตามนิ้ว</li>
+          <li><b>ถ่างสองนิ้ว</b> เพื่อซูม • <b>แตะค้างที่ปุ่มลัด</b> เพื่อลบ • ใช้ปุ่ม 📌 ในหน้าต่างสกิล/ไอเทมเพื่อตั้งปุ่มลัด</li>
+          <li>ปุ่ม <b>AUTO</b> = ปล่อยบอทล่ามอน (กินยา ใช้สกิล นั่งพัก เก็บของเอง) ทำงานต่อแม้สลับแอป สูงสุด 10 นาที</li>
         </ul>
         <h4>เส้นทางการเติบโต</h4>
         <ol>
@@ -131,6 +146,7 @@
   <script src="js/sound.js"></script>
   <script src="js/game.js"></script>
   <script src="js/npc.js"></script>
+  <script src="js/bot.js"></script>
   <script src="js/render.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/main.js"></script>

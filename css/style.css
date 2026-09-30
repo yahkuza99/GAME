@@ -74,7 +74,7 @@ button { font-family: inherit; cursor: pointer; }
 .sicon { width: 32px; height: 32px; border-radius: 6px; background: radial-gradient(circle at 35% 30%, #fff 0%, var(--c) 45%, color-mix(in srgb, var(--c) 60%, #000) 100%); border: 1px solid rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; font-weight: 900; color: #fff; text-shadow: 0 0 3px #000, 0 0 2px #000; font-size: 16px; flex-shrink: 0; }
 
 #menubar { position: fixed; right: 10px; bottom: 10px; display: flex; gap: 3px; }
-#menubar button { background: linear-gradient(var(--title-a), var(--title-b)); color: #fff; border: 1px solid #3a5590; border-radius: 5px; padding: 6px 9px 4px; font-size: 12px; font-weight: 700; display: flex; flex-direction: column; align-items: center; line-height: 1.1; box-shadow: 0 2px 6px rgba(0,0,0,.35); }
+#menubar button { white-space: nowrap; background: linear-gradient(var(--title-a), var(--title-b)); color: #fff; border: 1px solid #3a5590; border-radius: 5px; padding: 6px 9px 4px; font-size: 12px; font-weight: 700; display: flex; flex-direction: column; align-items: center; line-height: 1.1; box-shadow: 0 2px 6px rgba(0,0,0,.35); }
 #menubar button small { font-size: 9px; opacity: .8; font-weight: 400; }
 #menubar button:hover { filter: brightness(1.12); }
 
@@ -231,9 +231,66 @@ button { font-family: inherit; cursor: pointer; }
 .cr-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: auto; }
 .title-foot { margin-top: 30px; color: rgba(255,255,255,.8); font-size: 12px; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
 
-/* ---------------- Mobile ---------------- */
+/* ---------------- Bot / zoom ---------------- */
+#zoom-ctl { display: flex; gap: 4px; margin-top: 4px; }
+#zoom-ctl button { flex: 1; border: 1px solid #93a4c8; background: linear-gradient(#fff, #dfe6f4); border-radius: 4px; font-size: 16px; font-weight: 700; color: #3e63b0; line-height: 20px; padding: 0; }
+#auto-btn { position: fixed; right: max(10px, env(safe-area-inset-right)); bottom: calc(64px + env(safe-area-inset-bottom)); width: 64px; height: 64px; border-radius: 50%;
+  border: 3px solid #5a6a8a; background: radial-gradient(circle at 35% 30%, #fff, #c8d2e6); color: #4a5a7a; box-shadow: 0 4px 12px rgba(0,0,0,.4);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; z-index: 60; }
+#auto-btn b { font-size: 15px; letter-spacing: 1px; }
+#auto-btn small { font-size: 10px; }
+#auto-btn.on { border-color: #1f9a52; background: radial-gradient(circle at 35% 30%, #d8ffe6, #3cc070); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.5); animation: autoGlow 1.4s infinite; }
+@keyframes autoGlow { 50% { box-shadow: 0 0 0 6px rgba(60,192,112,.35), 0 4px 12px rgba(0,0,0,.4); } }
+.bot-toggle { width: 100%; margin-bottom: 8px; }
+.bot-toggle.on { background: linear-gradient(#ffe0e0, #f0b0b0); color: #8a1a1a; }
+.bot-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 6px; }
+.bot-stats > div { background: #fff; border: 1px solid #d2daea; border-radius: 5px; padding: 3px 5px; font-size: 10px; color: var(--muted); display: flex; flex-direction: column; }
+.bot-stats b { color: #1d2b4f; font-size: 12px; }
+.bot-sec { font-weight: 700; color: #2a4a90; margin: 8px 0 3px; border-bottom: 1px solid #d2daea; }
+.bot-row { display: grid; grid-template-columns: 1fr 90px 44px; align-items: center; gap: 6px; padding: 2px 0; font-size: 11px; }
+.bot-row b { text-align: right; color: #1d2b4f; }
+.bot-row input { width: 100%; }
+.bot-skill { display: flex; align-items: center; gap: 6px; }
+.bot-skill .sicon { width: 24px; height: 24px; font-size: 12px; }
+
+/* ปุ่มต่าง ๆ บนจอสัมผัส: กันดับเบิลแตะซูม */
+button, .hb, .inv-cell, .eq-slot, .dlg-opt { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100dvh; }
+
+/* ---------------- จอสัมผัส (มือถือ + แท็บเล็ต) ---------------- */
+@media (pointer: coarse) {
+  #menubar button small, .hb .k { display: none; }
+  .win-x { width: 30px; height: 30px; font-size: 20px; line-height: 26px; }
+  .btn.small { padding: 5px 10px; font-size: 12px; }
+  .st-up { padding: 5px 0; font-size: 12px; }
+  .dlg-opt { padding: 9px 10px; font-size: 13px; }
+  .inv-cell .q { font-size: 11px; }
+  .opt input, .bot-row input[type=range] { transform: scale(1.2); }
+  #zoom-ctl button { line-height: 28px; font-size: 18px; }
+}
+
+/* ---------------- แท็บเล็ต ---------------- */
+@media (min-width: 761px) and (max-width: 1180px) {
+  #chat { width: 320px; }
+  #chat-log { height: 100px; }
+  #hotbar { bottom: 70px; }
+  .hb { width: 48px; height: 48px; }
+  .hb .ic img { width: 38px; height: 38px; }
+  #menubar { left: 50%; right: auto; transform: translateX(-50%); }
+  #menubar button { padding: 8px 14px 6px; font-size: 13px; }
+  #auto-btn { bottom: calc(14px + env(safe-area-inset-bottom)); width: 72px; height: 72px; }
+  #chat { bottom: 132px; }
+  .win { max-width: calc(100vw - 24px); max-height: calc(100vh - 150px); }
+  #w-status, #w-skills, #w-bot { left: 12px !important; right: auto !important; top: 170px !important; }
+  #w-inv, #w-equip { right: 12px !important; left: auto !important; top: 200px !important; }
+}
+
+/* ---------------- มือถือ ---------------- */
 @media (max-width: 760px) {
-  #basic-info { width: 200px; padding: 4px 6px; }
+  #basic-info { width: 200px; padding: 4px 6px; left: max(8px, env(safe-area-inset-left)); top: max(8px, env(safe-area-inset-top)); }
+  #minimap { right: max(8px, env(safe-area-inset-right)); top: max(8px, env(safe-area-inset-top)); }
+  #auto-btn { top: 172px; bottom: auto; width: 58px; height: 58px; }
+  #menubar { bottom: calc(10px + env(safe-area-inset-bottom)); }
   .bi-row label { width: 44px; font-size: 10px; }
   #buffs { top: 128px; }
   #minimap-cv { width: 100px; height: 100px; }
@@ -249,4 +306,27 @@ button { font-family: inherit; cursor: pointer; }
   .create { flex-direction: column; align-items: center; }
   .cr-right { width: 100%; }
   .mb-en { font-size: 24px; }
+}
+
+/* มือถือแนวนอน (จอเตี้ย) */
+@media (max-height: 520px) and (orientation: landscape) {
+  #basic-info { width: 190px; padding: 3px 6px; }
+  .bi-row { margin: 1px 0; }
+  .bar { height: 11px; } .bar.thin { height: 8px; }
+  #buffs { top: 118px; }
+  #minimap-cv { width: 90px; height: 90px; }
+  #chat { width: 260px; left: 8px; bottom: 8px; }
+  #chat-log { height: 48px; font-size: 10px; }
+  #hotbar { left: auto; right: 84px; transform: none; bottom: 8px; }
+  .hb { width: 38px; height: 38px; }
+  #menubar { left: auto; right: 8px; top: 146px; bottom: auto; transform: none; flex-direction: column; gap: 2px; }
+  #menubar button { padding: 3px 6px; font-size: 11px; }
+  #minimap-cv { width: 80px; height: 80px; }
+  #zoom-ctl button { line-height: 20px; }
+  #auto-btn { right: 84px; bottom: 58px; top: auto; width: 54px; height: 54px; }
+  .win { max-height: calc(100vh - 16px) !important; top: 8px !important; width: min(420px, calc(100vw - 110px)) !important; left: 8px !important; transform: none !important; }
+  .win.dialog { left: 50% !important; transform: translateX(-50%) !important; bottom: auto; }
+  .create { flex-direction: row; }
+  .title-menu { margin-top: 12px; }
+  .logo { font-size: 44px; }
 }
