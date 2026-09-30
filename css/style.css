@@ -84,6 +84,22 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round
   clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%); }
 
 #buffs { position: fixed; left: calc(var(--gap) + var(--sl)); top: calc(126px + var(--st)); display: flex; gap: 4px; flex-wrap: wrap; max-width: 300px; pointer-events: none; z-index: 20; }
+/* แถบติดตามเควสต์ (ใต้การ์ดยูนิต) — แตะเพื่อนำทาง */
+#quest-track { position: fixed; left: calc(var(--gap) + var(--sl)); top: calc(160px + var(--st)); z-index: 19; width: 250px; padding: 6px 10px 7px; cursor: pointer;
+  background: linear-gradient(100deg, rgba(10,20,38,.85), rgba(7,13,24,.4)); border-left: 2px solid var(--gold, #ffd34a); color: var(--ink); font-size: 12.5px; }
+#quest-track:hover { background: linear-gradient(100deg, rgba(20,34,58,.92), rgba(7,13,24,.5)); }
+.qt-title { font-weight: 600; color: #ffe08a; display: flex; gap: 5px; align-items: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qt-obj { color: var(--ink-dim); margin-top: 2px; display: flex; align-items: center; gap: 8px; }
+.qt-bar { flex: 1; height: 4px; background: rgba(255,255,255,.12); max-width: 90px; }
+.qt-bar i { display: block; height: 100%; background: #ffd34a; }
+#hud.hud-min #quest-track { display: none; }
+.q-card { border: 1px solid var(--line-2); padding: 10px 12px; background: rgba(0,0,0,.25); }
+.q-card h4 { margin: 0 0 4px; color: #ffe08a; font-size: 15px; }
+.q-card p { margin: 4px 0; }
+.q-card .q-obj { color: var(--cy); font-weight: 600; }
+.q-card .q-rw { color: var(--ink-dim); font-size: 12.5px; }
+.q-done { margin-top: 10px; font-size: 12.5px; color: var(--ink-dim); display: grid; gap: 3px; }
+.q-done b { color: #7fdc8f; font-weight: 500; }
 .buff { width: 28px; height: 28px; background: var(--c); position: relative; text-align: center; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
 .buff b { font-size: 14px; line-height: 28px; color: #fff; text-shadow: 0 0 3px #000; }
 .buff i { position: absolute; left: 0; right: 0; bottom: 1px; font: 700 8px var(--display); font-style: normal; color: #fff; text-shadow: 0 0 2px #000, 0 0 2px #000; }
@@ -282,6 +298,12 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round
 /* โหมด PAD: แชทเป็นตัวหนังสือลอยบนเกม ไม่มีกรอบ แตะปุ่ม 💬 เพื่อพิมพ์ */
 #chat-btn { display: none; }
 .pad-mode #chat { background: none; border: 0; padding: 0; pointer-events: none; }
+/* มือถือ: แถบเควสต์ย้ายไปขวาใต้มินิแมพ (ซ้ายมีปุ่มยา/แชต) */
+.pad-mode #quest-track { left: auto; right: calc(var(--gap) + var(--sr)); top: calc(206px + var(--st)); width: min(52vw, 210px); text-align: right;
+  border-left: 0; border-right: 2px solid #ffd34a; background: linear-gradient(260deg, rgba(10,20,38,.85), rgba(7,13,24,.35)); }
+.pad-mode .qt-title { justify-content: flex-end; }
+.pad-mode .qt-obj { flex-direction: row-reverse; }
+@media (orientation: portrait) { .pad-mode #quest-track { top: calc(146px + var(--st)); right: calc(var(--gap) + var(--sr) + 50px); width: min(46vw, 190px); } }
 .pad-mode #chat .fold-btn { display: none; }
 .pad-mode #chat-log { height: auto; max-height: 96px; overflow: hidden; padding: 0; font-size: 12px; -webkit-mask-image: linear-gradient(transparent, #000 30%); mask-image: linear-gradient(transparent, #000 30%); }
 .pad-mode #chat-log .cl { text-shadow: 0 0 3px #000, 0 1px 2px #000, 0 0 6px rgba(0,0,0,.8); line-height: 1.35; }
@@ -570,6 +592,7 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
   .xrow label { width: 42px; font-size: 8px; } .xrow > span { width: 34px; font-size: 9px; }
   .bi-foot { font-size: 11px; }
   #buffs { top: calc(174px + var(--st)); max-width: 64vw; }
+  #quest-track { top: calc(206px + var(--st)); width: min(64vw, 230px); font-size: 12px; }
   #hud-toggle { left: 50%; top: var(--st); transform: translateX(-50%); width: 34px; height: 18px; border-radius: 0 0 8px 8px; font-size: 10px; line-height: 16px; }
   #hud.hud-min #hud-toggle { left: 50%; }
   #minimap { width: 104px; }
@@ -628,6 +651,7 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
   .gauge.sp { height: 9px; } .gauge.sp i, .gauge.sp span { line-height: 9px; font-size: 8px; }
   .bi-foot { display: none; }
   #buffs { top: calc(96px + var(--st)); }
+  #quest-track { top: calc(128px + var(--st)); width: 220px; font-size: 11.5px; padding: 4px 8px 5px; }
   #minimap { width: 92px; }
   .mm-ring { width: 86px; height: 86px; padding: 3px; }
   .mm-sub { display: none; }

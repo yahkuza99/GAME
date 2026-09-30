@@ -163,6 +163,7 @@ function bindInput() {
       case 'o': UI.toggle('w-options'); break;
       case 'h': UI.toggle('w-help'); break;
       case 'g': UI.toggle('w-nav'); break;
+      case 'j': UI.toggle('w-quest'); break;
       case 'b': Bot.toggle(); break;
       case 'm': UI.toggle('w-map'); break;
       case 'u': UI.toggleHud(); break;
@@ -227,6 +228,7 @@ function loop(ts) {
     keyboardMove();
     Pad.update();
     Nav.update();
+    Quest.tick();
     Music.update();
     Online.update(dt);
     R.render();

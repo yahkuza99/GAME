@@ -10,7 +10,7 @@ const G = {
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
 const SAVE_FIELDS = ['name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
-  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq'];
+  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests'];
 
 // ------------------------------------------------------------
 //  สร้าง / บันทึก / โหลด
@@ -23,7 +23,7 @@ function newPlayer(name, gender, hair, look) {
     equip: { head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null },
     hotbar: [null, null, null, null, null, null, null, null], potbar: [null, null, null, null],
     map: HOME_MAP, x: 20.5, y: 24.5, save: { map: HOME_MAP, x: 20.5, y: 24.5 },
-    hp: 1, sp: 1, options: { autoLoot: true, sound: true, music: false, musicVol: 0.7, expMsg: true }, uidSeq: 1,
+    hp: 1, sp: 1, options: { autoLoot: true, sound: true, music: false, musicVol: 0.7, expMsg: true }, uidSeq: 1, quests: { i: 0, n: 0, done: [] },
   };
   initRuntime(p);
   G.player = p;
@@ -508,6 +508,7 @@ function damageMob(m, dmg, opts = {}) {
   m.hitFlash = 0.12;
   if (m.def.dummy) { // หุ่นฝึก: จดดาเมจไว้คิด DPS และไม่มีวันตาย (เลือดเต็มใหม่เมื่อหมด)
     (m.dmgLog || (m.dmgLog = [])).push([G.time, dmg]);
+    Quest.onHitDummy();
     if (m.hp <= 0) { m.hp = m.maxHp; addFloater(m.x, m.y - 1.8, 'RESET', '#9ff0ff'); }
   }
   const s = (m.def.scale || 1);
@@ -523,6 +524,7 @@ function killMob(m) {
   m.dead = true; m.deathT = 0; m.hp = 0; m.path = []; m.moving = false;
   if (p.target === m) p.target = null;
   Bot.onKill(m);
+  Quest.onKill(d.id);
   gainExp(d.exp, d.jexp);
   for (const [id, ch] of d.drops) if (U.chance(ch)) dropItemOnGround(id, m.x, m.y);
   if (m.isMvp) {

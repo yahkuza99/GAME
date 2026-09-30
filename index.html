@@ -32,6 +32,7 @@
       </div>
     </div>
     <div id="buffs"></div>
+    <div id="quest-track" hidden title="แตะเพื่อนำทางไปทำเควสต์ (J = สมุดเควสต์)"></div>
     <div id="nav-pill" hidden><span class="nav-ic">🧭</span><span id="nav-text"></span><button id="nav-cancel" type="button" aria-label="ยกเลิกการนำทาง">×</button></div>
     <div id="target" hidden>
       <canvas id="tg-cv" width="84" height="84"></canvas>
@@ -95,6 +96,9 @@
     <div id="w-skills" class="win hidden" style="left:12px;top:170px;width:400px">
       <div class="win-title"><span>สกิล (Skill Tree)</span></div><div class="win-body"></div>
     </div>
+    <div id="w-quest" class="win hidden" style="left:12px;top:170px;width:360px">
+      <div class="win-title"><span>เควสต์ (Quest)</span></div><div class="win-body"></div>
+    </div>
     <div id="w-nav" class="win hidden" style="left:12px;top:170px;width:360px">
       <div class="win-title"><span>นำทาง (Navigate)</span></div><div class="win-body"></div>
     </div>
@@ -130,6 +134,7 @@
           <li><b>U</b> ซ่อน/แสดง HUD ทั้งหมด • ปุ่ม <b>▾</b> มุมแผงเพื่อพับเก็บทีละแผง</li>
           <li><b>X</b> นั่งพัก • <b>Enter</b> แชท • <b>Esc</b> ปิดหน้าต่าง • <b>ล้อเมาส์ / + −</b> ซูม</li>
           <li><b>B</b> เปิด/ปิดบอท • <b>N</b> ตั้งค่าบอท • <b>M</b> แผนที่ใหญ่ (คลิกเพื่อเดินไปได้)</li>
+          <li><b>J</b> เควสต์ — ภารกิจแนะนำทีละขั้น แตะแถบเควสต์ใต้การ์ดยูนิตเพื่อเดินไปทำทันที</li>
           <li><b>G</b> นำทาง — เลือก NPC / แผนที่ / มอนสเตอร์ แล้วตัวละครจะเดินไปเอง ข้ามแผนที่ได้ (คลิกชื่อบนแผนที่ใหญ่ก็ได้)</li>
           <li><b>Tab</b> เปิด/ปิดเมนู • <b>ปุ่มลูกศร</b> เดิน 8 ทิศ (กดสองปุ่มพร้อมกันเพื่อเดินแนวทแยง) • คลิกมินิแมพเพื่อเดินไปจุดนั้น</li>
         </ul>
@@ -248,6 +253,7 @@
   <script src="js/ui.js"></script>
   <script src="js/pad.js"></script>
   <script src="js/nav.js"></script>
+  <script src="js/quest.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

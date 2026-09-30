@@ -10,6 +10,7 @@ const NPC = {
     const fn = this.scripts[n.id];
     if (!fn) return;
     this.busy = true;
+    Quest.onTalk(n.id);
     UI.illust(`npc_${n.id}`);
     try { await fn(n); }
     catch (e) { if (e !== 'closed') console.error(e); }
@@ -26,6 +27,7 @@ NPC.scripts.bifrost = async n => {
     ['บันทึกจุดเกิด (Save)', 'ข้ามสะพานสายรุ้ง (เทเลพอร์ต)', 'ยกเลิก']);
   if (c === 0) {
     p.save = { map: G.map.id, x: n.x + 0.5, y: n.y + 1.5 };
+    Quest.onEvent('save');
     saveGame();
     await UI.say(nm, `ข้าจดจำ ${B(G.map.def.name)} ไว้ให้เจ้าแล้ว<br>เมื่อใช้ Return Beacon หรือล้มลงในการต่อสู้ เจ้าจะกลับมาที่นี่`);
   } else if (c === 1) {
