@@ -93,6 +93,7 @@ R.render = () => {
   const sx = Math.max(0, Math.floor(R.camX)), sy = Math.max(0, Math.floor(wTop));
   const sw = Math.min(map.ground.width - sx, Math.ceil(vw) + 2), sh = Math.min(map.ground.height - sy, Math.ceil(wH) + 2);
   if (sw > 0 && sh > 0) g.drawImage(map.ground, sx, sy, sw, sh, sx, sy, sw, sh);
+  R.drawGrassWind(g, map, t, sx, sy, sw, sh);
   // น้ำพุมีชีวิต
   g.restore();
   if (map.fountain && !map.fountainImg) upright(map.fountain.y * TILE, () => {
@@ -405,6 +406,39 @@ R.drawFloater = (g, f) => {
   g.fillStyle = f.color; g.fillText(f.text, 0, 0);
   g.restore();
   g.globalAlpha = 1;
+};
+// หญ้าพลิ้วตามลม: ครอสเฟดระหว่างภาพหญ้า 3 เฟรม (ground_grass, 2, 3) เฉพาะบริเวณหญ้าที่มองเห็น
+// อัปเดตภาพซ้อนราว 15 ครั้ง/วินาที แล้ววาดซ้ำจากแคชในเฟรมอื่น (เบาบนมือถือ)
+R.grassWind = { cv: null, ox: 0, oy: 0, w: 0, h: 0, at: -1, map: null, pats: null };
+R.drawGrassWind = (g, map, t, sx, sy, sw, sh) => {
+  if (!map.grassMask || G.fastSim) return;
+  const F = [Art.get('ground_grass'), Art.get('ground_grass2'), Art.get('ground_grass3')];
+  if (!F[0] || !F[1] || !F[2]) return;
+  const W = R.grassWind, PX = 256;
+  if (!W.pats || W.map !== map) {
+    W.pats = F.map(im => { const c = document.createElement('canvas'); c.width = c.height = PX; c.getContext('2d').drawImage(im, 0, 0, PX, PX); return c; });
+    W.map = map; W.at = -1;
+  }
+  const M = 96, need = sx < W.ox || sy < W.oy || sx + sw > W.ox + W.w || sy + sh > W.oy + W.h;
+  if (need || t - W.at > 1 / 15 || t < W.at) {
+    W.at = t;
+    if (need || !W.cv) { W.ox = Math.max(0, sx - M); W.oy = Math.max(0, sy - M); W.w = sw + M * 2; W.h = sh + M * 2; }
+    if (!W.cv) W.cv = document.createElement('canvas');
+    if (W.cv.width !== W.w || W.cv.height !== W.h) { W.cv.width = W.w; W.cv.height = W.h; }
+    const c = W.cv.getContext('2d');
+    // ลำดับเฟรม 0→1→2→1 วนซ้ำ ครอสเฟดนุ่ม (smoothstep) เฟรมละ ~0.8 วินาที
+    const seq = [0, 1, 2, 1], u = t / 0.8, i = Math.floor(u) % 4, f = u - Math.floor(u), a = f * f * (3 - 2 * f);
+    c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'source-over'; c.globalAlpha = 1;
+    c.clearRect(0, 0, W.w, W.h);
+    c.translate(-W.ox, -W.oy);
+    c.fillStyle = c.createPattern(W.pats[seq[i]], 'repeat'); c.fillRect(W.ox, W.oy, W.w, W.h);
+    c.globalAlpha = a; c.fillStyle = c.createPattern(W.pats[seq[(i + 1) % 4]], 'repeat'); c.fillRect(W.ox, W.oy, W.w, W.h);
+    c.globalAlpha = 1; c.globalCompositeOperation = 'destination-in';
+    c.imageSmoothingEnabled = true;
+    const k = map.grassMaskScale; c.drawImage(map.grassMask, 0, 0, map.grassMask.width * k, map.grassMask.height * k);
+    c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'source-over';
+  }
+  g.drawImage(W.cv, W.ox, W.oy);
 };
 R.label = (g, x, y, text, color, bold) => {
   g.font = `${bold ? 'bold ' : ''}12px "Noto Sans Thai", Tahoma, sans-serif`;

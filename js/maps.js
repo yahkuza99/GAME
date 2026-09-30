@@ -352,6 +352,20 @@ class GameMap {
       lg.filter = 'none';
       g.drawImage(layer, 0, 0);
     }
+    // 1.6) หน้ากากหญ้าความละเอียดต่ำ (4px/ช่อง เบลอแล้ว) สำหรับหญ้าพลิ้วตามลมตอนเล่น
+    this.grassMask = null;
+    if (this.texClasses.has('grass')) {
+      const MS = 4, raw = document.createElement('canvas'); raw.width = this.w * MS; raw.height = this.h * MS;
+      const rg = raw.getContext('2d');
+      rg.fillStyle = '#fff';
+      for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) {
+        const tt = this.tile(x, y);
+        if (this.terrainClass(tt) === 'grass' && tt !== T.HOUSE) rg.fillRect(x * MS, y * MS, MS, MS);
+      }
+      const m = document.createElement('canvas'); m.width = raw.width; m.height = raw.height;
+      const mg = m.getContext('2d'); mg.filter = 'blur(1.6px)'; mg.drawImage(raw, 0, 0); mg.filter = 'none';
+      this.grassMask = m; this.grassMaskScale = TILE / MS;
+    }
     // 2) รายละเอียดทีละช่อง
     for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) this.detailTile(g, x, y);
     // 3) ขอบธรรมชาติระหว่างพื้นต่างชนิด
@@ -382,8 +396,7 @@ class GameMap {
     const h = (i, k = 0) => U.hash2(x * 31 + i, y * 17 + k, seed);
     const cls = this.terrainClass(t);
     const tex = this.texClasses && this.texClasses.has(cls);
-    if (tex && cls !== 'grass') return;               // มีภาพพื้นผิวแล้ว ไม่วาดรายละเอียดทับ
-    if (cls === 'grass' && tex && t !== T.FLOWER) return;
+    if (tex) return;                                   // มีภาพพื้นผิวแล้ว (หญ้าในภาพมีดอกไม้อยู่แล้ว) ไม่วาดรายละเอียดทับ
     if (cls === 'grass' && t !== T.HOUSE) {
       const base = this.def.grass || '#6fae4a';
       const n = 4 + Math.floor(h(1) * 5);
