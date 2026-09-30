@@ -228,7 +228,7 @@ R.render = () => {
     const x = f.x * TILE, y = f.y * TILE - k * (f.big ? 40 : 34) - (k < 0.15 ? (0.15 - k) * 60 : 0);
     g.globalAlpha = k > 0.7 ? (1 - k) / 0.3 : 1;
     const size = f.big ? 22 : (typeof f.text === 'string' && /^\d+$/.test(f.text) ? 18 : 14);
-    g.font = `900 ${size}px "Trebuchet MS", Tahoma, sans-serif`;
+    g.font = `800 ${size}px Kanit, "Trebuchet MS", Tahoma, sans-serif`;
     g.lineWidth = 4; g.strokeStyle = 'rgba(0,0,0,0.85)';
     g.strokeText(f.text, x, y);
     g.fillStyle = f.color; g.fillText(f.text, x, y);
@@ -348,7 +348,7 @@ R.drawVignette = g => {
 };
 
 R.label = (g, x, y, text, color, bold) => {
-  g.font = `${bold ? 'bold ' : ''}12px Tahoma, "Noto Sans Thai", sans-serif`;
+  g.font = `${bold ? 'bold ' : ''}12px "Noto Sans Thai", Tahoma, sans-serif`;
   g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,0.8)';
   g.strokeText(text, x, y); g.fillStyle = color; g.fillText(text, x, y);
 };
@@ -370,7 +370,7 @@ R.emote = (g, x, y, ch) => {
   g.fillStyle = ch === '!' ? '#e02020' : '#4060c0'; g.font = 'bold 13px Tahoma'; g.fillText(ch, x, y + 1);
 };
 R.speech = (g, x, y, text, shout) => {
-  g.font = 'bold 13px Tahoma, "Noto Sans Thai", sans-serif';
+  g.font = 'bold 13px "Noto Sans Thai", Tahoma, sans-serif';
   if (shout) {
     g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,0.85)'; g.strokeText(text, x, y);
     g.fillStyle = '#fffbd0'; g.fillText(text, x, y);
