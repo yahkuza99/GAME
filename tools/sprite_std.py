@@ -357,6 +357,7 @@ def main():
     ap.add_argument('--grid', default='4x2'); ap.add_argument('--cols', type=int, default=4); ap.add_argument('--rows', type=int, default=2)
     ap.add_argument('--frames', type=int, default=0, help='ใช้แค่ N เฟรมแรก')
     ap.add_argument('--dirs', default='', help='ทิศของแต่ละแถวในชีต เช่น S,SW,W,NW,N,E,SE')
+    ap.add_argument('--scale', type=float, default=0, help='กำหนดสเกลเอง (เช่น เท่ากับชีตอื่นที่วาดขนาดเดียวกัน)')
     ap.add_argument('--take-cols', default='', help='เก็บเฉพาะคอลัมน์เหล่านี้ของทุกแถว เช่น 1,2 (ชีตรวมหลายท่า)')
     ap.add_argument('--ref-frames', default='', help='คอลัมน์ที่เป็นท่ายืนตรง เช่น 1,6 — ใช้ความสูงของเฟรมพวกนี้ตั้งสเกลให้เท่าท่าเดิน (ChatGPT มักวาดแต่ละชีตขนาดไม่เท่ากัน)')
     ap.add_argument('--still', action='store_true', help='เก็บแค่เฟรมที่เท้าชิดกันที่สุด (ยืนสองขา) แถวละ 1 เฟรม — ใช้ทำท่ายืนจากชีตเดิน')
@@ -388,7 +389,10 @@ def main():
         # ใช้สเกลเดียวกับท่ายืนของตัวละครนี้ (ไม่มีก็ใช้สเกลเทมเพลต)
         scale = (ref * TPL_W / src_w) if ref else STD_H / (TPL_BODY * Image.open(a.src).height / rows)
         print(f"  สเกลจาก{'ท่ายืนที่ติดตั้งไว้' if ref else 'เทมเพลต'}: {scale:.3f}")
-    if ref_scale:
+    if a.scale:
+        scale = a.scale
+        print(f'  สเกลกำหนดเอง: {scale:.3f}')
+    elif ref_scale:
         scale = ref_scale
         print(f"  สเกลจากเฟรมยืน {a.ref_frames}: {scale:.3f}")
     out, rep, k, med = normalize(frames, scale=scale, fit=(a.action in STANDING) and not a.nofit and not (a.key or '').startswith('mob_'))

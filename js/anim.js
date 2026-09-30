@@ -151,7 +151,7 @@ const Anim = {
     let sink = 0;
     if (p.action === 'dead') {
       const b = this.frameBox(p.img, p.f, p.row);
-      if (b) sink = Math.max(0, this.GROUND - 10 - (b.top + b.bot) / 2) * (p.n > 1 ? p.f / (p.n - 1) : 1);
+      if (b) sink = Math.max(0, this.GROUND - 24 - (b.top + b.bot) / 2) * (p.n > 1 ? p.f / (p.n - 1) : 1);
     }
     if (sink) Sprites.shadow(g, x, y, H * 0.46, H * 0.13, 0.32); else Sprites.shadow(g, x, y, H * 0.3, H * 0.09, 0.3);
     g.save();

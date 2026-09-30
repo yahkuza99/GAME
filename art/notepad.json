@@ -1,19 +1,6 @@
 [
 {
 "group": "แชตสั่งภาพ (แบบ next)",
-"key": "chat_Novice หญิง (Type-A)",
-"sheet": "chat",
-"title": "Novice หญิง (Type-A) — 1 ภาพ",
-"attach": [
-"ภาพเดินล่าสุดของ Novice หญิง",
-"tpl_dead.png"
-],
-"done": false,
-"prompt": "Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.",
-"how": "แนบ ภาพเดินของตัวนี้ + tpl_dead.png"
-},
-{
-"group": "แชตสั่งภาพ (แบบ next)",
 "key": "chat_Novice ชาย (Type-B)",
 "sheet": "chat",
 "title": "Novice ชาย (Type-B) — 6 ภาพ",
@@ -328,7 +315,7 @@
 "ภาพเดินของตัวนี้",
 "tpl_dead.png"
 ],
-"done": false,
+"done": true,
 "prompt": "Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines."
 },
 {

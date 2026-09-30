@@ -2,7 +2,7 @@
 
 สร้างอัตโนมัติด้วย `python3 tools/make_notepad.py` (ดูว่าอะไรมีแล้วจาก assets) • ✅ = ติดตั้งแล้ว • ⬜ = ยังขาด
 
-**ยังขาด: ตัวละคร 79 ภาพ • มอนสเตอร์ 19 ภาพ • NPC 1 ภาพ**
+**ยังขาด: ตัวละคร 78 ภาพ • มอนสเตอร์ 19 ภาพ • NPC 1 ภาพ**
 
 ## วิธีใช้
 
@@ -12,14 +12,6 @@
 4. ส่งภาพมาได้เลย ผมวัดขนาด ตัดเฟรม ทำทิศขวา และติดตั้งให้เอง
 
 ## แบบแชต (วางครั้งเดียวต่อแชต แล้วพิมพ์ next)
-
-### Novice หญิง (Type-A) — 1 ภาพ
-
-แนบ ภาพเดินของตัวนี้ + tpl_dead.png
-
-```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
-```
 
 ### Novice ชาย (Type-B) — 6 ภาพ
 
@@ -382,11 +374,7 @@ Start now with IMAGE 1.
 
 ✅ **นั่ง + โดนตี** — แนบ `tpl_sit_hurt.png` (4×5)
 
-⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
-
-```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ### Novice ชาย (Type-B) — `novice_m`
 
