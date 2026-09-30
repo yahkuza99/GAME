@@ -39,6 +39,57 @@ def square(im, size, fill=(0, 0, 0, 0)):
     c = Image.new('RGBA', (s, s), fill); c.paste(im, ((s - w) // 2, (s - h) // 2), im)
     return c.resize((size, size), Image.LANCZOS)
 
+def blobs(im, cols, rows):
+    """แยกวัตถุตามรูปทรงจริง (ไม่ใช่ตัดตามตาราง) — วัตถุที่ล้นข้ามช่องจะไม่ถูกตัด
+    คืนค่า {index ช่อง: (bbox, mask)} โดยจัดแต่ละก้อนเข้าช่องที่จุดศูนย์กลางมวลตกอยู่"""
+    W, H = im.size; f = 4                       # ทำงานบนภาพย่อ 1/4 เพื่อความเร็ว
+    w, h = W // f, H // f
+    a = im.getchannel('A').resize((w, h), Image.BOX).load()
+    solid = [[a[x, y] > 40 for x in range(w)] for y in range(h)]
+    lab = [[-1] * w for _ in range(h)]
+    comps = []
+    for y0 in range(h):
+        for x0 in range(w):
+            if not solid[y0][x0] or lab[y0][x0] >= 0: continue
+            cid = len(comps); stack = [(x0, y0)]; lab[y0][x0] = cid; pts = []
+            while stack:
+                x, y = stack.pop(); pts.append((x, y))
+                for dx in (-2, -1, 0, 1, 2):           # เชื่อมช่องว่างเล็ก ๆ (ปีกใส/ประกาย)
+                    for dy in (-2, -1, 0, 1, 2):
+                        nx, ny = x + dx, y + dy
+                        if 0 <= nx < w and 0 <= ny < h and solid[ny][nx] and lab[ny][nx] < 0:
+                            lab[ny][nx] = cid; stack.append((nx, ny))
+            comps.append(pts)
+    cells = {}
+    total = sum(len(c) for c in comps) or 1
+    for cid, pts in enumerate(comps):
+        if len(pts) < total * 0.002: continue       # เศษเล็ก ๆ ทิ้ง
+        cx = sum(p[0] for p in pts) / len(pts) * f; cy = sum(p[1] for p in pts) / len(pts) * f
+        idx = min(int(cy / (H / rows)), rows - 1) * cols + min(int(cx / (W / cols)), cols - 1)
+        cells.setdefault(idx, []).append(cid)
+    out = {}
+    for idx, cids in cells.items():
+        m = Image.new('L', (w, h), 0); mp = m.load()
+        for cid in cids:
+            for x, y in comps[cid]: mp[x, y] = 255
+        m = m.resize((W, H), Image.NEAREST)
+        from PIL import ImageFilter
+        m = m.filter(ImageFilter.MaxFilter(9))
+        out[idx] = (m.getbbox(), m)
+    # วัตถุสองตัวที่แตะกันจะรวมเป็นก้อนเดียว: ช่องที่ว่างและช่องที่ "ขโมย" ไปใช้การตัดตามตารางแทน
+    cw, ch = W / cols, H / rows
+    for idx in range(cols * rows):
+        if idx in out: continue
+        rect = (int(idx % cols * cw), int(idx // cols * ch), int((idx % cols + 1) * cw), int((idx // cols + 1) * ch))
+        best, bestN = None, 0
+        for j, (bb, m) in out.items():
+            if bb is None: continue
+            n = sum(1 for v in m.crop(rect).resize((32, 32)).getdata() if v)
+            if n > bestN: best, bestN = j, n
+        if best is not None: out[best] = ('grid', None)
+        out[idx] = ('grid', None)
+    return out
+
 def slice_sheet(path, name):
     spec = next(s for s in SHEETS if s['file'] == name)
     im = Image.open(path).convert('RGBA')
@@ -49,6 +100,20 @@ def slice_sheet(path, name):
         cx, cy = i % spec['cols'], i // spec['cols']
         box = (round(cx * cw), round(cy * ch), round((cx + 1) * cw), round((cy + 1) * ch))
         cell = im.crop(box)
+        if spec['mode'] == 'alpha' and key.startswith('mobsprite_'):
+            if not hasattr(slice_sheet, '_b') or slice_sheet._b[0] != path:
+                slice_sheet._b = (path, blobs(im, spec['cols'], spec['rows']))
+            got = slice_sheet._b[1].get(i)
+            if not got: print('  ! ไม่พบวัตถุ:', key); continue
+            bb, m = got
+            if bb == 'grid':
+                ch_ = cell.getchannel('A').point(lambda v: 255 if v > 24 else 0).getbbox()
+                if not ch_: print('  ! ช่องว่าง:', key); continue
+                out = cell.crop(ch_); out.thumbnail((320, 320), Image.LANCZOS)
+                save(out, key); print('  + (grid)', key); continue
+            iso = im.copy(); iso.putalpha(ImageChops.multiply(im.getchannel('A'), m))
+            out = iso.crop(bb); out.thumbnail((320, 320), Image.LANCZOS)
+            save(out, key); print('  +', key); continue
         if spec['mode'] == 'tile':
             # ตัดขอบร่อง (gutter) ออกแล้วครอปกลางให้เป็นจัตุรัส
             ins = int(min(cell.size) * 0.05); cell = cell.crop((ins, ins, cell.size[0] - ins, cell.size[1] - ins))

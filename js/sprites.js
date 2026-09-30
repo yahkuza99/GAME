@@ -691,8 +691,9 @@ Sprites.mobAndroid = (g, x, y, m, t) => {
 const MOB_MOTION = { poring: 'hop', lunatic: 'hop', fabre: 'crawl', chonchon: 'fly', rocker: 'hop', willow: 'sway', spore: 'hop', quad: 'walk' };
 Sprites.mobImage = (g, x, y, m, t, img) => {
   const d = m.def, s = (d.scale || 1) * (d.size || 1);
-  const H = 46 * s, W = H * img.width / img.height;
   const motion = d.wings ? 'fly' : (MOB_MOTION[d.sprite] || 'walk');
+  const base = { hop: 40, fly: 40, crawl: 34, sway: 50, walk: d.sprite === 'quad' ? 44 : 60 }[motion];
+  const H = base * s, W = H * img.width / img.height;
   const ph = t * (m.moving ? 7 : 2.2) + (m.seed || 0) * 10;
   let lift = 0, sx = 1, sy = 1, rot = 0;
   if (motion === 'hop') { const k = Math.abs(Math.sin(ph)); lift = m.moving ? k * 9 * s : 0; sy = 1 - (1 - k) * 0.12 + (m.moving ? 0 : Math.sin(ph) * 0.04); sx = 2 - sy; }
