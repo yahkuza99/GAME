@@ -42,6 +42,29 @@ const Anim = {
     const D = this.DUR, ka = (t - a.at) / D.attack, kh = (t - a.ht) / D.hurt;
     return { atk: ka >= 0 && ka < 1 ? 1 - ka : 0, hurt: kh >= 0 && kh < 1 ? 1 - kh : 0, deathT: dead ? Math.max(0, t - a.dt) * 0.5 / D.dead : 0 };
   },
+  // เฟรมที่ "เท้าชิดกันที่สุด" ของแต่ละแถว (ใกล้ท่ายืนที่สุด) — วัดความกว้างช่วงเท้าครั้งเดียวแล้วจำไว้
+  stillFrame(img, n, row) {
+    if (!img._still) {
+      img._still = [];
+      try {
+        const C = this.CELL, c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+        const g = c.getContext('2d'); g.drawImage(img, 0, 0);
+        const rows = Math.round(img.height / C);
+        for (let r = 0; r < rows; r++) {
+          let best = 0, bw = 1e9;
+          for (let f = 0; f < n; f++) {
+            const d = g.getImageData(f * C, r * C + this.GROUND - 28, C, 26).data;
+            let x0 = C, x1 = 0;
+            for (let y = 0; y < 26; y++) for (let x = 0; x < C; x++) if (d[(y * C + x) * 4 + 3] > 80) { if (x < x0) x0 = x; if (x > x1) x1 = x; }
+            const w = x1 - x0; if (w > 0 && w < bw) { bw = w; best = f; }
+          }
+          img._still.push(best);
+        }
+      } catch (e) { /* อ่านพิกเซลไม่ได้ (file://) ใช้เฟรมที่ 2 */ }
+    }
+    const v = img._still[row];
+    return v != null ? v : Math.min(1, n - 1);
+  },
   has(key) { return !!Art.get(`anim_${key}_idle`) || !!Art.get(`anim_${key}_walk`); },
 
   // เลือกท่าและเฟรมจากสถานะตัวละคร
@@ -54,11 +77,15 @@ const Anim = {
     else if (st.cast) action = 'cast';
     else if (st.sit) action = 'sit';
     else if (st.moving) action = 'walk';
-    let s = this.strip(key, action); if (!s) return null;
-    // ท่ายืนมีแค่มุมหน้า แต่ท่าเดินมี 8 ทิศ: ตอนหันหลังให้ยืนด้วยเฟรมแรกของท่าเดินทิศนั้น (ไม่หมุนกลับมาหันหน้า)
-    if (s.dirs === 1 && s.action === 'idle' && st.dir >= 5) {
+    const s = this.strip(key, action); if (!s) return null;
+    // ท่าเดินเป็น 8 ทิศแต่ท่ายืนเป็นภาพทิศเดียว (มักเป็นคนละชุดภาพ ตัวจะดูเปลี่ยนไปตอนหยุด):
+    // ยืนด้วยเฟรมกลางก้าวของท่าเดินทิศนั้นแทน + หายใจเบา ๆ ตัวละครจึงเป็นแบบเดียวกันตลอด
+    if (action === 'idle') {
       const w = this.strip(key, 'walk');
-      if (w && w.dirs === 8) return { img: w.img, f: 0, row: st.dir, flip: false };
+      if (w && w.dirs === 8 && s.dirs !== 8) {
+        const dir = st.dir != null ? st.dir : (st.facing > 0 ? 0 : 4);
+        return { img: w.img, f: this.stillFrame(w.img, w.n, dir), row: dir, flip: false, breathe: true };
+      }
     }
     const def = this.ACTIONS[s.action];
     let f;
@@ -77,7 +104,7 @@ const Anim = {
     Sprites.shadow(g, x, y, H * 0.3, H * 0.09, 0.3);
     g.save();
     g.translate(x, y);
-    g.scale(p.flip ? -k : k, k);
+    g.scale(p.flip ? -k : k, k * (p.breathe ? 1 + Math.sin(t * 2.4 + (st.seed || 0)) * 0.012 : 1));
     if (st.flash) g.filter = 'brightness(1.9)';
     g.drawImage(p.img, p.f * C, p.row * C, C, C, -this.CX, -this.GROUND, C, C);
     g.restore();
