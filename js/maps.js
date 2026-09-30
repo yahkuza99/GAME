@@ -319,6 +319,35 @@ class GameMap {
     sg.putImageData(img, 0, 0);
     g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
     g.drawImage(small, 0, 0, sw * CS, sh * CS);
+    // 1.5) ภาพพื้นผิวจริง (assets/ground_*.webp) ทับตามชนิดพื้น ขอบนุ่มด้วยหน้ากากเบลอ
+    this.texClasses = new Set();
+    const TEX = { grass: 'ground_grass', dirt: 'ground_dirt', stone: 'ground_road', cave: 'ground_cave' };
+    const TEX_PX = { grass: 256, dirt: 288, stone: 320, cave: 352 }; // ขนาดต่อ 1 รอบลาย (พิกเซลโลก)
+    for (const cls in TEX) {
+      const tex = typeof Art !== 'undefined' && Art.get(TEX[cls]);
+      if (!tex) continue;
+      let any = false;
+      const mk = document.createElement('canvas'); mk.width = this.w; mk.height = this.h;
+      const mg = mk.getContext('2d'), md = mg.createImageData(this.w, this.h);
+      for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) {
+        if (this.terrainClass(this.tile(x, y)) === cls || (cls === 'grass' && this.tile(x, y) === T.WATER)) { md.data[(y * this.w + x) * 4 + 3] = 255; any = true; }
+      }
+      if (!any) continue;
+      mg.putImageData(md, 0, 0);
+      this.texClasses.add(cls);
+      const layer = document.createElement('canvas'); layer.width = W; layer.height = H;
+      const lg = layer.getContext('2d');
+      const pc = document.createElement('canvas'); pc.width = TEX_PX[cls]; pc.height = TEX_PX[cls];
+      pc.getContext('2d').drawImage(tex, 0, 0, pc.width, pc.height);
+      lg.fillStyle = lg.createPattern(pc, 'repeat'); lg.fillRect(0, 0, W, H);
+      lg.globalCompositeOperation = 'destination-in';
+      lg.imageSmoothingEnabled = true; lg.imageSmoothingQuality = 'high';
+      // ขยายหน้ากากจาก 1px/ช่อง → ขอบไล่นุ่ม (ถนนโลหะคมกว่าเล็กน้อย)
+      lg.filter = `blur(${cls === 'stone' ? 3 : 7}px)`;
+      lg.drawImage(mk, 0, 0, W, H);
+      lg.filter = 'none';
+      g.drawImage(layer, 0, 0);
+    }
     // 2) รายละเอียดทีละช่อง
     for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) this.detailTile(g, x, y);
     // 3) ขอบธรรมชาติระหว่างพื้นต่างชนิด
@@ -345,6 +374,9 @@ class GameMap {
     const t = this.tile(x, y), px = x * TILE, py = y * TILE, seed = this.def.seed;
     const h = (i, k = 0) => U.hash2(x * 31 + i, y * 17 + k, seed);
     const cls = this.terrainClass(t);
+    const tex = this.texClasses && this.texClasses.has(cls);
+    if (tex && cls !== 'grass') return;               // มีภาพพื้นผิวแล้ว ไม่วาดรายละเอียดทับ
+    if (cls === 'grass' && tex && t !== T.FLOWER) return;
     if (cls === 'grass' && t !== T.HOUSE) {
       const base = this.def.grass || '#6fae4a';
       const n = 4 + Math.floor(h(1) * 5);
@@ -521,6 +553,24 @@ class GameMap {
     mg.putImageData(id, 0, 0);
     g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
     g.drawImage(m, x0 * TILE, y0 * TILE, mw * S, mh * S);
+    // ภาพผิวน้ำจริงทับเฉพาะส่วนน้ำลึก (ขอบทราย/ฟองยังเป็นแบบเดิม) โปร่งบางส่วนให้เห็นความลึก
+    const wt = typeof Art !== 'undefined' && Art.get('ground_water');
+    if (wt) {
+      const wmk = document.createElement('canvas'); wmk.width = mw; wmk.height = mh;
+      const wg = wmk.getContext('2d'), wd = wg.createImageData(mw, mh);
+      for (let i = 0; i < mw * mh; i++) if (A[i] >= 0.6) wd.data[i * 4 + 3] = 255;
+      wg.putImageData(wd, 0, 0);
+      const RW = mw * S, RH = mh * S;
+      const layer = document.createElement('canvas'); layer.width = RW; layer.height = RH;
+      const lg = layer.getContext('2d');
+      const pc = document.createElement('canvas'); pc.width = pc.height = 288;
+      pc.getContext('2d').drawImage(wt, 0, 0, 288, 288);
+      lg.fillStyle = lg.createPattern(pc, 'repeat');
+      lg.translate(-x0 * TILE, -y0 * TILE); lg.fillRect(x0 * TILE, y0 * TILE, RW, RH); lg.setTransform(1, 0, 0, 1, 0, 0);
+      lg.globalCompositeOperation = 'destination-in';
+      lg.filter = 'blur(2px)'; lg.drawImage(wmk, 0, 0, RW, RH); lg.filter = 'none';
+      g.save(); g.globalAlpha = 0.78; g.drawImage(layer, x0 * TILE, y0 * TILE); g.restore();
+    }
   }
 
   rockTile(g, x, y) {
