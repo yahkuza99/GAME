@@ -9,18 +9,18 @@ const SIGHT_BLOCK = new Set([T.TREE, T.WALL, T.ROCK, T.HOUSE]);
 
 const MAP_DEFS = {
   eldheim: {
-    name: 'Eldheim', thai: 'เมืองเอลด์ไฮม์ นครแห่งมิดการ์ด', w: 40, h: 40, kind: 'town', seed: 101,
+    name: 'Neo Eldheim', thai: 'นครนีโอเอลด์ไฮม์ ฐานที่มั่นแห่งแอนดรอยด์', w: 40, h: 40, kind: 'town', seed: 101,
     links: { E: 'meadow', S: 'wolfwood' }, spawns: [],
     grass: '#74b04c',
     npcs: [
       { id: 'bifrost', name: 'Bifrost Keeper', x: 23, y: 15, look: 'keeper' },
-      { id: 'jobmaster', name: 'Sage Mimir', x: 17, y: 15, look: 'jobmaster' },
+      { id: 'jobmaster', name: 'Mimir AI', x: 17, y: 15, look: 'jobmaster' },
       { id: 'tool', name: 'Tool Dealer', x: 8, y: 17, look: 'merchant' },
       { id: 'weapon', name: 'Weapon Dealer', x: 32, y: 17, look: 'smith' },
       { id: 'armor', name: 'Armor Dealer', x: 8, y: 31, look: 'merchant2' },
-      { id: 'refine', name: 'Brokk the Smith', x: 32, y: 31, look: 'refiner' },
-      { id: 'nurse', name: "Eir's Healer", x: 16, y: 25, look: 'nurse' },
-      { id: 'guide', name: 'Guard Rolf', x: 24, y: 25, look: 'guide' },
+      { id: 'refine', name: 'Brokk Forge-Bot', x: 32, y: 31, look: 'refiner' },
+      { id: 'nurse', name: 'Eir Repair Unit', x: 16, y: 25, look: 'nurse' },
+      { id: 'guide', name: 'Guard Unit Rolf', x: 24, y: 25, look: 'guide' },
     ],
   },
   meadow: {
@@ -31,7 +31,7 @@ const MAP_DEFS = {
   },
   mistlake: {
     name: 'Mistlake Plains', thai: 'ที่ราบทะเลสาบหมอก', w: 56, h: 56, kind: 'field', seed: 303,
-    links: { W: 'meadow' }, level: '8-16 (MVP: Seraph Pudding)',
+    links: { W: 'meadow' }, level: '8-16 (MVP: Seraph Core)',
     spawns: [['fiddlehopper', 10], ['stumpling', 8], ['capshroom', 8], ['moss_pudding', 8]], mvp: 'seraph_pudding',
     grass: '#86b04a', trees: 0.8, ponds: 4, flowers: 0.08, treeHue: '#5f9a3a',
   },
@@ -43,7 +43,7 @@ const MAP_DEFS = {
   },
   helcave: {
     name: "Hel's Hollow", thai: 'โพรงถ้ำแห่งเฮล', w: 50, h: 50, kind: 'cave', seed: 505, dark: true,
-    links: { N: 'wolfwood' }, level: '17-45 (MVP: Kitsura)',
+    links: { N: 'wolfwood' }, level: '17-45 (MVP: Kitsura EX)',
     spawns: [['draugr', 10], ['bone_warden', 8], ['hel_maiden', 7], ['hel_guard', 6]], mvp: 'kitsura',
   },
 };
@@ -205,12 +205,12 @@ class GameMap {
     for (let y = cy - 1; y <= cy + 1; y++) for (let x = cx - 1; x <= cx + 1; x++) this.set(x, y, T.FOUNTAIN);
     this.fountain = { x: cx + 0.5, y: cy + 0.5 };
     // ปราสาท
-    this.addBuilding(13, 2, 15, 7, 'castle', '#6a7fb0', 'ELDHEIM HALL');
+    this.addBuilding(13, 2, 15, 7, 'castle', '#6a7fb0', 'CENTRAL CORE');
     // ร้านค้า
-    this.addBuilding(4, 11, 8, 6, 'house', '#c0463a', 'TOOL');
-    this.addBuilding(28, 11, 8, 6, 'house', '#3a6ac0', 'WEAPON');
-    this.addBuilding(4, 25, 8, 6, 'house', '#3a9a5a', 'ARMOR');
-    this.addBuilding(28, 25, 8, 6, 'house', '#8a5a3a', 'REFINE');
+    this.addBuilding(4, 11, 8, 6, 'house', '#ff5a7a', 'SUPPLY');
+    this.addBuilding(28, 11, 8, 6, 'house', '#4ab0ff', 'ARMORY');
+    this.addBuilding(4, 25, 8, 6, 'house', '#5aff9a', 'PLATING');
+    this.addBuilding(28, 25, 8, 6, 'house', '#ffa040', 'FORGE');
     // ทางเดินหน้าร้าน
     for (const b of this.buildings) {
       if (b.kind !== 'house') continue;
@@ -260,8 +260,8 @@ class GameMap {
     const g = hex(this.def.grass || '#6fae4a');
     return {
       grassD: g.map(v => v * 0.68), grassL: [g[0] * 1.12 + 18, g[1] * 1.1 + 12, g[2] * 0.95],
-      dirtD: hex('#94744a'), dirtL: hex('#c9a874'),
-      stoneD: hex('#9a9282'), stoneL: hex('#c4bca8'),
+      dirtD: hex('#4c525c'), dirtL: hex('#737b87'),
+      stoneD: hex('#566070'), stoneL: hex('#7c8696'),
       waterS: hex('#63b4dc'), waterD: hex('#23578f'),
       caveD: hex('#3e342c'), caveL: hex('#6a5a4a'),
       rockD: hex('#1c1714'), rockL: hex('#2e2622'),
@@ -376,23 +376,31 @@ class GameMap {
         }
       }
     } else if (cls === 'dirt') {
-      for (let i = 0; i < 4; i++) {
-        const sx = px + h(i, 30) * TILE, sy = py + h(i, 31) * TILE, r = 1 + h(i, 32) * 2;
-        g.fillStyle = 'rgba(70,50,30,0.35)'; g.beginPath(); g.ellipse(sx + 0.6, sy + 0.8, r, r * 0.7, 0, 0, 7); g.fill();
-        g.fillStyle = `rgba(${200 + h(i, 33) * 40 | 0},${175 + h(i, 34) * 30 | 0},${135},0.9)`; g.beginPath(); g.ellipse(sx, sy, r, r * 0.7, 0, 0, 7); g.fill();
+      // ถนนแผ่นเหล็ก: รอยต่อ หมุด รอยขีดข่วน และไฟนำทาง
+      g.strokeStyle = 'rgba(20,24,32,0.55)'; g.lineWidth = 1;
+      g.strokeRect(px + 0.5, py + 0.5, TILE - 1, TILE - 1);
+      g.beginPath(); g.moveTo(px + TILE / 2 + 0.5, py); g.lineTo(px + TILE / 2 + 0.5, py + TILE); g.stroke();
+      g.strokeStyle = 'rgba(255,255,255,0.08)';
+      g.beginPath(); g.moveTo(px + 1.5, py + 1.5); g.lineTo(px + TILE - 1.5, py + 1.5); g.stroke();
+      g.fillStyle = 'rgba(20,24,32,0.6)';
+      for (const [rx, ry] of [[4, 4], [TILE - 5, 4], [4, TILE - 5], [TILE - 5, TILE - 5]]) { g.beginPath(); g.arc(px + rx, py + ry, 1.2, 0, 7); g.fill(); }
+      for (let i = 0; i < 2; i++) {
+        g.strokeStyle = 'rgba(200,210,225,0.12)'; g.beginPath();
+        const sx = px + h(i, 41) * TILE, sy = py + h(i, 42) * TILE; g.moveTo(sx, sy); g.lineTo(sx + (h(i, 43) - 0.5) * 16, sy + (h(i, 44) - 0.5) * 6); g.stroke();
       }
-      if (h(40) < 0.3) { g.strokeStyle = 'rgba(90,65,40,0.35)'; g.lineWidth = 1; g.beginPath(); g.moveTo(px + h(41) * TILE, py + h(42) * TILE); g.lineTo(px + h(43) * TILE, py + h(44) * TILE); g.stroke(); }
+      if (h(45) < 0.25) { g.fillStyle = 'rgba(150,90,50,0.25)'; g.beginPath(); g.ellipse(px + h(46) * TILE, py + h(47) * TILE, 5, 3, 0, 0, 7); g.fill(); }
+      if (h(48) < 0.18) { g.save(); g.shadowColor = '#6ad8ff'; g.shadowBlur = 6; g.fillStyle = 'rgba(120,220,255,0.85)'; g.fillRect(px + TILE / 2 - 5, py + TILE / 2 - 1, 10, 2); g.restore(); }
     } else if (cls === 'stone' && t === T.STONE) {
-      // หินปูพื้นทรงมน
-      for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) {
-        const off = (j % 2) * 6;
-        const sx = px + i * 13.3 + off - 3 + (h(i + j * 3, 50) - 0.5) * 2, sy = py + j * 13.3 + 1 + (h(i + j * 3, 51) - 0.5) * 2;
-        const k = h(i + j * 3, 52);
-        g.fillStyle = `rgba(${150 + k * 55 | 0},${144 + k * 52 | 0},${128 + k * 46 | 0},0.95)`;
-        rr(g, sx, sy, 11.5, 11, 3.5); g.fill();
-        g.strokeStyle = 'rgba(70,64,55,0.55)'; g.lineWidth = 1; g.stroke();
-        g.fillStyle = 'rgba(255,255,255,0.18)'; g.fillRect(sx + 2, sy + 1.5, 6, 1.5);
+      // พื้นเมือง: แผงโลหะ 2x2 มีขอบเอียงและเส้นไฟ
+      for (let j = 0; j < 2; j++) for (let i = 0; i < 2; i++) {
+        const sx = px + i * 20 + 1, sy = py + j * 20 + 1, k = h(i + j * 2, 52);
+        g.fillStyle = `rgba(${104 + k * 30 | 0},${114 + k * 30 | 0},${130 + k * 30 | 0},0.9)`;
+        g.fillRect(sx, sy, 18, 18);
+        g.fillStyle = 'rgba(255,255,255,0.14)'; g.fillRect(sx, sy, 18, 1.5); g.fillRect(sx, sy, 1.5, 18);
+        g.fillStyle = 'rgba(10,14,22,0.35)'; g.fillRect(sx, sy + 16.5, 18, 1.5); g.fillRect(sx + 16.5, sy, 1.5, 18);
+        if (h(i + j * 2, 53) < 0.1) { g.save(); g.shadowColor = '#6ad8ff'; g.shadowBlur = 5; g.fillStyle = 'rgba(120,220,255,0.75)'; g.fillRect(sx + 3, sy + 8, 12, 1.5); g.restore(); }
       }
+      g.fillStyle = 'rgba(10,14,22,0.5)'; g.fillRect(px, py, TILE, 1); g.fillRect(px, py, 1, TILE);
     } else if (cls === 'water' && false) {
       g.strokeStyle = 'rgba(210,240,255,0.22)'; g.lineWidth = 1.2;
       for (let i = 0; i < 2; i++) {
@@ -400,6 +408,13 @@ class GameMap {
         g.beginPath(); g.moveTo(wx, wy); g.quadraticCurveTo(wx + 5, wy - 2.5, wx + 10, wy); g.stroke();
       }
     } else if (cls === 'cave') {
+      if (h(80) < 0.12) {
+        g.save(); g.strokeStyle = 'rgba(160,110,255,0.55)'; g.shadowColor = '#a070ff'; g.shadowBlur = 5; g.lineWidth = 1.2;
+        const sx = px + 4 + h(81) * 12, sy = py + 6 + h(82) * 20;
+        g.beginPath(); g.moveTo(sx, sy); g.lineTo(sx + 12, sy); g.lineTo(sx + 17, sy + 5); g.lineTo(sx + 26, sy + 5); g.stroke();
+        g.fillStyle = 'rgba(200,170,255,0.9)'; g.beginPath(); g.arc(sx + 26, sy + 5, 1.6, 0, 7); g.fill();
+        g.restore();
+      }
       if (h(70) < 0.5) {
         g.strokeStyle = 'rgba(20,14,10,0.45)'; g.lineWidth = 1;
         const cx = px + h(71) * TILE, cy = py + h(72) * TILE;
@@ -539,11 +554,39 @@ class GameMap {
         if (r < 0.035) this.drawCrystal(g, cx, cy, r);
         else if (r < 0.08) this.drawStone(g, cx, cy, 0.7, '#6a5a4c');
       } else if (t === T.GRASS && d.kind !== 'town') {
-        if (r < 0.025) this.drawBush(g, cx, cy, r);
+        if (r < 0.006) this.drawPylon(g, cx, cy);
+        else if (r < 0.012) this.drawCrate(g, cx, cy, r);
+        else if (r < 0.018) this.drawScrap(g, cx, cy, r);
+        else if (r < 0.03) this.drawBush(g, cx, cy, r);
         else if (r < 0.045) this.drawStone(g, cx, cy, 0.8 + r * 6, '#9a9a90');
         else if (r < 0.055) this.drawMushroom(g, cx, cy);
       } else if (t === T.GRASS && d.kind === 'town' && r < 0.03) this.drawBush(g, cx, cy, r);
     }
+  }
+  // ซากเทคโนโลยีกลางธรรมชาติ
+  drawPylon(g, x, y) {
+    g.fillStyle = 'rgba(0,0,0,0.25)'; g.beginPath(); g.ellipse(x + 3, y + 2, 9, 3, 0, 0, 7); g.fill();
+    const gr = g.createLinearGradient(x - 4, 0, x + 4, 0); gr.addColorStop(0, '#8a94a4'); gr.addColorStop(1, '#4a5260');
+    g.fillStyle = gr; g.beginPath(); g.moveTo(x - 5, y + 1); g.lineTo(x - 2.5, y - 26); g.lineTo(x + 2.5, y - 26); g.lineTo(x + 5, y + 1); g.closePath(); g.fill();
+    g.strokeStyle = 'rgba(10,14,22,0.6)'; g.lineWidth = 1; g.stroke();
+    g.save(); g.shadowColor = '#6ad8ff'; g.shadowBlur = 8; g.fillStyle = '#8ae8ff';
+    g.fillRect(x - 1, y - 20, 2, 14); g.beginPath(); g.arc(x, y - 28, 2.5, 0, 7); g.fill(); g.restore();
+  }
+  drawCrate(g, x, y, r) {
+    g.fillStyle = 'rgba(0,0,0,0.25)'; g.beginPath(); g.ellipse(x + 2, y + 5, 10, 3, 0, 0, 7); g.fill();
+    g.fillStyle = r < 0.009 ? '#6a7486' : '#7a6a4a'; g.fillRect(x - 8, y - 10, 16, 14);
+    g.fillStyle = 'rgba(255,255,255,0.15)'; g.fillRect(x - 8, y - 10, 16, 3);
+    g.strokeStyle = 'rgba(10,14,22,0.6)'; g.lineWidth = 1; g.strokeRect(x - 7.5, y - 9.5, 15, 13);
+    g.beginPath(); g.moveTo(x - 7, y - 9); g.lineTo(x + 7, y + 3); g.stroke();
+    g.fillStyle = '#f0c040'; g.fillRect(x - 3, y - 6, 6, 2);
+  }
+  drawScrap(g, x, y, r) {
+    g.fillStyle = 'rgba(0,0,0,0.22)'; g.beginPath(); g.ellipse(x + 2, y + 3, 11, 3.5, 0, 0, 7); g.fill();
+    for (const [ox, oy, w, hh, c, rot] of [[-5, -2, 10, 5, '#6a7080', 0.3], [3, -3, 8, 6, '#8a6a4a', -0.4], [0, -6, 7, 3, '#9aa2b4', 0.1]]) {
+      g.save(); g.translate(x + ox, y + oy); g.rotate(rot); g.fillStyle = c; g.fillRect(-w / 2, -hh / 2, w, hh);
+      g.strokeStyle = 'rgba(10,14,22,0.5)'; g.lineWidth = 0.8; g.strokeRect(-w / 2, -hh / 2, w, hh); g.restore();
+    }
+    g.strokeStyle = '#2a303c'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(x - 9, y); g.quadraticCurveTo(x - 2, y + 5, x + 9, y - 1); g.stroke();
   }
   drawBush(g, x, y, r) {
     const base = this.def.pine ? '#2f6a35' : '#3f8a3a';
@@ -578,74 +621,79 @@ class GameMap {
 
   drawBuilding(g, b) {
     const px = b.x * TILE, py = b.y * TILE, pw = b.w * TILE, ph = b.h * TILE;
+    const neon = (c, blur, fn) => { g.save(); g.shadowColor = c; g.shadowBlur = blur; g.fillStyle = c; fn(); g.restore(); };
+    const metalV = (x0, y0, y1, c) => { const gr = g.createLinearGradient(0, y0, 0, y1); gr.addColorStop(0, U.shade(c, 0.18)); gr.addColorStop(1, U.shade(c, -0.25)); return gr; };
     if (b.kind === 'castle') {
-      g.fillStyle = '#a8a092'; g.fillRect(px, py + ph * 0.35, pw, ph * 0.65);
-      g.fillStyle = '#8a8274';
-      for (let i = 0; i < pw; i += 20) g.fillRect(px + i, py + ph * 0.35 - 10, 12, 10);
-      // หอคอย
-      for (const tx of [px - 4, px + pw - 44, px + pw / 2 - 26]) {
-        const tw = tx === px + pw / 2 - 26 ? 52 : 48;
-        g.fillStyle = '#b8b0a2'; g.fillRect(tx, py + 18, tw, ph - 18);
-        g.fillStyle = b.roof;
-        g.beginPath(); g.moveTo(tx - 6, py + 22); g.lineTo(tx + tw / 2, py - 30); g.lineTo(tx + tw + 6, py + 22); g.closePath(); g.fill();
-        g.fillStyle = 'rgba(0,0,0,0.2)';
-        g.beginPath(); g.moveTo(tx + tw / 2, py - 30); g.lineTo(tx + tw + 6, py + 22); g.lineTo(tx + tw / 2, py + 22); g.closePath(); g.fill();
-        g.fillStyle = '#e8e0a0'; g.fillRect(tx + tw / 2 - 5, py + 40, 10, 16);
-        g.strokeStyle = '#555'; g.lineWidth = 2; g.beginPath(); g.moveTo(tx + tw / 2, py - 30); g.lineTo(tx + tw / 2, py - 48); g.stroke();
-        g.fillStyle = '#d03030'; g.beginPath(); g.moveTo(tx + tw / 2, py - 48); g.lineTo(tx + tw / 2 + 16, py - 43); g.lineTo(tx + tw / 2, py - 38); g.fill();
+      // Central Core: หอพลังงานกลางเมือง
+      g.fillStyle = 'rgba(0,0,0,0.3)'; g.fillRect(px + 10, py + ph - 4, pw, 10);
+      g.fillStyle = metalV(px, py + ph * 0.3, py + ph, '#6a7486'); g.fillRect(px, py + ph * 0.32, pw, ph * 0.68);
+      g.strokeStyle = 'rgba(10,14,22,0.5)'; g.lineWidth = 1;
+      for (let i = 1; i < 6; i++) { g.beginPath(); g.moveTo(px + pw * i / 6, py + ph * 0.32); g.lineTo(px + pw * i / 6, py + ph); g.stroke(); }
+      neon('#6ad8ff', 10, () => g.fillRect(px, py + ph * 0.32, pw, 3));
+      for (const tx of [px + 4, px + pw - 48]) {
+        g.fillStyle = metalV(tx, py + 6, py + ph, '#7a8498'); g.fillRect(tx, py + 10, 44, ph - 10);
+        g.fillStyle = '#2a303c'; g.beginPath(); g.moveTo(tx - 4, py + 14); g.lineTo(tx + 22, py - 18); g.lineTo(tx + 48, py + 14); g.closePath(); g.fill();
+        neon('#6ad8ff', 8, () => { g.fillRect(tx + 18, py + 30, 8, 30); g.beginPath(); g.arc(tx + 22, py - 20, 3.5, 0, 7); g.fill(); });
       }
+      // แกนพลังงานกลาง
+      const cx = px + pw / 2, cy = py + ph * 0.35;
+      g.fillStyle = metalV(cx - 30, py - 10, py + ph, '#8a94a8'); g.fillRect(cx - 30, py - 6, 60, ph + 6);
+      g.fillStyle = '#1a1e28'; g.beginPath(); g.arc(cx, cy, 22, 0, 7); g.fill();
+      neon('#7ae8ff', 18, () => { g.beginPath(); g.arc(cx, cy, 14, 0, 7); g.fill(); });
+      g.fillStyle = '#e8fbff'; g.beginPath(); g.arc(cx, cy, 7, 0, 7); g.fill();
+      g.strokeStyle = 'rgba(122,232,255,0.8)'; g.lineWidth = 2; g.beginPath(); g.arc(cx, cy, 20, 0, 7); g.stroke();
       // ประตู
-      g.fillStyle = '#4a3020';
-      g.beginPath(); g.moveTo(px + pw / 2 - 22, py + ph); g.lineTo(px + pw / 2 - 22, py + ph - 34);
-      g.arc(px + pw / 2, py + ph - 34, 22, Math.PI, 0); g.lineTo(px + pw / 2 + 22, py + ph); g.fill();
-      g.strokeStyle = '#2a1a10'; g.lineWidth = 2;
-      for (let i = -14; i <= 14; i += 7) { g.beginPath(); g.moveTo(px + pw / 2 + i, py + ph); g.lineTo(px + pw / 2 + i, py + ph - 48); g.stroke(); }
-      this.drawSign(g, px + pw / 2, py + ph * 0.52, b.label);
+      g.fillStyle = '#12161e'; g.fillRect(cx - 18, py + ph - 40, 36, 40);
+      neon('#6ad8ff', 8, () => { g.fillRect(cx - 1, py + ph - 38, 2, 36); g.fillRect(cx - 18, py + ph - 42, 36, 2); });
+      this.drawSign(g, cx, py + ph * 0.62, b.label, '#6ad8ff');
       return;
     }
-    const wallTop = py + ph * 0.45;
-    // เงา
-    g.fillStyle = 'rgba(0,0,0,0.2)'; g.fillRect(px + 6, py + ph - 2, pw, 6);
-    // ผนัง
-    g.fillStyle = '#efe2c4'; g.fillRect(px + 4, wallTop, pw - 8, ph - (wallTop - py));
-    g.strokeStyle = '#8a6a44'; g.lineWidth = 4;
-    g.strokeRect(px + 6, wallTop + 2, pw - 12, ph - (wallTop - py) - 4);
-    g.beginPath(); g.moveTo(px + pw / 2, wallTop); g.lineTo(px + pw / 2, py + ph); g.stroke();
-    // หลังคา
-    g.fillStyle = b.roof;
-    g.beginPath(); g.moveTo(px - 4, wallTop + 6); g.lineTo(px + 18, py + 2); g.lineTo(px + pw - 18, py + 2); g.lineTo(px + pw + 4, wallTop + 6); g.closePath(); g.fill();
-    g.strokeStyle = 'rgba(0,0,0,0.18)'; g.lineWidth = 2;
-    for (let i = 1; i < 6; i++) {
-      const yy = py + 2 + (wallTop + 6 - py - 2) * i / 6;
-      g.beginPath(); g.moveTo(px + 18 - 22 * i / 6, yy); g.lineTo(px + pw - 18 + 22 * i / 6, yy); g.stroke();
+    const wallTop = py + ph * 0.34;
+    g.fillStyle = 'rgba(0,0,0,0.28)'; g.fillRect(px + 8, py + ph - 3, pw, 8);
+    // ผนังโลหะ
+    g.fillStyle = metalV(px, wallTop, py + ph, '#8a94a4'); g.fillRect(px + 4, wallTop, pw - 8, ph - (wallTop - py));
+    g.strokeStyle = 'rgba(10,14,22,0.45)'; g.lineWidth = 1;
+    for (let i = 1; i < 4; i++) { g.beginPath(); g.moveTo(px + 4 + (pw - 8) * i / 4, wallTop); g.lineTo(px + 4 + (pw - 8) * i / 4, py + ph); g.stroke(); }
+    // หลังคาแบน + ขอบนีออน
+    g.fillStyle = metalV(px, py, wallTop, '#3a4252'); g.fillRect(px - 4, py + 4, pw + 8, wallTop - py);
+    g.fillStyle = 'rgba(255,255,255,0.1)'; g.fillRect(px - 4, py + 4, pw + 8, 3);
+    g.fillStyle = '#20252f'; for (let i = 0; i < 3; i++) g.fillRect(px + 14 + i * 22, py + 12, 14, 8);
+    neon(b.roof, 10, () => g.fillRect(px - 4, wallTop - 3, pw + 8, 3));
+    // เสาอากาศ
+    g.strokeStyle = '#2a303c'; g.lineWidth = 2; g.beginPath(); g.moveTo(px + pw - 20, py + 6); g.lineTo(px + pw - 20, py - 16); g.stroke();
+    neon('#ff5a4a', 8, () => { g.beginPath(); g.arc(px + pw - 20, py - 17, 2.5, 0, 7); g.fill(); });
+    // หน้าต่างเรืองแสง
+    for (const wx of [px + pw * 0.14, px + pw * 0.86 - 26]) {
+      g.fillStyle = '#12161e'; g.fillRect(wx - 2, wallTop + 12, 30, 22);
+      neon('rgba(140,220,255,0.9)', 8, () => g.fillRect(wx, wallTop + 14, 26, 18));
+      g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(wx + 3, wallTop + 16, 8, 3);
     }
-    g.fillStyle = 'rgba(255,255,255,0.15)'; g.fillRect(px + 18, py + 2, pw - 36, 6);
-    // หน้าต่าง
-    g.fillStyle = '#6aa0d0'; g.strokeStyle = '#6a4a2a'; g.lineWidth = 3;
-    for (const wx of [px + pw * 0.2, px + pw * 0.8 - 22]) { g.fillRect(wx, wallTop + 16, 22, 18); g.strokeRect(wx, wallTop + 16, 22, 18); }
-    // ประตู
-    const dx = px + pw / 2 - 14;
-    g.fillStyle = '#6a4424'; g.fillRect(dx, py + ph - 38, 28, 38);
-    g.fillStyle = '#e0c040'; g.beginPath(); g.arc(dx + 22, py + ph - 18, 2.5, 0, 7); g.fill();
-    this.drawSign(g, px + pw / 2, py + 26, b.label);
+    // ประตูเลื่อน
+    const dx = px + pw / 2 - 16;
+    g.fillStyle = '#12161e'; g.fillRect(dx, py + ph - 42, 32, 42);
+    g.fillStyle = metalV(dx, py + ph - 40, py + ph, '#5a6474'); g.fillRect(dx + 2, py + ph - 40, 13, 40); g.fillRect(dx + 17, py + ph - 40, 13, 40);
+    neon(b.roof, 8, () => g.fillRect(dx, py + ph - 44, 32, 2));
+    this.drawSign(g, px + pw / 2, py + 24, b.label, b.roof);
   }
-  drawSign(g, x, y, text) {
+  drawSign(g, x, y, text, col = '#6ad8ff') {
     g.font = 'bold 13px "Trebuchet MS", sans-serif';
-    const w = g.measureText(text).width + 16;
-    g.fillStyle = '#5a3a1a'; g.fillRect(x - w / 2, y - 11, w, 22);
-    g.fillStyle = '#f0dca8'; g.fillRect(x - w / 2 + 2, y - 9, w - 4, 18);
-    g.fillStyle = '#4a2a10'; g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillText(text, x, y + 1);
+    const w = g.measureText(text).width + 18;
+    g.fillStyle = 'rgba(10,14,22,0.88)'; g.fillRect(x - w / 2, y - 11, w, 22);
+    g.save(); g.strokeStyle = col; g.shadowColor = col; g.shadowBlur = 8; g.lineWidth = 1.5; g.strokeRect(x - w / 2 + 0.5, y - 10.5, w - 1, 21);
+    g.fillStyle = col; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, x, y + 1); g.restore();
   }
   drawFountain(g) {
+    // แท่นพลังงาน (แทนน้ำพุ)
     const x = this.fountain.x * TILE, y = this.fountain.y * TILE;
-    g.fillStyle = '#8a8478'; g.beginPath(); g.ellipse(x, y + 4, TILE * 1.55, TILE * 1.35, 0, 0, 7); g.fill();
-    g.fillStyle = '#d8d2c2'; g.beginPath(); g.ellipse(x, y, TILE * 1.5, TILE * 1.3, 0, 0, 7); g.fill();
-    g.fillStyle = '#4a90d0'; g.beginPath(); g.ellipse(x, y, TILE * 1.3, TILE * 1.1, 0, 0, 7); g.fill();
-    g.fillStyle = 'rgba(255,255,255,0.3)'; g.beginPath(); g.ellipse(x - 12, y - 10, 20, 8, -0.3, 0, 7); g.fill();
-    g.fillStyle = '#c8c2b2'; g.beginPath(); g.ellipse(x, y, 12, 9, 0, 0, 7); g.fill();
-    g.fillStyle = '#b0aa9a'; g.fillRect(x - 4, y - 26, 8, 26);
-    g.fillStyle = '#d8d2c2'; g.beginPath(); g.ellipse(x, y - 26, 12, 5, 0, 0, 7); g.fill();
+    g.fillStyle = '#3a4252'; g.beginPath(); g.ellipse(x, y + 4, TILE * 1.55, TILE * 1.3, 0, 0, 7); g.fill();
+    g.fillStyle = '#6a7486'; g.beginPath(); g.ellipse(x, y, TILE * 1.5, TILE * 1.25, 0, 0, 7); g.fill();
+    const eg = g.createRadialGradient(x, y, 4, x, y, TILE * 1.25);
+    eg.addColorStop(0, '#d8fbff'); eg.addColorStop(0.35, '#5ad0f0'); eg.addColorStop(1, '#1a4a78');
+    g.fillStyle = eg; g.beginPath(); g.ellipse(x, y, TILE * 1.28, TILE * 1.05, 0, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(200,245,255,0.6)'; g.lineWidth = 1.5;
+    for (const r of [0.45, 0.8]) { g.beginPath(); g.ellipse(x, y, TILE * r * 1.28, TILE * r * 1.05, 0, 0, 7); g.stroke(); }
+    g.fillStyle = '#2a303c'; g.fillRect(x - 5, y - 30, 10, 30);
+    g.fillStyle = '#8a94a8'; g.beginPath(); g.ellipse(x, y - 30, 12, 5, 0, 0, 7); g.fill();
   }
 
   renderMini() {

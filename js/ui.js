@@ -1,6 +1,6 @@
 'use strict';
 // ============================================================
-//  UI: หน้าต่างแบบ Ragnarok, แชท, ฮอตบาร์, ร้านค้า, บทสนทนา NPC
+//  UI: หน้าต่าง NEO MIDGARD, แชท, ฮอตบาร์, ร้านค้า, บทสนทนา NPC
 // ============================================================
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -23,6 +23,7 @@ const UI = {
   init() {
     this.buildHotbar();
     this.buildMenu();
+    this.initFolds();
     for (const w of $$('.win')) this.makeWindow(w);
     $('#chat-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') {
@@ -40,6 +41,35 @@ const UI = {
     this.bindMapClick($('#bigmap-cv'));
     $('#map-open').onclick = () => this.toggle('w-map');
     $$('#zoom-ctl button').forEach(b => b.onclick = () => { R.zoom = U.clamp(R.zoom * +b.dataset.zoom, 0.5, 1.8); });
+  },
+
+  // ---------------- HUD พับได้ ----------------
+  foldState() {
+    try { return JSON.parse(localStorage.getItem('nm_hud') || '{}'); } catch (e) { return {}; }
+  },
+  saveFold(st) { try { localStorage.setItem('nm_hud', JSON.stringify(st)); } catch (e) { /* ไม่เป็นไร */ } },
+  initFolds() {
+    const st = this.foldState();
+    const menu = $('#menubar');
+    menu.prepend(h('button', { class: 'fold-btn menu-fold', title: 'ย่อ/ขยายเมนู', 'aria-label': 'ย่อหรือขยายเมนู' }));
+    $$('.foldable').forEach(p => {
+      if (st[p.dataset.fold]) p.classList.add('folded');
+      const b = $('.fold-btn', p);
+      b.addEventListener('click', e => { e.stopPropagation(); this.setFold(p, !p.classList.contains('folded')); });
+    });
+    if (st.all) $('#hud').classList.add('hud-min');
+    $('#hud-toggle').onclick = () => this.toggleHud();
+  },
+  setFold(p, on) {
+    p.classList.toggle('folded', on);
+    const st = this.foldState(); st[p.dataset.fold] = on; this.saveFold(st);
+    Sound.play('click');
+  },
+  toggleHud() {
+    const on = !$('#hud').classList.contains('hud-min');
+    $('#hud').classList.toggle('hud-min', on);
+    const st = this.foldState(); st.all = on; this.saveFold(st);
+    this.msg(on ? 'ซ่อน HUD แล้ว (กด U หรือปุ่ม ◉ เพื่อแสดง)' : 'แสดง HUD', 'info');
   },
 
   // ---------------- หน้าต่าง ----------------
@@ -421,7 +451,7 @@ const UI = {
     if (it.type === 'card') lines.push(`ใส่ใน: ${SLOT_THAI[it.slot]}`);
     if (isEquipType(it)) {
       lines.push(`อาชีพ: ${it.jobs === 'all' ? 'ทุกอาชีพ' : it.jobs.map(j => JOBS[j].name).join(', ')}${it.lv ? `  |  Lv ${it.lv}+` : ''}`);
-      if (it.slots) lines.push(`ช่องการ์ด: ${(entry.cards || []).map(c => ITEMS[c].name).join(', ') || '-'} (${(entry.cards || []).length}/${it.slots})`);
+      if (it.slots) lines.push(`ช่องชิป: ${(entry.cards || []).map(c => ITEMS[c].name).join(', ') || '-'} (${(entry.cards || []).length}/${it.slots})`);
     }
     return lines;
   },
@@ -456,7 +486,7 @@ const UI = {
       const acts = [];
       if (it.type === 'use') acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, 'ใช้'));
       if (isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, 'สวมใส่'));
-      if (it.type === 'card') acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, 'ใส่การ์ด'));
+      if (it.type === 'card') acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, 'ใส่ชิป'));
       if (it.type === 'use' || isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: () => this.assignHotbar('item', e.id) }, 'ตั้งปุ่มลัด'));
       acts.push(h('button', { class: 'btn danger', onclick: () => this.discard(e) }, 'ทิ้ง'));
       det.append(
@@ -526,7 +556,7 @@ const UI = {
           lv && s.type === 'active' ? h('button', { class: 'btn small', title: 'ตั้งปุ่มลัด', onclick: () => this.assignHotbar('skill', id) }, '📌') : null)));
     }
     body.append(list);
-    if (p.job === 'novice') body.append(h('div', { class: 'hint' }, `เก็บ Job Lv ${JOB_CHANGE_LV} แล้วไปคุยกับ Sage Mimir ในเมืองเอลด์ไฮม์ เพื่อเลือก 1 ใน 6 อาชีพ`));
+    if (p.job === 'novice') body.append(h('div', { class: 'hint' }, `เก็บ Job Lv ${JOB_CHANGE_LV} แล้วไปคุยกับ Mimir AI ในนีโอเอลด์ไฮม์ เพื่อเลือก 1 ใน 6 อาชีพ`));
   },
 
   renderOptions() {
@@ -567,13 +597,13 @@ const UI = {
     const target = p.equip[card.slot];
     if (!target) { this.msg(`ต้องสวมใส่${SLOT_THAI[card.slot]}ก่อน จึงจะใส่ ${card.name} ได้`, 'err'); return; }
     const ti = ITEMS[target.id];
-    if (!ti.slots || target.cards.length >= ti.slots) { this.msg(`${itemDisplayName(target)} ไม่มีช่องการ์ดว่าง`, 'err'); return; }
-    if (!(await this.confirm(`ใส่ ${card.name} ลงใน ${itemDisplayName(target)}? (ถอดออกไม่ได้)`))) return;
+    if (!ti.slots || target.cards.length >= ti.slots) { this.msg(`${itemDisplayName(target)} ไม่มีช่องชิปว่าง`, 'err'); return; }
+    if (!(await this.confirm(`ติดตั้ง ${card.name} ลงใน ${itemDisplayName(target)}? (ถอดออกไม่ได้)`))) return;
     if (!p.inventory.includes(entry) || p.equip[card.slot] !== target) return;
     target.cards.push(entry.id);
     removeEntry(entry, 1);
     recalc();
-    this.msg(`ใส่ ${card.name} สำเร็จ!`, 'lvl');
+    this.msg(`ติดตั้ง ${card.name} สำเร็จ!`, 'lvl');
     Sound.play('refine_ok');
   },
 
@@ -703,8 +733,8 @@ const UI = {
       h('input', { type: 'checkbox', checked: c[key] ? 'checked' : false, onchange: e => { c[key] = e.target.checked; saveGame(); } }), ' ', label);
     body.append(
       h('div', { class: 'bot-sec' }, 'การฟื้นฟู'),
-      slider('hpPot', 'ใช้ยา HP เมื่อ HP ต่ำกว่า', 0, 95),
-      slider('spPot', 'ใช้ยา SP เมื่อ SP ต่ำกว่า', 0, 95),
+      slider('hpPot', 'ใช้ชุดซ่อมเมื่อ HP ต่ำกว่า', 0, 95),
+      slider('spPot', 'ใช้เซลล์พลังงานเมื่อ SP ต่ำกว่า', 0, 95),
       slider('healAt', 'ใช้สกิลฮีลเมื่อ HP ต่ำกว่า', 0, 95),
       slider('restHp', 'นั่งพักเมื่อ HP ต่ำกว่า', 0, 90),
       slider('restSp', 'นั่งพักเมื่อ SP ต่ำกว่า', 0, 90),
@@ -724,7 +754,7 @@ const UI = {
         this.skillIcon(id), ` ${SKILLS[id].name}`, h('small', {}, ` (${({ heal: 'ฮีล', summon: 'เรียกสัตว์', opener: 'เปิดฉาก', buff: 'บัฟ', trap: 'กับดัก', aoe: 'โจมตีรอบตัว', attack: 'โจมตี' })[Bot.role(id)] || ''})`)));
     }
     const hpN = HP_POTS.reduce((a, id) => a + countItem(id), 0), spN = SP_POTS.reduce((a, id) => a + countItem(id), 0);
-    body.append(h('div', { class: 'hint' }, `ยา HP คงเหลือ ${hpN} • ยา SP คงเหลือ ${spN} — บอททำงานต่อแม้สลับแท็บ/แอป (จำลองย้อนหลังสูงสุด 10 นาที)`));
+    body.append(h('div', { class: 'hint' }, `ชุดซ่อมคงเหลือ ${hpN} • เซลล์พลังงานคงเหลือ ${spN} — บอททำงานต่อแม้สลับแท็บ/แอป (จำลองย้อนหลังสูงสุด 10 นาที)`));
   },
 
   setNet(state) {

@@ -81,9 +81,18 @@ R.render = () => {
     const fx = map.fountain.x * TILE, fy = map.fountain.y * TILE;
     for (let i = 0; i < 10; i++) {
       const a = i / 10 * Math.PI * 2, k = (t * 1.2 + i * 0.13) % 1;
-      g.fillStyle = `rgba(200,235,255,${0.9 - k})`;
-      g.beginPath(); g.arc(fx + Math.cos(a) * 18 * k, fy - 28 + 30 * k * k - 14 * k + Math.sin(a) * 6 * k, 2, 0, 7); g.fill();
+      g.fillStyle = `rgba(140,235,255,${0.9 - k})`;
+      g.beginPath(); g.arc(fx + Math.cos(a + t) * 16, fy - 32 - k * 40, 1.8, 0, 7); g.fill();
     }
+    // วงแหวนโฮโลแกรมหมุน
+    g.save(); g.shadowColor = '#7ae8ff'; g.shadowBlur = 12;
+    for (let i = 0; i < 3; i++) {
+      const yy = fy - 44 - i * 12 + Math.sin(t * 1.5 + i) * 2;
+      g.strokeStyle = `rgba(140,235,255,${0.55 - i * 0.12})`; g.lineWidth = 2;
+      g.beginPath(); g.ellipse(fx, yy, 16 - i * 3, 5 - i, 0, t * (i % 2 ? 1 : -1), t * (i % 2 ? 1 : -1) + Math.PI * 1.5); g.stroke();
+    }
+    g.fillStyle = 'rgba(200,250,255,0.9)'; g.beginPath(); g.arc(fx, fy - 40 + Math.sin(t * 2) * 3, 4, 0, 7); g.fill();
+    g.restore();
   }
   // ผิวน้ำระยิบระยับ
   if (map.waterTiles) {

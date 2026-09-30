@@ -6,10 +6,10 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#2b4f8c">
-  <title>Ragnarok Web Adventure</title>
-  <meta name="description" content="เกม RPG ตำนานนอร์ส เล่นบนเบราว์เซอร์">
+  <title>NEO MIDGARD</title>
+  <meta name="description" content="NEO MIDGARD — เกม RPG หุ่นยนต์แอนดรอยด์ในโลกตำนานนอร์ส เล่นบนเบราว์เซอร์">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;700&family=Orbitron:wght@700;900&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -17,7 +17,8 @@
 
   <!-- ================= HUD ================= -->
   <div id="hud" class="hidden">
-    <div id="basic-info" class="panel">
+    <div id="basic-info" class="panel foldable" data-fold="info">
+      <button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายแผงสถานะ"></button>
       <div class="bi-top">
         <div class="bi-face"><canvas id="bi-portrait" width="88" height="88"></canvas><em id="bi-lvbadge"></em></div>
         <div class="bi-id"><b id="bi-name"></b><span id="bi-job"></span></div>
@@ -30,20 +31,23 @@
     </div>
     <div id="buffs"></div>
 
-    <div id="minimap" class="panel">
+    <div id="minimap" class="panel foldable" data-fold="map">
+      <button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายมินิแมพ"></button>
       <div class="mm-head"><span id="map-name"></span><span id="net" class="net ok" hidden></span><span id="map-coord"></span><button id="map-open" title="แผนที่ใหญ่ (M)">⤢</button></div>
       <canvas id="minimap-cv"></canvas>
       <div id="zoom-ctl"><button data-zoom="0.85" title="ซูมออก (-)">−</button><button data-zoom="1.18" title="ซูมเข้า (+)">+</button></div>
     </div>
     <button id="auto-btn" title="บอทล่ามอนอัตโนมัติ (B)"><b>AUTO</b><small>ปิด</small></button>
 
-    <div id="chat" class="panel">
+    <div id="chat" class="panel foldable" data-fold="chat">
+      <button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายแชท"></button>
       <div id="chat-log"></div>
       <input id="chat-input" placeholder="Enter เพื่อแชท • /help ดูคำสั่ง" maxlength="80" autocomplete="off">
     </div>
 
     <div id="hotbar"></div>
-    <div id="menubar"></div>
+    <div id="menubar" class="foldable" data-fold="menu"></div>
+    <button id="hud-toggle" title="ซ่อน/แสดง HUD ทั้งหมด (U)" aria-label="ซ่อนหรือแสดง HUD"></button>
     <div id="announce"></div>
     <div id="map-banner"></div>
 
@@ -89,6 +93,7 @@
           <li><b>คลิกไอเทม</b> บนพื้น = เก็บ • <b>คลิก NPC</b> = คุย</li>
           <li><b>1-9 / F1-F9</b> = ปุ่มลัด (ลากไอเทม/สกิลมาวางได้)</li>
           <li><b>A</b> สถานะ • <b>E</b> ไอเทม • <b>Q</b> อุปกรณ์ • <b>S</b> สกิล • <b>O</b> ตั้งค่า • <b>H</b> วิธีเล่น</li>
+          <li><b>U</b> ซ่อน/แสดง HUD ทั้งหมด • ปุ่ม <b>▾</b> มุมแผงเพื่อพับเก็บทีละแผง</li>
           <li><b>X</b> นั่งพัก • <b>Enter</b> แชท • <b>Esc</b> ปิดหน้าต่าง • <b>ล้อเมาส์ / + −</b> ซูม</li>
           <li><b>B</b> เปิด/ปิดบอท • <b>N</b> ตั้งค่าบอท • <b>M</b> แผนที่ใหญ่ (คลิกเพื่อเดินไปได้)</li>
           <li><b>ปุ่มลูกศร</b> เดิน 8 ทิศ (กดสองปุ่มพร้อมกันเพื่อเดินแนวทแยง) • คลิกมินิแมพเพื่อเดินไปจุดนั้น</li>
@@ -97,15 +102,15 @@
         <ul>
           <li><b>แตะ</b> พื้นเพื่อเดิน, แตะมอนสเตอร์เพื่อโจมตี, แตะค้างเพื่อเดินตามนิ้ว</li>
           <li><b>ถ่างสองนิ้ว</b> เพื่อซูม • <b>แตะค้างที่ปุ่มลัด</b> เพื่อลบ • ใช้ปุ่ม 📌 ในหน้าต่างสกิล/ไอเทมเพื่อตั้งปุ่มลัด</li>
-          <li>ปุ่ม <b>AUTO</b> = ปล่อยบอทล่ามอน (กินยา ใช้สกิล นั่งพัก เก็บของเอง) ทำงานต่อแม้สลับแอป สูงสุด 10 นาที</li>
+          <li>ปุ่ม <b>AUTO</b> = ปล่อยบอทล่ามอน (ใช้ชุดซ่อม ใช้สกิล นั่งพัก เก็บของเอง) ทำงานต่อแม้สลับแอป สูงสุด 10 นาที</li>
         </ul>
         <h4>เส้นทางการเติบโต</h4>
         <ol>
           <li>แจก Status Point (กด A) — STR สำหรับสายตี, INT สายเวท, DEX สายธนู, AGI ตีเร็ว/หลบ, VIT ถึก</li>
-          <li>ออกไปทางตะวันออกของเมืองเพื่อล่า <b>Pudding</b> ใน Emerald Meadow</li>
-          <li>เก็บ <b>Job Lv 10</b> แล้วคุยกับ <b>Sage Mimir</b> ในเมืองเพื่อเลือกอาชีพ</li>
+          <li>ออกไปทางตะวันออกของเมืองเพื่อล่า <b>Slime Drone</b> ใน Emerald Meadow</li>
+          <li>เก็บ <b>Job Lv 10</b> แล้วคุยกับ <b>Mimir AI</b> ในเมืองเพื่อเลือกอาชีพ</li>
           <li>6 อาชีพ: Einherjar, Rune Caster, Wildhunter, Völva, Loki's Trickster, Berserker</li>
-          <li>ท้าทาย MVP: <b>Seraph Pudding</b> (Mistlake Plains) และ <b>Kitsura</b> (Hel's Hollow)</li>
+          <li>ท้าทาย MVP: <b>Seraph Core</b> (Mistlake Plains) และ <b>Kitsura EX</b> (Hel's Hollow)</li>
         </ol>
         <p class="hint">เกมบันทึกอัตโนมัติทุก 30 วินาทีและทุกครั้งที่ย้ายแผนที่ (เก็บในเบราว์เซอร์นี้)</p>
       </div>
@@ -113,9 +118,9 @@
 
     <div id="death" class="hidden">
       <div class="death-box">
-        <div class="death-t">คุณเสียชีวิตแล้ว</div>
-        <div class="death-s">วิญญาณของคุณจะกลับไปยังจุดเซฟ</div>
-        <button id="death-btn" class="btn big">กลับจุดเซฟ</button>
+        <div class="death-t">SYSTEM DOWN</div>
+        <div class="death-s">ร่างถูกทำลาย — ข้อมูลของคุณถูกสำรองไว้ที่จุดเซฟ</div>
+        <button id="death-btn" class="btn big">รีบูตที่จุดเซฟ</button>
       </div>
     </div>
   </div>
@@ -124,8 +129,8 @@
   <div id="title">
     <div class="clouds"><i></i><i></i><i></i><i></i></div>
     <div class="title-inner">
-      <div class="logo">RAGNAROK</div>
-      <div class="logo-sub">Web Adventure • ตำนานแห่งมิดการ์ด</div>
+      <div class="logo">NEO MIDGARD</div>
+      <div class="logo-sub">Android Saga • ตำนานหุ่นยนต์แห่งมิดการ์ด</div>
       <form id="auth" class="create auth hidden" autocomplete="on">
         <div id="au-tabs" class="seg"><button type="button" data-mode="login" class="on">เข้าสู่ระบบ</button><button type="button" data-mode="register">สมัครสมาชิก</button></div>
         <label for="au-user">ชื่อผู้ใช้</label>
@@ -158,7 +163,7 @@
           <div class="cr-btns"><button id="cr-back" class="tbtn small">ย้อนกลับ</button><button id="cr-start" class="tbtn small primary">เริ่มเกม!</button></div>
         </div>
       </div>
-      <div class="title-foot">RPG แนวคลาสสิก • โลก อาชีพ และสกิลออกแบบใหม่ทั้งหมด • กราฟิกวาดด้วยโค้ด</div>
+      <div class="title-foot">ปี 2XXX มนุษย์หายไป เหลือเพียงแอนดรอยด์ผู้สืบทอดตำนานแห่งมิดการ์ด • กราฟิกวาดด้วยโค้ดทั้งหมด</div>
     </div>
   </div>
 

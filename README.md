@@ -1,6 +1,7 @@
-# Ragnarok Web Adventure — ตำนานแห่งมิดการ์ด
+# NEO MIDGARD — Android Saga
 
-เกม RPG ธีมตำนานนอร์ส (แร็กนาร็อก) เล่นบนเบราว์เซอร์ ระบบเรียบง่ายแบบ MMORPG คลาสสิก โลก อาชีพ สกิล และมอนสเตอร์ออกแบบใหม่ทั้งหมด เขียนด้วย HTML5 Canvas + JavaScript ล้วน
+เกม RPG โลกหุ่นยนต์แอนดรอยด์ในดินแดนตำนานนอร์ส เล่นบนเบราว์เซอร์ ระบบเรียบง่ายแบบ MMORPG คลาสสิก
+ตัวละครทุกตัวเป็นแอนดรอยด์ (วิเซอร์เรืองแสงแทนดวงตา) มอนสเตอร์เป็นเครื่องจักร เมืองเป็นฐานไซไฟ กราฟิกทั้งหมดวาดด้วยโค้ด เขียนด้วย HTML5 Canvas + JavaScript ล้วน
 ไม่ต้องติดตั้งหรือ build อะไรเลย กราฟิกและเสียงทั้งหมดสร้างด้วยโค้ด (ไม่มีไฟล์รูป/เสียง)
 
 ## วิธีเล่น
@@ -62,10 +63,11 @@ python3 -m http.server 8000
 - **สเตตัส** STR / AGI / VIT / INT / DEX / LUK, Base Lv สูงสุด 99
 - **สถานะผิดปกติ** มึน (Stun), ช้า (Slow), ไหม้ (Burn), พิษ (Poison)
 - **ธาตุ** ไฟ/น้ำ/ดิน/ลม/ศักดิ์สิทธิ์/อมตะ ฯลฯ มีผลต่อความเสียหาย
-- **ไอเทม** ยา อาวุธ 6 ประเภท ชุดเกราะ การ์ด (ใส่ในช่อง `[ ]` ของอุปกรณ์) ตีบวก +1 ถึง +10
-- **มอนสเตอร์ 18 ชนิด** + MVP 2 ตัว (Seraph Pudding, Kitsura the Ember Fox)
-- **แผนที่ 5 แห่ง**: เมือง Eldheim, Emerald Meadow, Mistlake Plains, Wolfwood Forest, Hel's Hollow (ถ้ำมืด)
-- **NPC**: Bifrost Keeper (เซฟ/เทเลพอร์ต), Sage Mimir (เปลี่ยนอาชีพ/รีเซ็ต), ร้านค้า 3 ร้าน, Brokk the Smith (ตีบวก), Eir's Healer, Guard Rolf (ไกด์)
+- **ไอเทม** ชุดซ่อม (HP) เซลล์พลังงาน (SP) อาวุธพลังงาน 6 ประเภท เกราะ และ **ชิป** (ใส่ในช่อง `[ ]` ของอุปกรณ์) ตีบวก +1 ถึง +10
+- **มอนสเตอร์กลไก 18 ชนิด** (Slime Drone, Buzz Drone, Fenrir Unit, Tusk Tank, Draugr Husk ฯลฯ) + MVP 2 ตัว (Seraph Core, Kitsura EX)
+- **แผนที่ 5 แห่ง**: ฐาน Neo Eldheim, Emerald Meadow, Mistlake Plains, Wolfwood Forest, Hel's Hollow (ถ้ำมืด)
+- **NPC**: Bifrost Keeper (เซฟ/เทเลพอร์ต), Mimir AI (เปลี่ยนอาชีพ/รีเซ็ต), ร้านค้า 3 ร้าน, Brokk Forge-Bot (ตีบวก), Eir Repair Unit, Guard Unit Rolf (ไกด์)
+- **HUD พับได้**: ปุ่ม ▾ มุมแผงสถานะ/มินิแมพ/แชท/เมนู และปุ่ม ◉ หรือ `U` ซ่อน HUD ทั้งหมด
 - บันทึกอัตโนมัติลง `localStorage` ของเบราว์เซอร์
 
 ## การเพิ่ม/แก้ไขสกิลและอาชีพ

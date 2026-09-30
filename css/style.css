@@ -534,3 +534,88 @@ input[type=range], input[type=checkbox] { accent-color: var(--gold); }
   #basic-info { width: 204px; }
   #auto-btn { top: 186px; }
 }
+
+/* ---------------- HUD พับได้ ---------------- */
+.fold-btn { position: absolute; top: 4px; right: 4px; width: 18px; height: 16px; padding: 0; border-radius: 3px; z-index: 2;
+  background: #2a262e; border: 1px solid var(--line); color: var(--gold); font-size: 10px; line-height: 14px; }
+.fold-btn::before { content: "▾"; }
+.folded > .fold-btn::before { content: "▸"; }
+.fold-btn:hover { border-color: var(--line-hi); color: #fff3cf; }
+#basic-info .fold-btn { top: 6px; right: 6px; }
+/* พับแล้วเหลือรูป ชื่อ และ HP/SP */
+#basic-info.folded .bi-row:nth-of-type(4), #basic-info.folded .bi-row:nth-of-type(5), #basic-info.folded .bi-foot { display: none; }
+#basic-info.folded { width: 220px; }
+#basic-info.folded .bi-face, #basic-info.folded .bi-face canvas { width: 30px; height: 30px; }
+#basic-info.folded .bi-top { margin-bottom: 3px; }
+#minimap .fold-btn { position: static; margin-left: 2px; flex-shrink: 0; }
+#minimap.folded #minimap-cv, #minimap.folded #zoom-ctl { display: none; }
+#chat .fold-btn { top: 6px; right: 8px; }
+#chat.folded #chat-log { display: none; }
+#chat.folded { width: auto; }
+#chat.folded #chat-input { width: 220px; margin-top: 0; padding-right: 30px; }
+#menubar .menu-fold { position: static; width: 26px; height: auto; min-width: 0; align-self: stretch; font-size: 13px; }
+#menubar.folded > button:not(.menu-fold) { display: none; }
+#hud-toggle { position: fixed; left: 50%; top: 6px; transform: translateX(-50%); width: 34px; height: 18px; padding: 0; z-index: 70;
+  background: rgba(20,18,24,.75); border: 1px solid var(--line); border-radius: 0 0 8px 8px; color: var(--gold); font-size: 11px; line-height: 16px; }
+#hud-toggle::before { content: "◉"; }
+#hud.hud-min #basic-info, #hud.hud-min #minimap, #hud.hud-min #chat, #hud.hud-min #menubar, #hud.hud-min #buffs { display: none; }
+#hud.hud-min #hud-toggle { background: var(--gold); color: #2a1a06; }
+
+/* ---------------- หน้าไตเติล NEO MIDGARD ---------------- */
+#title {
+  background:
+    linear-gradient(transparent 62%, rgba(90,200,255,.10) 62.2%, transparent 62.6%),
+    repeating-linear-gradient(90deg, rgba(90,200,255,.10) 0 1px, transparent 1px 64px) bottom / 100% 38% no-repeat,
+    radial-gradient(ellipse at 50% 64%, rgba(90,200,255,.30), transparent 55%),
+    linear-gradient(#070a14 0%, #121a36 45%, #1c2c52 62%, #0c1222 100%);
+}
+.clouds i { background: rgba(140,190,255,.12); filter: blur(6px); }
+.logo {
+  font-family: "Orbitron", "Cinzel", sans-serif; letter-spacing: .12em;
+  background: linear-gradient(#ffffff 10%, #9fe6ff 45%, #3a8fd8 90%); -webkit-background-clip: text; background-clip: text;
+  filter: drop-shadow(0 0 12px rgba(90,200,255,.55)) drop-shadow(0 4px 0 #0a1a34);
+}
+.logo-sub { color: #bfe8ff; letter-spacing: .06em; }
+.title-foot { color: rgba(190,225,255,.75); }
+.tbtn { background: linear-gradient(#26324a, #151c2c); border: 1px solid #4a8ad0; color: #cfeeff; box-shadow: 0 0 0 1px #000, 0 0 14px rgba(90,170,255,.25); }
+.tbtn small { color: #8fb8dc; }
+.tbtn:active { box-shadow: 0 0 0 1px #000; }
+.tbtn.primary { background: linear-gradient(#5ad0ff, #2a7ac8); color: #04121f; border-color: #aee6ff; }
+.cr-left canvas { background: radial-gradient(circle at 50% 80%, #2a4a6a, #0c1424); }
+
+/* =====================================================================
+   ธีม NEO MIDGARD — เหล็กเงา + ไฟนีออนฟ้า (ทับธีมเดิมด้วยโทเค็นใหม่)
+   ===================================================================== */
+:root {
+  --ink: #e2ecf6; --ink-dim: #93a6bc; --ink-faint: #5f7088;
+  --panel: rgba(9, 13, 22, 0.88); --panel-2: #131b29; --panel-3: #0d131e;
+  --line: #27425e; --line-hi: #3f7fbf; --gold: #62cdf5; --gold-hi: #d4f3ff;
+  --ice: #8af0c8; --blood: #e0484f; --moss: #6cdf8a;
+  --display: "Orbitron", "Noto Sans Thai", sans-serif;
+}
+.panel, .win { box-shadow: 0 0 0 1px rgba(0,0,0,.7), inset 0 1px 0 rgba(140,220,255,.08), 0 0 18px rgba(40,140,220,.12), 0 8px 24px rgba(0,0,0,.55); }
+.win-title { background: linear-gradient(#16223a, #0c1322); letter-spacing: .06em; }
+.win-title span { font-size: 12px; }
+.win-x, .fold-btn, #map-open, #zoom-ctl button { background: #121a28; }
+.btn { background: linear-gradient(#1c2a40, #111926); }
+.btn:hover { background: linear-gradient(#24364f, #152030); }
+.btn.big, .seg button.on { background: linear-gradient(#6ad8ff, #2a86c8); color: #04121f; border-color: #bfeaff; }
+.bi-face canvas { border-color: var(--gold); box-shadow: 0 0 0 1px #000, 0 0 10px rgba(98,205,245,.45); }
+.bi-face em { background: linear-gradient(#6ad8ff, #2a86c8); color: #04121f; border-color: #bfeaff; font-family: var(--display); }
+.bi-top b { font-family: var(--display); font-size: 13px; letter-spacing: .04em; }
+.hb { background: radial-gradient(circle at 50% 35%, #172233, #0a0f18); border-color: #22405e; }
+#hotbar { background: linear-gradient(rgba(16,24,38,.94), rgba(8,12,20,.94)); }
+#menubar button { background: linear-gradient(#18243a, #0d1420); }
+#menubar button.on { background: linear-gradient(#1c3a5a, #0f2238); box-shadow: 0 0 10px rgba(98,205,245,.45); }
+#auto-btn { background: radial-gradient(circle at 40% 30%, #1c2a40, #080c14); }
+#chat { background: rgba(6, 10, 18, 0.8); }
+.eq-prev { background: radial-gradient(circle at 50% 70%, #1e3450, #0a0f18); }
+.shop-row.sellall { background: #102232; }
+.st-foot b, .sk-head b { color: #ff8a8f; }
+#hud-toggle { background: rgba(9,13,22,.8); }
+.pt { background: #c0303a; }
+.win::before, .win::after, .panel::before, .panel::after { border-color: var(--gold); }
+.create { background: rgba(9,13,22,.92); }
+#hud-toggle { left: 290px; top: 10px; transform: none; width: 26px; height: 26px; border-radius: 4px; line-height: 24px; font-size: 13px; }
+@media (max-width: 760px) { #hud-toggle { left: 50%; top: 0; transform: translateX(-50%); width: 34px; height: 18px; border-radius: 0 0 8px 8px; line-height: 16px; } }
+@media (min-width: 761px) and (max-width: 1180px) { #hud-toggle { left: 50%; top: 0; transform: translateX(-50%); width: 34px; height: 18px; border-radius: 0 0 8px 8px; line-height: 16px; } }

@@ -152,6 +152,7 @@ function bindInput() {
       case 'h': UI.toggle('w-help'); break;
       case 'b': Bot.toggle(); break;
       case 'm': UI.toggle('w-map'); break;
+      case 'u': UI.toggleHud(); break;
       case 'n': UI.toggle('w-bot'); break;
       case '-': R.zoom = U.clamp(R.zoom * 0.9, 0.5, 1.8); break;
       case '=': case '+': R.zoom = U.clamp(R.zoom * 1.1, 0.5, 1.8); break;
@@ -388,12 +389,12 @@ function startGame(p, isNew) {
   if (isNew) { p.hp = p.d.maxHp; p.sp = p.d.maxSp; }
   changeMap(p.map, p.x, p.y);
   UI.dirty(); UI.renderWindows(true); UI.updateHud();
-  UI.msg(`ยินดีต้อนรับสู่มิดการ์ด, ${p.name}! แร็กนาร็อกกำลังใกล้เข้ามา...`, 'lvl');
+  UI.msg(`ระบบออนไลน์... ยินดีต้อนรับสู่ NEO MIDGARD, ${p.name}!`, 'lvl');
   if (Online.online) { Online.joinChat(); UI.setNet('ok'); UI.msg(`🌐 ออนไลน์ในชื่อบัญชี ${Online.username} — กด Enter เพื่อแชทกับทุกคน`, 'sys'); }
-  UI.msg('กด H เพื่อดูวิธีเล่น • คุยกับ Guard Rolf (ทหารหมวกเขา) เพื่อขอคำแนะนำ', 'info');
+  UI.msg('กด H เพื่อดูวิธีเล่น • คุยกับ Guard Unit Rolf (หุ่นหมวกเขา) เพื่อขอคำแนะนำ', 'info');
   if (isNew) {
     UI.open('w-help');
-    UI.msg('เคล็ดลับ: เริ่มต้นด้วยการแจก Status Point (กด A) แล้วออกไปล่า Pudding ทางตะวันออกของเมือง', 'info');
+    UI.msg('เคล็ดลับ: เริ่มต้นด้วยการแจก Status Point (กด A) แล้วออกไปล่า Slime Drone ทางตะวันออกของเมือง', 'info');
   }
   saveGame();
 }
