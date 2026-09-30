@@ -4,16 +4,19 @@
 
 ## สถานะ
 
-| ตัวละคร | เดิน | ยืน | โจมตี | ร่ายเวท | นั่ง+โดนตี | ล้ม |
+**หลักใหม่: ท่าสกิลมีแค่ 1 ท่าต่ออาชีพ** — ทุกสกิลใช้ท่าเดียวกัน ความต่างของแต่ละสกิลไปอยู่ที่ "เอฟเฟกต์" (เกมวาดเอง) ตัวละครจึงทำง่าย อาชีพละ 6 ภาพ:
+เดิน • ยืนขาคู่ • โจมตี • สกิล (1 ท่า) • นั่ง+โดนตี • ล้ม
+
+| ตัวละคร | เดิน | ยืน | โจมตี | สกิล | นั่ง+โดนตี | ล้ม |
 |---|---|---|---|---|---|---|
-| Novice หญิง (Type-A) | ✅ 8 ทิศ | ✅ 8 ทิศ | ✅ 8 ทิศ | ⏳ ดีไซน์เก่า | ⏳ ดีไซน์เก่า | ⏳ ดีไซน์เก่า |
+| Novice หญิง (Type-A) | ✅ 8 ทิศ | ⚠ ยังไม่ขาคู่ → A0 | ✅ 8 ทิศ | ✅ 8 ทิศ | ⏳ ดีไซน์เก่า | ⏳ ดีไซน์เก่า |
 | Novice ชาย (Type-B) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | มอนแผนที่แรก (5 ตัว) | ❌ ภาพนิ่ง | | ❌ | | | |
 | NPC Kaia (คลังของ) | ❌ วาดด้วยโค้ด (ภาพนิ่งพอ) | | | | | |
 
 ## วิธีสั่ง (ทุกภาพใช้หลักเดียวกัน)
 
-- แนบ **ภาพอ้างอิงตัวละคร** + **เทมเพลตของท่านั้น** (`art/tpl_*.png`)
+- แนบ **ภาพอ้างอิงตัวละคร** (ภาพเดินล่าสุด) + **เทมเพลตของท่านั้น** (`art/tpl_*.png`)
 - 1 ภาพ = 1 ท่า • แถว = ทิศ (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK) • คอลัมน์ = เฟรม
 - ข้อความคงที่ท้ายทุก prompt:
 
@@ -27,12 +30,15 @@ Output: flat white background, do NOT draw the labels, grid or guide lines.
 
 ## A. Novice หญิง — ที่เหลือ (แนบภาพเดินล่าสุดเป็นแบบ)
 
-**A1 ร่ายเวท** — แนบ `tpl_cast.png`
+**A0 ยืนขาคู่ (ทำก่อน)** — แนบ `tpl_idle.png`
 ```
-Draw this exact character (attached walk sheet) into the attached template: CAST, 4 frames per direction.
-1 free hand raised forward, 2 a small cyan rune circle appears in front of the hand, 3 the rune circle grows and glows, 4 full bright rune circle with sparks.
-The dagger stays in the other hand. Each row is a direction as labelled.
+Draw this exact character (attached walk sheet) into the attached template: IDLE standing pose, 4 frames per direction.
+She stands still with BOTH FEET TOGETHER side by side, both soles flat on the red line, legs straight, knees together, weight even. Dagger held relaxed at her side.
+Frames: 1 neutral, 2 breathe in (shoulders a tiny bit higher, hair sways slightly), 3 neutral, 4 breathe out (hair settles). The legs and feet must NOT move between frames.
+Each row is a direction as labelled.
 ```
+
+**A1 ท่าสกิล** — ✅ ติดตั้งแล้ว (ใช้กับทุกสกิลของ Novice)
 
 **A2 นั่ง + โดนตี** — แนบ `tpl_sit_hurt.png`
 ```
@@ -45,7 +51,7 @@ Each row is a direction as labelled.
 **A3 ล้ม** — แนบ `tpl_dead.png`
 ```
 Draw this exact character (attached walk sheet) into the attached template: DEAD, 4 frames per direction.
-1 knees buckle, 2 falling to the ground, 3 lying on the ground, 4 lying still with the visor dark (turned off).
+1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off).
 Each row is a direction as labelled.
 ```
 
@@ -60,7 +66,7 @@ Draw a WALK cycle into the attached template, 4 frames per direction, legs clear
 1 LEFT leg far forward, RIGHT leg back (wide stride); 2 legs together, RIGHT knee lifted; 3 RIGHT leg far forward, LEFT leg back; 4 legs together, LEFT knee lifted. Arms swing opposite to the legs.
 Each row is a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK).
 ```
-จากนั้นใช้ภาพเดินที่ได้เป็นแบบ สั่งต่อด้วย prompt เดียวกับ A1–A3 และท่าโจมตี (`tpl_attack.png`):
+จากนั้นใช้ภาพเดินที่ได้เป็นแบบ สั่งต่อด้วย prompt เดียวกับ A0, A2, A3 + ท่าสกิล (`tpl_cast.png`: ยกมือ → ชาร์จ → ปล่อย → เอฟเฟกต์เต็ม) และท่าโจมตี (`tpl_attack.png`):
 ```
 Draw this exact character (attached walk sheet) into the attached template: ATTACK with the dagger, 6 frames per direction.
 1 ready, 2 wind-up (dagger arm pulled far back), 3 lunge forward, 4 full SLASH with a short cyan slash arc, 5 follow-through, 6 back to ready.
@@ -100,7 +106,8 @@ Single full-body figure, 3/4 view FACING LEFT, standing, centered. Fully transpa
 ## ติดตั้ง (ฝั่งผม)
 
 ```
-python3 tools/sprite_std.py install cast.png      novice_f cast   --grid 4x5 --dirs S,SW,W,NW,N --ref-frames 1
+python3 tools/sprite_std.py install idle.png      novice_f idle   --grid 4x5 --dirs S,SW,W,NW,N
+python3 tools/sprite_std.py install cast.png      novice_f cast   --grid 4x5 --dirs S,SW,W,NW,N --ref-frames 1 --nofit
 python3 tools/sprite_std.py install sithurt.png   novice_f sit    --grid 4x5 --dirs S,SW,W,NW,N --take-cols 1,2
 python3 tools/sprite_std.py install sithurt.png   novice_f hurt   --grid 4x5 --dirs S,SW,W,NW,N --take-cols 3,4
 python3 tools/sprite_std.py install dead.png      novice_f dead   --grid 4x5 --dirs S,SW,W,NW,N

@@ -752,6 +752,7 @@ function executeSkill(id, lv, tgt) {
   p.skillReadyAt = G.time + delay / 1000;
   shout(`${s.name}!!`);
   p.atkAnim = 1;
+  p.skillPose = G.time; // ท่าใช้สกิล (1 ท่าต่ออาชีพ) — ความต่างของแต่ละสกิลอยู่ที่เอฟเฟกต์
   if (tgt) faceTo(p, tgt.x, tgt.y);
   Sound.play('skill');
 

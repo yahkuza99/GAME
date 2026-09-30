@@ -874,6 +874,7 @@ Sprites.drawPlayer = (g, p, t) => {
     const tr = Anim.track(p, t, p.atkAnim || 0, (p.hurtFlash || 0) > 0, !!p.dead);
     Anim.draw(g, x, y, gk, {
       facing: p.facing || 1, dir: p.dir, moving: p.moving && !p.sitting, atk: tr.atk, cast: !!p.cast, sit: p.sitting, dead: p.dead, deathT: tr.deathT,
+      skill: p.skillPose != null && G.time - p.skillPose < 0.5 && G.time >= p.skillPose ? 1 - (G.time - p.skillPose) / 0.5 : 0,
       hurt: tr.hurt,
     }, t, 68);
     return;

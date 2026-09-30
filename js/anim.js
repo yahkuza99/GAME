@@ -67,6 +67,21 @@ const Anim = {
     } catch (e) { /* อ่านพิกเซลไม่ได้ (file://) */ }
     return img._feet;
   },
+  // กรอบเนื้อภาพ (บน/ล่าง) ของเฟรมหนึ่ง — วัดครั้งเดียวแล้วจำ
+  frameBox(img, f, row) {
+    const key = row * 64 + f, cache = img._box || (img._box = {});
+    if (cache[key] !== undefined) return cache[key];
+    let box = null;
+    try {
+      const C = this.CELL, c = document.createElement('canvas'); c.width = C; c.height = C;
+      const g = c.getContext('2d'); g.drawImage(img, f * C, row * C, C, C, 0, 0, C, C);
+      const d = g.getImageData(0, 0, C, C).data;
+      let top = -1, bot = -1;
+      for (let y = 0; y < C; y++) { let any = false; for (let x = 0; x < C; x += 2) if (d[(y * C + x) * 4 + 3] > 80) { any = true; break; } if (any) { if (top < 0) top = y; bot = y; } }
+      if (top >= 0) box = { top, bot };
+    } catch (e) { /* อ่านพิกเซลไม่ได้ */ }
+    return (cache[key] = box);
+  },
   stillFrame(img, n, row) {
     const r = this.feet(img, n)[row];
     return r ? r.still : Math.min(1, n - 1);
@@ -99,6 +114,7 @@ const Anim = {
     let action = 'idle', k = null;
     if (st.dead) { action = 'dead'; k = Math.min(1, (st.deathT == null ? 1 : st.deathT) / 0.5); }
     else if (st.hurt > 0) { action = 'hurt'; k = 1 - st.hurt; }
+    else if (st.skill > 0) { action = 'cast'; k = 1 - st.skill; }
     else if (st.atk > 0) { action = 'attack'; k = 1 - st.atk; }
     else if (st.cast) action = 'cast';
     else if (st.sit) action = 'sit';
@@ -116,7 +132,7 @@ const Anim = {
     const def = this.ACTIONS[s.action];
     let f;
     if (s.action === 'walk' && action !== 'walk') f = 0; // ยืนนิ่งด้วยเฟรมแรกของท่าเดิน
-    else if (k != null && !def.loop) f = Math.min(s.n - 1, Math.floor(k * s.n)); // ท่าที่เล่นครั้งเดียว: ตามความคืบหน้า
+    else if (k != null && (!def.loop || st.skill > 0)) f = Math.min(s.n - 1, Math.floor(k * s.n)); // ท่าที่เล่นครั้งเดียว (รวมท่าใช้สกิล): ตามความคืบหน้า
     else f = Math.floor((t + (st.seed || 0)) / ((def.cycle || 1) / s.n)) % s.n;
     // แถว: ภาพ 8 ทิศเลือกตามทิศที่หัน, ภาพทิศเดียวใช้แถวแรกแล้วกลับด้านตอนหันขวา
     const dir = st.dir != null ? st.dir : (st.facing > 0 ? 0 : 4);
@@ -124,16 +140,22 @@ const Anim = {
     // ท่าเดิน: ยกตัวขึ้นเล็กน้อยตอนก้าวผ่าน ลงตอนเหยียบ (ขั้นละเฟรม ตามจังหวะขาในภาพ) ให้เห็นการก้าวชัดขึ้น
     let lift = 0;
     if (s.action === 'walk' && action === 'walk') { const fr = this.feet(s.img, s.n)[row]; lift = fr && Math.max(0, f) % 2 === fr.pass ? 3 : 0; }
-    return { img: s.img, f: Math.max(0, f), row, flip: s.dirs === 8 ? false : st.facing > 0, lift, breathe: s.action === 'idle' && s.n === 1 };
+    return { img: s.img, f: Math.max(0, f), row, flip: s.dirs === 8 ? false : st.facing > 0, lift, breathe: s.action === 'idle' && s.n === 1, action: s.action, n: s.n };
   },
 
   // วาดที่ตำแหน่งเท้า (x, y), ตัวสูงราว H px, facing>0 = หันขวา (ภาพต้นฉบับหันซ้าย)
   draw(g, x, y, key, st, t, H = 66) {
     const p = this.pick(key, st, t); if (!p) return false;
     const k = H / this.STD_H, C = this.CELL;
-    Sprites.shadow(g, x, y, H * 0.3, H * 0.09, 0.3);
+    // ท่าล้ม: ภาพนอนราบยึดที่ปลายเท้า ดูเหมือนลอย → เลื่อนให้กลางลำตัวทับจุดยืน (ค่อย ๆ เลื่อนตามจังหวะล้ม) + เงากว้างขึ้น
+    let sink = 0;
+    if (p.action === 'dead') {
+      const b = this.frameBox(p.img, p.f, p.row);
+      if (b) sink = Math.max(0, this.GROUND - 10 - (b.top + b.bot) / 2) * (p.n > 1 ? p.f / (p.n - 1) : 1);
+    }
+    if (sink) Sprites.shadow(g, x, y, H * 0.46, H * 0.13, 0.32); else Sprites.shadow(g, x, y, H * 0.3, H * 0.09, 0.3);
     g.save();
-    g.translate(x, y - (st.raise || 0));
+    g.translate(x, y - (st.raise || 0) + sink * k);
     if (p.lift) g.translate(0, -p.lift * k);
     g.scale(p.flip ? -k : k, k * (p.breathe ? 1 + Math.sin(t * 2.4 + (st.seed || 0)) * 0.012 : 1));
     if (st.flash) g.filter = 'brightness(1.9)';
