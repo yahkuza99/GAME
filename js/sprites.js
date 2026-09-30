@@ -434,7 +434,7 @@ Sprites.human = (g, x, y, o) => {
     cols.forEach((c, i) => { g.fillStyle = c; g.fillRect(-11 + i * 3.7, hy - 10, 3.7, 3); });
   }
   if (o.hat === 'nurse') { g.fillStyle = '#fff'; rr(g, -9, hy - 17, 18, 8, 2); g.fill(); g.fillStyle = '#e03030'; g.fillRect(-1.5, hy - 16, 3, 6); g.fillRect(-4, hy - 14, 8, 2); }
-  if (o.hat === 'helmet') { g.fillStyle = '#b0b8c8'; g.beginPath(); g.arc(0, hy - 2, 12.5, Math.PI, 0); g.fill(); g.fillRect(-12.5, hy - 3, 25, 3); g.fillStyle = '#d03030'; g.fillRect(-1.5, hy - 20, 3, 8); }
+  if (o.hat === 'helmet') { g.fillStyle = o.hatColor || '#b0b8c8'; g.beginPath(); g.arc(0, hy - 2, 12.5, Math.PI, 0); g.fill(); g.fillRect(-12.5, hy - 3, 25, 3); if (o.hatColor) { g.fillStyle = 'rgba(255,255,255,0.25)'; g.fillRect(-8, hy - 12, 3, 8); g.fillStyle = glow; g.globalAlpha = 0.9; g.fillRect(-12.5, hy - 3, 25, 1.2); g.globalAlpha = 1; } else { g.fillStyle = '#d03030'; g.fillRect(-1.5, hy - 20, 3, 8); } }
   if (o.hat === 'wizard') { g.fillStyle = '#5a2a8a'; g.beginPath(); g.moveTo(-13, hy - 6); g.lineTo(13, hy - 6); g.lineTo(-2, hy - 30); g.closePath(); g.fill(); g.fillStyle = '#e0c040'; g.fillRect(-10, hy - 8, 20, 3); }
   if (o.hat === 'bandana') { g.fillStyle = '#b03030'; g.beginPath(); g.arc(0, hy - 2, 11.8, Math.PI, 0); g.fill(); g.fillRect(-14, hy - 3, 4, 7); }
   if (o.hat === 'hat') { g.fillStyle = '#8a6a4a'; g.fillRect(-14, hy - 8, 28, 3); g.fillRect(-8, hy - 17, 16, 10); }
@@ -735,7 +735,7 @@ const NPC_LOOKS = {
   merchant: { skin: '#e2d6c2', glow: '#ffc04a', hair: '#8a5a2a', outfit: '#a07040', outfit2: '#5a3a1a', apron: '#6a5a4a', hat: 'bandana' },
   merchant2:{ skin: '#f2f3f6', glow: '#5aff7a', hair: '#7ccf9a', hairStyle: 'twin', outfit: '#2f7a48', outfit2: '#efe6cf', robe: true, visor: 'band' },
   smith:    { skin: '#b8bcc6', glow: '#ff8a3a', hair: '#4a4e58', hairStyle: 'spiky', outfit: '#6a6a70', outfit2: '#3a3a40', apron: '#5a4a3a' },
-  refiner:  { skin: '#a8a090', glow: '#ff6a2a', hair: '#7a4a2a', outfit: '#8a5a3a', outfit2: '#3a2a1a', apron: '#4a4a4a', beard: '#7a4a2a', joint: '#3a2a22' },
+  refiner:  { skin: '#b8925a', glow: '#ff8a2a', hair: '#9a4a2a', outfit: '#9a7240', outfit2: '#6a2a22', apron: '#7a2e24', beard: '#b0482a', joint: '#3a2e26', hat: 'helmet', hatColor: '#a88048', bulky: 1.3, visor: 'slit' },
   nurse:    { skin: '#f6f6fa', glow: '#ff7aa0', hair: '#f0a0c0', hairStyle: 'long', outfit: '#ffffff', outfit2: '#e0a0b0', hat: 'nurse', robe: true },
   guide:    { skin: '#c8ccd6', glow: '#ff5a4a', hair: '#8a9aaa', outfit: '#6a7080', outfit2: '#a03030', hat: 'viking', cape: '#a03030' },
 };
