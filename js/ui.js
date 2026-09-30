@@ -463,11 +463,12 @@ const UI = {
       if (x.t === 'skill') {
         ic.append(this.skillIcon(x.id));
         q.textContent = 'Lv' + skillLv(x.id);
-        el.title = `${SKILLS[x.id].name} Lv ${skillLv(x.id)} [${key}]`;
+        const sk = SKILLS[x.id], lv = skillLv(x.id), cost = skillCost(x.id, lv);
+        el.title = `${sk.name} Lv ${lv} [${key}]${cost ? ` • SP ${cost}` : ''}\n${sk.desc || ''}`;
       } else {
         ic.append(h('img', { src: itemIconUrl(x.id), alt: '' }));
         q.textContent = countItem(x.id);
-        el.title = `${ITEMS[x.id].name} [${key}]`;
+        el.title = `${ITEMS[x.id].name} ×${countItem(x.id)} [${key}]\n${ITEMS[x.id].desc || ''}`;
       }
     });
   },
