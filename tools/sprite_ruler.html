@@ -167,6 +167,7 @@ $('#tpl').src = template().toDataURL('image/png');
 
 // ---------- วิเคราะห์ ----------
 function knockBg(d, W, H) {
+  // ลบพื้นแบบน้ำท่วมจากขอบภาพ: สีขาวในตัวละคร (หน้ากาก/เกราะ) ไม่ถูกลบ
   const p = d.data; let opaque = true;
   for (let i = 3; i < p.length; i += 4 * 97) if (p[i] < 250) { opaque = false; break; }
   if (!opaque) return 'alpha';
@@ -174,7 +175,33 @@ function knockBg(d, W, H) {
   const cs = [at(2, 2), at(W - 3, 2), at(2, H - 3), at(W - 3, H - 3)];
   const bg = [0, 1, 2].map(k => cs.map(c => c[k]).sort((a, b) => a - b)[1]);
   const spread = Math.max(...cs.map(c => Math.abs(c[0] - bg[0]) + Math.abs(c[1] - bg[1]) + Math.abs(c[2] - bg[2])));
-  for (let i = 0; i < p.length; i += 4) if (Math.abs(p[i] - bg[0]) + Math.abs(p[i + 1] - bg[1]) + Math.abs(p[i + 2] - bg[2]) < 36) p[i + 3] = 0;
+  const diff = i => Math.abs(p[i] - bg[0]) + Math.abs(p[i + 1] - bg[1]) + Math.abs(p[i + 2] - bg[2]);
+  const bgm = new Uint8Array(W * H), st = [];
+  const push = (x, y) => { const k = y * W + x; if (!bgm[k] && diff(k * 4) < 40) { bgm[k] = 1; st.push(k); } };
+  for (let x = 0; x < W; x++) { push(x, 0); push(x, H - 1); }
+  for (let y = 0; y < H; y++) { push(0, y); push(W - 1, y); }
+  while (st.length) {
+    const k = st.pop(), x = k % W, y = (k / W) | 0;
+    if (x > 0) push(x - 1, y); if (x < W - 1) push(x + 1, y); if (y > 0) push(x, y - 1); if (y < H - 1) push(x, y + 1);
+  }
+  // รูที่ถูกล้อม: สีเท่าพื้นเกือบเป๊ะ และกว้างพอ
+  const hole = new Uint8Array(W * H), seen = new Uint8Array(W * H);
+  for (let k = 0; k < W * H; k++) hole[k] = !bgm[k] && diff(k * 4) < 14 ? 1 : 0;
+  for (let k0 = 0; k0 < W * H; k0++) {
+    if (!hole[k0] || seen[k0]) continue;
+    const q = [k0], pts = []; seen[k0] = 1;
+    while (q.length) {
+      const k = q.pop(); pts.push(k); const x = k % W, y = (k / W) | 0;
+      for (const n of [x > 0 ? k - 1 : -1, x < W - 1 ? k + 1 : -1, y > 0 ? k - W : -1, y < H - 1 ? k + W : -1]) if (n >= 0 && hole[n] && !seen[n]) { seen[n] = 1; q.push(n); }
+    }
+    if (pts.length >= 700) for (const k of pts) bgm[k] = 1;
+  }
+  // ตัดขอบ 1px ที่ติดพื้น (กันขอบขาว)
+  for (let k = 0; k < W * H; k++) {
+    if (bgm[k]) { p[k * 4 + 3] = 0; continue; }
+    const x = k % W, y = (k / W) | 0;
+    if ((x > 0 && bgm[k - 1]) || (x < W - 1 && bgm[k + 1]) || (y > 0 && bgm[k - W]) || (y < H - 1 && bgm[k + W])) p[k * 4 + 3] = 0;
+  }
   return spread > 60 ? 'uneven' : 'flat';
 }
 function knockLines(p, W, H) {
@@ -316,6 +343,13 @@ function analyze() {
   if (rep.some(r => r.clip)) warns.push(`บางส่วนล้นกรอบ 240 px (เฟรม ${rep.filter(r => r.clip).map(r => r.i).join(', ')}) เช่น อาวุธยกสูง จะถูกตัดในเกม`);
   if (bgMode === 'uneven') probs.push('พื้นหลังไม่เรียบ (มุมภาพสีต่างกัน) ลบพื้นได้ไม่สะอาด — สั่งให้ใช้พื้นขาวเรียบหรือโปร่งใส');
   if (lines) warns.push('พบเส้นไกด์ติดมาในภาพ — ลบให้แล้ว');
+  // เฟรมเหมือนกันหมด = ไม่มีการเคลื่อนไหว (ท่าเดิน/ฟันต้องต่างกันชัด)
+  if (frames.length > 1 && !{ idle: 1, sit: 1 }[action]) {
+    const sig = f => { const c = document.createElement('canvas'); c.width = c.height = 48; const g2 = c.getContext('2d'); g2.drawImage(f, 0, 0, 48, 48); return g2.getImageData(0, 0, 48, 48).data; };
+    const sg = frames.map(sig); let tot = 0;
+    for (let i = 1; i < sg.length; i++) { let d = 0; for (let j = 3; j < sg[i].length; j += 4) d += Math.abs(sg[i][j] - sg[i - 1][j]); tot += d / (48 * 48 * 255); }
+    if (tot / (sg.length - 1) < 0.02) warns.push('ทุกเฟรมแทบเหมือนกัน — ภาพนี้ไม่มีการเคลื่อนไหว (ใช้เป็นแบบอ้างอิง/ท่ายืนได้ แต่ใช้เป็นท่า ' + action + ' ไม่ได้)');
+  }
   const leanAvg = rep.reduce((s, r) => s + r.lean, 0) / rep.length;
   if (leanAvg > 0.12) warns.push('ตัวละครน่าจะหันไปทางขวา — มาตรฐานคือหันซ้าย (ติดตั้งแล้วจะเดินถอยหลัง)');
   if (probs.length) showVerdict('bad', 'ยังไม่ผ่านมาตรฐาน', probs.concat(warns));

@@ -19,7 +19,7 @@
 import sys, os, json, argparse
 from PIL import Image, ImageDraw, ImageFilter, ImageOps
 sys.path.insert(0, os.path.dirname(__file__))
-from slice_sheet import knock_bg, manifest, ROOT
+from slice_sheet import manifest, ROOT
 
 # ---------------- มาตรฐาน ----------------
 CELL = 240          # ขนาดช่องเฟรมในเกม
@@ -60,6 +60,59 @@ def template(cols=4, rows=2, cw=384, chh=512):
             d.line([x0 + 16, y0 + g, x0 + cw - 16, y0 + g], fill=(235, 60, 60), width=3)              # พื้น
             d.text((x0 + 10, y0 + 8), str(r * cols + c + 1), fill=(150, 150, 160))
     return im
+
+
+def knock_bg(im, tol=40, hole_tol=14, hole_min=700):
+    """ลบพื้นหลังสีเรียบแบบ "น้ำท่วมจากขอบภาพ" — สีขาวที่อยู่ในตัวละคร (หน้ากาก ชุดเกราะขาว) ไม่ถูกลบ
+    ช่องว่างที่ถูกล้อมไว้ (เช่น ระหว่างแขนกับลำตัว) ลบเฉพาะที่สีตรงพื้นเป๊ะและกว้างพอ"""
+    im = im.convert('RGBA')
+    if im.getchannel('A').getextrema()[0] < 250: return im   # โปร่งใสอยู่แล้ว
+    W, H = im.size; rgb = im.convert('RGB'); px = rgb.load()
+    cs = [px[2, 2], px[W - 3, 2], px[2, H - 3], px[W - 3, H - 3]]
+    bg = tuple(sorted(c[i] for c in cs)[1] for i in range(3))
+    KEY = (255, 0, 254) if bg != (255, 0, 254) else (0, 255, 1)
+    fill = rgb.copy()
+    seeds = [(x, y) for x in range(0, W, 8) for y in (0, H - 1)] + [(x, y) for y in range(0, H, 8) for x in (0, W - 1)]
+    fp = fill.load()
+    for x, y in seeds:
+        c = fp[x, y]
+        if c != KEY and sum(abs(c[i] - bg[i]) for i in range(3)) < tol:
+            ImageDraw.floodfill(fill, (x, y), KEY, thresh=tol)
+    alpha = Image.new('L', (W, H), 255); ap = alpha.load()
+    for y in range(H):
+        for x in range(W):
+            if fp[x, y] == KEY: ap[x, y] = 0
+    # รูที่ถูกล้อม: สีเท่าพื้นเกือบเป๊ะ และกว้างพอ (หน้ากาก/เกราะมีแสงเงา จึงไม่เข้าเกณฑ์)
+    f = 4; w, h = W // f, H // f
+    cand = [[False] * w for _ in range(h)]
+    for yy in range(h):
+        for xx in range(w):
+            ok = True
+            for j in range(f):
+                for i in range(f):
+                    x, y = xx * f + i, yy * f + j
+                    c = px[x, y]
+                    if ap[x, y] == 0 or sum(abs(c[k] - bg[k]) for k in range(3)) >= hole_tol: ok = False; break
+                if not ok: break
+            cand[yy][xx] = ok
+    seen = [[False] * w for _ in range(h)]
+    for y0 in range(h):
+        for x0 in range(w):
+            if not cand[y0][x0] or seen[y0][x0]: continue
+            st, pts = [(x0, y0)], []; seen[y0][x0] = True
+            while st:
+                x, y = st.pop(); pts.append((x, y))
+                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    nx, ny = x + dx, y + dy
+                    if 0 <= nx < w and 0 <= ny < h and cand[ny][nx] and not seen[ny][nx]:
+                        seen[ny][nx] = True; st.append((nx, ny))
+            if len(pts) * f * f >= hole_min:
+                for x, y in pts:
+                    for j in range(f):
+                        for i in range(f): ap[x * f + i, y * f + j] = 0
+    # ขอบนุ่ม: ตัดขอบ 1px ที่ติดพื้นขาว (กันขอบขาวรอบตัวเวลาวางบนหญ้า)
+    alpha = alpha.filter(ImageFilter.MinFilter(3))
+    im.putalpha(alpha); return im
 
 
 def cuts(profile, n, lo=0, hi=None):
