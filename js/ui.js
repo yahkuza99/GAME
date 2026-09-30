@@ -442,7 +442,7 @@ const UI = {
     cv.dataset.key = key;
     const g = cv.getContext('2d');
     g.clearRect(0, 0, cv.width, cv.height);
-    if (artKey) { Art.drawCover(g, Art.get(artKey), cv.width, cv.height, 0.12); return; }
+    if (artKey) { Art.drawFace(g, Art.get(artKey), cv.width, cv.height); return; }
     const bg = g.createRadialGradient(cv.width / 2, cv.height * 0.4, 4, cv.width / 2, cv.height / 2, cv.width * 0.7);
     const glow = (p.look && p.look.glow) || JOBS[p.job].glow || '#7ad8ff';
     bg.addColorStop(0, U.rgba(glow, 0.55)); bg.addColorStop(0.55, '#16223a'); bg.addColorStop(1, '#070b14');

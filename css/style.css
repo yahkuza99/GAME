@@ -417,12 +417,18 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
 .clouds i:nth-child(4) { width: 150px; height: 36px; top: 35%; animation-duration: 70s; animation-delay: -10s; left: -200px; }
 @keyframes drift { to { transform: translateX(calc(100vw + 300px)); } }
 #title.has-art .clouds { display: none; }
+#title-hero { position: fixed; right: max(2vw, 12px); bottom: 0; height: min(92vh, 900px); width: auto; max-width: 42vw; object-fit: contain; object-position: bottom right;
+  pointer-events: none; filter: drop-shadow(0 0 24px rgba(40,160,230,.35)); animation: heroIn .8s ease-out both; }
+@keyframes heroIn { from { opacity: 0; transform: translateX(30px); } }
+@media (min-width: 1001px) { #title.has-hero .title-inner { margin-left: max(4vw, calc(50vw - 640px)); width: min(640px, 52vw); } }
+@media (max-width: 1000px) { #title-hero { opacity: .22; max-width: none; right: 50%; transform: translateX(50%); height: 86vh; animation: none; } }
+.logo.logo-img img { filter: drop-shadow(0 6px 18px rgba(0,0,0,.6)); }
 .title-inner { position: relative; text-align: center; padding: 24px 16px; width: min(720px, 100%); margin: auto; }
 .logo { font: 800 clamp(38px, 10vw, 88px) var(--display); letter-spacing: .04em; line-height: 1.05;
   background: linear-gradient(#ffffff 10%, #9fe6ff 45%, #3a8fd8 90%); -webkit-background-clip: text; background-clip: text; color: transparent;
   filter: drop-shadow(0 0 12px rgba(90,200,255,.55)) drop-shadow(0 4px 0 #0a1a34); }
 .logo.logo-img { background: none; filter: drop-shadow(0 0 14px rgba(90,200,255,.5)); }
-.logo.logo-img img { max-width: min(560px, 86vw); height: auto; display: block; margin: 0 auto; }
+.logo.logo-img img { width: min(620px, 92vw); height: auto; display: block; margin: 0 auto; }
 .logo-sub { color: #bfe8ff; letter-spacing: .02em; font-size: 15px; margin-top: 4px; text-shadow: 0 2px 4px rgba(0,0,0,.6); }
 .title-menu { margin-top: 34px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .tbtn { min-width: 270px; padding: 11px 22px; font-size: 17px; font-weight: 700; display: flex; flex-direction: column; align-items: center;
