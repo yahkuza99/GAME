@@ -109,9 +109,8 @@ def char_prompt(c, sheet):
 
 
 def char_done(key, sheet):
-    if sheet == 'sit_hurt': return f'anim_{key}_sit' in HAVE and f'anim_{key}_hurt' in HAVE and key != 'novice_f'
+    if sheet == 'sit_hurt': return f'anim_{key}_sit' in HAVE and f'anim_{key}_hurt' in HAVE
     if sheet == 'dead' and key == 'novice_f': return False  # ภาพเดิมเป็นดีไซน์เก่า
-    if sheet == 'idle' and key == 'novice_f': return False  # ยังไม่ขาคู่
     return f'anim_{key}_{sheet}' in HAVE
 
 

@@ -371,6 +371,11 @@ def main():
         template(a.cols, a.rows).save(out); print('template →', out); return
     cols, rows = map(int, a.grid.lower().split('x'))
     frames = frames_from_grid(Image.open(a.src), cols, rows)
+    ref_scale = None
+    if a.ref_frames:  # วัดจากคอลัมน์ในชีตเต็ม (ก่อนกรอง --take-cols) เช่น นั่ง ใช้ความสูงของเฟรมยืนในชีตเดียวกัน
+        refs = {int(x) for x in a.ref_frames.split(',')}
+        hs = sorted(m['h'] for i, f in enumerate(frames) if (i % cols) + 1 in refs for m in [measure(f)] if m)
+        if hs: ref_scale = STD_H / hs[len(hs) // 2]
     if a.take_cols:
         keep = {int(x) for x in a.take_cols.split(',')}
         frames = [f for i, f in enumerate(frames) if (i % cols) + 1 in keep]
@@ -383,12 +388,9 @@ def main():
         # ใช้สเกลเดียวกับท่ายืนของตัวละครนี้ (ไม่มีก็ใช้สเกลเทมเพลต)
         scale = (ref * TPL_W / src_w) if ref else STD_H / (TPL_BODY * Image.open(a.src).height / rows)
         print(f"  สเกลจาก{'ท่ายืนที่ติดตั้งไว้' if ref else 'เทมเพลต'}: {scale:.3f}")
-    if a.ref_frames:
-        refs = {int(x) for x in a.ref_frames.split(',')}
-        hs = sorted(m['h'] for i, f in enumerate(frames) if (i % cols) + 1 in refs for m in [measure(f)] if m)
-        if hs:
-            scale = STD_H / hs[len(hs) // 2]
-            print(f"  สเกลจากเฟรมยืน {sorted(refs)}: {scale:.3f}")
+    if ref_scale:
+        scale = ref_scale
+        print(f"  สเกลจากเฟรมยืน {a.ref_frames}: {scale:.3f}")
     out, rep, k, med = normalize(frames, scale=scale, fit=(a.action in STANDING) and not a.nofit and not (a.key or '').startswith('mob_'))
     if a.action in STANDING and ref:
         diff = (k * src_w / TPL_W) / ref - 1

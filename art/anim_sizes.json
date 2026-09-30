@@ -8,10 +8,10 @@
   },
   "_k1536": 0.36101,
   "idle": {
-   "frames": 1,
+   "frames": 4,
    "dirs": 8,
-   "scale_src": 0.5515,
-   "median_src_h": 272
+   "scale_src": 0.6024,
+   "median_src_h": 249
   },
   "cast": {
    "frames": 4,
@@ -27,15 +27,15 @@
   },
   "hurt": {
    "frames": 2,
-   "dirs": 1,
-   "scale_src": 0.3036,
-   "median_src_h": 494.00605980766693
+   "dirs": 8,
+   "scale_src": 0.6148,
+   "median_src_h": 244.0
   },
   "sit": {
    "frames": 2,
-   "dirs": 1,
-   "scale_src": 0.3036,
-   "median_src_h": 494.00605980766693
+   "dirs": 8,
+   "scale_src": 0.6148,
+   "median_src_h": 244.0
   },
   "dead": {
    "frames": 4,

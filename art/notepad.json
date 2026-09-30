@@ -20,7 +20,7 @@
 "ภาพเดินของตัวนี้",
 "tpl_idle.png"
 ],
-"done": false,
+"done": true,
 "prompt": "Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: IDLE standing pose, 4 frames per direction. Stands still with BOTH FEET TOGETHER side by side, both soles flat on the red line, legs straight, knees together, weapon held relaxed. Frames: 1 neutral, 2 breathe in (shoulders a tiny bit higher), 3 neutral, 4 breathe out. The legs and feet must NOT move between frames. Each row is a direction as labelled.\nTop of the head on the blue line, feet on the red line, one pose per cell. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines."
 },
 {
@@ -56,7 +56,7 @@
 "ภาพเดินของตัวนี้",
 "tpl_sit_hurt.png"
 ],
-"done": false,
+"done": true,
 "prompt": "Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.\nColumns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).\nColumns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.\nEach row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines."
 },
 {

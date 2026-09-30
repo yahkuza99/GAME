@@ -2,7 +2,7 @@
 
 สร้างอัตโนมัติด้วย `python3 tools/make_notepad.py` (ดูว่าอะไรมีแล้วจาก assets) • ✅ = ติดตั้งแล้ว • ⬜ = ยังขาด
 
-**ยังขาด: ตัวละคร 81 ภาพ • มอนสเตอร์ 19 ภาพ • NPC 1 ภาพ**
+**ยังขาด: ตัวละคร 79 ภาพ • มอนสเตอร์ 19 ภาพ • NPC 1 ภาพ**
 
 ## วิธีใช้
 
@@ -19,25 +19,13 @@
 
 ✅ **เดิน (ภาพแรกของตัวละคร = แบบอ้างอิง)** — แนบ `tpl_walk.png` (4×5)
 
-⬜ **ยืนขาคู่** — แนบ `tpl_idle.png` (4×5)
-
-```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: IDLE standing pose, 4 frames per direction. Stands still with BOTH FEET TOGETHER side by side, both soles flat on the red line, legs straight, knees together, weapon held relaxed. Frames: 1 neutral, 2 breathe in (shoulders a tiny bit higher), 3 neutral, 4 breathe out. The legs and feet must NOT move between frames. Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **ยืนขาคู่** — แนบ `tpl_idle.png` (4×5)
 
 ✅ **โจมตี** — แนบ `tpl_attack.png` (6×5)
 
 ✅ **ท่าสกิล (1 ท่าใช้กับทุกสกิล)** — แนบ `tpl_cast.png` (4×5)
 
-⬜ **นั่ง + โดนตี** — แนบ `tpl_sit_hurt.png` (4×5)
-
-```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
-Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
-Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **นั่ง + โดนตี** — แนบ `tpl_sit_hurt.png` (4×5)
 
 ⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
