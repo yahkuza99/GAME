@@ -104,7 +104,7 @@ const Anim = {
     // ท่าเดิน: ยกตัวขึ้นเล็กน้อยตอนก้าวผ่าน ลงตอนเหยียบ (ขั้นละเฟรม ตามจังหวะขาในภาพ) ให้เห็นการก้าวชัดขึ้น
     let lift = 0;
     if (s.action === 'walk' && action === 'walk') { const fr = this.feet(s.img, s.n)[row]; lift = fr && Math.max(0, f) % 2 === fr.pass ? 3 : 0; }
-    return { img: s.img, f: Math.max(0, f), row, flip: s.dirs === 8 ? false : st.facing > 0, lift };
+    return { img: s.img, f: Math.max(0, f), row, flip: s.dirs === 8 ? false : st.facing > 0, lift, breathe: s.action === 'idle' && s.n === 1 };
   },
 
   // วาดที่ตำแหน่งเท้า (x, y), ตัวสูงราว H px, facing>0 = หันขวา (ภาพต้นฉบับหันซ้าย)

@@ -8,10 +8,10 @@
   },
   "_k1536": 0.36101,
   "idle": {
-   "frames": 4,
-   "dirs": 1,
-   "scale_src": 0.303,
-   "median_src_h": 495
+   "frames": 1,
+   "dirs": 8,
+   "scale_src": 0.5515,
+   "median_src_h": 272
   },
   "cast": {
    "frames": 4,

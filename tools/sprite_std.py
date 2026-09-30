@@ -276,6 +276,7 @@ def main():
     ap.add_argument('--grid', default='4x2'); ap.add_argument('--cols', type=int, default=4); ap.add_argument('--rows', type=int, default=2)
     ap.add_argument('--frames', type=int, default=0, help='ใช้แค่ N เฟรมแรก')
     ap.add_argument('--dirs', default='', help='ทิศของแต่ละแถวในชีต เช่น S,SW,W,NW,N,E,SE')
+    ap.add_argument('--still', action='store_true', help='เก็บแค่เฟรมที่เท้าชิดกันที่สุด (ยืนสองขา) แถวละ 1 เฟรม — ใช้ทำท่ายืนจากชีตเดิน')
     ap.add_argument('--nofit', action='store_true', help='ไม่ปรับขนาดเฟรมที่เพี้ยนอัตโนมัติ')
     ap.add_argument('--order', default='', help='ลำดับเฟรมใหม่ เช่น 1,2,3,4,3,2')
     a = ap.parse_args()
@@ -306,10 +307,23 @@ def main():
     name = f"anim_{a.key}_{a.action}" if a.cmd == 'install' else 'measure_' + os.path.splitext(os.path.basename(a.src))[0]
     check_sheet(out, rep, title).save(os.path.join(CHECK, name + '.png')); print('  ภาพตรวจ →', os.path.join(CHECK, name + '.png'))
     if a.cmd != 'install': return
+    def feet_w(f):  # ความกว้างช่วงเท้า (เหนือเส้นพื้น 26 px)
+        bb = f.crop((0, GROUND - 28, CELL, GROUND - 2)).getchannel('A').point(lambda v: 255 if v > 80 else 0).getbbox()
+        return (bb[2] - bb[0]) if bb else 999
+    def lowest_two(f):  # เท้าทั้งสองแตะพื้น: มีเนื้อที่แถวล่างสุดเป็น 2 ก้อนแยกกัน หรือก้อนเดียวที่กว้าง
+        a_ = f.getchannel('A').crop((0, GROUND - 6, CELL, GROUND)).point(lambda v: 1 if v > 80 else 0)
+        cols = [any(a_.getpixel((x, y)) for y in range(6)) for x in range(CELL)]
+        runs = sum(1 for x in range(1, CELL) if cols[x] and not cols[x - 1]) + (1 if cols[0] else 0)
+        return runs >= 2
+    def pick_still(frs):
+        both = [f for f in frs if lowest_two(f)] or frs
+        return [min(both, key=feet_w)]
     if a.dirs:
         names = [d.strip().upper() for d in a.dirs.split(',')]
         per = len(out) // len(names)
         rows_by = {d: out[i * per:(i + 1) * per] for i, d in enumerate(names)}
+        if a.still:
+            rows_by = {d: pick_still(v) for d, v in rows_by.items()}; per = 1
         for d in DIRS:  # ทิศที่ขาด: กลับด้านจากทิศคู่ ไม่มีก็ใช้ทิศที่ใกล้ที่สุด
             if d in rows_by: continue
             if MIRROR.get(d) in rows_by: rows_by[d] = [ImageOps.mirror(f) for f in rows_by[MIRROR[d]]]; print(f'  ทิศ {d} = กลับด้าน {MIRROR[d]}')
@@ -321,6 +335,7 @@ def main():
         for r, d in enumerate(DIRS):
             for i, f in enumerate(rows_by[d]): strip.alpha_composite(f, (i * CELL, r * CELL))
     else:
+        if a.still: out = pick_still(out)
         strip = Image.new('RGBA', (CELL * len(out), CELL), (0, 0, 0, 0))
         for i, f in enumerate(out): strip.alpha_composite(f, (i * CELL, 0))
     strip.save(os.path.join(ROOT, name + '.webp'), 'WEBP', quality=90, method=6)
