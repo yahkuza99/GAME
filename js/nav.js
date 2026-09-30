@@ -101,6 +101,8 @@ const Nav = {
     if (!t || !G.started || p.dead) return;
     if (p.target || p.npcTarget || p.cast) return; // กำลังสู้/คุยอยู่ ปล่อยให้เสร็จก่อน
     Bot.manualOverride();
+    // ปลายทางเป็น "แผนที่" → ถึงทันทีที่เข้าแผนที่นั้น
+    if (t.kind === 'map' && t.map === G.map.id) { UI.msg(`ถึง ${MAP_DEFS[t.map].name} แล้ว`, 'info'); this.target = null; this.updatePill(); return; }
     const wp = this.waypoint();
     if (!wp) { this.cancel(); return; }
     const d = U.dist(p.x, p.y, wp.x + 0.5, wp.y + 0.5);
