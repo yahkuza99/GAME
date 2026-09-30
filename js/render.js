@@ -101,6 +101,8 @@ R.render = () => {
     g.beginPath(); g.ellipse(last.x * TILE + TILE / 2, last.y * TILE + TILE / 2, 10, 5, 0, 0, 7); g.stroke();
   }
 
+  // กับดัก
+  for (const tr of G.traps) Sprites.drawTrap(g, tr, t);
   // ไอเทมบนพื้น
   for (const d of G.drops) {
     const x = d.x * TILE, y = d.y * TILE;
@@ -120,7 +122,14 @@ R.render = () => {
   for (const o of map.objects) if (o.x > L && o.x < Rr && o.y > Tp && o.y < B) list.push({ y: o.y + 0.3, f: () => Sprites.drawTree(g, o, t) });
   for (const n of G.npcs) list.push({ y: n.y + 0.5, f: () => Sprites.drawNpc(g, n, t) });
   for (const m of G.mobs) if (m.x > L && m.x < Rr && m.y > Tp && m.y < B) list.push({ y: m.y, f: () => Sprites.drawMob(g, m, t) });
-  list.push({ y: p.y, f: () => { if (p.hurtFlash > 0) g.filter = 'sepia(1) saturate(6) hue-rotate(-40deg)'; Sprites.drawPlayer(g, p, t); g.filter = 'none'; } });
+  for (const a of G.allies) list.push({ y: a.y, f: () => Sprites.drawAlly(g, a, t) });
+  list.push({ y: p.y, f: () => {
+    g.save();
+    if (p.stealthUntil > G.time) g.globalAlpha = 0.35 + Math.sin(t * 6) * 0.08;
+    if (p.hurtFlash > 0) g.filter = 'sepia(1) saturate(6) hue-rotate(-40deg)';
+    Sprites.drawPlayer(g, p, t);
+    g.restore();
+  } });
   list.sort((a, b) => a.y - b.y);
   for (const it of list) it.f();
 
@@ -138,6 +147,7 @@ R.render = () => {
     else if (G.hover && G.hover.ref === m) R.label(g, x, y + 22, `${m.def.name} (Lv ${m.def.lv})`, m.def.aggro ? '#ffb0a0' : '#ffffff');
     if (m.emoteUntil > G.time) R.emote(g, x + 12, y - 44 * s, '!');
   }
+  for (const a of G.allies) R.label(g, a.x * TILE, a.y * TILE + 14, `${a.name} ${Math.ceil(a.until - G.time)}s`, '#b8e0ff');
   if (G.hover && G.hover.kind === 'drop') {
     const d = G.hover.ref;
     R.label(g, d.x * TILE, d.y * TILE + 20, `${ITEMS[d.id].name}${d.qty > 1 ? ' ×' + d.qty : ''}`, '#fff6c0');
@@ -243,8 +253,9 @@ R.drawFx = (g, f, t) => {
     case 'arrow': {
       if (after >= 0) break;
       const sx = f.sx * TILE, sy = f.sy * TILE;
-      const x = U.lerp(sx, X, k), y = U.lerp(sy, tgtY, k);
-      const a = Math.atan2(tgtY - sy, X - sx);
+      const ex = f.ref ? X : f.tx * TILE, ey = f.ref ? tgtY : f.ty * TILE - 24;
+      const x = U.lerp(sx, ex, k), y = U.lerp(sy, ey, k);
+      const a = Math.atan2(ey - sy, ex - sx);
       g.save(); g.translate(x, y); g.rotate(a);
       g.strokeStyle = f.big ? '#ffe080' : '#e8d8b0'; g.lineWidth = f.big ? 3 : 2;
       g.beginPath(); g.moveTo(-14, 0); g.lineTo(6, 0); g.stroke();
@@ -345,6 +356,27 @@ R.drawFx = (g, f, t) => {
       }
       g.fillStyle = `rgba(255,120,30,${0.25 * (1 - k)})`;
       g.beginPath(); g.ellipse(X, Y, r, r * 0.55, 0, 0, 7); g.fill();
+      break;
+    }
+    case 'whirl': {
+      const r = f.r * TILE;
+      g.save(); g.translate(X, Y - 14); g.scale(1, 0.5);
+      for (let i = 0; i < 3; i++) {
+        const a0 = k * Math.PI * 4 + i * 2.1;
+        g.strokeStyle = `rgba(230,235,255,${(1 - k) * (0.9 - i * 0.2)})`; g.lineWidth = 6 - i * 1.5;
+        g.beginPath(); g.arc(0, 0, r * (0.6 + i * 0.18), a0, a0 + 1.6); g.stroke();
+      }
+      g.restore();
+      break;
+    }
+    case 'ring': {
+      const waves = f.waves || 1;
+      for (let i = 0; i < waves; i++) {
+        const kk = U.clamp(k * 1.4 - i * 0.2, 0, 1);
+        if (kk <= 0 || kk >= 1) continue;
+        g.strokeStyle = `rgba(${f.color || '255,255,255'},${1 - kk})`; g.lineWidth = 3;
+        g.beginPath(); g.ellipse(X, Y, f.r * TILE * kk, f.r * TILE * kk * 0.5, 0, 0, 7); g.stroke();
+      }
       break;
     }
     case 'warnring': {

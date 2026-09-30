@@ -181,7 +181,7 @@ function drawTitlePreview(t) {
   };
   Sprites.drawPlayer(g, fake, t);
   g.restore();
-  const poring = { def: MOBS.poring, facing: -1, moving: true, seed: 0.3, state: 'idle' };
+  const poring = { def: MOBS.pudding, facing: -1, moving: true, seed: 0.3, state: 'idle' };
   g.save(); g.translate(c.width / 2 + 60, c.height - 22); g.scale(1.5, 1.5);
   Sprites.poring(g, 0, 0, poring, t);
   g.restore();
@@ -196,11 +196,11 @@ function startGame(p, isNew) {
   if (isNew) { p.hp = p.d.maxHp; p.sp = p.d.maxSp; }
   changeMap(p.map, p.x, p.y);
   UI.dirty(); UI.renderWindows(true); UI.updateHud();
-  UI.msg(`ยินดีต้อนรับสู่โลกแห่ง Ragnarok, ${p.name}!`, 'lvl');
-  UI.msg('กด H เพื่อดูวิธีเล่น • คุยกับ Prontera Guide (ทหารใส่หมวกเหล็ก) เพื่อขอคำแนะนำ', 'info');
+  UI.msg(`ยินดีต้อนรับสู่มิดการ์ด, ${p.name}! แร็กนาร็อกกำลังใกล้เข้ามา...`, 'lvl');
+  UI.msg('กด H เพื่อดูวิธีเล่น • คุยกับ Guard Rolf (ทหารหมวกเขา) เพื่อขอคำแนะนำ', 'info');
   if (isNew) {
     UI.open('w-help');
-    UI.msg('เคล็ดลับ: เริ่มต้นด้วยการแจก Status Point (กด A) แล้วออกไปล่า Poring ทางตะวันออกของเมือง', 'info');
+    UI.msg('เคล็ดลับ: เริ่มต้นด้วยการแจก Status Point (กด A) แล้วออกไปล่า Pudding ทางตะวันออกของเมือง', 'info');
   }
   saveGame();
 }

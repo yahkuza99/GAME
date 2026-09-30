@@ -8,45 +8,46 @@ const SOLID = new Set([T.TREE, T.WATER, T.WALL, T.ROCK, T.HOUSE, T.FOUNTAIN]);
 const SIGHT_BLOCK = new Set([T.TREE, T.WALL, T.ROCK, T.HOUSE]);
 
 const MAP_DEFS = {
-  prontera: {
-    name: 'Prontera', thai: 'เมืองหลวงพรอนเทรา', w: 40, h: 40, kind: 'town', seed: 101,
-    links: { E: 'prt_fild', S: 'pay_fild' }, spawns: [],
+  eldheim: {
+    name: 'Eldheim', thai: 'เมืองเอลด์ไฮม์ นครแห่งมิดการ์ด', w: 40, h: 40, kind: 'town', seed: 101,
+    links: { E: 'meadow', S: 'wolfwood' }, spawns: [],
     grass: '#74b04c',
     npcs: [
-      { id: 'kafra', name: 'Kafra Employee', x: 23, y: 15, look: 'kafra' },
-      { id: 'jobmaster', name: 'Job Master', x: 17, y: 15, look: 'jobmaster' },
+      { id: 'bifrost', name: 'Bifrost Keeper', x: 23, y: 15, look: 'keeper' },
+      { id: 'jobmaster', name: 'Sage Mimir', x: 17, y: 15, look: 'jobmaster' },
       { id: 'tool', name: 'Tool Dealer', x: 8, y: 17, look: 'merchant' },
       { id: 'weapon', name: 'Weapon Dealer', x: 32, y: 17, look: 'smith' },
       { id: 'armor', name: 'Armor Dealer', x: 8, y: 31, look: 'merchant2' },
-      { id: 'refine', name: 'Hollgrehenn', x: 32, y: 31, look: 'refiner' },
-      { id: 'nurse', name: 'Healer', x: 16, y: 25, look: 'nurse' },
-      { id: 'guide', name: 'Prontera Guide', x: 24, y: 25, look: 'guide' },
+      { id: 'refine', name: 'Brokk the Smith', x: 32, y: 31, look: 'refiner' },
+      { id: 'nurse', name: "Eir's Healer", x: 16, y: 25, look: 'nurse' },
+      { id: 'guide', name: 'Guard Rolf', x: 24, y: 25, look: 'guide' },
     ],
   },
-  prt_fild: {
-    name: 'Prontera Field', thai: 'ทุ่งหญ้าพรอนเทรา', w: 56, h: 56, kind: 'field', seed: 202,
-    links: { W: 'prontera', E: 'gef_fild' }, level: '1-6',
-    spawns: [['poring', 14], ['fabre', 8], ['lunatic', 8], ['drops', 6], ['chonchon', 5]],
+  meadow: {
+    name: 'Emerald Meadow', thai: 'ทุ่งหญ้ามรกต', w: 56, h: 56, kind: 'field', seed: 202,
+    links: { W: 'eldheim', E: 'mistlake' }, level: '1-6',
+    spawns: [['pudding', 14], ['leafworm', 8], ['moonbun', 8], ['ember_pudding', 6], ['buzzfly', 5]],
     grass: '#6fae4a', trees: 0.9, ponds: 2, flowers: 0.05,
   },
-  gef_fild: {
-    name: 'Geffen Field', thai: 'ทุ่งเกฟเฟน', w: 56, h: 56, kind: 'field', seed: 303,
-    links: { W: 'prt_fild' }, level: '8-16 (MVP: Angeling)',
-    spawns: [['rocker', 10], ['willow', 8], ['spore', 8], ['poporing', 8]], mvp: 'angeling',
+  mistlake: {
+    name: 'Mistlake Plains', thai: 'ที่ราบทะเลสาบหมอก', w: 56, h: 56, kind: 'field', seed: 303,
+    links: { W: 'meadow' }, level: '8-16 (MVP: Seraph Pudding)',
+    spawns: [['fiddlehopper', 10], ['stumpling', 8], ['capshroom', 8], ['moss_pudding', 8]], mvp: 'seraph_pudding',
     grass: '#86b04a', trees: 0.8, ponds: 4, flowers: 0.08, treeHue: '#5f9a3a',
   },
-  pay_fild: {
-    name: 'Payon Forest', thai: 'ป่าพายอน', w: 56, h: 56, kind: 'field', seed: 404,
-    links: { N: 'prontera', S: 'pay_dun' }, level: '18-30',
-    spawns: [['smokie', 10], ['wolf', 8], ['bigfoot', 6], ['savage', 6]],
+  wolfwood: {
+    name: 'Wolfwood Forest', thai: 'ป่าหมาป่า', w: 56, h: 56, kind: 'field', seed: 404,
+    links: { N: 'eldheim', S: 'helcave' }, level: '18-30',
+    spawns: [['ashtail', 10], ['fenrir_pup', 8], ['mossback', 6], ['tuskboar', 6]],
     grass: '#4f8a3a', trees: 1.7, ponds: 1, flowers: 0.02, pine: true,
   },
-  pay_dun: {
-    name: 'Payon Cave', thai: 'ถ้ำพายอน', w: 50, h: 50, kind: 'cave', seed: 505, dark: true,
-    links: { N: 'pay_fild' }, level: '17-45 (MVP: Moonlight Flower)',
-    spawns: [['zombie', 10], ['skeleton', 8], ['munak', 7], ['bongun', 6]], mvp: 'moonlight',
+  helcave: {
+    name: "Hel's Hollow", thai: 'โพรงถ้ำแห่งเฮล', w: 50, h: 50, kind: 'cave', seed: 505, dark: true,
+    links: { N: 'wolfwood' }, level: '17-45 (MVP: Kitsura)',
+    spawns: [['draugr', 10], ['bone_warden', 8], ['hel_maiden', 7], ['hel_guard', 6]], mvp: 'kitsura',
   },
 };
+const HOME_MAP = 'eldheim';
 
 const PORTAL_SIDE = {
   E: (w, h) => ({ x: w - 2, y: h >> 1, ax: w - 4, ay: h >> 1 }),
@@ -204,7 +205,7 @@ class GameMap {
     for (let y = cy - 1; y <= cy + 1; y++) for (let x = cx - 1; x <= cx + 1; x++) this.set(x, y, T.FOUNTAIN);
     this.fountain = { x: cx + 0.5, y: cy + 0.5 };
     // ปราสาท
-    this.addBuilding(13, 2, 15, 7, 'castle', '#6a7fb0', 'PRONTERA CASTLE');
+    this.addBuilding(13, 2, 15, 7, 'castle', '#6a7fb0', 'ELDHEIM HALL');
     // ร้านค้า
     this.addBuilding(4, 11, 8, 6, 'house', '#c0463a', 'TOOL');
     this.addBuilding(28, 11, 8, 6, 'house', '#3a6ac0', 'WEAPON');

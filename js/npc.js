@@ -18,27 +18,27 @@ const NPC = {
 };
 const B = s => `<b class="npc-hl">${s}</b>`;
 
-NPC.scripts.kafra = async n => {
+NPC.scripts.bifrost = async n => {
   const p = G.player;
   const nm = `[${n.name}]`;
-  const c = await UI.menu(nm, 'ยินดีต้อนรับสู่ <b>Kafra Corporation</b> ค่ะ<br>บริการของ Kafra พร้อมอยู่เคียงข้างนักผจญภัยเสมอ มีอะไรให้ช่วยคะ?',
-    ['บันทึกจุดเกิด (Save)', 'บริการเทเลพอร์ต', 'ยกเลิก']);
+  const c = await UI.menu(nm, 'ข้าคือผู้เฝ้าสะพาน <b>ไบฟรอสต์</b> สะพานสายรุ้งที่เชื่อมทุกดินแดน<br>ข้าจดจำจุดพักของเจ้า และส่งเจ้าข้ามดินแดนได้',
+    ['บันทึกจุดเกิด (Save)', 'ข้ามสะพานสายรุ้ง (เทเลพอร์ต)', 'ยกเลิก']);
   if (c === 0) {
     p.save = { map: G.map.id, x: n.x + 0.5, y: n.y + 1.5 };
     saveGame();
-    await UI.say(nm, `บันทึกจุดเกิดของคุณที่ ${B(G.map.def.name)} เรียบร้อยแล้วค่ะ<br>เมื่อใช้ Butterfly Wing หรือเสียชีวิต คุณจะกลับมาที่นี่ค่ะ`);
+    await UI.say(nm, `ข้าจดจำ ${B(G.map.def.name)} ไว้ให้เจ้าแล้ว<br>เมื่อใช้ Hearth Rune หรือล้มลงในการต่อสู้ เจ้าจะกลับมาที่นี่`);
   } else if (c === 1) {
-    const dests = [['prt_fild', 300], ['gef_fild', 600], ['pay_fild', 800], ['pay_dun', 1200]];
-    const i = await UI.menu(nm, 'ต้องการเดินทางไปที่ไหนคะ?',
+    const dests = [['meadow', 300], ['mistlake', 600], ['wolfwood', 800], ['helcave', 1200]];
+    const i = await UI.menu(nm, 'จะให้สายรุ้งพาเจ้าไปที่ใด?',
       [...dests.map(([id, z]) => `${MAP_DEFS[id].name} (Lv ${MAP_DEFS[id].level.split(' ')[0]}) — ${U.fmt(z)} z`), 'ยกเลิก']);
     if (i < dests.length) {
       const [id, z] = dests[i];
-      if (p.zeny < z) { await UI.say(nm, 'ขออภัยค่ะ Zeny ของคุณไม่เพียงพอ'); return; }
+      if (p.zeny < z) { await UI.say(nm, 'Zeny ของเจ้าไม่พอสำหรับค่าผ่านทาง'); return; }
       p.zeny -= z;
       UI.dlgClose();
       const map = getMap(id);
       changeMap(id, (map.w >> 1) + 0.5, (map.h >> 1) + 0.5);
-      UI.msg(`Kafra เทเลพอร์ตคุณไปยัง ${MAP_DEFS[id].name} (-${U.fmt(z)} z)`, 'sys');
+      UI.msg(`สะพานไบฟรอสต์พาคุณไปยัง ${MAP_DEFS[id].name} (-${U.fmt(z)} z)`, 'sys');
     }
   }
 };
@@ -47,24 +47,24 @@ NPC.scripts.jobmaster = async n => {
   const p = G.player;
   const nm = `[${n.name}]`;
   if (p.job === 'novice') {
-    await UI.say(nm, `ฮึ่ม... เจ้าคือ Novice ผู้ปรารถนาจะก้าวเดินบนเส้นทางแห่งอาชีพสินะ<br>ข้าคือผู้ชี้นำเส้นทางของนักผจญภัยทั้งปวง`);
-    if (p.jobLv < 10 || skillLv('basic_skill') < 9) {
-      await UI.say(nm, `แต่เจ้ายังไม่พร้อม!<br>• Job Level ต้องถึง ${B('10')} (ตอนนี้ ${p.jobLv})<br>• Basic Skill ต้องถึง ${B('Lv 9')} (ตอนนี้ ${skillLv('basic_skill')})<br><br>ไปล่ามอนสเตอร์ใน ${B('Prontera Field')} ทางตะวันออกของเมืองก่อนเถิด`);
+    await UI.say(nm, `ข้าคือมิเมียร์ ผู้เฝ้าบ่อแห่งปัญญา...<br>เจ้าผู้เริ่มต้น ปรารถนาจะเลือกเส้นทางของตนเองสินะ`);
+    if (p.jobLv < JOB_CHANGE_LV) {
+      await UI.say(nm, `แต่เจ้ายังอ่อนประสบการณ์นัก!<br>จงไปฝึกจนมี ${B('Job Level ' + JOB_CHANGE_LV)} ก่อน (ตอนนี้ ${p.jobLv})<br><br>ทุ่งหญ้ามรกต ${B('ทางตะวันออกของเมือง')} เหมาะกับการเริ่มต้น`);
       return;
     }
     for (;;) {
-      const i = await UI.menu(nm, 'เจ้าพร้อมแล้ว! จงเลือกเส้นทางของเจ้า:', [...FIRST_JOBS.map(j => `${JOBS[j].name} (${JOBS[j].thai})`), 'ขอคิดดูก่อน']);
+      const i = await UI.menu(nm, 'เจ้าพร้อมแล้ว! จงเลือกเส้นทางแห่งโชคชะตา:', [...FIRST_JOBS.map(j => `${JOBS[j].name} (${JOBS[j].thai}) — ${JOBS[j].role}`), 'ขอคิดดูก่อน']);
       if (i >= FIRST_JOBS.length) return;
-      const j = FIRST_JOBS[i];
-      const ok = await UI.menu(nm, `<b>${JOBS[j].name}</b> — ${JOBS[j].desc}<br><br>สกิล: ${JOBS[j].skills.map(s => SKILLS[s].name).join(', ')}<br><br>ยืนยันที่จะเป็น ${B(JOBS[j].name)} หรือไม่? (เปลี่ยนกลับไม่ได้)`, ['ยืนยัน!', 'ย้อนกลับ']);
+      const j = FIRST_JOBS[i], J = JOBS[j];
+      const ok = await UI.menu(nm, `<b>${J.name}</b> — ${J.thai}<br>${J.desc}<br><br>สเตตัสแนะนำ: ${B(J.stats)}<br>สกิล: ${J.skills.map(s => SKILLS[s].name).join(', ')}<br><br>ยืนยันที่จะเป็น ${B(J.name)} หรือไม่? (เปลี่ยนกลับไม่ได้)`, ['ยืนยัน!', 'ย้อนกลับ']);
       if (ok === 0) {
         changeJob(j);
-        await UI.say(nm, `จากนี้ไปเจ้าคือ ${B(JOBS[j].name)}!<br>ข้ามอบอาวุธประจำอาชีพให้เจ้าแล้ว จงใช้ Skill Point เรียนรู้สกิลใหม่ (กด S)`);
+        await UI.say(nm, `จากนี้ไปเจ้าคือ ${B(J.name)}!<br>ข้ามอบอาวุธประจำอาชีพให้เจ้าแล้ว เก็บ Job Level เพื่อรับ Skill Point แล้วเรียนสกิลใหม่ (กด S)`);
         return;
       }
     }
   }
-  const i = await UI.menu(nm, `อ้อ ${JOBS[p.job].name} ผู้กล้า... อาชีพขั้นที่สองยังไม่เปิดให้ในดินแดนนี้<br>แต่ข้าช่วยเจ้าได้เรื่องหนึ่ง:`,
+  const i = await UI.menu(nm, `${JOBS[p.job].name} ผู้กล้า... เส้นทางขั้นต่อไปยังซ่อนอยู่ในสายหมอกแห่งอนาคต<br>แต่ปัญญาของข้าช่วยเจ้าได้เรื่องหนึ่ง:`,
     ['รีเซ็ตสกิล (5,000 z)', 'รีเซ็ตสเตตัส (10,000 z)', 'ไม่เป็นไร']);
   if (i === 0 || i === 1) {
     const cost = i === 0 ? 5000 : 10000;
@@ -88,32 +88,32 @@ async function shopNpc(n, key, greet) {
   UI.renderShop();
 }
 NPC.scripts.tool = n => shopNpc(n, 'tool', 'ยินดีต้อนรับ! ยา ปีกผีเสื้อ อาหาร มีครบทุกอย่างที่นักผจญภัยต้องการ!');
-NPC.scripts.weapon = n => shopNpc(n, 'weapon', 'อาวุธชั้นดีจากช่างตีเหล็กแห่ง Prontera! เลือกดูได้เลย');
+NPC.scripts.weapon = n => shopNpc(n, 'weapon', 'อาวุธชั้นดีจากเตาหลอมแห่งเอลด์ไฮม์! เลือกดูได้เลย');
 NPC.scripts.armor = n => shopNpc(n, 'armor', 'เกราะ หมวก โล่ รองเท้า และเครื่องประดับ ป้องกันตัวให้ดีก่อนออกเดินทางนะ!');
 
 NPC.scripts.nurse = async n => {
   const p = G.player;
   const nm = `[${n.name}]`;
-  await UI.say(nm, 'ขอพรจากพระเจ้าจงสถิตอยู่กับคุณ...<br>ฉันจะรักษาและอวยพรให้คุณนะคะ ✚');
+  await UI.say(nm, 'ขอพรจากเทพีเอียร์ ผู้เยียวยา จงสถิตอยู่กับเจ้า...<br>ข้าจะรักษาและอวยพรให้นะ ✚');
   p.hp = p.d.maxHp; p.sp = p.d.maxSp; p.poisonUntil = 0;
-  p.buffs.blessing = { lv: 5, until: G.time + 240 };
-  p.buffs.increase_agi = { lv: 5, until: G.time + 240 };
+  p.buffs.blessing_of_odin = { lv: 2, until: G.time + 240 };
   recalc();
   addFx({ type: 'heal', ref: p, dur: 1.2 });
   addFx({ type: 'buff', ref: p, dur: 1.2 });
   Sound.play('heal');
-  UI.msg('Healer ได้ฟื้นฟู HP/SP และมอบ Blessing Lv5, Increase AGI Lv5 ให้คุณ', 'sys');
+  UI.msg("Eir's Healer ฟื้นฟู HP/SP และมอบ Blessing of Odin Lv2 ให้คุณ", 'sys');
 };
 
 NPC.scripts.guide = async n => {
   const nm = `[${n.name}]`;
   for (;;) {
-    const i = await UI.menu(nm, 'ยินดีต้อนรับสู่ <b>Prontera</b> เมืองหลวงแห่งอาณาจักร Rune-Midgard!<br>มีอะไรให้ข้าช่วยแนะนำ?',
-      ['วิธีควบคุม', 'แผนที่รอบเมือง', 'NPC ในเมือง', 'เคล็ดลับ', 'ขอบคุณ']);
+    const i = await UI.menu(nm, 'ยินดีต้อนรับสู่ <b>เอลด์ไฮม์</b> นครแห่งมิดการ์ด ก่อนวันแร็กนาร็อกจะมาถึง!<br>มีอะไรให้ข้าช่วยแนะนำ?',
+      ['วิธีควบคุม', 'แผนที่รอบเมือง', 'ผู้คนในเมือง', 'อาชีพทั้ง 6', 'เคล็ดลับ', 'ขอบคุณ']);
     if (i === 0) await UI.say(nm, `• ${B('คลิกซ้าย')} ที่พื้นเพื่อเดิน / คลิกค้างเพื่อเดินตามเมาส์<br>• ${B('คลิกมอนสเตอร์')} เพื่อโจมตีอัตโนมัติ<br>• ${B('คลิกไอเทม')} บนพื้นเพื่อเก็บ<br>• ${B('1-9')} ใช้ปุ่มลัด • ${B('X')} นั่งพัก (ฟื้นฟูเร็วขึ้น)<br>• ${B('A')} สถานะ • ${B('E')} ไอเทม • ${B('Q')} อุปกรณ์ • ${B('S')} สกิล • ${B('Enter')} แชท<br>• ${B('ล้อเมาส์')} ซูมเข้า/ออก`);
-    else if (i === 1) await UI.say(nm, `• ${B('ทางตะวันออก')} → Prontera Field (Lv 1-6) → Geffen Field (Lv 8-16, MVP Angeling)<br>• ${B('ทางใต้')} → Payon Forest (Lv 18-30) → Payon Cave (Lv 17-45, MVP Moonlight Flower)<br><br>วงแสงสีฟ้าคือ ${B('Warp Portal')} เดินเข้าไปเพื่อย้ายแผนที่`);
-    else if (i === 2) await UI.say(nm, `• ${B('Kafra')} — บันทึกจุดเกิด / เทเลพอร์ต<br>• ${B('Job Master')} — เปลี่ยนอาชีพ<br>• ${B('Healer')} — ฟื้นฟูและบัฟฟรี<br>• ${B('Tool / Weapon / Armor Dealer')} — ซื้อขายของ<br>• ${B('Hollgrehenn')} — ตีบวกอาวุธและชุดเกราะ`);
-    else if (i === 3) await UI.say(nm, `• อัปสเตตัสด้วย Status Point ทุกครั้งที่เลเวลอัป (กด A)<br>• มอนสเตอร์ที่มีชื่อสีแดงอ่อนจะ ${B('โจมตีก่อน')}!<br>• ${B('การ์ด')} ดรอปยาก ใส่ในอุปกรณ์ที่มีช่อง [ ] เพื่อเพิ่มพลัง<br>• ธาตุมีผล! ไฟแรงกับดิน น้ำแรงกับไฟ ศักดิ์สิทธิ์แรงกับอมตะ<br>• Auto Loot เปิดได้ที่เมนูตั้งค่า`);
+    else if (i === 1) await UI.say(nm, `• ${B('ทางตะวันออก')} → Emerald Meadow (Lv 1-6) → Mistlake Plains (Lv 8-16, MVP Seraph Pudding)<br>• ${B('ทางใต้')} → Wolfwood Forest (Lv 18-30) → Hel's Hollow (Lv 17-45, MVP Kitsura)<br><br>วงแสงสีฟ้าคือ ${B('ประตูมิติ')} เดินเข้าไปเพื่อย้ายแผนที่`);
+    else if (i === 2) await UI.say(nm, `• ${B('Bifrost Keeper')} — บันทึกจุดเกิด / เทเลพอร์ต<br>• ${B('Sage Mimir')} — เปลี่ยนอาชีพ (Job Lv ${JOB_CHANGE_LV})<br>• ${B("Eir's Healer")} — ฟื้นฟูและอวยพรฟรี<br>• ${B('Tool / Weapon / Armor Dealer')} — ซื้อขายของ<br>• ${B('Brokk the Smith')} — ตีบวกอาวุธและชุดเกราะ`);
+    else if (i === 3) await UI.say(nm, FIRST_JOBS.map(j => `• ${B(JOBS[j].name)} (${JOBS[j].thai}) — ${JOBS[j].role} [${JOBS[j].stats}]`).join('<br>'));
+    else if (i === 4) await UI.say(nm, `• อัปสเตตัสด้วย Status Point ทุกครั้งที่เลเวลอัป (กด A)<br>• มอนสเตอร์บางชนิดจะ ${B('โจมตีก่อน')}! ระวังตัวด้วย<br>• ${B('การ์ด')} ดรอปยาก ใส่ในอุปกรณ์ที่มีช่อง [ ] เพื่อเพิ่มพลัง<br>• ธาตุมีผล! ไฟแรงกับดิน น้ำแรงกับไฟ ศักดิ์สิทธิ์แรงกับอมตะ<br>• สกิลแต่ละอันอัปได้สูงสุด Lv 5`);
     else return;
   }
 };
@@ -123,8 +123,8 @@ NPC.scripts.refine = async n => {
   const nm = `[${n.name}]`;
   const RATE = [1, 1, 1, 1, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1];
   const slots = EQUIP_SLOTS.filter(s => p.equip[s]);
-  if (!slots.length) { await UI.say(nm, 'ข้าคือช่างตีบวก Hollgrehenn!<br>สวมอุปกรณ์ที่ต้องการตีบวกก่อน แล้วค่อยมาหาข้า'); return; }
-  const i = await UI.menu(nm, 'ข้าคือ Hollgrehenn ช่างตีบวกฝีมือดีที่สุดใน Prontera!<br>+1~+4 สำเร็จแน่นอน แต่หลังจากนั้น... <b style="color:#c03030">ถ้าล้มเหลว อุปกรณ์จะแตก!</b><br>จะตีบวกชิ้นไหน?',
+  if (!slots.length) { await UI.say(nm, 'ข้าคือบร็อค ช่างคนแคระผู้ตีค้อนแห่งธอร์!<br>สวมอุปกรณ์ที่ต้องการตีบวกก่อน แล้วค่อยมาหาข้า'); return; }
+  const i = await UI.menu(nm, 'ข้าคือบร็อค ช่างคนแคระผู้ตีค้อนแห่งธอร์!<br>+1~+4 สำเร็จแน่นอน แต่หลังจากนั้น... <b style="color:#c03030">ถ้าล้มเหลว อุปกรณ์จะแตก!</b><br>จะตีบวกชิ้นไหน?',
     [...slots.map(s => `${SLOT_THAI[s]}: ${itemDisplayName(p.equip[s])}`), 'ยกเลิก']);
   if (i >= slots.length) return;
   const slot = slots[i], e = p.equip[slot];

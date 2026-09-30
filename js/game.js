@@ -5,10 +5,10 @@
 
 const G = {
   time: 0, map: null, mapCache: {}, player: null,
-  mobs: [], drops: [], npcs: [], fx: [], floaters: [], timers: [], respawns: [],
+  mobs: [], drops: [], npcs: [], fx: [], floaters: [], timers: [], respawns: [], allies: [], traps: [],
   mvpNext: {}, pendingSkill: null, hover: null, uid: 1, started: false,
 };
-const SAVE_KEY = 'ragnarok_web_save_v1';
+const SAVE_KEY = 'ragnarok_web_save_v2';
 const SAVE_FIELDS = ['name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
   'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq'];
 
@@ -22,14 +22,14 @@ function newPlayer(name, gender, hair) {
     skills: { first_aid: 1 }, zeny: 500, inventory: [],
     equip: { head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null },
     hotbar: [null, null, null, null, null, null, null, null, null],
-    map: 'prontera', x: 20.5, y: 24.5, save: { map: 'prontera', x: 20.5, y: 24.5 },
+    map: HOME_MAP, x: 20.5, y: 24.5, save: { map: HOME_MAP, x: 20.5, y: 24.5 },
     hp: 1, sp: 1, options: { autoLoot: true, sound: true, expMsg: true }, uidSeq: 1,
   };
   initRuntime(p);
   G.player = p;
   addItem('red_potion', 15, true);
-  addItem('fly_wing', 5, true);
-  addItem('butterfly_wing', 2, true);
+  addItem('blink_feather', 5, true);
+  addItem('hearth_rune', 2, true);
   addItem('apple', 5, true);
   addItem('knife', 1, true);
   addItem('cotton_shirt', 1, true);
@@ -37,7 +37,7 @@ function newPlayer(name, gender, hair) {
   equipItem(p.inventory.find(e => e.id === 'cotton_shirt'), true);
   p.hotbar[0] = { t: 'item', id: 'red_potion' };
   p.hotbar[1] = { t: 'skill', id: 'first_aid' };
-  p.hotbar[8] = { t: 'item', id: 'butterfly_wing' };
+  p.hotbar[8] = { t: 'item', id: 'hearth_rune' };
   recalc();
   p.hp = p.d.maxHp; p.sp = p.d.maxSp;
   return p;
@@ -47,7 +47,7 @@ function initRuntime(p) {
   Object.assign(p, {
     path: [], target: null, pickTarget: null, npcTarget: null, skillIntent: null, cast: null,
     facing: 1, moving: false, sitting: false, dead: false, atkAnim: 0, nextAttack: 0, skillReadyAt: 0, itemReadyAt: 0,
-    repathAt: 0, hpTimer: 0, spTimer: 0, buffs: {}, speech: null, poisonUntil: 0, d: {},
+    repathAt: 0, hpTimer: 0, spTimer: 0, buffs: {}, speech: null, poisonUntil: 0, stealthUntil: 0, d: {},
   });
 }
 
@@ -79,7 +79,12 @@ function loadGame() {
   p.inventory = (p.inventory || []).filter(e => e && ITEMS[e.id]);
   for (const s in p.equip) if (p.equip[s] && !ITEMS[p.equip[s].id]) p.equip[s] = null;
   if (!JOBS[p.job]) p.job = 'novice';
-  if (!MAP_DEFS[p.map]) { p.map = 'prontera'; p.x = 20.5; p.y = 24.5; }
+  if (!MAP_DEFS[p.map]) { p.map = HOME_MAP; p.x = 20.5; p.y = 24.5; }
+  if (!p.save || !MAP_DEFS[p.save.map]) p.save = { map: HOME_MAP, x: 20.5, y: 24.5 };
+  // สกิลที่ไม่มีอยู่แล้ว (เช่น ถูกลบออกจาก data.js) คืนแต้มให้
+  for (const id in p.skills) if (!SKILLS[id]) { if (!SKILLS.first_aid || id !== 'first_aid') p.skillPoints += p.skills[id]; delete p.skills[id]; }
+  p.hotbar = (p.hotbar || []).slice(0, 9).map(h => (h && ((h.t === 'skill' && SKILLS[h.id]) || (h.t === 'item' && ITEMS[h.id])) ? h : null));
+  while (p.hotbar.length < 9) p.hotbar.push(null);
   G.uid = Math.max(G.uid, data.uidSeq || 1);
   initRuntime(p);
   recalc();
@@ -110,15 +115,16 @@ function recalc() {
     else { b.def += (it.def || 0) + (e.refine || 0); b.mdef += it.mdef || 0; }
     for (const c of e.cards || []) add(ITEMS[c].b);
   }
-  // สกิลติดตัว
-  b.dex += skillLv('owl_eye');
-  b.range += skillLv('vultures_eye'); b.hit += skillLv('vultures_eye');
-  b.flee += skillLv('improve_dodge') * 3;
-  // บัฟ
+  // สกิลติดตัว (passive) และบัฟ — อ่านจากข้อมูลใน SKILLS
+  for (const id in p.skills) {
+    const sk = SKILLS[id];
+    if (sk && sk.passive) add(sk.passive(p.skills[id]));
+  }
   const bf = p.buffs;
-  if (bf.increase_agi) b.agi += 2 + bf.increase_agi.lv;
-  if (bf.blessing) { b.str += bf.blessing.lv; b.int += bf.blessing.lv; b.dex += bf.blessing.lv; }
-  if (bf.improve_concentration) { b.agi += 2 + bf.improve_concentration.lv; b.dex += 2 + bf.improve_concentration.lv; }
+  for (const id in bf) {
+    const sk = SKILLS[id];
+    if (sk && sk.buff) add(sk.buff.stats(bf[id].lv));
+  }
 
   const d = {};
   for (const s of ['str', 'agi', 'vit', 'int', 'dex', 'luk']) { d[s] = p.stats[s] + b[s]; d[s + 'Bonus'] = b[s]; }
@@ -128,22 +134,27 @@ function recalc() {
     ? d.dex + Math.floor(d.dex / 10) ** 2 + Math.floor(d.str / 5) + Math.floor(d.luk / 5)
     : d.str + Math.floor(d.str / 10) ** 2 + Math.floor(d.dex / 5) + Math.floor(d.luk / 5);
   d.weaponAtk = weaponAtk;
-  d.atkBonus = b.atk + ((wt === 'sword' || wt === 'dagger') ? skillLv('sword_mastery') * 4 : 0);
-  d.matkMin = d.int + Math.floor(d.int / 7) ** 2 + weaponMatk + b.matk;
-  d.matkMax = d.int + Math.floor(d.int / 5) ** 2 + weaponMatk + b.matk;
+  d.atkBonus = b.atk;
+  const mp = 1 + (b.matkPct || 0) / 100;
+  d.matkMin = Math.floor((d.int + Math.floor(d.int / 7) ** 2 + weaponMatk + b.matk) * mp);
+  d.matkMax = Math.floor((d.int + Math.floor(d.int / 5) ** 2 + weaponMatk + b.matk) * mp);
+  d.castMul = Math.max(0.2, 1 - (b.castPct || 0) / 100);
+  d.regenPct = b.regenPct || 0;
+  d.rage = b.rage || 0;
+  d.venom = b.venom || 0;
   d.def = Math.min(90, b.def); d.softDef = Math.floor(d.vit / 2);
   d.mdef = Math.min(90, b.mdef); d.softMdef = Math.floor(d.int / 2);
   d.hit = p.baseLv + d.dex + b.hit;
   d.flee = p.baseLv + d.agi + b.flee;
   d.pdodge = 1 + Math.floor(d.luk / 10);
   d.crit = 1 + Math.floor(d.luk * 0.3) + b.crit;
-  d.maxHp = Math.floor((35 + p.baseLv * (8 + p.baseLv * 0.12) * j.hp) * (1 + d.vit / 100)) + b.hp;
+  d.maxHp = Math.floor((35 + p.baseLv * (8 + p.baseLv * 0.12) * j.hp) * (1 + d.vit / 100) * (1 + (b.hpPct || 0) / 100)) + b.hp;
   d.maxSp = Math.floor((10 + p.baseLv * 2.2 * j.sp) * (1 + d.int / 100)) + b.sp;
   const base = j.aspd * (WEAPON_ASPD_MOD[wt] || 1);
-  d.aspdDelay = Math.max(280, Math.floor(base * (1 - Math.min(0.72, (d.agi + d.dex / 4) / 140))));
+  d.aspdDelay = Math.max(250, Math.floor(base * (1 - Math.min(0.72, (d.agi + d.dex / 4) / 140)) * (1 - (b.aspdPct || 0) / 100)));
   d.aspd = Math.floor(200 - d.aspdDelay / 10);
   d.range = d.ranged ? 5 + b.range : 1.5;
-  d.speed = 4.6 * (bf.increase_agi ? 1.25 : 1);
+  d.speed = 4.6 * (1 + (b.speedPct || 0) / 100);
   d.atkDisplay = `${d.statusAtk} + ${d.weaponAtk + d.atkBonus}`;
   p.d = d;
   p.hp = Math.min(p.hp, d.maxHp);
@@ -352,7 +363,8 @@ function changeMap(id, x, y) {
   G.map = map;
   p.map = id;
   teleportPlayer(x, y);
-  G.mobs = []; G.drops = []; G.fx = []; G.floaters = []; G.timers = []; G.respawns = [];
+  G.mobs = []; G.drops = []; G.fx = []; G.floaters = []; G.timers = []; G.respawns = []; G.traps = [];
+  for (const a of G.allies) { a.x = x + 0.7; a.y = y; a.path = []; a.target = null; }
   G.npcs = (map.def.npcs || []).map(n => Object.assign({}, n));
   for (const [mid, n] of map.def.spawns) for (let i = 0; i < n; i++) spawnMob(mid);
   if (map.def.mvp && (!G.mvpNext[id] || G.time >= G.mvpNext[id])) spawnMvp(map.def.mvp);
@@ -373,7 +385,7 @@ function spawnMob(id, pos) {
   const m = {
     uid: G.uid++, def: d, x: pos.x + 0.5, y: pos.y + 0.5, hp: d.hp, maxHp: d.hp, state: 'idle', path: [],
     facing: Math.random() < 0.5 ? 1 : -1, seed: Math.random(), nextWander: G.time + U.rand(0, 4), nextAtk: 0, repathAt: 0,
-    hitFlash: 0, atkAnim: 0, frozenUntil: 0, poisonUntil: 0, poisonTick: 0, dead: false, deathT: 0, moving: false,
+    hitFlash: 0, atkAnim: 0, stunUntil: 0, slowUntil: 0, burnUntil: 0, burnTick: 0, burnDmg: 0, poisonUntil: 0, poisonTick: 0, dead: false, deathT: 0, moving: false,
     emoteUntil: 0, stolen: false, nextBossSkill: G.time + 8,
   };
   G.mobs.push(m);
@@ -414,12 +426,11 @@ function playerWalkTo(tx, ty) {
 // ------------------------------------------------------------
 function physHit(m, mult = 1, opts = {}) {
   const p = G.player, d = p.d, md = m.def;
-  const crit = !opts.skill && U.chance(Math.max(0, d.crit - md.lv * 0.1) / 100);
+  const crit = opts.forceCrit || (!opts.skill && U.chance(Math.max(0, d.crit - md.lv * 0.1) / 100));
   const hitRate = U.clamp(80 + d.hit + (opts.hitBonus || 0) - md.flee, 5, 100);
-  if (!crit && !U.chance(hitRate / 100)) return { miss: true };
+  if (!crit && !opts.sureHit && !U.chance(hitRate / 100)) return { miss: true };
   let atk = d.statusAtk + d.weaponAtk * (crit ? 1 : U.rand(0.8, 1.0)) + d.atkBonus + (opts.flatAtk || 0);
-  const dbLv = skillLv('demon_bane');
-  if (dbLv && (md.race === 'undead' || md.race === 'demon')) atk += dbLv * 3;
+  if (d.rage) atk *= 1 + (1 - p.hp / d.maxHp) * d.rage / 100;
   const em = elemMod(opts.element || 'neutral', md.element);
   let dmg = atk * mult * em;
   if (crit) dmg *= 1.4;
@@ -454,7 +465,6 @@ function damageMob(m, dmg, opts = {}) {
   addFloater(m.x, m.y - 0.9 * s - 0.3, dmg, opts.color || (opts.crit ? '#ffe040' : '#ffffff'), opts.crit);
   if (opts.crit) addFx({ type: 'crit', x: m.x, y: m.y - 0.5, dur: 0.35 });
   else addFx({ type: 'hit', x: m.x + U.rand(-0.2, 0.2), y: m.y - 0.5 * s + U.rand(-0.2, 0.2), dur: 0.2 });
-  if (m.frozenUntil > G.time && opts.element !== 'water') m.frozenUntil = 0;
   aggroMob(m);
   Sound.play(opts.crit ? 'crit' : 'hit');
   if (m.hp <= 0) killMob(m);
@@ -478,18 +488,31 @@ function killMob(m) {
   Sound.play('kill');
 }
 
+// สถานะผิดปกติของมอนสเตอร์: stun (มึน), slow (ช้า), burn (ไหม้), poison (พิษ)
+function applyStatus(m, st, lv, lastDmg = 0) {
+  if (!st || m.dead) return;
+  if (m.def.boss && st.kind === 'stun') return;
+  if (!U.chance(st.chance(lv) / 100)) return;
+  const until = G.time + st.dur(lv);
+  const at = (t, c) => addFloater(m.x, m.y - 1.5, t, c);
+  if (st.kind === 'stun') { m.stunUntil = until; m.path = []; m.moving = false; at('Stun!', '#ffe080'); }
+  else if (st.kind === 'slow') { m.slowUntil = until; at('Slow', '#a0e8ff'); }
+  else if (st.kind === 'burn') { m.burnUntil = until; m.burnTick = G.time + 1; m.burnDmg = Math.max(1, Math.floor(lastDmg * 0.2)); at('Burn!', '#ff9040'); }
+  else if (st.kind === 'poison' && m.def.element !== 'undead') { m.poisonUntil = until; m.poisonTick = G.time + 1; at('Poison!', '#c080ff'); }
+}
+
 function playerAttack(m) {
   const p = G.player;
   p.nextAttack = G.time + p.d.aspdDelay / 1000;
   p.atkAnim = 1;
   p.facing = m.x >= p.x ? 1 : -1;
+  const ambush = p.stealthUntil > G.time;
+  if (ambush) { p.stealthUntil = 0; addFloater(p.x, p.y - 1.6, 'Ambush!', '#d0a0ff'); }
   const doHit = () => {
     if (m.dead) return;
-    applyHit(m, physHit(m));
-    const da = skillLv('double_attack');
-    if (da && weaponType() === 'dagger' && !m.dead && U.chance(da * 0.05)) {
-      later(0.1, () => { if (!m.dead) { applyHit(m, physHit(m)); addFloater(m.x, m.y - 1.6, 'Double!', '#ffd0a0'); } });
-    }
+    const r = physHit(m, 1, { forceCrit: ambush });
+    applyHit(m, r);
+    if (!r.miss && p.d.venom && !m.def.boss) applyStatus(m, { kind: 'poison', chance: () => p.d.venom, dur: () => 8 }, 1);
   };
   if (p.d.ranged) {
     addFx({ type: 'arrow', sx: p.x, sy: p.y - 0.6, ref: m, dur: Math.max(0.08, U.dist(p.x, p.y, m.x, m.y) / 18), onHit: doHit });
@@ -561,7 +584,7 @@ function skillReqMet(id) {
 }
 function learnableSkills() {
   const p = G.player;
-  return JOBS[p.job].skills.filter(id => !SKILLS[id].noLearn);
+  return JOBS[p.job].skills.filter(id => SKILLS[id] && !SKILLS[id].noLearn);
 }
 function canLearn(id) {
   const p = G.player, s = SKILLS[id];
@@ -594,7 +617,8 @@ function useSkill(id) {
   if (s.type === 'passive') { UI.msg(`${s.name} เป็นสกิลติดตัว ทำงานอัตโนมัติ`, 'info'); return; }
   if (p.cast) return;
   if (s.bow && weaponType() !== 'bow') { UI.msg('สกิลนี้ต้องสวมธนู', 'err'); return; }
-  if (id === 'heal') {
+  if (s.heal) {
+    // สกิลฮีลใช้กับมอนสเตอร์อมตะที่เมาส์ชี้อยู่ = ทำความเสียหาย
     const h = G.hover && G.hover.kind === 'mob' ? G.hover.ref : null;
     beginSkill(id, lv, h && h.def.element === 'undead' ? h : null);
     return;
@@ -621,21 +645,26 @@ function beginSkill(id, lv, tgt) {
   }
   p.sitting = false; p.path = []; p.skillIntent = null;
   let castMs = s.cast ? s.cast(lv) : 0;
-  castMs *= Math.max(0, 1 - p.d.dex / 150);
+  castMs *= p.d.castMul * Math.max(0, 1 - p.d.dex / 150);
   if (castMs > 50) {
     p.cast = { id, lv, target: tgt, start: G.time, end: G.time + castMs / 1000 };
-    if (s.magic) addFx({ type: 'castcircle', ref: p, dur: castMs / 1000, color: SKILLS[id].icon });
+    addFx({ type: 'castcircle', ref: p, dur: castMs / 1000, color: s.icon });
     return;
   }
   executeSkill(id, lv, tgt);
 }
 
+// ทำงานของสกิลตามข้อมูลใน SKILLS (ดูคำอธิบายรูปแบบใน data.js)
 function executeSkill(id, lv, tgt) {
   const p = G.player, s = SKILLS[id];
   if (tgt && tgt.dead) return;
   const cost = skillCost(id, lv);
   if (p.sp < cost) { UI.msg('SP ไม่เพียงพอ', 'err'); return; }
   p.sp -= cost;
+  if (s.hpCost) {
+    const hc = Math.floor(p.hp * s.hpCost(lv) / 100);
+    if (hc > 0) { p.hp = Math.max(1, p.hp - hc); addFloater(p.x, p.y - 1.2, `-${hc}`, '#ff8080'); }
+  }
   const delay = typeof s.delay === 'function' ? s.delay(lv) : (s.delay || 500);
   p.skillReadyAt = G.time + delay / 1000;
   shout(`${s.name}!!`);
@@ -643,103 +672,107 @@ function executeSkill(id, lv, tgt) {
   if (tgt) p.facing = tgt.x >= p.x ? 1 : -1;
   Sound.play('skill');
 
-  switch (id) {
-    case 'first_aid': healPlayer(5); addFx({ type: 'heal', ref: p, dur: 1 }); break;
-    case 'heal': {
-      const amt = Math.floor((p.baseLv + p.d.int) / 8) * (4 + 8 * lv);
-      if (tgt) { damageMob(tgt, Math.max(1, Math.floor(amt / 2 * elemMod('holy', tgt.def.element))), { color: '#fff6a0' }); addFx({ type: 'holy', ref: tgt, dur: 0.5 }); }
-      else { healPlayer(amt); addFx({ type: 'heal', ref: p, dur: 1.1 }); Sound.play('heal'); }
-      break;
-    }
-    case 'bash':
-      applyHit(tgt, physHit(tgt, 1 + 0.3 * lv, { skill: true, hitBonus: 5 * lv }));
-      addFx({ type: 'bash', x: tgt.x, y: tgt.y - 0.5, dur: 0.35 });
-      break;
-    case 'magnum_break': {
-      addFx({ type: 'firering', x: p.x, y: p.y, dur: 0.55, r: 2.5 });
-      for (const m of G.mobs) {
-        if (m.dead || U.dist(m.x, m.y, p.x, p.y) > 2.5) continue;
-        applyHit(m, physHit(m, 1 + 0.2 * lv, { skill: true, element: 'fire', hitBonus: 10 * lv }));
-        if (!m.dead && !m.def.boss) knockback(m, p.x, p.y, 2);
-      }
-      break;
-    }
-    case 'fire_bolt': case 'cold_bolt': case 'lightning_bolt': case 'soul_strike': case 'holy_light': case 'frost_diver': {
-      const n = s.hits(lv);
-      let mult = s.mult(lv);
-      if (id === 'soul_strike' && tgt.def.element === 'undead') mult *= 1 + 0.05 * lv;
-      const fxType = { fire_bolt: 'firebolt', cold_bolt: 'coldbolt', lightning_bolt: 'lightning', soul_strike: 'soul', holy_light: 'holy', frost_diver: 'frost' }[id];
-      for (let i = 0; i < n; i++) {
-        later(i * 0.16, () => {
-          if (tgt.dead) return;
-          const hit = () => {
-            if (tgt.dead) return;
-            damageMob(tgt, magicHit(tgt, mult, s.element).dmg, { element: s.element, color: '#ffffff' });
-            if (id === 'frost_diver' && !tgt.dead && !tgt.def.boss && U.chance((35 + 3 * lv) / 100)) {
-              tgt.frozenUntil = G.time + 3 * lv; tgt.path = []; tgt.moving = false;
-              addFloater(tgt.x, tgt.y - 1.5, 'Frozen!', '#a0e8ff');
-            }
-          };
-          if (fxType === 'soul' || fxType === 'frost') addFx({ type: fxType, sx: p.x, sy: p.y - 0.8, ref: tgt, dur: Math.max(0.1, U.dist(p.x, p.y, tgt.x, tgt.y) / 14), onHit: hit });
-          else addFx({ type: fxType, ref: tgt, dur: 0.28, onHit: hit });
-          Sound.play(fxType === 'lightning' ? 'zap' : 'magic');
-        });
-      }
-      break;
-    }
-    case 'double_strafe':
-      for (let i = 0; i < 2; i++) later(i * 0.12, () => {
-        if (tgt.dead) return;
-        addFx({ type: 'arrow', sx: p.x, sy: p.y - 0.6, ref: tgt, dur: Math.max(0.08, U.dist(p.x, p.y, tgt.x, tgt.y) / 20), big: true,
-          onHit: () => applyHit(tgt, physHit(tgt, 1 + 0.1 * lv, { skill: true })) });
-        Sound.play('bow');
-      });
-      break;
-    case 'arrow_shower': {
-      const cx = tgt.x, cy = tgt.y;
-      addFx({ type: 'shower', x: cx, y: cy, dur: 0.45, r: 1.8 });
-      later(0.3, () => {
-        for (const m of G.mobs) {
-          if (m.dead || U.dist(m.x, m.y, cx, cy) > 1.8) continue;
-          applyHit(m, physHit(m, 0.8 + 0.05 * lv, { skill: true }));
-          if (!m.dead && !m.def.boss) knockback(m, p.x, p.y, 1);
-        }
-      });
-      break;
-    }
-    case 'envenom': {
-      const r = physHit(tgt, 1, { skill: true, element: 'poison', flatAtk: 15 * lv });
-      applyHit(tgt, r, { color: '#d0a0ff' });
-      if (!r.miss && !tgt.dead && !tgt.def.boss && tgt.def.element !== 'undead' && U.chance((10 + 4 * lv) / 100)) {
-        tgt.poisonUntil = G.time + 10; tgt.poisonTick = G.time + 1;
-        addFloater(tgt.x, tgt.y - 1.5, 'Poisoned!', '#c080ff');
-      }
-      break;
-    }
-    case 'steal': {
-      aggroMob(tgt);
-      if (tgt.stolen) { UI.msg('มอนสเตอร์ตัวนี้ถูกขโมยไปแล้ว', 'err'); break; }
-      const chance = (10 + 6 * lv + (p.d.dex - tgt.def.lv) / 2) / 100;
-      const pool = tgt.def.drops.filter(([iid]) => ITEMS[iid].type !== 'card');
-      if (pool.length && U.chance(chance)) {
-        const [iid] = U.pick(pool);
-        tgt.stolen = true;
-        addItem(iid, 1);
-        addFloater(tgt.x, tgt.y - 1.5, 'Steal!', '#ffd070');
-      } else addFloater(tgt.x, tgt.y - 1.5, 'Failed', '#c0c0c0');
-      break;
-    }
-    case 'increase_agi': case 'blessing': case 'improve_concentration': {
-      const dur = { increase_agi: 60 + 20 * lv, blessing: 40 + 20 * lv, improve_concentration: 40 + 20 * lv }[id];
-      p.buffs[id] = { lv, until: G.time + dur };
-      recalc();
-      addFx({ type: 'buff', ref: p, dur: 1, color: s.icon });
-      Sound.play('buff');
-      break;
-    }
+  if (s.selfFx) {
+    const fxMap = {
+      heal: { type: 'heal', ref: p, dur: 1.1 }, buff: { type: 'buff', ref: p, dur: 1, color: s.icon },
+      whirl: { type: 'whirl', x: p.x, y: p.y, dur: 0.45, r: (s.dmg && s.dmg.area) || 2 },
+      howl: { type: 'ring', ref: p, dur: 0.7, r: (s.dmg && s.dmg.area) || 2.5, color: '230,220,180', waves: 3 },
+      shout: { type: 'ring', ref: p, dur: 0.6, r: s.aggro || 4, color: '255,90,70', waves: 2 },
+      firering: { type: 'firering', x: p.x, y: p.y, dur: 0.55, r: (s.dmg && s.dmg.area) || 2.5 },
+    };
+    if (fxMap[s.selfFx]) addFx(fxMap[s.selfFx]);
   }
+  if (s.heal) {
+    const amt = s.heal(lv, p.d, p);
+    if (tgt) { damageMob(tgt, Math.max(1, Math.floor(amt / 2 * elemMod('holy', tgt.def.element))), { color: '#fff6a0' }); addFx({ type: 'holy', ref: tgt, dur: 0.5 }); }
+    else { healPlayer(amt); Sound.play('heal'); }
+  }
+  if (s.buff) {
+    p.buffs[id] = { lv, until: G.time + s.buff.dur(lv) };
+    recalc();
+    Sound.play('buff');
+  }
+  if (s.aggro) {
+    for (const m of G.mobs) if (!m.dead && U.dist(m.x, m.y, p.x, p.y) <= s.aggro) aggroMob(m);
+  }
+  if (s.special) runSpecialSkill(s.special, s, lv);
+  if (s.dmg) skillDamage(s, lv, tgt);
   if (s.chain && tgt && !tgt.dead) { p.target = tgt; p.nextAttack = Math.max(p.nextAttack, G.time + 0.35); }
 }
+
+function skillDamage(s, lv, tgt) {
+  const p = G.player, D = s.dmg;
+  let targets;
+  if (D.area) {
+    const cx = D.at === 'self' || !tgt ? p.x : tgt.x, cy = D.at === 'self' || !tgt ? p.y : tgt.y;
+    targets = G.mobs.filter(m => !m.dead && U.dist(m.x, m.y, cx, cy) <= D.area);
+  } else if (D.line && tgt) {
+    const dx = tgt.x - p.x, dy = tgt.y - p.y, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+    const reach = skillRange(s) + 1;
+    targets = G.mobs.filter(m => {
+      if (m.dead) return false;
+      const t = (m.x - p.x) * ux + (m.y - p.y) * uy;
+      const perp = Math.abs((m.x - p.x) * uy - (m.y - p.y) * ux);
+      return t >= 0 && t <= reach && perp < 0.8;
+    });
+    if (D.line) addFx({ type: 'arrow', sx: p.x, sy: p.y - 0.6, tx: p.x + ux * reach, ty: p.y + uy * reach, dur: 0.25, big: true });
+  } else targets = tgt ? [tgt] : [];
+  const hits = typeof D.hits === 'function' ? D.hits(lv) : (D.hits || 1);
+  targets.forEach((m, ti) => {
+    for (let i = 0; i < hits; i++) later(i * 0.15 + ti * 0.04, () => skillHitOne(s, lv, m));
+  });
+}
+function skillHitOne(s, lv, m) {
+  const p = G.player, D = s.dmg;
+  if (m.dead) return;
+  const mult = D.multAware && m.state === 'chase' ? D.multAware(lv) : D.mult(lv);
+  const deliver = () => {
+    if (m.dead) return;
+    const r = D.type === 'magic' ? magicHit(m, mult, D.element) : physHit(m, mult, { skill: true, element: D.element, sureHit: D.sureHit });
+    applyHit(m, r, { element: D.element });
+    if (!r.miss && !m.dead) {
+      applyStatus(m, D.status, lv, r.dmg);
+      if (D.knockback && !m.def.boss) knockback(m, p.x, p.y, D.knockback);
+    }
+  };
+  const fx = s.fx;
+  if (fx === 'arrow' && !D.line) {
+    addFx({ type: 'arrow', sx: p.x, sy: p.y - 0.6, ref: m, dur: Math.max(0.08, U.dist(p.x, p.y, m.x, m.y) / 20), big: true, onHit: deliver });
+    Sound.play('bow');
+  } else if (fx === 'firebolt' || fx === 'coldbolt' || fx === 'lightning' || fx === 'holy') {
+    addFx({ type: fx, ref: m, dur: 0.28, onHit: deliver });
+    Sound.play(fx === 'lightning' ? 'zap' : 'magic');
+  } else if (fx === 'soul') {
+    addFx({ type: 'soul', sx: p.x, sy: p.y - 0.8, ref: m, dur: Math.max(0.1, U.dist(p.x, p.y, m.x, m.y) / 14), onHit: deliver });
+    Sound.play('magic');
+  } else {
+    deliver();
+    if (fx) addFx({ type: fx === 'slash' ? 'crit' : 'bash', x: m.x, y: m.y - 0.5, dur: 0.35 });
+  }
+}
+
+function runSpecialSkill(kind, s, lv) {
+  const p = G.player;
+  if (kind === 'summon_wolf') {
+    G.allies = G.allies.filter(a => a.kind !== 'wolf');
+    G.allies.push({
+      kind: 'wolf', name: 'Wolf', x: p.x + 0.8, y: p.y, path: [], facing: p.facing, moving: false, seed: Math.random(),
+      until: G.time + s.dur(lv), lv, nextAtk: 0, repathAt: 0, atkAnim: 0, target: null, state: 'ally',
+      def: { size: 0.85, color: '#c8c8d4', color2: '#8a8a98', variant: 'wolf' },
+    });
+    addFx({ type: 'warp', x: p.x + 0.8, y: p.y, dur: 0.6 });
+    UI.msg(`หมาป่าคู่ใจมาช่วยสู้ ${s.dur(lv)} วินาที!`, 'sys');
+  } else if (kind === 'trap') {
+    if (G.traps.length >= 3) G.traps.shift();
+    G.traps.push({ x: p.x, y: p.y, lv, until: G.time + 40, armed: G.time + 0.6 });
+  } else if (kind === 'stealth') {
+    p.stealthUntil = G.time + s.dur(lv);
+    p.target = null;
+    for (const m of G.mobs) if (m.state === 'chase') { m.state = 'idle'; m.path = []; }
+    addFx({ type: 'ring', ref: p, dur: 0.6, r: 1.5, color: '140,140,170', waves: 2 });
+  }
+}
+
 function knockback(m, fx, fy, n) {
   const dx = m.x - fx, dy = m.y - fy, d = Math.hypot(dx, dy) || 1;
   for (let i = n; i > 0; i--) {
@@ -749,17 +782,81 @@ function knockback(m, fx, fy, n) {
 }
 
 // ------------------------------------------------------------
+//  สัตว์คู่ใจและกับดัก
+// ------------------------------------------------------------
+function updateAllies(dt) {
+  const p = G.player;
+  G.allies = G.allies.filter(a => a.until > G.time && !p.dead);
+  for (const a of G.allies) {
+    a.atkAnim = Math.max(0, a.atkAnim - dt * 3);
+    let t = a.target && !a.target.dead && G.mobs.includes(a.target) ? a.target : null;
+    if (!t) {
+      t = p.target && !p.target.dead ? p.target : null;
+      if (!t) {
+        let best = 7;
+        for (const m of G.mobs) {
+          if (m.dead || m.state !== 'chase') continue;
+          const d = U.dist(m.x, m.y, p.x, p.y);
+          if (d < best) { best = d; t = m; }
+        }
+      }
+      a.target = t;
+    }
+    if (t && U.dist(t.x, t.y, p.x, p.y) > 12) { a.target = null; t = null; }
+    if (t) {
+      const d = U.dist(a.x, a.y, t.x, t.y);
+      if (d <= 1.3) {
+        a.path = []; a.moving = false; a.facing = t.x >= a.x ? 1 : -1;
+        if (G.time >= a.nextAtk) {
+          a.nextAtk = G.time + 1.0; a.atkAnim = 1;
+          const dmg = Math.max(1, Math.round((p.d.statusAtk * 0.5 + p.d.weaponAtk * 0.5 + a.lv * 12) * U.rand(0.85, 1.1) * (1 - t.def.def / 100)));
+          damageMob(t, dmg, { color: '#c0e0ff' });
+        }
+      } else {
+        if (G.time >= a.repathAt || !a.path.length) { a.path = findPath(G.map, Math.floor(a.x), Math.floor(a.y), Math.floor(t.x), Math.floor(t.y), 600); a.repathAt = G.time + 0.4; }
+        moveEntity(a, dt, 5.5);
+      }
+    } else {
+      const d = U.dist(a.x, a.y, p.x, p.y);
+      if (d > 14) { a.x = p.x; a.y = p.y; a.path = []; }
+      else if (d > 2) {
+        if (G.time >= a.repathAt || !a.path.length) { a.path = findPath(G.map, Math.floor(a.x), Math.floor(a.y), Math.floor(p.x), Math.floor(p.y), 600); a.repathAt = G.time + 0.4; }
+        moveEntity(a, dt, 5.5);
+      } else { a.path = []; a.moving = false; }
+    }
+  }
+}
+function updateTraps() {
+  const p = G.player;
+  G.traps = G.traps.filter(t => t.until > G.time);
+  for (let i = G.traps.length - 1; i >= 0; i--) {
+    const t = G.traps[i];
+    if (G.time < t.armed) continue;
+    if (!G.mobs.some(m => !m.dead && U.dist(m.x, m.y, t.x, t.y) < 1.0)) continue;
+    G.traps.splice(i, 1);
+    addFx({ type: 'firering', x: t.x, y: t.y, dur: 0.5, r: 1.5 });
+    Sound.play('crit');
+    for (const m of G.mobs) {
+      if (m.dead || U.dist(m.x, m.y, t.x, t.y) > 1.5) continue;
+      const base = (p.d.dex * 3 + p.baseLv * 2 + p.d.statusAtk * 0.5) * (0.6 + 0.2 * t.lv);
+      const dmg = Math.max(1, Math.round(base * U.rand(0.9, 1.1) * elemMod('fire', m.def.element)));
+      damageMob(m, dmg, { color: '#ffb060' });
+    }
+  }
+}
+
+// ------------------------------------------------------------
 //  อาชีพ
 // ------------------------------------------------------------
 function changeJob(job) {
   const p = G.player;
   p.job = job; p.jobLv = 1; p.jobExp = 0;
-  const starter = { swordman: 'sword', mage: 'rod', archer: 'bow', acolyte: 'club', thief: 'main_gauche' }[job];
+  const starter = JOB_STARTER[job];
   addItem(starter, 1);
   unequipInvalid();
   const e = p.inventory.find(x => x.id === starter);
   if (e) equipItem(e, true);
-  if (job === 'mage' || job === 'acolyte') addItem('blue_potion', 3);
+  if (job === 'runecaster' || job === 'volva') addItem('blue_potion', 3);
   recalc();
   p.hp = p.d.maxHp; p.sp = p.d.maxSp;
   addFx({ type: 'levelup', ref: p, dur: 2.5, job: true });
@@ -771,9 +868,8 @@ function changeJob(job) {
 function resetSkills() {
   const p = G.player;
   let pts = 0;
-  for (const id in p.skills) {
-    if (SKILLS[id].noLearn) continue;
-    if (id === 'basic_skill' && p.job !== 'novice') continue;
+  for (const id of JOBS[p.job].skills) {
+    if (!p.skills[id] || SKILLS[id].noLearn) continue;
     pts += p.skills[id]; delete p.skills[id];
   }
   p.skillPoints += pts;
@@ -805,6 +901,8 @@ function updateGame(dt) {
     for (const t of due) t.fn();
   }
   updatePlayer(dt);
+  updateAllies(dt);
+  updateTraps();
   for (const m of G.mobs) updateMob(m, dt);
   G.mobs = G.mobs.filter(m => !(m.dead && m.deathT > 0.8));
   // เกิดใหม่
@@ -844,16 +942,14 @@ function updatePlayer(dt) {
   const hpInt = p.sitting ? 3 : 6, spInt = p.sitting ? 4 : 8;
   if (p.hpTimer >= hpInt) {
     p.hpTimer = 0;
-    if (!moving || p.sitting) {
-      const hl = skillLv('hp_recovery');
-      const amt = Math.max(1, Math.floor(p.d.maxHp / 200)) + Math.floor(p.d.vit / 5) + hl * 5 + Math.floor(p.d.maxHp * 0.002 * hl);
+    if (!moving || p.sitting || p.d.regenPct) {
+      const amt = Math.max(1, Math.floor(p.d.maxHp / 200)) + Math.floor(p.d.vit / 5) + Math.floor(p.d.maxHp * p.d.regenPct / 100);
       p.hp = Math.min(p.d.maxHp, p.hp + amt);
     }
   }
   if (p.spTimer >= spInt) {
     p.spTimer = 0;
-    const sl = skillLv('sp_recovery');
-    const amt = 1 + Math.floor(p.d.maxSp / 100) + Math.floor(p.d.int / 6) + sl * 3 + Math.floor(p.d.maxSp * 0.002 * sl);
+    const amt = 1 + Math.floor(p.d.maxSp / 100) + Math.floor(p.d.int / 6);
     p.sp = Math.min(p.d.maxSp, p.sp + amt);
   }
   if (p.cast) {
@@ -933,10 +1029,18 @@ function updateMob(m, dt) {
     const dmg = Math.max(1, Math.floor(m.maxHp * 0.015));
     if (m.hp - dmg >= 1) { m.hp -= dmg; addFloater(m.x, m.y - 1, dmg, '#c080ff'); }
   }
-  if (m.frozenUntil > G.time) { m.moving = false; return; }
+  if (m.burnUntil > G.time && G.time >= m.burnTick) {
+    m.burnTick = G.time + 1;
+    damageMob(m, m.burnDmg, { color: '#ff9040' });
+    if (m.dead) return;
+  }
+  if (m.stunUntil > G.time) { m.moving = false; return; }
   const alive = !p.dead;
+  const hidden = p.stealthUntil > G.time;
   const dist = U.dist(m.x, m.y, p.x, p.y);
-  if (m.state !== 'chase' && md.aggro && alive && dist < 6 && G.map.def.kind !== 'town') {
+  const spd = md.speed * (m.slowUntil > G.time ? 0.5 : 1);
+  if (hidden && m.state === 'chase') { m.state = 'idle'; m.path = []; }
+  if (m.state !== 'chase' && md.aggro && alive && !hidden && dist < 6 && G.map.def.kind !== 'town') {
     m.state = 'chase'; m.emoteUntil = G.time + 0.9; m.path = [];
   }
   if (m.state === 'chase') {
@@ -955,10 +1059,10 @@ function updateMob(m, dt) {
         m.path = findPath(G.map, Math.floor(m.x), Math.floor(m.y), Math.floor(p.x), Math.floor(p.y), 800);
         m.repathAt = G.time + 0.5;
       }
-      moveEntity(m, dt, md.speed * 1.35);
+      moveEntity(m, dt, spd * 1.35);
     }
   } else {
-    if (m.path.length) moveEntity(m, dt, md.speed);
+    if (m.path.length) moveEntity(m, dt, spd);
     else {
       m.moving = false;
       if (G.time >= m.nextWander) {
@@ -972,12 +1076,12 @@ function updateMob(m, dt) {
 
 function bossSkill(m) {
   const p = G.player;
-  if (m.def.id === 'angeling') {
+  if (m.def.bossSkill === 'heal') {
     const amt = Math.floor(m.maxHp * 0.08);
     m.hp = Math.min(m.maxHp, m.hp + amt);
     addFloater(m.x, m.y - 2, `+${amt}`, '#70ff70', true);
     addFx({ type: 'heal', ref: m, dur: 1.2 });
-    UI.msg('Angeling ใช้ Heal!', 'mvp');
+    UI.msg(`${m.def.name} ใช้เวทฟื้นฟูตัวเอง!`, 'mvp');
   } else {
     addFx({ type: 'warnring', x: m.x, y: m.y, dur: 1.0, r: 3 });
     UI.msg(`${m.def.name} กำลังร่ายเวทไฟ! ถอยออกมา!`, 'mvp');

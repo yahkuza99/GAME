@@ -414,7 +414,7 @@ const UI = {
           lv && s.type === 'active' ? h('button', { class: 'btn small', title: 'ตั้งปุ่มลัด', onclick: () => this.assignHotbar('skill', id) }, '📌') : null)));
     }
     body.append(list);
-    if (p.job === 'novice') body.append(h('div', { class: 'hint' }, 'เก็บ Job Lv 10 และอัป Basic Skill ให้ครบ 9 แล้วไปคุยกับ Job Master ในเมือง Prontera เพื่อเปลี่ยนอาชีพ'));
+    if (p.job === 'novice') body.append(h('div', { class: 'hint' }, `เก็บ Job Lv ${JOB_CHANGE_LV} แล้วไปคุยกับ Sage Mimir ในเมืองเอลด์ไฮม์ เพื่อเลือก 1 ใน 6 อาชีพ`));
   },
 
   renderOptions() {

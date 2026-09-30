@@ -1,6 +1,6 @@
-# Ragnarok Web Adventure
+# Ragnarok Web Adventure — ตำนานแห่งมิดการ์ด
 
-เกม RPG แนว Ragnarok Online เล่นบนเบราว์เซอร์ เขียนด้วย HTML5 Canvas + JavaScript ล้วน
+เกม RPG ธีมตำนานนอร์ส (แร็กนาร็อก) เล่นบนเบราว์เซอร์ ระบบเรียบง่ายแบบ MMORPG คลาสสิก โลก อาชีพ สกิล และมอนสเตอร์ออกแบบใหม่ทั้งหมด เขียนด้วย HTML5 Canvas + JavaScript ล้วน
 ไม่ต้องติดตั้งหรือ build อะไรเลย กราฟิกและเสียงทั้งหมดสร้างด้วยโค้ด (ไม่มีไฟล์รูป/เสียง)
 
 ## วิธีเล่น
@@ -30,16 +30,39 @@ python3 -m http.server 8000
 
 ## ระบบในเกม
 
-- **อาชีพ**: Novice → Swordman, Mage, Archer, Acolyte, Thief (Job Lv 10 + Basic Skill 9)
+- **6 อาชีพ** (เปลี่ยนอาชีพที่ Job Lv 10 กับ Sage Mimir) — แต่ละอาชีพมี 4 สกิล (สกิลใช้งาน 3 + สกิลติดตัว 1) อัปได้สูงสุด Lv 5
+
+| อาชีพ | บทบาท | สเตตัสแนะนำ | สกิล |
+|---|---|---|---|
+| Einherjar (นักรบวิญญาณ) | แทงค์ แนวหน้า | STR / VIT | Iron Body, Shield Slam, War Cry, Whirlwind |
+| Rune Caster (นักเวทรูน) | เวทธาตุระยะไกล | INT / DEX | Rune Mastery, Fire Rune, Ice Rune, Thunder Rune |
+| Wildhunter (นักล่าแห่งป่า) | ธนู + สัตว์คู่ใจ | DEX / AGI | Eagle Eye, Piercing Arrow, Wolf Companion, Blast Trap |
+| Völva (นักพยากรณ์แห่งแสง) | ฮีล บัฟ ปราบอมตะ | INT / VIT | Sanctuary, Light of Freyja, Blessing of Odin, Holy Spear |
+| Loki's Trickster (นักลวงแห่งโลกิ) | ว่องไว คริติคอล | AGI / LUK | Shadow Step, Backstab, Smoke Veil, Venom Blade |
+| Berserker (นักรบคลั่ง) | แลก HP เป็นพลัง | STR / AGI | Wolf Blood, Rage Strike, Blood Frenzy, Howl |
+
 - **สเตตัส** STR / AGI / VIT / INT / DEX / LUK, Base Lv สูงสุด 99
-- **สกิล** 25+ สกิล พร้อมเวลาร่าย ดีเลย์ ธาตุ และเอฟเฟกต์
+- **สถานะผิดปกติ** มึน (Stun), ช้า (Slow), ไหม้ (Burn), พิษ (Poison)
 - **ธาตุ** ไฟ/น้ำ/ดิน/ลม/ศักดิ์สิทธิ์/อมตะ ฯลฯ มีผลต่อความเสียหาย
-- **ไอเทม** ยา ปีก อาวุธ ชุดเกราะ การ์ด (ใส่ในช่อง `[ ]` ของอุปกรณ์)
-- **ตีบวก** +1 ถึง +10 (เสี่ยงแตกตั้งแต่ +5)
-- **มอนสเตอร์ 18 ชนิด** + MVP 2 ตัว (Angeling, Moonlight Flower)
-- **แผนที่ 5 แห่ง**: Prontera, Prontera Field, Geffen Field, Payon Forest, Payon Cave (มืด)
-- **NPC**: Kafra (เซฟ/เทเลพอร์ต), Job Master, ร้านค้า 3 ร้าน, ช่างตีบวก, Healer, ไกด์
+- **ไอเทม** ยา อาวุธ 6 ประเภท ชุดเกราะ การ์ด (ใส่ในช่อง `[ ]` ของอุปกรณ์) ตีบวก +1 ถึง +10
+- **มอนสเตอร์ 18 ชนิด** + MVP 2 ตัว (Seraph Pudding, Kitsura the Ember Fox)
+- **แผนที่ 5 แห่ง**: เมือง Eldheim, Emerald Meadow, Mistlake Plains, Wolfwood Forest, Hel's Hollow (ถ้ำมืด)
+- **NPC**: Bifrost Keeper (เซฟ/เทเลพอร์ต), Sage Mimir (เปลี่ยนอาชีพ/รีเซ็ต), ร้านค้า 3 ร้าน, Brokk the Smith (ตีบวก), Eir's Healer, Guard Rolf (ไกด์)
 - บันทึกอัตโนมัติลง `localStorage` ของเบราว์เซอร์
+
+## การเพิ่ม/แก้ไขสกิลและอาชีพ
+
+สกิลทั้งหมดเป็น **ข้อมูล** ใน `js/data.js` (ไม่ต้องเขียนโค้ดเพิ่ม) ดูคำอธิบายรูปแบบที่หัวข้อ `SKILLS` ในไฟล์ ตัวอย่าง:
+
+```js
+meteor: { name: 'Meteor', max: 5, type: 'active', target: 'enemy', range: 9, icon: '#ff6020', glyph: '☄',
+  sp: lv => 30 + 5 * lv, cast: lv => 2000, delay: 2000, fx: 'firebolt',
+  dmg: { type: 'magic', element: 'fire', mult: lv => 1.5 + 0.3 * lv, area: 2, at: 'target',
+         status: { kind: 'burn', chance: () => 50, dur: () => 4 } },
+  desc: 'อุกกาบาตเพลิงตกใส่พื้นที่ 2 ช่อง' },
+```
+
+แล้วเพิ่ม `'meteor'` ในรายการ `skills` ของอาชีพที่ต้องการใน `JOBS`
 
 ## โครงสร้างโค้ด
 
@@ -55,4 +78,4 @@ python3 -m http.server 8000
 | `js/sound.js` | เสียงสังเคราะห์ด้วย WebAudio |
 | `js/main.js` | หน้าไตเติล สร้างตัวละคร ลูปเกม การควบคุม |
 
-เป็นโปรเจกต์แฟนเมดเพื่อการเรียนรู้ ไม่มีส่วนเกี่ยวข้องกับ Gravity Co., Ltd.
+ได้แรงบันดาลใจจาก MMORPG คลาสสิกและตำนานนอร์ส เนื้อหาในเกม (อาชีพ สกิล มอนสเตอร์ แผนที่) ออกแบบใหม่ทั้งหมด
