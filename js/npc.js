@@ -159,6 +159,7 @@ NPC.scripts.refine = async n => {
   await new Promise(r => setTimeout(r, 400));
   if (U.chance(rate)) {
     e.refine = lvl + 1;
+    Quest.onEvent('refine');
     recalc();
     addFx({ type: 'levelup', ref: p, dur: 1.5 });
     UI.msg(`ตีบวกสำเร็จ! ${itemDisplayName(e)}`, 'lvl');

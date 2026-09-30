@@ -27,6 +27,25 @@ const QUESTS = [
     obj: { type: 'jobLv', n: JOB_CHANGE_LV }, reward: { items: [['sandals', 1]] } },
   { id: 'upgrade', title: 'อัปเกรดร่างครั้งแรก', desc: 'คุยกับ Mimir AI แล้วเลือกคลาสใหม่ 1 ใน 6 คลาส',
     obj: { type: 'job', npc: 'jobmaster' }, reward: { items: [['yellow_potion', 3]], zeny: 1000 } },
+  // ---- สายที่ 2: หลังอัปเกรดคลาส (Lv 10-30) ----
+  { id: 'skill1', title: 'ติดตั้งโมดูลสกิล', desc: 'ใช้ Skill Point ติดตั้งสกิลของคลาสใหม่อย่างน้อย 1 สกิล (กด S)',
+    obj: { type: 'skill' }, reward: { items: [['orange_potion', 5]], bexp: 300, jexp: 200 } },
+  { id: 'useskill', title: 'ทดสอบสกิลในสนามจริง', desc: 'ใช้สกิลกดใช้ 10 ครั้ง (ลากสกิลไปวางที่แถบลัด แล้วกดเลขหรือแตะปุ่ม)',
+    obj: { type: 'useskill', n: 10 }, reward: { items: [['grape', 3]], bexp: 400, jexp: 300 } },
+  { id: 'mist', title: 'บุกที่ราบ Mistlake', desc: 'เดินทางไป Mistlake Plains (ต่อจาก Emerald Meadow) แล้วทำลาย Rust Sentry 10 ตัว',
+    obj: { type: 'kill', mob: 'stumpling', n: 10 }, reward: { items: [['guard', 1]], bexp: 800, jexp: 500 } },
+  { id: 'shroom', title: 'เก็บกู้ทุ่นระเบิดเดินได้', desc: 'ทำลาย Mine Unit 8 ตัวที่ Mistlake Plains (ระวังแรงระเบิด!)',
+    obj: { type: 'kill', mob: 'capshroom', n: 8 }, reward: { items: [['yellow_potion', 3]], bexp: 1000, jexp: 700 } },
+  { id: 'refine1', title: 'ตีบวกอุปกรณ์', desc: 'ให้ Brokk Forge-Bot ตีบวกอุปกรณ์ที่สวมอยู่สำเร็จ 1 ครั้ง (+1 ถึง +4 ไม่มีวันแตก)',
+    obj: { type: 'event', ev: 'refine', npc: 'refine' }, reward: { zeny: 1500 } },
+  { id: 'lv20', title: 'ร่างระดับกลาง', desc: 'ขึ้นถึง Base Lv 20',
+    obj: { type: 'baseLv', n: 20 }, reward: { items: [['shoes', 1]], zeny: 1000 } },
+  { id: 'wolf', title: 'นักล่าแห่ง Wolfwood', desc: 'ลงใต้ไป Wolfwood Forest แล้วทำลาย Ash Stalker 10 ตัว',
+    obj: { type: 'kill', mob: 'ashtail', n: 10 }, reward: { items: [['yellow_potion', 5]], bexp: 2500, jexp: 1600 } },
+  { id: 'mvp1', title: 'ล่า MVP: Seraph Core', desc: 'ปราบ MVP Seraph Core ที่ Mistlake Plains — เตรียมยาให้พร้อม เช็กเวลาเกิดได้ในข้อมูลมอนสเตอร์ (ⓘ)',
+    obj: { type: 'kill', mob: 'seraph_pudding', n: 1 }, reward: { items: [['clip', 1], ['white_potion', 3]], zeny: 5000 } },
+  { id: 'lv30', title: 'ทหารผ่านศึกแห่งมิดการ์ด', desc: 'ขึ้นถึง Base Lv 30 — ถ้ำ Hel\'s Hollow กำลังรอเจ้าอยู่',
+    obj: { type: 'baseLv', n: 30 }, reward: { items: [['white_potion', 5]], zeny: 3000 } },
 ];
 
 const Quest = {
@@ -47,6 +66,8 @@ const Quest = {
       case 'baseLv': return [Math.min(p.baseLv, o.n), o.n];
       case 'jobLv': return [p.job !== 'novice' ? o.n : Math.min(p.jobLv, o.n), o.n];
       case 'job': return [p.job !== 'novice' ? 1 : 0, 1];
+      case 'skill': return [Object.keys(p.skills).some(k => k !== 'first_aid' && p.skills[k] > 0) ? 1 : 0, 1];
+      case 'useskill': return [Math.min(s.n, o.n), o.n];
       default: return [s.n ? 1 : 0, 1];
     }
   },
@@ -59,10 +80,12 @@ const Quest = {
       case 'kill': return `${MOBS[o.mob].name} ${a}/${b}`;
       case 'hit': return `ตีหุ่นฝึกซ้อม ${a}/${b}`;
       case 'collect': return `${ITEMS[o.item].name} ${a}/${b}`;
-      case 'event': return `บันทึกจุดเกิดที่ ${npc(o.npc)}`;
+      case 'event': return o.ev === 'refine' ? `ตีบวกสำเร็จที่ ${npc(o.npc)}` : `บันทึกจุดเกิดที่ ${npc(o.npc)}`;
       case 'baseLv': return `Base Lv ${G.player.baseLv}/${b}`;
       case 'jobLv': return `Job Lv ${Math.min(G.player.jobLv, b)}/${b}`;
       case 'job': return `อัปเกรดคลาสที่ ${npc(o.npc)}`;
+      case 'skill': return 'ติดตั้งสกิลคลาสใหม่ (กด S)';
+      case 'useskill': return `ใช้สกิล ${a}/${b}`;
     }
     return '';
   },
@@ -79,22 +102,28 @@ const Quest = {
     if (!q) return null;
     const o = q.obj;
     const npcT = id => { for (const m in MAP_DEFS) { const n = (MAP_DEFS[m].npcs || []).find(x => x.id === id); if (n) return { kind: 'npc', map: m, x: n.x, y: n.y, name: n.name, npcId: n.id }; } return null; };
-    const mobT = id => { for (const m in MAP_DEFS) if ((MAP_DEFS[m].spawns || []).some(s => s[0] === id)) return { kind: 'mob', map: m, mobId: id, name: MOBS[id].name }; return null; };
+    const mobT = id => { for (const m in MAP_DEFS) if ((MAP_DEFS[m].spawns || []).some(s => s[0] === id) || MAP_DEFS[m].mvp === id) return { kind: 'mob', map: m, mobId: id, name: MOBS[id].name }; return null; };
     switch (o.type) {
       case 'talk': case 'event': case 'job': return npcT(o.npc || 'jobmaster');
       case 'kill': return mobT(o.mob);
       case 'collect': return mobT(o.mob);
       case 'hit': return { kind: 'mob', map: HOME_MAP, mobId: 'training_dummy', name: MOBS.training_dummy.name };
-      case 'jobLv': case 'baseLv': return G.player.baseLv < 8 ? mobT('pudding') : mobT('stumpling') || mobT('pudding');
+      case 'jobLv': case 'baseLv': { // แนะนำที่ล่าตามเลเวล
+        const lv = G.player.baseLv;
+        return lv < 8 ? mobT('pudding') : lv < 16 ? mobT('stumpling') : lv < 24 ? mobT('ashtail') : mobT('draugr');
+      }
+      case 'useskill': return mobT(G.player.baseLv < 12 ? 'stumpling' : 'ashtail');
+      case 'skill': return null;
     }
     return null;
   },
-  go() { const t = this.navTarget(); if (t) Nav.goTo(t); },
+  go() { const t = this.navTarget(); if (t) Nav.goTo(t); else if (this.current() && this.current().obj.type === 'skill') UI.open('w-skills'); },
 
   // ---------- เหตุการณ์จากเกม ----------
   onTalk(npcId) { const q = this.current(); if (q && q.obj.type === 'talk' && q.obj.npc === npcId) { this.state().n = 1; this.check(); } },
   onKill(mobId) { const q = this.current(); if (q && q.obj.type === 'kill' && q.obj.mob === mobId) { this.state().n++; this.changed(); this.check(); } },
   onHitDummy() { const q = this.current(); if (q && q.obj.type === 'hit') { this.state().n++; this.changed(); this.check(); } },
+  onSkillUse() { const q = this.current(); if (q && q.obj.type === 'useskill') { this.state().n++; this.changed(); this.check(); } },
   onEvent(ev) { const q = this.current(); if (q && q.obj.type === 'event' && q.obj.ev === ev) { this.state().n = 1; this.check(); } },
   changed() { this.dirty = true; UI.dirty(); },
 

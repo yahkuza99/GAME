@@ -746,6 +746,7 @@ function executeSkill(id, lv, tgt) {
     const hc = Math.floor(p.hp * s.hpCost(lv) / 100);
     if (hc > 0) { p.hp = Math.max(1, p.hp - hc); addFloater(p.x, p.y - 1.2, `-${hc}`, '#ff8080'); }
   }
+  Quest.onSkillUse();
   const delay = typeof s.delay === 'function' ? s.delay(lv) : (s.delay || 500);
   p.skillReadyAt = G.time + delay / 1000;
   shout(`${s.name}!!`);
