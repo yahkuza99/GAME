@@ -144,7 +144,7 @@ R.render = () => {
   for (const m of G.mobs) {
     if (m.dead) continue;
     const x = m.x * TILE, y = m.y * TILE, s = (m.def.scale || 1);
-    if (m.hp < m.maxHp || m.isMvp) R.bar(g, x, y + 10, m.isMvp ? 60 : 36, m.hp / m.maxHp, m.isMvp ? '#ff5050' : '#ff7070');
+    if (m.hp < m.maxHp || m.isMvp) R.bar(g, x, y + 10, m.isMvp ? 60 : 36, m.hp / m.maxHp, m.isMvp ? '#c02828' : '#c84040');
     if (m.isMvp) R.label(g, x, y + 22, `★ ${m.def.name} ★`, '#ff8080', true);
     else if ((G.hover && G.hover.ref === m) || p.target === m) R.label(g, x, y + 22, `${m.def.name} (Lv ${m.def.lv})`, m.def.aggro ? '#ffb0a0' : '#ffffff');
     if (m.emoteUntil > G.time) R.emote(g, x + 12, y - 44 * s, '!');
@@ -159,7 +159,7 @@ R.render = () => {
     const x = p.x * TILE, y = p.y * TILE;
     R.label(g, x, y + 24, p.name, '#ffffff');
     if (Bot.on) R.label(g, x, y - 58, Bot.resting ? '[AUTO • พัก]' : '[AUTO]', '#7dffb0', true);
-    R.bar(g, x, y + 10, 38, p.hp / p.d.maxHp, p.hp / p.d.maxHp < 0.25 ? '#ff4040' : '#50e050', p.sp / p.d.maxSp);
+    R.bar(g, x, y + 10, 38, p.hp / p.d.maxHp, p.hp / p.d.maxHp < 0.25 ? '#b83232' : '#3a9a44', p.sp / p.d.maxSp);
     if (p.cast) {
       const k = U.clamp((G.time - p.cast.start) / (p.cast.end - p.cast.start), 0, 1);
       g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(x - 30, y - 66, 60, 8);
@@ -218,9 +218,15 @@ R.label = (g, x, y, text, color, bold) => {
   g.strokeText(text, x, y); g.fillStyle = color; g.fillText(text, x, y);
 };
 R.bar = (g, x, y, w, k, color, k2) => {
-  g.fillStyle = 'rgba(0,0,0,0.65)'; g.fillRect(x - w / 2 - 1, y - 1, w + 2, k2 != null ? 8 : 5);
-  g.fillStyle = color; g.fillRect(x - w / 2, y, w * U.clamp(k, 0, 1), 3);
-  if (k2 != null) { g.fillStyle = '#5a8aff'; g.fillRect(x - w / 2, y + 4, w * U.clamp(k2, 0, 1), 2); }
+  const h1 = 4, h2 = 3, H = k2 != null ? h1 + h2 + 1 : h1;
+  x = Math.round(x - w / 2); y = Math.round(y);
+  g.fillStyle = '#0c0e12'; g.fillRect(x - 1, y - 1, w + 2, H + 2);
+  g.fillStyle = '#2a2e36'; g.fillRect(x, y, w, h1);
+  g.fillStyle = color; g.fillRect(x, y, Math.round(w * U.clamp(k, 0, 1)), h1);
+  if (k2 != null) {
+    g.fillStyle = '#2a2e36'; g.fillRect(x, y + h1 + 1, w, h2);
+    g.fillStyle = '#3563bf'; g.fillRect(x, y + h1 + 1, Math.round(w * U.clamp(k2, 0, 1)), h2);
+  }
 };
 R.emote = (g, x, y, ch) => {
   g.fillStyle = '#fff'; g.strokeStyle = '#333'; g.lineWidth = 1.5;
