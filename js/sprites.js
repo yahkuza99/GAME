@@ -384,7 +384,13 @@ Sprites.human = (g, x, y, o) => {
   };
   if (!o.ears) { if (front || back) { ear(-11.5); ear(11.5); } else if (side) ear(-3); else ear(-10); }
   // วงแหวนเทวดา
-  if (o.halo) { g.save(); g.strokeStyle = '#ffe27a'; g.shadowColor = '#ffe27a'; g.shadowBlur = 8; g.lineWidth = 1.8; g.beginPath(); g.ellipse(0, hy - 18 + Math.sin(t * 3) * 1.2, 8, 2.4, 0, 0, 7); g.stroke(); g.restore(); }
+  if (o.halo === 'rainbow') {
+    // วงแหวนสายรุ้ง (Bifrost) ลอยรอบศีรษะ
+    g.save(); g.lineWidth = 2; g.shadowBlur = 6;
+    const ry = hy - 12 + Math.sin(t * 2) * 1;
+    for (let i = 0; i < 12; i++) { const c = `hsl(${(i * 30 + t * 60) % 360},90%,70%)`; g.strokeStyle = c; g.shadowColor = c; g.beginPath(); g.ellipse(0, ry, 15, 5, 0, i / 12 * Math.PI * 2, (i + 1) / 12 * Math.PI * 2 + 0.05); g.stroke(); }
+    g.restore();
+  } else if (o.halo) { g.save(); g.strokeStyle = '#ffe27a'; g.shadowColor = '#ffe27a'; g.shadowBlur = 8; g.lineWidth = 1.8; g.beginPath(); g.ellipse(0, hy - 18 + Math.sin(t * 3) * 1.2, 8, 2.4, 0, 0, 7); g.stroke(); g.restore(); }
   if (o.jiangshi) {
     if (back) { g.fillStyle = '#1a1a2a'; g.fillRect(-11, hy - 14, 22, 8); g.fillRect(-7, hy - 20, 14, 7); } else {
     g.fillStyle = '#1a1a2a'; g.fillRect(-11, hy - 14, 22, 8); g.fillRect(-7, hy - 20, 14, 7);
@@ -730,7 +736,7 @@ Sprites.drawMob = (g, m, t) => {
 //  NPC
 // ------------------------------------------------------------
 const NPC_LOOKS = {
-  keeper:   { skin: '#eef0f6', glow: '#b48aff', hair: '#8a7ae0', hairStyle: 'long', outfit: '#2a3a6a', outfit2: '#f0d060', hat: 'keeper', robe: true, cape: '#4a6ab0' },
+  keeper:   { skin: '#f2f2f8', glow: '#c9a8ff', hair: '#c4b2ec', hairStyle: 'long', outfit: '#232a5e', outfit2: '#e2c677', hat: 'keeper', robe: true, cape: '#2e3878', halo: 'rainbow', visor: 'band' },
   jobmaster:{ skin: '#c8ccd6', glow: '#6ae0ff', hair: '#5a6070', outfit: '#3a4a6a', outfit2: '#e0c040', beard: '#9aa2b4', hat: 'runehood', hatColor: '#2a3450', robe: true, cape: '#2a3450' },
   merchant: { skin: '#e2d6c2', glow: '#ffc04a', hair: '#8a5a2a', outfit: '#a07040', outfit2: '#5a3a1a', apron: '#6a5a4a', hat: 'bandana' },
   merchant2:{ skin: '#f2f3f6', glow: '#5aff7a', hair: '#7ccf9a', hairStyle: 'twin', outfit: '#2f7a48', outfit2: '#efe6cf', robe: true, visor: 'band' },

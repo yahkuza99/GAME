@@ -58,10 +58,12 @@ const Art = {
       const d = g.getImageData(0, 0, W, H).data;
       const solid = (x, y) => d[(y * W + x) * 4 + 3] > 128;
       let ty = -1;
-      for (let y = 0; y < H && ty < 0; y++) for (let x = 0; x < W; x++) if (solid(x, y)) { ty = y; break; }
+      // ค้นเฉพาะกลางภาพ กันอาวุธ/เอฟเฟกต์ที่ยื่นสูงกว่าหัว
+      const x0 = Math.round(W * 0.28), x1 = Math.round(W * 0.72);
+      for (let y = 0; y < H && ty < 0; y++) for (let x = x0; x < x1; x++) if (solid(x, y)) { ty = y; break; }
       if (ty >= 0) {
         let sx = 0, n = 0;
-        for (let y = ty; y < Math.min(H, ty + Math.round(H * 0.07)); y++) for (let x = 0; x < W; x++) if (solid(x, y)) { sx += x; n++; }
+        for (let y = ty; y < Math.min(H, ty + Math.round(H * 0.07)); y++) for (let x = x0; x < x1; x++) if (solid(x, y)) { sx += x; n++; }
         top = ty / H; if (n) cx = sx / n / W;
       }
     } catch (e) { /* ภาพจาก file:// อ่านพิกเซลไม่ได้ ใช้ค่าประมาณ */ }

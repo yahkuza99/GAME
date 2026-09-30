@@ -1,7 +1,11 @@
 [
 "job_einherjar_f",
 "job_novice_f",
+"job_novice_m",
+"job_runecaster_m",
+"job_wildhunter_f",
 "logo",
 "npc_armor",
+"npc_bifrost",
 "npc_refine"
 ]
