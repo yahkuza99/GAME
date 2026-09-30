@@ -62,8 +62,10 @@ def blobs(im, cols, rows):
             comps.append(pts)
     cells = {}
     total = sum(len(c) for c in comps) or 1
+    big = max((len(c) for c in comps), default=0)
     for cid, pts in enumerate(comps):
         if len(pts) < total * 0.002: continue       # เศษเล็ก ๆ ทิ้ง
+        if cols * rows == 1 and len(pts) < big * 0.08: continue
         cx = sum(p[0] for p in pts) / len(pts) * f; cy = sum(p[1] for p in pts) / len(pts) * f
         idx = min(int(cy / (H / rows)), rows - 1) * cols + min(int(cx / (W / cols)), cols - 1)
         cells.setdefault(idx, []).append(cid)
@@ -83,12 +85,37 @@ def blobs(im, cols, rows):
         rect = (int(idx % cols * cw), int(idx // cols * ch), int((idx % cols + 1) * cw), int((idx // cols + 1) * ch))
         best, bestN = None, 0
         for j, (bb, m) in out.items():
-            if bb is None: continue
+            if bb is None or m is None: continue
             n = sum(1 for v in m.crop(rect).resize((32, 32)).getdata() if v)
             if n > bestN: best, bestN = j, n
         if best is not None: out[best] = ('grid', None)
         out[idx] = ('grid', None)
     return out
+
+def smart_cell(im, idx, cols, rows):
+    """ตัดช่องโดยเลื่อนเส้นแบ่งไปยังแนวที่โปร่งใสที่สุด (±18%) แล้วลบเศษชิ้นเล็กที่ไม่ติดตัวหลัก"""
+    W, H = im.size; a = im.getchannel('A').point(lambda v: 255 if v > 40 else 0)
+    cw, ch = W / cols, H / rows; cx, cy = idx % cols, idx // cols
+    def best_row(yb, x0, x1):
+        strip = a.crop((int(x0), 0, int(x1), H)).resize((64, H // 4))
+        px = strip.load(); lo, hi = int((yb - ch * 0.18) / 4), int((yb + ch * 0.18) / 4)
+        return min(range(max(0, lo), min(H // 4, hi)), key=lambda y: (sum(px[x, y] > 0 for x in range(64)), abs(y * 4 - yb))) * 4
+    def best_col(xb, y0, y1):
+        strip = a.crop((0, int(y0), W, int(y1))).resize((W // 4, 64))
+        px = strip.load(); lo, hi = int((xb - cw * 0.18) / 4), int((xb + cw * 0.18) / 4)
+        return min(range(max(0, lo), min(W // 4, hi)), key=lambda x: (sum(px[x, y] > 0 for y in range(64)), abs(x * 4 - xb))) * 4
+    x0, x1, y0, y1 = cx * cw, (cx + 1) * cw, cy * ch, (cy + 1) * ch
+    top = best_row(y0, x0, x1) if cy > 0 else 0
+    bot = best_row(y1, x0, x1) if cy < rows - 1 else H
+    left = best_col(x0, y0, y1) if cx > 0 else 0
+    right = best_col(x1, y0, y1) if cx < cols - 1 else W
+    cell = im.crop((left, top, right, bot))
+    # เก็บเฉพาะก้อนใหญ่สุด + ก้อนที่ใหญ่พอ (≥8% ของก้อนใหญ่สุด)
+    sub = blobs(cell, 1, 1)
+    if 0 in sub and sub[0][1] is not None:
+        comps = sub[0][1]
+        cell = cell.copy(); cell.putalpha(ImageChops.multiply(cell.getchannel('A'), comps))
+    return cell
 
 def slice_sheet(path, name):
     spec = next(s for s in SHEETS if s['file'] == name)
@@ -107,6 +134,7 @@ def slice_sheet(path, name):
             if not got: print('  ! ไม่พบวัตถุ:', key); continue
             bb, m = got
             if bb == 'grid':
+                cell = smart_cell(im, i, spec['cols'], spec['rows'])
                 ch_ = cell.getchannel('A').point(lambda v: 255 if v > 24 else 0).getbbox()
                 if not ch_: print('  ! ช่องว่าง:', key); continue
                 out = cell.crop(ch_); out.thumbnail((320, 320), Image.LANCZOS)

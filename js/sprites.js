@@ -722,6 +722,7 @@ Sprites.motion = (m, t, motion) => {
   // พุ่งตี / สะดุ้ง / ตาย
   if (m.atkAnim > 0) { const k = m.atkAnim; o.dx += (m.facing || 1) * k * 9; o.rot += (m.facing || 1) * k * 0.18; o.sx *= 1 + k * 0.1; o.sy *= 1 - k * 0.08; }
   if (m.hitFlash > 0) { o.dx -= (m.facing || 1) * m.hitFlash * 40; o.sx *= 1.06; o.sy *= 0.94; }
+  if (m.sit) { o.sy *= 0.78; o.sx *= 1.06; o.rot = 0; o.lift = 0; }
   if (m.dead) { const k = Math.min(1, m.deathT / 0.45); o.rot += (m.facing || 1) * k * 1.35; o.lift = -k * 6; }
   return o;
 };
@@ -824,10 +825,10 @@ Sprites.drawPlayer = (g, p, t) => {
   const head = p.equip.head ? p.equip.head.id : null;
   const hatMap = { hat: 'hat', iron_helm: 'cap', ribbon: 'ribbon', seraph_wings: 'angel_wing' };
   const garment = p.equip.garment ? ITEMS[p.equip.garment.id].icon.c : job.cape || null;
-  const img = typeof Art !== 'undefined' && !p.dead && !p.sitting && Art.get(`hero_${p.job}_${p.gender === 'm' ? 'm' : 'f'}`);
+  const img = typeof Art !== 'undefined' && Art.get(`hero_${p.job}_${p.gender === 'm' ? 'm' : 'f'}`);
   if (img) {
     if (Object.keys(p.buffs).length) { g.strokeStyle = `rgba(255,240,150,${0.25 + Math.sin(t * 4) * 0.15})`; g.lineWidth = 2; g.beginPath(); g.ellipse(x, y, 16, 6, 0, 0, 7); g.stroke(); }
-    Sprites.drawImageActor(g, x, y, { facing: p.facing || 1, moving: p.moving, atkAnim: p.atkAnim, hitFlash: p.hurtFlash, seed: 0.3 }, t, img, 66, 'walk', true);
+    Sprites.drawImageActor(g, x, y, { facing: p.facing || 1, moving: p.moving && !p.sitting, atkAnim: p.atkAnim, hitFlash: p.hurtFlash, seed: 0.3, sit: p.sitting, dead: p.dead, deathT: 1 }, t, img, 66, 'walk', true);
     return;
   }
   Sprites.shadow(g, x, y, 12, 4);

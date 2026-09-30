@@ -399,6 +399,13 @@ function creationLook() { return { head: creation.head, color: creation.color, g
 function drawTitlePreview(t) {
   const c = $('#cr-preview');
   if (!c || $('#create').classList.contains('hidden')) return;
+  // มีโมเดลแบบภาพแล้ว: ซ่อนตัวเลือกสี/ทรงหัว/วิเซอร์ และปุ่มหมุน (มีผลเฉพาะโมเดลวาดด้วยโค้ด)
+  const imgModel = Art.has('hero_novice_f') || Art.has('hero_novice_m');
+  if ($('#create').classList.contains('img-model') !== imgModel) {
+    $('#create').classList.toggle('img-model', imgModel);
+    ['#cr-head', '#cr-hair', '#cr-color', '#cr-glow', '#cr-visor'].forEach(sel => { const el = $(sel); el.classList.toggle('hidden', imgModel); el.previousElementSibling.classList.toggle('hidden', imgModel); });
+    $('.cr-rot').classList.toggle('hidden', imgModel);
+  }
   const g = c.getContext('2d');
   g.setTransform(1, 0, 0, 1, 0, 0);
   g.clearRect(0, 0, c.width, c.height);
