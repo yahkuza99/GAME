@@ -740,6 +740,7 @@ const UI = {
         h('div', { class: 'mb-name' }, d.name, d.boss ? h('span', { class: 'tag' }, 'MVP') : null),
         h('div', { class: 'mb-sub' }, `Lv ${d.lv} • ธาตุ${ELEM_THAI[d.element] || d.element} • ${RACE[d.race] || d.race}`),
         h('div', { class: 'mb-sub ' + (d.aggro ? 'bad' : 'ok') }, d.aggro ? '⚠ โจมตีก่อน (Aggressive)' : 'ไม่โจมตีก่อน (Passive)'),
+        h('div', { class: 'mb-sub' }, `ล่าแล้ว: ${U.fmt((G.player.kills || {})[d.id] || 0)} ตัว`),
         weak.length ? h('div', { class: 'mb-sub' }, `แพ้ธาตุ: ${weak.slice(0, 3).map(([e, m]) => `${ELEM_THAI[e]} ×${m}`).join(', ')}`) : null)),
       h('div', { class: 'mb-grid' }, row('HP', U.fmt(d.hp)), row('ATK', `${d.atk[0]}–${d.atk[1]}`), row('DEF', d.def), row('MDEF', d.mdef),
         row('HIT', d.hit), row('FLEE', d.flee), row('Base EXP', U.fmt(d.exp)), row('Job EXP', U.fmt(d.jexp))),
@@ -822,7 +823,8 @@ const UI = {
     else if (this.navTab === 'place') for (const t of Nav.places()) list.append(row(t, MAP_DEFS[t.map].name));
     else if (this.navTab === 'map') for (const t of Nav.maps()) list.append(row(t, `${t.thai}${t.level ? ` • Lv ${t.level}` : ''}`, t.map === G.map.id ? 'อยู่ที่นี่' : null));
     else for (const t of Nav.mobs()) {
-      const r = row(t, `${t.mapName} • Lv ${t.lv}${t.mvp ? ` • ${this.mvpStatus(t.mobId).replace(/^[^ ]+ /, '')}` : ''}`, t.mvp ? 'MVP' : null);
+      const kc = (G.player.kills || {})[t.mobId] || 0;
+      const r = row(t, `${t.mapName} • Lv ${t.lv}${kc ? ` • ล่าแล้ว ${U.fmt(kc)}` : ''}${t.mvp ? ` • ${this.mvpStatus(t.mobId).replace(/^[^ ]+ /, '')}` : ''}`, t.mvp ? 'MVP' : null);
       const info = h('span', { class: 'nav-info', title: 'ข้อมูลมอนสเตอร์', onclick: e => { e.stopPropagation(); this.showMob(t.mobId); } }, 'ⓘ');
       r.append(info); list.append(r);
     }

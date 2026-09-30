@@ -10,7 +10,7 @@ const G = {
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
 const SAVE_FIELDS = ['name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
-  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage'];
+  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills'];
 
 // ------------------------------------------------------------
 //  สร้าง / บันทึก / โหลด
@@ -23,7 +23,7 @@ function newPlayer(name, gender, hair, look) {
     equip: { head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null },
     hotbar: [null, null, null, null, null, null, null, null], potbar: [null, null, null, null],
     map: HOME_MAP, x: 20.5, y: 24.5, save: { map: HOME_MAP, x: 20.5, y: 24.5 },
-    hp: 1, sp: 1, options: { autoLoot: true, sound: true, music: false, musicVol: 0.7, expMsg: true }, uidSeq: 1, quests: { i: 0, n: 0, done: [] }, storage: [],
+    hp: 1, sp: 1, options: { autoLoot: true, sound: true, music: false, musicVol: 0.7, expMsg: true }, uidSeq: 1, quests: { i: 0, n: 0, done: [] }, storage: [], kills: {},
   };
   initRuntime(p);
   G.player = p;
@@ -547,6 +547,7 @@ function killMob(m) {
   if (p.target === m) p.target = null;
   Bot.onKill(m);
   Quest.onKill(d.id);
+  p.kills = p.kills || {}; p.kills[d.id] = (p.kills[d.id] || 0) + 1; // สมุดมอนสเตอร์: จำนวนที่ล่าได้
   gainExp(d.exp, d.jexp);
   for (const [id, ch] of d.drops) if (U.chance(ch)) dropItemOnGround(id, m.x, m.y);
   if (m.isMvp) {
