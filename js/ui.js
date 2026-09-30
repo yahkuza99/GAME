@@ -705,10 +705,10 @@ const UI = {
         h('button', { type: 'button', class: Pad.mode === v ? 'on' : '', onclick: () => { Pad.setMode(v); this.renderOptions(); } }, l))),
       h('div', { class: 'opt-btns' },
         h('button', { class: 'btn', onclick: () => saveGame(false) }, 'บันทึกเกม'),
-        Online.online ? h('button', { class: 'btn', onclick: async () => { saveGame(true, true); await Online.logout(); location.reload(); } }, `ออกจากระบบ (${Online.username})`) : null,
+        Online.loggedIn ? h('button', { class: 'btn', onclick: async () => { saveGame(true, true); await Online.logout(); location.reload(); } }, `ออกจากระบบ (${Online.username})`) : null,
         h('button', { class: 'btn', onclick: () => this.open('w-help') }, 'วิธีเล่น'),
         document.fullscreenEnabled ? h('button', { class: 'btn', onclick: () => toggleFullscreen() }, document.fullscreenElement ? 'ออกจากเต็มจอ' : 'เต็มจอ') : null,
-        Online.online ? null : h('button', { class: 'btn danger', onclick: async () => {
+        Online.loggedIn ? null : h('button', { class: 'btn danger', onclick: async () => {
           if (await this.confirm('ลบข้อมูลตัวละครทั้งหมดและเริ่มใหม่? (ย้อนกลับไม่ได้)')) { deleteSave(); G.started = false; location.reload(); }
         } }, 'ลบเซฟ / เริ่มใหม่')),
     );

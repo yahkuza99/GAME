@@ -251,8 +251,10 @@ function peekSave() {
 let authMode = 'login', cloudSave = null;
 function showAuth() {
   $('#title-menu').classList.add('hidden'); $('#create').classList.add('hidden'); $('#acct').classList.add('hidden');
+  $('#title').classList.remove('creating');
   $('#auth').classList.remove('hidden');
-  $('#au-user').focus();
+  $('#au-note').textContent = Online.local ? 'บัญชีเก็บในเบราว์เซอร์นี้ • ตัวละครแยกตามบัญชี' : 'บัญชีออนไลน์ • เล่นได้ทุกเครื่อง';
+  if (!matchMedia('(pointer: coarse)').matches) $('#au-user').focus();
 }
 function setAuthMode(m) {
   authMode = m;
@@ -268,7 +270,7 @@ async function afterLogin() {
   $('#acct-name').textContent = Online.username;
   const cont = $('#btn-continue');
   $('#title-menu').classList.remove('hidden');
-  cont.classList.remove('hidden');
+  cont.classList.remove('hidden'); cont.classList.add('primary');
   cont.innerHTML = 'กำลังโหลดตัวละคร...';
   $('#btn-new').classList.add('hidden');
   try { cloudSave = await Online.loadCharacter(); }
@@ -280,12 +282,18 @@ async function afterLogin() {
       if (!p) { cont.innerHTML = 'ข้อมูลตัวละครเสียหาย'; return; }
       startGame(p, false);
     };
+  } else if (Online.local && peekSave() && peekSave().name) {
+    // บัญชีใหม่ในเครื่อง + มีตัวละครที่เล่นแบบไม่ล็อกอินไว้: ให้เลือกย้ายเข้าบัญชี หรือสร้างใหม่
+    const g = peekSave();
+    cont.innerHTML = `ใช้ตัวละครที่เล่นไว้<small>${U.esc(g.name)} • ${JOBS[g.job] ? JOBS[g.job].name : ''} Lv ${g.baseLv} → ย้ายเข้าบัญชีนี้</small>`;
+    cont.onclick = () => { const p = loadGameFrom(g); if (!p) { cont.innerHTML = 'ข้อมูลตัวละครเสียหาย'; return; } Online.queueSave(g, true); startGame(p, false); };
+    $('#btn-new').classList.remove('hidden');
   } else {
     // ยังไม่มีตัวละคร → ไปหน้าสร้างตัวละคร
     $('#title-menu').classList.add('hidden');
-    $('#create').classList.remove('hidden');
+    $('#create').classList.remove('hidden'); $('#title').classList.add('creating');
     if (!$('#cr-name').value) $('#cr-name').value = Online.username;
-    $('#cr-name').focus();
+    if (!matchMedia('(pointer: coarse)').matches) $('#cr-name').focus();
   }
 }
 function bindAuth() {
@@ -305,24 +313,24 @@ function bindAuth() {
     finally { btn.disabled = false; }
   });
   $('#au-offline').onclick = () => {
-    Online.enabled = false;
     $('#auth').classList.add('hidden');
     $('#title-menu').classList.remove('hidden');
+    $('#btn-login').classList.remove('hidden');
     setupOfflineMenu();
   };
-  $('#acct-logout').onclick = async () => { await Online.logout(); cloudSave = null; $('#btn-new').classList.remove('hidden'); $('#btn-continue').classList.add('hidden'); showAuth(); };
+  $('#acct-logout').onclick = async () => { await Online.logout(); cloudSave = null; $('#btn-continue').classList.remove('primary'); $('#btn-new').classList.remove('hidden'); $('#btn-continue').classList.add('hidden'); setupOfflineMenu(); showAuth(); };
 }
 
 function showTitle() {
   setupCreateScreen();
   setupOfflineMenu();
   if (Online.enabled) {
-    // เดโม: เข้าเล่นได้ทันที ล็อกอินเป็นทางเลือก (ลิงก์เล็ก ๆ ใต้ปุ่ม)
+    // หน้าแรก: ล็อกอิน/สมัคร (หรือกด "เล่นแบบไม่ล็อกอิน") • เคยล็อกอินค้างไว้ = เข้าหน้าบัญชีเลย
     bindAuth();
-    setAuthMode('login');
-    $('#btn-login').classList.remove('hidden');
+    setAuthMode(Online.local && !Object.keys(Online.lsGet(Online.LS.accounts, {})).length ? 'register' : 'login');
     $('#btn-login').onclick = () => showAuth();
-    Online.restore().then(ok => { if (ok) afterLogin(); });
+    $('#title-menu').classList.add('hidden');
+    Online.restore().then(ok => { if (ok) afterLogin(); else showAuth(); });
   }
 }
 function setupOfflineMenu() {
@@ -342,7 +350,7 @@ function setupOfflineMenu() {
 function setupCreateScreen() {
   $('#cr-back').onclick = () => {
     $('#create').classList.add('hidden'); $('#title').classList.remove('creating');
-    if (Online.online) { $('#acct-logout').click(); return; }
+    if (Online.loggedIn) { $('#acct-logout').click(); return; }
     $('#title-menu').classList.remove('hidden');
   };
   const swatchRow = (sel, list, key) => {
@@ -373,7 +381,7 @@ function setupCreateScreen() {
   $('#cr-start').onclick = async () => {
     const name = $('#cr-name').value.trim().slice(0, 16);
     if (!name) { $('#cr-err').textContent = 'กรุณาตั้งชื่อตัวละคร'; return; }
-    if (Online.online) {
+    if (Online.loggedIn) {
       $('#cr-err').textContent = 'กำลังตรวจสอบชื่อ...';
       try { if (!(await Online.nameAvailable(name))) { $('#cr-err').textContent = 'ชื่อตัวละครนี้มีคนใช้แล้ว ลองชื่ออื่น'; return; } }
       catch (e) { $('#cr-err').textContent = e.message; return; }
@@ -444,6 +452,7 @@ function startGame(p, isNew) {
   UI.dirty(); UI.renderWindows(true); UI.updateHud();
   UI.msg(`ระบบออนไลน์... ยินดีต้อนรับสู่ NEO MIDGARD, ${p.name}!`, 'lvl');
   if (Online.online) { Online.joinChat(); UI.setNet('ok'); UI.msg(`🌐 ออนไลน์ในชื่อบัญชี ${Online.username} — กด Enter เพื่อแชทกับทุกคน`, 'sys'); }
+  else if (Online.loggedIn) UI.msg(`🔑 เข้าสู่ระบบเป็น ${Online.username} — ตัวละครบันทึกแยกตามบัญชีในเครื่องนี้`, 'sys');
   UI.msg('กด H เพื่อดูวิธีเล่น • คุยกับ Guard Unit Rolf (หุ่นหมวกเขา) เพื่อขอคำแนะนำ', 'info');
   if (isNew) {
     UI.open('w-help');

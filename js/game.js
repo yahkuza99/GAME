@@ -63,10 +63,10 @@ function saveGame(silent = true, immediate = false) {
   const p = G.player;
   if (!p || !G.started) return;
   const data = saveData();
-  // โหมดออนไลน์: เซฟบนคลาวด์ (ไม่ทับเซฟออฟไลน์ในเครื่อง)
-  if (Online.online) {
+  // ล็อกอินอยู่: เซฟแยกตามบัญชี (คลาวด์ หรือช่องของบัญชีในเครื่อง) ไม่ทับเซฟแบบไม่ล็อกอิน
+  if (Online.loggedIn) {
     Online.queueSave(data, immediate || !silent);
-    if (!silent) UI.msg('บันทึกเกมลงเซิร์ฟเวอร์แล้ว', 'sys');
+    if (!silent) UI.msg(Online.local ? `บันทึกเกมของบัญชี ${Online.username} แล้ว` : 'บันทึกเกมลงเซิร์ฟเวอร์แล้ว', 'sys');
     return;
   }
   try {

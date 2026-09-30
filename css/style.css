@@ -527,8 +527,11 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
 .auth { display: flex; flex-direction: column; gap: 6px; width: min(380px, 100%); }
 .auth .tbtn { width: 100%; min-width: 0; margin-top: 4px; }
 .auth .tbtn:disabled { opacity: .6; cursor: wait; }
+.au-note { font-size: 11.5px; color: var(--ink-dim); text-align: center; opacity: .8; }
+.auth .linkbtn { align-self: center; }
 .linkbtn { background: none; border: 0; color: var(--cy); text-decoration: underline; font-size: 13px; padding: 4px; }
-.acct { margin: 18px auto 0; color: #fff; font-size: 14px; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.acct { margin: 18px 0 0; align-self: flex-start; color: var(--ink); font-size: 13.5px; padding: 6px 14px; background: rgba(4,9,18,.78); border: 1px solid var(--line-2); backdrop-filter: blur(6px); }
+.acct b { color: var(--cy); }
 
 /* =====================================================================
    ขนาดจอ
@@ -599,6 +602,7 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
   .logo-sub { font-size: 13px; }
   .hero-stage { right: 50%; transform: translateX(50%); width: 88vw; height: 62vh; bottom: 12vh; }
   .hero { filter: drop-shadow(0 0 22px rgba(60,180,255,.35)); }
+  .acct { align-self: center; }
   .title-menu { align-items: center; width: 100%; padding: 18px 12px 6px; background: linear-gradient(transparent, rgba(4,6,15,.85) 30%); }
   .tbtn { min-width: min(300px, 100%); }
   .title-foot { justify-content: center; text-align: center; }

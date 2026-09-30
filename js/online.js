@@ -1,23 +1,60 @@
 'use strict';
 // ============================================================
 //  โหมดออนไลน์ (Supabase): สมัคร/ล็อกอิน, เซฟบนคลาวด์, เห็นผู้เล่นอื่น, แชทรวม
-//  ถ้าไม่ได้ตั้งค่าใน js/online.config.js เกมจะทำงานแบบออฟไลน์ตามเดิม
+//  ถ้าไม่ได้ตั้งค่าใน js/online.config.js จะใช้ "บัญชีในเครื่อง" (local): สมัคร/ล็อกอินได้
+//  ตัวละครแยกตามบัญชี เซฟในเบราว์เซอร์นี้ (ไม่มีผู้เล่นอื่น/แชทรวม)
 // ============================================================
 
 const Online = {
-  enabled: false, sb: null, user: null, username: '',
+  enabled: false, local: false, sb: null, user: null, username: '',
   mapChannel: null, chatChannel: null, mapId: null, others: new Map(), count: 0,
   lastSend: 0, lastState: '', atkSeq: 0, lastAtkAnim: 0,
   saveTimer: null, pendingSave: null, saving: false, lastChat: 0,
 
   init() {
     const cfg = window.ONLINE_CONFIG || {};
-    if (!cfg.url || !cfg.anonKey) return;
-    if (!window.supabase || !window.supabase.createClient) { console.warn('โหลด Supabase ไม่สำเร็จ — เล่นแบบออฟไลน์'); return; }
-    this.sb = window.supabase.createClient(cfg.url, cfg.anonKey, { auth: { persistSession: true, autoRefreshToken: true } });
     this.enabled = true;
+    if (!cfg.url || !cfg.anonKey) { this.local = true; return; }
+    if (!window.supabase || !window.supabase.createClient) { console.warn('โหลด Supabase ไม่สำเร็จ — ใช้บัญชีในเครื่อง'); this.local = true; return; }
+    this.sb = window.supabase.createClient(cfg.url, cfg.anonKey, { auth: { persistSession: true, autoRefreshToken: true } });
   },
-  get online() { return this.enabled && !!this.user; },
+  // online = เชื่อมเซิร์ฟเวอร์จริง (เห็นผู้เล่นอื่น แชทรวม เซฟคลาวด์) • loggedIn = ล็อกอินบัญชีแล้ว (รวมบัญชีในเครื่อง)
+  get online() { return this.enabled && !this.local && !!this.user; },
+  get loggedIn() { return this.enabled && !!this.user; },
+
+  // ---------------- บัญชีในเครื่อง (ไม่มีเซิร์ฟเวอร์) ----------------
+  LS: { accounts: 'nm_accounts', session: 'nm_session', char: u => `nm_char_${u.toLowerCase()}` },
+  lsGet(k, def) { try { const v = localStorage.getItem(k); return v == null ? def : JSON.parse(v); } catch (e) { return def; } },
+  lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+  async hash(salt, pw) {
+    const txt = `${salt}:${pw}:neo-midgard`;
+    try {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+      return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch (e) { // บางเบราว์เซอร์ไม่มี crypto.subtle (หน้าไม่ใช่ https)
+      let h1 = 0x811c9dc5, h2 = 0x1000193;
+      for (let i = 0; i < txt.length; i++) { h1 = Math.imul(h1 ^ txt.charCodeAt(i), 16777619); h2 = Math.imul(h2 + txt.charCodeAt(i), 2246822507); }
+      return 'f' + (h1 >>> 0).toString(16) + (h2 >>> 0).toString(16);
+    }
+  },
+  async localRegister(username, password) {
+    const acc = this.lsGet(this.LS.accounts, {}), key = username.toLowerCase();
+    if (acc[key]) throw new Error('ชื่อผู้ใช้นี้ถูกใช้แล้ว');
+    const salt = Math.random().toString(36).slice(2, 10);
+    acc[key] = { name: username, salt, hash: await this.hash(salt, password), created: Date.now() };
+    if (!this.lsSet(this.LS.accounts, acc)) throw new Error('เบราว์เซอร์นี้ไม่อนุญาตให้บันทึกข้อมูล');
+    this.setLocal(username);
+  },
+  async localLogin(username, password) {
+    const a = this.lsGet(this.LS.accounts, {})[username.toLowerCase()];
+    if (!a || a.hash !== await this.hash(a.salt, password)) throw new Error('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+    this.setLocal(a.name);
+  },
+  setLocal(username) {
+    this.user = { id: 'local:' + username.toLowerCase(), local: true };
+    this.username = username;
+    this.lsSet(this.LS.session, username);
+  },
 
   // ---------------- บัญชี ----------------
   validUsername(u) { return /^[a-zA-Z0-9_]{3,16}$/.test(u); },
@@ -35,6 +72,7 @@ const Online = {
   async register(username, password) {
     if (!this.validUsername(username)) throw new Error('ชื่อผู้ใช้ต้องเป็น a-z, 0-9 หรือ _ ยาว 3-16 ตัว');
     if (password.length < 6) throw new Error('รหัสผ่านต้องยาวอย่างน้อย 6 ตัวอักษร');
+    if (this.local) return this.localRegister(username, password);
     const { data, error } = await this.sb.auth.signUp({ email: this.emailFor(username), password, options: { data: { username } } });
     if (error) throw new Error(this.errText(error));
     if (!data.session) throw new Error('สมัครแล้ว แต่เซิร์ฟเวอร์ต้องปิดการยืนยันอีเมล (Confirm email) ก่อนจึงจะเข้าเล่นได้');
@@ -42,12 +80,18 @@ const Online = {
   },
   async login(username, password) {
     if (!this.validUsername(username)) throw new Error('ชื่อผู้ใช้ไม่ถูกต้อง');
+    if (this.local) return this.localLogin(username, password);
     const { data, error } = await this.sb.auth.signInWithPassword({ email: this.emailFor(username), password });
     if (error) throw new Error(this.errText(error));
     this.setUser(data.user, username);
   },
   async restore() {
     if (!this.enabled) return false;
+    if (this.local) {
+      const u = this.lsGet(this.LS.session, null), acc = this.lsGet(this.LS.accounts, {});
+      if (u && acc[String(u).toLowerCase()]) { this.setLocal(acc[String(u).toLowerCase()].name); return true; }
+      return false;
+    }
     try {
       const { data } = await this.sb.auth.getSession();
       if (data && data.session) { this.setUser(data.session.user); return true; }
@@ -60,6 +104,7 @@ const Online = {
   },
   async logout() {
     await this.flushSave();
+    if (this.local) { try { localStorage.removeItem(this.LS.session); } catch (e) { /* ignore */ } this.user = null; return; }
     this.leaveMap();
     if (this.chatChannel) { this.sb.removeChannel(this.chatChannel); this.chatChannel = null; }
     await this.sb.auth.signOut();
@@ -68,18 +113,24 @@ const Online = {
 
   // ---------------- ตัวละคร ----------------
   async loadCharacter() {
+    if (this.local) return this.lsGet(this.LS.char(this.username), null);
     const { data, error } = await this.sb.from('characters').select('data').eq('user_id', this.user.id).maybeSingle();
     if (error) throw new Error(this.errText(error));
     return data ? data.data : null;
   },
   async nameAvailable(name) {
+    if (this.local) { // ชื่อซ้ำกับตัวละครของบัญชีอื่นในเครื่องนี้ไม่ได้
+      const acc = this.lsGet(this.LS.accounts, {}), me = this.username.toLowerCase();
+      return !Object.keys(acc).some(k => k !== me && (this.lsGet(this.LS.char(k), {}) || {}).name === name);
+    }
     const { data, error } = await this.sb.rpc('name_available', { n: name });
     if (error) throw new Error(this.errText(error));
     return !!data;
   },
   // บันทึกแบบหน่วงเวลา (รวมหลายครั้งเป็นครั้งเดียว)
   queueSave(data, immediate) {
-    if (!this.online) return;
+    if (!this.loggedIn) return;
+    if (this.local) { this.lsSet(this.LS.char(this.username), data); return; }
     this.pendingSave = data;
     // ไม่เลื่อนการบันทึกที่นัดไว้เร็วกว่าออกไป
     const due = performance.now() + (immediate ? 0 : 4000);
