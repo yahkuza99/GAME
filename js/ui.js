@@ -241,8 +241,15 @@ const UI = {
     cv.dataset.key = t.def.id;
     const g = cv.getContext('2d');
     g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height);
-    const art = Art.get('mob_' + t.def.id);
-    if (art) { Art.drawCover(g, art, cv.width, cv.height, 0.2); return; }
+    const art = Art.get('mob_' + t.def.id), spr = Art.get('mobsprite_' + t.def.id);
+    if (spr) {
+      const bg2 = g.createRadialGradient(cv.width / 2, cv.height * 0.45, 2, cv.width / 2, cv.height / 2, cv.width * 0.7);
+      bg2.addColorStop(0, '#3a2430'); bg2.addColorStop(1, '#0a0f1a'); g.fillStyle = bg2; g.fillRect(0, 0, cv.width, cv.height);
+      const k = Math.min(cv.width / spr.width, cv.height / spr.height) * 0.92;
+      g.drawImage(spr, (cv.width - spr.width * k) / 2, (cv.height - spr.height * k) / 2, spr.width * k, spr.height * k);
+      return;
+    }
+    if (art && HUMANOID_MOBS.includes(t.def.id)) { Art.drawCover(g, art, cv.width, cv.height, 0.2); return; }
     const bg = g.createRadialGradient(cv.width / 2, cv.height * 0.4, 2, cv.width / 2, cv.height / 2, cv.width * 0.7);
     bg.addColorStop(0, U.rgba((t.def.look && t.def.look.glow) || '#ff6a6a', 0.5)); bg.addColorStop(1, '#0a0f1a');
     g.fillStyle = bg; g.fillRect(0, 0, cv.width, cv.height);

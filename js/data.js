@@ -412,7 +412,9 @@ const MOB_LOOKS = {
   hel_guard:     { skin: '#b8c0d0', outfit: '#2a2a3a', outfit2: '#4a4a5a', hat: 'viking', hatColor: '#4a4e58', glow: '#ff4a3a', visor: 'v', wtype: 'axe', cape: '#3a1a1a' },
   kitsura:       { skin: '#f6ece0', outfit: '#e86a2a', outfit2: '#ffd0a0', hair: '#f0a040', hairStyle: 'long', ears: 'fox', earColor: '#f0a040', fox: true, glow: '#ffae40', visor: 'v', wtype: 'dagger', scale: 1.6 },
 };
-for (const id in MOB_LOOKS) { MOBS[id].sprite = 'android'; MOBS[id].look = MOB_LOOKS[id]; if (MOB_LOOKS[id].scale) MOBS[id].scale = MOB_LOOKS[id].scale; delete MOBS[id].size; }
+// มอนสเตอร์สไตล์ RO เวอร์ชันหุ่นยนต์: สัตว์/สไลม์กลไก ใช้สไปรต์สัตว์เดิม ส่วนอันเดดและบอสทรงคนใช้แอนดรอยด์
+const HUMANOID_MOBS = ['draugr', 'bone_warden', 'hel_maiden', 'hel_guard', 'kitsura'];
+for (const id in MOB_LOOKS) { if (!HUMANOID_MOBS.includes(id)) continue; MOBS[id].sprite = 'android'; MOBS[id].look = MOB_LOOKS[id]; if (MOB_LOOKS[id].scale) MOBS[id].scale = MOB_LOOKS[id].scale; delete MOBS[id].size; }
 
 // ------------------------------------------------------------
 //  ร้านค้า

@@ -106,10 +106,10 @@ for k, d in MAPS:
     items.append(dict(group="ภาพแผนที่ (แบนเนอร์ตอนเข้าแมพ)", file=f"{k}.png", size="แนวนอน 3:2 (1536x1024)", bg="มีฉากหลัง", prompt=f"{MAP_STYLE} Location: {d}."))
 
 # เรียงตามความสำคัญ (เห็นบ่อยที่สุดก่อน) + ทำเครื่องหมายภาพที่ได้รับแล้ว
-ORDER = ["ไอคอนสกิล", "ไอคอนไอเทม", "คลาสอัปเกรด — Frame Type-A (เพรียว)", "คลาสอัปเกรด — Frame Type-B (แกร่ง)", "NPC",
+ORDER = ["สไปรต์มอนสเตอร์ในเกม (สไตล์ RO หุ่นยนต์)", "ไอคอนสกิล", "ไอคอนไอเทม", "คลาสอัปเกรด — Frame Type-A (เพรียว)", "คลาสอัปเกรด — Frame Type-B (แกร่ง)", "NPC",
  "หน้ามอนสเตอร์ (กรอบเป้าหมาย)", "ตราคลาส", "ภาพแผนที่ (แบนเนอร์ตอนเข้าแมพ)", "บอส MVP", "ภาพหน้าปก", "หน้าสร้างตัวละคร (แบบอ้างอิง)", "มอนสเตอร์ (แบบอ้างอิง)"]
 items.sort(key=lambda it: ORDER.index(it['group']))
-NUM = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫"
+NUM = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬"
 for it in items: it['group'] = f"{NUM[ORDER.index(it['group'])]} {it['group']}"
 try: have = {os.path.splitext(f)[0] for f in json.load(open(os.path.join(ROOT, 'assets', 'manifest.json')))}
 except Exception: have = set()

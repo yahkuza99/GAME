@@ -17,6 +17,43 @@ MOB_STYLE = ("Monster portrait sheet for an anime sci-fi Norse RPG called NEO MI
  "Each cell is a square bust portrait (head and shoulders, facing slightly left) that fills its whole cell with a dark moody background tinted in the monster's glow color, "
  "cel-shaded anime gacha style, crisp lineart, rim light. Separate the tiles with thin straight black gutters so the grid is perfectly even. No text, no letters, no frames.")
 
+SPRITE_STYLE = ("In-game monster sprite sheet for a cute classic 2000s Korean MMORPG style game (chibi, round, readable silhouettes, like classic isometric MMO field monsters), "
+ "but every monster is a ROBOT / mechanical version of the creature: glossy painted metal shell, visible bolts and panel lines, small glowing core lights, antennas, tiny thrusters. "
+ "Each monster is a single full-body creature in its own equal cell, 3/4 view FACING LEFT, standing on the ground, centered with empty space around it, "
+ "on a FULLY TRANSPARENT background (PNG). Cel-shaded anime game art, crisp dark outline, soft glossy highlights, readable at 64 pixels tall. "
+ "No text, no grid lines, no frames, no ground shadow, creatures must not touch each other.")
+SPRITE_SHEETS = [
+ ("sheet_monsters_1.png", [
+  ("mobsprite_pudding", "a small bouncy PINK jelly-slime robot: round gummy dome body of glossy pink translucent gel over a metal core, tiny antenna with a light, happy expression made of two small glowing dots"),
+  ("mobsprite_leafworm", "a chubby GREEN caterpillar robot: segmented rounded metal body sections, stubby little legs, leaf-shaped antenna, cute"),
+  ("mobsprite_moonbun", "a fluffy WHITE rabbit robot: round white metal body, very tall floppy metal ears with pink inner panels, tiny carrot-orange nose light"),
+  ("mobsprite_ember_pudding", "a small bouncy ORANGE jelly-slime robot with a tiny flame flickering on its antenna, warm glowing core"),
+ ]),
+ ("sheet_monsters_2.png", [
+  ("mobsprite_buzzfly", "a round black-and-yellow striped robot bee drone with transparent buzzing wings, a small stinger and a big single sensor light"),
+  ("mobsprite_stumpling", "a walking rusty TREE-STUMP robot: bark made of rusted metal plates, root-like mechanical legs, a few leaves and wires on top, grumpy"),
+  ("mobsprite_fiddlehopper", "a green GRASSHOPPER robot standing upright on its back legs holding a tiny violin, spring-loaded legs"),
+  ("mobsprite_capshroom", "a walking MUSHROOM robot: big red cap with white spots made of metal, stubby legs, a small red warning light like a mine"),
+ ]),
+ ("sheet_monsters_3.png", [
+  ("mobsprite_moss_pudding", "a small bouncy GREEN jelly-slime robot with moss and a tiny four-leaf clover growing on top"),
+  ("mobsprite_seraph_pudding", "BOSS: a large bouncy golden-white jelly-slime robot with small mechanical angel wings, a golden halo floating above, regal and cute"),
+  ("mobsprite_ashtail", "a sly grey RACCOON / fox robot on four legs with a big fluffy striped metal tail"),
+  ("mobsprite_fenrir_pup", "a silver WOLF robot on four legs, sharp metal fur plates, glowing cyan eyes-light, snarling"),
+ ]),
+ ("sheet_monsters_4.png", [
+  ("mobsprite_mossback", "a big heavy BEAR robot on four legs with mossy bronze armor plates and plants growing on its back"),
+  ("mobsprite_tuskboar", "an armored WILD BOAR robot on four legs with big iron tusks and a dark brown plated hide"),
+  ("mobsprite_draugr", "a shambling ZOMBIE-like rusted humanoid robot wearing a battered horned viking helmet, torn cloth, holding a rusty axe, one red visor light"),
+  ("mobsprite_bone_warden", "a SKELETON robot: white bone-like metal frame with exposed ribs, holding a sword and small round shield, red visor light"),
+ ]),
+ ("sheet_monsters_5.png", [
+  ("mobsprite_hel_maiden", "a floating GHOST-like robot: a hooded navy cloak with no legs, pale metal face mask with a teal visor light, holding a lantern"),
+  ("mobsprite_hel_guard", "a hulking dark ARMOR KNIGHT robot with horned helmet, dark red cape and a big axe, red visor light"),
+  ("mobsprite_kitsura", "BOSS: an elegant fox-eared android lady with long orange metal hair and NINE long mechanical fox tails fanned out behind her, orange V visor, graceful pose"),
+  ("mobsprite_blank", "a small pile of scrap metal parts (spare)"),
+ ]),
+]
 SHEETS = [
  dict(file="sheet_skills_0.png", cols=2, rows=1, mode="tile", style=SKILL_STYLE, group="ไอคอนสกิล", cells=[
   ("skill_first_aid", "First Aid: a white repair kit case with a glowing green cross and a small wrench"),
@@ -185,3 +222,6 @@ MAPS = [
  ("map_wolfwood", "Wolfwood: a dark pine forest with glowing green mushrooms and fireflies, mossy rocks, abandoned robot parts, moonlight through the trees"),
  ("map_helcave", "Hel's Hollow: a dark cave with glowing purple crystals, circuit lines on the rock floor, red warning lights, eerie teal fog"),
 ]
+for f, cells in SPRITE_SHEETS:
+    SHEETS.append(dict(file=f, cols=2, rows=2, mode="alpha", style=SPRITE_STYLE, group="สไปรต์มอนสเตอร์ในเกม (สไตล์ RO หุ่นยนต์)", cells=cells))
+

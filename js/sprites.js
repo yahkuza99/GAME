@@ -687,12 +687,38 @@ Sprites.mobAndroid = (g, x, y, m, t) => {
     glow: m.state === 'chase' && !m.def.boss ? '#ff4a3a' : L.glow, pants: L.outfit2,
   }));
 };
+// มอนสเตอร์จากภาพ (สไปรต์เดียว) + แอนิเมชันด้วยโค้ด: กระเด้ง/บีบยืด/ลอย/หันซ้ายขวา/ตีเข้า
+const MOB_MOTION = { poring: 'hop', lunatic: 'hop', fabre: 'crawl', chonchon: 'fly', rocker: 'hop', willow: 'sway', spore: 'hop', quad: 'walk' };
+Sprites.mobImage = (g, x, y, m, t, img) => {
+  const d = m.def, s = (d.scale || 1) * (d.size || 1);
+  const H = 46 * s, W = H * img.width / img.height;
+  const motion = d.wings ? 'fly' : (MOB_MOTION[d.sprite] || 'walk');
+  const ph = t * (m.moving ? 7 : 2.2) + (m.seed || 0) * 10;
+  let lift = 0, sx = 1, sy = 1, rot = 0;
+  if (motion === 'hop') { const k = Math.abs(Math.sin(ph)); lift = m.moving ? k * 9 * s : 0; sy = 1 - (1 - k) * 0.12 + (m.moving ? 0 : Math.sin(ph) * 0.04); sx = 2 - sy; }
+  else if (motion === 'fly') { lift = (12 + Math.sin(ph * 1.6) * 3) * s; rot = Math.sin(ph) * 0.05; }
+  else if (motion === 'crawl') { sx = 1 + Math.sin(ph * 2) * 0.05; sy = 2 - sx; }
+  else if (motion === 'sway') { rot = Math.sin(ph * 0.8) * 0.06; }
+  else { lift = m.moving ? Math.abs(Math.sin(ph * 1.2)) * 2.5 * s : 0; rot = m.moving ? Math.sin(ph * 1.2) * 0.04 : 0; sy = 1 + Math.sin(ph) * 0.015; }
+  if (m.atkAnim > 0) { sx *= 1.08; sy *= 0.94; }
+  Sprites.shadow(g, x, y, W * 0.36, W * 0.12, 0.32 - lift * 0.006);
+  g.save();
+  g.translate(x + (m.atkAnim > 0 ? (m.facing || 1) * 4 : 0), y - lift);
+  g.rotate(rot);
+  g.scale(-(m.facing || 1) * sx, sy); // ภาพต้นฉบับหันซ้าย
+  if (m.state === 'chase' && !d.boss) { g.shadowColor = 'rgba(255,60,50,0.55)'; g.shadowBlur = 10; }
+  else if (d.boss) { g.shadowColor = 'rgba(255,220,120,0.7)'; g.shadowBlur = 16; }
+  g.drawImage(img, -W / 2, -H, W, H);
+  g.restore();
+};
 Sprites.drawMob = (g, m, t) => {
   const x = m.x * TILE, y = m.y * TILE;
   g.save();
   if (m.dead) g.globalAlpha = Math.max(0, 1 - m.deathT / 0.8);
   if (m.hitFlash > 0) g.filter = 'brightness(2.2)';
-  switch (m.def.sprite) {
+  const art = typeof Art !== 'undefined' && Art.get('mobsprite_' + m.def.id);
+  if (art) Sprites.mobImage(g, x, y, m, t, art);
+  else switch (m.def.sprite) {
     case 'poring': Sprites.poring(g, x, y, m, t); break;
     case 'lunatic': Sprites.lunatic(g, x, y, m, t); break;
     case 'fabre': Sprites.fabre(g, x, y, m, t); break;

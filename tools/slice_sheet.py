@@ -60,7 +60,8 @@ def slice_sheet(path, name):
             if not bb: print('  ! ช่องว่าง:', key); continue
             pad = int(max(bb[2] - bb[0], bb[3] - bb[1]) * 0.06)
             bb = (max(0, bb[0] - pad), max(0, bb[1] - pad), min(cell.size[0], bb[2] + pad), min(cell.size[1], bb[3] + pad))
-            out = square(cell.crop(bb), 128)
+            out = cell.crop(bb) if key.startswith('mobsprite_') else square(cell.crop(bb), 128)
+            if key.startswith('mobsprite_'): out.thumbnail((320, 320), Image.LANCZOS)
         save(out, key)
         print('  +', key)
     manifest()
