@@ -1,0 +1,187 @@
+# -*- coding: utf-8 -*-
+"""สเปกชีตภาพ (ไอคอนสกิล/ไอเทม/ตราคลาส/หน้ามอนสเตอร์) — ใช้ทั้งสร้าง prompt และตัดชีต
+แต่ละชีต: file, cols, rows, mode ('alpha' = พื้นโปร่งใส ครอปตามขอบวัตถุ, 'tile' = ภาพเต็มช่อง), cells = [(key, คำบรรยายภาษาอังกฤษ)]"""
+
+SKILL_STYLE = ("Game skill icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD (android heroes). "
+ "Each icon is a square painted tile that fills its whole cell edge to edge with its own dark atmospheric background and a bold, glowing, easy-to-read central symbol or action; "
+ "cel-shaded, crisp lineart, strong rim light, high contrast so it reads at 40 pixels. No characters' faces, no text, no numbers, no letters, no frames or borders. "
+ "Separate the tiles with thin straight black gutters so the grid is perfectly even.")
+ITEM_STYLE = ("Game inventory item icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD (a world of androids and robots, items are tech parts). "
+ "Each item is a single object centered in its own equal cell with generous empty space around it, on a FULLY TRANSPARENT background (PNG), "
+ "cel-shaded, crisp dark outline, soft glow accents, readable at 32 pixels, three-quarter view, consistent lighting from the top-left. "
+ "No text, no numbers, no letters, no grid lines, no frames, no shadows on the ground, objects must not touch or overlap each other.")
+EMBLEM_STYLE = ("Class emblem icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD. Each emblem is a metallic badge (silver steel with a glowing colored core and Norse rune accents), "
+ "centered in its own equal cell with empty space around it, on a FULLY TRANSPARENT background (PNG), same size and same style for all. No text, no letters, no grid lines.")
+MOB_STYLE = ("Monster portrait sheet for an anime sci-fi Norse RPG called NEO MIDGARD where every monster is a humanoid ANDROID robot (no animals, no humans). "
+ "FACE RULE: every head has a smooth metal faceplate with a glowing visor strip — NO eyes, NO pupils, NO mouth. Hostile units have red or colored glowing visors. "
+ "Each cell is a square bust portrait (head and shoulders, facing slightly left) that fills its whole cell with a dark moody background tinted in the monster's glow color, "
+ "cel-shaded anime gacha style, crisp lineart, rim light. Separate the tiles with thin straight black gutters so the grid is perfectly even. No text, no letters, no frames.")
+
+SHEETS = [
+ dict(file="sheet_skills_0.png", cols=2, rows=1, mode="tile", style=SKILL_STYLE, group="ไอคอนสกิล", cells=[
+  ("skill_first_aid", "First Aid: a white repair kit case with a glowing green cross and a small wrench"),
+  ("skill_basic_training", "Basic Training: a clenched mechanical fist with a cyan upward arrow of power"),
+ ]),
+ dict(file="sheet_skills_1.png", cols=4, rows=2, mode="tile", style=SKILL_STYLE, group="ไอคอนสกิล", cells=[
+  ("skill_iron_body", "Iron Body: a steel android chest armor glowing with orange-red reinforcement plates and a shield aura"),
+  ("skill_shield_slam", "Shield Slam: a round tech shield smashing forward with a red impact shockwave and stars of stun"),
+  ("skill_war_cry", "War Cry: a horned Viking tech helmet with red sound waves blasting outward"),
+  ("skill_whirlwind", "Whirlwind: a glowing red energy sword spinning in a circular slash vortex"),
+  ("skill_rune_mastery", "Rune Mastery: an open glowing blue rune tablet with floating Norse runes orbiting it"),
+  ("skill_fire_rune", "Fire Rune: a Norse fire rune carved in blazing orange flame with embers"),
+  ("skill_ice_rune", "Ice Rune: a sharp ice lance crystal with a blue frost rune and snow sparkles"),
+  ("skill_thunder_rune", "Thunder Rune: Thor's lightning striking down from a yellow-white rune with electric arcs"),
+ ]),
+ dict(file="sheet_skills_2.png", cols=4, rows=2, mode="tile", style=SKILL_STYLE, group="ไอคอนสกิล", cells=[
+  ("skill_eagle_eye", "Eagle Eye: a metal eagle head with a green targeting reticle and scope lines"),
+  ("skill_piercing_arrow", "Piercing Arrow: a green energy arrow shooting straight through three targets in a line with speed streaks"),
+  ("skill_wolf_companion", "Wolf Companion: a howling robot wolf head made of metal plates with green glowing lines"),
+  ("skill_blast_trap", "Blast Trap: a small spiked mine device on the ground mid-explosion with orange fire"),
+  ("skill_sanctuary", "Sanctuary: a soft golden holy dome of light with a green plus sign glowing inside"),
+  ("skill_light_of_freyja", "Light of Freyja: a golden flower-shaped burst of healing light with sparkles descending"),
+  ("skill_blessing_of_odin", "Blessing of Odin: a golden valknut triangle symbol with rising gold light and an upward arrow"),
+  ("skill_holy_spear", "Holy Spear: a radiant white-gold spear of light plunging downward with holy rays"),
+ ]),
+ dict(file="sheet_skills_3.png", cols=4, rows=2, mode="tile", style=SKILL_STYLE, group="ไอคอนสกิล", cells=[
+  ("skill_shadow_step", "Shadow Step: a violet afterimage silhouette of a dashing foot/boot leaving purple shadow trails"),
+  ("skill_backstab", "Backstab: a violet energy dagger stabbing from behind with a critical slash flash"),
+  ("skill_smoke_veil", "Smoke Veil: swirling dark purple smoke cloud hiding a faint figure outline"),
+  ("skill_venom_blade", "Venom Blade: a dagger dripping glowing green poison with toxic bubbles"),
+  ("skill_wolf_blood", "Wolf Blood: a red glowing drop of energy blood in front of a snarling metal wolf silhouette"),
+  ("skill_rage_strike", "Rage Strike: a huge orange energy axe crashing down with a cracked-ground red shockwave"),
+  ("skill_blood_frenzy", "Blood Frenzy: a burning red heart-shaped power core with speed lines and orange flames"),
+  ("skill_howl", "Howl: a metal wolf head howling upward with circular orange-red sound waves"),
+ ]),
+ dict(file="sheet_items_1.png", cols=4, rows=4, mode="alpha", style=ITEM_STYLE, group="ไอคอนไอเทม", cells=[
+  ("item_red_potion", "a small red repair kit: compact red medical canister with a white cross"),
+  ("item_orange_potion", "a medium orange repair kit canister with a white cross"),
+  ("item_yellow_potion", "a large yellow repair kit canister with a white cross"),
+  ("item_white_potion", "an extra-large white-and-silver repair kit case with a glowing cross"),
+  ("item_blue_potion", "a blue glowing energy cell battery"),
+  ("item_apple", "a small oil can with a spout, amber oil drop"),
+  ("item_carrot", "a bottle of glowing cyan coolant liquid"),
+  ("item_meat", "a tube of silver nano repair paste"),
+  ("item_grape", "a small purple charge chip with glowing contacts"),
+  ("item_green_herb", "a green antivirus patch sticker with a shield symbol"),
+  ("item_red_herb", "a roll of red repair tape"),
+  ("item_mead", "a glass flask of fizzing golden overclock brew with lightning sparks"),
+  ("item_blink_feather", "a teal warp chip with a swirling portal glow"),
+  ("item_hearth_rune", "a small homing beacon device with a blue light and a Norse rune"),
+  ("item_card", "a rectangular data chip card with gold contacts and a glowing circuit pattern"),
+  ("item_zeny", "a small stack of silver credit coins with cyan edges"),
+ ]),
+ dict(file="sheet_items_2.png", cols=4, rows=4, mode="alpha", style=ITEM_STYLE, group="ไอคอนไอเทม", cells=[
+  ("item_jelly_drop", "a pink glowing gel cell capsule"),
+  ("item_leaf_silk", "a coil of copper wire"),
+  ("item_clover", "a tiny green micro chip"),
+  ("item_moon_fur", "a folded piece of silver metal mesh"),
+  ("item_buzz_wing", "a black-and-yellow drone rotor blade"),
+  ("item_ember_jelly", "an orange finned heat sink"),
+  ("item_moss_gel", "a green blob of sticky bio gel in a small dish"),
+  ("item_hopper_leg", "a green metal spring coil leg part"),
+  ("item_living_bark", "a rusty scrap metal plate with bolts"),
+  ("item_cap_spore", "a red detonator device with a small antenna"),
+  ("item_ash_tail", "a grey cylindrical ash filter"),
+  ("item_fenrir_fang", "a silver metal wolf fang with a cyan edge"),
+  ("item_moss_hide", "a heavy armored hide plate, bronze and mossy green"),
+  ("item_iron_tusk", "a curved iron tusk"),
+  ("item_grave_dust", "a small pouch spilling brown rust dust"),
+  ("item_old_bone", "an old white metal frame bone strut"),
+ ]),
+ dict(file="sheet_items_3.png", cols=4, rows=4, mode="alpha", style=ITEM_STYLE, group="ไอคอนไอเทม", cells=[
+  ("item_hel_lantern", "a small lantern containing a teal digital soul flame"),
+  ("item_cursed_seal", "a black chip with a glowing red cursed rune"),
+  ("item_yggdrasil_shard", "a glowing golden-green crystal energy core shaped like a tree seed, very precious"),
+  ("item_knife", "a plain short knife with a cyan energy edge"),
+  ("item_cutter", "a sharp box-cutter style blade with a glowing edge"),
+  ("item_main_gauche", "a parrying dagger with a hand guard"),
+  ("item_stiletto", "a long thin stiletto dagger"),
+  ("item_loki_fang", "a violet curved dagger shaped like a fang with green glow"),
+  ("item_sword", "a basic one-handed sword with a cyan energy edge"),
+  ("item_falchion", "a curved falchion sword"),
+  ("item_broadsword", "a wide broadsword"),
+  ("item_valhalla_blade", "an ornate golden-red knight sword with wings on the guard"),
+  ("item_hand_axe", "a one-handed hand axe with an orange energy edge"),
+  ("item_battle_axe", "a large double-bladed battle axe"),
+  ("item_ulfr_axe", "a bronze wolf-head axe with a glowing orange edge"),
+  ("item_rod", "a simple energy rod topped with a small cyan orb"),
+ ]),
+ dict(file="sheet_items_4.png", cols=4, rows=4, mode="alpha", style=ITEM_STYLE, group="ไอคอนไอเทม", cells=[
+  ("item_rune_staff", "a staff engraved with glowing blue runes"),
+  ("item_seer_staff", "a white-and-gold seer staff with a floating crystal"),
+  ("item_bow", "a simple bow with a glowing green string"),
+  ("item_composite_bow", "a recurve composite bow of metal and wood"),
+  ("item_great_bow", "a large heavy tech longbow"),
+  ("item_ullr_bow", "an elegant silver-green bow with rune carvings and leaf motifs"),
+  ("item_club", "a simple metal club"),
+  ("item_mace", "an iron flanged mace"),
+  ("item_morning_star", "a spiked morning star mace with a glowing core"),
+  ("item_emberfang", "a legendary fiery orange dagger shaped like a fox fang with flames"),
+  ("item_cotton_shirt", "a basic white chest plating armor piece"),
+  ("item_leather_vest", "a light brown-and-grey chest plating vest"),
+  ("item_silk_robe", "a folded navy nano robe with glowing lines"),
+  ("item_chain_mail", "a metal mesh chain armor"),
+  ("item_plate_armor", "a heavy titanium plate chest armor with red trim"),
+  ("item_hat", "a small sensor cap with an antenna"),
+ ]),
+ dict(file="sheet_items_5.png", cols=4, rows=4, mode="alpha", style=ITEM_STYLE, group="ไอคอนไอเทม", cells=[
+  ("item_ribbon", "a signal ribbon hair accessory with a glowing node"),
+  ("item_iron_helm", "an iron helmet"),
+  ("item_seraph_wings", "a pair of small white-gold mechanical angel wing head ornaments"),
+  ("item_guard", "a small round wooden-and-metal shield"),
+  ("item_round_shield", "a round energy buckler with a cyan hexagon shield field"),
+  ("item_hood", "a folded dark hood"),
+  ("item_muffler", "a cable scarf made of braided wires"),
+  ("item_sandals", "a pair of hover pads (flat glowing foot pads)"),
+  ("item_shoes", "a pair of servo boots"),
+  ("item_boots", "a pair of heavy magnetic boots"),
+  ("item_clip", "a small hair clip with a data slot"),
+  ("item_ring", "a power ring with a red gem"),
+  ("item_earring", "a signal earring with a blue antenna crystal"),
+  ("item_glove", "a mechanical grip glove"),
+  ("item_rune_charm", "a rune charm pendant with a glowing rune stone"),
+  ("item_gift", "a small wrapped supply crate with a cyan ribbon"),
+ ]),
+ dict(file="sheet_emblems.png", cols=4, rows=2, mode="alpha", style=EMBLEM_STYLE, group="ตราคลาส", cells=[
+  ("emblem_novice", "Novice: a simple silver hexagon badge with a cyan core"),
+  ("emblem_einherjar", "Einherjar: a shield with a crossed sword and horned helmet, red core"),
+  ("emblem_runecaster", "Rune Caster: a circle of Norse runes around a staff, blue core"),
+  ("emblem_wildhunter", "Wildhunter: a bow and arrow over a wolf paw, green core"),
+  ("emblem_volva", "Völva: a golden sun with a staff and wings, gold core"),
+  ("emblem_trickster", "Loki's Trickster: two crossed daggers with a serpent, violet core"),
+  ("emblem_berserker", "Berserker: a wolf head over a two-handed axe, orange core"),
+  ("emblem_neo", "NEO MIDGARD crest: a stylized Yggdrasil tree inside a circuit ring, cyan core"),
+ ]),
+ dict(file="sheet_mobs_1.png", cols=4, rows=3, mode="tile", style=MOB_STYLE, group="หน้ามอนสเตอร์ (กรอบเป้าหมาย)", cells=[
+  ("mob_pudding", "Gel Unit: tiny cute pink android with a pink bob of hair plates and a pink band visor"),
+  ("mob_leafworm", "Crawler Unit: small green android with short green hair plates and a slit visor"),
+  ("mob_moonbun", "Bunny Unit: small white android with tall metal bunny ears and a pink visor"),
+  ("mob_ember_pudding", "Ember Unit: small orange android with an orange bob and warm orange visor"),
+  ("mob_buzzfly", "Buzz Unit: black-and-yellow android with spiky yellow hair plates, bee wings and a V visor"),
+  ("mob_stumpling", "Rust Sentry: stocky rusty brown android with a helmet and slit visor"),
+  ("mob_fiddlehopper", "Hopper Unit: lean green android with spiky green hair plates and a V visor"),
+  ("mob_capshroom", "Mine Unit: android wearing a red mushroom-dome helmet with a red slit visor"),
+  ("mob_moss_pudding", "Moss Unit: small mint-green android with a bob and green band visor"),
+  ("mob_ashtail", "Ash Stalker: grey wolf-eared android with a grey cape and V visor"),
+  ("mob_fenrir_pup", "Fenrir Unit: silver wolf-eared android with spiky silver hair plates and cyan V visor"),
+  ("mob_mossback", "Iron Brute: huge bulky bronze-and-moss android with a heavy helmet and slit visor"),
+ ]),
+ dict(file="sheet_mobs_2.png", cols=4, rows=2, mode="tile", style=MOB_STYLE, group="หน้ามอนสเตอร์ (กรอบเป้าหมาย)", cells=[
+  ("mob_tuskboar", "Tusk Trooper: dark brown armored android with a horned Viking helmet and orange slit visor"),
+  ("mob_draugr", "Draugr Husk: rusted old android with a battered Viking helmet and red slit visor"),
+  ("mob_bone_warden", "Frame Warden: skeletal white-frame android with exposed ribs and red slit visor"),
+  ("mob_hel_maiden", "Hel Maiden Unit: hooded navy-robed android with long white hair plates and teal band visor"),
+  ("mob_hel_guard", "Hel Guard Unit: dark armored android with a horned helmet, dark red cape and red V visor"),
+  ("mob_seraph_pudding", "Seraph Core (boss): angelic pearl-and-gold android with a halo, wings and golden visor"),
+  ("mob_kitsura", "Kitsura EX (boss): orange fox-eared android with long orange hair plates and orange V visor"),
+  ("mob_blank", "an empty dark tile with a faint red hexagon pattern"),
+ ]),
+]
+
+MAPS = [
+ ("map_eldheim", "Neo Eldheim, the android capital city: plaza of metal floor tiles with cyan light strips around a glowing blue energy-core fountain, sci-fi Norse buildings with neon signs, green lawns and trees, daytime"),
+ ("map_meadow", "Emerald Meadow: rolling green grass fields with wildflowers, metal pylons with glowing tips, a steel road crossing the field, small lakes, bright sunny sky"),
+ ("map_mistlake", "Mistlake Plains: calm misty lakes with soft fog, tall reeds, floating light particles, distant ancient tech ruins, dawn light"),
+ ("map_wolfwood", "Wolfwood: a dark pine forest with glowing green mushrooms and fireflies, mossy rocks, abandoned robot parts, moonlight through the trees"),
+ ("map_helcave", "Hel's Hollow: a dark cave with glowing purple crystals, circuit lines on the rock floor, red warning lights, eerie teal fog"),
+]

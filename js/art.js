@@ -11,15 +11,26 @@ const ART_KEYS = [
   'mvp_seraph_pudding', 'mvp_kitsura',
 ];
 
+// ไอคอน/ภาพย่อย (ตัดจากชีตที่สร้างใน ChatGPT) โหลดตาม assets/manifest.json เท่านั้น
+// ชื่อไฟล์: skill_<id>, item_<id>, item_card, emblem_<job>, mob_<id>, map_<id>
 const Art = {
   imgs: {},
   load() {
-    for (const k of ART_KEYS) {
+    const probe = k => {
       const img = new Image();
       img.onload = () => { this.imgs[k] = img; this.onLoad(k); };
       img.onerror = () => {};
       img.src = `assets/${k}.png`;
-    }
+    };
+    if (location.protocol === 'file:') { ART_KEYS.forEach(probe); return; } // เปิดไฟล์ตรง ๆ อ่าน manifest ไม่ได้
+    fetch('assets/manifest.json').then(r => (r.ok ? r.json() : Promise.reject())).then(list => list.forEach(probe))
+      .catch(() => ART_KEYS.forEach(probe));
+  },
+  // ไอคอนไอเทม: ภาพเฉพาะชิ้น > ชิปการ์ดรวม > วาดด้วยโค้ด
+  itemKey(id) {
+    if (this.imgs['item_' + id]) return 'item_' + id;
+    if (ITEMS[id] && ITEMS[id].type === 'card' && this.imgs.item_card) return 'item_card';
+    return null;
   },
   has(k) { return !!this.imgs[k]; },
   get(k) { return this.imgs[k] || null; },
@@ -30,6 +41,10 @@ const Art = {
   },
   onLoad(k) {
     if (k === 'keyart' || k === 'logo' || k.startsWith('job_')) applyTitleArt();
+    if (k.startsWith('item_') || k.startsWith('skill_') || k.startsWith('emblem_')) {
+      if (typeof clearIconCache === 'function') clearIconCache();
+      if (typeof UI !== 'undefined') UI.dirty();
+    }
     if (typeof UI !== 'undefined' && G.player) { const cv = document.getElementById('bi-portrait'); if (cv) cv.dataset.key = ''; }
   },
   // หาตำแหน่งหัวจากความทึบของภาพ (ภาพเต็มตัวพื้นโปร่งใส) เพื่อครอปเป็นรูปโปรไฟล์

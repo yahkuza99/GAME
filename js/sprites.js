@@ -979,12 +979,17 @@ function itemIconCanvas(id, S = 24) {
   const key = id + '@' + S;
   if (_iconCache[key]) return _iconCache[key];
   const c = document.createElement('canvas'); c.width = S; c.height = S;
-  drawIconShape(c.getContext('2d'), ITEMS[id].icon, S);
+  const ak = Art.itemKey(id);
+  if (ak) { const im = Art.get(ak), k = S / Math.max(im.width, im.height); c.getContext('2d').drawImage(im, (S - im.width * k) / 2, (S - im.height * k) / 2, im.width * k, im.height * k); }
+  else drawIconShape(c.getContext('2d'), ITEMS[id].icon, S);
   _iconCache[key] = c;
   return c;
 }
 const _iconUrl = {};
+function clearIconCache() { for (const k in _iconCache) delete _iconCache[k]; for (const k in _iconUrl) delete _iconUrl[k]; }
 function itemIconUrl(id) {
+  const ak = Art.itemKey(id);
+  if (ak) return Art.get(ak).src;
   if (!_iconUrl[id]) _iconUrl[id] = itemIconCanvas(id, 48).toDataURL();
   return _iconUrl[id];
 }

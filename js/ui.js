@@ -164,7 +164,10 @@ const UI = {
   },
   announceMap(map) {
     const el = $('#map-banner');
+    const art = Art.get('map_' + map.id);
     el.innerHTML = `<div class="mb-en">${U.esc(map.def.name)}</div><div class="mb-th">${U.esc(map.def.thai)}</div>`;
+    el.classList.toggle('has-img', !!art);
+    el.style.backgroundImage = art ? `url("${art.src}")` : '';
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   },
   updateHud() {
@@ -172,7 +175,9 @@ const UI = {
     $('#bi-name').textContent = p.name;
     this.drawPortrait();
     $$('#menubar [data-win]').forEach(b => b.classList.toggle('on', this.isOpen(b.dataset.win)));
-    $('#bi-job').textContent = `${JOBS[p.job].name}`;
+    const em = Art.get('emblem_' + p.job), jobHtml = (em ? `<img src="${em.src}" alt="">` : '') + U.esc(JOBS[p.job].name);
+    if ($('#bi-job').innerHTML !== jobHtml) $('#bi-job').innerHTML = jobHtml;
+    this.updateTarget();
     const bNeed = baseExpNeed(p.baseLv), jNeed = jobExpNeed(p.job, p.jobLv);
     const bk = p.baseLv >= MAX_BASE_LV ? 1 : p.baseExp / bNeed, jk = p.jobLv >= JOBS[p.job].jobMax ? 1 : p.jobExp / jNeed;
     $('#bi-blv').textContent = p.baseLv; $('#bi-jlv').textContent = p.jobLv;
@@ -217,6 +222,32 @@ const UI = {
     this.drawMinimap();
     this.updateBotButton();
     if (this.isOpen('w-bot')) this.updateBotStats();
+  },
+  // กรอบเป้าหมาย (มอนที่กำลังตี / ชี้อยู่)
+  updateTarget() {
+    const p = G.player, el = $('#target');
+    let t = p.target || (p.skillIntent && p.skillIntent.tgt) || (G.hover && G.hover.kind === 'mob' ? G.hover.ref : null);
+    if (!t || t.dead) { if (!el.hidden) el.hidden = true; return; }
+    el.hidden = false;
+    el.classList.toggle('boss', !!t.isMvp);
+    $('#tg-name').textContent = t.def.name;
+    $('#tg-lv').textContent = `Lv ${t.def.lv}`;
+    $('#tg-hp').style.width = (t.hp / t.maxHp * 100) + '%';
+    $('#tg-hp-t').textContent = `${Math.max(0, Math.ceil(t.hp))} / ${t.maxHp}`;
+    const cv = $('#tg-cv');
+    if (cv.dataset.key === t.def.id) return;
+    cv.dataset.key = t.def.id;
+    const g = cv.getContext('2d');
+    g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height);
+    const art = Art.get('mob_' + t.def.id);
+    if (art) { Art.drawCover(g, art, cv.width, cv.height, 0.2); return; }
+    const bg = g.createRadialGradient(cv.width / 2, cv.height * 0.4, 2, cv.width / 2, cv.height / 2, cv.width * 0.7);
+    bg.addColorStop(0, U.rgba((t.def.look && t.def.look.glow) || '#ff6a6a', 0.5)); bg.addColorStop(1, '#0a0f1a');
+    g.fillStyle = bg; g.fillRect(0, 0, cv.width, cv.height);
+    const sc = cv.width / 34 / (t.def.scale || 1);
+    g.save(); g.translate(cv.width / 2, cv.height * 1.45); g.scale(sc, sc);
+    Sprites.drawMob(g, { def: t.def, x: 0, y: 0, facing: 1, dir: 2, moving: false, seed: 0.3, state: 'idle', hp: 1, maxHp: 1, atkAnim: 0 }, 0.2);
+    g.restore();
   },
   // วาดแผนที่ลงแคนวาส (ใช้ทั้งมินิแมพและแผนที่ใหญ่) — ใช้ภาพพื้นจริงย่อส่วน
   mapImage(map, px) {
@@ -398,6 +429,7 @@ const UI = {
   },
   skillIcon(id) {
     const s = SKILLS[id];
+    if (Art.has('skill_' + id)) return h('div', { class: 'sicon art', style: `--c:${s.icon}` }, h('img', { src: Art.get('skill_' + id).src, alt: '' }));
     return h('div', { class: 'sicon', style: `--c:${s.icon}` }, s.glyph);
   },
 
