@@ -133,7 +133,7 @@ const Anim = {
     const k = H / this.STD_H, C = this.CELL;
     Sprites.shadow(g, x, y, H * 0.3, H * 0.09, 0.3);
     g.save();
-    g.translate(x, y);
+    g.translate(x, y - (st.raise || 0));
     if (p.lift) g.translate(0, -p.lift * k);
     g.scale(p.flip ? -k : k, k * (p.breathe ? 1 + Math.sin(t * 2.4 + (st.seed || 0)) * 0.012 : 1));
     if (st.flash) g.filter = 'brightness(1.9)';

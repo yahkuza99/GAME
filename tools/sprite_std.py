@@ -354,6 +354,7 @@ def main():
     ap.add_argument('--grid', default='4x2'); ap.add_argument('--cols', type=int, default=4); ap.add_argument('--rows', type=int, default=2)
     ap.add_argument('--frames', type=int, default=0, help='ใช้แค่ N เฟรมแรก')
     ap.add_argument('--dirs', default='', help='ทิศของแต่ละแถวในชีต เช่น S,SW,W,NW,N,E,SE')
+    ap.add_argument('--take-cols', default='', help='เก็บเฉพาะคอลัมน์เหล่านี้ของทุกแถว เช่น 1,2 (ชีตรวมหลายท่า)')
     ap.add_argument('--ref-frames', default='', help='คอลัมน์ที่เป็นท่ายืนตรง เช่น 1,6 — ใช้ความสูงของเฟรมพวกนี้ตั้งสเกลให้เท่าท่าเดิน (ChatGPT มักวาดแต่ละชีตขนาดไม่เท่ากัน)')
     ap.add_argument('--still', action='store_true', help='เก็บแค่เฟรมที่เท้าชิดกันที่สุด (ยืนสองขา) แถวละ 1 เฟรม — ใช้ทำท่ายืนจากชีตเดิน')
     ap.add_argument('--nofit', action='store_true', help='ไม่ปรับขนาดเฟรมที่เพี้ยนอัตโนมัติ')
@@ -367,6 +368,9 @@ def main():
         template(a.cols, a.rows).save(out); print('template →', out); return
     cols, rows = map(int, a.grid.lower().split('x'))
     frames = frames_from_grid(Image.open(a.src), cols, rows)
+    if a.take_cols:
+        keep = {int(x) for x in a.take_cols.split(',')}
+        frames = [f for i, f in enumerate(frames) if (i % cols) + 1 in keep]
     if a.order: frames = [frames[int(i) - 1] for i in a.order.split(',')]
     if a.frames: frames = frames[:a.frames]
     src_w = Image.open(a.src).width
@@ -382,7 +386,7 @@ def main():
         if hs:
             scale = STD_H / hs[len(hs) // 2]
             print(f"  สเกลจากเฟรมยืน {sorted(refs)}: {scale:.3f}")
-    out, rep, k, med = normalize(frames, scale=scale, fit=(a.action in STANDING) and not a.nofit)
+    out, rep, k, med = normalize(frames, scale=scale, fit=(a.action in STANDING) and not a.nofit and not (a.key or '').startswith('mob_'))
     if a.action in STANDING and ref:
         diff = (k * src_w / TPL_W) / ref - 1
         if abs(diff) > 0.1: print(f'  ⚠ ChatGPT วาดตัวใหญ่/เล็กต่างจากชีตก่อน {diff * 100:+.0f}% (จัดให้เท่ากันแล้ว)')
