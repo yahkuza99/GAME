@@ -346,3 +346,191 @@ html, body { height: 100dvh; }
 .acct .linkbtn { color: #ffe9a8; }
 .net { width: 8px; height: 8px; border-radius: 50%; background: #3cc070; align-self: center; flex-shrink: 0; }
 .net.err { background: #d04040; animation: pulse 1s infinite; }
+
+/* =====================================================================
+   ธีม "Midgard" — แผงสีเข้มขอบบรอนซ์ ตัวอักษรทองแบบนอร์ส
+   (ชั้นนี้กำหนดเฉพาะสี/เส้นขอบ/ฟอนต์ ทับเลย์เอาต์เดิม)
+   ===================================================================== */
+:root {
+  color-scheme: dark;
+  --ink: #ede4cf; --ink-dim: #a89e88; --ink-faint: #6f6858;
+  --panel: rgba(20, 18, 24, 0.9); --panel-2: #26222b; --panel-3: #1a171e;
+  --line: #5c4c30; --line-hi: #9a7c44; --gold: #d8b464; --gold-hi: #f4dc9c;
+  --ice: #8fc8ee; --blood: #c9453e; --moss: #6cbf6a;
+  --display: "Cinzel", "Noto Sans Thai", Georgia, serif;
+  --font: "Noto Sans Thai", Tahoma, "Segoe UI", sans-serif;
+}
+body { color: var(--ink); }
+.hint { color: var(--ink-dim); }
+
+/* ---------- แผง / หน้าต่าง ---------- */
+.panel, .win {
+  background: var(--panel); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,230,170,.08), 0 8px 24px rgba(0,0,0,.55);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+.win::before, .win::after, .panel::before, .panel::after {
+  content: ""; position: absolute; width: 10px; height: 10px; pointer-events: none; border-color: var(--gold); border-style: solid;
+}
+.win::before, .panel::before { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+.win::after, .panel::after { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+.win-title {
+  background: linear-gradient(#2f2a34, #1d1a21); border-bottom: 1px solid var(--line); border-radius: 3px 3px 0 0;
+  color: var(--gold-hi); font-family: var(--display); font-weight: 700; letter-spacing: .04em; text-shadow: 0 1px 0 #000;
+}
+.win-title span { font-size: 13px; }
+.win-x { background: #2a262e; border: 1px solid var(--line); color: var(--gold); border-radius: 3px; }
+.win-x:hover { background: var(--blood); color: #fff; border-color: #e0716a; }
+
+.btn { background: linear-gradient(#3a3440, #27232c); border: 1px solid var(--line); color: var(--gold-hi); border-radius: 3px; }
+.btn:hover { background: linear-gradient(#4a4252, #302a36); border-color: var(--line-hi); }
+.btn.danger { color: #f0a09a; }
+.btn.big { background: linear-gradient(#e8c877, #b8893a); color: #2a1a06; border-color: #f2d9a0; }
+.bot-toggle.on { background: linear-gradient(#8a3a36, #5a2320) !important; color: #ffe6e2 !important; border-color: #c9453e !important; }
+
+.tab { background: var(--panel-3); border: 1px solid #3a3340; border-bottom-color: var(--line); color: var(--ink-dim); border-radius: 3px 3px 0 0; }
+.tab.on { background: var(--panel-2); color: var(--gold-hi); border-color: var(--line); border-bottom-color: var(--panel-2); }
+
+/* ---------- ข้อมูลตัวละคร ---------- */
+#basic-info { padding: 8px 10px 8px; width: 272px; }
+.bi-top { align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 6px; }
+.bi-face { position: relative; width: 44px; height: 44px; flex-shrink: 0; }
+.bi-face canvas { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--gold); box-shadow: 0 0 0 1px #000, 0 2px 6px rgba(0,0,0,.6); display: block; }
+.bi-face em { position: absolute; right: -6px; bottom: -4px; min-width: 20px; height: 18px; padding: 0 4px; border-radius: 3px; background: linear-gradient(#e8c877, #a97a30); color: #2a1a06;
+  font: 700 11px/18px var(--display); font-style: normal; text-align: center; border: 1px solid #f2d9a0; box-shadow: 0 1px 3px #000; }
+.bi-id { display: flex; flex-direction: column; min-width: 0; }
+.bi-top b { color: var(--gold-hi); font-family: var(--display); font-size: 15px; letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bi-top span { color: var(--ice); font-size: 12px; font-weight: 600; }
+.bi-row label { color: var(--ink-dim); }
+.bi-row label b { color: var(--ink); }
+.bar { background: #0f0e12; border-color: #000; }
+.bi-foot { color: var(--gold); }
+.pt { background: var(--blood); border: 1px solid #e0716a; }
+
+/* ---------- มินิแมพ ---------- */
+.mm-head { color: var(--gold-hi); font-family: var(--display); align-items: center; }
+#map-coord { color: var(--ink-dim); font-family: var(--font); }
+#minimap-cv { border: 1px solid var(--line); border-radius: 2px; cursor: pointer; background: #111; }
+#map-open { background: #2a262e; border: 1px solid var(--line); color: var(--gold); width: 20px; height: 18px; line-height: 14px; padding: 0; border-radius: 3px; font-size: 12px; }
+#map-open:hover { border-color: var(--line-hi); }
+#zoom-ctl button { background: #2a262e; border: 1px solid var(--line); color: var(--gold-hi); border-radius: 3px; }
+#bigmap-cv { width: 100%; height: auto; display: block; border: 1px solid var(--line); cursor: crosshair; image-rendering: auto; }
+
+/* ---------- แชท ---------- */
+#chat { background: rgba(14, 12, 18, 0.78); border-color: var(--line); }
+#chat-input { background: rgba(8,7,10,.85); border: 1px solid #3a3340; color: var(--ink); }
+#chat-input::placeholder { color: var(--ink-faint); }
+
+/* ---------- ฮอตบาร์ ---------- */
+#hotbar { background: linear-gradient(rgba(34,30,38,.94), rgba(18,16,22,.94)); border: 1px solid var(--line); border-radius: 4px; }
+.hb { background: radial-gradient(circle at 50% 35%, #2c2833, #141218); border: 1px solid #4a3e2c; border-radius: 3px; box-shadow: inset 0 0 6px rgba(0,0,0,.8); }
+.hb:hover { border-color: var(--gold); box-shadow: inset 0 0 6px rgba(0,0,0,.8), 0 0 6px rgba(216,180,100,.45); }
+.hb .k { color: var(--gold); text-shadow: 0 1px 0 #000; }
+
+/* ---------- เมนูไอคอน ---------- */
+#menubar { gap: 4px; }
+#menubar button { background: linear-gradient(#34303a, #1f1c24); border: 1px solid var(--line); color: var(--gold-hi); border-radius: 4px;
+  padding: 5px 8px 4px; min-width: 50px; font-size: 11px; font-weight: 600; gap: 1px; box-shadow: 0 3px 8px rgba(0,0,0,.5); }
+#menubar button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+#menubar button small { color: var(--ink-faint); font-size: 9px; }
+#menubar button:hover { border-color: var(--line-hi); color: #fff3cf; }
+#menubar button.on { border-color: var(--gold); background: linear-gradient(#4a3f2c, #2a2418); box-shadow: 0 0 8px rgba(216,180,100,.4); }
+
+/* ---------- AUTO ---------- */
+#auto-btn { background: radial-gradient(circle at 40% 30%, #3a3440, #16141a); border: 2px solid var(--line-hi); color: var(--gold-hi); box-shadow: 0 0 0 2px #000, 0 6px 14px rgba(0,0,0,.55); }
+#auto-btn b { font-family: var(--display); }
+#auto-btn small { color: var(--ink-dim); }
+#auto-btn.on { background: radial-gradient(circle at 40% 30%, #6fe39a, #1d7a45); border-color: #aef0c4; color: #fff; }
+#auto-btn.on small { color: #eafff0; }
+
+/* ---------- เนื้อหาในหน้าต่าง ---------- */
+.st-row, .st-row2 { border-bottom-color: #3a3340; }
+.st-n, .st-row2 span { color: var(--gold); font-family: var(--display); }
+.st-v { color: var(--ink); }
+.st-v em { color: var(--moss); }
+.st-up { background: linear-gradient(#3a3440, #27232c); border: 1px solid var(--line); color: var(--gold-hi); }
+.st-c { color: var(--ink-faint); }
+.st-foot b, .sk-head b { color: #ff9c8f; }
+
+.inv-cell { background: var(--panel-3); border: 1px solid #3a3340; border-radius: 3px; }
+.inv-cell.empty { background: #141217; }
+.inv-cell.sel { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset, 0 0 8px rgba(216,180,100,.4); }
+.inv-cell .rf { color: var(--gold-hi); }
+.inv-detail, .sk-row, .eq-slot, .shop-row, .dlg-text, .bot-stats > div { background: var(--panel-2); border-color: #3a3340; color: var(--ink); }
+.det-desc, .sk-desc { color: #cfc6b2; }
+.det-line, .eq-n, .shop-n small, .tag { color: var(--ink-dim); }
+.tag { background: #3a3340; }
+.inv-foot, .shop-p { color: var(--gold); }
+.eq-slot.empty { background: #1c1a20; }
+.eq-slot:not(.empty):hover { border-color: var(--blood); }
+.eq-prev { background: radial-gradient(circle at 50% 70%, #3a4a5a, #15161c); border-color: var(--line); }
+.sk-name { color: var(--gold-hi); }
+.sk-lv { color: var(--ice); }
+.sk-req { color: #f0a09a; } .sk-req.ok { color: var(--moss); }
+.dlg-text { font-size: 13.5px; }
+.npc-hl { color: var(--gold-hi); }
+.dlg-opt { background: var(--panel-3); border: 1px solid #3a3340; color: var(--ink); border-radius: 3px; }
+.dlg-opt:hover { background: #2e2834; border-color: var(--line-hi); color: #fff3cf; }
+.dlg-opt::before { color: var(--gold); }
+.qty { background: #0f0e12; border-color: #3a3340; color: var(--ink); }
+.shop-row.sellall { background: #2b2518; }
+.bot-sec { color: var(--gold); border-bottom-color: #3a3340; font-family: var(--display); }
+.bot-row b, .bot-stats b { color: var(--gold-hi); }
+.bot-stats > div { color: var(--ink-dim); }
+.help h4 { color: var(--gold); font-family: var(--display); }
+.cf-text { color: var(--ink); }
+.opt { color: var(--ink); }
+input[type=range], input[type=checkbox] { accent-color: var(--gold); }
+
+/* ---------- ประกาศ ---------- */
+#announce { color: var(--gold-hi); font-family: var(--font); }
+.mb-en { font-family: "Cinzel Decorative", var(--display); color: #fff2cf; }
+.death-box { background: rgba(18,10,12,.92); border-color: #7a2a26; box-shadow: 0 0 0 1px #000, 0 0 60px rgba(0,0,0,.7); }
+.death-t { font-family: var(--display); }
+
+/* ---------- หน้าไตเติล ---------- */
+.create { background: rgba(20,18,24,.92); border: 1px solid var(--line); border-radius: 6px; color: var(--ink); box-shadow: 0 0 0 1px #000, 0 12px 30px rgba(0,0,0,.5); }
+.cr-right label, .auth label { color: var(--gold); }
+#cr-name, .auth input { background: #0f0e12; border: 1px solid #4a4050; color: var(--ink); }
+#cr-name:focus, .auth input:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(216,180,100,.25); }
+.seg button { background: #1c1a20; border: 1px solid #4a4050; color: var(--ink-dim); }
+.seg button.on { background: linear-gradient(#e8c877, #b8893a); color: #2a1a06; border-color: #f2d9a0; }
+.cr-left canvas { background: radial-gradient(circle at 50% 75%, #6a8a4a, #2a3a2a); border-color: var(--line); }
+.linkbtn { color: var(--gold-hi); }
+.err { color: #ff9c8f; }
+.swatch { border-color: #1a171e; box-shadow: 0 0 0 1px var(--line); }
+.swatch.on { box-shadow: 0 0 0 2px var(--gold); }
+
+/* ธีม: ปรับตามขนาดจอ (ต้องอยู่หลังธีม) */
+@media (max-width: 760px) {
+  #basic-info { width: 214px; padding: 6px 8px; }
+  .bi-face, .bi-face canvas { width: 36px; height: 36px; }
+  .bi-top b { font-size: 13px; }
+  #menubar { gap: 3px; }
+  #menubar button { min-width: 0; padding: 4px 1px 3px; font-size: 10px; }
+  #menubar button svg { width: 18px; height: 18px; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  #menubar button { min-width: 0; padding: 3px 5px; }
+  #menubar button span { display: none; }
+  #menubar button svg { width: 18px; height: 18px; }
+  #basic-info { width: 200px; }
+  .bi-face, .bi-face canvas { width: 30px; height: 30px; }
+  .bi-top { margin-bottom: 2px; }
+}
+
+/* จัดวาง: คอม = เมนูไอคอนแถวบนขวา ข้างมินิแมพ */
+@media (min-width: 1181px) {
+  #menubar { top: 10px; right: 188px; bottom: auto; }
+  #auto-btn { bottom: 16px; right: 16px; width: 70px; height: 70px; }
+}
+@media (max-width: 760px) {
+  #announce { top: 132px; font-size: 13px; max-width: calc(100vw - 32px); }
+  #minimap { max-width: 124px; }
+  #map-coord { display: none; }
+  .mm-head { font-size: 10px; }
+  #map-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 86px; }
+  #basic-info { width: 204px; }
+  #auto-btn { top: 186px; }
+}

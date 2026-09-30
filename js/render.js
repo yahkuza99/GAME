@@ -85,6 +85,21 @@ R.render = () => {
       g.beginPath(); g.arc(fx + Math.cos(a) * 18 * k, fy - 28 + 30 * k * k - 14 * k + Math.sin(a) * 6 * k, 2, 0, 7); g.fill();
     }
   }
+  // ผิวน้ำระยิบระยับ
+  if (map.waterTiles) {
+    const wt = map.waterTiles;
+    g.lineWidth = 1.4;
+    for (let i = 0; i < wt.length; i += 2) {
+      const x = wt[i], y = wt[i + 1];
+      if (x < R.camX / TILE - 1 || x > (R.camX + vw) / TILE || y < R.camY / TILE - 1 || y > (R.camY + vh) / TILE) continue;
+      const hh = U.hash2(x, y, 3);
+      const k = (Math.sin(t * 1.6 + hh * 12) + 1) / 2;
+      g.strokeStyle = `rgba(235,250,255,${0.08 + k * 0.32})`;
+      const ox = x * TILE + 6 + hh * 20 + Math.sin(t * 0.8 + hh * 6) * 3, oy = y * TILE + 10 + U.hash2(y, x, 5) * 20;
+      g.beginPath(); g.moveTo(ox, oy); g.quadraticCurveTo(ox + 5, oy - 2 - k, ox + 10, oy); g.stroke();
+      if (hh > 0.7) { g.fillStyle = `rgba(255,255,255,${k * 0.7})`; g.fillRect(ox + 14, oy - 6, 1.5, 1.5); }
+    }
+  }
   // พอร์ทัล
   for (const pt of map.portals) Sprites.drawPortal(g, pt, t);
 
@@ -147,6 +162,19 @@ R.render = () => {
 
   // เอฟเฟกต์
   for (const f of G.fx) R.drawFx(g, f, t);
+  // เงาเมฆลอยผ่าน (กลางแจ้ง)
+  if (map.def.kind !== 'cave') {
+    const mw = map.w * TILE, mh = map.h * TILE;
+    for (let i = 0; i < 5; i++) {
+      const cx = ((U.hash2(i, 1, 9) * mw + t * (14 + i * 3)) % (mw + 600)) - 300;
+      const cy = U.hash2(i, 2, 9) * mh + Math.sin(t * 0.05 + i) * 40;
+      const r = 160 + U.hash2(i, 3, 9) * 140;
+      if (cx + r < R.camX || cx - r > R.camX + vw || cy + r < R.camY || cy - r > R.camY + vh) continue;
+      const cg = g.createRadialGradient(cx, cy, r * 0.2, cx, cy, r);
+      cg.addColorStop(0, 'rgba(20,30,50,0.13)'); cg.addColorStop(1, 'rgba(20,30,50,0)');
+      g.fillStyle = cg; g.beginPath(); g.ellipse(cx, cy, r * 1.4, r, 0, 0, 7); g.fill();
+    }
+  }
 
   // ป้ายชื่อ / หลอด HP
   g.textAlign = 'center'; g.textBaseline = 'middle';
@@ -199,6 +227,7 @@ R.render = () => {
   }
   g.restore();
 
+  R.drawAtmosphere(g, map, t);
   // ความมืดในถ้ำ
   if (map.def.dark) {
     const dc = R.dark, dg = dc.getContext('2d');
@@ -227,6 +256,86 @@ R.render = () => {
     g.fillStyle = grd; g.fillRect(0, 0, R.W, R.H);
   }
   if (p.dead) { g.fillStyle = 'rgba(40,0,0,0.35)'; g.fillRect(0, 0, R.W, R.H); }
+  R.drawVignette(g);
+};
+
+// ------------------------------------------------------------
+//  บรรยากาศ: อนุภาค (กลีบดอก ใบไม้ หิ่งห้อย ฝุ่น) หมอก แสงลอดป่า
+// ------------------------------------------------------------
+R.parts = []; R.lastT = 0; R.partMap = null;
+const ATMOS = {
+  meadow:   { kind: 'petal', n: 26, grade: 'rgba(255,236,170,0.07)' },
+  eldheim:  { kind: 'petal', n: 14, grade: 'rgba(255,236,190,0.06)' },
+  mistlake: { kind: 'firefly', n: 22, fog: true, grade: 'rgba(200,225,255,0.07)' },
+  wolfwood: { kind: 'leaf', n: 26, rays: true, grade: 'rgba(40,70,30,0.10)' },
+  helcave:  { kind: 'dust', n: 36, grade: 'rgba(70,40,110,0.10)' },
+};
+R.spawnPart = (kind, anywhere) => {
+  const p = { kind, x: Math.random() * R.W, y: anywhere ? Math.random() * R.H : -10, s: 0.6 + Math.random() * 0.8, ph: Math.random() * 6.28, life: 0 };
+  if (kind === 'petal' || kind === 'leaf') { p.vx = 18 + Math.random() * 22; p.vy = 22 + Math.random() * 18; p.x -= R.W * 0.3; }
+  else if (kind === 'firefly') { p.y = Math.random() * R.H; p.vx = 0; p.vy = 0; }
+  else { p.y = anywhere ? Math.random() * R.H : R.H + 10; p.vx = (Math.random() - 0.5) * 6; p.vy = -6 - Math.random() * 8; }
+  p.col = kind === 'petal' ? U.pick(['#ffd6e6', '#ffffff', '#ffe9a8', '#f7b6cf']) : kind === 'leaf' ? U.pick(['#d98a2b', '#b8c23c', '#8fb03a', '#c0552a']) : '#fff';
+  return p;
+};
+R.drawAtmosphere = (g, map, t) => {
+  const A = ATMOS[map.id];
+  const dt = Math.min(0.1, Math.max(0, t - R.lastT)); R.lastT = t;
+  if (!A) return;
+  if (R.partMap !== map.id) { R.partMap = map.id; R.parts = []; for (let i = 0; i < A.n; i++) R.parts.push(R.spawnPart(A.kind, true)); }
+  // แสงลอดผ่านป่า
+  if (A.rays) {
+    g.save(); g.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 4; i++) {
+      const bx = ((i * 0.3 + 0.1) * R.W + Math.sin(t * 0.1 + i) * 30), a = 0.05 + Math.sin(t * 0.4 + i * 2) * 0.02;
+      const gr = g.createLinearGradient(bx, 0, bx - R.H * 0.35, R.H);
+      gr.addColorStop(0, `rgba(255,240,180,${a})`); gr.addColorStop(1, 'rgba(255,240,180,0)');
+      g.fillStyle = gr;
+      g.beginPath(); g.moveTo(bx, 0); g.lineTo(bx + 60, 0); g.lineTo(bx + 60 - R.H * 0.35, R.H); g.lineTo(bx - R.H * 0.35 - 30, R.H); g.closePath(); g.fill();
+    }
+    g.restore();
+  }
+  // หมอกลอยต่ำ
+  if (A.fog) {
+    for (let i = 0; i < 4; i++) {
+      const fx = ((t * (8 + i * 4) + i * 400) % (R.W + 800)) - 400, fy = R.H * (0.2 + i * 0.22);
+      const fg = g.createRadialGradient(fx, fy, 10, fx, fy, 320);
+      fg.addColorStop(0, 'rgba(235,245,255,0.16)'); fg.addColorStop(1, 'rgba(235,245,255,0)');
+      g.fillStyle = fg; g.beginPath(); g.ellipse(fx, fy, 420, 120, 0, 0, 7); g.fill();
+    }
+  }
+  for (let i = 0; i < R.parts.length; i++) {
+    const p = R.parts[i];
+    p.life += dt; p.ph += dt;
+    if (p.kind === 'firefly') { p.x += Math.sin(p.ph * 0.7) * 12 * dt; p.y += Math.cos(p.ph * 0.9) * 10 * dt; }
+    else { p.x += (p.vx + Math.sin(p.ph * 1.5) * 10) * dt; p.y += p.vy * dt; }
+    if (p.y > R.H + 20 || p.x > R.W + 30 || p.y < -30 || p.life > 40) { R.parts[i] = R.spawnPart(A.kind, false); continue; }
+    if (p.kind === 'petal' || p.kind === 'leaf') {
+      g.save(); g.translate(p.x, p.y); g.rotate(p.ph * 1.3); g.scale(1, Math.abs(Math.sin(p.ph * 2)) * 0.7 + 0.3);
+      g.fillStyle = p.col; g.globalAlpha = 0.85;
+      g.beginPath(); g.ellipse(0, 0, (p.kind === 'leaf' ? 4 : 3) * p.s, 2 * p.s, 0, 0, 7); g.fill();
+      g.restore();
+    } else if (p.kind === 'firefly') {
+      const a = (Math.sin(p.ph * 3) + 1) / 2;
+      const fg = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, 8 * p.s);
+      fg.addColorStop(0, `rgba(230,255,140,${0.9 * a})`); fg.addColorStop(1, 'rgba(230,255,140,0)');
+      g.fillStyle = fg; g.beginPath(); g.arc(p.x, p.y, 8 * p.s, 0, 7); g.fill();
+    } else {
+      g.fillStyle = `rgba(210,190,255,${0.25 + 0.25 * Math.sin(p.ph * 2)})`;
+      g.beginPath(); g.arc(p.x, p.y, 1.3 * p.s, 0, 7); g.fill();
+    }
+  }
+  if (A.grade) { g.fillStyle = A.grade; g.fillRect(0, 0, R.W, R.H); }
+};
+R.drawVignette = g => {
+  if (!R.vig || R.vig.width !== Math.ceil(R.W) || R.vig.height !== Math.ceil(R.H)) {
+    R.vig = document.createElement('canvas'); R.vig.width = Math.ceil(R.W); R.vig.height = Math.ceil(R.H);
+    const vg = R.vig.getContext('2d');
+    const grd = vg.createRadialGradient(R.W / 2, R.H / 2, Math.min(R.W, R.H) * 0.45, R.W / 2, R.H / 2, Math.hypot(R.W, R.H) * 0.6);
+    grd.addColorStop(0, 'rgba(10,8,20,0)'); grd.addColorStop(1, 'rgba(10,8,20,0.42)');
+    vg.fillStyle = grd; vg.fillRect(0, 0, R.W, R.H);
+  }
+  g.drawImage(R.vig, 0, 0);
 };
 
 R.label = (g, x, y, text, color, bold) => {

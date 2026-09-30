@@ -36,6 +36,9 @@ const UI = {
     });
     $('#death-btn').onclick = () => respawnPlayer();
     $('#auto-btn').onclick = () => Bot.toggle();
+    this.bindMapClick($('#minimap-cv'));
+    this.bindMapClick($('#bigmap-cv'));
+    $('#map-open').onclick = () => this.toggle('w-map');
     $$('#zoom-ctl button').forEach(b => b.onclick = () => { R.zoom = U.clamp(R.zoom * +b.dataset.zoom, 0.5, 1.8); });
   },
 
@@ -121,8 +124,6 @@ const UI = {
     $('#map-name').textContent = map.def.name;
     this.announceMap(map);
     this.msg(`เข้าสู่ ${map.def.name} — ${map.def.thai}${map.def.level ? ` (มอนสเตอร์ Lv ${map.def.level})` : ''}`, 'map');
-    const mc = $('#minimap-cv');
-    mc.width = map.mini.width; mc.height = map.mini.height;
   },
   announceMap(map) {
     const el = $('#map-banner');
@@ -132,10 +133,13 @@ const UI = {
   updateHud() {
     const p = G.player, d = p.d;
     $('#bi-name').textContent = p.name;
+    this.drawPortrait();
+    $$('#menubar [data-win]').forEach(b => b.classList.toggle('on', this.isOpen(b.dataset.win)));
     $('#bi-job').textContent = `${JOBS[p.job].name}`;
     const bNeed = baseExpNeed(p.baseLv), jNeed = jobExpNeed(p.job, p.jobLv);
     const bk = p.baseLv >= MAX_BASE_LV ? 1 : p.baseExp / bNeed, jk = p.jobLv >= JOBS[p.job].jobMax ? 1 : p.jobExp / jNeed;
     $('#bi-blv').textContent = p.baseLv; $('#bi-jlv').textContent = p.jobLv;
+    $('#bi-lvbadge').textContent = p.baseLv;
     $('#bi-bexp').style.width = (bk * 100).toFixed(1) + '%';
     $('#bi-jexp').style.width = (jk * 100).toFixed(1) + '%';
     $('#bi-bexp-t').textContent = (bk * 100).toFixed(1) + '%';
@@ -177,19 +181,79 @@ const UI = {
     this.updateBotButton();
     if (this.isOpen('w-bot')) this.updateBotStats();
   },
-  drawMinimap() {
-    const mc = $('#minimap-cv'), g = mc.getContext('2d'), map = G.map, S = map.miniScale, p = G.player;
-    g.drawImage(map.mini, 0, 0);
-    for (const pt of map.portals) { g.fillStyle = '#80e0ff'; g.fillRect(pt.x * S - 2, pt.y * S - 2, 6, 6); }
-    for (const n of G.npcs) { g.fillStyle = '#ffe040'; g.fillRect(n.x * S, n.y * S, 4, 4); }
+  // วาดแผนที่ลงแคนวาส (ใช้ทั้งมินิแมพและแผนที่ใหญ่) — ใช้ภาพพื้นจริงย่อส่วน
+  mapImage(map, px) {
+    map._imgs = map._imgs || {};
+    if (!map._imgs[px]) {
+      const c = document.createElement('canvas'); c.width = map.w * px; c.height = map.h * px;
+      const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
+      g.drawImage(map.ground, 0, 0, c.width, c.height);
+      // ต้นไม้เป็นจุดเขียวเข้ม
+      g.fillStyle = map.def.pine ? 'rgba(30,70,35,0.9)' : 'rgba(40,95,40,0.9)';
+      for (const o of map.objects) { g.beginPath(); g.arc(o.x * px, o.y * px, px * 0.62, 0, 7); g.fill(); }
+      map._imgs[px] = c;
+    }
+    return map._imgs[px];
+  },
+  drawMapTo(cv, S, big) {
+    const g = cv.getContext('2d'), map = G.map, p = G.player;
+    if (cv.width !== map.w * S) { cv.width = map.w * S; cv.height = map.h * S; }
+    g.drawImage(this.mapImage(map, S), 0, 0);
+    // เส้นทางที่กำลังเดิน
+    if (p.path.length) {
+      g.strokeStyle = 'rgba(255,236,140,0.9)'; g.lineWidth = big ? 2 : 1.2; g.setLineDash([3, 3]);
+      g.beginPath(); g.moveTo(p.x * S, p.y * S);
+      for (const n of p.path) g.lineTo((n.x + 0.5) * S, (n.y + 0.5) * S);
+      g.stroke(); g.setLineDash([]);
+      const last = p.path[p.path.length - 1];
+      g.fillStyle = '#ffe36a'; g.beginPath(); g.arc((last.x + 0.5) * S, (last.y + 0.5) * S, big ? 5 : 3, 0, 7); g.fill();
+    }
+    for (const pt of map.portals) {
+      const r = big ? 6 : 3.5;
+      g.fillStyle = '#7fe0ff'; g.strokeStyle = '#0a3a5a'; g.lineWidth = 1.5;
+      g.beginPath(); g.arc((pt.x + 0.5) * S, (pt.y + 0.5) * S, r, 0, 7); g.fill(); g.stroke();
+      if (big) {
+        const name = MAP_DEFS[pt.to].name;
+        g.font = 'bold 12px "Noto Sans Thai", sans-serif'; g.textAlign = pt.x < 3 ? 'left' : pt.x > map.w - 4 ? 'right' : 'center';
+        const ly = pt.y < 3 ? (pt.y + 2) * S : pt.y > map.h - 4 ? (pt.y - 1) * S : (pt.y + 0.5) * S - 10;
+        const lx = pt.x < 3 ? (pt.x + 1.5) * S : pt.x > map.w - 4 ? (pt.x - 0.5) * S : (pt.x + 0.5) * S;
+        g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,0.75)'; g.strokeText('➜ ' + name, lx, ly);
+        g.fillStyle = '#bff0ff'; g.fillText('➜ ' + name, lx, ly);
+      }
+    }
+    for (const n of G.npcs) {
+      g.fillStyle = '#ffd84a'; g.strokeStyle = '#5a3a00'; g.lineWidth = 1;
+      g.beginPath(); g.arc((n.x + 0.5) * S, (n.y + 0.5) * S, big ? 4 : 2.2, 0, 7); g.fill(); g.stroke();
+      if (big) { g.font = '11px "Noto Sans Thai", sans-serif'; g.textAlign = 'center'; g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,0.7)'; g.strokeText(n.name, (n.x + 0.5) * S, (n.y + 0.5) * S - 8); g.fillStyle = '#fff4c0'; g.fillText(n.name, (n.x + 0.5) * S, (n.y + 0.5) * S - 8); }
+    }
     for (const m of G.mobs) {
       if (m.dead) continue;
-      if (m.isMvp) { g.fillStyle = (Math.floor(G.time * 4) % 2) ? '#ff2020' : '#ffffff'; g.beginPath(); g.arc(m.x * S, m.y * S, 4, 0, 7); g.fill(); }
-      else if (m.state === 'chase') { g.fillStyle = '#ff6060'; g.fillRect(m.x * S - 1, m.y * S - 1, 2, 2); }
+      if (m.isMvp) { g.fillStyle = (Math.floor(G.time * 4) % 2) ? '#ff2020' : '#ffffff'; g.beginPath(); g.arc(m.x * S, m.y * S, big ? 7 : 4, 0, 7); g.fill(); }
+      else if (big || m.state === 'chase') { g.fillStyle = m.state === 'chase' ? '#ff5050' : 'rgba(255,170,170,0.8)'; g.beginPath(); g.arc(m.x * S, m.y * S, big ? 2.5 : 1.3, 0, 7); g.fill(); }
     }
-    g.fillStyle = '#ffffff'; g.strokeStyle = '#d02020'; g.lineWidth = 1.5;
-    g.beginPath(); g.arc(p.x * S, p.y * S, 3.5, 0, 7); g.fill(); g.stroke();
+    for (const o of Online.others.values()) { g.fillStyle = '#7dffb0'; g.beginPath(); g.arc(o.x * S, o.y * S, big ? 4 : 2.5, 0, 7); g.fill(); }
+    // ผู้เล่น: ลูกศรชี้ทิศ
+    const ang = (p.dir != null ? p.dir : 2) * Math.PI / 4, pr = big ? 8 : 5;
+    g.save(); g.translate(p.x * S, p.y * S); g.rotate(ang);
+    g.fillStyle = '#ffffff'; g.strokeStyle = '#c01818'; g.lineWidth = 1.6;
+    g.beginPath(); g.moveTo(pr, 0); g.lineTo(-pr * 0.7, pr * 0.65); g.lineTo(-pr * 0.35, 0); g.lineTo(-pr * 0.7, -pr * 0.65); g.closePath(); g.fill(); g.stroke();
+    g.restore();
+  },
+  drawMinimap() {
+    const p = G.player;
+    this.drawMapTo($('#minimap-cv'), 3, false);
+    if (this.isOpen('w-map')) this.drawMapTo($('#bigmap-cv'), 8, true);
     $('#map-coord').textContent = Online.online ? `👥 ${Math.max(1, Online.count)} • ${Math.floor(p.x)}, ${Math.floor(p.y)}` : `${Math.floor(p.x)}, ${Math.floor(p.y)}`;
+  },
+  // คลิกบนแผนที่เพื่อเดินไปยังจุดนั้น
+  bindMapClick(cv) {
+    cv.addEventListener('pointerdown', e => {
+      e.preventDefault(); e.stopPropagation();
+      if (!G.started || G.player.dead) return;
+      const r = cv.getBoundingClientRect();
+      const tx = Math.floor((e.clientX - r.left) / r.width * G.map.w), ty = Math.floor((e.clientY - r.top) / r.height * G.map.h);
+      mapWalkTo(tx, ty);
+    });
   },
 
   // ---------------- ฮอตบาร์ ----------------
@@ -262,17 +326,50 @@ const UI = {
   },
 
   buildMenu() {
+    // ไอคอนเส้นแบบ SVG (stroke = currentColor)
+    const P = {
+      status: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.5-7 8-7s7 2.5 8 7"/>',
+      bag: '<path d="M6 8h12l1 13H5z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M9 12h6"/>',
+      equip: '<path d="M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6z"/><path d="M12 8v8M9 11h6"/>',
+      skill: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>',
+      map: '<path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/>',
+      bot: '<rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 4v4"/><circle cx="12" cy="3.5" r="1"/><circle cx="9.5" cy="13" r="1.3"/><circle cx="14.5" cy="13" r="1.3"/><path d="M2 12v3M22 12v3"/>',
+      options: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
+      sit: '<path d="M6 21v-5h9l3 5"/><circle cx="10" cy="5" r="2.5"/><path d="M10 8v8M10 11h5"/>',
+    };
+    const icon = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${P[k]}</svg>`;
     const items = [
-      ['w-status', 'สถานะ', 'A'], ['w-inv', 'ไอเทม', 'E'], ['w-equip', 'อุปกรณ์', 'Q'],
-      ['w-skills', 'สกิล', 'S'], ['w-bot', 'บอท', 'N'], ['w-options', 'ตั้งค่า', 'O'],
+      ['w-status', 'สถานะ', 'A', 'status'], ['w-inv', 'ไอเทม', 'E', 'bag'], ['w-equip', 'อุปกรณ์', 'Q', 'equip'],
+      ['w-skills', 'สกิล', 'S', 'skill'], ['w-map', 'แผนที่', 'M', 'map'], ['w-bot', 'บอท', 'N', 'bot'], ['w-options', 'ตั้งค่า', 'O', 'options'],
     ];
     const m = $('#menubar');
-    for (const [id, label, key] of items) m.append(h('button', { onclick: () => this.toggle(id), title: `${label} (${key})` }, label, h('small', {}, key)));
-    m.append(h('button', { onclick: () => toggleSit(), title: 'นั่งพัก (X / Insert)' }, 'นั่ง', h('small', {}, 'X')));
+    for (const [id, label, key, ic] of items) {
+      const b = h('button', { onclick: () => this.toggle(id), title: `${label} (${key})`, 'data-win': id });
+      b.innerHTML = `${icon(ic)}<span>${label}</span><small>${key}</small>`;
+      m.append(b);
+    }
+    const sit = h('button', { onclick: () => toggleSit(), title: 'นั่งพัก (X)' });
+    sit.innerHTML = `${icon('sit')}<span>นั่ง</span><small>X</small>`;
+    m.append(sit);
     document.addEventListener('click', e => {
       const t = e.target.closest('[data-open]');
       if (t) this.open(t.dataset.open);
     });
+  },
+  // ภาพหน้าตัวละครในกรอบวงกลม (วาดใหม่เมื่ออาชีพ/อุปกรณ์หัวเปลี่ยน)
+  drawPortrait() {
+    const p = G.player, cv = $('#bi-portrait');
+    const key = [p.job, p.hair, p.gender, p.equip.head && p.equip.head.id].join('|');
+    if (cv.dataset.key === key) return;
+    cv.dataset.key = key;
+    const g = cv.getContext('2d');
+    g.clearRect(0, 0, cv.width, cv.height);
+    const bg = g.createRadialGradient(cv.width / 2, cv.height * 0.4, 4, cv.width / 2, cv.height / 2, cv.width * 0.7);
+    bg.addColorStop(0, '#4a5a78'); bg.addColorStop(1, '#1a1c28');
+    g.fillStyle = bg; g.fillRect(0, 0, cv.width, cv.height);
+    g.save(); g.translate(cv.width / 2, cv.height * 1.62); g.scale(2.1, 2.1);
+    Sprites.drawPlayer(g, Object.assign({}, p, { x: 0, y: 0, dir: 2, facing: 1, moving: false, sitting: false, dead: false, atkAnim: 0, buffs: {} }), 0.2);
+    g.restore();
   },
 
   // ---------------- เรนเดอร์หน้าต่างที่เปิดอยู่ ----------------
@@ -286,6 +383,7 @@ const UI = {
     if (this.isOpen('w-skills')) this.renderSkills();
     if (this.isOpen('w-options')) this.renderOptions();
     if (this.isOpen('w-bot')) this.renderBot();
+    if (this.isOpen('w-map')) $('#w-map .win-title span').textContent = `แผนที่ — ${G.map.def.name}`;
     if (this.isOpen('w-shop') && this.shop) this.renderShop();
   },
 

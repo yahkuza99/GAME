@@ -28,6 +28,24 @@ const U = {
     h = Math.imul(h ^ (h >>> 13), 1274126177);
     return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
   },
+  // value noise แบบนุ่ม (ใช้ทำพื้นผิวหญ้า/ดินให้ต่อเนื่อง)
+  vnoise(x, y, seed = 0) {
+    const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+    const sx = xf * xf * (3 - 2 * xf), sy = yf * yf * (3 - 2 * yf);
+    const a = U.hash2(xi, yi, seed), b = U.hash2(xi + 1, yi, seed), c = U.hash2(xi, yi + 1, seed), d = U.hash2(xi + 1, yi + 1, seed);
+    return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
+  },
+  fbm(x, y, seed = 0, oct = 3) {
+    let v = 0, amp = 0.5, f = 1, norm = 0;
+    for (let i = 0; i < oct; i++) { v += U.vnoise(x * f, y * f, seed + i * 17) * amp; norm += amp; amp *= 0.5; f *= 2.03; }
+    return v / norm;
+  },
+  // ผสมสี hex สองสี (k: 0..1) คืนค่า rgb()
+  mix(h1, h2, k) {
+    const p = h => { let c = h.replace('#', ''); if (c.length === 3) c = c.split('').map(ch => ch + ch).join(''); const n = parseInt(c, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+    const a = p(h1), b = p(h2);
+    return `rgb(${(a[0] + (b[0] - a[0]) * k) | 0},${(a[1] + (b[1] - a[1]) * k) | 0},${(a[2] + (b[2] - a[2]) * k) | 0})`;
+  },
   shade(hex, amt) {
     // ปรับความสว่างของสี hex (-1..1)
     let c = hex.replace('#', '');

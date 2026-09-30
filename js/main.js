@@ -13,6 +13,44 @@ function toggleFullscreen() {
   setTimeout(() => UI.dirty(), 300);
 }
 
+// เดินไปยังช่องที่คลิกบนแผนที่ (หาเส้นทางยาวข้ามแผนที่ได้)
+function mapWalkTo(tx, ty) {
+  const p = G.player;
+  tx = U.clamp(tx, 0, G.map.w - 1); ty = U.clamp(ty, 0, G.map.h - 1);
+  p.target = null; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.cast = null; p.sitting = false;
+  Bot.manualOverride();
+  p.path = findPath(G.map, Math.floor(p.x), Math.floor(p.y), tx, ty, 20000);
+  if (!p.path.length) UI.msg('ไปจุดนั้นไม่ได้', 'err');
+  else addFx({ type: 'click', x: p.path[p.path.length - 1].x + 0.5, y: p.path[p.path.length - 1].y + 0.5, dur: 0.6 });
+}
+
+// เดิน 8 ทิศด้วยปุ่มลูกศร / WASD เมื่อกด Shift ค้าง
+const keysDown = new Set();
+function keyboardMove() {
+  const p = G.player;
+  if (!G.started || p.dead || p.cast) return;
+  let dx = 0, dy = 0;
+  if (keysDown.has('arrowleft')) dx--; if (keysDown.has('arrowright')) dx++;
+  if (keysDown.has('arrowup')) dy--; if (keysDown.has('arrowdown')) dy++;
+  if (!dx && !dy) return;
+  if (G.time < (p.kbAt || 0)) return;
+  p.kbAt = G.time + 0.08;
+  p.target = null; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.sitting = false;
+  Bot.manualOverride();
+  const cx = Math.floor(p.x), cy = Math.floor(p.y);
+  // ลองทิศตรงก่อน ถ้าติดให้ไถลตามแนวแกน
+  for (const [ax, ay] of [[dx, dy], [dx, 0], [0, dy]]) {
+    if (!ax && !ay) continue;
+    const nx = cx + ax, ny = cy + ay;
+    if (!G.map.walkable(nx, ny)) continue;
+    if (ax && ay && (!G.map.walkable(cx + ax, cy) || !G.map.walkable(cx, cy + ay))) continue;
+    p.path = [{ x: nx, y: ny }];
+    p.dir = dirFromVec(ax, ay);
+    return;
+  }
+  p.dir = dirFromVec(dx, dy);
+}
+
 function toggleSit() {
   const p = G.player;
   if (!G.started || p.dead || p.cast) return;
@@ -95,11 +133,14 @@ function bindInput() {
     R.zoom = U.clamp(R.zoom * (e.deltaY > 0 ? 0.9 : 1.1), 0.5, 1.8);
   }, { passive: false });
 
+  window.addEventListener('keyup', e => keysDown.delete(e.key.toLowerCase()));
+  window.addEventListener('blur', () => keysDown.clear());
   window.addEventListener('keydown', e => {
     if (!G.started) return;
     const tag = e.target.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA') return;
     const k = e.key.toLowerCase();
+    if (k.startsWith('arrow')) { e.preventDefault(); keysDown.add(k); return; }
     if (k >= '1' && k <= '9') { useHotbar(+k - 1); return; }
     if (/^f[1-9]$/.test(k)) { e.preventDefault(); useHotbar(+k.slice(1) - 1); return; }
     switch (k) {
@@ -110,6 +151,7 @@ function bindInput() {
       case 'o': UI.toggle('w-options'); break;
       case 'h': UI.toggle('w-help'); break;
       case 'b': Bot.toggle(); break;
+      case 'm': UI.toggle('w-map'); break;
       case 'n': UI.toggle('w-bot'); break;
       case '-': R.zoom = U.clamp(R.zoom * 0.9, 0.5, 1.8); break;
       case '=': case '+': R.zoom = U.clamp(R.zoom * 1.1, 0.5, 1.8); break;
@@ -166,6 +208,7 @@ function loop(ts) {
       Bot.manualOverride();
       playerWalkTo(Math.floor(R.mouse.wx / TILE), Math.floor(R.mouse.wy / TILE));
     }
+    keyboardMove();
     Online.update(dt);
     R.render();
     UI.renderWindows();

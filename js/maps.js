@@ -255,122 +255,324 @@ class GameMap {
   }
 
   // ---------------- เรนเดอร์พื้นลง canvas ล่วงหน้า ----------------
-  renderGround() {
-    const c = document.createElement('canvas');
-    c.width = this.w * TILE; c.height = this.h * TILE;
-    const g = c.getContext('2d');
-    const d = this.def;
-    for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) this.drawTile(g, x, y);
-    // ขอบทุ่ง/ขอบน้ำนุ่มนวล
-    for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) {
-      const t = this.tile(x, y);
-      if (t !== T.WATER) continue;
-      const px = x * TILE, py = y * TILE;
-      g.fillStyle = 'rgba(230,220,170,0.85)';
-      if (this.tile(x, y - 1) !== T.WATER) g.fillRect(px, py, TILE, 4);
-      if (this.tile(x, y + 1) !== T.WATER) g.fillRect(px, py + TILE - 3, TILE, 3);
-      if (this.tile(x - 1, y) !== T.WATER) g.fillRect(px, py, 3, TILE);
-      if (this.tile(x + 1, y) !== T.WATER) g.fillRect(px + TILE - 3, py, 3, TILE);
+  palette() {
+    const hex = h => { let c = h.replace('#', ''); const n = parseInt(c, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+    const g = hex(this.def.grass || '#6fae4a');
+    return {
+      grassD: g.map(v => v * 0.68), grassL: [g[0] * 1.12 + 18, g[1] * 1.1 + 12, g[2] * 0.95],
+      dirtD: hex('#94744a'), dirtL: hex('#c9a874'),
+      stoneD: hex('#9a9282'), stoneL: hex('#c4bca8'),
+      waterS: hex('#63b4dc'), waterD: hex('#23578f'),
+      caveD: hex('#3e342c'), caveL: hex('#6a5a4a'),
+      rockD: hex('#1c1714'), rockL: hex('#2e2622'),
+    };
+  }
+  waterDepth() {
+    const dist = new Float32Array(this.w * this.h).fill(99);
+    const q = [];
+    for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++)
+      if (this.tile(x, y) !== T.WATER && this.tile(x, y) !== T.FOUNTAIN) { dist[this.idx(x, y)] = 0; q.push(x, y); }
+    for (let i = 0; i < q.length; i += 2) {
+      const x = q[i], y = q[i + 1], d = dist[this.idx(x, y)];
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx, ny = y + dy;
+        if (!this.inb(nx, ny) || dist[this.idx(nx, ny)] <= d + 1) continue;
+        dist[this.idx(nx, ny)] = d + 1; q.push(nx, ny);
+      }
     }
+    return dist;
+  }
+  terrainClass(t) {
+    if (t === T.GRASS || t === T.TREE || t === T.HOUSE || t === T.FLOWER) return 'grass';
+    if (t === T.DIRT) return 'dirt';
+    if (t === T.STONE || t === T.FOUNTAIN) return 'stone';
+    if (t === T.WATER) return 'water';
+    if (t === T.CAVE) return 'cave';
+    return 'rock';
+  }
+  renderGround() {
+    const W = this.w * TILE, H = this.h * TILE, seed = this.def.seed;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    const P = this.palette();
+    const depth = this.waterDepth();
+    // 1) สีพื้นฐานความละเอียดต่ำ แล้วขยายแบบนุ่ม → ไล่สีต่อเนื่อง ขอบนุ่ม
+    const CS = 6, sw = Math.ceil(W / CS), sh = Math.ceil(H / CS);
+    const small = document.createElement('canvas'); small.width = sw; small.height = sh;
+    const sg = small.getContext('2d'), img = sg.createImageData(sw, sh);
+    const lerp3 = (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k];
+    for (let yy = 0; yy < sh; yy++) for (let xx = 0; xx < sw; xx++) {
+      const wx = xx * CS + CS / 2, wy = yy * CS + CS / 2;
+      const tx = (wx / TILE) | 0, ty = (wy / TILE) | 0;
+      const cls = this.terrainClass(this.tile(tx, ty));
+      const n = U.fbm(wx / 120, wy / 120, seed, 4), fine = U.hash2(xx, yy, seed) * 0.12 - 0.06;
+      let col;
+      if (cls === 'grass') col = lerp3(P.grassD, P.grassL, U.clamp(n * 1.25 - 0.1 + fine, 0, 1));
+      else if (cls === 'dirt') col = lerp3(P.dirtD, P.dirtL, U.clamp(n * 1.2 - 0.05 + fine, 0, 1));
+      else if (cls === 'stone') col = lerp3(P.stoneD, P.stoneL, U.clamp(n + fine, 0, 1));
+      else if (cls === 'water') col = lerp3(P.grassD, P.grassL, U.clamp(n * 1.25 - 0.1 + fine, 0, 1));
+      else if (cls === 'cave') col = lerp3(P.caveD, P.caveL, U.clamp(n * 1.3 - 0.15 + fine, 0, 1));
+      else col = lerp3(P.rockD, P.rockL, U.clamp(n + fine, 0, 1));
+      const i = (yy * sw + xx) * 4;
+      img.data[i] = col[0]; img.data[i + 1] = col[1]; img.data[i + 2] = col[2]; img.data[i + 3] = 255;
+    }
+    sg.putImageData(img, 0, 0);
+    g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+    g.drawImage(small, 0, 0, sw * CS, sh * CS);
+    // 2) รายละเอียดทีละช่อง
+    for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) this.detailTile(g, x, y);
+    // 3) ขอบธรรมชาติระหว่างพื้นต่างชนิด
+    for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) this.edgeTile(g, x, y, P);
+    // 3.5) น้ำทรงธรรมชาติจากหน้ากากเบลอ
+    this.drawWater(g, P, depth);
+    // 4) ผนังหิน (ถ้ำ) มีมิติ
+    for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) if (this.tile(x, y) === T.ROCK) this.rockTile(g, x, y);
+    // 5) ของตกแต่ง
+    this.decorate(g);
     for (const b of this.buildings) this.drawBuilding(g, b);
     if (this.fountain) this.drawFountain(g);
     this.ground = c;
-    void d;
+    // เก็บตำแหน่งน้ำไว้ทำคลื่นเคลื่อนไหว
+    this.waterTiles = [];
+    for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) {
+      if (this.tile(x, y) !== T.WATER) continue;
+      let n = 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (this.tile(x + dx, y + dy) === T.WATER) n++;
+      if (n >= 3) this.waterTiles.push(x, y);
+    }
   }
 
-  drawTile(g, x, y) {
-    const t = this.tile(x, y), px = x * TILE, py = y * TILE;
-    const r = U.hash2(x, y, this.def.seed), r2 = U.hash2(y, x, 7);
-    const grass = this.def.grass || '#6fae4a';
-    const grassBase = () => {
-      g.fillStyle = U.shade(grass, (r - 0.5) * 0.12);
-      g.fillRect(px, py, TILE, TILE);
-      g.strokeStyle = U.shade(grass, -0.18);
-      g.lineWidth = 1;
+  detailTile(g, x, y) {
+    const t = this.tile(x, y), px = x * TILE, py = y * TILE, seed = this.def.seed;
+    const h = (i, k = 0) => U.hash2(x * 31 + i, y * 17 + k, seed);
+    const cls = this.terrainClass(t);
+    if (cls === 'grass' && t !== T.HOUSE) {
+      const base = this.def.grass || '#6fae4a';
+      const n = 4 + Math.floor(h(1) * 5);
+      if (!this._bladeCol) this._bladeCol = [U.shade(base, -0.28), U.shade(base, 0.18)];
+      g.lineWidth = 1.1; g.lineCap = 'round';
+      const dark = new Path2D(), light = new Path2D();
+      for (let i = 0; i < n; i++) {
+        const bx = px + h(i, 2) * TILE, by = py + 4 + h(i, 3) * (TILE - 4);
+        const tall = 3 + h(i, 4) * 4, lean = (h(i, 5) - 0.5) * 3;
+        dark.moveTo(bx, by); dark.quadraticCurveTo(bx + lean * 0.3, by - tall * 0.6, bx + lean, by - tall);
+        light.moveTo(bx + 1.5, by); light.quadraticCurveTo(bx + 1.5 - lean * 0.2, by - tall * 0.5, bx + 2 - lean * 0.6, by - tall * 0.8);
+      }
+      g.strokeStyle = this._bladeCol[0]; g.stroke(dark);
+      g.strokeStyle = this._bladeCol[1]; g.stroke(light);
+      g.lineCap = 'butt';
+      if (h(9) < 0.12) { g.fillStyle = 'rgba(255,255,255,0.8)'; g.beginPath(); g.arc(px + h(10) * TILE, py + h(11) * TILE, 1.2, 0, 7); g.fill(); }
+      if (h(12) < 0.08) { g.fillStyle = 'rgba(250,220,80,0.9)'; g.beginPath(); g.arc(px + h(13) * TILE, py + h(14) * TILE, 1.2, 0, 7); g.fill(); }
+      if (t === T.FLOWER) {
+        const cols = ['#f4e04a', '#f47a9a', '#ffffff', '#b98af5', '#f5a14a', '#7ac8f5'];
+        const n2 = 2 + Math.floor(h(20) * 3);
+        for (let i = 0; i < n2; i++) {
+          const fx = px + 6 + h(i, 21) * (TILE - 12), fy = py + 8 + h(i, 22) * (TILE - 14);
+          const col = cols[Math.floor(h(i, 23) * cols.length)], r = 1.9 + h(i, 24) * 0.8;
+          g.strokeStyle = 'rgba(40,90,30,0.8)'; g.lineWidth = 1; g.beginPath(); g.moveTo(fx, fy + 2); g.lineTo(fx + 0.5, fy + 6); g.stroke();
+          g.fillStyle = 'rgba(0,0,0,0.15)'; g.beginPath(); g.ellipse(fx + 1, fy + 6, 3, 1.2, 0, 0, 7); g.fill();
+          g.fillStyle = col;
+          for (let k = 0; k < 5; k++) { const a = k * 1.2566 + h(i, 25); g.beginPath(); g.ellipse(fx + Math.cos(a) * r, fy + Math.sin(a) * r, r * 0.85, r * 0.6, a, 0, 7); g.fill(); }
+          g.fillStyle = '#f8c830'; g.beginPath(); g.arc(fx, fy, r * 0.55, 0, 7); g.fill();
+        }
+      }
+    } else if (cls === 'dirt') {
       for (let i = 0; i < 4; i++) {
-        const bx = px + U.hash2(x * 4 + i, y, 3) * TILE, by = py + U.hash2(x, y * 4 + i, 5) * TILE;
-        g.beginPath(); g.moveTo(bx, by); g.lineTo(bx + 1.5, by - 4); g.stroke();
+        const sx = px + h(i, 30) * TILE, sy = py + h(i, 31) * TILE, r = 1 + h(i, 32) * 2;
+        g.fillStyle = 'rgba(70,50,30,0.35)'; g.beginPath(); g.ellipse(sx + 0.6, sy + 0.8, r, r * 0.7, 0, 0, 7); g.fill();
+        g.fillStyle = `rgba(${200 + h(i, 33) * 40 | 0},${175 + h(i, 34) * 30 | 0},${135},0.9)`; g.beginPath(); g.ellipse(sx, sy, r, r * 0.7, 0, 0, 7); g.fill();
       }
-      g.strokeStyle = U.shade(grass, 0.15);
+      if (h(40) < 0.3) { g.strokeStyle = 'rgba(90,65,40,0.35)'; g.lineWidth = 1; g.beginPath(); g.moveTo(px + h(41) * TILE, py + h(42) * TILE); g.lineTo(px + h(43) * TILE, py + h(44) * TILE); g.stroke(); }
+    } else if (cls === 'stone' && t === T.STONE) {
+      // หินปูพื้นทรงมน
+      for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) {
+        const off = (j % 2) * 6;
+        const sx = px + i * 13.3 + off - 3 + (h(i + j * 3, 50) - 0.5) * 2, sy = py + j * 13.3 + 1 + (h(i + j * 3, 51) - 0.5) * 2;
+        const k = h(i + j * 3, 52);
+        g.fillStyle = `rgba(${150 + k * 55 | 0},${144 + k * 52 | 0},${128 + k * 46 | 0},0.95)`;
+        rr(g, sx, sy, 11.5, 11, 3.5); g.fill();
+        g.strokeStyle = 'rgba(70,64,55,0.55)'; g.lineWidth = 1; g.stroke();
+        g.fillStyle = 'rgba(255,255,255,0.18)'; g.fillRect(sx + 2, sy + 1.5, 6, 1.5);
+      }
+    } else if (cls === 'water' && false) {
+      g.strokeStyle = 'rgba(210,240,255,0.22)'; g.lineWidth = 1.2;
       for (let i = 0; i < 2; i++) {
-        const bx = px + U.hash2(x * 9 + i, y, 11) * TILE, by = py + U.hash2(x, y * 9 + i, 13) * TILE;
-        g.beginPath(); g.moveTo(bx, by); g.lineTo(bx - 1, by - 3); g.stroke();
+        const wx = px + 4 + h(i, 60) * 24, wy = py + 8 + h(i, 61) * 24;
+        g.beginPath(); g.moveTo(wx, wy); g.quadraticCurveTo(wx + 5, wy - 2.5, wx + 10, wy); g.stroke();
       }
+    } else if (cls === 'cave') {
+      if (h(70) < 0.5) {
+        g.strokeStyle = 'rgba(20,14,10,0.45)'; g.lineWidth = 1;
+        const cx = px + h(71) * TILE, cy = py + h(72) * TILE;
+        g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + 5, cy + 4); g.lineTo(cx + 3, cy + 10); g.moveTo(cx + 5, cy + 4); g.lineTo(cx + 10, cy + 5); g.stroke();
+      }
+      for (let i = 0; i < 3; i++) {
+        const sx = px + h(i, 73) * TILE, sy = py + h(i, 74) * TILE;
+        g.fillStyle = 'rgba(150,130,110,0.35)'; g.beginPath(); g.ellipse(sx, sy, 1.8, 1.2, 0, 0, 7); g.fill();
+      }
+    }
+  }
+
+  // ขอบโค้งธรรมชาติ: หญ้าคลุมทับทางดิน/ลานหิน, ชายน้ำมีทราย+ฟอง
+  edgeTile(g, x, y, P) {
+    const t = this.tile(x, y), cls = this.terrainClass(t), px = x * TILE, py = y * TILE, seed = this.def.seed;
+    const h = (i, k = 0) => U.hash2(x * 13 + i, y * 29 + k, seed + 5);
+    const sides = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    if (cls === 'dirt' || (cls === 'stone' && t === T.STONE)) {
+      for (const [dx, dy] of sides) {
+        const nc = this.terrainClass(this.tile(x + dx, y + dy));
+        if (nc !== 'grass') continue;
+        for (let i = 0; i < 7; i++) {
+          const along = (i + 0.5) / 7 * TILE + (h(i, dx * 3 + dy) - 0.5) * 4;
+          const inset = 1 + h(i, 9 + dx + dy * 2) * 5;
+          const r = 3 + h(i, 11 + dx) * 4;
+          const cx = dx ? (dx > 0 ? px + TILE - inset : px + inset) : px + along;
+          const cy = dy ? (dy > 0 ? py + TILE - inset : py + inset) : py + along;
+          g.fillStyle = 'rgba(40,30,15,0.18)'; g.beginPath(); g.arc(cx + 0.8, cy + 1.4, r, 0, 7); g.fill();
+          const n = U.fbm(cx / 120, cy / 120, seed, 4);
+          const k = U.clamp(n * 1.25 - 0.1, 0, 1);
+          g.fillStyle = `rgb(${P.grassD[0] + (P.grassL[0] - P.grassD[0]) * k | 0},${P.grassD[1] + (P.grassL[1] - P.grassD[1]) * k | 0},${P.grassD[2] + (P.grassL[2] - P.grassD[2]) * k | 0})`;
+          g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill();
+        }
+      }
+    } else if (cls === 'water' && false) {
+      for (const [dx, dy] of sides) {
+        const nc = this.terrainClass(this.tile(x + dx, y + dy));
+        if (nc === 'water' || this.tile(x + dx, y + dy) === T.FOUNTAIN) continue;
+        const horiz = dy !== 0;
+        const ex = dx > 0 ? px + TILE : px, ey = dy > 0 ? py + TILE : py;
+        const grd = horiz ? g.createLinearGradient(0, ey, 0, ey - dy * 9) : g.createLinearGradient(ex, 0, ex - dx * 9, 0);
+        grd.addColorStop(0, 'rgba(226,210,160,0.95)'); grd.addColorStop(0.45, 'rgba(200,225,220,0.55)'); grd.addColorStop(1, 'rgba(200,230,240,0)');
+        g.fillStyle = grd;
+        if (horiz) g.fillRect(px, dy > 0 ? py + TILE - 9 : py, TILE, 9); else g.fillRect(dx > 0 ? px + TILE - 9 : px, py, 9, TILE);
+        g.strokeStyle = 'rgba(255,255,255,0.7)'; g.lineWidth = 1.3;
+        g.beginPath();
+        for (let i = 0; i <= 6; i++) {
+          const al = i / 6 * TILE, wob = Math.sin(i * 2.1 + h(i, 7) * 6) * 1.5 + 5;
+          const fx = horiz ? px + al : (dx > 0 ? px + TILE - wob : px + wob), fy = horiz ? (dy > 0 ? py + TILE - wob : py + wob) : py + al;
+          if (i === 0) g.moveTo(fx, fy); else g.lineTo(fx, fy);
+        }
+        g.stroke();
+      }
+    }
+  }
+
+  drawWater(g, P, depth) {
+    const S = 4, ts = TILE / S;
+    let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
+    for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) if (this.tile(x, y) === T.WATER) {
+      x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
+    }
+    if (x1 < 0) return;
+    x0 -= 1; y0 -= 1; x1 += 2; y1 += 2;
+    const mw = Math.ceil((x1 - x0) * ts), mh = Math.ceil((y1 - y0) * ts);
+    const m = document.createElement('canvas'); m.width = mw; m.height = mh;
+    const mg = m.getContext('2d');
+    // หน้ากากน้ำ + box blur หลายรอบ (≈ gaussian): A = รูปทรงขอบ, Dp = ความลึก
+    const M = new Float32Array(mw * mh);
+    for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++) {
+      if (this.tile(x0 + ((px / ts) | 0), y0 + ((py / ts) | 0)) === T.WATER) M[py * mw + px] = 1;
+    }
+    const blur = (src, R, passes) => {
+      let A = Float32Array.from(src), B = new Float32Array(src.length);
+      const inv = 1 / (2 * R + 1);
+      for (let pass = 0; pass < passes; pass++) {
+        for (let py = 0; py < mh; py++) {
+          let acc = 0; const row = py * mw;
+          for (let k = -R; k <= R; k++) acc += A[row + Math.min(mw - 1, Math.max(0, k))];
+          for (let px = 0; px < mw; px++) { B[row + px] = acc * inv; acc += A[row + Math.min(mw - 1, px + R + 1)] - A[row + Math.max(0, px - R)]; }
+        }
+        for (let px = 0; px < mw; px++) {
+          let acc = 0;
+          for (let k = -R; k <= R; k++) acc += B[Math.min(mh - 1, Math.max(0, k)) * mw + px];
+          for (let py = 0; py < mh; py++) { A[py * mw + px] = acc * inv; acc += B[Math.min(mh - 1, py + R + 1) * mw + px] - B[Math.max(0, py - R) * mw + px]; }
+        }
+      }
+      return A;
     };
-    switch (t) {
-      case T.GRASS: case T.TREE: case T.HOUSE: grassBase(); break;
-      case T.FLOWER: {
-        grassBase();
-        const cols = ['#f4e04a', '#f06a8a', '#ffffff', '#b07af0', '#f09a3a'];
-        for (let i = 0; i < 3; i++) {
-          const fx = px + 6 + U.hash2(x * 3 + i, y, 17) * (TILE - 12), fy = py + 6 + U.hash2(x, y * 3 + i, 19) * (TILE - 12);
-          g.fillStyle = cols[Math.floor(U.hash2(x + i, y, 23) * cols.length)];
-          for (let k = 0; k < 4; k++) { g.beginPath(); g.arc(fx + Math.cos(k * 1.57) * 2, fy + Math.sin(k * 1.57) * 2, 1.8, 0, 7); g.fill(); }
-          g.fillStyle = '#f8d030'; g.beginPath(); g.arc(fx, fy, 1.3, 0, 7); g.fill();
-        }
-        break;
+    const A = blur(M, 5, 3), Dp = blur(M, 12, 2);
+    const id = mg.createImageData(mw, mh), d = id.data;
+    const WS = P.waterS, WD = P.waterD;
+    for (let py = 0; py < mh; py++) {
+      for (let px = 0; px < mw; px++) {
+        const i = (py * mw + px) * 4, a = A[py * mw + px];
+        if (a < 0.3) continue;
+        if (a >= 0.56) {
+          const k = Math.min(1, Math.max(0, (Dp[py * mw + px] - 0.45) * 2 + (((px * 7 + py * 13) % 11) / 11 - 0.5) * 0.05));
+          d[i] = WS[0] + (WD[0] - WS[0]) * k; d[i + 1] = WS[1] + (WD[1] - WS[1]) * k; d[i + 2] = WS[2] + (WD[2] - WS[2]) * k; d[i + 3] = 255;
+        } else if (a >= 0.5) { d[i] = 236; d[i + 1] = 248; d[i + 2] = 252; d[i + 3] = 215; }
+        else { d[i] = 214; d[i + 1] = 196; d[i + 2] = 146; d[i + 3] = Math.min(1, (a - 0.3) / 0.2) * 230; }
       }
-      case T.DIRT: {
-        g.fillStyle = U.shade('#b8935f', (r - 0.5) * 0.12);
-        g.fillRect(px, py, TILE, TILE);
-        g.fillStyle = 'rgba(90,60,30,0.35)';
-        for (let i = 0; i < 3; i++) g.fillRect(px + U.hash2(x * 5 + i, y, 29) * TILE, py + U.hash2(x, y * 5 + i, 31) * TILE, 2, 2);
-        g.fillStyle = 'rgba(255,240,200,0.25)';
-        g.fillRect(px + r2 * TILE, py + r * TILE, 3, 2);
-        break;
-      }
-      case T.STONE: {
-        g.fillStyle = U.shade('#bdb5a2', (r - 0.5) * 0.1);
-        g.fillRect(px, py, TILE, TILE);
-        g.strokeStyle = 'rgba(90,80,65,0.35)'; g.lineWidth = 1;
-        const off = (y % 2) * (TILE / 4);
-        g.beginPath();
-        g.moveTo(px, py + TILE / 2 + 0.5); g.lineTo(px + TILE, py + TILE / 2 + 0.5);
-        g.moveTo(px, py + 0.5); g.lineTo(px + TILE, py + 0.5);
-        g.moveTo(px + off + TILE / 4 + 0.5, py); g.lineTo(px + off + TILE / 4 + 0.5, py + TILE / 2);
-        g.moveTo(px + ((off + TILE * 3 / 4) % TILE) + 0.5, py + TILE / 2); g.lineTo(px + ((off + TILE * 3 / 4) % TILE) + 0.5, py + TILE);
-        g.stroke();
-        break;
-      }
-      case T.WATER: {
-        g.fillStyle = U.shade('#3f7fc4', (r - 0.5) * 0.08);
-        g.fillRect(px, py, TILE, TILE);
-        g.strokeStyle = 'rgba(200,230,255,0.45)'; g.lineWidth = 1.5;
-        g.beginPath();
-        const wy = py + 10 + r * 20;
-        g.moveTo(px + 6, wy); g.quadraticCurveTo(px + 12, wy - 3, px + 18, wy); g.quadraticCurveTo(px + 24, wy + 3, px + 30, wy);
-        g.stroke();
-        break;
-      }
-      case T.FOUNTAIN: {
-        g.fillStyle = '#bdb5a2'; g.fillRect(px, py, TILE, TILE); break;
-      }
-      case T.CAVE: {
-        g.fillStyle = U.shade('#5d4f43', (r - 0.5) * 0.14);
-        g.fillRect(px, py, TILE, TILE);
-        g.strokeStyle = 'rgba(30,20,15,0.35)'; g.lineWidth = 1;
-        if (r > 0.6) { g.beginPath(); g.moveTo(px + r2 * 30, py + 5); g.lineTo(px + r2 * 30 + 6, py + 14); g.lineTo(px + r2 * 30 + 3, py + 22); g.stroke(); }
-        g.fillStyle = 'rgba(140,120,100,0.3)';
-        g.fillRect(px + r * 34, py + r2 * 34, 3, 3);
-        break;
-      }
-      case T.ROCK: {
-        g.fillStyle = U.shade('#2e2622', (r - 0.5) * 0.15);
-        g.fillRect(px, py, TILE, TILE);
-        if (this.tile(x, y + 1) !== T.ROCK) {
-          // หน้าผาหันลงด้านล่าง
-          const grd = g.createLinearGradient(0, py + TILE * 0.35, 0, py + TILE);
-          grd.addColorStop(0, '#5a4a3e'); grd.addColorStop(1, '#3a2e26');
-          g.fillStyle = grd; g.fillRect(px, py + TILE * 0.4, TILE, TILE * 0.6);
-          g.strokeStyle = 'rgba(0,0,0,0.3)';
-          g.beginPath(); g.moveTo(px + r * 20 + 5, py + TILE * 0.45); g.lineTo(px + r * 20 + 8, py + TILE); g.stroke();
-        } else {
-          g.fillStyle = 'rgba(80,65,55,0.5)';
-          g.fillRect(px + r * 30, py + r2 * 30, 6, 4);
-        }
-        break;
-      }
-      default: g.fillStyle = '#000'; g.fillRect(px, py, TILE, TILE);
+    }
+    mg.putImageData(id, 0, 0);
+    g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+    g.drawImage(m, x0 * TILE, y0 * TILE, mw * S, mh * S);
+  }
+
+  rockTile(g, x, y) {
+    const px = x * TILE, py = y * TILE, h = i => U.hash2(x * 7 + i, y * 11, this.def.seed);
+    const below = this.tile(x, y + 1) !== T.ROCK, above = this.tile(x, y - 1) !== T.ROCK;
+    if (below) {
+      const top = py + TILE * 0.38;
+      const grd = g.createLinearGradient(0, top, 0, py + TILE);
+      grd.addColorStop(0, '#5e4d40'); grd.addColorStop(1, '#2e241e');
+      g.fillStyle = grd; g.fillRect(px, top, TILE, TILE - (top - py));
+      g.strokeStyle = 'rgba(0,0,0,0.35)'; g.lineWidth = 1;
+      for (let i = 0; i < 3; i++) { const sx = px + 5 + h(i) * 30; g.beginPath(); g.moveTo(sx, top + 3); g.lineTo(sx + (h(i + 5) - 0.5) * 4, py + TILE - 2); g.stroke(); }
+      g.fillStyle = 'rgba(160,140,120,0.35)'; g.fillRect(px, top, TILE, 2);
+      // เงาทอดลงพื้น
+      const sg = g.createLinearGradient(0, py + TILE, 0, py + TILE + 12);
+      sg.addColorStop(0, 'rgba(0,0,0,0.45)'); sg.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = sg; g.fillRect(px, py + TILE, TILE, 12);
+    }
+    if (above) { g.fillStyle = 'rgba(120,100,85,0.45)'; g.fillRect(px, py, TILE, 2); }
+    if (h(9) < 0.35) { g.fillStyle = 'rgba(90,75,62,0.5)'; g.beginPath(); g.ellipse(px + 8 + h(10) * 24, py + 6 + h(11) * 8, 5, 3, 0, 0, 7); g.fill(); }
+  }
+
+  // ของตกแต่ง (ไม่กีดขวาง): พุ่มไม้ ก้อนหิน เห็ด คริสตัล
+  decorate(g) {
+    const d = this.def, seed = d.seed;
+    for (let y = 2; y < this.h - 2; y++) for (let x = 2; x < this.w - 2; x++) {
+      const t = this.tile(x, y), r = U.hash2(x, y, seed + 99);
+      if (this.portals.some(p => Math.abs(p.x - x) + Math.abs(p.y - y) < 3)) continue;
+      const cx = x * TILE + 8 + U.hash2(x, y, seed + 7) * 24, cy = y * TILE + 10 + U.hash2(y, x, seed + 8) * 22;
+      if (d.kind === 'cave' && t === T.CAVE) {
+        if (r < 0.035) this.drawCrystal(g, cx, cy, r);
+        else if (r < 0.08) this.drawStone(g, cx, cy, 0.7, '#6a5a4c');
+      } else if (t === T.GRASS && d.kind !== 'town') {
+        if (r < 0.025) this.drawBush(g, cx, cy, r);
+        else if (r < 0.045) this.drawStone(g, cx, cy, 0.8 + r * 6, '#9a9a90');
+        else if (r < 0.055) this.drawMushroom(g, cx, cy);
+      } else if (t === T.GRASS && d.kind === 'town' && r < 0.03) this.drawBush(g, cx, cy, r);
+    }
+  }
+  drawBush(g, x, y, r) {
+    const base = this.def.pine ? '#2f6a35' : '#3f8a3a';
+    g.fillStyle = 'rgba(0,0,0,0.22)'; g.beginPath(); g.ellipse(x + 2, y + 5, 12, 4, 0, 0, 7); g.fill();
+    for (const [ox, oy, rad, sh] of [[-6, 0, 6, -0.15], [6, 0, 6, -0.15], [0, -3, 7.5, 0], [-2, -5, 4, 0.2]]) {
+      g.fillStyle = U.shade(base, sh); g.beginPath(); g.arc(x + ox, y + oy, rad, 0, 7); g.fill();
+    }
+    if (r < 0.012) { g.fillStyle = '#d83040'; for (const [bx, by] of [[-4, -2], [3, -4], [5, 1]]) { g.beginPath(); g.arc(x + bx, y + by, 1.4, 0, 7); g.fill(); } }
+  }
+  drawStone(g, x, y, s, col) {
+    g.fillStyle = 'rgba(0,0,0,0.25)'; g.beginPath(); g.ellipse(x + 1.5, y + 3 * s, 8 * s, 3 * s, 0, 0, 7); g.fill();
+    g.fillStyle = col; g.beginPath(); g.ellipse(x, y, 7 * s, 5 * s, 0, 0, 7); g.fill();
+    g.fillStyle = 'rgba(255,255,255,0.28)'; g.beginPath(); g.ellipse(x - 2 * s, y - 2 * s, 3.5 * s, 1.8 * s, -0.3, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(0,0,0,0.3)'; g.lineWidth = 1; g.beginPath(); g.ellipse(x, y, 7 * s, 5 * s, 0, 0, 7); g.stroke();
+  }
+  drawMushroom(g, x, y) {
+    g.fillStyle = 'rgba(0,0,0,0.2)'; g.beginPath(); g.ellipse(x + 1, y + 3, 5, 1.8, 0, 0, 7); g.fill();
+    g.fillStyle = '#f2ead0'; g.fillRect(x - 1.2, y - 3, 2.4, 5);
+    g.fillStyle = '#d8433a'; g.beginPath(); g.ellipse(x, y - 3, 4.5, 3, 0, Math.PI, 0); g.fill();
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(x - 1.5, y - 4.5, 0.8, 0, 7); g.fill(); g.beginPath(); g.arc(x + 1.8, y - 4, 0.7, 0, 7); g.fill();
+  }
+  drawCrystal(g, x, y, r) {
+    const col = r < 0.018 ? '#7fd8ff' : '#c08aff';
+    const glow = g.createRadialGradient(x, y - 4, 1, x, y - 4, 16);
+    glow.addColorStop(0, col + '66'); glow.addColorStop(1, col + '00');
+    g.fillStyle = glow; g.beginPath(); g.arc(x, y - 4, 16, 0, 7); g.fill();
+    for (const [ox, hgt, w] of [[-3, 11, 3], [2, 15, 3.5], [5, 8, 2.5]]) {
+      g.fillStyle = col; g.beginPath(); g.moveTo(x + ox - w, y); g.lineTo(x + ox, y - hgt); g.lineTo(x + ox + w, y); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(255,255,255,0.45)'; g.beginPath(); g.moveTo(x + ox - w * 0.3, y - 1); g.lineTo(x + ox, y - hgt + 1); g.lineTo(x + ox + w * 0.2, y - 1); g.closePath(); g.fill();
     }
   }
 

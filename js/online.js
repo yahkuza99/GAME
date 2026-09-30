@@ -141,7 +141,7 @@ const Online = {
     return {
       id: this.user.id, n: p.name, j: p.job, l: p.baseLv, h: p.hair, g: p.gender,
       w: e.weapon ? e.weapon.id : null, hd: e.head ? e.head.id : null, ga: e.garment ? e.garment.id : null,
-      x: Math.round(p.x * 100) / 100, y: Math.round(p.y * 100) / 100, f: p.facing, m: p.moving ? 1 : 0,
+      x: Math.round(p.x * 100) / 100, y: Math.round(p.y * 100) / 100, f: p.facing, dr: p.dir, m: p.moving ? 1 : 0,
       s: p.sitting ? 1 : 0, d: p.dead ? 1 : 0, a: this.atkSeq, st: p.stealthUntil > G.time ? 1 : 0, b: Bot.on ? 1 : 0,
     };
   },
@@ -165,7 +165,7 @@ const Online = {
     Object.assign(o, {
       name: s.n, job: JOBS[s.j] ? s.j : 'novice', baseLv: s.l, hair: s.h, gender: s.g,
       equip: { weapon: s.w && ITEMS[s.w] ? { id: s.w } : null, head: s.hd && ITEMS[s.hd] ? { id: s.hd } : null, garment: s.ga && ITEMS[s.ga] ? { id: s.ga } : null },
-      tx: s.x, ty: s.y, facing: s.f || 1, moving: !!s.m, sitting: !!s.s, dead: !!s.d, stealth: !!s.st, bot: !!s.b, seen: performance.now(),
+      tx: s.x, ty: s.y, facing: s.f || 1, dir: s.dr, moving: !!s.m, sitting: !!s.s, dead: !!s.d, stealth: !!s.st, bot: !!s.b, seen: performance.now(),
     });
     if (s.a !== o.lastA) { o.lastA = s.a; o.atkAnim = 1; }
     if (Math.hypot(o.tx - o.x, o.ty - o.y) > 6) { o.x = o.tx; o.y = o.ty; }
@@ -209,7 +209,7 @@ const Online = {
       const k = Math.min(1, dt * 10);
       const dx = o.tx - o.x, dy = o.ty - o.y;
       o.x += dx * k; o.y += dy * k;
-      if (Math.abs(dx) > 0.05) o.facing = dx > 0 ? 1 : -1;
+      if (Math.hypot(dx, dy) > 0.05) { o.facing = dx > 0 ? 1 : -1; o.dir = dirFromVec(dx, dy); }
       o.moving = o.moving || Math.hypot(dx, dy) > 0.05;
       o.atkAnim = Math.max(0, o.atkAnim - dt * 4);
       if (o.speech && o.speech.until < G.time) o.speech = null;

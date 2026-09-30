@@ -46,7 +46,7 @@ function newPlayer(name, gender, hair) {
 function initRuntime(p) {
   Object.assign(p, {
     path: [], target: null, pickTarget: null, npcTarget: null, skillIntent: null, cast: null,
-    facing: 1, moving: false, sitting: false, dead: false, atkAnim: 0, nextAttack: 0, skillReadyAt: 0, itemReadyAt: 0,
+    facing: 1, dir: 2, moving: false, sitting: false, dead: false, atkAnim: 0, nextAttack: 0, skillReadyAt: 0, itemReadyAt: 0,
     repathAt: 0, hpTimer: 0, spTimer: 0, buffs: {}, speech: null, poisonUntil: 0, stealthUntil: 0, d: {},
   });
 }
@@ -416,6 +416,10 @@ function spawnMvp(id) {
 // ------------------------------------------------------------
 //  การเคลื่อนที่
 // ------------------------------------------------------------
+function faceTo(e, tx, ty) {
+  e.facing = tx >= e.x ? 1 : -1;
+  if (Math.hypot(tx - e.x, ty - e.y) > 0.05) e.dir = dirFromVec(tx - e.x, ty - e.y);
+}
 function moveEntity(e, dt, speed) {
   let step = speed * dt;
   e.moving = false;
@@ -424,6 +428,7 @@ function moveEntity(e, dt, speed) {
     const tx = n.x + 0.5, ty = n.y + 0.5;
     const dx = tx - e.x, dy = ty - e.y, d = Math.hypot(dx, dy);
     if (Math.abs(dx) > 0.05) e.facing = dx > 0 ? 1 : -1;
+    if (d > 0.01) e.dir = dirFromVec(dx, dy);
     e.moving = true;
     if (d <= step) { e.x = tx; e.y = ty; e.path.shift(); step -= d; }
     else { e.x += dx / d * step; e.y += dy / d * step; step = 0; }
@@ -521,7 +526,7 @@ function playerAttack(m) {
   const p = G.player;
   p.nextAttack = G.time + p.d.aspdDelay / 1000;
   p.atkAnim = 1;
-  p.facing = m.x >= p.x ? 1 : -1;
+  faceTo(p, m.x, m.y);
   const ambush = p.stealthUntil > G.time;
   if (ambush) { p.stealthUntil = 0; addFloater(p.x, p.y - 1.6, 'Ambush!', '#d0a0ff'); }
   const doHit = () => {
@@ -543,7 +548,7 @@ function mobAttack(m) {
   const p = G.player, d = p.d, md = m.def;
   m.nextAtk = G.time + (md.atkDelay || 1.7);
   m.atkAnim = 1;
-  m.facing = p.x >= m.x ? 1 : -1;
+  faceTo(m, p.x, p.y);
   if (U.chance(d.pdodge / 100)) { addFloater(p.x, p.y - 1.2, 'Lucky!', '#a0ffa0'); return; }
   const hitRate = U.clamp(80 + md.hit - d.flee, 5, 95);
   if (!U.chance(hitRate / 100)) { addFloater(p.x, p.y - 1.2, 'Miss', '#a0c0ff'); return; }
@@ -658,7 +663,7 @@ function beginSkill(id, lv, tgt) {
       p.skillIntent = { id, lv, tgt }; p.target = null; p.repathAt = 0;
       return;
     }
-    p.facing = tgt.x >= p.x ? 1 : -1;
+    faceTo(p, tgt.x, tgt.y);
   }
   p.sitting = false; p.path = []; p.skillIntent = null;
   let castMs = s.cast ? s.cast(lv) : 0;
@@ -686,7 +691,7 @@ function executeSkill(id, lv, tgt) {
   p.skillReadyAt = G.time + delay / 1000;
   shout(`${s.name}!!`);
   p.atkAnim = 1;
-  if (tgt) p.facing = tgt.x >= p.x ? 1 : -1;
+  if (tgt) faceTo(p, tgt.x, tgt.y);
   Sound.play('skill');
 
   if (s.selfFx) {
@@ -823,7 +828,7 @@ function updateAllies(dt) {
     if (t) {
       const d = U.dist(a.x, a.y, t.x, t.y);
       if (d <= 1.3) {
-        a.path = []; a.moving = false; a.facing = t.x >= a.x ? 1 : -1;
+        a.path = []; a.moving = false; faceTo(a, t.x, t.y);
         if (G.time >= a.nextAtk) {
           a.nextAtk = G.time + 1.0; a.atkAnim = 1;
           const dmg = Math.max(1, Math.round((p.d.statusAtk * 0.5 + p.d.weaponAtk * 0.5 + a.lv * 12) * U.rand(0.85, 1.1) * (1 - t.def.def / 100)));
@@ -996,7 +1001,7 @@ function updatePlayer(dt) {
       const inRange = dist <= p.d.range + 0.3 && (!p.d.ranged || lineOfSight(G.map, p.x, p.y, m.x, m.y));
       if (inRange) {
         p.path = [];
-        p.facing = m.x >= p.x ? 1 : -1;
+        faceTo(p, m.x, m.y);
         if (G.time >= p.nextAttack) playerAttack(m);
       } else if (G.time >= p.repathAt) {
         p.path = findPath(G.map, Math.floor(p.x), Math.floor(p.y), Math.floor(m.x), Math.floor(m.y), 1500);
@@ -1014,7 +1019,7 @@ function updatePlayer(dt) {
     const n = p.npcTarget;
     if (U.dist(p.x, p.y, n.x + 0.5, n.y + 0.5) <= 2.0) {
       p.path = []; p.npcTarget = null;
-      p.facing = n.x + 0.5 >= p.x ? 1 : -1;
+      faceTo(p, n.x + 0.5, n.y + 0.5);
       NPC.talk(n);
     } else if (!p.path.length) {
       p.path = findPath(G.map, Math.floor(p.x), Math.floor(p.y), n.x, n.y + 1);
@@ -1070,7 +1075,7 @@ function updateMob(m, dt) {
     }
     if (dist <= (md.range || 1) + 0.5) {
       m.path = []; m.moving = false;
-      m.facing = p.x >= m.x ? 1 : -1;
+      faceTo(m, p.x, p.y);
       if (G.time >= m.nextAtk) mobAttack(m);
     } else {
       if (G.time >= m.repathAt || !m.path.length) {
