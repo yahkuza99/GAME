@@ -358,5 +358,20 @@
    "scale_src": 0.5639,
    "median_src_h": 265.9996904730874
   }
+ },
+ "mob_moss_pudding": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.3968,
+   "median_src_h": 378
+  },
+  "_k1536": 0.32397,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.3968,
+   "median_src_h": 378.00085656079267
+  }
  }
 }

@@ -4,7 +4,7 @@
 
 ## รอบ A — ท่าขยับ 4 ตัว (แนบ `template_tpl_mob.png` + รูปเลขเดียวกัน)
 
-### 5. Moss Unit — แนบ `5_Moss_Unit.png`
+### ✅ 5. Moss Unit — แนบ `5_Moss_Unit.png`
 ```
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Moss Unit.
 Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).

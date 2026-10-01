@@ -1011,7 +1011,7 @@ Bottom row = ATTACK, 4 frames: cap puffs up big, siren light turns red, cap slam
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
-⬜ **Moss Unit** (Mistlake Plains) — แนบ `mobsprite_moss_pudding.webp` + `tpl_mob.png`
+✅ **Moss Unit** (Mistlake Plains) — แนบ `mobsprite_moss_pudding.webp` + `tpl_mob.png`
 
 ```
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Moss Unit.
