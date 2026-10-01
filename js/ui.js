@@ -158,6 +158,7 @@ const UI = {
       else if (cmd === 'autoloot') { p.options.autoLoot = !p.options.autoLoot; this.msg(`Auto Loot: ${p.options.autoLoot ? 'เปิด' : 'ปิด'}`, 'info'); }
       else if (cmd === 'help') this.open('w-help');
       else if (cmd === 'emote' || cmd === 'e') this.toggle('w-emote');
+      else if (/^trade(\s|$)/.test(cmd)) Trade.command(text.slice(6));
       else if (Emote.fromChat(cmd)) { /* อีโมต */ }
       else this.msg(`คำสั่ง: /sit /where /save /autoloot /help /emote • อีโมต: ${EMOTES.map(e => '/' + e.k).join(' ')}`, 'info');
       return;
