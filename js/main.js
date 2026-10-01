@@ -10,7 +10,7 @@ const HEAD_STYLES = [['long', 'ยาว'], ['twin', 'แฝด'], ['bob', 'บ�
 const VISORS = [['band', 'แถบ'], ['v', 'ทรง V'], ['slit', 'คู่']];
 // เลขเวอร์ชัน (แสดงมุมหน้าไตเติล — แจ้งเวอร์ชันนี้เวลาส่งฟีดแบ็ก)
 const GAME_VERSION = '0.9.0 (ทดสอบ)';
-const creation = { gender: 'f', hair: HAIR_COLORS[0], head: 'long', color: BODY_COLORS[0], glow: GLOW_COLORS[0], visor: 'band', dir: 2, spin: true };
+const creation = { gender: 'f', hair: HAIR_COLORS[0], head: 'long', color: BODY_COLORS[0], glow: GLOW_COLORS[0], visor: 'band', dir: 3 }; // dir 3 = หันหน้าซ้ายล่าง (3/4) ยืนนิ่ง
 
 function toggleFullscreen() {
   const el = document.documentElement;
@@ -396,10 +396,6 @@ function setupCreateScreen() {
   $$('#cr-gender button').forEach(b => b.onclick = () => {
     creation.gender = b.dataset.g; $$('#cr-gender button').forEach(x => x.classList.toggle('on', x === b));
   });
-  const stopSpin = () => { creation.spin = false; $('#cr-spin').classList.remove('on'); };
-  $('#cr-rl').onclick = () => { stopSpin(); creation.dir = (creation.dir + 7) % 8; };
-  $('#cr-rr').onclick = () => { stopSpin(); creation.dir = (creation.dir + 1) % 8; };
-  $('#cr-spin').onclick = () => { creation.spin = !creation.spin; $('#cr-spin').classList.toggle('on', creation.spin); };
   $('#cr-start').onclick = async () => {
     const name = $('#cr-name').value.trim().slice(0, 16);
     if (!name) { $('#cr-err').textContent = 'กรุณาตั้งชื่อตัวละคร'; return; }
@@ -429,12 +425,11 @@ function creationLook() { return { head: creation.head, color: creation.color, g
 function drawTitlePreview(t) {
   const c = $('#cr-preview');
   if (!c || $('#create').classList.contains('hidden')) return;
-  // มีโมเดลแบบภาพแล้ว: ซ่อนตัวเลือกสี/ทรงหัว/วิเซอร์ และปุ่มหมุน (มีผลเฉพาะโมเดลวาดด้วยโค้ด)
+  // มีโมเดลแบบภาพแล้ว: ซ่อนตัวเลือกสี/ทรงหัว/วิเซอร์ (มีผลเฉพาะโมเดลวาดด้วยโค้ด)
   const imgModel = Art.has('hero_novice_f') || Art.has('hero_novice_m');
   if ($('#create').classList.contains('img-model') !== imgModel) {
     $('#create').classList.toggle('img-model', imgModel);
     ['#cr-head', '#cr-hair', '#cr-color', '#cr-glow', '#cr-visor'].forEach(sel => { const el = $(sel); el.classList.toggle('hidden', imgModel); el.previousElementSibling.classList.toggle('hidden', imgModel); });
-    $('.cr-rot').classList.toggle('hidden', imgModel);
   }
   const g = c.getContext('2d');
   g.setTransform(1, 0, 0, 1, 0, 0);
@@ -453,7 +448,6 @@ function drawTitlePreview(t) {
   const sy = by - ((t * 60) % 190);
   g.fillStyle = glow; g.globalAlpha = 0.12; g.fillRect(cx - 60, sy, 120, 2); g.globalAlpha = 1;
   g.save(); g.translate(cx, by); g.scale(3.2, 3.2);
-  if (creation.spin) creation.dir = Math.floor(t / 0.9) % 8;
   const fake = {
     x: 0, y: 0, job: 'novice', hair: creation.hair, gender: creation.gender, look: creationLook(), facing: 1, dir: creation.dir, moving: false, sitting: false, dead: false,
     atkAnim: 0, buffs: {}, equip: { weapon: { id: 'knife' }, head: null, garment: null },
