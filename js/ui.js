@@ -22,6 +22,8 @@ function h(tag, attrs = {}, ...kids) {
   return el;
 }
 
+// สีชื่อไอเทมตามความหายาก (js/loot.js) — ไม่มีไฟล์นั้นก็ไม่เป็นไร
+const rarCls = id => (typeof LOOT !== 'undefined' ? LOOT.cls(id) : '');
 const fmtLeft = t => t >= 60 ? `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}` : `${t}s`;
 const UI = {
   isDirty: true, z: 100, invTab: 'use', selItem: null, shop: null, dialog: null,
@@ -733,12 +735,13 @@ const UI = {
     add(it.b); for (const c of entry.cards || []) add(ITEMS[c].b);
     const tag = it.type === 'weapon' ? L('อาวุธ', 'Weapon') : it.type === 'armor' ? (SLOT_THAI[it.slot] || L('ชุด', 'Armor')) : it.type === 'card' ? L('ชิป', 'Chip') : it.type === 'use' ? L('ของใช้', 'Usable') : L('ของสะสม', 'Misc');
     return [
-      h('div', { class: 'tip-head' }, h('img', { src: itemIconUrl(entry.id), alt: '' }), h('div', {}, h('b', {}, itemDisplayName(entry)), h('small', {}, tag + (worn ? L(' • สวมอยู่', ' • Equipped') : '')))),
+      h('div', { class: 'tip-head' }, h('img', { src: itemIconUrl(entry.id), alt: '' }), h('div', {}, h('b', { class: rarCls(entry.id) }, itemDisplayName(entry)), h('small', {}, tag, typeof LOOT !== 'undefined' && LOOT.rank(entry.id) ? h('span', { class: 'rar-tag ' + rarCls(entry.id) }, ' • ' + LOOT.label(entry.id)) : null, worn ? L(' • สวมอยู่', ' • Equipped') : ''))),
       it.desc ? h('div', { class: 'tip-desc' }, it.desc) : null,
       ...this.itemTooltip(entry).map(l => h('div', { class: 'tip-line' }, l)),
       Object.keys(bon).length ? h('div', { class: 'tip-bon' }, ...Object.entries(bon).filter(([k]) => typeof PSTAT !== 'undefined' && PSTAT[k]).map(([k, v]) => h('span', {}, PSTAT_FMT(k, v)))) : null,
       it.heal ? h('div', { class: 'tip-line' }, L(`ฟื้น HP ${it.heal[0]}~${it.heal[1]}`, `Restores HP ${it.heal[0]}~${it.heal[1]}`)) : null,
       it.spHeal ? h('div', { class: 'tip-line' }, L(`ฟื้น SP ${it.spHeal[0]}~${it.spHeal[1]}`, `Restores SP ${it.spHeal[0]}~${it.spHeal[1]}`)) : null,
+      typeof LOOT !== 'undefined' ? LOOT.setTip(entry.id) : null,
       this.dropSources(entry.id),
       !worn && isEquipType(it) && G.player.inventory.includes(entry) ? this.compareLine(entry, true) : null,
     ].filter(Boolean);
@@ -809,7 +812,7 @@ const UI = {
     const grid = h('div', { class: 'inv-grid' });
     const list = p.inventory.filter(e => tabType(e) === this.invTab);
     for (const e of list) {
-      const cell = h('div', { class: 'inv-cell' + (this.selItem === e ? ' sel' : ''), title: itemDisplayName(e), draggable: 'true' },
+      const cell = h('div', { class: 'inv-cell' + (this.selItem === e ? ' sel' : '') + ' rarc-' + rarCls(e.id).slice(4), title: itemDisplayName(e), draggable: 'true' },
         h('img', { src: itemIconUrl(e.id), alt: '' }),
         e.qty > 1 || !isEquipType(ITEMS[e.id]) ? h('span', { class: 'q' }, String(e.qty)) : null,
         e.refine ? h('span', { class: 'rf' }, '+' + e.refine) : null);
@@ -833,10 +836,12 @@ const UI = {
       if (it.type === 'use' || isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: () => this.assignHotbar('item', e.id) }, L('ตั้งปุ่มลัด', 'Set hotkey')));
       acts.push(h('button', { class: 'btn danger', onclick: () => this.discard(e) }, L('ทิ้ง', 'Drop')));
       det.append(...[
-        h('div', { class: 'det-head' }, h('img', { src: itemIconUrl(e.id), alt: '' }), h('b', {}, itemDisplayName(e)), e.qty > 1 ? ` ×${e.qty}` : ''),
+        h('div', { class: 'det-head' }, h('img', { src: itemIconUrl(e.id), alt: '' }), h('b', { class: rarCls(e.id) }, itemDisplayName(e)), e.qty > 1 ? ` ×${e.qty}` : ''),
         h('div', { class: 'det-desc' }, it.desc || ''),
         ...this.itemTooltip(e).map(l => h('div', { class: 'det-line' }, l)),
         this.compareLine(e),
+        typeof LOOT !== 'undefined' ? LOOT.setTip(e.id) : null, // ชุดเซ็ต + แหล่งดรอป (มือถือไม่มีการ์ดเมาส์ชี้)
+        this.dropSources(e.id),
         h('div', { class: 'det-line' }, L(`ราคาขาย: ${U.fmt(Math.floor(it.price / 2))} ${CUR}`, `Sell price: ${U.fmt(Math.floor(it.price / 2))} ${CUR}`)),
         h('div', { class: 'det-acts' }, acts)].filter(Boolean));
     } else det.append(h('div', { class: 'hint' }, L('คลิกเพื่อดูรายละเอียด • ดับเบิลคลิกเพื่อใช้/สวมใส่ • ลากไปวางที่ปุ่มลัดได้', 'Click for details • double-click to use/equip • drag onto the hotbar')));
@@ -867,7 +872,7 @@ const UI = {
       const el = h('div', { class: 'eq-slot' + (e ? '' : ' empty'), onclick: () => e && unequip(s) },
         h('span', { class: 'eq-n' }, SLOT_THAI[s]),
         e ? h('img', { src: itemIconUrl(e.id), alt: '' }) : h('span', { class: 'eq-ph' }),
-        h('span', { class: 'eq-i' }, e ? itemDisplayName(e) + (e.cards && e.cards.length ? ` ◆${e.cards.length}` : '') : '-'));
+        h('span', { class: 'eq-i ' + (e ? rarCls(e.id) : '') }, e ? itemDisplayName(e) + (e.cards && e.cards.length ? ` ◆${e.cards.length}` : '') : '-'));
       return e ? this.tipFor(el, e, true) : el;
     });
     body.append(h('div', { class: 'eq-wrap' }, prev, h('div', { class: 'eq-slots' }, slots)),
@@ -1278,7 +1283,7 @@ const UI = {
         row('HIT', d.hit), row('FLEE', d.flee), row('Base EXP', (() => { const em = expLevelMul(d.lv, G.player.baseLv); return `${U.fmt(Math.round(d.exp * em))}${em !== 1 ? ` (${Math.round(em * 100)}%)` : ''}`; })()), row('Job EXP', U.fmt(Math.round(d.jexp * expLevelMul(d.lv, G.player.baseLv)))), row(CUR, `${U.fmt(mobZeny(d)[0])}–${U.fmt(mobZeny(d)[1])}`)),
       h('div', { class: 'mb-h' }, L('ไอเทมที่ดรอป', 'Drops')),
       h('div', { class: 'mb-drops' }, ...(d.drops.length ? d.drops.map(([id, ch]) => h('div', { class: 'mb-drop', title: ITEMS[id].desc || '' },
-        h('img', { src: itemIconUrl(id), alt: '' }), h('span', {}, ITEMS[id].name), h('em', {}, `${ch >= 0.1 ? Math.round(ch * 100) : (ch * 100).toFixed(ch < 0.01 ? 2 : 1)}%`))) : [h('span', { class: 'hint' }, L('ไม่มี', 'None'))])),
+        h('img', { src: itemIconUrl(id), alt: '' }), h('span', { class: rarCls(id) }, ITEMS[id].name), h('em', {}, `${ch >= 0.1 ? Math.round(ch * 100) : (ch * 100).toFixed(ch < 0.01 ? 2 : 1)}%`))) : [h('span', { class: 'hint' }, L('ไม่มี', 'None'))])),
       d.boss ? h('div', { class: 'mb-mvp', id: 'mb-mvp' }, this.mvpStatus(d.id)) : null,
       h('div', { class: 'mb-h' }, L('พบได้ที่', 'Found in')),
       h('div', { class: 'mb-where' }, where.length ? where.map(m => `${MAP_DEFS[m].name}${MAP_DEFS[m].level ? ` (Lv ${MAP_DEFS[m].level})` : ''}`).join(' • ') : '-'),
@@ -1568,7 +1573,7 @@ const UI = {
         if (isEquipType(it)) qty.style.visibility = 'hidden';
         list.append(h('div', { class: 'shop-row' + (usable ? '' : ' dim') },
           this.tipFor(h('img', { src: itemIconUrl(id), alt: '' }), { id, refine: 0, cards: [] }),
-          h('div', { class: 'shop-n' }, h('b', {}, it.name + (it.slots ? ` [${it.slots}]` : '')), h('small', {}, it.desc + (it.lv ? ` (Lv ${it.lv}+)` : '')), isEquipType(it) && usable ? this.compareLine({ id, refine: 0, cards: [] }, true) : null),
+          h('div', { class: 'shop-n' }, h('b', { class: rarCls(id) }, it.name + (it.slots ? ` [${it.slots}]` : '')), h('small', {}, it.desc + (it.lv ? ` (Lv ${it.lv}+)` : '')), isEquipType(it) && usable ? this.compareLine({ id, refine: 0, cards: [] }, true) : null),
           h('span', { class: 'shop-p' + (it.price > p.zeny ? ' poor' : '') }, U.fmt(it.price) + ' ' + CUR),
           qty,
           h('button', { class: 'btn small', onclick: () => this.buy(id, Math.max(1, Math.min(999, parseInt(qty.value, 10) || 1))) }, L('ซื้อ', 'Buy'))));
@@ -1581,14 +1586,14 @@ const UI = {
         const price = Math.floor(it.price / 2);
         list.append(h('div', { class: 'shop-row' },
           this.tipFor(h('img', { src: itemIconUrl(e.id), alt: '' }), e),
-          h('div', { class: 'shop-n' }, h('b', {}, itemDisplayName(e)), h('small', {}, L(`มี ${e.qty} ชิ้น`, `Owned: ${e.qty}`))),
+          h('div', { class: 'shop-n' }, h('b', { class: rarCls(e.id) }, itemDisplayName(e)), h('small', {}, L(`มี ${e.qty} ชิ้น`, `Owned: ${e.qty}`))),
           h('span', { class: 'shop-p' }, U.fmt(price) + ' ' + CUR),
           h('button', { class: 'btn small', onclick: () => this.sell(e, 1) }, L('ขาย 1', 'Sell 1')),
           e.qty > 1 ? h('button', { class: 'btn small', onclick: () => this.sell(e, e.qty) }, L('ทั้งหมด', 'All')) : null));
       }
-      if (inv.some(e => ITEMS[e.id].type === 'etc')) {
+      if (inv.some(e => ITEMS[e.id].type === 'etc' && !ITEMS[e.id].keep)) {
         list.prepend(h('div', { class: 'shop-row sellall' },
-          h('button', { class: 'btn', onclick: () => { for (const e of p.inventory.filter(x => ITEMS[x.id].type === 'etc')) this.sell(e, e.qty, true); Sound.play('buy'); } }, L('ขายของดรอป (Etc) ทั้งหมด', 'Sell all Etc items'))));
+          h('button', { class: 'btn', onclick: () => { for (const e of p.inventory.filter(x => ITEMS[x.id].type === 'etc' && !ITEMS[x.id].keep)) this.sell(e, e.qty, true); Sound.play('buy'); } }, L('ขายของดรอป (Etc) ทั้งหมด', 'Sell all Etc items'))));
       }
     }
     list.dataset.mode = s.mode;
