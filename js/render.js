@@ -253,7 +253,7 @@ R.render = () => {
   const talkN = G.started && !p.dead && !NPC.busy ? G.npcs.filter(n => U.dist(p.x, p.y, n.x + 0.5, n.y + 0.5) < 2.6).sort((a, b) => U.dist(p.x, p.y, a.x + 0.5, a.y + 0.5) - U.dist(p.x, p.y, b.x + 0.5, b.y + 0.5))[0] : null;
   for (const n of G.npcs) {
     R.tag(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 14, n.name, '#d6f6ff', '#6ff3ff');
-    if (n === talkN) R.tag(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 34, Pad.enabled() ? 'แตะปุ่มโจมตีเพื่อคุย' : 'Space · คุย', '#fff3c4', '#ffd56a');
+    if (n === talkN) R.tag(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 34, Pad.enabled() ? L('แตะปุ่มโจมตีเพื่อคุย', 'Tap Attack to talk') : L('Space · คุย', 'Space · Talk'), '#fff3c4', '#ffd56a');
     if (n.id === qNpc) R.questMark(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) - 92, t); // เครื่องหมายเควสต์เหนือหัว NPC
     else if (n.emote && n.emote.until > G.time) Emote.draw(g, n.x * TILE + TILE / 2 + 4, P((n.y + 0.5) * TILE + 10) - 96, n.emote, t);
   }
@@ -284,7 +284,7 @@ R.render = () => {
   {
     const x = p.x * TILE, y = P(p.y * TILE);
     R.tag(g, x, y + 28, p.name, '#ffffff');
-    if (Bot.on) R.tag(g, x, y - 60, Bot.resting ? 'AUTO · พัก' : 'AUTO', '#d8ffe8', '#7dffb4');
+    if (Bot.on) R.tag(g, x, y - 60, Bot.resting ? L('AUTO · พัก', 'AUTO · Resting') : 'AUTO', '#d8ffe8', '#7dffb4');
     if (Nav.target) Nav.draw(g, t);
     R.bar(g, x, y + 10, 40, p.hp / p.d.maxHp, p.hp / p.d.maxHp < 0.25 ? '#ff4f6a' : '#5fe08a', p.sp / p.d.maxSp);
     if (p.cast) {
