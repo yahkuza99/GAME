@@ -954,3 +954,13 @@ body.visor .bi-id b { max-width: 100%; }
 @keyframes bossZoom { from { transform: scale(1.12); } to { transform: scale(1); } }
 @keyframes bossSheen { to { transform: translateX(120%); } }
 @media (max-height: 520px) and (orientation: landscape) { #splash.boss .sp-card { width: min(520px, 100%); } #splash.boss { padding-bottom: 4vh; } }
+.bot-row.off { opacity: .45; }
+#w-options .bot-row { margin: 2px 0 6px; }
+
+/* ===== เมนู (Tab) บนคอม: แผงกระจก 3 คอลัมน์ ไม่เป็นแถวตรงยาว อ่านง่ายทุกความสูงจอ ===== */
+body.visor:not(.pad-mode) #menubar:not(.folded) { display: grid; grid-template-columns: repeat(3, 52px); gap: 4px; padding: 6px; max-height: none; overflow: visible;
+  justify-items: stretch; border-radius: 20px; background: rgba(10, 16, 26, 0.62); border: 1px solid var(--edge-2);
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.06); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+body.visor:not(.pad-mode) #menubar:not(.folded) .menu-fold { grid-column: 1 / -1; justify-self: end; width: 44px; height: 28px; }
+body.visor:not(.pad-mode) #menubar:not(.folded) button:not(.menu-fold) { width: 52px; height: 48px; filter: none; }
+body.visor:not(.pad-mode) #menubar:not(.folded) button span { font-size: 10px; }

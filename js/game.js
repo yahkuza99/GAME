@@ -1247,6 +1247,25 @@ function updateGame(dt) {
   if (p.speech && p.speech.until < G.time) p.speech = null;
 }
 
+// ปั๊มยาอัตโนมัติ (ใช้ร่วมกันทั้งเล่นเองและบอท — ตั้งค่าที่เดียว)
+function autoPotCfg() {
+  const o = G.player.options;
+  if (!o.autoPot || typeof o.autoPot !== 'object') {
+    const b = o.bot || {}; // เซฟเก่า: ย้ายค่าจากหน้าบอทมาใช้
+    o.autoPot = { on: true, hp: b.hpPot != null ? b.hpPot : 50, sp: b.spPot != null ? b.spPot : 20 };
+  }
+  return o.autoPot;
+}
+function autoPotTick() {
+  const p = G.player;
+  if (p.dead || G.time < (p.autoPotAt || 0)) return;
+  p.autoPotAt = G.time + 0.2; // ไม่กินรัวทั้งกระเป๋าในพริบตา
+  const c = autoPotCfg();
+  if (!c.on || isStunned()) return;
+  if (p.hp / p.d.maxHp * 100 < c.hp) { const e = Bot.findItem(HP_POTS); if (e) { useItem(e); return; } }
+  if (p.sp / p.d.maxSp * 100 < c.sp) { const e = Bot.findItem(SP_POTS); if (e) useItem(e); }
+}
+
 function updatePlayer(dt) {
   const p = G.player;
   p.atkAnim = Math.max(0, p.atkAnim - dt * 4);
@@ -1256,6 +1275,7 @@ function updatePlayer(dt) {
   let changed = false;
   for (const k in p.buffs) if (p.buffs[k].until <= G.time) { delete p.buffs[k]; changed = true; UI.msg(`${SKILLS[k].name} หมดฤทธิ์แล้ว`, 'info'); }
   if (changed) recalc();
+  autoPotTick();
   // ฟื้นฟู
   const moving = p.path.length > 0;
   p.hpTimer += dt; p.spTimer += dt;

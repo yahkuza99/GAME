@@ -1301,6 +1301,22 @@ const UI = {
     }
   },
   optKey() { return JSON.stringify(G.player.options, (k, v) => k === 'bot' ? undefined : v) + '|' + !!document.fullscreenElement + '|' + (typeof Pad !== 'undefined' ? Pad.mode : ''); },
+  // ปั๊มยาอัตโนมัติ: ชุดควบคุมเดียวกันทั้งหน้าตั้งค่าและหน้าบอท (ค่าเดียวกัน ใช้ทั้งเล่นเองและบอท)
+  autoPotControls(rekey) {
+    const c = autoPotCfg();
+    const slider = (key, label) => {
+      const val = h('b', {}, `${c[key]}%`);
+      const inp = h('input', { type: 'range', min: 0, max: 95, value: c[key], disabled: c.on ? false : 'disabled',
+        oninput: e => { c[key] = +e.target.value; val.textContent = `${c[key]}%`; rekey(); }, onchange: () => saveGame() });
+      return h('label', { class: 'bot-row' + (c.on ? '' : ' off') }, h('span', {}, label), inp, val);
+    };
+    return [
+      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: c.on ? 'checked' : false,
+        onchange: e => { c.on = e.target.checked; saveGame(); rekey(true); } }), ' ปั๊มยาอัตโนมัติ (เล่นเองและบอทใช้ค่าเดียวกัน)'),
+      slider('hp', 'ปั๊ม HP เมื่อต่ำกว่า'),
+      slider('sp', 'ปั๊ม SP เมื่อต่ำกว่า'),
+    ];
+  },
   renderOptions(force) {
     const p = G.player, o = p.options;
     const body = $('#w-options .win-body');
@@ -1312,6 +1328,7 @@ const UI = {
       h('input', { type: 'checkbox', checked: o[key] ? 'checked' : false, onchange: e => { o[key] = e.target.checked; saveGame(); } }), ' ', label);
     body.append(
       chk('autoLoot', 'เก็บไอเทมอัตโนมัติ (Auto Loot)'),
+      ...this.autoPotControls(full => { if (full) this.renderOptions(true); else body.dataset.key = this.optKey(); }),
       h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.autoCounter !== false ? 'checked' : false, onchange: e => { o.autoCounter = e.target.checked; saveGame(); } }), ' โจมตีกลับอัตโนมัติเมื่อถูกโจมตี'),
       h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.skillAim !== false ? 'checked' : false, onchange: e => { o.skillAim = e.target.checked; G.pendingSkill = null; saveGame(); } }), ' กดสกิลแล้วคลิกเลือกเป้า (แบบ RO) — ปิด = ใช้ใส่เป้าปัจจุบันทันที'),
       chk('sound', 'เสียงเอฟเฟกต์'),
@@ -1527,7 +1544,7 @@ const UI = {
       .map(([k, v]) => `<div>${k}<b>${v}</b></div>`).join('') : '<div class="hint" style="grid-column:1/-1">สถิติจะแสดงเมื่อเริ่มบอท</div>';
     if (el.innerHTML !== html) el.innerHTML = html;
   },
-  botKey() { const p = G.player; return [JSON.stringify(Bot.cfg()), G.map.id, Object.keys(p.skills).join(), Bot.on, p.options.autoLoot].join('|'); },
+  botKey() { const p = G.player; return [JSON.stringify(Bot.cfg()), JSON.stringify(autoPotCfg()), G.map.id, Object.keys(p.skills).join(), Bot.on, p.options.autoLoot].join('|'); },
   renderBot(force) {
     const p = G.player, c = Bot.cfg();
     const body = $('#w-bot .win-body');
@@ -1559,8 +1576,7 @@ const UI = {
       h('div', { class: 'bot-sec' }, 'มอนที่จะล่า'),
       this.botMobPicker(c),
       h('div', { class: 'bot-sec' }, 'การฟื้นฟู'),
-      slider('hpPot', 'ใช้ชุดซ่อมเมื่อ HP ต่ำกว่า', 0, 95),
-      slider('spPot', 'ใช้เซลล์พลังงานเมื่อ SP ต่ำกว่า', 0, 95),
+      ...this.autoPotControls(full => { if (full) this.renderBot(); else body.dataset.key = this.botKey(); }),
       slider('healAt', 'ใช้สกิลฮีลเมื่อ HP ต่ำกว่า', 0, 95),
       chk('rest', 'นั่งพักเมื่อ HP/SP ต่ำ (ไม่มีศัตรูรอบตัว)'),
       c.rest ? slider('restHp', 'นั่งพักเมื่อ HP ต่ำกว่า', 0, 90) : null,

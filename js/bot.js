@@ -13,7 +13,7 @@ const Bot = {
   stats: null,
 
   defaults() {
-    return { skills: {}, hpPot: 50, spPot: 20, restHp: 35, restSp: 10, healAt: 60, useBuffs: true, avoidMvp: true,
+    return { skills: {}, restHp: 35, restSp: 10, healAt: 60, useBuffs: true, avoidMvp: true,
       radius: 14, returnHome: true,
       rest: true, style: 'skills', leash: false, skipMobs: {}, skillHp: {} };
   },
@@ -133,12 +133,8 @@ const Bot = {
       if (SKILLS[id].heal(skillLv(id), p.d, p) < p.d.maxHp * 0.08) continue; // ฮีลน้อยเกินไป ไม่คุ้มดีเลย์
       useSkill(id); return;
     }
-    if (hpPct < c.hpPot) {
-      const e = this.findItem(HP_POTS);
-      if (e) useItem(e);
-      else if (hpPct < 20 && threats.length && c.returnHome) return this.goHome('HP ต่ำและยาหมด');
-    }
-    if (spPct < c.spPot) { const e = this.findItem(SP_POTS); if (e) useItem(e); }
+    // ยา: ใช้ระบบปั๊มยาอัตโนมัติร่วมกับการเล่นเอง (autoPotTick) — บอทแค่กลับเมืองเมื่อยาหมด
+    if (hpPct < 20 && threats.length && c.returnHome && !this.findItem(HP_POTS)) return this.goHome('HP ต่ำและยาหมด');
     if (p.cast || p.skillIntent) return;
 
     // 2) นั่งพัก (โหมดตีปกติไม่ใช้ SP จึงไม่พักเพราะ SP)
