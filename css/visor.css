@@ -583,3 +583,121 @@ body.visor.pad-mode #menubar:not(.folded) { padding: 6px; width: calc(44px * 5 +
   border: 1px solid var(--edge-2); box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.9); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
 body.visor.pad-mode #menubar:not(.folded) button { filter: none; }
 body.visor.pad-mode #hud:has(#menubar:not(.folded)) #quest-track { visibility: hidden; }
+
+/* =====================================================================
+   ปาร์ตี้ — "Visor Soft"
+   แถบสมาชิก: การ์ดกระจกฝ้ามุมโค้งใต้เควสต์ (มือถือ: ขวาใต้มินิแมพ) • ชื่อ + หลอด HP/SP บาง ๆ
+   หน้าต่าง Y: แถวสมาชิกมุมโค้ง ปุ่มแคปซูล • โทสต์คำเชิญ: กระจกฝ้า + แถบนับถอยหลัง
+   สีประจำปาร์ตี้ = เขียวฟ้า (--pty) ตรงกับป้ายชื่อเพื่อนร่วมปาร์ตี้ในฉาก
+   ===================================================================== */
+body.visor { --pty: #3dffc8; }
+body.visor #party-hud { top: calc(242px + var(--st)); width: 212px; padding: 5px; gap: 1px; border: 1px solid var(--edge); border-left-width: 1px; border-radius: 18px;
+  background: linear-gradient(160deg, rgba(14, 22, 36, 0.6), rgba(8, 12, 20, 0.42)); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.06); text-shadow: var(--sh); }
+body.visor #hud:has(#buffs .buff) #party-hud { top: calc(280px + var(--st)); }
+body.visor #hud:has(#quest-track[hidden]) #party-hud { top: calc(164px + var(--st)); }
+body.visor #hud:has(#buffs .buff):has(#quest-track[hidden]) #party-hud { top: calc(202px + var(--st)); }
+body.visor .ph-head { padding: 3px 8px 4px; border-radius: 12px; }
+body.visor .ph-head:hover { background: rgba(255, 255, 255, 0.05); }
+body.visor .ph-k { font: 500 10px var(--mono); letter-spacing: 0.2em; color: var(--pty); }
+body.visor .ph-name { font: 500 12px var(--display); color: var(--ink-dim); }
+body.visor .ph-n { font: 500 10.5px var(--mono); color: var(--ink-faint); }
+body.visor #party-hud.folded { width: auto; max-width: 212px; padding: 3px; }
+body.visor .ph-row { padding: 5px 8px 6px; border-radius: 12px; transition: background 0.15s; }
+body.visor .ph-row:hover { background: rgba(61, 255, 200, 0.08); }
+body.visor .ph-top b { font: 500 13px var(--display); color: var(--ink); }
+body.visor .ph-top small { font: 500 10.5px var(--mono); color: var(--ink-dim); }
+body.visor .ph-bars { gap: 2px; }
+body.visor .ph-bars i { height: 3px; background: rgba(255, 255, 255, 0.16); box-shadow: none; }
+body.visor .ph-bars i.sp { height: 2px; }
+body.visor .ph-bars b { background: #6ff0a0; box-shadow: 0 0 6px -1px rgba(111, 240, 160, 0.7); }
+body.visor .ph-bars i.low b { background: var(--hp-a); box-shadow: 0 0 6px -1px var(--hp-a); }
+body.visor .ph-bars i.sp b { background: var(--cy); box-shadow: none; }
+body.visor .ph-row.off .ph-top b { color: var(--ink-dim); }
+body.visor .ph-row.off .ph-top small { color: #c6b0ff; }
+body.visor .ph-add { border: 1px dashed rgba(61, 255, 200, 0.35); margin-top: 2px; }
+body.visor .ph-add .ph-top { color: var(--pty); } body.visor .ph-add .ph-top b { font: 500 12px var(--font); color: #c8fff0; }
+@media (max-width: 760px) {
+  body.visor #party-hud, body.visor #hud:has(#buffs .buff) #party-hud, body.visor #hud:has(#quest-track[hidden]) #party-hud,
+  body.visor #hud:has(#buffs .buff):has(#quest-track[hidden]) #party-hud { top: calc(236px + var(--st)); }
+  body.visor #party-hud { width: 140px; padding: 4px; border-radius: 16px; }
+  body.visor #party-hud.folded { width: auto; }
+  body.visor .ph-head { padding: 2px 6px 3px; }
+  body.visor .ph-name { display: none; }
+  body.visor .ph-n { margin-left: auto; }
+  body.visor .ph-row { padding: 4px 6px 5px; border-radius: 10px; }
+  body.visor .ph-top b { font-size: 12px; }
+  body.visor.pad-mode #hud:has(#party-hud:not([hidden])) #chat { width: min(58vw, 236px); }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  body.visor #party-hud, body.visor #hud:has(#buffs .buff) #party-hud, body.visor #hud:has(#quest-track[hidden]) #party-hud,
+  body.visor #hud:has(#buffs .buff):has(#quest-track[hidden]) #party-hud { top: calc(112px + var(--st)); }
+  body.visor #party-hud { width: 132px; padding: 3px; border-radius: 14px; }
+  body.visor #party-hud[data-n="3"], body.visor #party-hud[data-n="4"] { width: 256px; }
+  body.visor #party-hud[data-n="5"] { width: 378px; }
+  body.visor #party-hud.folded { width: auto; }
+  body.visor .ph-name { display: none; }
+  body.visor .ph-n { margin-left: auto; }
+  body.visor .ph-head { padding: 1px 6px 2px; }
+  body.visor .ph-row { padding: 2px 6px 3px; border-radius: 9px; }
+  body.visor .ph-top b { font-size: 11.5px; }
+}
+
+/* หน้าต่างปาร์ตี้ */
+body.visor .py-hero { color: var(--pty); }
+body.visor .py-empty > b { font: 600 16px var(--display); }
+body.visor .py-create { gap: 8px; }
+body.visor .py-create input { border-radius: 999px; padding: 8px 14px; background: var(--fill); border: 1px solid var(--edge-2); font: 13px var(--font);
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s; }
+body.visor .py-create input:focus { background: rgba(111, 243, 255, 0.07); border-color: rgba(111, 243, 255, 0.6); box-shadow: var(--glow-soft); }
+body.visor .btn.py-go { padding: 8px 16px; color: #04121f; font-weight: 600; background: linear-gradient(180deg, #8ff6ff, #62e6f6); border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 10px 24px -10px rgba(111, 243, 255, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.55); }
+body.visor .btn.py-go:hover { background: linear-gradient(180deg, #a9f9ff, #78ecf9); color: #04121f; }
+body.visor .py-sec { margin: 16px 4px 7px; }
+body.visor .py-sec span { font: 600 12.5px var(--display); letter-spacing: 0.01em; color: var(--cy); }
+body.visor .py-sec small { font: 500 11px var(--font); color: var(--ink-faint); }
+body.visor .py-nrow, body.visor .py-row { background: var(--fill); border: 1px solid var(--edge); border-radius: 14px; }
+body.visor .py-nrow { padding: 6px 8px 6px 7px; }
+body.visor .py-row { padding: 8px 10px 8px 9px; align-items: center; }
+body.visor .py-row.me { border-color: rgba(111, 243, 255, 0.32); box-shadow: inset 0 0 0 1px rgba(111, 243, 255, 0.08), 0 0 22px -12px rgba(111, 243, 255, 0.6); }
+body.visor .py-mid > b, body.visor .py-n b { font: 600 13.5px var(--display); }
+body.visor .py-mid > small, body.visor .py-s { font: 500 11px var(--mono); color: var(--ink-dim); }
+body.visor .py-n em { font: 600 9.5px var(--mono); color: var(--cy); background: rgba(111, 243, 255, 0.12); border: 1px solid rgba(111, 243, 255, 0.3); }
+body.visor .py-lead { font: 600 9.5px var(--mono); color: var(--exp); background: rgba(255, 224, 138, 0.1); border: 1px solid rgba(255, 224, 138, 0.3); }
+body.visor .py-av .py-crown { color: var(--exp); background: #0b111c; box-shadow: 0 0 0 1px rgba(255, 224, 138, 0.55), 0 0 10px -2px rgba(255, 224, 138, 0.6); }
+body.visor .py-av .py-crown svg { fill: rgba(255, 224, 138, 0.45); }
+body.visor .py-bar i { height: 4px; background: rgba(255, 255, 255, 0.12); }
+body.visor .py-bar.sp i { height: 3px; }
+body.visor .py-bar b { background: #6ff0a0; }
+body.visor .py-bar.low b { background: var(--hp-a); }
+body.visor .py-bar.sp b { background: var(--cy); }
+body.visor .py-bar em { font: 500 10px var(--mono); color: var(--ink-faint); }
+body.visor .py-head { padding: 2px 4px 0; }
+body.visor .py-count { font: 500 13px var(--mono); color: var(--ink-faint); }
+body.visor .py-count b { font: 600 26px/1 var(--display); color: var(--ink); margin-right: 1px; }
+body.visor .py-share b { font: 600 12.5px var(--display); color: var(--pty); }
+body.visor .py-share small { font: 500 11px var(--font); color: var(--ink-dim); }
+body.visor .btn.py-inv { padding: 5px 14px; color: #c8fff0; background: rgba(61, 255, 200, 0.1); border-color: rgba(61, 255, 200, 0.45); }
+body.visor .btn.py-inv:hover:not(:disabled) { background: rgba(61, 255, 200, 0.2); border-color: var(--pty); box-shadow: 0 0 18px -6px rgba(61, 255, 200, 0.6); color: #fff; }
+body.visor .btn.py-inv.wait { color: var(--ink-dim); background: var(--fill); border-color: var(--edge-2); border-style: dashed; opacity: 0.8; }
+body.visor .btn.py-kick { padding: 4px 11px; }
+body.visor .py-none { font: 500 12px/1.55 var(--font); color: var(--ink-faint); padding: 10px 6px 4px; }
+body.visor .py-foot { border-top-color: var(--edge); }
+body.visor .py-foot .hint { font: 500 11px var(--font); color: var(--ink-faint); }
+body.visor .btn.py-leave { padding: 7px 16px; }
+
+/* โทสต์คำเชิญ */
+body.visor #party-invite { border-radius: 22px; padding: 12px 14px 15px 12px; border: 1px solid rgba(61, 255, 200, 0.4);
+  background: linear-gradient(160deg, rgba(16, 28, 36, 0.86), rgba(8, 12, 20, 0.82)); -webkit-backdrop-filter: blur(20px) saturate(1.3); backdrop-filter: blur(20px) saturate(1.3);
+  box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.9), 0 0 60px -24px rgba(61, 255, 200, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+body.visor .pinv-ic { color: var(--pty); }
+body.visor .pinv-t { font: 500 13.5px/1.45 var(--font); }
+body.visor .pinv-t small { font: 600 11.5px var(--display); color: var(--pty); }
+body.visor .pinv-t .pinv-pn { color: #c8fff0; }
+body.visor .pinv-btns .btn { border-radius: 999px; padding: 8px 16px; font-weight: 600; }
+body.visor .pinv-yes { background: linear-gradient(180deg, #9dffe6, #4fe3bd) !important; box-shadow: 0 10px 24px -10px rgba(61, 255, 200, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.6); }
+body.visor .pinv-yes:hover { background: linear-gradient(180deg, #b8fff0, #6aedcb) !important; }
+body.visor .pinv-bar { left: 22px; right: 22px; bottom: 6px; }
+body.visor .pinv-bar b { background: var(--pty); box-shadow: 0 0 6px var(--pty); }
+@media (max-width: 760px) { body.visor .pinv-btns .btn { padding: 10px 16px; } }
+@media (prefers-reduced-motion: reduce) { #party-invite { animation: none; } }

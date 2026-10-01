@@ -617,7 +617,7 @@ function killMob(m) {
   Bounty.onKill(d.id);
   p.kills = p.kills || {}; p.kills[d.id] = (p.kills[d.id] || 0) + 1; // สมุดมอนสเตอร์: จำนวนที่ล่าได้
   grantChip(d, m);
-  gainExp(d.exp, d.jexp);
+  Party.shareExp(d.exp, d.jexp, d); // ไม่มีปาร์ตี้ = gainExp ตามปกติ
   const [z0, z1] = mobZeny(d), z = U.randi(z0, z1);
   if (z > 0) { p.zeny += z; addFloater(m.x, m.y - 0.5, `+${z} ${CUR}`, '#ffd34a'); UI.dirty(); }
   for (const [id, ch] of d.drops) if (U.chance(ch)) dropItemOnGround(id, m.x, m.y);

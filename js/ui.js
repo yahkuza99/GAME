@@ -151,6 +151,7 @@ const UI = {
   chat(text) {
     const p = G.player;
     if (text.startsWith('/')) {
+      if (Party.chatCmd(text)) return; // /party /invite /leave /p
       const cmd = text.slice(1).toLowerCase();
       if (cmd === 'sit') toggleSit();
       else if (cmd === 'where') this.msg(`${G.map.def.name} (${Math.floor(p.x)}, ${Math.floor(p.y)})`, 'info');
@@ -159,7 +160,7 @@ const UI = {
       else if (cmd === 'help') this.open('w-help');
       else if (cmd === 'emote' || cmd === 'e') this.toggle('w-emote');
       else if (Emote.fromChat(cmd)) { /* อีโมต */ }
-      else this.msg(`คำสั่ง: /sit /where /save /autoloot /help /emote • อีโมต: ${EMOTES.map(e => '/' + e.k).join(' ')}`, 'info');
+      else this.msg(`คำสั่ง: /sit /where /save /autoloot /help /emote • ปาร์ตี้: /party create /invite ชื่อ /leave /p ข้อความ • อีโมต: ${EMOTES.map(e => '/' + e.k).join(' ')}`, 'info');
       return;
     }
     this.msg(`${p.name} : ${text}`, 'say');
@@ -530,13 +531,14 @@ const UI = {
       quest: '<path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h4"/>',
       tree: '<circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="4" r="1.6"/><circle cx="19" cy="16" r="1.6"/><circle cx="5" cy="16" r="1.6"/><path d="M12 9.5V5.6M14.2 13.2l3.4 2M9.8 13.2l-3.4 2"/>',
       nav: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+      party: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c.6-3.6 3-5.6 6-5.6s5.4 2 6 5.6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.6 14.6c2.6-.4 4.8 1.3 5.4 4.4"/>',
       help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7"/><circle cx="12" cy="17" r=".6"/>',
       sit: '<path d="M6 21v-5h9l3 5"/><circle cx="10" cy="5" r="2.5"/><path d="M10 8v8M10 11h5"/>',
     };
     const icon = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${P[k]}</svg>`;
     const items = [
       ['w-status', 'สถานะ', 'A', 'status'], ['w-inv', 'ไอเทม', 'E', 'bag'], ['w-equip', 'อุปกรณ์', 'Q', 'equip'],
-      ['w-skills', 'สกิล', 'S', 'skill'], ['w-tree', 'พาสซีฟ', 'P', 'tree'], ['w-map', 'แผนที่', 'M', 'map'], ['w-quest', 'เควสต์', 'J', 'quest'], ['w-emote', 'อีโมต', 'Alt', 'emote'], ['w-nav', 'นำทาง', 'G', 'nav'], ['w-bot', 'บอท', 'N', 'bot'], ['w-options', 'ตั้งค่า', 'O', 'options'], ['w-help', 'วิธีเล่น', 'H', 'help'],
+      ['w-skills', 'สกิล', 'S', 'skill'], ['w-tree', 'พาสซีฟ', 'P', 'tree'], ['w-map', 'แผนที่', 'M', 'map'], ['w-quest', 'เควสต์', 'J', 'quest'], ['w-party', 'ปาร์ตี้', 'Y', 'party'], ['w-emote', 'อีโมต', 'Alt', 'emote'], ['w-nav', 'นำทาง', 'G', 'nav'], ['w-bot', 'บอท', 'N', 'bot'], ['w-options', 'ตั้งค่า', 'O', 'options'], ['w-help', 'วิธีเล่น', 'H', 'help'],
     ];
     const m = $('#menubar');
     for (const [id, label, key, ic] of items) {
@@ -592,6 +594,7 @@ const UI = {
     if (this.isOpen('w-options')) this.renderOptions();
     if (this.isOpen('w-nav')) this.renderNav();
     if (this.isOpen('w-quest')) this.renderQuest();
+    if (this.isOpen('w-party')) Party.render();
     if (this.isOpen('w-emote')) this.renderEmote();
     if (this.isOpen('w-storage')) this.renderStorage();
     if (this.isOpen('w-mob')) this.renderMob();

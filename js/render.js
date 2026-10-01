@@ -267,9 +267,10 @@ R.render = () => {
   }
   for (const o of Online.others.values()) {
     if (o.stealth) continue;
-    const x = o.x * TILE, y = P(o.y * TILE);
-    R.tag(g, x, y + 26, o.name, '#fff3c8', '#ffd34a');
-    R.label(g, x, y + 41, `${JOBS[o.job].name} Lv ${o.baseLv}${o.bot ? ' · AUTO' : ''}`, '#c8d4e8');
+    const x = o.x * TILE, y = P(o.y * TILE), pm = Party.member(o.id); // สมาชิกปาร์ตี้: ป้ายสีเขียวฟ้า + หลอด HP/SP
+    if (pm) R.bar(g, x, y + 10, 40, pm.hp / pm.maxHp, pm.hp / pm.maxHp < 0.25 ? '#ff4f6a' : '#5fe08a', pm.sp / pm.maxSp);
+    R.tag(g, x, y + (pm ? 28 : 26), o.name, pm ? '#8dffdd' : '#fff3c8', pm ? '#3dffc8' : '#ffd34a');
+    R.label(g, x, y + (pm ? 43 : 41), `${JOBS[o.job].name} Lv ${o.baseLv}${o.bot ? ' · AUTO' : ''}`, pm ? '#a8f0dc' : '#c8d4e8');
     if (o.speech) R.speech(g, x, y - 92, o.speech.text, false);
     if (o.emote && o.emote.until > G.time) Emote.draw(g, x + 2, y - (o.speech ? 122 : 84), o.emote, t);
   }

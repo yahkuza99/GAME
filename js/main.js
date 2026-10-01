@@ -174,6 +174,7 @@ function bindInput() {
       case 'o': UI.toggle('w-options'); break;
       case 'h': UI.toggle('w-help'); break;
       case 'g': UI.toggle('w-nav'); break;
+      case 'y': UI.toggle('w-party'); break;
       case 'j': UI.toggle('w-quest'); break;
       case 'w': UI.toggle('w-world'); break;
       case 'p': UI.toggle('w-tree'); break;
