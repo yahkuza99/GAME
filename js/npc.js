@@ -6,15 +6,16 @@
 const NPC = {
   busy: false,
   async talk(n) {
+    // ค้างจากบทสนทนาเก่าที่ไม่จบ (หน้าต่างปิดไปแล้ว) → ล้างทิ้ง คุยใหม่ได้เสมอ
+    if (this.busy && !UI.isOpen('w-dialog') && !UI.isOpen('w-confirm')) this.busy = false;
     if (this.busy) return;
     const fn = this.scripts[n.id];
     if (!fn) return;
     this.busy = true;
-    Quest.onTalk(n.id);
-    UI.illust(`npc_${n.id}`);
-    try { await fn(n); }
+    const sid = this.sid = (this.sid || 0) + 1;
+    try { Quest.onTalk(n.id); UI.illust(`npc_${n.id}`); await fn(n); }
     catch (e) { if (e !== 'closed') console.error(e); }
-    finally { this.busy = false; UI.dlgClose(); UI.illust(null); }
+    finally { if (this.sid === sid) { this.busy = false; UI.dlgClose(); UI.illust(null); } }
   },
   scripts: {},
 };

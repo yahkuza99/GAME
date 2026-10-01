@@ -229,7 +229,19 @@ function advanceSim() {
   else updateGame(Math.min(0.05, real));
 }
 
+// เฟรมหนึ่งพังต้องไม่ทำให้ทั้งเกมค้าง: จับ error แล้ววนเฟรมต่อ (แจ้งในแชทครั้งเดียวต่อชนิด เพื่อแคปส่งมาแก้)
+const loopErrs = new Set();
 function loop(ts) {
+  try { frame(ts); } catch (e) {
+    const key = String(e && e.message || e);
+    if (!loopErrs.has(key)) {
+      loopErrs.add(key); console.error(e);
+      try { UI.msg(`⚠ เกิดข้อผิดพลาด (เกมยังเล่นต่อได้): ${key.slice(0, 120)} — แคปหน้าจอนี้ส่งผู้พัฒนาได้`, 'err'); } catch (e2) { /* ignore */ }
+    }
+  }
+  requestAnimationFrame(loop);
+}
+function frame(ts) {
   if (G.started) watchFps(ts);
   const dt = Math.min(0.05, lastTs ? (ts - lastTs) / 1000 : 0);
   lastTs = ts;
@@ -259,7 +271,6 @@ function loop(ts) {
     Title.draw(ts / 1000);
     drawTitlePreview(ts / 1000);
   }
-  requestAnimationFrame(loop);
 }
 
 // ------------------------------------------------------------
