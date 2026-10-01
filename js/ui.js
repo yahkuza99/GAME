@@ -1581,6 +1581,7 @@ const UI = {
       chk('rest', 'นั่งพักเมื่อ HP/SP ต่ำ (ไม่มีศัตรูรอบตัว)'),
       c.rest ? slider('restHp', 'นั่งพักเมื่อ HP ต่ำกว่า', 0, 90) : null,
       c.rest && c.style !== 'basic' ? slider('restSp', 'นั่งพักเมื่อ SP ต่ำกว่า', 0, 90) : null,
+      c.rest && c.style !== 'basic' ? h('div', { class: 'hint' }, 'นั่งรอ SP เฉพาะสายที่พึ่งสกิล (สายเวท) — สายที่ตีปกติแรงจะตีต่อไปแทนการนั่งรอ') : null,
       h('div', { class: 'bot-sec' }, 'อื่น ๆ'),
       chk('useBuffs', 'ใช้บัฟ / เรียกสัตว์คู่ใจอัตโนมัติ'),
       chk('avoidMvp', 'ไม่เข้าตี MVP เอง'),
