@@ -207,6 +207,7 @@ R.render = () => {
     g.beginPath(); g.ellipse(0, 0, rx, ry, 0, 0, 7); g.stroke();
     g.restore();
   }
+  R.drawTelegraphs(g, t); // ป้ายเตือนท่าบอสบนพื้น (ท้ายไฟล์)
   // วงเล็งเป้าหมายที่พื้น
   for (const m of G.mobs) {
     if (m.dead) continue;
@@ -834,4 +835,51 @@ R.drawFx = (g, f, t) => {
       break;
     }
   }
+};
+
+// ------------------------------------------------------------
+//  ป้ายเตือนท่าบอส (telegraph จาก telegraph() ใน js/game.js): วาดบนพื้นใต้ตัวละคร
+//  พื้นแดงโปร่ง + ขอบกะพริบ + แดงเข้มด้านในขยายจนเต็ม = เวลาที่เหลือก่อนดาเมจลง • ครบเวลา = แฟลชสว่างแล้วจางหาย
+// ------------------------------------------------------------
+R.drawTelegraphs = (g, t) => {
+  if (!G.fx.some(f => f.type === 'tele')) return;
+  const shape = (f, s) => { // เส้นทางรูปทรงในพิกัดโลก (พิกเซล) • s = สัดส่วนที่ขยายแล้ว (0..1)
+    const x = f.x * TILE, y = f.y * TILE;
+    g.beginPath();
+    if (f.shape === 'circle') g.arc(x, y, Math.max(0.1, f.r * TILE * s), 0, 7);
+    else if (f.shape === 'ring') {
+      const r0 = f.r0 * TILE, r1 = Math.max(r0 + 0.1, (f.r0 + (f.r - f.r0) * s) * TILE);
+      g.arc(x, y, r1, 0, 7); if (r0 > 0) { g.moveTo(x + r0, y); g.arc(x, y, r0, 0, 7, true); }
+    } else if (f.shape === 'line') {
+      const c = Math.cos(f.a), sn = Math.sin(f.a), w = f.w * TILE / 2, l0 = -0.5 * TILE, l1 = l0 + (f.len * TILE - l0) * s;
+      g.moveTo(x + c * l0 - sn * w, y + sn * l0 + c * w); g.lineTo(x + c * l1 - sn * w, y + sn * l1 + c * w);
+      g.lineTo(x + c * l1 + sn * w, y + sn * l1 - c * w); g.lineTo(x + c * l0 + sn * w, y + sn * l0 - c * w); g.closePath();
+    } else if (f.shape === 'cone') { g.moveTo(x, y); g.arc(x, y, Math.max(0.1, f.r * TILE * s), f.a - f.arc / 2, f.a + f.arc / 2); g.closePath(); }
+  };
+  g.save(); g.scale(1, R.K); g.lineJoin = 'round';
+  for (const f of G.fx) {
+    if (f.type !== 'tele' || (f.owner && f.owner.dead && f.t < f.dur)) continue;
+    if (f.t >= f.dur) { // ดาเมจลงแล้ว: แฟลชขาวอมส้มแล้วจาง
+      const a = 1 - (f.t - f.dur) / (f.linger || 0.35);
+      if (a <= 0) continue;
+      shape(f, 1); g.fillStyle = `rgba(255,190,140,${0.45 * a})`; g.fill('evenodd');
+      g.strokeStyle = `rgba(255,240,220,${0.9 * a})`; g.lineWidth = 3; g.stroke();
+      continue;
+    }
+    const k = f.t / f.dur, late = k > 0.7, pulse = 0.5 + 0.5 * Math.sin(t * (late ? 24 : 12));
+    shape(f, 1); // พื้นที่ทั้งหมด
+    g.fillStyle = `rgba(235,20,30,${0.24 + 0.08 * pulse})`; g.fill('evenodd');
+    g.strokeStyle = `rgba(255,30,40,${0.25 + 0.25 * pulse})`; g.lineWidth = 9; g.stroke(); // ขอบเรือง
+    g.strokeStyle = late ? `rgba(255,190,180,${0.8 + 0.2 * pulse})` : `rgba(255,70,70,${0.75 + 0.25 * pulse})`; g.lineWidth = 2.6; g.stroke();
+    shape(f, k); // ส่วนที่เต็มแล้ว = เวลาที่ผ่านไป
+    g.fillStyle = `rgba(220,10,25,${0.3 + 0.2 * k})`; g.fill('evenodd');
+    if (f.shape === 'line') { // ลูกศรบอกทิศทางทุบ
+      g.save(); g.translate(f.x * TILE, f.y * TILE); g.rotate(f.a);
+      g.strokeStyle = `rgba(255,225,210,${0.3 + 0.4 * pulse})`; g.lineWidth = 3;
+      const w = f.w * TILE * 0.2;
+      for (let i = 1.2; i < f.len; i += 1.7) { g.beginPath(); g.moveTo(i * TILE - w, -w); g.lineTo(i * TILE, 0); g.lineTo(i * TILE - w, w); g.stroke(); }
+      g.restore();
+    }
+  }
+  g.restore();
 };

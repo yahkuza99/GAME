@@ -163,16 +163,15 @@
     }
     if (p.dead) return;
     const x = p.x, y = p.y, R = 2;
-    addFx({ type: 'warnring', x, y, dur: 1.2, r: R });
     UI.msg(L(`${m.def.name} ขุดรากใต้เท้าเจ้า! ออกจากวงแดง!`, `${m.def.name} drives roots up beneath your feet! Get out of the red circle!`), 'mvp');
-    later(1.2, () => {
-      if (m.dead) return;
-      addFx({ type: 'ring', x, y, dur: 0.6, r: R + 0.4, color: '210,110,50', waves: 3 });
-      addFx({ type: 'shower', x, y, dur: 0.7, r: R });
-      if (p.dead || U.dist(x, y, p.x, p.y) > R) return;
+    // วงแดงบนพื้น (telegraph ใน js/game.js): ดาเมจ + มึน เฉพาะถ้ายังยืนในวงตอนรากพุ่ง
+    telegraph(m, { shape: 'circle', x, y, r: R, dur: 1.2 }, () => {
       const d = p.d, dmg = Math.max(1, Math.round(U.randi(m.def.atk[0], m.def.atk[1]) * 1.4 * (1 - d.def / 100) - d.softDef));
       damagePlayer(dmg, '#e0803a');
       if (!d.unshaken) stunPlayer(1.5 * (1 - d.stunRes / 100));
+    }, () => {
+      addFx({ type: 'ring', x, y, dur: 0.6, r: R + 0.4, color: '210,110,50', waves: 3 });
+      addFx({ type: 'shower', x, y, dur: 0.7, r: R });
     });
   };
 
