@@ -1393,8 +1393,11 @@ function updateMob(m, dt) {
   }
 }
 
+// สกิลบอสเพิ่มเติมจากไฟล์เนื้อหา (เช่น js/content_ch6.js): BOSS_SKILLS[ชื่อ] = m => { ... } แล้วใส่ bossSkill: 'ชื่อ' ในข้อมูลมอน
+const BOSS_SKILLS = {};
 function bossSkill(m) {
   const p = G.player;
+  if (BOSS_SKILLS[m.def.bossSkill]) return BOSS_SKILLS[m.def.bossSkill](m);
   if (m.def.bossSkill === 'heal') {
     const amt = Math.floor(m.maxHp * 0.08);
     m.hp = Math.min(m.maxHp, m.hp + amt);

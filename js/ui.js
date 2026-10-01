@@ -5,6 +5,11 @@
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+// กันบั๊ก "null" ทั้งเกม: append/prepend ข้าม null/undefined/false (ค่าเดิมของเบราว์เซอร์จะพิมพ์คำว่า "null" ออกมา)
+for (const P of [Element.prototype, DocumentFragment.prototype]) for (const k of ['append', 'prepend']) {
+  const orig = P[k];
+  P[k] = function (...nodes) { return orig.apply(this, nodes.filter(n => n != null && n !== false)); };
+}
 function h(tag, attrs = {}, ...kids) {
   const el = document.createElement(tag);
   for (const k in attrs) {
