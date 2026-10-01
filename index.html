@@ -13,8 +13,8 @@
   <meta name="description" content="NEO MIDGARD — เกม RPG หุ่นยนต์แอนดรอยด์ในโลกตำนานนอร์ส เล่นบนเบราว์เซอร์">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=202610010628">
-  <link rel="stylesheet" href="css/visor.css?v=202610010628">
+  <link rel="stylesheet" href="css/style.css?v=202610010647">
+  <link rel="stylesheet" href="css/visor.css?v=202610010647">
 </head>
 <body class="visor">
   <canvas id="cv"></canvas>
@@ -40,6 +40,7 @@
     <div id="skill-aim" hidden><span class="sa-ic"></span><span class="sa-t"></span><button type="button" id="sa-x" aria-label="ยกเลิก">ยกเลิก</button></div>
     <div id="exp-line"><i id="exp-line-fill"></i></div>
     <div id="quest-track" hidden title="แตะเพื่อนำทางไปทำเควสต์ (J = สมุดเควสต์)"></div>
+    <div id="party-hud" hidden aria-label="สมาชิกปาร์ตี้"></div>
     <div id="nav-pill" hidden><span class="nav-ic">🧭</span><span id="nav-text"></span><button id="nav-cancel" type="button" aria-label="ยกเลิกการนำทาง">×</button></div>
     <div id="target" hidden>
       <canvas id="tg-cv" width="84" height="84"></canvas>
@@ -119,6 +120,9 @@
     <div id="w-nav" class="win hidden" style="left:12px;top:170px;width:360px">
       <div class="win-title"><span>นำทาง (Navigate)</span></div><div class="win-body"></div>
     </div>
+    <div id="w-party" class="win hidden" style="right:64px;top:200px;width:360px">
+      <div class="win-title"><span>ปาร์ตี้ (Party)</span></div><div class="win-body"></div>
+    </div>
     <div id="w-options" class="win hidden center" style="width:320px">
       <div class="win-title"><span>ตั้งค่า</span></div><div class="win-body"></div>
     </div>
@@ -158,6 +162,7 @@
           <li><b>X</b> นั่งพัก • <b>Enter</b> แชท • <b>Esc</b> ปิดหน้าต่าง • <b>ล้อเมาส์ / + −</b> ซูม</li>
           <li><b>B</b> เปิด/ปิดบอท • <b>N</b> ตั้งค่าบอท • <b>M</b> แผนที่ใหญ่ (คลิกเพื่อเดินไปได้)</li>
           <li><b>J</b> เควสต์ — ภารกิจแนะนำทีละขั้น แตะแถบเควสต์ใต้การ์ดยูนิตเพื่อเดินไปทำทันที</li>
+          <li><b>Y</b> ปาร์ตี้ (ออนไลน์) — ตั้งปาร์ตี้ ชวนคนในแผนที่ ล่าใกล้กันแบ่ง EXP เท่ากัน • แชทปาร์ตี้ <b>/p ข้อความ</b> • <b>/invite ชื่อ</b> • <b>/leave</b></li>
           <li><b>G</b> นำทาง — เลือก NPC / แผนที่ / มอนสเตอร์ แล้วตัวละครจะเดินไปเอง ข้ามแผนที่ได้ (คลิกชื่อบนแผนที่ใหญ่ก็ได้)</li>
           <li><b>Tab</b> เปิด/ปิดเมนู • <b>ปุ่มลูกศร</b> เดิน 8 ทิศ (กดสองปุ่มพร้อมกันเพื่อเดินแนวทแยง) • คลิกมินิแมพเพื่อเดินไปจุดนั้น</li>
         </ul>
@@ -264,30 +269,31 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-  <script src="js/online.config.js?v=202610010628"></script>
-  <script src="js/data.js?v=202610010628"></script>
-  <script src="js/art.js?v=202610010628"></script>
-  <script src="js/util.js?v=202610010628"></script>
-  <script src="js/maps.js?v=202610010628"></script>
-  <script src="js/sprites.js?v=202610010628"></script>
-  <script src="js/rig.js?v=202610010628"></script>
-  <script src="js/anim.js?v=202610010628"></script>
-  <script src="js/sound.js?v=202610010628"></script>
-  <script src="js/music.js?v=202610010628"></script>
-  <script src="js/title.js?v=202610010628"></script>
-  <script src="js/passive.js?v=202610010628"></script>
-  <script src="js/game.js?v=202610010628"></script>
-  <script src="js/npc.js?v=202610010628"></script>
-  <script src="js/bot.js?v=202610010628"></script>
-  <script src="js/online.js?v=202610010628"></script>
-  <script src="js/render.js?v=202610010628"></script>
-  <script src="js/ui.js?v=202610010628"></script>
-  <script src="js/pad.js?v=202610010628"></script>
-  <script src="js/nav.js?v=202610010628"></script>
-  <script src="js/quest.js?v=202610010628"></script>
-  <script src="js/story.js?v=202610010628"></script>
-  <script src="js/content_ch6.js?v=202610010628"></script>
-  <script src="js/emote.js?v=202610010628"></script>
-  <script src="js/main.js?v=202610010628"></script>
+  <script src="js/online.config.js?v=202610010647"></script>
+  <script src="js/data.js?v=202610010647"></script>
+  <script src="js/art.js?v=202610010647"></script>
+  <script src="js/util.js?v=202610010647"></script>
+  <script src="js/maps.js?v=202610010647"></script>
+  <script src="js/sprites.js?v=202610010647"></script>
+  <script src="js/rig.js?v=202610010647"></script>
+  <script src="js/anim.js?v=202610010647"></script>
+  <script src="js/sound.js?v=202610010647"></script>
+  <script src="js/music.js?v=202610010647"></script>
+  <script src="js/title.js?v=202610010647"></script>
+  <script src="js/passive.js?v=202610010647"></script>
+  <script src="js/game.js?v=202610010647"></script>
+  <script src="js/npc.js?v=202610010647"></script>
+  <script src="js/bot.js?v=202610010647"></script>
+  <script src="js/online.js?v=202610010647"></script>
+  <script src="js/party.js?v=202610010647"></script>
+  <script src="js/render.js?v=202610010647"></script>
+  <script src="js/ui.js?v=202610010647"></script>
+  <script src="js/pad.js?v=202610010647"></script>
+  <script src="js/nav.js?v=202610010647"></script>
+  <script src="js/quest.js?v=202610010647"></script>
+  <script src="js/story.js?v=202610010647"></script>
+  <script src="js/content_ch6.js?v=202610010647"></script>
+  <script src="js/emote.js?v=202610010647"></script>
+  <script src="js/main.js?v=202610010647"></script>
 </body>
 </html>

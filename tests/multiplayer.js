@@ -17,6 +17,7 @@ async function player(ctx, user, opts = {}) {
   await p.waitForSelector('#cr-name', { state: 'visible', timeout: 10000 });
   await p.fill('#cr-name', opts.name || user); await p.click('#cr-start');
   await p.waitForFunction(() => G.started, null, { timeout: 15000 });
+  await p.click('#prologue-skip', { timeout: 3000 }).catch(() => {}); // ข้ามฉากเปิดเรื่อง (บทที่ 0)
   await p.evaluate(() => document.querySelectorAll('.win:not(.hidden)').forEach(w => w.classList.add('hidden')));
   return p;
 }
