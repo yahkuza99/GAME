@@ -112,6 +112,16 @@ const Anim = {
   // st: { moving, atk (1→0), cast, hurt (0..1), sit, dead, deathT }
   pick(key, st, t) {
     let action = 'idle', k = null;
+    // มึน: ล้มลงด้วยเฟรมแรก ๆ ของท่าตาย (ไม่ถึงเฟรมสุดท้ายที่ไฟหน้ากากดับ) นอนค้าง แล้วเล่นย้อนกลับตอนลุก
+    if (st.stun && !st.dead) {
+      const s = this.strip(key, 'dead');
+      if (s && s.action === 'dead') {
+        const top = Math.max(0, s.n - 2), step = 0.11;
+        const f = Math.max(0, Math.min(top, Math.floor(st.stun.e / step), Math.floor(st.stun.r / step)));
+        const dir = st.dir != null ? st.dir : (st.facing > 0 ? 0 : 4);
+        return { img: s.img, f, row: s.dirs === 8 ? dir : 0, flip: s.dirs === 8 ? false : st.facing > 0, action: 'dead', n: top + 1 };
+      }
+    }
     if (st.dead) { action = 'dead'; k = Math.min(1, (st.deathT == null ? 1 : st.deathT) / 0.5); }
     else if (st.hurt > 0) { action = 'hurt'; k = 1 - st.hurt; }
     else if (st.skill > 0) { action = 'cast'; k = 1 - st.skill; }

@@ -808,14 +808,7 @@ Sprites.drawMob = (g, m, t) => {
   }
   g.filter = 'none';
   const hs = (m.def.scale || 1) * (m.def.size || 1);
-  if (m.stunUntil > G.time) {
-    for (let i = 0; i < 3; i++) {
-      const a = t * 5 + i * 2.1;
-      g.fillStyle = '#ffe060';
-      g.font = 'bold 12px sans-serif'; g.textAlign = 'center';
-      g.fillText('★', x + Math.cos(a) * 12, y - 38 * hs + Math.sin(a) * 4);
-    }
-  }
+  if (m.stunUntil > G.time) Sprites.stunStars(g, x, y - 38 * hs, t);
   if (m.slowUntil > G.time) {
     g.strokeStyle = 'rgba(150,220,255,0.8)'; g.lineWidth = 2;
     g.beginPath(); g.ellipse(x, y, 16 * hs, 6 * hs, 0, 0, 7); g.stroke();
@@ -848,6 +841,11 @@ const NPC_LOOKS = {
   storage:  { skin: '#eef0f6', glow: '#7ae0c8', hair: '#3a4a6a', hairStyle: 'long', outfit: '#2e5a8a', outfit2: '#e8e0c8', hat: 'ribbon', robe: true, visor: 'band' },
   guide:    { skin: '#e6e8ee', glow: '#ff4a4a', hair: '#c8ccd4', outfit: '#e6e8ee', outfit2: '#a82a30', hat: 'viking', hatColor: '#d8d2c4', cape: '#a82a30', bulky: 1.1, visor: 'band' },
 };
+// ดาวหมุนเหนือหัวตอนมึน
+Sprites.stunStars = (g, x, y, t) => {
+  g.fillStyle = '#ffe060'; g.font = 'bold 12px sans-serif'; g.textAlign = 'center';
+  for (let i = 0; i < 3; i++) { const a = t * 5 + i * 2.1; g.fillText('★', x + Math.cos(a) * 12, y + Math.sin(a) * 4); }
+};
 Sprites.drawNpc = (g, n, t) => {
   const x = n.x * TILE + TILE / 2, y = n.y * TILE + TILE / 2 + 10;
   if (typeof Anim !== 'undefined' && Anim.has('npc_' + n.id)) { Anim.draw(g, x, y, 'npc_' + n.id, { facing: -1, seed: n.x * 0.1 }, t, 74); return; }
@@ -871,12 +869,16 @@ Sprites.drawPlayer = (g, p, t) => {
   const gk = `${p.job}_${p.gender === 'm' ? 'm' : 'f'}`;
   if (typeof Anim !== 'undefined' && Anim.has(gk)) {
     if (Object.keys(p.buffs).length) { g.strokeStyle = `rgba(255,240,150,${0.25 + Math.sin(t * 4) * 0.15})`; g.lineWidth = 2; g.beginPath(); g.ellipse(x, y, 16, 6, 0, 0, 7); g.stroke(); }
-    const tr = Anim.track(p, t, p.atkAnim || 0, (p.hurtFlash || 0) > 0, !!p.dead);
-    Anim.draw(g, x, y, gk, {
+    const tr = Anim.track(p, t, p.atkAnim || 0, false, !!p.dead);
+    const stun = !p.dead && p.stunUntil > G.time ? { e: G.time - p.stunAt, r: p.stunUntil - G.time } : null;
+    // โดนตี: ไม่ล้ม แค่สะดุ้ง (สั่นเล็กน้อย + แสงแดงจาก render) • ล้มเฉพาะตอนมึน
+    const shake = (p.hurtFlash || 0) > 0 && !stun ? Math.sin(t * 90) * 1.5 : 0;
+    Anim.draw(g, x + shake, y, gk, {
       facing: p.facing || 1, dir: p.dir, moving: p.moving && !p.sitting, atk: tr.atk, cast: !!p.cast, sit: p.sitting, dead: p.dead, deathT: tr.deathT,
       skill: p.skillPose != null && G.time - p.skillPose < 0.5 && G.time >= p.skillPose ? 1 - (G.time - p.skillPose) / 0.5 : 0,
-      hurt: tr.hurt,
+      hurt: 0, stun,
     }, t, 68);
+    if (stun) Sprites.stunStars(g, x, y - (stun.e < 0.3 || stun.r < 0.3 ? 56 : 30), t);
     return;
   }
   if (typeof Rig !== 'undefined' && Rig.enabled && Rig.get(gk)) {

@@ -48,7 +48,7 @@ function initRuntime(p) {
   Object.assign(p, {
     path: [], target: null, pickTarget: null, npcTarget: null, skillIntent: null, cast: null,
     facing: 1, dir: 2, moving: false, sitting: false, dead: false, atkAnim: 0, nextAttack: 0, skillReadyAt: 0, itemReadyAt: 0,
-    repathAt: 0, hpTimer: 0, spTimer: 0, buffs: {}, speech: null, poisonUntil: 0, stealthUntil: 0, d: {},
+    repathAt: 0, hpTimer: 0, spTimer: 0, buffs: {}, speech: null, poisonUntil: 0, stunUntil: 0, stealthUntil: 0, d: {},
   });
 }
 
@@ -337,6 +337,7 @@ function useItem(entry) {
   if (it.type === 'card') { UI.compoundCard(entry); return; }
   if (it.type !== 'use') { UI.msg(`${it.name} เป็นของสะสม นำไปขายที่ร้านค้าได้`, 'info'); return; }
   if (p.dead || G.time < p.itemReadyAt) return;
+  if (stunBlocked()) return;
   p.itemReadyAt = G.time + 0.12;
   if (it.heal) {
     const amt = Math.floor(U.randi(it.heal[0], it.heal[1]) * (1 + p.d.vit * 0.02));
@@ -609,6 +610,24 @@ function mobAttack(m) {
   let dmg = U.randi(md.atk[0], md.atk[1]);
   dmg = Math.max(1, Math.round(dmg * (1 - d.def / 100) - d.softDef * U.rand(0.7, 1)));
   damagePlayer(dmg);
+  if (md.stun && U.chance(md.stun[0] / 100 * (1 - Math.min(0.9, d.vit / 100)))) stunPlayer(md.stun[1]);
+}
+// มึน: ล้มลงกับพื้น ขยับ/ตี/ใช้สกิล/ใช้ของไม่ได้จนกว่าจะลุก (VIT สูงต้านได้)
+function stunPlayer(dur) {
+  const p = G.player;
+  if (p.dead || p.stunUntil > G.time) return;
+  p.stunAt = G.time; p.stunUntil = G.time + dur;
+  p.path = []; p.moving = false; p.sitting = false; p.cast = null;
+  addFloater(p.x, p.y - 1.6, 'Stun!', '#ffe080');
+  Sound.play('stun');
+}
+function isStunned() { return G.player.stunUntil > G.time; }
+// กดใช้ของ/สกิลตอนมึน: แจ้งครั้งเดียวต่อการมึน (บอทกดซ้ำทุกเฟรมจะได้ไม่ท่วมแชต)
+function stunBlocked() {
+  const p = G.player;
+  if (!isStunned()) return false;
+  if (p.stunMsg !== p.stunAt) { p.stunMsg = p.stunAt; UI.msg('มึนอยู่ ทำอะไรไม่ได้ชั่วครู่', 'err'); }
+  return true;
 }
 function damagePlayer(dmg, color = '#ff5050') {
   const p = G.player;
@@ -627,7 +646,7 @@ function healPlayer(amt) {
 }
 function playerDie() {
   const p = G.player;
-  p.hp = 0; p.dead = true; p.path = []; p.target = null; p.cast = null; p.skillIntent = null; p.sitting = false;
+  p.hp = 0; p.dead = true; p.path = []; p.target = null; p.cast = null; p.skillIntent = null; p.sitting = false; p.stunUntil = 0;
   let lost = 0;
   if (p.job !== 'novice' && p.baseLv < MAX_BASE_LV) {
     lost = Math.floor(baseExpNeed(p.baseLv) * 0.01);
@@ -696,6 +715,7 @@ function useSkill(id) {
   if (!lv || !s) return;
   if (s.type === 'passive') { UI.msg(`${s.name} เป็นสกิลติดตัว ทำงานอัตโนมัติ`, 'info'); return; }
   if (p.cast) return;
+  if (stunBlocked()) return;
   if (s.bow && weaponType() !== 'bow') { UI.msg('สกิลนี้ต้องสวมธนู', 'err'); return; }
   if (s.heal) {
     // สกิลฮีลใช้กับมอนสเตอร์อมตะที่เมาส์ชี้อยู่ = ทำความเสียหาย
@@ -1039,6 +1059,7 @@ function updatePlayer(dt) {
     const amt = 1 + Math.floor(p.d.maxSp / 100) + Math.floor(p.d.int / 6);
     p.sp = Math.min(p.d.maxSp, p.sp + amt);
   }
+  if (p.stunUntil > G.time) { p.moving = false; p.path = []; return; }
   if (p.cast) {
     p.moving = false;
     if (p.cast.target && p.cast.target.dead) { p.cast = null; return; }

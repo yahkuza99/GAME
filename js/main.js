@@ -63,7 +63,7 @@ function stepMove(dx, dy) {
 
 function toggleSit() {
   const p = G.player;
-  if (!G.started || p.dead || p.cast) return;
+  if (!G.started || p.dead || p.cast || stunBlocked()) return;
   p.sitting = !p.sitting;
   p.path = []; p.target = null; p.skillIntent = null;
   UI.msg(p.sitting ? 'นั่งพัก — ฟื้นฟู HP/SP เร็วขึ้น 2 เท่า' : 'ลุกขึ้นยืน', 'info');
@@ -460,6 +460,7 @@ function drawTitlePreview(t) {
 
 function startGame(p, isNew) {
   G.player = p;
+  p.stunUntil = 0;
   G.started = true;
   $('#title').classList.add('leaving');
   setTimeout(() => { $('#title').classList.add('hidden'); $('#title').classList.remove('leaving', 'creating'); }, 650);

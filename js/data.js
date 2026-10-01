@@ -338,6 +338,7 @@ const EQUIP_SLOTS = ['head', 'weapon', 'shield', 'armor', 'garment', 'shoes', 'a
 // ------------------------------------------------------------
 //  มอนสเตอร์ (ออกแบบใหม่)
 //  def = hard def (%)  vit = soft def   sprite = รูปแบบการวาด
+//  stun = [โอกาส %, วินาที] ตีผู้เล่นแล้วมีโอกาสทำให้มึน (ล้มลงลุกไม่ได้ชั่วครู่)
 // ------------------------------------------------------------
 const MOBS = {
   // หุ่นฝึกซ้อมในเมือง (ทดสอบท่าโจมตี/ดาเมจ): ไม่ตาย ไม่เดิน ไม่ให้ EXP ตีกลับครั้งละ 1
@@ -362,7 +363,7 @@ const MOBS = {
                sprite: 'spore', color: '#d8433a', drops: [['cap_spore', 0.6], ['red_herb', 0.3], ['hat', 0.01], ['capshroom_card', 0.01]] },
   moss_pudding: { name: 'Moss Unit', lv: 14, hp: 330, atk: [32, 40], def: 10, mdef: 10, vit: 14, flee: 24,  hit: 34,  exp: 160, jexp: 110, speed: 1.6, aggro: false, element: 'earth', race: 'plant',
                sprite: 'poring', color: '#7fcf6f', drops: [['moss_gel', 0.5], ['green_herb', 0.3], ['grape', 0.06], ['mosspud_card', 0.01]] },
-  seraph_pudding: { name: 'Seraph Core', lv: 25, hp: 5500, atk: [90, 120], def: 30, mdef: 50, vit: 25, flee: 60, hit: 70, exp: 3500, jexp: 2400, speed: 1.8, aggro: true, element: 'holy', race: 'angel',
+  seraph_pudding: { name: 'Seraph Core', lv: 25, hp: 5500, atk: [90, 120], def: 30, mdef: 50, vit: 25, flee: 60, hit: 70, exp: 3500, jexp: 2400, speed: 1.8, aggro: true, stun: [12, 2], element: 'holy', race: 'angel',
                sprite: 'poring', color: '#fff3c4', scale: 2.0, boss: true, wings: true, respawn: 300000, bossSkill: 'heal',
                drops: [['seraph_wings', 0.35], ['white_potion', 0.6], ['blue_potion', 0.5], ['yggdrasil_shard', 0.1], ['seraph_card', 0.15]] },
 
@@ -370,20 +371,20 @@ const MOBS = {
                sprite: 'quad', variant: 'raccoon', color: '#8a8e98', color2: '#4e525c', size: 0.8, drops: [['ash_tail', 0.5], ['moon_fur', 0.3], ['muffler', 0.01], ['ashtail_card', 0.01]] },
   fenrir_pup:{ name: 'Fenrir Unit',    lv: 25, hp: 900,  atk: [60, 78],  def: 15, mdef: 0,  vit: 22, flee: 55,  hit: 60,  exp: 460, jexp: 320, speed: 2.4, aggro: true, element: 'earth', race: 'brute',
                sprite: 'quad', variant: 'wolf', color: '#b8c0cc', color2: '#5e6674', size: 1.0, drops: [['fenrir_fang', 0.6], ['meat', 0.3], ['fenrir_card', 0.01]] },
-  mossback:  { name: 'Iron Brute', lv: 26, hp: 1150, atk: [65, 82],  def: 25, mdef: 5,  vit: 26, flee: 40,  hit: 55,  exp: 520, jexp: 350, speed: 1.3, aggro: false, element: 'earth', race: 'brute',
+  mossback:  { name: 'Iron Brute', lv: 26, hp: 1150, atk: [65, 82],  def: 25, mdef: 5,  vit: 26, flee: 40,  hit: 55,  exp: 520, jexp: 350, speed: 1.3, aggro: false, stun: [10, 2], element: 'earth', race: 'brute',
                sprite: 'quad', variant: 'bear', color: '#8a7456', color2: '#4e5a3a', size: 1.35, drops: [['moss_hide', 0.5], ['mead', 0.08], ['bear_card', 0.01]] },
-  tuskboar:  { name: 'Tusk Trooper',      lv: 28, hp: 1400, atk: [80, 100], def: 30, mdef: 5,  vit: 28, flee: 50,  hit: 65,  exp: 640, jexp: 450, speed: 1.9, aggro: true, element: 'earth', race: 'brute',
+  tuskboar:  { name: 'Tusk Trooper',      lv: 28, hp: 1400, atk: [80, 100], def: 30, mdef: 5,  vit: 28, flee: 50,  hit: 65,  exp: 640, jexp: 450, speed: 1.9, aggro: true, stun: [8, 1.5], element: 'earth', race: 'brute',
                sprite: 'quad', variant: 'boar', color: '#6e6258', color2: '#3a342e', size: 1.15, tusk: true, drops: [['iron_tusk', 0.6], ['meat', 0.3], ['boar_card', 0.01]] },
 
   draugr:    { name: 'Draugr Husk',        lv: 17, hp: 700,  atk: [45, 60],  def: 5,  mdef: 10, vit: 17, flee: 20,  hit: 45,  exp: 330, jexp: 220, speed: 0.9, aggro: true, element: 'undead', race: 'undead',
                glow: '#ff4a3a', sprite: 'human', skin: '#9a8a78', face: '#b4aaa4', outfit: '#5a4a3a', hair: '#6a5a4a', viking: true, joint: '#3a2a22', drops: [['grave_dust', 0.6], ['moss_gel', 0.3], ['draugr_card', 0.01]] },
-  bone_warden: { name: 'Frame Warden', lv: 24, hp: 1000, atk: [70, 90],  def: 20, mdef: 10, vit: 20, flee: 50,  hit: 60,  exp: 520, jexp: 360, speed: 1.6, aggro: true, element: 'undead', race: 'undead',
+  bone_warden: { name: 'Frame Warden', lv: 24, hp: 1000, atk: [70, 90],  def: 20, mdef: 10, vit: 20, flee: 50,  hit: 60,  exp: 520, jexp: 360, speed: 1.6, aggro: true, stun: [8, 1.5], element: 'undead', race: 'undead',
                glow: '#ff3030', sprite: 'human', skin: '#f0ecd8', outfit: '#f0ecd8', hair: null, bones: true, weapon: 'sword', drops: [['old_bone', 0.5], ['falchion', 0.01], ['warden_card', 0.01]] },
   hel_maiden:{ name: 'Hel Maiden Unit',    lv: 30, hp: 1500, atk: [90, 115], def: 30, mdef: 30, vit: 25, flee: 55,  hit: 75,  exp: 720, jexp: 500, speed: 1.5, aggro: true, element: 'undead', race: 'undead',
                glow: '#60f0d0', sprite: 'human', skin: '#c8d0e0', outfit: '#3a4a6a', hair: '#e8e8f0', hood: '#2a2a3a', halfskull: true, drops: [['hel_lantern', 0.4], ['ribbon', 0.02], ['helmaiden_card', 0.01]] },
   hel_guard: { name: 'Hel Guard Unit',     lv: 32, hp: 1700, atk: [100, 125],def: 30, mdef: 20, vit: 30, flee: 60,  hit: 80,  exp: 800, jexp: 560, speed: 1.5, aggro: true, element: 'undead', race: 'undead',
                glow: '#ff4a3a', sprite: 'human', skin: '#b8c0d0', outfit: '#2a2a3a', hair: '#101018', viking: true, weapon: 'axe', drops: [['cursed_seal', 0.4], ['iron_helm', 0.02], ['helguard_card', 0.01]] },
-  kitsura:   { name: 'Kitsura EX', lv: 45, hp: 22000, atk: [180, 240], def: 40, mdef: 50, vit: 40, flee: 110, hit: 130, exp: 16000, jexp: 11000, speed: 2.2, aggro: true, element: 'fire', race: 'demon',
+  kitsura:   { name: 'Kitsura EX', lv: 45, hp: 22000, atk: [180, 240], def: 40, mdef: 50, vit: 40, flee: 110, hit: 130, exp: 16000, jexp: 11000, speed: 2.2, aggro: true, stun: [12, 2], element: 'fire', race: 'demon',
                glow: '#ffae40', sprite: 'human', skin: '#f6d7b8', outfit: '#e86a2a', hair: '#f0a040', fox: true, scale: 1.6, boss: true, respawn: 600000, bossSkill: 'firestorm',
                drops: [['emberfang', 0.4], ['white_potion', 0.8], ['blue_potion', 0.6], ['yggdrasil_shard', 0.15], ['kitsura_card', 0.15]] },
 };
