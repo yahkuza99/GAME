@@ -213,6 +213,7 @@ const Online = {
     if (this.mapChannel) { this.sb.removeChannel(this.mapChannel); this.mapChannel = null; }
     this.others.clear(); this.count = 0; this.mapId = null;
     G.mobs = G.mobs.filter(m => !m.isPlayer);
+    this.lastHitBy = null;
   },
   snapshot() {
     const p = G.player, e = p.equip;
@@ -302,7 +303,10 @@ const Online = {
       Object.assign(m.def, { name: o.name, def: df, mdef: mdf, flee: fl, vit: vt, lv });
       m.x = o.x; m.y = o.y; m.hp = o.hp || 0; m.maxHp = o.maxHp || 1; m.dead = !!o.dead || o.stealth;
     }
-    if (G.mobs.some(m => m.isPlayer && !keep.has(m.ref.id))) G.mobs = G.mobs.filter(m => !m.isPlayer || keep.has(m.ref.id));
+    if (G.mobs.some(m => m.isPlayer && !keep.has(m.ref.id))) {
+      for (const m of G.mobs) if (m.isPlayer && !keep.has(m.ref.id)) m.dead = true; // ร่ายค้าง/เดินไปหาตัวที่ออกไปแล้วต้องยกเลิก
+      G.mobs = G.mobs.filter(m => !m.isPlayer || keep.has(m.ref.id));
+    }
     const p = G.player;
     if (p.target && p.target.isPlayer && p.target.dead) p.target = null;
   },
@@ -314,9 +318,13 @@ const Online = {
     const p = G.player;
     if (!s || !this.user || s.to !== this.user.id || !G.map.def.pvp || p.dead) return;
     const atk = this.others.get(s.from);
-    if (!atk) return; // ต้องอยู่ในลานเดียวกัน
-    const dmg = U.clamp(Math.round(+s.dmg || 0), 0, 99999);
-    this.lastHitBy = { id: s.from, name: s.fn || atk.name };
+    if (!atk || atk.dead || U.dist(atk.x, atk.y, p.x, p.y) > 16) return; // ต้องอยู่ในลานเดียวกันและอยู่ในระยะ
+    // กันส่งรัว: คนเดียวตีได้ไม่เกิน 6 ครั้ง/วินาที
+    const now = performance.now(), last = (this.hitRate || (this.hitRate = {}))[s.from] || 0;
+    if (now - last < 160) return;
+    this.hitRate[s.from] = now;
+    const dmg = U.clamp(Math.round(+s.dmg || 0), 0, Math.max(1, Math.round(p.d.maxHp * 0.6)));
+    this.lastHitBy = { id: s.from, name: s.fn || atk.name, at: G.time };
     p.sitting = false;
     damagePlayer(dmg, s.crit ? '#ffe040' : '#ff5050');
     // โจมตีกลับอัตโนมัติ (ตามตั้งค่า) ใส่คนที่ตีเรา
@@ -325,7 +333,7 @@ const Online = {
   },
   // เราล้มในลานประลอง (เรียกจาก playerDie)
   onPvpDeath() {
-    const p = G.player, k = this.lastHitBy;
+    const p = G.player, k = this.lastHitBy && G.time - this.lastHitBy.at < 10 ? this.lastHitBy : null; // เครดิตเฉพาะคนที่ตีภายใน 10 วิ
     p.pvp = p.pvp || { k: 0, d: 0 }; p.pvp.d++;
     UI.msg(k ? `⚔ ${k.name} ล้มคุณในลานประลอง` : 'คุณล้มลงในลานประลอง', 'err');
     if (this.mapChannel && k) this.mapChannel.send({ type: 'broadcast', event: 'kill', payload: { killer: k.id, kn: k.name, victim: this.user.id, vn: p.name } });

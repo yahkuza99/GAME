@@ -10,7 +10,8 @@ const SIGHT_BLOCK = new Set([T.TREE, T.WALL, T.ROCK, T.HOUSE]);
 const MAP_DEFS = {
   eldheim: {
     name: 'Neo Eldheim', thai: 'นครนีโอเอลด์ไฮม์ ฐานที่มั่นแห่งแอนดรอยด์', w: 40, h: 40, kind: 'town', seed: 101,
-    links: { E: 'meadow', S: 'wolfwood', N: 'arena' }, spawns: [],
+    links: { E: 'meadow', S: 'wolfwood' }, spawns: [],
+    arrive: { arena: [23.5, 17.5] }, // ออกจากลานประลอง → โผล่ข้าง Bifrost Keeper (ด้านเหนือของเมืองเป็นหอคอย เดินไม่ได้)
     dummies: [[18, 28], [20, 28], [22, 28]], // หุ่นฝึกซ้อม (ทดสอบการโจมตี)
     grass: '#74b04c',
     npcs: [

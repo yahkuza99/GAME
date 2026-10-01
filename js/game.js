@@ -99,7 +99,7 @@ function loadGameFrom(data) {
   if (!p.save || !MAP_DEFS[p.save.map]) p.save = { map: HOME_MAP, x: 20.5, y: 24.5 };
   // สกิลที่ไม่มีอยู่แล้ว (เช่น ถูกลบออกจาก data.js) คืนแต้มให้
   for (const id in p.skills) if (!SKILLS[id]) { if (!SKILLS.first_aid || id !== 'first_aid') p.skillPoints += p.skills[id]; delete p.skills[id]; }
-  fixSkillPoints(p); // เซฟเก่าที่แต้มสกิลเกิน (แต้ม Novice ค้างข้ามอาชีพ) → ปรับให้ถูกต้อง
+  fixSkillPoints(p, true); // เซฟเก่าที่แต้มสกิลเกิน (แต้ม Novice ค้างข้ามอาชีพ) → ปรับให้ถูกต้อง
   // แถบสกิล (8 ช่อง) แยกจากแถบไอเทม (4 ช่อง) — เซฟเก่าที่ปนกันจะถูกย้ายไอเทมไปแถบไอเทม
   const oldBar = (p.hotbar || []).filter(h => h && ((h.t === 'skill' && SKILLS[h.id]) || (h.t === 'item' && ITEMS[h.id])));
   const hadPot = Array.isArray(data.potbar);
@@ -216,6 +216,7 @@ function gainExp(bexp, jexp) {
     p.skillPoints++;
     jobUp = true;
   }
+  if (jobUp) fixSkillPoints(p); // ไม่ให้แต้มเกินที่อัปได้จริง (เซฟเก่าที่ใช้แต้มยกมาไปแล้ว)
   if (p.jobLv >= jmax) p.jobExp = 0;
   Bot.onExp(bexp, jexp);
   if (p.options.expMsg) UI.msg(`ได้รับ ${U.fmt(bexp)} Base EXP / ${U.fmt(jexp)} Job EXP`, 'exp');
@@ -507,6 +508,7 @@ function changeMap(id, x, y) {
 }
 function teleportPlayer(x, y) {
   const p = G.player;
+  G.pendingSkill = null; // เปลี่ยนแมพ/วาร์ป = ยกเลิกโหมดเล็งสกิล
   p.x = x; p.y = y; p.path = []; p.target = null; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.cast = null;
   p.sitting = false;
   for (const m of G.mobs) if (m.state === 'chase') { m.state = 'idle'; m.path = []; }
@@ -525,7 +527,11 @@ function spawnMob(id, pos) {
   return m;
 }
 // คูลดาวน์บอส: เก็บเป็นเวลาจริง (ms) ลงเซฟ → ปิดเกมเปิดใหม่ไม่รีเซ็ต ฟาร์มบอสด้วยการรีโหลดไม่ได้
-function mvpLeft(mapId) { return Math.max(0, (((G.player && G.player.mvpAt) || {})[mapId] || 0) - Date.now()) / 1000; }
+function mvpLeft(mapId) {
+  const at = ((G.player && G.player.mvpAt) || {})[mapId] || 0, d = MAP_DEFS[mapId], mv = d && d.mvp && MOBS[d.mvp];
+  const left = Math.max(0, at - Date.now()) / 1000;
+  return mv ? Math.min(left, mv.respawn / 1000) : left; // นาฬิกาเครื่องเพี้ยนไปอนาคต ไม่ทำให้บอสหายนานเกินเวลาเกิดจริง
+}
 function spawnMvp(id) {
   const m = spawnMob(id);
   m.isMvp = true;
@@ -597,7 +603,7 @@ function applyHit(m, r, opts = {}) {
   // ดูดเลือด (ต้นไม้พาสซีฟ): ดาเมจกายภาพส่วนหนึ่งกลับมาเป็น HP แบบเงียบ ๆ
   const p = G.player;
   if (r.phys && p.d.leech && !p.dead && !m.def.dummy && p.hp < p.d.maxHp) {
-    const amt = Math.min(p.d.maxHp - p.hp, Math.max(1, Math.round(r.dmg * p.d.leech / 100)));
+    const amt = Math.min(p.d.maxHp - p.hp, Math.max(1, Math.round(r.dmg * (m.isPlayer ? 0.6 : 1) * p.d.leech / 100))); // PvP: คิดจากดาเมจหลังลด
     p.hp += amt;
     addFloater(p.x + 0.35, p.y - 1.5, `+${amt} ดูดเลือด`, '#ff8fb4');
   }
@@ -775,6 +781,7 @@ function healPlayer(amt, label) {
 function playerDie() {
   const p = G.player;
   p.hp = 0; p.dead = true; p.path = []; p.target = null; p.cast = null; p.skillIntent = null; p.sitting = false; p.stunUntil = 0;
+  G.pendingSkill = null;
   let lost = 0;
   if (G.map.def.pvp) { Online.onPvpDeath(); UI.showDeath(0); Sound.play('die'); Bot.onDeath(); return; } // ลานประลอง: ไม่เสีย EXP
   if (p.job !== 'novice' && p.baseLv < MAX_BASE_LV) {
@@ -875,7 +882,7 @@ function useSkill(id) {
   if (s.bow && weaponType() !== 'bow') { UI.msg('สกิลนี้ต้องสวมธนู', 'err'); return; }
   if (s.heal) {
     // สกิลฮีลใช้กับมอนสเตอร์อมตะที่เมาส์ชี้อยู่ = ทำความเสียหาย
-    const h = G.hover && G.hover.kind === 'mob' ? G.hover.ref : null;
+    const h = !Bot.on && G.hover && G.hover.kind === 'mob' ? G.hover.ref : null; // บอทฮีลตัวเองเสมอ (ไม่ไปตีอมตะที่เมาส์บังเอิญชี้)
     beginSkill(id, lv, h && h.def.element === 'undead' ? h : null);
     return;
   }
@@ -912,6 +919,9 @@ function skillDelayHint() {
 function beginSkill(id, lv, tgt) {
   const p = G.player, s = SKILLS[id];
   G.pendingSkill = null;
+  // ตรวจซ้ำที่นี่ด้วย: ทางคลิกเล็ง/ปุ่มบนจอ/บอท เรียก beginSkill ตรง ๆ ไม่ผ่าน useSkill
+  if (p.dead || !lv || !s || (s.bow && weaponType() !== 'bow')) return;
+  if (stunBlocked()) return;
   if (G.time < p.skillReadyAt) { skillDelayHint(); return; }
   if (skillCdLeft(id) > 0) { skillCdHint(id); return; }
   if (!canPaySkill(skillCost(id, lv))) { const w = p.d.bloodmagic ? 'HP' : 'SP'; UI.msg(`${w} ไม่เพียงพอ`, 'err'); addFloater(p.x, p.y - 1.3, `${w} ไม่พอ`, '#8fb0ff'); return; }
@@ -1161,10 +1171,16 @@ function changeJob(job) {
   saveGame();
 }
 // แต้มสกิลที่ถูกต้อง = (Job Lv − 1) − แต้มที่ใช้ไปในสกิลของอาชีพปัจจุบัน (ได้ 1 แต้มต่อ Job Lv)
-function fixSkillPoints(p) {
+// onLoad: เซฟเก่าที่แต้ม Novice ยกข้ามอาชีพ → แปลงส่วนเกินเป็น Basic Training (ไม่ลบทิ้งเฉย ๆ)
+function fixSkillPoints(p, onLoad) {
   const spent = (JOBS[p.job].skills || []).filter(id => SKILLS[id] && !SKILLS[id].noLearn).reduce((a, id) => a + (p.skills[id] || 0), 0);
   const should = Math.max(0, (p.jobLv - 1) - spent);
-  if (p.skillPoints > should) p.skillPoints = should;
+  if (p.skillPoints <= should) return;
+  if (onLoad && p.job !== 'novice') {
+    const bt = p.skills.basic_training || 0, add = Math.min(p.skillPoints - should, SKILLS.basic_training.max - bt);
+    if (add > 0) p.skills.basic_training = bt + add;
+  }
+  p.skillPoints = should;
 }
 function resetSkills() {
   const p = G.player;
@@ -1174,6 +1190,7 @@ function resetSkills() {
     pts += p.skills[id]; delete p.skills[id];
   }
   p.skillPoints += pts;
+  fixSkillPoints(p); // คืนได้ไม่เกิน Job Lv − 1
   p.hotbar = p.hotbar.map(h => (h && h.t === 'skill' && !p.skills[h.id] ? null : h));
   for (const k in p.buffs) delete p.buffs[k];
   recalc();
@@ -1321,9 +1338,9 @@ function updatePlayer(dt) {
   // วาร์ปพอร์ทัล
   const portal = G.map.portalAt(Math.floor(p.x), Math.floor(p.y));
   if (portal) {
-    const td = MAP_DEFS[portal.to];
-    const a = PORTAL_SIDE[portal.toSide](td.w, td.h);
-    changeMap(portal.to, a.ax + 0.5, a.ay + 0.5);
+    const td = MAP_DEFS[portal.to], ar = td.arrive && td.arrive[G.map.id];
+    if (ar) changeMap(portal.to, ar[0], ar[1]);
+    else { const a = PORTAL_SIDE[portal.toSide](td.w, td.h); changeMap(portal.to, a.ax + 0.5, a.ay + 0.5); }
   }
 }
 

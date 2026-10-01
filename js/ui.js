@@ -379,7 +379,7 @@ const UI = {
       if (big) { g.font = '11px "Noto Sans Thai", sans-serif'; g.textAlign = 'center'; g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,0.7)'; g.strokeText(n.name, (n.x + 0.5) * S, (n.y + 0.5) * S - 8); g.fillStyle = '#fff4c0'; g.fillText(n.name, (n.x + 0.5) * S, (n.y + 0.5) * S - 8); }
     }
     for (const m of G.mobs) {
-      if (m.dead) continue;
+      if (m.dead || m.isPlayer) continue; // คู่ต่อสู้ PvP วาดในส่วนผู้เล่นอื่นแล้ว
       if (m.isMvp) { g.fillStyle = (Math.floor(G.time * 4) % 2) ? '#ff2020' : '#ffffff'; g.beginPath(); g.arc(m.x * S, m.y * S, big ? 7 : 4, 0, 7); g.fill(); }
       else if (big || m.state === 'chase') { g.fillStyle = m.state === 'chase' ? '#ff5050' : 'rgba(255,170,170,0.8)'; g.beginPath(); g.arc(m.x * S, m.y * S, big ? 2.5 : 1.3, 0, 7); g.fill(); }
     }
@@ -526,7 +526,7 @@ const UI = {
         ic.append(this.skillIcon(x.id));
         q.textContent = 'Lv' + skillLv(x.id);
         const sk = SKILLS[x.id], lv = skillLv(x.id), cost = skillCost(x.id, lv);
-        el.title = `${sk.name} Lv ${lv} [${key}]${cost ? ` • SP ${cost}` : ''}${sk.cd ? ` • คูลดาวน์ ${sk.cd} วิ` : ''}\n${sk.desc || ''}`;
+        el.title = `${sk.name} Lv ${lv} [${key}]${cost ? ` • SP ${cost}` : ''}${sk.cd ? ` • คูลดาวน์ ${+(sk.cd * (1 - (G.player.d.cdCut || 0) / 100)).toFixed(1)} วิ` : ''}\n${sk.desc || ''}`;
       } else {
         ic.append(h('img', { src: itemIconUrl(x.id), alt: '' }));
         q.textContent = countItem(x.id);
@@ -817,7 +817,7 @@ const UI = {
         ic,
         h('div', { class: 'sk-info' },
           h('div', { class: 'sk-name' }, s.name, h('span', { class: 'sk-lv' }, ` Lv ${lv}/${s.max}`), s.type === 'passive' ? h('span', { class: 'tag' }, 'ติดตัว') : null),
-          h('div', { class: 'sk-desc' }, s.desc + (s.sp && lv ? ` [SP ${s.sp(lv)}]` : '') + (s.cd ? ` [คูลดาวน์ ${s.cd} วิ]` : '')),
+          h('div', { class: 'sk-desc' }, s.desc + (s.sp && lv ? ` [SP ${s.sp(lv)}]` : '') + (s.cd ? ` [คูลดาวน์ ${+(s.cd * (1 - (p.d.cdCut || 0) / 100)).toFixed(1)} วิ]` : '')),
           reqTxt ? h('div', { class: 'sk-req' + (skillReqMet(id) ? ' ok' : '') }, `ต้องการ: ${reqTxt}`) : null,
           lv && s.type === 'active' ? mastery(id) : null),
         h('div', { class: 'sk-acts' },
@@ -1259,7 +1259,8 @@ const UI = {
   },
   renderNav() {
     const body = $('#w-nav .win-body');
-    const key = this.navTab + '|' + G.map.id + '|' + G.player.baseLv;
+    // แท็บล่าเก็บเลเวลมีนับถอยหลัง MVP/จำนวนที่ล่า → อัปเดตทุก 5 วิ (ตำแหน่งเลื่อนถูกจำไว้)
+    const key = this.navTab + '|' + G.map.id + '|' + G.player.baseLv + (this.navTab === 'mob' ? '|' + Math.floor(G.time / 5) : '');
     if (body.dataset.key === key) return;
     body.dataset.key = key; body.innerHTML = '';
     const tabs = [['mob', 'ล่าเก็บเลเวล'], ['here', 'แผนที่นี้'], ['place', 'สถานที่'], ['map', 'แผนที่']];
@@ -1299,7 +1300,7 @@ const UI = {
       }
     }
   },
-  optKey() { return JSON.stringify(G.player.options, (k, v) => k === 'bot' ? undefined : v); },
+  optKey() { return JSON.stringify(G.player.options, (k, v) => k === 'bot' ? undefined : v) + '|' + !!document.fullscreenElement + '|' + (typeof Pad !== 'undefined' ? Pad.mode : ''); },
   renderOptions(force) {
     const p = G.player, o = p.options;
     const body = $('#w-options .win-body');
@@ -1387,7 +1388,8 @@ const UI = {
       this.dlgOpen(name);
       const b = $('#w-dialog .win-body');
       if (text) b.append(h('div', { class: 'dlg-text', html: text }));
-      b.append(h('div', { class: 'dlg-menu' }, options.map((o, i) => h('button', { class: 'dlg-opt' + (i === 0 && !Pad.enabled() ? ' kbd' : ''), onclick: () => { this.dialog = null; res(i); } },
+      this.dlgArmed = false;
+      b.append(h('div', { class: 'dlg-menu' }, options.map((o, i) => h('button', { class: 'dlg-opt', onclick: () => { this.dialog = null; res(i); } },
         Pad.enabled() || i > 8 ? null : h('kbd', {}, String(i + 1)), o))));
       this.dialog = { reject: rej };
     });
@@ -1399,9 +1401,10 @@ const UI = {
     if (!opts.length) return false;
     let i = opts.findIndex(o => o.classList.contains('kbd'));
     const mark = j => { opts.forEach(o => o.classList.remove('kbd')); opts[j].classList.add('kbd'); opts[j].scrollIntoView({ block: 'nearest' }); };
-    if (k === 'arrowdown' || k === 's') { mark(i < 0 ? 0 : (i + 1) % opts.length); return true; }
-    if (k === 'arrowup' || k === 'w') { mark(i <= 0 ? opts.length - 1 : i - 1); return true; }
-    if (k === ' ' || k === 'enter') { opts[i < 0 ? 0 : i].click(); return true; }
+    if (k === 'arrowdown' || k === 's') { mark(i < 0 ? 0 : (i + 1) % opts.length); this.dlgArmed = true; return true; }
+    if (k === 'arrowup' || k === 'w') { mark(i <= 0 ? opts.length - 1 : i - 1); this.dlgArmed = true; return true; }
+    // ยังไม่ได้เลือกด้วยลูกศร: กดครั้งแรกแค่ไฮไลต์ตัวเลือกแรก (ต้องกดซ้ำเพื่อยืนยัน) — กันเผลอเลือก
+    if (k === ' ' || k === 'enter') { if (i < 0 || !this.dlgArmed) { mark(i < 0 ? 0 : i); this.dlgArmed = true; return true; } opts[i].click(); this.dlgArmed = false; return true; }
     if (/^[1-9]$/.test(k) && +k <= opts.length) { opts[+k - 1].click(); return true; }
     return false;
   },
@@ -1623,8 +1626,8 @@ const UI = {
   const snap = w => {
     const out = new Map(), seen = {};
     for (const el of w.querySelectorAll('.win-body, .win-body *')) {
+      const k = el.className || el.tagName; const i = seen[k] = (seen[k] || 0) + 1; // นับลำดับก่อนเช็กว่าเลื่อนได้ ไม่ให้ช่องสลับกัน
       if (el.scrollHeight <= el.clientHeight + 1) continue;
-      const k = el.className || el.tagName; const i = seen[k] = (seen[k] || 0) + 1;
       if (el.scrollTop > 0) out.set(k + '#' + i, el.scrollTop);
     }
     return out;
@@ -1633,7 +1636,6 @@ const UI = {
     if (!m.size) return;
     const seen = {};
     for (const el of w.querySelectorAll('.win-body, .win-body *')) {
-      if (el.scrollHeight <= el.clientHeight + 1) continue;
       const k = el.className || el.tagName; const i = seen[k] = (seen[k] || 0) + 1;
       const v = m.get(k + '#' + i); if (v != null) el.scrollTop = v;
     }

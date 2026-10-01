@@ -40,9 +40,9 @@ NPC.scripts.bifrost = async n => {
       await UI.say(nm, `ข้าจดจำเจ้าไว้แล้ว ... แปลก ข้าไม่เคยจำเจ้ามาก่อน<br>เมื่อใช้ Return Beacon หรือล้มลง ใบไม้จะพาเจ้ากลับมาที่ ${B(G.map.def.name)}`);
     } else await UI.say(nm, `ข้าจดจำ ${B(G.map.def.name)} ไว้ให้เจ้าแล้ว<br>เมื่อใช้ Return Beacon หรือล้มลงในการต่อสู้ ใบไม้จะพาเจ้ากลับมาที่นี่`);
   } else if (c === 1) {
-    const dests = [['meadow', 300], ['mistlake', 600], ['wolfwood', 800], ['helcave', 1200]];
-    const i = await UI.menu(nm, 'ข้าจดจำสี่ปลายทาง — จะให้สายรุ้งพาเจ้าไปที่ใด?',
-      [...dests.map(([id, z]) => `${MAP_DEFS[id].name} (Lv ${MAP_DEFS[id].level.split(' ')[0]}) — ${U.fmt(z)} ${CUR}`), 'ยกเลิก']);
+    const dests = [['meadow', 300], ['mistlake', 600], ['wolfwood', 800], ['helcave', 1200], ['arena', 0]];
+    const i = await UI.menu(nm, 'ข้าจดจำปลายทางเหล่านี้ — จะให้สายรุ้งพาเจ้าไปที่ใด?',
+      [...dests.map(([id, z]) => MAP_DEFS[id].pvp ? `${MAP_DEFS[id].name} — ลานประลอง PvP (ฟรี)` : `${MAP_DEFS[id].name} (Lv ${MAP_DEFS[id].level.split(' ')[0]}) — ${U.fmt(z)} ${CUR}`), 'ยกเลิก']);
     if (i < dests.length) {
       const [id, z] = dests[i];
       if (p.zeny < z) { await UI.say(nm, `ข้าจดจำได้ว่า ${CUR} ของเจ้าไม่พอค่าผ่านทาง`); return; }
