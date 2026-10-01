@@ -954,11 +954,11 @@ Rows per priority: P1 = 36, P1+ = 6, P2 = 32, P2+ = 2, P3 = 72, P4 = 2, P4+ = 5,
 | ⬜ | 26 | P1 | `job_phantom_m.webp` | 1024×1536 · transparent |
 | ⬜ | 27 | P1 | `emblem_phantom.webp` | 128² · transparent |
 | ⬜ | 28 | P1 | `job_skald_f.webp` | 1024×1536 · transparent |
-| ⬜ | 29 | P1 | `job_skald_m.webp` | 1024×1536 · transparent |
-| ⬜ | 30 | P1 | `emblem_skald.webp` | 128² · transparent |
-| ⬜ | 31 | P1 | `job_warlord_f.webp` | 1024×1536 · transparent |
-| ⬜ | 32 | P1 | `job_warlord_m.webp` | 1024×1536 · transparent |
-| ⬜ | 33 | P1 | `emblem_warlord.webp` | 128² · transparent |
+| ✅ | 29 | P1 | `job_skald_m.webp` | 1024×1536 · transparent |
+| ✅ | 30 | P1 | `emblem_skald.webp` | 128² · transparent |
+| ✅ | 31 | P1 | `job_warlord_f.webp` | 1024×1536 · transparent |
+| ✅ | 32 | P1 | `job_warlord_m.webp` | 1024×1536 · transparent |
+| ✅ | 33 | P1 | `emblem_warlord.webp` | 128² · transparent |
 | ✅ | 34 | P1 | `job_jotun_f.webp` | 1024×1536 · transparent |
 | ✅ | 35 | P1 | `job_jotun_m.webp` | 1024×1536 · transparent |
 | ✅ | 36 | P1 | `emblem_jotun.webp` | 128² · transparent |
