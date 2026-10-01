@@ -1446,9 +1446,8 @@ const UI = {
         Online.loggedIn ? h('button', { class: 'btn', onclick: async () => { saveGame(true, true); await Online.logout(); location.reload(); } }, L(`ออกจากระบบ (${Online.username})`, `Log out (${Online.username})`)) : null,
         h('button', { class: 'btn', onclick: () => this.open('w-help') }, L('วิธีเล่น', 'Help')),
         document.fullscreenEnabled ? h('button', { class: 'btn', onclick: () => toggleFullscreen() }, document.fullscreenElement ? L('ออกจากเต็มจอ', 'Exit fullscreen') : L('เต็มจอ', 'Fullscreen')) : null,
-        Online.loggedIn ? null : h('button', { class: 'btn danger', onclick: async () => {
-          if (await this.confirm(L('ลบข้อมูลตัวละครทั้งหมดและเริ่มใหม่? (ย้อนกลับไม่ได้)', 'Delete all character data and start over? (This cannot be undone)'))) { deleteSave(); G.started = false; location.reload(); }
-        } }, L('ลบเซฟ / เริ่มใหม่', 'Delete save / restart'))),
+        // บันทึกแล้วกลับไปหน้าเลือกตัวละคร (สร้าง/ลบตัวละครทำได้ที่นั่น)
+        h('button', { class: 'btn', id: 'opt-charsel', onclick: () => switchCharacter() }, L('เปลี่ยนตัวละคร', 'Change character'))),
     );
   },
 
