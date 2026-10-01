@@ -739,7 +739,7 @@ function playerDie() {
     p.baseExp = Math.max(0, p.baseExp - lost);
   }
   for (const m of G.mobs) if (m.state === 'chase') { m.state = 'idle'; m.path = []; }
-  UI.msg(`คุณถูกสังหาร!${lost ? ` เสีย Base EXP ${U.fmt(lost)}` : ''}`, 'err');
+  UI.msg(`คุณล้มลง!${lost ? ` เสีย Base EXP ${U.fmt(lost)}` : ''}`, 'err');
   Sound.play('die');
   Bot.onDeath();
   UI.showDeath(lost);
@@ -754,7 +754,7 @@ function respawnPlayer(here) {
   p.poisonUntil = 0;
   if (here && G.mapEntry && G.mapEntry.map === G.map.id) {
     changeMap(G.map.id, G.mapEntry.x, G.mapEntry.y);
-    UI.msg('รีบูตในแมพเดิมเรียบร้อย', 'info');
+    UI.msg('ฟื้นคืนชีพในแมพเดิมแล้ว', 'info');
   } else changeMap(p.save.map, p.save.x, p.save.y);
 }
 
