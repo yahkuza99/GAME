@@ -157,3 +157,48 @@ body.visor .bi-foot { flex-wrap: wrap; row-gap: 3px; }
 body.visor #bi-zeny { white-space: nowrap; }
 body.visor .pt { white-space: nowrap; }
 body.visor #quest-track, body.visor.pad-mode #quest-track, body.visor .pad-mode #quest-track { border: 0; background: none; }
+
+/* ---------- หน้าไตเติล / ล็อกอิน / สร้างตัวละคร (ชุดเดียวกับ HUD) ---------- */
+body.visor #title::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(90deg, rgba(6, 10, 18, 0.78) 0%, rgba(6, 10, 18, 0.4) 34%, rgba(6, 10, 18, 0) 58%), linear-gradient(0deg, rgba(6, 10, 18, 0.55), rgba(6, 10, 18, 0) 30%); }
+body.visor #title.creating::before { background: rgba(6, 10, 18, 0.55); }
+body.visor .title-inner { z-index: 2; }
+body.visor .logo-sub { font: 500 13px var(--mono); letter-spacing: 0.06em; color: var(--ink-dim); text-shadow: var(--sh); }
+body.visor .logo-sub::before { content: ""; display: inline-block; width: 22px; height: 1px; margin-right: 10px; vertical-align: middle; background: var(--cy); }
+body.visor .hero-cap { font-family: var(--mono); }
+/* การ์ด: พื้นเข้มเรียบ เส้นบาง มุมสีฟ้า */
+body.visor .card { position: relative; clip-path: none; background: rgba(8, 12, 20, 0.86); border: 1px solid var(--line-2); box-shadow: 0 20px 44px rgba(0, 0, 0, 0.5); }
+body.visor .card::before, body.visor .card::after { content: ""; position: absolute; width: 14px; height: 14px; pointer-events: none; }
+body.visor .card::before { left: -1px; top: -1px; border-left: 2px solid var(--cy); border-top: 2px solid var(--cy); }
+body.visor .card::after { right: -1px; bottom: -1px; border-right: 2px solid var(--cy); border-bottom: 2px solid var(--cy); }
+body.visor .cr-right label, body.visor .auth label { font: 500 11px var(--mono); letter-spacing: 0.12em; color: var(--cy); margin-top: 8px; }
+body.visor #cr-name, body.visor .auth input { font: 16px var(--font); padding: 9px 2px; background: transparent; border: 0; border-bottom: 1px solid var(--line-2); }
+body.visor #cr-name:focus, body.visor .auth input:focus { border-bottom-color: var(--cy); box-shadow: 0 1px 0 var(--cy); }
+body.visor .seg { gap: 0; border-bottom: 1px solid var(--line); }
+body.visor .seg button { background: transparent; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; color: var(--ink-dim); font: 500 13px var(--font); padding: 8px 4px; }
+body.visor .seg button:hover { color: var(--ink); }
+body.visor .seg button.on { background: transparent; color: #fff; border-bottom-color: var(--cy); }
+body.visor .seg-wrap { border-bottom: 0; gap: 4px; }
+body.visor .seg-wrap button { border: 1px solid var(--line); margin: 0; }
+body.visor .seg-wrap button.on { border-color: var(--cy); background: rgba(111, 243, 255, 0.1); }
+/* ปุ่มหลัก: กรอบเส้น ไม่มีไล่สี */
+body.visor .tbtn { clip-path: none; background: rgba(6, 10, 18, 0.6); border: 1px solid var(--line-2); color: var(--ink); box-shadow: none; font: 600 18px var(--font);
+  align-items: flex-start; text-align: left; padding: 12px 22px; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+body.visor .tbtn small { font: 500 11.5px var(--mono); letter-spacing: 0.06em; color: var(--ink-dim); }
+body.visor .tbtn:hover { filter: none; border-color: var(--cy); background: rgba(111, 243, 255, 0.08); }
+body.visor .tbtn.primary { background: rgba(111, 243, 255, 0.14); border-color: var(--cy); color: #effdff; box-shadow: inset 3px 0 0 var(--cy); }
+body.visor .tbtn.primary small { color: #a9eef7; }
+body.visor .tbtn.primary::after { display: none; }
+body.visor .tbtn.small { font-size: 14px; padding: 8px 16px; align-items: center; }
+body.visor .auth .tbtn { align-items: center; }
+body.visor .linkbtn { font: 500 12.5px var(--mono); text-decoration: none; color: var(--cy); letter-spacing: 0.02em; }
+body.visor .linkbtn::after { content: " →"; }
+body.visor .linkbtn:hover { color: #c8fbff; }
+body.visor .chip { font: 600 10px var(--mono); background: transparent; color: var(--cy); border: 1px solid var(--cy); }
+body.visor .title-foot { color: var(--ink-dim); font-size: 12.5px; text-shadow: var(--sh); }
+body.visor .au-note { font-family: var(--mono); font-size: 11px; }
+body.visor #title-ver { font: 500 11px var(--mono); letter-spacing: 0.06em; z-index: 3; }
+body.visor .cr-left canvas { border: 1px solid var(--line-2); background: radial-gradient(circle at 50% 82%, rgba(111, 243, 255, 0.16), rgba(8, 12, 20, 0.9) 70%); }
+body.visor .cr-rot button { background: transparent; border: 1px solid var(--line); font-family: var(--mono); }
+body.visor .cr-rot button.on { background: rgba(111, 243, 255, 0.14); color: #effdff; border-color: var(--cy); }
+body.visor .cr-btns { background: linear-gradient(transparent, rgba(8, 12, 20, 0.96) 40%); }
