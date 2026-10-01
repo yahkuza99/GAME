@@ -197,6 +197,7 @@ const Online = {
     ch.on('broadcast', { event: 'say' }, ({ payload }) => this.onSay(payload));
     ch.on('broadcast', { event: 'hit' }, ({ payload }) => this.onHit(payload));
     ch.on('broadcast', { event: 'kill' }, ({ payload }) => this.onKill(payload));
+    ch.on('broadcast', { event: 'wb' }, ({ payload }) => { if (typeof WB !== 'undefined') WB.onNet(payload); }); // World Boss: เลือดร่วมกันทั้งแผนที่
     ch.on('broadcast', { event: 'emote' }, ({ payload }) => { const o = payload && this.others.get(payload.id); if (o && EMOTE_BY[payload.k]) Emote.play(payload.k, o); });
     ch.on('presence', { event: 'sync' }, () => {
       const st = ch.presenceState();
@@ -211,6 +212,7 @@ const Online = {
         ch.track({ name: G.player.name, at: Date.now() });
         this.lastState = '';
         this.sendPos(true);
+        if (typeof WB !== 'undefined' && WB.live()) WB.send('ask'); // เข้าแผนที่ระหว่างบอสโลกอยู่: ขอเลือดล่าสุดจากคนที่ตีอยู่ก่อน
       } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') UI.setNet('err');
     });
     this.mapChannel = ch;

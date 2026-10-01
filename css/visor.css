@@ -978,3 +978,5 @@ body.visor:not(.pad-mode) #menubar:not(.folded) button span { font-size: 10px; }
 #item-tip .tip-bon { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 2px; }
 #item-tip .tip-bon span { padding: 2px 8px; border-radius: 999px; background: rgba(111, 243, 255, 0.12); color: #8ff4ff; font-size: 11px; }
 #item-tip .cmp-row { margin-top: 7px; padding-top: 7px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+/* ป้าย World Boss ใต้มินิแมพ: เลื่อนเมนูลงไม่ให้ทับ */
+body:not(.pad-mode) #hud:has(#mm-wb:not([hidden])) #menubar { top: calc(258px + var(--st)); }
