@@ -551,6 +551,13 @@ function damageMob(m, dmg, opts = {}) {
   Sound.play(opts.crit ? 'crit' : 'hit');
   if (m.hp <= 0) killMob(m);
 }
+// Zeny ที่ได้ทันทีเมื่อฆ่า: ตั้งเองได้ด้วย MOBS[id].zeny = [min, max] ไม่งั้น (Lv+2) ถึง 2×(Lv+2) • MVP ×40–60
+function mobZeny(d) {
+  if (d.zeny) return d.zeny;
+  if (d.dummy) return [0, 0];
+  const b = d.lv + 2;
+  return d.boss ? [b * 40, b * 60] : [b, b * 2];
+}
 function killMob(m) {
   const p = G.player, d = m.def;
   m.dead = true; m.deathT = 0; m.hp = 0; m.path = []; m.moving = false;
@@ -559,6 +566,8 @@ function killMob(m) {
   Quest.onKill(d.id);
   p.kills = p.kills || {}; p.kills[d.id] = (p.kills[d.id] || 0) + 1; // สมุดมอนสเตอร์: จำนวนที่ล่าได้
   gainExp(d.exp, d.jexp);
+  const [z0, z1] = mobZeny(d), z = U.randi(z0, z1);
+  if (z > 0) { p.zeny += z; addFloater(m.x, m.y - 0.5, `+${z}z`, '#ffd34a'); UI.dirty(); }
   for (const [id, ch] of d.drops) if (U.chance(ch)) dropItemOnGround(id, m.x, m.y);
   if (m.isMvp) {
     UI.announce(`🏆 ${p.name} ได้ปราบ MVP ${d.name} สำเร็จ!`);

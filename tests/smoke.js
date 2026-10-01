@@ -67,6 +67,31 @@ const ok = (name, cond, info = '') => { checks.push([name, !!cond, info]); };
       ok(`${name}: open ${wnd}`, await p.evaluate(id => UI.isOpen(id) && document.querySelector('#' + id + ' .win-body').childElementCount > 0, wnd));
       await p.evaluate(id => UI.close(id), wnd);
     }
+    // zeny on kill
+    const zg = await p.evaluate(() => { const pl = G.player, z0 = pl.zeny, m = spawnMob('pudding', { x: pl.x + 1, y: pl.y }); killMob(m); return pl.zeny - z0; });
+    ok(`${name}: zeny on kill`, zg >= 3 && zg <= 6, zg);
+    // every job: change job, learn and use each active skill on a monster, no errors
+    const jobs = await p.evaluate(async () => {
+      const out = [];
+      for (const job of Object.keys(JOBS).filter(j => j !== 'novice')) {
+        const pl = G.player; pl.dead = false; changeJob(job); pl.skillPoints = 30; pl.baseLv = Math.max(pl.baseLv, 20); recalc();
+        let used = 0;
+        for (const id of JOBS[job].skills) {
+          const sk = SKILLS[id]; if (!sk || sk.noLearn) continue;
+          while (canLearn(id)) learnSkill(id);
+          if (sk.type !== 'active') continue;
+          const m = spawnMob('pudding', { x: pl.x + 1, y: pl.y }); m.hp = m.maxHp = 1e6;
+          pl.sp = pl.d.maxSp; pl.hp = pl.d.maxHp; pl.cast = null; pl.skillReadyAt = 0;
+          if (sk.bow && weaponType() !== 'bow') continue;
+          executeSkill(id, skillLv(id), sk.target === 'enemy' || sk.dmg ? m : null); used++;
+          m.dead = true; G.mobs = G.mobs.filter(x => x !== m);
+        }
+        out.push(job + ':' + used);
+      }
+      await new Promise(r => setTimeout(r, 600));
+      return out.join(' ');
+    });
+    ok(`${name}: job change + skills`, !/:0/.test(jobs), jobs);
     // passive tree: allocate a path, stats change, cannot skip ahead
     const pt = await p.evaluate(() => {
       const pl = G.player; pl.baseLv = 10; recalc(); const s0 = pl.d.str;
