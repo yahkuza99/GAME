@@ -12,17 +12,18 @@
   <title>NEO MIDGARD</title>
   <meta name="description" content="NEO MIDGARD — เกม RPG หุ่นยนต์แอนดรอยด์ในโลกตำนานนอร์ส เล่นบนเบราว์เซอร์">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/visor.css">
 </head>
-<body>
+<body class="visor">
   <canvas id="cv"></canvas>
 
   <!-- ================= HUD ================= -->
   <div id="hud" class="hidden">
     <!-- การ์ดยูนิต (มุมซ้ายบน) -->
     <div id="basic-info" class="foldable" data-fold="info">
-      <div class="bi-face"><canvas id="bi-portrait" width="112" height="112"></canvas><em id="bi-lvbadge"></em></div>
+      <div class="bi-face"><canvas id="bi-portrait" width="112" height="112"></canvas><svg id="bi-rings" viewBox="0 0 88 88" aria-hidden="true"><circle class="rb" cx="44" cy="44" r="41" stroke-width="4"/><circle id="ring-hp" cx="44" cy="44" r="41" transform="rotate(-90 44 44)"/><circle class="rb" cx="44" cy="44" r="35" stroke-width="3"/><circle id="ring-sp" cx="44" cy="44" r="35" transform="rotate(-90 44 44)"/></svg><em id="bi-lvbadge"></em></div>
       <div class="bi-main">
         <div class="bi-id"><b id="bi-name"></b><span id="bi-job"></span><button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายแผงสถานะ"></button></div>
         <div class="gauge hp"><div id="bi-hp" class="fill"></div><i>HP</i><span id="bi-hp-t"></span></div>
@@ -35,6 +36,7 @@
       </div>
     </div>
     <div id="buffs"></div>
+    <div id="exp-line"><i id="exp-line-fill"></i></div>
     <div id="quest-track" hidden title="แตะเพื่อนำทางไปทำเควสต์ (J = สมุดเควสต์)"></div>
     <div id="nav-pill" hidden><span class="nav-ic">🧭</span><span id="nav-text"></span><button id="nav-cancel" type="button" aria-label="ยกเลิกการนำทาง">×</button></div>
     <div id="target" hidden>

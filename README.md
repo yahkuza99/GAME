@@ -72,6 +72,7 @@ python3 -m http.server 8000
 - **มอนสเตอร์กลไก 18 ชนิด** (Slime Drone, Buzz Drone, Fenrir Unit, Tusk Tank, Draugr Husk ฯลฯ) + MVP 2 ตัว (Seraph Core, Kitsura EX)
 - **แผนที่ 5 แห่ง**: ฐาน Neo Eldheim, Emerald Meadow, Mistlake Plains, Wolfwood Forest, Hel's Hollow (ถ้ำมืด)
 - **NPC**: Bifrost Keeper (เซฟ/เทเลพอร์ต), Mimir AI (เปลี่ยนอาชีพ/รีเซ็ต), ร้านค้า 3 ร้าน, Brokk Forge-Bot (ตีบวก), Eir Repair Unit, Guard Unit Rolf (ไกด์/เควสต์), Storage Unit Kaia (คลังของ)
+- **HUD แบบ Visor (มินิมอล)** เป็นค่าเริ่มต้น: วงแหวน HP/SP รอบรูป แถบลัดหกเหลี่ยม เส้น EXP ล่างจอ — สลับเป็นแบบคลาสสิกได้ในตั้งค่า (`css/visor.css`)
 - **HUD พับได้**: ปุ่ม ▾ มุมแผงสถานะ/มินิแมพ/แชท/เมนู และปุ่ม ◉ หรือ `U` ซ่อน HUD ทั้งหมด
 - **เควสต์เริ่มต้น 10 ขั้น** สอนระบบจนอัปเกรดคลาสแรก มีแถบติดตาม (แตะเพื่อเดินไปทำ) และเครื่องหมาย ! เหนือหัว NPC
 - **งานล่าค่าหัวประจำวัน** (Base Lv 8+) ที่ Guard Unit Rolf: วันละ 3 งาน ล่ามอนที่เลเวลใกล้ตัว ได้ Volt + EXP ทำครบ 3 งานรับโบนัส • มอนดรอป Volt ทุกตัว

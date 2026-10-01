@@ -1,0 +1,159 @@
+/* =====================================================================
+   NEO MIDGARD — HUD แบบ C "Visor Minimal"
+   แทบไม่มีกรอบ: ตัวอักษรลอยบนฉาก + เงา, HP/SP เป็นวงแหวนรอบรูป, แถบลัดหกเหลี่ยม,
+   EXP เป็นเส้นเดียวล่างสุดของจอ • เปิดเมื่อ <body class="visor"> (ตั้งค่า → รูปแบบ HUD)
+   แก้เฉพาะหน้าตา ตำแหน่ง/เลย์เอาต์มือถือยังใช้ของ style.css
+   ===================================================================== */
+body.visor {
+  --font: "IBM Plex Sans Thai", "Noto Sans Thai", Tahoma, sans-serif;
+  --display: "IBM Plex Sans Thai", "Noto Sans Thai", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --cy: #6ff3ff; --cy-2: #38b9d2; --cy-glow: rgba(111, 243, 255, 0.4);
+  --ink: #f4f7fb; --ink-dim: #c6d0dc; --ink-faint: #8a98aa;
+  --hp-a: #ff6b7d; --hp-b: #ff6b7d; --sp-a: #6ff3ff; --sp-b: #6ff3ff; --exp: #ffe08a; --jexp: #c9b0ff;
+  --line: rgba(244, 247, 251, 0.2); --line-2: rgba(244, 247, 251, 0.4);
+  --glass: rgba(6, 10, 18, 0.5); --glass-2: rgba(6, 10, 18, 0.72);
+  --sh: 0 1px 3px rgba(0, 0, 0, 0.8), 0 0 1px rgba(0, 0, 0, 0.9);
+  --hex: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+#bi-rings, #exp-line { display: none; }
+
+/* เงาไล่ระดับบน/ล่างของจอ ให้อ่านตัวหนังสือบนฉากสว่างได้ */
+body.visor #hud::before, body.visor #hud::after { content: ""; position: fixed; left: 0; right: 0; pointer-events: none; z-index: 5; }
+body.visor #hud::before { top: 0; height: 150px; background: linear-gradient(180deg, rgba(6, 10, 18, 0.55), rgba(6, 10, 18, 0)); }
+body.visor #hud::after { bottom: 0; height: 190px; background: linear-gradient(0deg, rgba(6, 10, 18, 0.7), rgba(6, 10, 18, 0)); }
+
+/* ---------- การ์ดตัวละคร: รูปกลม + วงแหวน HP/SP ---------- */
+body.visor #basic-info { background: none; clip-path: none; border: 0; box-shadow: none; align-items: center; gap: 12px; text-shadow: var(--sh); }
+body.visor #basic-info::after { display: none; }
+body.visor .bi-face { width: 88px; height: 88px; }
+body.visor .bi-face::before { display: none; }
+body.visor .bi-face canvas { position: absolute; left: 13px; top: 13px; width: 62px; height: 62px; border-radius: 50%; clip-path: none; background: #18202c; }
+body.visor #bi-rings { display: block; position: absolute; inset: 0; width: 88px; height: 88px; pointer-events: none; }
+#bi-rings circle { fill: none; transition: stroke-dasharray 0.18s ease-out; }
+#bi-rings .rb { stroke: rgba(255, 255, 255, 0.16); }
+#ring-hp { stroke: var(--hp-a); stroke-width: 4; stroke-linecap: round; }
+#ring-sp { stroke: var(--sp-a); stroke-width: 3; stroke-linecap: round; }
+#ring-hp.low { stroke: #ff3048; animation: pulse 0.9s infinite; }
+body.visor .bi-face em { bottom: -4px; min-width: 0; padding: 0 6px; clip-path: none; border-radius: 8px; background: rgba(6, 10, 18, 0.85);
+  border: 1px solid var(--cy); color: var(--cy); font: 600 10.5px/15px var(--mono); }
+body.visor .bi-main { gap: 3px; }
+body.visor .bi-id { flex-direction: column; align-items: flex-start; gap: 0; }
+body.visor .bi-id b { order: 2; font: 600 20px/1.15 var(--display); text-shadow: var(--sh); }
+body.visor .bi-id span { order: 1; font: 500 10.5px var(--mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--cy); }
+/* HP/SP เป็นตัวเลขล้วน (หลอดอยู่ที่วงแหวนแล้ว) */
+body.visor #basic-info .gauge.hp, body.visor #basic-info .gauge.sp { height: auto; background: none; clip-path: none; overflow: visible; box-shadow: none; display: flex; gap: 6px; align-items: baseline; }
+body.visor #basic-info .gauge.hp::before, body.visor #basic-info .gauge.sp::before { display: none; }
+body.visor #basic-info .gauge .fill { display: none; }
+body.visor #basic-info .gauge i, body.visor #basic-info .gauge span { position: static; font: 500 12.5px/1.25 var(--mono); text-shadow: var(--sh); }
+body.visor #basic-info .gauge.hp i { color: #ff9aa8; } body.visor #basic-info .gauge.sp i { color: var(--cy); }
+body.visor #basic-info .gauge.sp i, body.visor #basic-info .gauge.sp span { font-size: 12px; }
+body.visor .xrow { gap: 6px; }
+body.visor .xrow label { font: 500 9.5px var(--mono); letter-spacing: 0.08em; }
+body.visor .gauge.thin { height: 2px; background: rgba(255, 255, 255, 0.18); }
+body.visor .gauge.thin .fill { box-shadow: none; }
+body.visor .gauge .fill::after { display: none; }
+body.visor .xrow > span { font: 500 9.5px var(--mono); }
+body.visor .bi-foot { font: 500 12px var(--mono); color: var(--exp); }
+body.visor #bi-zeny::before { content: ""; display: inline-block; width: 11px; height: 11px; margin-right: 5px; vertical-align: -1px; background: var(--exp);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13 2L4 14h7l-1 8 9-12h-7l1-8z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13 2L4 14h7l-1 8 9-12h-7l1-8z'/%3E%3C/svg%3E") center/contain no-repeat; }
+body.visor #bi-zeny.has-ic::before { content: ""; }
+body.visor #bi-zeny img { display: none; }
+body.visor .pt { clip-path: none; background: rgba(6, 10, 18, 0.6); border: 1px solid var(--exp); color: var(--exp); font: 600 10px var(--mono); border-radius: 9px; padding: 1px 7px; }
+
+/* ---------- เควสต์: ตัวอักษรล้วน ---------- */
+body.visor #quest-track { background: none; border-left: 0; padding-left: 0; text-shadow: var(--sh); }
+body.visor #quest-track:hover { background: none; }
+body.visor #quest-track::before { content: "QUEST"; display: block; font: 500 10.5px var(--mono); letter-spacing: 0.2em; color: var(--cy); margin-bottom: 1px; }
+body.visor .qt-ic { display: none; }
+body.visor .qt-title { color: var(--ink); font-size: 15px; }
+body.visor .qt-obj { color: var(--ink-dim); font-family: var(--mono); font-size: 12px; }
+body.visor .qt-bar { height: 2px; background: rgba(255, 255, 255, 0.25); }
+body.visor .qt-bar i { background: var(--cy); }
+
+/* ---------- เป้าหมาย: เส้นบาง ---------- */
+body.visor #target { background: none; clip-path: none; border: 0; padding: 0; gap: 8px; text-shadow: var(--sh); }
+body.visor #tg-cv { width: 34px; height: 34px; clip-path: none; border-radius: 50%; background: rgba(6, 10, 18, 0.5); }
+body.visor #target .gauge { height: 3px; background: rgba(255, 255, 255, 0.22); clip-path: none; box-shadow: none; overflow: visible; }
+body.visor #target .gauge::before { display: none; }
+body.visor #target .gauge .fill { box-shadow: none; }
+body.visor #target .gauge span { top: 5px; right: 0; font: 500 10px var(--mono); line-height: 1; }
+body.visor .tg-id b { font: 500 14px var(--display); }
+body.visor .tg-id span { font: 500 11px var(--mono); color: #ff9aa8; }
+body.visor #target.boss { background: none; }
+body.visor #target.boss .gauge .fill { background: #ffd05a; }
+
+/* ---------- มินิแมพ: กรอบเส้นเหลี่ยม + มุมสีฟ้า ---------- */
+body.visor .mm-ring { border-radius: 0; padding: 0; background: rgba(6, 10, 18, 0.35); box-shadow: none; border: 1px solid var(--line-2); }
+body.visor .mm-ring::after { inset: -1px; border-radius: 0; box-shadow: none;
+  background: linear-gradient(var(--cy), var(--cy)) left top / 10px 2px no-repeat, linear-gradient(var(--cy), var(--cy)) left top / 2px 10px no-repeat,
+    linear-gradient(var(--cy), var(--cy)) right bottom / 10px 2px no-repeat, linear-gradient(var(--cy), var(--cy)) right bottom / 2px 10px no-repeat; }
+body.visor #minimap-cv { border-radius: 0; box-shadow: none; background: transparent; }
+body.visor .mm-n { display: none; }
+body.visor .mm-head { background: none; border: 0; clip-path: none; padding: 0; font: 500 11px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; text-shadow: var(--sh); }
+body.visor .mm-sub { font: 500 10.5px var(--mono); }
+body.visor .mm-btn { background: rgba(6, 10, 18, 0.55); border-color: var(--line-2); }
+
+/* ---------- เมนู: ไอคอนเส้นล้วน ---------- */
+body.visor #menubar button { background: transparent; border: 0; clip-path: none; box-shadow: none; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8)); }
+body.visor #menubar button span { color: var(--ink-dim); font-size: 9px; text-shadow: var(--sh); }
+body.visor #menubar button small { display: none; }
+body.visor #menubar button:hover { background: rgba(6, 10, 18, 0.45); color: var(--cy); }
+body.visor #menubar button.on { background: transparent; color: var(--cy); box-shadow: inset 0 -2px 0 var(--cy); }
+body.visor #menubar button.on span { color: var(--cy); }
+
+/* ---------- แชท: ตัวอักษรจาง ---------- */
+body.visor #chat { background: none; border: 0; box-shadow: none; clip-path: none; text-shadow: var(--sh); }
+body.visor #chat-log { color: rgba(244, 247, 251, 0.85); }
+body.visor #chat-input { background: rgba(6, 10, 18, 0.45); border: 0; border-bottom: 1px solid var(--line-2); }
+body.visor #chat-input:focus { border-bottom-color: var(--cy); box-shadow: none; }
+
+/* ---------- แถบลัด: หกเหลี่ยม / ยา: วงกลมเส้น ---------- */
+body.visor #dock { background: none; border: 0; }
+body.visor #dock::before { display: none; }
+body.visor #hotbar { gap: 4px; }
+body.visor #hotbar .hb { width: 50px; height: 56px; border: 0; clip-path: var(--hex); background: rgba(244, 247, 251, 0.62); overflow: visible; }
+body.visor #hotbar .hb::before { content: ""; position: absolute; inset: 2px; clip-path: var(--hex); background: rgba(10, 14, 22, 0.85); }
+body.visor #hotbar .hb.blank { background: rgba(244, 247, 251, 0.2); }
+body.visor #hotbar .hb.blank::before { background: rgba(10, 14, 22, 0.55); }
+body.visor #hotbar .hb:hover { background: var(--cy); }
+body.visor #hotbar .hb .ic { z-index: 1; inset: 7px 5px; }
+body.visor #hotbar .hb .ic img { width: 34px; height: 34px; }
+body.visor #hotbar .hb .k { z-index: 2; left: 50%; top: auto; bottom: 3px; transform: translateX(-50%); font: 600 9px var(--mono); color: var(--ink-dim); }
+body.visor #hotbar .hb .q { z-index: 2; }
+body.visor #hotbar .hb .cd { z-index: 2; }
+body.visor #potbar { border-left: 1px solid var(--line-2); }
+body.visor #potbar .hb { background: rgba(10, 14, 22, 0.6); border: 1px solid var(--line-2); }
+body.visor #potbar .hb .k { font: 600 9px var(--mono); color: var(--ink-dim); }
+body.visor #potbar .hb .q { font: 600 10px var(--mono); }
+body.visor #auto-btn { width: auto; height: 40px; padding: 0 14px; border-radius: 20px; flex-direction: row; gap: 6px; border: 1px solid var(--cy);
+  background: rgba(111, 243, 255, 0.1); color: #c8fbff; box-shadow: none; align-self: center; }
+body.visor #auto-btn svg { width: 15px; height: 15px; }
+body.visor #auto-btn b { font: 600 12px var(--mono); letter-spacing: 0.14em; color: #c8fbff; margin: 0; }
+body.visor #auto-btn small { font: 500 10px var(--mono); color: var(--ink-dim); }
+body.visor #auto-btn.on { border-color: #7dffb4; background: rgba(125, 255, 180, 0.18); }
+body.visor #auto-btn.on b, body.visor #auto-btn.on small { color: #d8ffe8; }
+
+/* ---------- EXP: เส้นเดียวล่างสุดของจอ ---------- */
+body.visor #exp-line { display: block; position: fixed; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255, 255, 255, 0.12); z-index: 26; pointer-events: none; }
+#exp-line i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--cy), var(--exp)); transition: width 0.3s; }
+
+/* ---------- หน้าต่าง: พื้นเข้มเรียบ เส้นบาง มุมสีฟ้า ---------- */
+body.visor .win { background: rgba(8, 12, 20, 0.95); clip-path: none; border: 1px solid var(--line-2); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55); }
+body.visor .win::before, body.visor .win::after { content: ""; position: absolute; width: 12px; height: 12px; pointer-events: none; z-index: 2; }
+body.visor .win::before { left: -1px; top: -1px; border-left: 2px solid var(--cy); border-top: 2px solid var(--cy); }
+body.visor .win::after { right: -1px; bottom: -1px; border-right: 2px solid var(--cy); border-bottom: 2px solid var(--cy); }
+body.visor .win-title { background: none; border-bottom: 1px solid var(--line); }
+body.visor .win-title span { font: 600 15px var(--display); }
+body.visor .win-title span::before { width: 5px; height: 5px; transform: none; box-shadow: none; border-radius: 50%; }
+body.visor .win-x { border: 0; background: transparent; }
+body.visor .btn { clip-path: none; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--line-2); color: var(--ink); border-radius: 3px; }
+body.visor .btn:hover { background: rgba(111, 243, 255, 0.12); border-color: var(--cy); color: #fff; }
+
+/* ไม่เบลอฉากด้านหลัง (แบบมินิมอลต้องเห็นฉากชัด) */
+body.visor #menubar button, body.visor #chat, body.visor #basic-info, body.visor #quest-track, body.visor #target, body.visor .mm-head, body.visor #dock, body.visor .hb { -webkit-backdrop-filter: none; backdrop-filter: none; }
+body.visor .bi-foot { flex-wrap: wrap; row-gap: 3px; }
+body.visor #bi-zeny { white-space: nowrap; }
+body.visor .pt { white-space: nowrap; }
+body.visor #quest-track, body.visor.pad-mode #quest-track, body.visor .pad-mode #quest-track { border: 0; background: none; }

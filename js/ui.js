@@ -201,6 +201,11 @@ const UI = {
     $('#bi-hp').style.width = (p.hp / d.maxHp * 100) + '%';
     $('#bi-sp').style.width = (p.sp / d.maxSp * 100) + '%';
     $('#bi-hp').classList.toggle('low', p.hp / d.maxHp < 0.25);
+    // HUD แบบ Visor: วงแหวน HP/SP รอบรูป + เส้น EXP ล่างจอ
+    const ring = (el, r, k) => { const c = 2 * Math.PI * r, v = `${(c * U.clamp(k, 0, 1)).toFixed(1)} ${c.toFixed(1)}`; if (el.getAttribute('stroke-dasharray') !== v) el.setAttribute('stroke-dasharray', v); };
+    ring($('#ring-hp'), 41, p.hp / d.maxHp); ring($('#ring-sp'), 35, p.sp / d.maxSp);
+    $('#ring-hp').classList.toggle('low', p.hp / d.maxHp < 0.25);
+    $('#exp-line-fill').style.width = (bk * 100).toFixed(1) + '%';
     $('#bi-hp-t').textContent = `${Math.floor(p.hp)} / ${d.maxHp}`;
     $('#bi-sp-t').textContent = `${Math.floor(p.sp)} / ${d.maxSp}`;
     const zi = Art.get('item_zeny'), zHtml = (zi ? `<img src="${zi.src}" alt="">` : '') + U.fmt(p.zeny) + ' ' + CUR;
@@ -348,14 +353,15 @@ const UI = {
     g.setTransform(1, 0, 0, 1, 0, 0);
     g.clearRect(0, 0, W, H);
     g.save();
-    g.beginPath(); g.arc(W / 2, H / 2, W / 2, 0, 7); g.clip();
+    const square = document.body.classList.contains('visor');
+    g.beginPath(); if (square) g.rect(0, 0, W, H); else g.arc(W / 2, H / 2, W / 2, 0, 7); g.clip();
     g.fillStyle = '#060a12'; g.fillRect(0, 0, W, H);
     g.imageSmoothingEnabled = true;
     g.drawImage(full, x0 * S, y0 * S, span * S, span * S, 0, 0, W, H);
     // โทนเรดาร์ + เส้นกริด
     g.fillStyle = 'rgba(10,30,50,0.28)'; g.fillRect(0, 0, W, H);
     g.strokeStyle = 'rgba(120,220,255,0.12)'; g.lineWidth = 1;
-    for (let r = W / 6; r < W / 2; r += W / 6) { g.beginPath(); g.arc(W / 2, H / 2, r, 0, 7); g.stroke(); }
+    if (!square) for (let r = W / 6; r < W / 2; r += W / 6) { g.beginPath(); g.arc(W / 2, H / 2, r, 0, 7); g.stroke(); }
     g.beginPath(); g.moveTo(W / 2, 0); g.lineTo(W / 2, H); g.moveTo(0, H / 2); g.lineTo(W, H / 2); g.stroke();
     // คลื่นกวาด
     const sw = (G.time * 1.2) % (Math.PI * 2);
@@ -1061,6 +1067,9 @@ const UI = {
       h('label', { class: 'opt' }, 'ความดังเพลง ',
         h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: o.musicVol != null ? o.musicVol : 0.7, oninput: e => { o.musicVol = +e.target.value; Music.setVolume(o.musicVol); }, onchange: () => saveGame() })),
       chk('expMsg', 'แสดงข้อความ EXP ในแชท'),
+      h('div', { class: 'opt-lbl' }, 'รูปแบบ HUD'),
+      h('div', { class: 'seg' }, ...[['visor', 'Visor (มินิมอล)'], ['classic', 'คลาสสิก']].map(([v, l]) =>
+        h('button', { type: 'button', class: (o.hud || 'visor') === v ? 'on' : '', onclick: () => { o.hud = v; applyHudStyle(); saveGame(); this.renderOptions(); } }, l))),
       h('div', { class: 'opt-lbl' }, 'คุณภาพกราฟิก'),
       h('div', { class: 'seg' }, ...[['high', 'สวย (ค่าเริ่มต้น)'], ['low', 'ประหยัด (มือถือรุ่นเก่า)']].map(([v, l]) =>
         h('button', { type: 'button', class: (o.gfx || 'high') === v ? 'on' : '', onclick: () => { o.gfx = v; R.setQuality(v); saveGame(); this.renderOptions(); } }, l))),

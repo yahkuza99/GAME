@@ -462,9 +462,16 @@ function drawTitlePreview(t) {
   g.restore();
 }
 
+// รูปแบบ HUD: Visor (ค่าเริ่มต้น) หรือคลาสสิก — สลับได้ในตั้งค่า
+function applyHudStyle() {
+  const o = G.player && G.player.options;
+  document.body.classList.toggle('visor', !o || o.hud !== 'classic');
+  UI.dirty();
+}
 function startGame(p, isNew) {
   G.player = p;
   p.stunUntil = 0;
+  applyHudStyle();
   G.started = true;
   $('#title').classList.add('leaving');
   setTimeout(() => { $('#title').classList.add('hidden'); $('#title').classList.remove('leaving', 'creating'); }, 650);
