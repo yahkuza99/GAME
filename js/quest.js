@@ -212,7 +212,7 @@ const Bounty = {
     const s = this.state(); if (!s) return;
     for (const b of s.list) if (b.mob === id && b.got < b.n) {
       b.got++;
-      if (b.got === b.n) { UI.msg(`📋 งานล่าค่าหัวเสร็จ: ${MOBS[id].name} ${b.n} ตัว — กลับไปรับรางวัลที่ Guard Unit Rolf`, 'lvl'); Sound.play('quest_new'); }
+      if (b.got === b.n) { UI.msg(`งานล่าค่าหัวเสร็จ: ${MOBS[id].name} ${b.n} ตัว — กลับไปรับรางวัลที่ Guard Unit Rolf`, 'lvl'); Sound.play('quest_new'); }
       UI.dirty();
     }
   },

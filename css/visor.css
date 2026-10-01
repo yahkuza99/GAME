@@ -14,7 +14,6 @@ body.visor {
   --line: rgba(244, 247, 251, 0.2); --line-2: rgba(244, 247, 251, 0.4);
   --glass: rgba(6, 10, 18, 0.5); --glass-2: rgba(6, 10, 18, 0.72);
   --sh: 0 1px 3px rgba(0, 0, 0, 0.8), 0 0 1px rgba(0, 0, 0, 0.9);
-  --hex: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 }
 #bi-rings, #exp-line { display: none; }
 
@@ -459,4 +458,14 @@ body.visor .cr-btns { margin-top: auto; padding: 14px 0 6px; margin-bottom: -6px
 @media (prefers-reduced-motion: reduce) {
   body.visor #title-ver::before { animation: none; }
   body.visor .tbtn, body.visor .tbtn::after, body.visor .seg button { transition: none; }
+}
+
+/* ---------- มือถือแนวตั้ง: กรอบเป้าหมายลงใต้มินิแมพ (แทนที่เควสต์ชั่วคราวขณะล็อกเป้า) ---------- */
+@media (max-width: 760px) and (orientation: portrait) {
+  body.visor #target { left: auto; right: calc(var(--gap) + var(--sr) + 44px); top: calc(178px + var(--st)); transform: none; width: min(54vw, 206px);
+    padding: 5px 12px 7px 5px; border-radius: 24px; background: rgba(10, 16, 26, 0.55); border: 1px solid var(--edge-2);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.8); }
+  body.visor #target.boss { width: min(58vw, 226px); background: rgba(40, 26, 8, 0.6); }
+  body.visor #hud:has(#target:not([hidden])) #quest-track { display: none; }
+  body.visor .pad-mode #chat, body.visor.pad-mode #chat { top: calc(238px + var(--st)); }
 }

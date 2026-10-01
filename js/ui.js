@@ -682,13 +682,13 @@ const UI = {
       if (it.type === 'card') acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, 'ใส่ชิป'));
       if (it.type === 'use' || isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: () => this.assignHotbar('item', e.id) }, 'ตั้งปุ่มลัด'));
       acts.push(h('button', { class: 'btn danger', onclick: () => this.discard(e) }, 'ทิ้ง'));
-      det.append(
+      det.append(...[
         h('div', { class: 'det-head' }, h('img', { src: itemIconUrl(e.id), alt: '' }), h('b', {}, itemDisplayName(e)), e.qty > 1 ? ` ×${e.qty}` : ''),
         h('div', { class: 'det-desc' }, it.desc || ''),
         ...this.itemTooltip(e).map(l => h('div', { class: 'det-line' }, l)),
         this.compareLine(e),
         h('div', { class: 'det-line' }, `ราคาขาย: ${U.fmt(Math.floor(it.price / 2))} ${CUR}`),
-        h('div', { class: 'det-acts' }, acts));
+        h('div', { class: 'det-acts' }, acts)].filter(Boolean));
     } else det.append(h('div', { class: 'hint' }, 'คลิกเพื่อดูรายละเอียด • ดับเบิลคลิกเพื่อใช้/สวมใส่ • ลากไปวางที่ปุ่มลัดได้'));
     body.append(det, h('div', { class: 'inv-foot' }, `${CUR}: `, h('b', {}, U.fmt(p.zeny))));
   },
@@ -1024,7 +1024,7 @@ const UI = {
         h('p', { class: 'q-rw' }, `รางวัล: ${Quest.rewardText(q)}`),
         h('div', { class: 'opt-btns' }, h('button', { class: 'btn', onclick: () => { Quest.go(); this.close('w-quest'); } }, '🧭 นำทางไปทำเควสต์'))));
     } else body.append(h('div', { class: 'q-card' }, h('h4', {}, '🏆 จบเควสต์เริ่มต้นแล้ว'), h('p', {}, 'ออกผจญภัยล่ามอนสเตอร์ MVP และเก็บชิปหายากต่อได้เลย!')));
-    body.append(h('div', { class: 'q-card' }, h('h4', {}, '📋 งานล่าค่าหัววันนี้'),
+    body.append(h('div', { class: 'q-card' }, h('h4', {}, 'งานล่าค่าหัววันนี้'),
       bs ? bs.list.map(x => h('p', { class: x.claimed ? 'q-rw' : 'q-obj' }, `${x.claimed ? '✅' : x.got >= x.n ? '🎁 ส่งได้ —' : '•'} ${Bounty.line(x)} — ${U.fmt(x.zeny)} ${CUR}`))
         : h('p', { class: 'q-rw' }, `เปิดที่ Base Lv ${BOUNTY_MIN_LV} — รับงานที่ Guard Unit Rolf ในเมือง`),
       bs ? h('p', { class: 'q-rw' }, 'ส่งงานที่ Guard Unit Rolf • ทำครบ 3 งานได้โบนัส • งานใหม่ทุกวัน') : null));
