@@ -936,9 +936,9 @@ Rows per priority: P1 = 36, P1+ = 6, P2 = 32, P2+ = 2, P3 = 72, P4 = 2, P4+ = 5,
 | ✅ | 8 | P1 | `job_galdr_m.webp` | 1024×1536 · transparent |
 | ✅ | 9 | P1 | `emblem_galdr.webp` | 128² · transparent |
 | ⬜ | 10 | P1 | `job_seidr_f.webp` | 1024×1536 · transparent |
-| ⬜ | 11 | P1 | `job_seidr_m.webp` | 1024×1536 · transparent |
-| ⬜ | 12 | P1 | `emblem_seidr.webp` | 128² · transparent |
-| ⬜ | 13 | P1 | `job_skadi_f.webp` | 1024×1536 · transparent |
+| ✅ | 11 | P1 | `job_seidr_m.webp` | 1024×1536 · transparent |
+| ✅ | 12 | P1 | `emblem_seidr.webp` | 128² · transparent |
+| ✅ | 13 | P1 | `job_skadi_f.webp` | 1024×1536 · transparent |
 | ✅ | 14 | P1 | `job_skadi_m.webp` | 1024×1536 · transparent |
 | ✅ | 15 | P1 | `emblem_skadi.webp` | 128² · transparent |
 | ✅ | 16 | P1 | `job_ullr_f.webp` | 1024×1536 · transparent |
