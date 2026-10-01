@@ -46,8 +46,8 @@ const Trade = {
     if (!w || !menu || !menu.children.length) return;
     this.uiReady = true;
     if (!$('[data-win="w-trade"]', menu)) {
-      const b = h('button', { title: 'แลกเปลี่ยน (/trade ชื่อ)', 'data-win': 'w-trade', onclick: () => { UI.toggle('w-trade'); if (Pad.enabled()) UI.setFold(menu, true); } });
-      b.innerHTML = `${TRADE_ICON}<span>แลกเปลี่ยน</span><small>/trade</small>`;
+      const b = h('button', { title: L('แลกเปลี่ยน (/trade ชื่อ)', 'Trade (/trade name)'), 'data-win': 'w-trade', onclick: () => { UI.toggle('w-trade'); if (Pad.enabled()) UI.setFold(menu, true); } });
+      b.innerHTML = L(`${TRADE_ICON}<span>แลกเปลี่ยน</span><small>/trade</small>`, `${TRADE_ICON}<span>Trade</span><small>/trade</small>`);
       const after = $('[data-win="w-emote"]', menu);
       if (after) after.after(b); else menu.append(b);
     }
@@ -112,7 +112,7 @@ const Trade = {
   // ---------------- เริ่มการแลกเปลี่ยน ----------------
   needOnline() {
     if (Online.online) return true;
-    UI.msg('ต้องออนไลน์ — การแลกเปลี่ยนใช้ได้เมื่อล็อกอินและเชื่อมต่อเซิร์ฟเวอร์', 'err');
+    UI.msg(L('ต้องออนไลน์ — การแลกเปลี่ยนใช้ได้เมื่อล็อกอินและเชื่อมต่อเซิร์ฟเวอร์', 'Online only — trading requires being logged in and connected to the server.'), 'err');
     return false;
   },
   // /trade ชื่อ (เรียกจากแชท) • /trade เฉย ๆ = เปิดหน้าต่าง
@@ -122,7 +122,7 @@ const Trade = {
     if (!arg) { this.show(); return; }
     const q = arg.toLowerCase(), all = this.nearby();
     const hit = all.find(x => x.o.name.toLowerCase() === q) || (() => { const m = all.filter(x => x.o.name.toLowerCase().startsWith(q)); return m.length === 1 ? m[0] : null; })();
-    if (!hit) { UI.msg(`ไม่พบผู้เล่นชื่อ ${arg} ในแผนที่นี้`, 'err'); return; }
+    if (!hit) { UI.msg(L(`ไม่พบผู้เล่นชื่อ ${arg} ในแผนที่นี้`, `No player named ${arg} on this map.`), 'err'); return; }
     this.request(hit.o);
   },
   nearby() {
@@ -130,17 +130,17 @@ const Trade = {
   },
   request(o) {
     if (!this.needOnline()) return;
-    if (this.t) { UI.msg(this.t.state === 'req' ? 'กำลังรอคำตอบอยู่' : 'กำลังแลกเปลี่ยนอยู่', 'err'); this.show(); return; }
+    if (this.t) { UI.msg(this.t.state === 'req' ? L('กำลังรอคำตอบอยู่', 'Already waiting for a reply.') : L('กำลังแลกเปลี่ยนอยู่', 'Already trading.'), 'err'); this.show(); return; }
     const p = G.player;
-    if (p.dead) { UI.msg('แลกเปลี่ยนไม่ได้ขณะล้มอยู่', 'err'); return; }
-    if (!Online.others.has(o.id)) { UI.msg(`${o.name} ไม่ได้อยู่ในแผนที่นี้แล้ว`, 'err'); return; }
-    if (o.dead) { UI.msg(`${o.name} ล้มอยู่ แลกเปลี่ยนไม่ได้`, 'err'); return; }
-    if (this.dist(o) > TRADE_CFG.startRange) { UI.msg(`${o.name} อยู่ไกลเกินไป (ต้องห่างไม่เกิน ${TRADE_CFG.startRange} ช่อง)`, 'err'); return; }
+    if (p.dead) { UI.msg(L('แลกเปลี่ยนไม่ได้ขณะล้มอยู่', 'You can\'t trade while fallen.'), 'err'); return; }
+    if (!Online.others.has(o.id)) { UI.msg(L(`${o.name} ไม่ได้อยู่ในแผนที่นี้แล้ว`, `${o.name} is no longer on this map.`), 'err'); return; }
+    if (o.dead) { UI.msg(L(`${o.name} ล้มอยู่ แลกเปลี่ยนไม่ได้`, `${o.name} has fallen and can't trade.`), 'err'); return; }
+    if (this.dist(o) > TRADE_CFG.startRange) { UI.msg(L(`${o.name} อยู่ไกลเกินไป (ต้องห่างไม่เกิน ${TRADE_CFG.startRange} ช่อง)`, `${o.name} is too far away (must be within ${TRADE_CFG.startRange} tiles).`), 'err'); return; }
     this.join();
     this.note = null;
     this.t = { tid: Math.random().toString(36).slice(2, 10) + Date.now().toString(36), peer: o.id, name: o.name, state: 'req', reqAt: Date.now(), map: G.map.id };
     this.send('req', { name: p.name, map: G.map.id });
-    UI.msg(`ส่งคำขอแลกเปลี่ยนไปยัง ${o.name}…`, 'info');
+    UI.msg(L(`ส่งคำขอแลกเปลี่ยนไปยัง ${o.name}…`, `Trade request sent to ${o.name}…`), 'info');
     this.show();
   },
   onRequest(m) {
@@ -155,7 +155,7 @@ const Trade = {
     if (!G.started || p.dead) { reply(false, 'busy'); return; }
     if (!o || m.map !== G.map.id || this.dist(o) > TRADE_CFG.startRange + 1) { reply(false, 'far'); return; }
     this.t = { tid: String(m.tid), peer: m.from, name: String(o.name || m.name || '?').slice(0, 24), state: 'inc', reqAt: Date.now(), map: G.map.id };
-    UI.msg(`${this.t.name} ขอแลกเปลี่ยนไอเทมกับคุณ`, 'info');
+    UI.msg(L(`${this.t.name} ขอแลกเปลี่ยนไอเทมกับคุณ`, `${this.t.name} wants to trade items with you.`), 'info');
     Sound.play('emote');
     this.show();
   },
@@ -172,15 +172,15 @@ const Trade = {
     if (!t || t.state !== 'inc') return;
     this.sendTo(t.peer, t.tid, 'res', { ok: false, why });
     this.t = null;
-    UI.msg(why === 'decline' ? `ปฏิเสธการแลกเปลี่ยนกับ ${t.name}` : `คำขอแลกเปลี่ยนจาก ${t.name} ถูกยกเลิก: ${this.reason(why, false, t.name)}`, 'info');
+    UI.msg(why === 'decline' ? L(`ปฏิเสธการแลกเปลี่ยนกับ ${t.name}`, `Declined the trade with ${t.name}.`) : L(`คำขอแลกเปลี่ยนจาก ${t.name} ถูกยกเลิก: ${this.reason(why, false, t.name)}`, `Trade request from ${t.name} was cancelled: ${this.reason(why, false, t.name)}`), 'info');
     this.hide();
   },
   onResponse(m) {
     const t = this.t;
     if (t.state !== 'req') return;
-    if (m.ok) { UI.msg(`${t.name} ตอบรับการแลกเปลี่ยน`, 'info'); this.begin(); return; }
-    const txt = { busy: `${t.name} กำลังทำรายการอื่นอยู่`, decline: `${t.name} ปฏิเสธการแลกเปลี่ยน`, timeout: `${t.name} ไม่ตอบรับ`, far: `${t.name} อยู่ไกลเกินไป` }[m.why]
-      || `${t.name} ไม่รับคำขอ: ${this.reason(m.why, true, t.name)}`;
+    if (m.ok) { UI.msg(L(`${t.name} ตอบรับการแลกเปลี่ยน`, `${t.name} accepted the trade.`), 'info'); this.begin(); return; }
+    const txt = { busy: L(`${t.name} กำลังทำรายการอื่นอยู่`, `${t.name} is busy with something else.`), decline: L(`${t.name} ปฏิเสธการแลกเปลี่ยน`, `${t.name} declined the trade.`), timeout: L(`${t.name} ไม่ตอบรับ`, `${t.name} didn't respond.`), far: L(`${t.name} อยู่ไกลเกินไป`, `${t.name} is too far away.`) }[m.why]
+      || L(`${t.name} ไม่รับคำขอ: ${this.reason(m.why, true, t.name)}`, `${t.name} turned down the request: ${this.reason(m.why, true, t.name)}`);
     this.t = null;
     this.note = { text: txt, until: Date.now() + 6000 };
     UI.msg(txt, 'err');
@@ -190,7 +190,7 @@ const Trade = {
     const t = this.t, side = () => ({ items: [], zeny: 0, locked: false, confirmed: false, hash: '', offer: null, commit: false });
     Object.assign(t, { state: 'open', at: Date.now(), map: G.map.id, my: side(), their: side(), lostAt: 0 });
     this.pick = null; this.sel = null;
-    UI.msg(`เริ่มแลกเปลี่ยนกับ ${t.name} — ใส่ไอเทม/${CUR} แล้วกด ล็อก`, 'info');
+    UI.msg(L(`เริ่มแลกเปลี่ยนกับ ${t.name} — ใส่ไอเทม/${CUR} แล้วกด ล็อก`, `Trading with ${t.name} — add items/${CUR}, then press Lock.`), 'info');
     Sound.play('click');
     this.show();
   },
@@ -203,7 +203,7 @@ const Trade = {
     if (!t || m.tid !== t.tid || m.from !== t.peer) return; // ข้อความเก่า/ไม่เกี่ยวกับเรา
     switch (m.k) {
       case 'res': this.onResponse(m); break;
-      case 'cancel': this.restore(t); this.end(`การแลกเปลี่ยนกับ ${t.name} ถูกยกเลิก: ${this.reason(m.why, true, t.name)}`, 'err'); break;
+      case 'cancel': this.restore(t); this.end(L(`การแลกเปลี่ยนกับ ${t.name} ถูกยกเลิก: ${this.reason(m.why, true, t.name)}`, `Trade with ${t.name} was cancelled: ${this.reason(m.why, true, t.name)}`), 'err'); break;
       case 'offer': this.onOffer(m); break;
       case 'lock': this.onLock(m); break;
       case 'conf': this.onConfirm(m); break;
@@ -218,7 +218,7 @@ const Trade = {
     const was = t.my.locked || t.their.locked;
     t.their.items = o.items; t.their.zeny = o.zeny;
     this.unlockAll();
-    if (was) UI.msg(`${t.name} เปลี่ยนข้อเสนอ — ปลดล็อกทั้งสองฝ่าย`, 'info');
+    if (was) UI.msg(L(`${t.name} เปลี่ยนข้อเสนอ — ปลดล็อกทั้งสองฝ่าย`, `${t.name} changed their offer — both sides unlocked.`), 'info');
     if (this.sel && this.sel.side === 'their') this.sel = null;
     this.render();
   },
@@ -258,7 +258,7 @@ const Trade = {
     if (isEquipType(it)) {
       if (e.uid == null) e.uid = G.uid++;
       if (my.items.some(x => x.uid === e.uid)) return;
-      if (my.items.length >= TRADE_CFG.slots) { UI.msg(`วางของได้สูงสุด ${TRADE_CFG.slots} ช่อง`, 'err'); return; }
+      if (my.items.length >= TRADE_CFG.slots) { UI.msg(L(`วางของได้สูงสุด ${TRADE_CFG.slots} ช่อง`, `You can place up to ${TRADE_CFG.slots} slots.`), 'err'); return; }
       my.items.push(this.snapEquip(e));
     } else {
       const cur = my.items.find(x => x.id === e.id && !x.uid), room = countItem(e.id) - (cur ? cur.qty : 0);
@@ -266,7 +266,7 @@ const Trade = {
       if (qty <= 0) return;
       if (cur) cur.qty += qty;
       else {
-        if (my.items.length >= TRADE_CFG.slots) { UI.msg(`วางของได้สูงสุด ${TRADE_CFG.slots} ช่อง`, 'err'); return; }
+        if (my.items.length >= TRADE_CFG.slots) { UI.msg(L(`วางของได้สูงสุด ${TRADE_CFG.slots} ช่อง`, `You can place up to ${TRADE_CFG.slots} slots.`), 'err'); return; }
         my.items.push({ id: e.id, qty });
       }
     }
@@ -302,7 +302,7 @@ const Trade = {
     const t = this.t, was = t.my.locked || t.their.locked;
     this.unlockAll();
     this.send('offer', { offer: this.mine() });
-    if (was) UI.msg('ข้อเสนอเปลี่ยน — ปลดล็อกทั้งสองฝ่าย', 'info');
+    if (was) UI.msg(L('ข้อเสนอเปลี่ยน — ปลดล็อกทั้งสองฝ่าย', 'Offer changed — both sides unlocked.'), 'info');
     this.render();
   },
   mine() {
@@ -324,7 +324,7 @@ const Trade = {
     my.items = my.items.filter(x => (x.uid ? !!this.findEquip(x) : (x.qty = Math.min(x.qty, countItem(x.id))) > 0));
     my.zeny = Math.min(my.zeny, G.player.zeny);
     my.confirmed = false;
-    UI.msg('ของที่เสนอไว้ถูกใช้/ย้ายไป — ปรับข้อเสนอแล้ว', 'info');
+    UI.msg(L('ของที่เสนอไว้ถูกใช้/ย้ายไป — ปรับข้อเสนอแล้ว', 'An offered item was used or moved — offer adjusted.'), 'info');
     this.changed();
   },
 
@@ -396,7 +396,7 @@ const Trade = {
     UI.dirty();
     saveGame(true, true);
     Sound.play('buy');
-    this.end(`แลกเปลี่ยนกับ ${t.name} สำเร็จ — ได้รับ: ${this.describe(got)} • ให้: ${this.describe(gave)}`, 'item');
+    this.end(L(`แลกเปลี่ยนกับ ${t.name} สำเร็จ — ได้รับ: ${this.describe(got)} • ให้: ${this.describe(gave)}`, `Trade with ${t.name} complete — received: ${this.describe(got)} • gave: ${this.describe(gave)}`), 'item');
   },
   abort(why, notify) {
     const t = this.t;
@@ -407,11 +407,11 @@ const Trade = {
     if (t.state === 'req') {
       this.t = null;
       this.note = why === 'cancel' ? null : { text: txt, until: Date.now() + 6000 };
-      UI.msg(why === 'cancel' ? `ยกเลิกคำขอแลกเปลี่ยนกับ ${t.name}` : `คำขอแลกเปลี่ยนกับ ${t.name}: ${txt}`, why === 'cancel' ? 'info' : 'err');
+      UI.msg(why === 'cancel' ? L(`ยกเลิกคำขอแลกเปลี่ยนกับ ${t.name}`, `Cancelled the trade request to ${t.name}.`) : L(`คำขอแลกเปลี่ยนกับ ${t.name}: ${txt}`, `Trade request to ${t.name}: ${txt}`), why === 'cancel' ? 'info' : 'err');
       this.render();
       return;
     }
-    this.end(`การแลกเปลี่ยนกับ ${t.name} ถูกยกเลิก: ${txt}`, 'err');
+    this.end(L(`การแลกเปลี่ยนกับ ${t.name} ถูกยกเลิก: ${txt}`, `Trade with ${t.name} was cancelled: ${txt}`), 'err');
   },
   end(text, kind) {
     this.t = null; this.pick = null; this.sel = null;
@@ -421,20 +421,20 @@ const Trade = {
   // เหตุผลการยกเลิก (remote = อีกฝ่ายเป็นคนแจ้ง จึงกลับมุมมอง)
   reason(why, remote, n) {
     const R = {
-      cancel: ['คุณยกเลิก', `${n} ยกเลิก`], dead: ['คุณล้มลง', `${n} ล้มลง`], peerdead: [`${n} ล้มลง`, 'คุณล้มลง'],
-      map: ['คุณออกจากแผนที่', `${n} ออกจากแผนที่`], gone: [`${n} ออกจากแผนที่`, 'การเชื่อมต่อของคุณขาดหาย'], left: ['คุณออกจากเกม', `${n} ออกจากเกม`],
-      far: [`อยู่ห่างกันเกิน ${TRADE_CFG.keepRange} ช่อง`, `อยู่ห่างกันเกิน ${TRADE_CFG.keepRange} ช่อง`],
-      timeout: ['หมดเวลา 2 นาที', 'หมดเวลา 2 นาที'], noreply: [`${n} ไม่ตอบรับ`, 'หมดเวลาตอบรับ'],
-      missing: ['ของที่คุณเสนอไม่ครบแล้ว', `ของที่ ${n} เสนอไม่ครบแล้ว`], bad: [`ข้อเสนอของ ${n} ไม่ตรงกัน`, 'ข้อเสนอไม่ตรงกัน'],
-      commit: ['ไม่ได้รับการยืนยันจากอีกฝ่าย', 'ไม่ได้รับการยืนยันจากอีกฝ่าย'], offline: ['หลุดการเชื่อมต่อ', `${n} หลุดการเชื่อมต่อ`],
-      decline: ['ปฏิเสธ', `${n} ปฏิเสธ`], busy: ['ไม่ว่าง', `${n} ไม่ว่าง`],
+      cancel: [L('คุณยกเลิก', 'you cancelled'), L(`${n} ยกเลิก`, `${n} cancelled`)], dead: [L('คุณล้มลง', 'you fell'), L(`${n} ล้มลง`, `${n} fell`)], peerdead: [L(`${n} ล้มลง`, `${n} fell`), L('คุณล้มลง', 'you fell')],
+      map: [L('คุณออกจากแผนที่', 'you left the map'), L(`${n} ออกจากแผนที่`, `${n} left the map`)], gone: [L(`${n} ออกจากแผนที่`, `${n} left the map`), L('การเชื่อมต่อของคุณขาดหาย', 'your connection dropped')], left: [L('คุณออกจากเกม', 'you left the game'), L(`${n} ออกจากเกม`, `${n} left the game`)],
+      far: [L(`อยู่ห่างกันเกิน ${TRADE_CFG.keepRange} ช่อง`, `more than ${TRADE_CFG.keepRange} tiles apart`), L(`อยู่ห่างกันเกิน ${TRADE_CFG.keepRange} ช่อง`, `more than ${TRADE_CFG.keepRange} tiles apart`)],
+      timeout: [L('หมดเวลา 2 นาที', '2-minute time limit reached'), L('หมดเวลา 2 นาที', '2-minute time limit reached')], noreply: [L(`${n} ไม่ตอบรับ`, `${n} didn't respond`), L('หมดเวลาตอบรับ', 'response timed out')],
+      missing: [L('ของที่คุณเสนอไม่ครบแล้ว', 'your offered items are no longer all there'), L(`ของที่ ${n} เสนอไม่ครบแล้ว`, `${n}'s offered items are no longer all there`)], bad: [L(`ข้อเสนอของ ${n} ไม่ตรงกัน`, `${n}'s offer didn't match`), L('ข้อเสนอไม่ตรงกัน', 'offers didn\'t match')],
+      commit: [L('ไม่ได้รับการยืนยันจากอีกฝ่าย', 'no confirmation from the other side'), L('ไม่ได้รับการยืนยันจากอีกฝ่าย', 'no confirmation from the other side')], offline: [L('หลุดการเชื่อมต่อ', 'connection lost'), L(`${n} หลุดการเชื่อมต่อ`, `${n} lost connection`)],
+      decline: [L('ปฏิเสธ', 'declined'), L(`${n} ปฏิเสธ`, `${n} declined`)], busy: [L('ไม่ว่าง', 'busy'), L(`${n} ไม่ว่าง`, `${n} is busy`)],
     }[why];
-    return R ? R[remote ? 1 : 0] : 'ไม่ทราบสาเหตุ';
+    return R ? R[remote ? 1 : 0] : L('ไม่ทราบสาเหตุ', 'unknown reason');
   },
   describe(o) {
     const parts = o.items.map(x => itemDisplayName(x) + (x.qty > 1 ? ` ×${U.fmt(x.qty)}` : ''));
     if (o.zeny) parts.push(`${U.fmt(o.zeny)} ${CUR}`);
-    return parts.join(', ') || 'ไม่มี';
+    return parts.join(', ') || L('ไม่มี', 'nothing');
   },
 
   // ---------------- ข้อมูล/ความถูกต้อง ----------------
@@ -486,13 +486,13 @@ const Trade = {
     const tm = $('.tr-timer', body);
     if (tm) {
       const left = t.state === 'req' || t.state === 'inc' ? Math.max(0, Math.ceil((t.reqAt + TRADE_CFG.reqTimeout - now) / 1000)) : Math.max(0, Math.ceil((t.at + TRADE_CFG.timeout - now) / 1000));
-      const txt = t.state === 'inc' ? `ตอบภายใน ${left} วินาที` : t.state === 'req' ? `${left} วินาที` : `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+      const txt = t.state === 'inc' ? L(`ตอบภายใน ${left} วินาที`, `Reply within ${left}s`) : t.state === 'req' ? L(`${left} วินาที`, `${left}s`) : `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
       if (tm.textContent !== txt) tm.textContent = txt;
       tm.classList.toggle('warn', t.state !== 'req' && t.state !== 'inc' && left <= 20);
     }
     if (t.state === 'count') {
       const left = Math.max(0, t.endAt - now), c = $('.tr-count', body), bar = $('.tr-bar i', body);
-      if (c) c.textContent = `แลกเปลี่ยนใน ${(left / 1000).toFixed(1)} วินาที`;
+      if (c) c.textContent = L(`แลกเปลี่ยนใน ${(left / 1000).toFixed(1)} วินาที`, `Trading in ${(left / 1000).toFixed(1)}s`);
       if (bar) bar.style.width = `${(1 - left / TRADE_CFG.countdown) * 100}%`;
     }
   },
@@ -504,7 +504,7 @@ const Trade = {
     body.innerHTML = '';
     const trading = !!t && !!t.my;
     w.classList.toggle('tr-wide', trading);
-    $('.win-title span', w).textContent = trading ? `แลกเปลี่ยนกับ ${t.name}` : 'แลกเปลี่ยน (Trade)';
+    $('.win-title span', w).textContent = trading ? L(`แลกเปลี่ยนกับ ${t.name}`, `Trade with ${t.name}`) : L('แลกเปลี่ยน (Trade)', 'Trade');
     if (!Online.online) body.append(this.viewOffline());
     else if (!t) body.append(this.viewList());
     else if (t.state === 'req') body.append(this.viewWaiting());
@@ -528,72 +528,72 @@ const Trade = {
   viewOffline() {
     return h('div', { class: 'tr-empty' },
       h('span', { class: 'tr-empty-ic', html: TRADE_ICON }),
-      h('b', {}, 'ต้องออนไลน์'),
-      h('p', {}, 'การแลกเปลี่ยนไอเทมกับผู้เล่นอื่นใช้ได้เมื่อล็อกอินและเชื่อมต่อเซิร์ฟเวอร์ออนไลน์'));
+      h('b', {}, L('ต้องออนไลน์', 'Online Only')),
+      h('p', {}, L('การแลกเปลี่ยนไอเทมกับผู้เล่นอื่นใช้ได้เมื่อล็อกอินและเชื่อมต่อเซิร์ฟเวอร์ออนไลน์', 'Trading items with other players is available when logged in and connected to the online server.')));
   },
   viewList() {
     const now = Date.now(), list = this.nearby();
     this.listKey = list.map(x => `${x.o.id}:${x.o.name}:${Math.round(x.d)}:${x.o.dead ? 1 : 0}`).join('|') + (this.note && this.note.until > now ? this.note.text : '');
     const wrap = h('div', { class: 'tr-list' });
     if (this.note && this.note.until > now) wrap.append(h('div', { class: 'tr-note' }, this.note.text));
-    wrap.append(h('div', { class: 'tr-sec' }, 'ผู้เล่นในแผนที่นี้', h('small', {}, String(list.length))));
-    if (!list.length) wrap.append(h('div', { class: 'tr-none' }, 'ยังไม่มีผู้เล่นอื่นในแผนที่นี้'));
+    wrap.append(h('div', { class: 'tr-sec' }, L('ผู้เล่นในแผนที่นี้', 'Players on This Map'), h('small', {}, String(list.length))));
+    if (!list.length) wrap.append(h('div', { class: 'tr-none' }, L('ยังไม่มีผู้เล่นอื่นในแผนที่นี้', 'No other players on this map yet')));
     for (const { o, d } of list) {
       const ok = d <= TRADE_CFG.startRange && !o.dead;
       wrap.append(h('div', { class: 'tr-prow' + (ok ? '' : ' far') },
         this.avatar(o.name),
-        h('div', { class: 'tr-pn' }, h('b', {}, o.name), h('small', {}, `Lv ${o.baseLv || '?'} ${JOBS[o.job] ? JOBS[o.job].name : ''} • ${Math.round(d)} ช่อง`)),
-        h('button', { type: 'button', class: 'btn small tr-go', disabled: !ok, 'data-peer': o.id, onclick: () => this.request(o) }, ok ? 'แลกเปลี่ยน' : o.dead ? 'ล้มอยู่' : 'ไกลเกินไป')));
+        h('div', { class: 'tr-pn' }, h('b', {}, o.name), h('small', {}, L(`Lv ${o.baseLv || '?'} ${JOBS[o.job] ? JOBS[o.job].name : ''} • ${Math.round(d)} ช่อง`, `Lv ${o.baseLv || '?'} ${JOBS[o.job] ? JOBS[o.job].name : ''} • ${Math.round(d)} tiles`))),
+        h('button', { type: 'button', class: 'btn small tr-go', disabled: !ok, 'data-peer': o.id, onclick: () => this.request(o) }, ok ? L('แลกเปลี่ยน', 'Trade') : o.dead ? L('ล้มอยู่', 'Fallen') : L('ไกลเกินไป', 'Too far'))));
     }
-    wrap.append(h('div', { class: 'hint' }, `เข้าใกล้ไม่เกิน ${TRADE_CFG.startRange} ช่องเพื่อขอแลกเปลี่ยน • พิมพ์ /trade ชื่อ ในแชทก็ได้`));
+    wrap.append(h('div', { class: 'hint' }, L(`เข้าใกล้ไม่เกิน ${TRADE_CFG.startRange} ช่องเพื่อขอแลกเปลี่ยน • พิมพ์ /trade ชื่อ ในแชทก็ได้`, `Get within ${TRADE_CFG.startRange} tiles to request a trade • You can also type /trade name in chat`)));
     return wrap;
   },
   viewWaiting() {
     const t = this.t;
     return h('div', { class: 'tr-wait' },
       h('div', { class: 'tr-ring' }, this.avatar(t.name, 'big')),
-      h('div', { class: 'tr-wait-t' }, 'กำลังรอ ', h('b', {}, t.name), ' ตอบรับ…'),
+      h('div', { class: 'tr-wait-t' }, L('กำลังรอ ', 'Waiting for '), h('b', {}, t.name), L(' ตอบรับ…', ' to respond…')),
       h('div', { class: 'tr-timer tr-sub' }),
-      h('div', { class: 'tr-btns' }, h('button', { type: 'button', class: 'btn tr-cancel', onclick: () => this.abort('cancel', true) }, 'ยกเลิกคำขอ')));
+      h('div', { class: 'tr-btns' }, h('button', { type: 'button', class: 'btn tr-cancel', onclick: () => this.abort('cancel', true) }, L('ยกเลิกคำขอ', 'Cancel Request'))));
   },
   viewIncoming() {
     const t = this.t;
     return h('div', { class: 'tr-wait' },
       h('div', { class: 'tr-ring in' }, this.avatar(t.name, 'big')),
-      h('div', { class: 'tr-wait-t' }, h('b', {}, t.name), ' ขอแลกเปลี่ยนไอเทมกับคุณ'),
+      h('div', { class: 'tr-wait-t' }, h('b', {}, t.name), L(' ขอแลกเปลี่ยนไอเทมกับคุณ', ' wants to trade items with you')),
       h('div', { class: 'tr-timer tr-sub' }),
       h('div', { class: 'tr-btns' },
-        h('button', { type: 'button', class: 'btn tr-primary tr-accept', onclick: () => this.accept() }, 'ยอมรับ'),
-        h('button', { type: 'button', class: 'btn tr-decline', onclick: () => this.decline('decline') }, 'ปฏิเสธ')));
+        h('button', { type: 'button', class: 'btn tr-primary tr-accept', onclick: () => this.accept() }, L('ยอมรับ', 'Accept')),
+        h('button', { type: 'button', class: 'btn tr-decline', onclick: () => this.decline('decline') }, L('ปฏิเสธ', 'Decline'))));
   },
   viewTrade() {
     const t = this.t, my = t.my, th = t.their, both = my.locked && th.locked;
-    const step = t.state === 'commit' ? 'กำลังสลับของ…'
+    const step = t.state === 'commit' ? L('กำลังสลับของ…', 'Swapping items…')
       : t.state === 'count' ? ''
-      : my.confirmed ? `รอ ${t.name} กดตกลง…`
-      : th.confirmed ? `${t.name} กดตกลงแล้ว — ตรวจให้ดีแล้วกด ตกลง`
-      : both ? 'ล็อกทั้งคู่แล้ว — ตรวจของให้ดีแล้วกด ตกลง'
-      : my.locked ? `รอ ${t.name} ล็อก…`
-      : th.locked ? `${t.name} ล็อกแล้ว — ใส่ของให้ครบแล้วกด ล็อก`
-      : `ใส่ไอเทม/${CUR} แล้วกด ล็อก`;
+      : my.confirmed ? L(`รอ ${t.name} กดตกลง…`, `Waiting for ${t.name} to confirm…`)
+      : th.confirmed ? L(`${t.name} กดตกลงแล้ว — ตรวจให้ดีแล้วกด ตกลง`, `${t.name} confirmed — check carefully, then press OK`)
+      : both ? L('ล็อกทั้งคู่แล้ว — ตรวจของให้ดีแล้วกด ตกลง', 'Both locked — check the items carefully, then press OK')
+      : my.locked ? L(`รอ ${t.name} ล็อก…`, `Waiting for ${t.name} to lock…`)
+      : th.locked ? L(`${t.name} ล็อกแล้ว — ใส่ของให้ครบแล้วกด ล็อก`, `${t.name} locked — finish adding items, then press Lock`)
+      : L(`ใส่ไอเทม/${CUR} แล้วกด ล็อก`, `Add items/${CUR}, then press Lock`);
     const wrap = h('div', { class: 'tr-trade' + (t.state === 'count' || t.state === 'commit' ? ' sealing' : '') });
     wrap.append(h('div', { class: 'tr-head' },
       t.state === 'count' ? h('span', { class: 'tr-step tr-count' }) : h('span', { class: 'tr-step' }, step),
-      h('span', { class: 'tr-timer', title: 'เวลาที่เหลือ' })));
+      h('span', { class: 'tr-timer', title: L('เวลาที่เหลือ', 'Time remaining') })));
     wrap.append(h('div', { class: 'tr-bar' + (t.state === 'count' ? ' on' : t.state === 'commit' ? ' on full' : '') }, h('i'))); // แถบนับถอยหลัง (live() เลื่อนให้)
-    wrap.append(h('div', { class: 'tr-cols' }, this.column('my', 'ของคุณ', my), this.column('their', `ของ ${t.name}`, th)));
+    wrap.append(h('div', { class: 'tr-cols' }, this.column('my', L('ของคุณ', 'Your Offer'), my), this.column('their', L(`ของ ${t.name}`, `${t.name}'s Offer`), th)));
     const det = this.detail();
     if (det) wrap.append(det);
     if (this.editable()) wrap.append(this.picker());
     wrap.append(h('div', { class: 'tr-acts' },
-      h('button', { type: 'button', class: 'btn tr-lock' + (my.locked ? ' on' : ''), disabled: t.state !== 'open' || my.locked, onclick: () => this.lock() }, my.locked ? 'ล็อกแล้ว' : 'ล็อก'),
-      h('button', { type: 'button', class: 'btn tr-ok' + (both && !my.confirmed && t.state === 'open' ? ' tr-primary' : '') + (my.confirmed ? ' on' : ''), disabled: !both || my.confirmed || t.state !== 'open', onclick: () => this.confirm() }, my.confirmed ? 'ตกลงแล้ว' : 'ตกลง'),
-      h('button', { type: 'button', class: 'btn danger tr-cancel', disabled: t.state === 'commit', onclick: () => this.abort('cancel', true) }, 'ยกเลิก')));
+      h('button', { type: 'button', class: 'btn tr-lock' + (my.locked ? ' on' : ''), disabled: t.state !== 'open' || my.locked, onclick: () => this.lock() }, my.locked ? L('ล็อกแล้ว', 'Locked') : L('ล็อก', 'Lock')),
+      h('button', { type: 'button', class: 'btn tr-ok' + (both && !my.confirmed && t.state === 'open' ? ' tr-primary' : '') + (my.confirmed ? ' on' : ''), disabled: !both || my.confirmed || t.state !== 'open', onclick: () => this.confirm() }, my.confirmed ? L('ตกลงแล้ว', 'Confirmed') : L('ตกลง', 'OK')),
+      h('button', { type: 'button', class: 'btn danger tr-cancel', disabled: t.state === 'commit', onclick: () => this.abort('cancel', true) }, L('ยกเลิก', 'Cancel'))));
     return wrap;
   },
   column(side, title, s) {
     const t = this.t, mineSide = side === 'my';
-    const st = s.confirmed ? ['ok', 'ตกลงแล้ว'] : s.locked ? ['lock', 'ล็อกแล้ว'] : ['', 'กำลังเลือก'];
+    const st = s.confirmed ? ['ok', L('ตกลงแล้ว', 'Confirmed')] : s.locked ? ['lock', L('ล็อกแล้ว', 'Locked')] : ['', L('กำลังเลือก', 'Choosing')];
     const grid = h('div', { class: 'tr-slots' });
     for (let i = 0; i < TRADE_CFG.slots; i++) {
       const x = s.items[i];
@@ -610,7 +610,7 @@ const Trade = {
     }
     let volt;
     if (mineSide && this.editable()) {
-      const inp = h('input', { type: 'number', class: 'tr-zeny', min: 0, max: G.player.zeny, step: 1, value: String(s.zeny), 'data-focus': 'zeny', inputmode: 'numeric', 'aria-label': `จำนวน ${CUR} ที่เสนอ` });
+      const inp = h('input', { type: 'number', class: 'tr-zeny', min: 0, max: G.player.zeny, step: 1, value: String(s.zeny), 'data-focus': 'zeny', inputmode: 'numeric', 'aria-label': L(`จำนวน ${CUR} ที่เสนอ`, `Amount of ${CUR} to offer`) });
       inp.addEventListener('change', () => this.setZeny(inp.value, inp));
       inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } e.stopPropagation(); });
       volt = h('label', { class: 'tr-volt edit' }, h('i', { class: 'tr-vi', html: TRADE_VOLT }), inp, h('small', {}, `/ ${U.fmt(G.player.zeny)}`));
@@ -629,20 +629,20 @@ const Trade = {
       h('div', { class: 'tr-dt' },
         h('b', {}, itemDisplayName(x), x.qty > 1 ? h('small', {}, ` ×${U.fmt(x.qty)}`) : null),
         h('small', {}, lines.length ? lines.join(' • ') : (it.desc || ''))),
-      this.sel.side === 'my' && this.editable() ? h('button', { type: 'button', class: 'btn small tr-rm', onclick: () => this.removeOffer(this.sel.i) }, 'นำออก') : null);
+      this.sel.side === 'my' && this.editable() ? h('button', { type: 'button', class: 'btn small tr-rm', onclick: () => this.removeOffer(this.sel.i) }, L('นำออก', 'Remove')) : null);
   },
   // กระเป๋าของเรา: แตะเพื่อเสนอ (ของกองเลือกจำนวนได้) • ของที่สวมอยู่ไม่อยู่ในกระเป๋า จึงเสนอไม่ได้
   picker() {
     const p = G.player, t = this.t, wrap = h('div', { class: 'tr-pick' });
     const left = e => (isEquipType(ITEMS[e.id]) ? (t.my.items.some(x => x.uid && x.uid === e.uid) ? 0 : 1) : countItem(e.id) - this.offered(e.id));
     const inv = p.inventory.filter(e => ITEMS[e.id]);
-    wrap.append(h('div', { class: 'tr-sec' }, 'กระเป๋า — แตะเพื่อเสนอ', h('small', {}, `${t.my.items.length}/${TRADE_CFG.slots} ช่อง`)));
+    wrap.append(h('div', { class: 'tr-sec' }, L('กระเป๋า — แตะเพื่อเสนอ', 'Bag — tap to offer'), h('small', {}, L(`${t.my.items.length}/${TRADE_CFG.slots} ช่อง`, `${t.my.items.length}/${TRADE_CFG.slots} slots`))));
     const grid = h('div', { class: 'tr-inv' });
     for (const e of inv) {
       const it = ITEMS[e.id], n = left(e), picked = this.pick === e;
       grid.append(h('button', {
         type: 'button', class: 'inv-cell tr-icell' + (n <= 0 ? ' used' : '') + (picked ? ' sel' : ''), disabled: n <= 0, 'data-id': e.id,
-        title: `${itemDisplayName(e)}${isEquipType(it) ? '' : ` (เหลือ ${n})`}`,
+        title: `${itemDisplayName(e)}${isEquipType(it) ? '' : L(` (เหลือ ${n})`, ` (${n} left)`)}`,
         onclick: () => {
           if (isEquipType(it) || n === 1) { this.addOffer(e, 1); return; }
           this.pick = picked ? null : e; this.pickQty = n; this.render();
@@ -652,12 +652,12 @@ const Trade = {
       isEquipType(it) ? null : h('span', { class: 'q' }, U.fmt(n)),
       e.refine ? h('span', { class: 'rf' }, '+' + e.refine) : null));
     }
-    if (!inv.length) grid.append(h('div', { class: 'tr-none' }, 'กระเป๋าว่าง'));
+    if (!inv.length) grid.append(h('div', { class: 'tr-none' }, L('กระเป๋าว่าง', 'Bag is empty')));
     wrap.append(grid);
     const e = this.pick && p.inventory.includes(this.pick) ? this.pick : null;
     if (e) {
       const max = left(e);
-      const inp = h('input', { type: 'number', class: 'tr-qn', min: 1, max, step: 1, value: String(U.clamp(this.pickQty, 1, max)), 'data-focus': 'qty', inputmode: 'numeric', 'aria-label': 'จำนวน' });
+      const inp = h('input', { type: 'number', class: 'tr-qn', min: 1, max, step: 1, value: String(U.clamp(this.pickQty, 1, max)), 'data-focus': 'qty', inputmode: 'numeric', 'aria-label': L('จำนวน', 'Quantity') });
       const set = v => { inp.value = String(U.clamp(Math.floor(+v) || 1, 1, max)); this.pickQty = +inp.value; };
       inp.addEventListener('input', () => { this.pickQty = Math.floor(+inp.value) || 1; });
       inp.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); set(inp.value); this.addOffer(e, +inp.value); } ev.stopPropagation(); });
@@ -665,11 +665,11 @@ const Trade = {
         h('img', { src: itemIconUrl(e.id), alt: '' }),
         h('span', { class: 'tr-qty-n' }, ITEMS[e.id].name),
         h('span', { class: 'tr-step-btns' },
-          h('button', { type: 'button', class: 'btn small', 'aria-label': 'ลด', onclick: () => set(+inp.value - 1) }, '−'),
+          h('button', { type: 'button', class: 'btn small', 'aria-label': L('ลด', 'Decrease'), onclick: () => set(+inp.value - 1) }, '−'),
           inp,
-          h('button', { type: 'button', class: 'btn small', 'aria-label': 'เพิ่ม', onclick: () => set(+inp.value + 1) }, '+'),
-          h('button', { type: 'button', class: 'btn small', onclick: () => set(max) }, 'ทั้งหมด')),
-        h('button', { type: 'button', class: 'btn small tr-primary tr-add', onclick: () => { set(inp.value); this.addOffer(e, +inp.value); } }, 'ใส่')));
+          h('button', { type: 'button', class: 'btn small', 'aria-label': L('เพิ่ม', 'Increase'), onclick: () => set(+inp.value + 1) }, '+'),
+          h('button', { type: 'button', class: 'btn small', onclick: () => set(max) }, L('ทั้งหมด', 'All'))),
+        h('button', { type: 'button', class: 'btn small tr-primary tr-add', onclick: () => { set(inp.value); this.addOffer(e, +inp.value); } }, L('ใส่', 'Add'))));
     }
     return wrap;
   },
