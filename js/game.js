@@ -9,7 +9,7 @@ const G = {
   mvpNext: {}, pendingSkill: null, hover: null, uid: 1, started: false,
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
-const SAVE_FIELDS = ['name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
+const SAVE_FIELDS = ['pvp', 'name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
   'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery'];
 
 // ------------------------------------------------------------
@@ -586,6 +586,14 @@ function aggroMob(m) {
 }
 function damageMob(m, dmg, opts = {}) {
   if (m.dead) return;
+  if (m.isPlayer) { // PvP: ดาเมจลด 40% ให้สู้ได้นานขึ้น • คู่ต่อสู้เป็นคนหักเลือดเอง
+    dmg = Math.max(1, Math.round(dmg * 0.6));
+    addFloater(m.x, m.y - 1.2, dmg, opts.color || (opts.crit ? '#ffe040' : '#ffffff'), opts.crit);
+    addFx({ type: opts.crit ? 'crit' : 'hit', x: m.x, y: m.y - 0.5, dur: 0.25 });
+    Sound.play(opts.crit ? 'crit' : 'hit');
+    Online.sendHit(m, dmg, !!opts.crit);
+    return;
+  }
   m.hp -= dmg;
   m.hitFlash = 0.12;
   if (m.def.dummy) { // หุ่นฝึก: จดดาเมจไว้คิด DPS และไม่มีวันตาย (เลือดเต็มใหม่เมื่อหมด)
@@ -649,7 +657,7 @@ function grantChip(d, m) {
 
 // สถานะผิดปกติของมอนสเตอร์: stun (มึน), slow (ช้า), burn (ไหม้), poison (พิษ)
 function applyStatus(m, st, lv, lastDmg = 0) {
-  if (!st || m.dead) return;
+  if (!st || m.dead || m.isPlayer) return;
   if (m.def.boss && st.kind === 'stun') return;
   if (!U.chance(st.chance(lv) / 100)) return;
   const until = G.time + st.dur(lv);
@@ -744,6 +752,7 @@ function playerDie() {
   const p = G.player;
   p.hp = 0; p.dead = true; p.path = []; p.target = null; p.cast = null; p.skillIntent = null; p.sitting = false; p.stunUntil = 0;
   let lost = 0;
+  if (G.map.def.pvp) { Online.onPvpDeath(); UI.showDeath(0); Sound.play('die'); Bot.onDeath(); return; } // ลานประลอง: ไม่เสีย EXP
   if (p.job !== 'novice' && p.baseLv < MAX_BASE_LV) {
     lost = Math.floor(baseExpNeed(p.baseLv) * 0.01);
     p.baseExp = Math.max(0, p.baseExp - lost);
@@ -1015,6 +1024,7 @@ function runSpecialSkill(kind, s, lv) {
 }
 
 function knockback(m, fx, fy, n) {
+  if (m.isPlayer) return;
   const dx = m.x - fx, dy = m.y - fy, d = Math.hypot(dx, dy) || 1;
   for (let i = n; i > 0; i--) {
     const nx = m.x + dx / d * i, ny = m.y + dy / d * i;
@@ -1270,6 +1280,7 @@ function updatePlayer(dt) {
 }
 
 function updateMob(m, dt) {
+  if (m.isPlayer) return; // ตัวแทนผู้เล่นใน PvP: ตำแหน่งมาจากเครือข่าย
   const p = G.player, md = m.def;
   if (m.dead) { m.deathT += dt; return; }
   m.hitFlash = Math.max(0, m.hitFlash - dt);

@@ -21,7 +21,7 @@ const Nav = {
     for (const q of G.map.portals) out.push({ kind: 'map', map: q.to, name: `ทางไป ${MAP_DEFS[q.to].name}`, sub: `ประตู • Lv ${MAP_DEFS[q.to].level || '-'}`, d: U.dist(p.x, p.y, q.x, q.y) });
     const seen = {};
     for (const m of G.mobs) {
-      if (m.dead) continue;
+      if (m.dead || m.isPlayer) continue;
       const d = U.dist(p.x, p.y, m.x, m.y);
       if (!seen[m.def.id] || d < seen[m.def.id].d) seen[m.def.id] = { kind: 'mob', map: G.map.id, mobId: m.def.id, name: m.def.name, sub: `มอนสเตอร์ Lv ${m.def.lv}${m.isMvp ? ' • MVP' : ''}`, d };
     }

@@ -230,6 +230,17 @@ const UI = {
     const bh = buffs.join('');
     const be = $('#buffs');
     if (be.innerHTML !== bh) be.innerHTML = bh;
+    // ลานประลอง PvP: สถิติฆ่า/ล้ม + จำนวนคู่ต่อสู้
+    const ph = $('#pvp-hud');
+    if (ph) {
+      const on = !!(G.map && G.map.def.pvp);
+      if (ph.hidden === on) ph.hidden = !on;
+      if (on) {
+        const s = p.pvp || { k: 0, d: 0 }, foes = G.mobs.filter(m => m.isPlayer).length;
+        const html = `<b>⚔ ลานประลอง</b><span>ฆ่า <i>${s.k}</i></span><span>ล้ม <i>${s.d}</i></span><span class="pv-n">${Online.online ? `คู่ต่อสู้ ${foes} คน` : 'ต้องเล่นออนไลน์'}</span>`;
+        if (ph.innerHTML !== html) ph.innerHTML = html;
+      }
+    }
     // โหมดเล็งสกิล: แถบบอกด้านบน
     const sa = $('#skill-aim');
     if (sa) {
@@ -1525,9 +1536,12 @@ const UI = {
     body.append(h('div', { class: 'bot-sec' }, 'สกิลที่ให้บอทใช้'));
     if (!act.length) body.append(h('div', { class: 'hint' }, 'ยังไม่มีสกิลที่ใช้งานได้'));
     for (const id of act) {
-      body.append(h('label', { class: 'opt bot-skill' },
+      c.skillHp = c.skillHp || {};
+      const gate = h('select', { class: 'bot-gate', title: 'เงื่อนไขการใช้สกิลนี้', onchange: e => { const v = +e.target.value; if (v) c.skillHp[id] = v; else delete c.skillHp[id]; saveGame(); } },
+        [0, 30, 50, 70, 90].map(v => h('option', { value: v, selected: (c.skillHp[id] || 0) === v ? 'selected' : false }, v ? `เมื่อ HP < ${v}%` : 'ใช้ตลอด')));
+      body.append(h('div', { class: 'bot-skill-row' }, h('label', { class: 'opt bot-skill' },
         h('input', { type: 'checkbox', checked: c.skills[id] !== false ? 'checked' : false, onchange: e => { c.skills[id] = e.target.checked; saveGame(); } }),
-        this.skillIcon(id), ` ${SKILLS[id].name}`, h('small', {}, ` (${({ heal: 'ฮีล', summon: 'เรียกสัตว์', opener: 'เปิดฉาก', buff: 'บัฟ', trap: 'กับดัก', aoe: 'โจมตีรอบตัว', attack: 'โจมตี' })[Bot.role(id)] || ''})`)));
+        this.skillIcon(id), ` ${SKILLS[id].name}`, h('small', {}, ` (${({ heal: 'ฮีล', summon: 'เรียกสัตว์', opener: 'เปิดฉาก', buff: 'บัฟ', trap: 'กับดัก', aoe: 'โจมตีรอบตัว', attack: 'โจมตี' })[Bot.role(id)] || ''})`)), gate));
     }
     body.append(h('div', { class: 'hint', id: 'bot-pots' }, this.botPotsText()));
   },

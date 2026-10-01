@@ -189,6 +189,8 @@ const Online = {
     const ch = this.sb.channel(`map:${mapId}`, { config: { presence: { key: this.user.id }, broadcast: { self: false } } });
     ch.on('broadcast', { event: 'pos' }, ({ payload }) => this.onPos(payload));
     ch.on('broadcast', { event: 'say' }, ({ payload }) => this.onSay(payload));
+    ch.on('broadcast', { event: 'hit' }, ({ payload }) => this.onHit(payload));
+    ch.on('broadcast', { event: 'kill' }, ({ payload }) => this.onKill(payload));
     ch.on('broadcast', { event: 'emote' }, ({ payload }) => { const o = payload && this.others.get(payload.id); if (o && EMOTE_BY[payload.k]) Emote.play(payload.k, o); });
     ch.on('presence', { event: 'sync' }, () => {
       const st = ch.presenceState();
@@ -196,6 +198,7 @@ const Online = {
       for (const id of Array.from(this.others.keys())) if (!st[id]) this.others.delete(id);
     });
     ch.on('presence', { event: 'leave' }, ({ key }) => this.others.delete(key));
+    ch.on('presence', { event: 'join' }, ({ key }) => { if (!this.user || key !== this.user.id) setTimeout(() => this.sendPos(true), 150); }); // มีคนเข้ามาใหม่ → ส่งตำแหน่งให้เห็นทันที
     ch.subscribe(status => {
       if (status === 'SUBSCRIBED') {
         UI.setNet('ok');
@@ -209,6 +212,7 @@ const Online = {
   leaveMap() {
     if (this.mapChannel) { this.sb.removeChannel(this.mapChannel); this.mapChannel = null; }
     this.others.clear(); this.count = 0; this.mapId = null;
+    G.mobs = G.mobs.filter(m => !m.isPlayer);
   },
   snapshot() {
     const p = G.player, e = p.equip;
@@ -217,6 +221,8 @@ const Online = {
       w: e.weapon ? e.weapon.id : null, hd: e.head ? e.head.id : null, ga: e.garment ? e.garment.id : null,
       x: Math.round(p.x * 100) / 100, y: Math.round(p.y * 100) / 100, f: p.facing, dr: p.dir, m: p.moving ? 1 : 0,
       lk: p.look, s: p.sitting ? 1 : 0, d: p.dead ? 1 : 0, a: this.atkSeq, st: p.stealthUntil > G.time ? 1 : 0, b: Bot.on ? 1 : 0,
+      // PvP: เลือดและค่าป้องกัน ให้อีกฝ่ายคำนวณดาเมจที่จะส่งมา
+      ...(G.map.def.pvp ? { hp: Math.max(0, Math.round(p.hp)), mh: p.d.maxHp, pv: [p.d.def, p.d.mdef, p.d.flee, p.d.vit, p.baseLv] } : {}),
     };
   },
   sendPos(force) {
@@ -242,6 +248,7 @@ const Online = {
       tx: s.x, ty: s.y, facing: s.f || 1, dir: s.dr, moving: !!s.m, sitting: !!s.s, dead: !!s.d, stealth: !!s.st, bot: !!s.b, seen: performance.now(),
     });
     if (s.a !== o.lastA) { o.lastA = s.a; o.atkAnim = 1; }
+    o.hp = s.hp; o.maxHp = s.mh; o.pv = Array.isArray(s.pv) ? s.pv : null;
     if (Math.hypot(o.tx - o.x, o.ty - o.y) > 6) { o.x = o.tx; o.y = o.ty; }
   },
   onSay(s) {
@@ -276,12 +283,71 @@ const Online = {
     return true;
   },
 
+  // ---------------- PvP (ลานประลอง) ----------------
+  // ผู้เล่นคนอื่นในลานประลองกลายเป็น "เป้า" ใน G.mobs (isPlayer) → ใช้ระบบเล็ง/ตี/สกิลเดิมได้ทั้งหมด
+  // ผู้ตีคำนวณดาเมจแล้วส่ง 'hit' • ผู้ถูกตีหักเลือดตัวเอง (เลือดของใครของมัน) • ตายแล้วประกาศ 'kill'
+  syncPvpTargets() {
+    const pvp = G.map && G.map.def.pvp;
+    const keep = new Set();
+    if (pvp) for (const o of this.others.values()) {
+      if (!o.pv) continue;
+      keep.add(o.id);
+      let m = G.mobs.find(x => x.isPlayer && x.ref === o);
+      if (!m) {
+        m = { uid: G.uid++, isPlayer: true, ref: o, state: 'idle', path: [], facing: 1, hitFlash: 0, atkAnim: 0, nextAtk: 0,
+          def: { id: 'pvp_' + o.id, name: o.name, lv: 1, def: 0, mdef: 0, flee: 0, vit: 0, element: 'neutral', race: 'human', scale: 1, exp: 0, jexp: 0, drops: [] } };
+        G.mobs.push(m);
+      }
+      const [df, mdf, fl, vt, lv] = o.pv;
+      Object.assign(m.def, { name: o.name, def: df, mdef: mdf, flee: fl, vit: vt, lv });
+      m.x = o.x; m.y = o.y; m.hp = o.hp || 0; m.maxHp = o.maxHp || 1; m.dead = !!o.dead || o.stealth;
+    }
+    if (G.mobs.some(m => m.isPlayer && !keep.has(m.ref.id))) G.mobs = G.mobs.filter(m => !m.isPlayer || keep.has(m.ref.id));
+    const p = G.player;
+    if (p.target && p.target.isPlayer && p.target.dead) p.target = null;
+  },
+  sendHit(m, dmg, crit) {
+    if (!this.mapChannel || !G.map.def.pvp) return;
+    this.mapChannel.send({ type: 'broadcast', event: 'hit', payload: { from: this.user.id, fn: G.player.name, to: m.ref.id, dmg, crit } });
+  },
+  onHit(s) {
+    const p = G.player;
+    if (!s || !this.user || s.to !== this.user.id || !G.map.def.pvp || p.dead) return;
+    const atk = this.others.get(s.from);
+    if (!atk) return; // ต้องอยู่ในลานเดียวกัน
+    const dmg = U.clamp(Math.round(+s.dmg || 0), 0, 99999);
+    this.lastHitBy = { id: s.from, name: s.fn || atk.name };
+    p.sitting = false;
+    damagePlayer(dmg, s.crit ? '#ffe040' : '#ff5050');
+    // โจมตีกลับอัตโนมัติ (ตามตั้งค่า) ใส่คนที่ตีเรา
+    const m = G.mobs.find(x => x.isPlayer && x.ref === atk);
+    if (m && !p.dead && p.options.autoCounter !== false && !(p.target && !p.target.dead) && !p.path.length && !p.cast) { p.target = m; p.repathAt = 0; }
+  },
+  // เราล้มในลานประลอง (เรียกจาก playerDie)
+  onPvpDeath() {
+    const p = G.player, k = this.lastHitBy;
+    p.pvp = p.pvp || { k: 0, d: 0 }; p.pvp.d++;
+    UI.msg(k ? `⚔ ${k.name} ล้มคุณในลานประลอง` : 'คุณล้มลงในลานประลอง', 'err');
+    if (this.mapChannel && k) this.mapChannel.send({ type: 'broadcast', event: 'kill', payload: { killer: k.id, kn: k.name, victim: this.user.id, vn: p.name } });
+    this.lastHitBy = null;
+    saveGame(true);
+  },
+  onKill(s) {
+    if (!s || !G.map.def.pvp) return;
+    const p = G.player;
+    if (this.user && s.killer === this.user.id) {
+      p.pvp = p.pvp || { k: 0, d: 0 }; p.pvp.k++;
+      UI.announce(`⚔ คุณล้ม ${s.vn} ได้!`); Sound.play('mvp'); saveGame(true);
+    } else UI.msg(`⚔ ${s.kn} ล้ม ${s.vn}`, 'sys');
+  },
+
   // ---------------- ทุกเฟรม ----------------
   update(dt) {
     if (!this.online || !G.started) return;
     if (G.player.atkAnim > this.lastAtkAnim + 0.5) this.atkSeq++;
     this.lastAtkAnim = G.player.atkAnim;
     this.sendPos(false);
+    this.syncPvpTargets();
     const now = performance.now();
     for (const [id, o] of this.others) {
       if (now - o.seen > 8000) { this.others.delete(id); continue; }

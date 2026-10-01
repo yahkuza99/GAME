@@ -62,7 +62,10 @@
         if (m.ch !== name) return;
         if (m.kind === 'bc') for (const h of handlers) if (h.type === 'broadcast' && h.filter.event === m.event) h.cb({ payload: m.payload });
         if (m.kind === 'hello' && key && presence[key]) bus.postMessage({ kind: 'presence', ch: name, key, meta: presence[key][0] });
-        if (m.kind === 'presence') { presence[m.key] = [m.meta]; fire('presence', 'sync'); }
+        if (m.kind === 'presence') {
+          const isNew = !presence[m.key]; presence[m.key] = [m.meta]; fire('presence', 'sync');
+          if (isNew) for (const h of handlers) if (h.type === 'presence' && h.filter.event === 'join') h.cb({ key: m.key });
+        }
         if (m.kind === 'leave') { delete presence[m.key]; fire('presence', 'sync'); for (const h of handlers) if (h.type === 'presence' && h.filter.event === 'leave') h.cb({ key: m.key }); }
       },
     };

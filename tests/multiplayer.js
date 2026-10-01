@@ -22,7 +22,8 @@ async function player(ctx, user, opts = {}) {
 }
 
 (async () => {
-  const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+  // ปิดการลดความเร็วแท็บพื้นหลัง: ทั้งสองผู้เล่นต้องวิ่งพร้อมกันจริง
+  const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows'] });
   const ctx = await b.newContext({ viewport: { width: 1100, height: 680 } });
   await ctx.addInitScript({ path: FAKE });
   await ctx.route(/fake\.supabase\.test\/auth\/v1\/settings/, r => r.fulfill({ status: 200, contentType: 'application/json', body: '{"mailer_autoconfirm":true}' }));
@@ -33,7 +34,8 @@ async function player(ctx, user, opts = {}) {
   ok('ออนไลน์ทั้งคู่ (ผ่าน Supabase ปลอม)', await A.evaluate(() => Online.online) && await B.evaluate(() => Online.online));
 
   // เห็นกันในเมือง
-  await A.waitForTimeout(1500);
+  await A.waitForFunction(() => Online.others.size > 0, null, { timeout: 20000 }).catch(() => {});
+  await B.waitForFunction(() => Online.others.size > 0, null, { timeout: 20000 }).catch(() => {});
   const seeA = await A.evaluate(() => [...Online.others.values()].map(o => o.name));
   const seeB = await B.evaluate(() => [...Online.others.values()].map(o => o.name));
   ok('A เห็น B', seeA.includes('Bobby'), JSON.stringify(seeA));
@@ -41,7 +43,7 @@ async function player(ctx, user, opts = {}) {
 
   // แชทสด
   await B.evaluate(() => Online.sendChat('สวัสดี Alice'));
-  await A.waitForTimeout(600);
+  await A.waitForFunction(() => /สวัสดี Alice/.test(document.querySelector('#chat-log').textContent), null, { timeout: 10000 }).catch(() => {});
   const log = await A.evaluate(() => [...document.querySelectorAll('#chat-log .cl')].map(e => e.textContent).join('\n'));
   ok('แชทจาก B ถึง A', /สวัสดี Alice/.test(log));
 

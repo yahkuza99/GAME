@@ -15,7 +15,7 @@ const Bot = {
   defaults() {
     return { skills: {}, hpPot: 50, spPot: 20, restHp: 35, restSp: 10, healAt: 60, useBuffs: true, avoidMvp: true,
       radius: 14, returnHome: true,
-      rest: true, style: 'skills', leash: false, skipMobs: {} };
+      rest: true, style: 'skills', leash: false, skipMobs: {}, skillHp: {} };
   },
   cfg() {
     // แก้ "ในที่เดิม" เสมอ: ถ้าสร้างอ็อบเจกต์ใหม่ทุกครั้ง ค่าที่ผู้เล่นเพิ่งปรับ (ผ่านตัวเลื่อนที่ถืออ็อบเจกต์เก่า) จะหาย
@@ -91,7 +91,11 @@ const Bot = {
   canCast(id) {
     const p = G.player, s = SKILLS[id], lv = skillLv(id);
     if (!lv || !s || s.type !== 'active') return false;
-    if (this.cfg().skills[id] === false) return false;
+    const c = this.cfg();
+    if (c.skills[id] === false) return false;
+    // ตั้งรายสกิล: ใช้เฉพาะตอน HP ต่ำกว่า X% (0 = ใช้ได้ตลอด)
+    const hpGate = (c.skillHp || {})[id];
+    if (hpGate && p.hp / p.d.maxHp * 100 >= hpGate) return false;
     if (G.time < p.skillReadyAt || p.cast) return false;
     if (s.bow && weaponType() !== 'bow') return false;
     return canPaySkill(skillCost(id, lv)) && (!p.d.bloodmagic || p.hp - skillCost(id, lv) > p.d.maxHp * 0.4);
@@ -113,6 +117,8 @@ const Bot = {
     if (!this.on || p.dead || G.time < this.nextThink) return;
     this.nextThink = G.time + 0.2;
     if (G.time < this.pauseUntil || NPC.busy) return;
+    if (G.map.def.pvp) { if (!this.warnedPvp) { this.warnedPvp = true; UI.msg('บอทไม่ทำงานในลานประลอง PvP', 'info'); } return; }
+    this.warnedPvp = false;
     if (G.map.def.kind === 'town') {
       if (!this.warnedTown) { this.warnedTown = true; UI.msg('บอทรออยู่: ออกไปยังแผนที่ล่ามอนสเตอร์ได้เลย', 'info'); }
       return;

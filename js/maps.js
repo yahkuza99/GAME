@@ -10,7 +10,7 @@ const SIGHT_BLOCK = new Set([T.TREE, T.WALL, T.ROCK, T.HOUSE]);
 const MAP_DEFS = {
   eldheim: {
     name: 'Neo Eldheim', thai: 'นครนีโอเอลด์ไฮม์ ฐานที่มั่นแห่งแอนดรอยด์', w: 40, h: 40, kind: 'town', seed: 101,
-    links: { E: 'meadow', S: 'wolfwood' }, spawns: [],
+    links: { E: 'meadow', S: 'wolfwood', N: 'arena' }, spawns: [],
     dummies: [[18, 28], [20, 28], [22, 28]], // หุ่นฝึกซ้อม (ทดสอบการโจมตี)
     grass: '#74b04c',
     npcs: [
@@ -42,6 +42,12 @@ const MAP_DEFS = {
     links: { N: 'eldheim', S: 'helcave' }, level: '18-30',
     spawns: [['ashtail', 10], ['fenrir_pup', 8], ['mossback', 6], ['tuskboar', 6]],
     grass: '#4f8a3a', trees: 1.7, ponds: 1, flowers: 0.02, pine: true,
+  },
+  // ลานประลอง PvP: ผู้เล่นตีกันได้ ไม่มีมอน ตายไม่เสีย EXP (ต้องออนไลน์ถึงจะเจอคู่ต่อสู้)
+  arena: {
+    name: 'Valhalla Arena', thai: 'ลานประลองวัลฮัลลา (PvP)', w: 34, h: 34, kind: 'field', seed: 606, pvp: true,
+    links: { S: 'eldheim' }, level: 'PvP', spawns: [], dummies: [[15, 9], [17, 9], [19, 9]],
+    grass: '#8a9a5a', trees: 0.25, ponds: 0, flowers: 0.02,
   },
   helcave: {
     name: "Hel's Hollow", thai: 'โพรงถ้ำแห่งเฮล', w: 50, h: 50, kind: 'cave', seed: 505, dark: true,

@@ -221,7 +221,7 @@ R.render = () => {
   for (const b of map.buildings) if (b.img) list.push({ y: b.y + b.h - 0.5, f: () => Sprites.drawBuildingImg(g, b, t) });
   if (map.fountainImg) list.push({ y: map.fountain.y + 1.2, f: () => Sprites.drawFountainImg(g, map.fountain, t) });
   for (const n of G.npcs) list.push({ y: n.y + 0.5, f: () => Sprites.drawNpc(g, n, t) });
-  for (const m of G.mobs) if (m.x > L && m.x < Rr && m.y > Tp && m.y < B) list.push({ y: m.y, f: () => Sprites.drawMob(g, m, t) });
+  for (const m of G.mobs) if (!m.isPlayer && m.x > L && m.x < Rr && m.y > Tp && m.y < B) list.push({ y: m.y, f: () => Sprites.drawMob(g, m, t) });
   for (const a of G.allies) list.push({ y: a.y, f: () => Sprites.drawAlly(g, a, t) });
   // ผู้เล่นคนอื่น (ออนไลน์)
   for (const o of Online.others.values()) {
@@ -260,6 +260,7 @@ R.render = () => {
   for (const m of G.mobs) {
     if (m.dead) continue;
     const x = m.x * TILE, y = P(m.y * TILE), s = (m.def.scale || 1);
+    if (m.isPlayer) { R.bar(g, x, y + 10, 40, m.hp / Math.max(1, m.maxHp), '#ff4f6a'); continue; } // คู่ต่อสู้ PvP: แถบเลือดแดง (ชื่อวาดโดยระบบผู้เล่นอื่น)
     if (m.hp < m.maxHp || m.isMvp) R.bar(g, x, y + 10, m.isMvp ? 64 : 38, m.hp / m.maxHp, m.isMvp ? '#ff4f6a' : '#ff6b7d');
     if (m.isMvp) R.tag(g, x, y + 26, `MVP · ${m.def.name}`, '#ffd98a', '#ff6b7d');
     else if ((G.hover && G.hover.ref === m) || p.target === m) R.tag(g, x, y + 26, `${m.def.name} · Lv ${m.def.lv}`, '#ffffff', m.def.aggro ? '#ff6b7d' : '#8fe3a8');
