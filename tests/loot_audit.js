@@ -192,7 +192,7 @@ const KILLS_PER_HOUR = 600;
     console.log(m.padEnd(10), ...Object.keys(r.expected).map(k => `${r.expected[k]} / ${r.simulated[k]}`.padEnd(18)), String(r.equipPerHour).padEnd(8), String(r.oresPerHour).padEnd(7), r.zenyFromSales);
     const tot = Object.values(r.expected).reduce((a, b) => a + b, 0), totS = Object.values(r.simulated).reduce((a, b) => a + b, 0);
     ok(`${m}: simulated drops match the tables (±10%)`, Math.abs(totS - tot) / tot < 0.1, `${totS.toFixed(0)} vs ${tot.toFixed(0)}`);
-    ok(`${m}: some equipment every hour of farming`, r.equipPerHour >= 5, r.equipPerHour);
+    ok(`${m}: some equipment every hour of farming`, r.equipPerHour >= 2 && r.equipPerHour <= 8, r.equipPerHour); // แบบ RO: อุปกรณ์หายาก (ไม่แจกเยอะ)
   }
   console.log('\nExpected drops per MVP / world boss kill by rarity:');
   for (const [m, e] of Object.entries(sim.boss)) console.log(' ', m.padEnd(20), JSON.stringify(e));
