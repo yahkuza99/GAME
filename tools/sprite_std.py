@@ -422,6 +422,48 @@ def check_sheet(frames, rep, title):
     return im
 
 
+def fx_template():
+    """เทมเพลตเอฟเฟกต์สกิล 4x2 (8 เฟรม) พื้นดำ: เงาตัวละครสีเทาบอกขนาด/ตำแหน่งเป้าหมาย เส้นแดง = พื้น"""
+    from PIL import ImageFont
+    W, H, cols, rows = 1536, 1024, 4, 2
+    cw, ch = W / cols, H / rows
+    try: f1 = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 30)
+    except Exception: f1 = ImageFont.load_default()
+    im = Image.new('RGB', (W, H), (0, 0, 0)); d = ImageDraw.Draw(im)
+    g, top = ch * 0.93, ch * 0.22; hh = g - top
+    for r in range(rows):
+        for c in range(cols):
+            x0, y0 = c * cw, r * ch; cx = x0 + cw / 2
+            d.rectangle([x0, y0, x0 + cw - 1, y0 + ch - 1], outline=(70, 70, 80), width=2)
+            # เงาตัวละคร (หัวโต 1/3 แบบ chibi)
+            hr = hh * 0.17
+            d.ellipse([cx - hr, y0 + top, cx + hr, y0 + top + hr * 2], outline=(90, 90, 100), width=3)
+            d.rounded_rectangle([cx - hh * 0.15, y0 + top + hr * 2, cx + hh * 0.15, y0 + g], radius=12, outline=(90, 90, 100), width=3)
+            d.line([x0 + 10, y0 + g, x0 + cw - 10, y0 + g], fill=(200, 50, 50), width=3)
+            d.text((x0 + 10, y0 + 8), str(r * cols + c + 1), fill=(150, 150, 170), font=f1)
+    return im
+
+
+def install_fx(src, name, cols, rows, frames=0):
+    """ติดตั้งเอฟเฟกต์: ตัดตามตารางเท่า ๆ กัน → ย่อให้ตัวละครในเทมเพลตสูง STD_H → แถบเฟรม assets/fx_<name>.webp (พื้นดำ เกมผสมแบบบวกแสง)"""
+    im = Image.open(src).convert('RGB'); W, H = im.size; cw, ch = W / cols, H / rows
+    s = STD_H / ((0.93 - 0.22) * ch)
+    n = cols * rows if not frames else min(frames, cols * rows)
+    out = Image.new('RGB', (CELL * n, CELL), (0, 0, 0))
+    for i in range(n):
+        r, c = divmod(i, cols)
+        cell = im.crop((int(c * cw) + 3, int(r * ch) + 3, int((c + 1) * cw) - 3, int((r + 1) * ch) - 3))  # ตัดขอบตาราง
+        cell = cell.point(lambda v: 0 if v < 16 else v)  # พื้นดำสนิท (บวกแสงแล้วไม่เป็นหมอก)
+        cell = cell.resize((max(1, round(cell.width * s)), max(1, round(cell.height * s))), Image.LANCZOS)
+        px = CX - cell.width / 2; py = GROUND - (0.93 * ch - 3) * s
+        tile = Image.new('RGB', (CELL, CELL), (0, 0, 0)); tile.paste(cell, (round(px), round(py)))
+        out.paste(tile, (i * CELL, 0))
+    dst = os.path.join(HERE, '..', 'assets', f'fx_{name}.webp')
+    out.save(dst, 'WEBP', quality=88, method=6)
+    prev = out.resize((out.width // 2, CELL // 2)); prev.save(os.path.join(CHECK, f'fx_{name}.png'))
+    manifest(); print(f'ติดตั้ง → fx_{name}.webp ({n} เฟรม, {n * 0.07:.2f} วิ)')
+
+
 def load_sizes():
     try: return json.load(open(SIZES))
     except Exception: return {}
@@ -441,6 +483,10 @@ def main():
     ap.add_argument('--nofit', action='store_true', help='ไม่ปรับขนาดเฟรมที่เพี้ยนอัตโนมัติ')
     ap.add_argument('--order', default='', help='ลำดับเฟรมใหม่ เช่น 1,2,3,4,3,2')
     a = ap.parse_args()
+    if a.cmd == 'template' and a.src == 'fx':
+        out = os.path.join(HERE, '..', 'art', 'tpl_fx.png'); fx_template().save(out); print('template →', out); return
+    if a.cmd == 'fx':  # fx <ภาพ> <ชื่อ> --grid 4x2 → assets/fx_<ชื่อ>.webp
+        c_, r_ = map(int, a.grid.lower().split('x')); install_fx(a.src, a.key, c_, r_, a.frames); return
     if a.cmd == 'template':
         if a.src in POSES:  # template <ท่า> → เทมเพลต 5 ทิศมีป้ายกำกับ
             out = os.path.join(HERE, '..', 'art', f'tpl_{a.src}.png')

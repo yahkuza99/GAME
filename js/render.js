@@ -506,6 +506,15 @@ R.drawFx = (g, f, t) => {
   const X = pos.x * TILE, Y = pos.y * TILE * R.K;
   const tgtY = Y - 18 * ((f.ref && f.ref.def && f.ref.def.scale) || 1);
   switch (f.type) {
+    case 'sprite': { // ภาพเอฟเฟกต์: เฟรมละ 240px ยึดพื้นที่ y=220 ของช่อง ผสมแบบบวกแสง (พื้นดำ = โปร่งใส)
+      const img = Art.get(f.sprite); if (!img) break;
+      const n = Math.max(1, Math.round(img.width / 240)), fr = Math.min(n - 1, Math.floor(k * n));
+      const s = 68 / 150 * (f.size || 1) * ((f.ref && f.ref.def && f.ref.def.scale) || 1);
+      g.save(); g.globalCompositeOperation = 'lighter';
+      g.drawImage(img, fr * 240, 0, 240, 240, X - 120 * s, Y - 220 * s, 240 * s, 240 * s);
+      g.restore();
+      break;
+    }
     case 'arrow': {
       if (after >= 0) break;
       const sx = f.sx * TILE, sy = f.sy * TILE * R.K;

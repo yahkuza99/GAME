@@ -1053,6 +1053,94 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 
 ✅ **Storage Unit Kaia** — แนบรูป NPC ตัวไหนก็ได้ 1 รูปเป็นแบบสไตล์
 
+## เอฟเฟกต์สกิล (แบบ RO)
+
+แต่ละเอฟเฟกต์ = 1 ภาพ 8 เฟรม แนบ `tpl_fx.png` (พื้นดำ) • ไม่มีภาพเกมใช้เอฟเฟกต์ที่วาดด้วยโค้ดแทน • ติดตั้ง: `python3 tools/sprite_std.py fx <ภาพ> <ชื่อ>`
+
+⬜ **ฟันคม** (`fx_slash`) — ใช้กับ Backstab, ตีคริติคอลของสกิล
+
+```
+2D MMORPG skill effect animation in the style of Ragnarok Online spell effects: bright glowing magic, crisp shapes, on a PURE BLACK background (the game blends black as transparent). Draw 8 frames into the attached 4x2 template, left to right then top to bottom. The gray outline is the target character: keep the effect centered on it, ground on the red line, the effect can extend above the head. Draw ONLY the effect, no character, no text, do NOT draw the grid, numbers, gray outline or red line. Effect: 1 thin bright white-cyan slash line appears diagonally across the body, 2-3 the slash widens into a crescent arc with sparks, 4-5 a second crossing slash forms an X, 6-8 the X fades into small sparkles.
+```
+
+⬜ **ทุบหนัก** (`fx_bash`) — ใช้กับ Shield Slam, Rage Strike
+
+```
+2D MMORPG skill effect animation in the style of Ragnarok Online spell effects: bright glowing magic, crisp shapes, on a PURE BLACK background (the game blends black as transparent). Draw 8 frames into the attached 4x2 template, left to right then top to bottom. The gray outline is the target character: keep the effect centered on it, ground on the red line, the effect can extend above the head. Draw ONLY the effect, no character, no text, do NOT draw the grid, numbers, gray outline or red line. Effect: 1 small orange flash at the chest, 2-3 a star-shaped impact burst grows with flying debris, 4-5 shockwave ring expands on the ground, 6-8 dust puffs and fading sparks.
+```
+
+⬜ **ลูกไฟ** (`fx_firebolt`) — ใช้กับ Fire Rune
+
+```
+2D MMORPG skill effect animation in the style of Ragnarok Online spell effects: bright glowing magic, crisp shapes, on a PURE BLACK background (the game blends black as transparent). Draw 8 frames into the attached 4x2 template, left to right then top to bottom. The gray outline is the target character: keep the effect centered on it, ground on the red line, the effect can extend above the head. Draw ONLY the effect, no character, no text, do NOT draw the grid, numbers, gray outline or red line. Effect: 1-3 a flaming bolt falls from above onto the target, 4 it explodes at the body in a fireball, 5-6 flames burst upward, 7-8 embers and smoke fade.
+```
+
+⬜ **ลูกน้ำแข็ง** (`fx_coldbolt`) — ใช้กับ Ice Rune
+
+```
+2D MMORPG skill effect animation in the style of Ragnarok Online spell effects: bright glowing magic, crisp shapes, on a PURE BLACK background (the game blends black as transparent). Draw 8 frames into the attached 4x2 template, left to right then top to bottom. The gray outline is the target character: keep the effect centered on it, ground on the red line, the effect can extend above the head. Draw ONLY the effect, no character, no text, do NOT draw the grid, numbers, gray outline or red line. Effect: 1-3 sharp ice shards fall from above, 4 they shatter on the target, 5-6 an ice crystal cluster forms around the feet, 7-8 frost mist and glitter fade.
+```
+
+⬜ **สายฟ้า** (`fx_lightning`) — ใช้กับ Thunder Rune
+
+```
+2D MMORPG skill effect animation in the style of Ragnarok Online spell effects: bright glowing magic, crisp shapes, on a PURE BLACK background (the game blends black as transparent). Draw 8 frames into the attached 4x2 template, left to right then top to bottom. The gray outline is the target character: keep the effect centered on it, ground on the red line, the effect can extend above the head. Draw ONLY the effect, no character, no text, do NOT draw the grid, numbers, gray outline or red line. Effect: 1 dark cloud spark above the head, 2-3 a jagged yellow-white lightning bolt strikes down onto the target, 4-5 electric arcs crawl around the body, 6-8 small sparks fade.
+```
+
+⬜ **แสงศักดิ์สิทธิ์** (`fx_holy`) — ใช้กับ Holy Spear, Light of Freyja (โจมตี)
+
+```
+2D MMORPG skill effect animation in the style of Ragnarok Online spell effects: bright glowing magic, crisp shapes, on a PURE BLACK background (the game blends black as transparent). Draw 8 frames into the attached 4x2 template, left to right then top to bottom. The gray outline is the target character: keep the effect centered on it, ground on the red line, the effect can extend above the head. Draw ONLY the effect, no character, no text, do NOT draw the grid, numbers, gray outline or red line. Effect: 1 a thin golden ray from above, 2-3 a bright pillar of light with a cross-shaped flare hits the target, 4-5 feathers of light scatter, 6-8 golden sparkles drift up and fade.
+```
+
+⬜ **ฮีล** (`fx_heal`) — ใช้กับ First Aid, Light of Freyja
+
+```
+2D MMORPG skill effect animation in the style of Ragnarok Online spell effects: bright glowing magic, crisp shapes, on a PURE BLACK background (the game blends black as transparent). Draw 8 frames into the attached 4x2 template, left to right then top to bottom. The gray outline is the target character: keep the effect centered on it, ground on the red line, the effect can extend above the head. Draw ONLY the effect, no character, no text, do NOT draw the grid, numbers, gray outline or red line. Effect: 1 a soft green circle on the ground, 2-4 green plus-shaped sparkles and light rise around the body, 5-6 a bright soft glow at the chest, 7-8 sparkles float up and fade.
+```
+
+⬜ **บัฟ** (`fx_buff`) — ใช้กับ War Cry, Blessing of Odin, Blood Frenzy
+
+```
+2D MMORPG skill effect animation in the style of Ragnarok Online spell effects: bright glowing magic, crisp shapes, on a PURE BLACK background (the game blends black as transparent). Draw 8 frames into the attached 4x2 template, left to right then top to bottom. The gray outline is the target character: keep the effect centered on it, ground on the red line, the effect can extend above the head. Draw ONLY the effect, no character, no text, do NOT draw the grid, numbers, gray outline or red line. Effect: 1 a golden rune circle on the ground, 2-4 golden light spirals up around the body, 5-6 a flash of runes above the head, 7-8 glitter fades.
+```
+
+⬜ **หมุนรอบตัว** (`fx_whirl`) — ใช้กับ Whirlwind
+
+```
+2D MMORPG skill effect animation in the style of Ragnarok Online spell effects: bright glowing magic, crisp shapes, on a PURE BLACK background (the game blends black as transparent). Draw 8 frames into the attached 4x2 template, left to right then top to bottom. The gray outline is the target character: keep the effect centered on it, ground on the red line, the effect can extend above the head. Draw ONLY the effect, no character, no text, do NOT draw the grid, numbers, gray outline or red line. Effect: 1-6 a wide circular blade-wind ring spins around the character at waist height, getting bigger, with cut lines and leaves, 7-8 it fades.
+```
+
+⬜ **คำราม** (`fx_howl`) — ใช้กับ Howl
+
+```
+2D MMORPG skill effect animation in the style of Ragnarok Online spell effects: bright glowing magic, crisp shapes, on a PURE BLACK background (the game blends black as transparent). Draw 8 frames into the attached 4x2 template, left to right then top to bottom. The gray outline is the target character: keep the effect centered on it, ground on the red line, the effect can extend above the head. Draw ONLY the effect, no character, no text, do NOT draw the grid, numbers, gray outline or red line. Effect: 1-5 red-orange sound wave rings burst outward from the character, 6-8 rings fade with a few cracks on the ground.
+```
+
+⬜ **ตะโกนเรียก** (`fx_shout`) — ใช้กับ War Cry (ยั่วมอน)
+
+```
+2D MMORPG skill effect animation in the style of Ragnarok Online spell effects: bright glowing magic, crisp shapes, on a PURE BLACK background (the game blends black as transparent). Draw 8 frames into the attached 4x2 template, left to right then top to bottom. The gray outline is the target character: keep the effect centered on it, ground on the red line, the effect can extend above the head. Draw ONLY the effect, no character, no text, do NOT draw the grid, numbers, gray outline or red line. Effect: 1-4 red jagged shout lines burst out from the head, 5-8 they fade outward.
+```
+
+⬜ **ลูกธนูโดน** (`fx_arrow`) — ใช้กับ Piercing Arrow (ตอนโดน)
+
+```
+2D MMORPG skill effect animation in the style of Ragnarok Online spell effects: bright glowing magic, crisp shapes, on a PURE BLACK background (the game blends black as transparent). Draw 8 frames into the attached 4x2 template, left to right then top to bottom. The gray outline is the target character: keep the effect centered on it, ground on the red line, the effect can extend above the head. Draw ONLY the effect, no character, no text, do NOT draw the grid, numbers, gray outline or red line. Effect: 1 a small bright impact point at the chest, 2-3 a piercing streak of light shoots through the body, 4-5 sparks and splinters, 6-8 fade.
+```
+
+⬜ **ตีโดน (ปกติ)** (`fx_hit`) — ใช้กับ การโจมตีปกติ
+
+```
+2D MMORPG skill effect animation in the style of Ragnarok Online spell effects: bright glowing magic, crisp shapes, on a PURE BLACK background (the game blends black as transparent). Draw 8 frames into the attached 4x2 template, left to right then top to bottom. The gray outline is the target character: keep the effect centered on it, ground on the red line, the effect can extend above the head. Draw ONLY the effect, no character, no text, do NOT draw the grid, numbers, gray outline or red line. Effect: 1-2 a small white impact star at the chest, 3-4 it pops into tiny sparks, 5-8 sparks fade (very short and small).
+```
+
+⬜ **ตีคริติคอล** (`fx_crit`) — ใช้กับ การโจมตีปกติที่ติดคริ
+
+```
+2D MMORPG skill effect animation in the style of Ragnarok Online spell effects: bright glowing magic, crisp shapes, on a PURE BLACK background (the game blends black as transparent). Draw 8 frames into the attached 4x2 template, left to right then top to bottom. The gray outline is the target character: keep the effect centered on it, ground on the red line, the effect can extend above the head. Draw ONLY the effect, no character, no text, do NOT draw the grid, numbers, gray outline or red line. Effect: 1-2 a big yellow-red impact star with a burst, 3-4 sharp light rays shoot out, 5-8 sparks and fade.
+```
+
 ## เสียง (ไม่บังคับ)
 
 เกมมีเสียงที่สร้างด้วยโค้ดใช้อยู่แล้ว ไฟล์เสียงจริงที่ส่งมาจะใช้แทนทีละเสียง

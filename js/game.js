@@ -403,7 +403,25 @@ function pickUp(drop) {
 //  เอฟเฟกต์และตัวเลขลอย
 // ------------------------------------------------------------
 const FX_LINGER = { firebolt: 0.3, coldbolt: 0.25, lightning: 0.2, holy: 0.25, soul: 0.2, frost: 0.35, arrow: 0.05 };
-function addFx(f) { f.t = 0; f.linger = FX_LINGER[f.type] || 0; G.fx.push(f); return f; }
+// เอฟเฟกต์แบบภาพ (สไตล์ RO): ถ้ามี assets/fx_<ชื่อ>.webp (แถบเฟรม 240px พื้นดำ) เล่นภาพนั้นแทนเอฟเฟกต์ที่วาดด้วยโค้ด
+// ชื่อ = f.skin (ชื่อ fx ของสกิล) หรือ f.type • ลูกธนู/ลูกพลังยังพุ่งแบบเดิม แล้วเล่นภาพตอนโดนเป้า
+const FX_PROJECTILE = { arrow: 1, soul: 1, frost: 1 };
+const FX_MIDBODY = { hit: 0.5, crit: 0.5, bash: 0.5 }; // เอฟเฟกต์ที่วางกลางตัว → ภาพยึดที่เท้า
+const FX_FRAME = 0.07; // วินาทีต่อเฟรมของภาพเอฟเฟกต์
+function addFx(f) {
+  const key = 'fx_' + (f.skin || f.type), img = f.type !== 'sprite' && typeof Art !== 'undefined' && Art.get(key);
+  if (img) {
+    if (FX_PROJECTILE[f.type]) {
+      const hit = f.onHit, ref = f.ref, tx = f.tx, ty = f.ty;
+      f.onHit = () => { if (hit) hit(); addFx({ type: 'sprite', sprite: key, ref, x: tx, y: ty }); };
+    } else {
+      // เวลาที่ดาเมจเข้า (onHit) ยังเท่าเดิม แม้ภาพจะยาวกว่า
+      return addFx({ type: 'sprite', sprite: key, ref: f.ref, x: f.x, y: f.y + (f.ref ? 0 : FX_MIDBODY[f.type] || 0), onHit: f.onHit, hitAt: f.dur, size: f.r ? Math.max(1, f.r / 2) : 1 });
+    }
+  }
+  if (f.type === 'sprite') { const im = Art.get(f.sprite); f.dur = Math.max(0.2, Math.round(im.width / 240) * FX_FRAME); }
+  f.t = 0; f.linger = FX_LINGER[f.type] || 0; G.fx.push(f); return f;
+}
 function addFloater(x, y, text, color, big) {
   const num = typeof text === 'number' || /^[+-]?\d+$/.test(String(text));
   // ตัวเลขดาเมจแบบ RO: เด้งขึ้นแล้วตกลง ส่ายซ้ายขวาเล็กน้อย / คริ = ตัวเหลืองบนดาวแตก
@@ -876,7 +894,7 @@ function skillHitOne(s, lv, m) {
     Sound.play('magic');
   } else {
     deliver();
-    if (fx) addFx({ type: fx === 'slash' ? 'crit' : 'bash', x: m.x, y: m.y - 0.5, dur: 0.35 });
+    if (fx) addFx({ type: fx === 'slash' ? 'crit' : 'bash', skin: fx, x: m.x, y: m.y - 0.5, dur: 0.35 });
   }
 }
 
@@ -1051,7 +1069,7 @@ function updateGame(dt) {
   // เอฟเฟกต์
   for (const f of G.fx) {
     f.t += dt;
-    if (f.onHit && f.t >= f.dur) { const fn = f.onHit; f.onHit = null; fn(); }
+    if (f.onHit && f.t >= (f.hitAt != null ? f.hitAt : f.dur)) { const fn = f.onHit; f.onHit = null; fn(); }
   }
   G.fx = G.fx.filter(f => f.t < f.dur + (f.linger || 0));
   for (const f of G.floaters) f.t += dt;

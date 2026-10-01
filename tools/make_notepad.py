@@ -195,6 +195,31 @@ def mob_starter(mobs):
     return '\n'.join(L)
 
 
+# ---------------- เอฟเฟกต์สกิล (แบบ RO: ภาพแยก เล่นทับเป้าหมาย พื้นดำ เกมผสมแบบบวกแสง) ----------------
+FX_STYLE = ("2D MMORPG skill effect animation in the style of Ragnarok Online spell effects: bright glowing magic, crisp shapes, "
+            "on a PURE BLACK background (the game blends black as transparent). Draw 8 frames into the attached 4x2 template, "
+            "left to right then top to bottom. The gray outline is the target character: keep the effect centered on it, "
+            "ground on the red line, the effect can extend above the head. Draw ONLY the effect, no character, no text, "
+            "do NOT draw the grid, numbers, gray outline or red line. ")
+EFFECTS = [
+    # ชื่อไฟล์ (fx_<ชื่อ>), ไทย, ใช้กับ, เฟรม
+    ('slash', 'ฟันคม', 'Backstab, ตีคริติคอลของสกิล', '1 thin bright white-cyan slash line appears diagonally across the body, 2-3 the slash widens into a crescent arc with sparks, 4-5 a second crossing slash forms an X, 6-8 the X fades into small sparkles'),
+    ('bash', 'ทุบหนัก', 'Shield Slam, Rage Strike', '1 small orange flash at the chest, 2-3 a star-shaped impact burst grows with flying debris, 4-5 shockwave ring expands on the ground, 6-8 dust puffs and fading sparks'),
+    ('firebolt', 'ลูกไฟ', 'Fire Rune', '1-3 a flaming bolt falls from above onto the target, 4 it explodes at the body in a fireball, 5-6 flames burst upward, 7-8 embers and smoke fade'),
+    ('coldbolt', 'ลูกน้ำแข็ง', 'Ice Rune', '1-3 sharp ice shards fall from above, 4 they shatter on the target, 5-6 an ice crystal cluster forms around the feet, 7-8 frost mist and glitter fade'),
+    ('lightning', 'สายฟ้า', 'Thunder Rune', '1 dark cloud spark above the head, 2-3 a jagged yellow-white lightning bolt strikes down onto the target, 4-5 electric arcs crawl around the body, 6-8 small sparks fade'),
+    ('holy', 'แสงศักดิ์สิทธิ์', 'Holy Spear, Light of Freyja (โจมตี)', '1 a thin golden ray from above, 2-3 a bright pillar of light with a cross-shaped flare hits the target, 4-5 feathers of light scatter, 6-8 golden sparkles drift up and fade'),
+    ('heal', 'ฮีล', 'First Aid, Light of Freyja', '1 a soft green circle on the ground, 2-4 green plus-shaped sparkles and light rise around the body, 5-6 a bright soft glow at the chest, 7-8 sparkles float up and fade'),
+    ('buff', 'บัฟ', 'War Cry, Blessing of Odin, Blood Frenzy', '1 a golden rune circle on the ground, 2-4 golden light spirals up around the body, 5-6 a flash of runes above the head, 7-8 glitter fades'),
+    ('whirl', 'หมุนรอบตัว', 'Whirlwind', '1-6 a wide circular blade-wind ring spins around the character at waist height, getting bigger, with cut lines and leaves, 7-8 it fades'),
+    ('howl', 'คำราม', 'Howl', '1-5 red-orange sound wave rings burst outward from the character, 6-8 rings fade with a few cracks on the ground'),
+    ('shout', 'ตะโกนเรียก', 'War Cry (ยั่วมอน)', '1-4 red jagged shout lines burst out from the head, 5-8 they fade outward'),
+    ('arrow', 'ลูกธนูโดน', 'Piercing Arrow (ตอนโดน)', '1 a small bright impact point at the chest, 2-3 a piercing streak of light shoots through the body, 4-5 sparks and splinters, 6-8 fade'),
+    ('hit', 'ตีโดน (ปกติ)', 'การโจมตีปกติ', '1-2 a small white impact star at the chest, 3-4 it pops into tiny sparks, 5-8 sparks fade (very short and small)'),
+    ('crit', 'ตีคริติคอล', 'การโจมตีปกติที่ติดคริ', '1-2 a big yellow-red impact star with a burst, 3-4 sharp light rays shoot out, 5-8 sparks and fade'),
+]
+
+
 # ---------------- เสียง (ไม่บังคับ: เกมมีเสียงสังเคราะห์ใช้อยู่แล้ว ไฟล์จริงจะใช้แทนเมื่อติดตั้ง) ----------------
 SFX_STYLE = "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, "
 SOUNDS = [
@@ -290,6 +315,14 @@ def build():
     L += ['## NPC', '', f"{'✅' if kdone else '⬜'} **Storage Unit Kaia** — แนบรูป NPC ตัวไหนก็ได้ 1 รูปเป็นแบบสไตล์", '']
     if not kdone: L += ['```', KAIA, '```', '']
     items.append({'group': 'NPC', 'key': 'npcsprite_storage', 'sheet': 'npc', 'title': 'Storage Unit Kaia', 'attach': ['npcsprite_nurse.webp (แบบสไตล์)'], 'done': kdone, 'prompt': KAIA})
+    L += ['## เอฟเฟกต์สกิล (แบบ RO)', '',
+          'แต่ละเอฟเฟกต์ = 1 ภาพ 8 เฟรม แนบ `tpl_fx.png` (พื้นดำ) • ไม่มีภาพเกมใช้เอฟเฟกต์ที่วาดด้วยโค้ดแทน • ติดตั้ง: `python3 tools/sprite_std.py fx <ภาพ> <ชื่อ>`', '']
+    for name, th, used, frames in EFFECTS:
+        done = 'fx_' + name in HAVE
+        txt = FX_STYLE + 'Effect: ' + frames + '.'
+        L += [f"{'✅' if done else '⬜'} **{th}** (`fx_{name}`) — ใช้กับ {used}", '']
+        if not done: L += ['```', txt, '```', '']
+        items.append({'group': 'เอฟเฟกต์สกิล (แบบ RO)', 'key': 'fx_' + name, 'sheet': 'fx', 'title': f'{th} • fx_{name}', 'attach': ['tpl_fx.png'], 'done': done, 'prompt': txt, 'how': f'ใช้กับ {used}'})
     L += ['## เสียง (ไม่บังคับ)', '',
           'เกมมีเสียงที่สร้างด้วยโค้ดใช้อยู่แล้ว ไฟล์เสียงจริงที่ส่งมาจะใช้แทนทีละเสียง',
           'เสียงเอฟเฟกต์: ElevenLabs → Sound Effects (ตั้งความยาวตามที่บอก) • เพลง: Suno (เลือก Instrumental)', '']
@@ -378,13 +411,13 @@ function render() {
   const todo = DATA.filter(d => !d.done && !['chat', 'sfx', 'bgm'].includes(d.sheet)).length, sent = DATA.filter(d => !d.done && store.get(d.key + ':' + d.sheet)).length;
   $('#sum').innerHTML = `ยังขาด <b>${todo}</b> ภาพ • ส่งไปแล้ว (ในเครื่องนี้) ${sent} • ติดตั้งแล้ว ${DATA.filter(d => d.done).length}`;
   const bar = $('#bar'); bar.innerHTML = '';
-  for (const [k, l] of [['chat', 'แบบแชต (next)'], ['todo', 'ที่ยังขาด'], ['all', 'ทั้งหมด'], ['char', 'ตัวละคร'], ['mob', 'มอนสเตอร์'], ['npc', 'NPC'], ['snd', 'เสียง']]) bar.append(el('button', { class: filter === k ? 'on' : '', onclick: () => { filter = k; render(); } }, l));
+  for (const [k, l] of [['chat', 'แบบแชต (next)'], ['todo', 'ที่ยังขาด'], ['all', 'ทั้งหมด'], ['char', 'ตัวละคร'], ['mob', 'มอนสเตอร์'], ['npc', 'NPC'], ['fx', 'เอฟเฟกต์'], ['snd', 'เสียง']]) bar.append(el('button', { class: filter === k ? 'on' : '', onclick: () => { filter = k; render(); } }, l));
   const list = $('#list'); list.innerHTML = '';
   const groups = {};
   for (const d of DATA) {
-    const kind = d.sheet === 'chat' ? 'chat' : d.sheet === 'mob' ? 'mob' : d.sheet === 'npc' ? 'npc' : d.sheet === 'sfx' || d.sheet === 'bgm' ? 'snd' : 'char';
+    const kind = d.sheet === 'chat' ? 'chat' : d.sheet === 'mob' ? 'mob' : d.sheet === 'npc' ? 'npc' : d.sheet === 'sfx' || d.sheet === 'bgm' ? 'snd' : d.sheet === 'fx' ? 'fx' : 'char';
     if (filter === 'todo' && d.done) continue;
-    if (['char', 'mob', 'npc', 'chat', 'snd'].includes(filter) && kind !== filter) continue;
+    if (['char', 'mob', 'npc', 'chat', 'snd', 'fx'].includes(filter) && kind !== filter) continue;
     if (filter === 'todo' && (kind === 'chat' || kind === 'snd')) continue;
     (groups[d.group] = groups[d.group] || []).push(d);
   }
