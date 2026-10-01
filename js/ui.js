@@ -1230,7 +1230,8 @@ const UI = {
   updateBotButton() {
     const b = $('#auto-btn');
     b.classList.toggle('on', Bot.on);
-    const t = Bot.on ? (Bot.resting ? 'พัก' : 'เปิด') : 'ปิด';
+    b.classList.toggle('locked', !Bot.unlocked());
+    const t = !Bot.unlocked() ? 'ล็อก' : Bot.on ? (Bot.resting ? 'พัก' : 'เปิด') : 'ปิด';
     const sm = $('small', b);
     if (sm.textContent !== t) sm.textContent = t;
   },

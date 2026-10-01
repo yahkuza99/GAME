@@ -1049,6 +1049,7 @@ function changeJob(job) {
   later(2.2, () => addFloater(p.x, p.y - 1.5, `UPGRADE: ${JOBS[job].name}`, JOBS[job].glow || '#7ad8ff', true));
   UI.announce(`⚙ ${p.name} อัปเกรดร่างเป็นคลาส ${JOBS[job].name} (${JOBS[job].thai}) สำเร็จ!`);
   UI.splash(Art.jobKey(job, p.gender), `${JOBS[job].name}`, 'BODY UPGRADE COMPLETE', 'upgrade');
+  UI.msg('🔓 ปลดล็อกบอท AUTO แล้ว — กด B หรือปุ่ม AUTO เพื่อให้ล่าอัตโนมัติ', 'sys');
   Sound.play('levelup');
   saveGame();
 }

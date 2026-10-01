@@ -67,6 +67,8 @@ const ok = (name, cond, info = '') => { checks.push([name, !!cond, info]); };
       ok(`${name}: open ${wnd}`, await p.evaluate(id => UI.isOpen(id) && document.querySelector('#' + id + ' .win-body').childElementCount > 0, wnd));
       await p.evaluate(id => UI.close(id), wnd);
     }
+    // AUTO bot is locked for Novices
+    ok(`${name}: bot locked for novice`, await p.evaluate(() => { G.player.job = 'novice'; Bot.toggle(true); const on = Bot.on; Bot.toggle(false); return !on; }));
     // zeny on kill
     const zg = await p.evaluate(() => { const pl = G.player, z0 = pl.zeny, m = spawnMob('pudding', { x: pl.x + 1, y: pl.y }); killMob(m); return pl.zeny - z0; });
     ok(`${name}: zeny on kill`, zg >= 3 && zg <= 6, zg);

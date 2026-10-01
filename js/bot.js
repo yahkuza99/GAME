@@ -22,10 +22,13 @@ const Bot = {
     return o.bot;
   },
 
+  unlocked() { return G.player && G.player.job !== 'novice'; },
   toggle(force) {
     const p = G.player;
     const want = force != null ? force : !this.on;
     if (want && p.dead) { UI.msg('ฟื้นคืนชีพก่อนจึงจะเปิดบอทได้', 'err'); return; }
+    // ช่วงแรกให้เล่นเอง: บอทปลดล็อกเมื่ออัปเกรดคลาสแรกแล้ว
+    if (want && !this.unlocked()) { UI.msg(`🔒 บอท AUTO ปลดล็อกเมื่ออัปเกรดคลาสแรก (Job Lv ${JOB_CHANGE_LV} แล้วคุยกับ Mimir AI)`, 'err'); return; }
     this.on = want;
     this.resting = false; this.pauseUntil = 0; this.warnedTown = false;
     if (this.mode && Nav.target) Nav.cancel(true); // ปิดบอทกลางทางเติมของ = หยุดเดินด้วย
