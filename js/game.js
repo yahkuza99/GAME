@@ -845,7 +845,7 @@ function skillHitOne(s, lv, m) {
     Sound.play('bow');
   } else if (fx === 'firebolt' || fx === 'coldbolt' || fx === 'lightning' || fx === 'holy') {
     addFx({ type: fx, ref: m, dur: 0.28, onHit: deliver });
-    Sound.play(fx === 'lightning' ? 'zap' : 'magic');
+    Sound.play({ firebolt: 'fire', coldbolt: 'ice', lightning: 'zap', holy: 'holy' }[fx]);
   } else if (fx === 'soul') {
     addFx({ type: 'soul', sx: p.x, sy: p.y - 0.8, ref: m, dur: Math.max(0.1, U.dist(p.x, p.y, m.x, m.y) / 14), onHit: deliver });
     Sound.play('magic');

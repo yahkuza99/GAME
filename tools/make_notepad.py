@@ -195,6 +195,52 @@ def mob_starter(mobs):
     return '\n'.join(L)
 
 
+# ---------------- เสียง (ไม่บังคับ: เกมมีเสียงสังเคราะห์ใช้อยู่แล้ว ไฟล์จริงจะใช้แทนเมื่อติดตั้ง) ----------------
+SFX_STYLE = "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, "
+SOUNDS = [
+    # ชื่อ, ไทย, prompt (ElevenLabs Sound Effects), วินาที
+    ('hit', 'ฟันโดนมอน', 'short dagger slash hitting a small robot, crisp metallic impact with a soft thump', 0.5),
+    ('crit', 'คริติคอล', 'heavy critical sword strike on metal armor, loud clang with a short ring', 0.8),
+    ('swing', 'ฟันลม (พลาด)', 'quick light dagger swoosh through the air', 0.4),
+    ('bow', 'ยิงธนู', 'bow string release and arrow whoosh', 0.5),
+    ('hurt', 'ผู้เล่นโดนตี', 'dull punch impact on a small android body, short servo whine', 0.5),
+    ('stun', 'โดนมึน', 'cartoon dizzy stun hit, thud followed by little birds chirping', 1.0),
+    ('kill', 'มอนพัง', 'small robot breaking apart, pop and scattered metal bits', 0.8),
+    ('die', 'ผู้เล่นตาย', 'android powering down, descending electronic whine fading out', 1.5),
+    ('skill', 'เริ่มใช้สกิล', 'short magical cast start, rising shimmer', 0.5),
+    ('magic', 'ลูกพลังงาน', 'energy orb launched, glowing magic whoosh', 0.7),
+    ('fire', 'สกิลไฟ', 'fire bolt spell, whoosh of flame and a small burst', 0.8),
+    ('ice', 'สกิลน้ำแข็ง', 'ice spell, crystals forming and shattering glassy chime', 0.8),
+    ('zap', 'สกิลสายฟ้า', 'lightning bolt spell, sharp electric crack', 0.8),
+    ('holy', 'สกิลแสง', 'holy light spell, bright bell chime with sparkle', 1.0),
+    ('heal', 'ฮีล', 'healing spell, gentle rising chimes and sparkles', 1.2),
+    ('buff', 'บัฟ', 'power up buff, rising whoosh ending with a chime', 1.0),
+    ('warp', 'วาร์ป/ปีก', 'teleport warp, swirling magical sweep upward', 1.0),
+    ('potion', 'ดื่มยา', 'drinking a potion, two quick gulps and a small sparkle', 0.8),
+    ('pickup', 'เก็บของ', 'item pickup, two short bright blips', 0.4),
+    ('buy', 'ซื้อ/ขาย', 'coins jingling, short shop purchase', 0.6),
+    ('equip', 'สวมอุปกรณ์', 'equipping metal armor piece, short clink', 0.5),
+    ('click', 'ปุ่ม', 'soft UI button click', 0.2),
+    ('storage', 'เปิดคลัง', 'opening a small metal storage crate', 0.5),
+    ('emote', 'อีโมต', 'cute pop sound for a speech bubble', 0.3),
+    ('refine_ok', 'ตีบวกสำเร็จ', 'hammer on anvil followed by a bright success jingle', 1.5),
+    ('refine_fail', 'ตีบวกพัง', 'metal cracking and breaking, failure', 1.2),
+    ('levelup', 'เลเวลอัป', 'level up fanfare, short bright ascending arpeggio with sparkles', 2.0),
+    ('mvp', 'ล้ม MVP', 'boss defeated victory fanfare, short brass and chimes', 3.0),
+    ('quest', 'เควสต์สำเร็จ', 'quest complete jingle, short and cheerful', 1.5),
+    ('quest_new', 'ได้เควสต์ใหม่', 'new quest notification, two soft chimes', 0.6),
+]
+BGM_STYLE = ("Instrumental background music for a cute 2000s Korean fantasy MMORPG like Ragnarok Online, "
+             "seamless loop, no vocals, 2 to 3 minutes. ")
+BGMS = [
+    ('town', 'เมือง Neo Eldheim', 'Peaceful high-tech Norse city: warm accordion and flute melody, light strings, gentle percussion, cheerful and cozy, 104 BPM, major key.'),
+    ('field', 'ทุ่งหญ้ามรกต', 'Adventure on a sunny meadow: bright flute lead, plucked strings, light marching drums, hopeful, 116 BPM, major key.'),
+    ('lake', 'ทะเลสาบหมอก', 'Calm misty lake: soft piano, harp arpeggios, airy pads, slow and dreamy, 78 BPM.'),
+    ('forest', 'ป่าหมาป่า', 'Mysterious forest: wooden flute, dulcimer, soft hand drums, slightly mysterious dorian mood, 94 BPM.'),
+    ('cave', 'ถ้ำเฮล', 'Dark underground cave: low drones, bell melody, deep slow drums, eerie but not scary, 68 BPM, minor key.'),
+]
+
+
 def build():
     items = []  # สำหรับหน้าเว็บ
     L = ['# 📝 Prompt Notepad — ภาพที่ยังขาดทั้งหมด', '',
@@ -244,6 +290,21 @@ def build():
     L += ['## NPC', '', f"{'✅' if kdone else '⬜'} **Storage Unit Kaia** — แนบรูป NPC ตัวไหนก็ได้ 1 รูปเป็นแบบสไตล์", '']
     if not kdone: L += ['```', KAIA, '```', '']
     items.append({'group': 'NPC', 'key': 'npcsprite_storage', 'sheet': 'npc', 'title': 'Storage Unit Kaia', 'attach': ['npcsprite_nurse.webp (แบบสไตล์)'], 'done': kdone, 'prompt': KAIA})
+    L += ['## เสียง (ไม่บังคับ)', '',
+          'เกมมีเสียงที่สร้างด้วยโค้ดใช้อยู่แล้ว ไฟล์เสียงจริงที่ส่งมาจะใช้แทนทีละเสียง',
+          'เสียงเอฟเฟกต์: ElevenLabs → Sound Effects (ตั้งความยาวตามที่บอก) • เพลง: Suno (เลือก Instrumental)', '']
+    for name, th, prm, sec in SOUNDS:
+        done = 'sfx_' + name in HAVE
+        txt = SFX_STYLE + prm + '.'
+        L += [f"{'✅' if done else '⬜'} **{th}** → ตั้งชื่อไฟล์ `sfx_{name}.mp3` • ยาว {sec} วินาที", '']
+        if not done: L += ['```', txt, '```', '']
+        items.append({'group': 'เสียงเอฟเฟกต์ (ElevenLabs)', 'key': 'sfx_' + name, 'sheet': 'sfx', 'title': f'{th} • sfx_{name} • {sec} วิ', 'attach': [], 'done': done, 'prompt': txt})
+    for name, th, prm in BGMS:
+        done = 'bgm_' + name in HAVE
+        txt = BGM_STYLE + prm
+        L += [f"{'✅' if done else '⬜'} **เพลง{th}** → ตั้งชื่อไฟล์ `bgm_{name}.mp3`", '']
+        if not done: L += ['```', txt, '```', '']
+        items.append({'group': 'เพลงประกอบ (Suno)', 'key': 'bgm_' + name, 'sheet': 'bgm', 'title': f'{th} • bgm_{name}', 'attach': [], 'done': done, 'prompt': txt})
     L.insert(4, f'**ยังขาด: ตัวละคร {todo_c} ภาพ • มอนสเตอร์ {todo_m} ภาพ • NPC {0 if kdone else 1} ภาพ**\n')
     open(os.path.join(ROOT, 'art', 'NOTEPAD.md'), 'w').write('\n'.join(L))
     json.dump(items, open(os.path.join(ROOT, 'art', 'notepad.json'), 'w'), ensure_ascii=False, indent=0)
@@ -314,17 +375,17 @@ function copy(txt, btn) {
   try { navigator.clipboard.writeText(txt).then(done, fb); } catch (e) { fb(); }
 }
 function render() {
-  const todo = DATA.filter(d => !d.done && d.sheet !== 'chat').length, sent = DATA.filter(d => !d.done && store.get(d.key + ':' + d.sheet)).length;
+  const todo = DATA.filter(d => !d.done && !['chat', 'sfx', 'bgm'].includes(d.sheet)).length, sent = DATA.filter(d => !d.done && store.get(d.key + ':' + d.sheet)).length;
   $('#sum').innerHTML = `ยังขาด <b>${todo}</b> ภาพ • ส่งไปแล้ว (ในเครื่องนี้) ${sent} • ติดตั้งแล้ว ${DATA.filter(d => d.done).length}`;
   const bar = $('#bar'); bar.innerHTML = '';
-  for (const [k, l] of [['chat', 'แบบแชต (next)'], ['todo', 'ที่ยังขาด'], ['all', 'ทั้งหมด'], ['char', 'ตัวละคร'], ['mob', 'มอนสเตอร์'], ['npc', 'NPC']]) bar.append(el('button', { class: filter === k ? 'on' : '', onclick: () => { filter = k; render(); } }, l));
+  for (const [k, l] of [['chat', 'แบบแชต (next)'], ['todo', 'ที่ยังขาด'], ['all', 'ทั้งหมด'], ['char', 'ตัวละคร'], ['mob', 'มอนสเตอร์'], ['npc', 'NPC'], ['snd', 'เสียง']]) bar.append(el('button', { class: filter === k ? 'on' : '', onclick: () => { filter = k; render(); } }, l));
   const list = $('#list'); list.innerHTML = '';
   const groups = {};
   for (const d of DATA) {
-    const kind = d.sheet === 'chat' ? 'chat' : d.sheet === 'mob' ? 'mob' : d.sheet === 'npc' ? 'npc' : 'char';
+    const kind = d.sheet === 'chat' ? 'chat' : d.sheet === 'mob' ? 'mob' : d.sheet === 'npc' ? 'npc' : d.sheet === 'sfx' || d.sheet === 'bgm' ? 'snd' : 'char';
     if (filter === 'todo' && d.done) continue;
-    if (['char', 'mob', 'npc', 'chat'].includes(filter) && kind !== filter) continue;
-    if (filter === 'todo' && kind === 'chat') continue;
+    if (['char', 'mob', 'npc', 'chat', 'snd'].includes(filter) && kind !== filter) continue;
+    if (filter === 'todo' && (kind === 'chat' || kind === 'snd')) continue;
     (groups[d.group] = groups[d.group] || []).push(d);
   }
   let first = true;
@@ -335,12 +396,12 @@ function render() {
     const cards = el('div', { class: 'cards' });
     for (const d of items) {
       const id = d.key + ':' + d.sheet, sent = store.get(id);
-      const att = el('div', { class: 'att' }, 'แนบ:', ...d.attach.map(a => IMG[a] ? el('figure', {}, el('img', { src: IMG[a], alt: a, class: a.startsWith('tpl_') ? '' : 'ref', loading: 'lazy' }), el('span', {}, a)) : el('span', { class: 'txt' }, a)));
+      const att = !d.attach.length ? null : el('div', { class: 'att' }, 'แนบ:', ...d.attach.map(a => IMG[a] ? el('figure', {}, el('img', { src: IMG[a], alt: a, class: a.startsWith('tpl_') ? '' : 'ref', loading: 'lazy' }), el('span', {}, a)) : el('span', { class: 'txt' }, a)));
       const cb = el('input', { type: 'checkbox' }); cb.checked = !!sent; cb.addEventListener('change', () => { store.set(id, cb.checked); render(); });
       cards.append(el('div', { class: 'card' + (d.done ? ' done' : '') },
         el('div', { class: 'hd' }, el('b', {}, d.title), el('span', { class: 'chip ' + (d.done ? 'ok' : 'todo') }, d.done ? 'ติดตั้งแล้ว' : sent ? 'ส่งแล้ว รอติดตั้ง' : 'ยังขาด')),
         d.how ? el('div', { class: 'hint' }, d.how) : null, att, el('pre', {}, d.prompt),
-        el('div', { class: 'acts' }, el('button', { onclick: e => copy(d.prompt, e.target) }, 'คัดลอก prompt'), d.done ? null : el('label', {}, cb, 'ส่งให้ ChatGPT แล้ว'))));
+        el('div', { class: 'acts' }, el('button', { onclick: e => copy(d.prompt, e.target) }, 'คัดลอก prompt'), d.done ? null : el('label', {}, cb, d.sheet === 'sfx' || d.sheet === 'bgm' ? 'สร้างแล้ว' : 'ส่งให้ ChatGPT แล้ว'))));
     }
     det.append(cards); list.append(det);
   }

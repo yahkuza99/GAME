@@ -1052,3 +1052,218 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 ## NPC
 
 ✅ **Storage Unit Kaia** — แนบรูป NPC ตัวไหนก็ได้ 1 รูปเป็นแบบสไตล์
+
+## เสียง (ไม่บังคับ)
+
+เกมมีเสียงที่สร้างด้วยโค้ดใช้อยู่แล้ว ไฟล์เสียงจริงที่ส่งมาจะใช้แทนทีละเสียง
+เสียงเอฟเฟกต์: ElevenLabs → Sound Effects (ตั้งความยาวตามที่บอก) • เพลง: Suno (เลือก Instrumental)
+
+⬜ **ฟันโดนมอน** → ตั้งชื่อไฟล์ `sfx_hit.mp3` • ยาว 0.5 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, short dagger slash hitting a small robot, crisp metallic impact with a soft thump.
+```
+
+⬜ **คริติคอล** → ตั้งชื่อไฟล์ `sfx_crit.mp3` • ยาว 0.8 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, heavy critical sword strike on metal armor, loud clang with a short ring.
+```
+
+⬜ **ฟันลม (พลาด)** → ตั้งชื่อไฟล์ `sfx_swing.mp3` • ยาว 0.4 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, quick light dagger swoosh through the air.
+```
+
+⬜ **ยิงธนู** → ตั้งชื่อไฟล์ `sfx_bow.mp3` • ยาว 0.5 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, bow string release and arrow whoosh.
+```
+
+⬜ **ผู้เล่นโดนตี** → ตั้งชื่อไฟล์ `sfx_hurt.mp3` • ยาว 0.5 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, dull punch impact on a small android body, short servo whine.
+```
+
+⬜ **โดนมึน** → ตั้งชื่อไฟล์ `sfx_stun.mp3` • ยาว 1.0 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, cartoon dizzy stun hit, thud followed by little birds chirping.
+```
+
+⬜ **มอนพัง** → ตั้งชื่อไฟล์ `sfx_kill.mp3` • ยาว 0.8 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, small robot breaking apart, pop and scattered metal bits.
+```
+
+⬜ **ผู้เล่นตาย** → ตั้งชื่อไฟล์ `sfx_die.mp3` • ยาว 1.5 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, android powering down, descending electronic whine fading out.
+```
+
+⬜ **เริ่มใช้สกิล** → ตั้งชื่อไฟล์ `sfx_skill.mp3` • ยาว 0.5 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, short magical cast start, rising shimmer.
+```
+
+⬜ **ลูกพลังงาน** → ตั้งชื่อไฟล์ `sfx_magic.mp3` • ยาว 0.7 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, energy orb launched, glowing magic whoosh.
+```
+
+⬜ **สกิลไฟ** → ตั้งชื่อไฟล์ `sfx_fire.mp3` • ยาว 0.8 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, fire bolt spell, whoosh of flame and a small burst.
+```
+
+⬜ **สกิลน้ำแข็ง** → ตั้งชื่อไฟล์ `sfx_ice.mp3` • ยาว 0.8 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, ice spell, crystals forming and shattering glassy chime.
+```
+
+⬜ **สกิลสายฟ้า** → ตั้งชื่อไฟล์ `sfx_zap.mp3` • ยาว 0.8 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, lightning bolt spell, sharp electric crack.
+```
+
+⬜ **สกิลแสง** → ตั้งชื่อไฟล์ `sfx_holy.mp3` • ยาว 1.0 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, holy light spell, bright bell chime with sparkle.
+```
+
+⬜ **ฮีล** → ตั้งชื่อไฟล์ `sfx_heal.mp3` • ยาว 1.2 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, healing spell, gentle rising chimes and sparkles.
+```
+
+⬜ **บัฟ** → ตั้งชื่อไฟล์ `sfx_buff.mp3` • ยาว 1.0 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, power up buff, rising whoosh ending with a chime.
+```
+
+⬜ **วาร์ป/ปีก** → ตั้งชื่อไฟล์ `sfx_warp.mp3` • ยาว 1.0 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, teleport warp, swirling magical sweep upward.
+```
+
+⬜ **ดื่มยา** → ตั้งชื่อไฟล์ `sfx_potion.mp3` • ยาว 0.8 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, drinking a potion, two quick gulps and a small sparkle.
+```
+
+⬜ **เก็บของ** → ตั้งชื่อไฟล์ `sfx_pickup.mp3` • ยาว 0.4 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, item pickup, two short bright blips.
+```
+
+⬜ **ซื้อ/ขาย** → ตั้งชื่อไฟล์ `sfx_buy.mp3` • ยาว 0.6 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, coins jingling, short shop purchase.
+```
+
+⬜ **สวมอุปกรณ์** → ตั้งชื่อไฟล์ `sfx_equip.mp3` • ยาว 0.5 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, equipping metal armor piece, short clink.
+```
+
+⬜ **ปุ่ม** → ตั้งชื่อไฟล์ `sfx_click.mp3` • ยาว 0.2 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, soft UI button click.
+```
+
+⬜ **เปิดคลัง** → ตั้งชื่อไฟล์ `sfx_storage.mp3` • ยาว 0.5 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, opening a small metal storage crate.
+```
+
+⬜ **อีโมต** → ตั้งชื่อไฟล์ `sfx_emote.mp3` • ยาว 0.3 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, cute pop sound for a speech bubble.
+```
+
+⬜ **ตีบวกสำเร็จ** → ตั้งชื่อไฟล์ `sfx_refine_ok.mp3` • ยาว 1.5 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, hammer on anvil followed by a bright success jingle.
+```
+
+⬜ **ตีบวกพัง** → ตั้งชื่อไฟล์ `sfx_refine_fail.mp3` • ยาว 1.2 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, metal cracking and breaking, failure.
+```
+
+⬜ **เลเวลอัป** → ตั้งชื่อไฟล์ `sfx_levelup.mp3` • ยาว 2.0 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, level up fanfare, short bright ascending arpeggio with sparkles.
+```
+
+⬜ **ล้ม MVP** → ตั้งชื่อไฟล์ `sfx_mvp.mp3` • ยาว 3.0 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, boss defeated victory fanfare, short brass and chimes.
+```
+
+⬜ **เควสต์สำเร็จ** → ตั้งชื่อไฟล์ `sfx_quest.mp3` • ยาว 1.5 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, quest complete jingle, short and cheerful.
+```
+
+⬜ **ได้เควสต์ใหม่** → ตั้งชื่อไฟล์ `sfx_quest_new.mp3` • ยาว 0.6 วินาที
+
+```
+Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, new quest notification, two soft chimes.
+```
+
+⬜ **เพลงเมือง Neo Eldheim** → ตั้งชื่อไฟล์ `bgm_town.mp3`
+
+```
+Instrumental background music for a cute 2000s Korean fantasy MMORPG like Ragnarok Online, seamless loop, no vocals, 2 to 3 minutes. Peaceful high-tech Norse city: warm accordion and flute melody, light strings, gentle percussion, cheerful and cozy, 104 BPM, major key.
+```
+
+⬜ **เพลงทุ่งหญ้ามรกต** → ตั้งชื่อไฟล์ `bgm_field.mp3`
+
+```
+Instrumental background music for a cute 2000s Korean fantasy MMORPG like Ragnarok Online, seamless loop, no vocals, 2 to 3 minutes. Adventure on a sunny meadow: bright flute lead, plucked strings, light marching drums, hopeful, 116 BPM, major key.
+```
+
+⬜ **เพลงทะเลสาบหมอก** → ตั้งชื่อไฟล์ `bgm_lake.mp3`
+
+```
+Instrumental background music for a cute 2000s Korean fantasy MMORPG like Ragnarok Online, seamless loop, no vocals, 2 to 3 minutes. Calm misty lake: soft piano, harp arpeggios, airy pads, slow and dreamy, 78 BPM.
+```
+
+⬜ **เพลงป่าหมาป่า** → ตั้งชื่อไฟล์ `bgm_forest.mp3`
+
+```
+Instrumental background music for a cute 2000s Korean fantasy MMORPG like Ragnarok Online, seamless loop, no vocals, 2 to 3 minutes. Mysterious forest: wooden flute, dulcimer, soft hand drums, slightly mysterious dorian mood, 94 BPM.
+```
+
+⬜ **เพลงถ้ำเฮล** → ตั้งชื่อไฟล์ `bgm_cave.mp3`
+
+```
+Instrumental background music for a cute 2000s Korean fantasy MMORPG like Ragnarok Online, seamless loop, no vocals, 2 to 3 minutes. Dark underground cave: low drones, bell melody, deep slow drums, eerie but not scary, 68 BPM, minor key.
+```

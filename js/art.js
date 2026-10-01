@@ -31,7 +31,11 @@ const Art = {
     if (location.protocol === 'file:') { ART_KEYS.forEach(probe); return; } // เปิดไฟล์ตรง ๆ อ่าน manifest ไม่ได้
     // manifest ห้ามใช้แคช: มีรหัสเวอร์ชันของภาพทุกไฟล์ (ภาพชื่อเดิมที่แก้ใหม่จะได้โหลดใหม่)
     fetch('assets/manifest.json', { cache: 'no-store' }).then(r => (r.ok ? r.json() : Promise.reject()))
-      .then(m => { const list = Array.isArray(m) ? m : m.files; ver = (m && m.v) || {}; list.forEach(probe); })
+      .then(m => {
+        const list = Array.isArray(m) ? m : m.files; ver = (m && m.v) || {};
+        list.filter(f => !/\.(ogg|mp3|wav)$/.test(f)).forEach(probe);
+        if (typeof Sound !== 'undefined') Sound.register(list, ver); // ไฟล์เสียงจริง (sfx_*, bgm_*)
+      })
       .catch(() => ART_KEYS.forEach(probe));
   },
   // ไอคอนไอเทม: ภาพเฉพาะชิ้น > ชิปการ์ดรวม > วาดด้วยโค้ด

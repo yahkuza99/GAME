@@ -899,6 +899,8 @@ const UI = {
     body.append(
       chk('autoLoot', 'เก็บไอเทมอัตโนมัติ (Auto Loot)'),
       chk('sound', 'เสียงเอฟเฟกต์'),
+      h('label', { class: 'opt' }, 'ความดังเอฟเฟกต์ ',
+        h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: o.sfxVol != null ? o.sfxVol : 0.8, oninput: e => { o.sfxVol = +e.target.value; Sound.setVolume(); }, onchange: () => { saveGame(); Sound.play('pickup'); } })),
       h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.music ? 'checked' : false, onchange: e => { o.music = e.target.checked; o.musicSet = true; saveGame(); } }), ' เพลงประกอบ (BGM)'),
       h('label', { class: 'opt' }, 'ความดังเพลง ',
         h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: o.musicVol != null ? o.musicVol : 0.7, oninput: e => { o.musicVol = +e.target.value; Music.setVolume(o.musicVol); }, onchange: () => saveGame() })),

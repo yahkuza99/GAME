@@ -45,13 +45,33 @@ const Music = {
     dl.delayTime.value = 60 / T.bpm * 0.75; fb.gain.value = 0.28; wet.gain.value = 0.22;
     this.bus.connect(c.destination); this.bus.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(wet); wet.connect(c.destination);
     this.fx = { dl, fb, wet };
+    if (Sound.bgm[name]) { this.playFile(name); return; }
     this.song = this.compose(T);
     this.step = 0; this.nextT = c.currentTime + 0.1;
     this.timer = setInterval(() => this.schedule(), 40);
   },
+  // ไฟล์เพลงจริง assets/bgm_<ธีม>.ogg|mp3 (ถ้ามี) เล่นวนแทนเพลงสังเคราะห์ • โหลดไม่ได้ก็กลับไปใช้เพลงสังเคราะห์
+  playFile(name) {
+    const c = Sound.ctx, key = 'bgm_' + name, bus = this.bus;
+    const go = buf => {
+      if (this.bus !== bus) return; // เปลี่ยนแผนที่ไปแล้ว
+      const src = c.createBufferSource(); src.buffer = buf; src.loop = true; src.connect(bus); src.start();
+      this.src = src;
+    };
+    if (Sound.buffers[key]) { go(Sound.buffers[key]); return; }
+    fetch('assets/' + Sound.bgm[name]).then(r => r.arrayBuffer()).then(a => c.decodeAudioData(a))
+      .then(buf => { Sound.buffers[key] = buf; go(buf); })
+      .catch(() => {
+        delete Sound.bgm[name];
+        if (this.bus !== bus) return;
+        this.song = this.compose(THEMES[name]); this.step = 0; this.nextT = c.currentTime + 0.1;
+        this.timer = setInterval(() => this.schedule(), 40);
+      });
+  },
   stop() {
     if (this.timer) clearInterval(this.timer);
     this.timer = null;
+    if (this.src) { const s = this.src; this.src = null; setTimeout(() => { try { s.stop(); } catch (e) { /* หยุดไปแล้ว */ } }, 1300); }
     if (this.bus && Sound.ctx) {
       const b = this.bus, fx = this.fx, t = Sound.ctx.currentTime;
       b.gain.cancelScheduledValues(t); b.gain.setValueAtTime(b.gain.value, t); b.gain.linearRampToValueAtTime(0, t + 1.2);

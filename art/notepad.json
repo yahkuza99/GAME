@@ -1487,5 +1487,320 @@
 ],
 "done": true,
 "prompt": "In-game character sprite for a cute classic 2000s Korean MMORPG (chibi, about 2.5 heads tall), same art style as the attached NPC.\nStorage Unit Kaia: friendly feminine android warehouse clerk. Smooth white faceplate with ONE glowing teal visor strip, NO eyes, NO mouth.\nDark navy hair plates in a low ponytail, small red ribbon, navy-and-cream clerk uniform with a short cape, a floating holographic crate icon beside her hand, a little cargo drone on her shoulder.\nSingle full-body figure, 3/4 view FACING LEFT, standing, centered. Fully transparent background, cel-shaded, crisp dark outline, readable at 64 px. No text, no shadow."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_hit",
+"sheet": "sfx",
+"title": "ฟันโดนมอน • sfx_hit • 0.5 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, short dagger slash hitting a small robot, crisp metallic impact with a soft thump."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_crit",
+"sheet": "sfx",
+"title": "คริติคอล • sfx_crit • 0.8 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, heavy critical sword strike on metal armor, loud clang with a short ring."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_swing",
+"sheet": "sfx",
+"title": "ฟันลม (พลาด) • sfx_swing • 0.4 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, quick light dagger swoosh through the air."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_bow",
+"sheet": "sfx",
+"title": "ยิงธนู • sfx_bow • 0.5 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, bow string release and arrow whoosh."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_hurt",
+"sheet": "sfx",
+"title": "ผู้เล่นโดนตี • sfx_hurt • 0.5 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, dull punch impact on a small android body, short servo whine."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_stun",
+"sheet": "sfx",
+"title": "โดนมึน • sfx_stun • 1.0 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, cartoon dizzy stun hit, thud followed by little birds chirping."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_kill",
+"sheet": "sfx",
+"title": "มอนพัง • sfx_kill • 0.8 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, small robot breaking apart, pop and scattered metal bits."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_die",
+"sheet": "sfx",
+"title": "ผู้เล่นตาย • sfx_die • 1.5 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, android powering down, descending electronic whine fading out."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_skill",
+"sheet": "sfx",
+"title": "เริ่มใช้สกิล • sfx_skill • 0.5 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, short magical cast start, rising shimmer."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_magic",
+"sheet": "sfx",
+"title": "ลูกพลังงาน • sfx_magic • 0.7 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, energy orb launched, glowing magic whoosh."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_fire",
+"sheet": "sfx",
+"title": "สกิลไฟ • sfx_fire • 0.8 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, fire bolt spell, whoosh of flame and a small burst."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_ice",
+"sheet": "sfx",
+"title": "สกิลน้ำแข็ง • sfx_ice • 0.8 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, ice spell, crystals forming and shattering glassy chime."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_zap",
+"sheet": "sfx",
+"title": "สกิลสายฟ้า • sfx_zap • 0.8 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, lightning bolt spell, sharp electric crack."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_holy",
+"sheet": "sfx",
+"title": "สกิลแสง • sfx_holy • 1.0 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, holy light spell, bright bell chime with sparkle."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_heal",
+"sheet": "sfx",
+"title": "ฮีล • sfx_heal • 1.2 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, healing spell, gentle rising chimes and sparkles."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_buff",
+"sheet": "sfx",
+"title": "บัฟ • sfx_buff • 1.0 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, power up buff, rising whoosh ending with a chime."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_warp",
+"sheet": "sfx",
+"title": "วาร์ป/ปีก • sfx_warp • 1.0 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, teleport warp, swirling magical sweep upward."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_potion",
+"sheet": "sfx",
+"title": "ดื่มยา • sfx_potion • 0.8 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, drinking a potion, two quick gulps and a small sparkle."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_pickup",
+"sheet": "sfx",
+"title": "เก็บของ • sfx_pickup • 0.4 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, item pickup, two short bright blips."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_buy",
+"sheet": "sfx",
+"title": "ซื้อ/ขาย • sfx_buy • 0.6 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, coins jingling, short shop purchase."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_equip",
+"sheet": "sfx",
+"title": "สวมอุปกรณ์ • sfx_equip • 0.5 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, equipping metal armor piece, short clink."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_click",
+"sheet": "sfx",
+"title": "ปุ่ม • sfx_click • 0.2 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, soft UI button click."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_storage",
+"sheet": "sfx",
+"title": "เปิดคลัง • sfx_storage • 0.5 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, opening a small metal storage crate."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_emote",
+"sheet": "sfx",
+"title": "อีโมต • sfx_emote • 0.3 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, cute pop sound for a speech bubble."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_refine_ok",
+"sheet": "sfx",
+"title": "ตีบวกสำเร็จ • sfx_refine_ok • 1.5 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, hammer on anvil followed by a bright success jingle."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_refine_fail",
+"sheet": "sfx",
+"title": "ตีบวกพัง • sfx_refine_fail • 1.2 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, metal cracking and breaking, failure."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_levelup",
+"sheet": "sfx",
+"title": "เลเวลอัป • sfx_levelup • 2.0 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, level up fanfare, short bright ascending arpeggio with sparkles."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_mvp",
+"sheet": "sfx",
+"title": "ล้ม MVP • sfx_mvp • 3.0 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, boss defeated victory fanfare, short brass and chimes."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_quest",
+"sheet": "sfx",
+"title": "เควสต์สำเร็จ • sfx_quest • 1.5 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, quest complete jingle, short and cheerful."
+},
+{
+"group": "เสียงเอฟเฟกต์ (ElevenLabs)",
+"key": "sfx_quest_new",
+"sheet": "sfx",
+"title": "ได้เควสต์ใหม่ • sfx_quest_new • 0.6 วิ",
+"attach": [],
+"done": false,
+"prompt": "Retro 2000s Korean MMORPG game sound effect, clean, punchy, no music, no voice, mono, new quest notification, two soft chimes."
+},
+{
+"group": "เพลงประกอบ (Suno)",
+"key": "bgm_town",
+"sheet": "bgm",
+"title": "เมือง Neo Eldheim • bgm_town",
+"attach": [],
+"done": false,
+"prompt": "Instrumental background music for a cute 2000s Korean fantasy MMORPG like Ragnarok Online, seamless loop, no vocals, 2 to 3 minutes. Peaceful high-tech Norse city: warm accordion and flute melody, light strings, gentle percussion, cheerful and cozy, 104 BPM, major key."
+},
+{
+"group": "เพลงประกอบ (Suno)",
+"key": "bgm_field",
+"sheet": "bgm",
+"title": "ทุ่งหญ้ามรกต • bgm_field",
+"attach": [],
+"done": false,
+"prompt": "Instrumental background music for a cute 2000s Korean fantasy MMORPG like Ragnarok Online, seamless loop, no vocals, 2 to 3 minutes. Adventure on a sunny meadow: bright flute lead, plucked strings, light marching drums, hopeful, 116 BPM, major key."
+},
+{
+"group": "เพลงประกอบ (Suno)",
+"key": "bgm_lake",
+"sheet": "bgm",
+"title": "ทะเลสาบหมอก • bgm_lake",
+"attach": [],
+"done": false,
+"prompt": "Instrumental background music for a cute 2000s Korean fantasy MMORPG like Ragnarok Online, seamless loop, no vocals, 2 to 3 minutes. Calm misty lake: soft piano, harp arpeggios, airy pads, slow and dreamy, 78 BPM."
+},
+{
+"group": "เพลงประกอบ (Suno)",
+"key": "bgm_forest",
+"sheet": "bgm",
+"title": "ป่าหมาป่า • bgm_forest",
+"attach": [],
+"done": false,
+"prompt": "Instrumental background music for a cute 2000s Korean fantasy MMORPG like Ragnarok Online, seamless loop, no vocals, 2 to 3 minutes. Mysterious forest: wooden flute, dulcimer, soft hand drums, slightly mysterious dorian mood, 94 BPM."
+},
+{
+"group": "เพลงประกอบ (Suno)",
+"key": "bgm_cave",
+"sheet": "bgm",
+"title": "ถ้ำเฮล • bgm_cave",
+"attach": [],
+"done": false,
+"prompt": "Instrumental background music for a cute 2000s Korean fantasy MMORPG like Ragnarok Online, seamless loop, no vocals, 2 to 3 minutes. Dark underground cave: low drones, bell melody, deep slow drums, eerie but not scary, 68 BPM, minor key."
 }
 ]
