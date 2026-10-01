@@ -138,8 +138,12 @@ const Online = {
     if (this.local) return this.lsGet(this.LS.char(this.username), null);
     const { data, error } = await this.sb.from('characters').select('data').eq('user_id', this.user.id).maybeSingle();
     if (error) throw new Error(this.errText(error));
-    return data ? data.data : null;
+    const cloud = data ? data.data : null, mirror = this.lsGet(this.mirrorKey(), null);
+    // ใช้ตัวที่ใหม่กว่าระหว่างคลาวด์กับสำเนาในเครื่อง แล้วส่งตัวที่ใหม่กว่าขึ้นคลาวด์
+    if (mirror && mirror.name && (!cloud || (mirror.savedAt || 0) > (cloud.savedAt || 0))) { this.queueSave(mirror, true); return mirror; }
+    return cloud;
   },
+  mirrorKey() { return `nm_cloud_mirror_${this.user && this.user.id}`; },
   async nameAvailable(name) {
     if (this.local) { // ชื่อซ้ำกับตัวละครของบัญชีอื่นในเครื่องนี้ไม่ได้
       const acc = this.lsGet(this.LS.accounts, {}), me = this.username.toLowerCase();
@@ -153,6 +157,8 @@ const Online = {
   queueSave(data, immediate) {
     if (!this.loggedIn) return;
     if (this.local) { this.lsSet(this.LS.char(this.username), data); return; }
+    // สำเนาในเครื่องทุกครั้ง: ถ้าปิดแอปก่อนเซฟคลาวด์ทัน (หน่วง 4 วิ) ครั้งหน้าจะใช้สำเนาที่ใหม่กว่า
+    this.lsSet(this.mirrorKey(), data);
     this.pendingSave = data;
     // ไม่เลื่อนการบันทึกที่นัดไว้เร็วกว่าออกไป
     const due = performance.now() + (immediate ? 0 : 4000);

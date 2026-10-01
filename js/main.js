@@ -125,6 +125,7 @@ function bindInput() {
   const touches = new Map();
   const pinchDist = () => { const [a, b] = [...touches.values()]; return Math.hypot(a.x - b.x, a.y - b.y) || 1; };
   cv.addEventListener('pointerdown', e => {
+    UI.autoFoldMenu();
     if (e.button !== 0) return;
     touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (touches.size === 2) { R.pinch = { d: pinchDist(), z: R.zoom }; R.mouse.down = false; return; }
@@ -523,6 +524,7 @@ window.addEventListener('load', () => {
   // แท็บถูกซ่อน: requestAnimationFrame หยุด แต่บอทยังทำงานต่อผ่าน timer
   setInterval(() => { if (document.hidden && G.started) advanceSim(); }, 1000);
   window.addEventListener('beforeunload', () => { saveGame(true, true); Online.flushSave(); });
-  document.addEventListener('visibilitychange', () => { if (document.hidden) { saveGame(); Music.stop(); } });
+  // สลับแอป/ล็อกจอ: เซฟทันที (ไม่รอหน่วง 4 วิ) — มือถือมักปิดแอปที่อยู่เบื้องหลังโดยไม่บอก
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { saveGame(true, true); Online.flushSave(); Music.stop(); } });
   requestAnimationFrame(loop);
 });

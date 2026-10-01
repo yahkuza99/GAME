@@ -13,7 +13,7 @@ const Pad = {
   init() {
     try { this.mode = localStorage.getItem('nm_pad') || 'auto'; } catch (e) { /* ใช้ค่าเริ่มต้น */ }
     this.bindJoystick();
-    $('#pad-atk').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); Sound.ensure(); this.interact(); $('#pad-atk').classList.add('press'); });
+    $('#pad-atk').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); Sound.ensure(); UI.autoFoldMenu(); this.interact(); $('#pad-atk').classList.add('press'); });
     const rel = () => $('#pad-atk').classList.remove('press');
     $('#pad-atk').addEventListener('pointerup', rel); $('#pad-atk').addEventListener('pointercancel', rel); $('#pad-atk').addEventListener('pointerleave', rel);
     window.addEventListener('gamepadconnected', e => {
@@ -40,6 +40,7 @@ const Pad = {
     const zone = $('#joy-zone'), base = $('#joy'), knob = $('#joy-knob');
     const R = 46;
     zone.addEventListener('pointerdown', e => {
+      UI.autoFoldMenu();
       if (this.joyId != null) return;
       e.preventDefault(); e.stopPropagation();
       Sound.ensure();

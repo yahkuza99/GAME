@@ -269,7 +269,7 @@ const UI = {
       else {
         if (sa.dataset.id !== id) {
           sa.dataset.id = id; const ic = $('.sa-ic', sa); ic.innerHTML = ''; ic.append(this.skillIcon(id));
-          $('.sa-t', sa).innerHTML = `<b>${SKILLS[id].name}</b> ${Pad.enabled() ? 'แตะมอนเพื่อใช้ • แตะปุ่มสกิลซ้ำ = ตัวใกล้สุด' : 'คลิกมอนเพื่อใช้ • กดซ้ำ = เป้าปัจจุบัน • คลิกขวา/Esc ยกเลิก'}`;
+          $('.sa-t', sa).innerHTML = `<b>${SKILLS[id].name}</b> ${Pad.enabled() ? 'แตะมอนเพื่อใช้ • แตะซ้ำ = ตัวใกล้สุด' : 'คลิกมอนเพื่อใช้ • คลิกขวา/Esc ยกเลิก'}`;
           $('#sa-x').onclick = () => { G.pendingSkill = null; };
         }
         sa.hidden = false;
@@ -1453,7 +1453,7 @@ const UI = {
         list.append(h('div', { class: 'shop-row' + (usable ? '' : ' dim'), title: it.desc },
           h('img', { src: itemIconUrl(id), alt: '' }),
           h('div', { class: 'shop-n' }, h('b', {}, it.name + (it.slots ? ` [${it.slots}]` : '')), h('small', {}, it.desc + (it.lv ? ` (Lv ${it.lv}+)` : '')), isEquipType(it) && usable ? this.compareLine({ id, refine: 0, cards: [] }, true) : null),
-          h('span', { class: 'shop-p' }, U.fmt(it.price) + ' ' + CUR),
+          h('span', { class: 'shop-p' + (it.price > p.zeny ? ' poor' : '') }, U.fmt(it.price) + ' ' + CUR),
           qty,
           h('button', { class: 'btn small', onclick: () => this.buy(id, Math.max(1, Math.min(999, parseInt(qty.value, 10) || 1))) }, 'ซื้อ')));
       }
@@ -1650,3 +1650,33 @@ const UI = {
     };
   }
 })();
+
+// QA: หน้าต่างต้องอยู่ในจอเสมอ (เปิด / ปรับขนาดจอ / ลากเสร็จ) — เดิมหน้าต่างที่เริ่มที่ top:200px ล้นใต้จอโน้ตบุ๊ก
+UI.fit = function (w) {
+  if (!w || w.classList.contains('hidden') || w.classList.contains('dialog')) return;
+  if (matchMedia('(max-width: 760px), (max-height: 520px) and (orientation: landscape)').matches) return; // มือถือ: CSS ตรึงหน้าต่างไว้แล้ว
+  const m = 8, r = w.getBoundingClientRect();
+  let top = r.top, left = r.left;
+  if (r.bottom > innerHeight - m) top = Math.max(m, innerHeight - m - r.height);
+  if (r.right > innerWidth - m) left = Math.max(m, innerWidth - m - r.width);
+  if (left < m) left = m;
+  if (top !== r.top || left !== r.left) Object.assign(w.style, { top: top + 'px', left: left + 'px', right: 'auto', bottom: 'auto', transform: 'none' });
+  w.style.maxHeight = `calc(100dvh - ${Math.round(top) + m}px)`;
+};
+{
+  const open0 = UI.open;
+  UI.open = function (id) {
+    // z-index ไม่วิ่งเพิ่มไม่รู้จบ (เกิน 900 จะทับฉาก/จอล้มลง) → เรียงใหม่จาก 100
+    if (this.z > 900) { const ws = $$('.win').sort((a, b) => (+a.style.zIndex || 0) - (+b.style.zIndex || 0)); this.z = 100; for (const w of ws) w.style.zIndex = ++this.z; }
+    const r = open0.apply(this, arguments);
+    const w = document.getElementById(id); requestAnimationFrame(() => UI.fit(w));
+    return r;
+  };
+  addEventListener('resize', () => $$('.win:not(.hidden)').forEach(w => UI.fit(w)));
+  addEventListener('pointerup', () => $$('.win:not(.hidden)').forEach(w => UI.fit(w)));
+}
+// QA: เมนู ☰ บนมือถือพับเองเมื่อเริ่มเล่น (แตะจอ/จอย/ปุ่มโจมตี) ไม่ค้างทับเป้าหมายและบัฟ
+UI.autoFoldMenu = function () {
+  const m = $('#menubar');
+  if (m && typeof Pad !== 'undefined' && Pad.enabled() && !m.classList.contains('folded')) this.setFold(m, true);
+};
