@@ -17,6 +17,13 @@ globalThis.EXTRA = async (A, B, ok) => {
   await B.waitForFunction(() => WB.live() && WB.live().hp <= WB.live().maxHp - 21000, null, { timeout: 8000 }).catch(() => {});
   const [ha, hb] = [await A.evaluate(() => WB.live().hp), await B.evaluate(() => WB.live().hp)];
   ok('เลือดบอสตรงกันทั้งสองเครื่อง', ha === hb && ha === max - 21000, `${ha} / ${hb}`);
+  // ตารางดาเมจ: ทั้งสองเครื่องเห็นอันดับเดียวกัน (Alice 20000 > Bobby 1000) + ป้าย Top damage แสดงอยู่
+  const topOf = P => P.evaluate(() => { WB.tick(); const el = document.getElementById('wb-top');
+    return { top: WB.top('mistlake').map(r => `${r.rank}.${r.n}:${r.d}`).join(','), me: (WB.top('mistlake').find(r => r.me) || {}).n, shown: !!el && !el.hidden && /Alice/.test(el.textContent) }; });
+  const [ta, tb] = [await topOf(A), await topOf(B)];
+  ok('ตารางดาเมจตรงกันทั้งสองเครื่อง', ta.top === tb.top && ta.top === '1.Alice:20000,2.Bobby:1000', `${ta.top} / ${tb.top}`);
+  ok('ป้าย Top damage แสดงและรู้ว่าแถวไหนคือตัวเอง', ta.shown && tb.shown && ta.me === 'Alice' && tb.me === 'Bobby', JSON.stringify([ta, tb]));
+  ok('ยอดดาเมจรอบนี้เก็บใน nm_wb', await B.evaluate(() => { WB.save(true); const s2 = JSON.parse(localStorage.getItem('nm_wb')).mistlake; return !!(s2 && s2.dmg && Object.values(s2.dmg).some(r => r.n === 'Alice' && r.d === 20000)); }));
   // B ตาย → ฟื้นที่เมือง → กลับมาแผนที่เดิม: บอสยังเลือดเท่าเดิม
   await B.evaluate(async () => { playerDie(); await new Promise(r => setTimeout(r, 200)); respawnPlayer(false); await new Promise(r => setTimeout(r, 300)); changeMap('mistlake', 20, 20); await new Promise(r => setTimeout(r, 1500)); });
   await B.waitForFunction(() => WB.live(), null, { timeout: 8000 }).catch(() => {});
@@ -30,6 +37,13 @@ globalThis.EXTRA = async (A, B, ok) => {
   const r = await B.evaluate(() => ({ dead: !WB.live(), st: WB.state('mistlake').dead, exp: G.player.baseExp + G.player.baseLv * 1e9 }));
   ok('A ปราบแล้ว บอสตายในเครื่อง B ด้วย', r.dead && r.st);
   ok('B ที่ร่วมตีได้ EXP', r.exp > expB, `${expB} → ${r.exp}`);
+  // การ์ดสรุปตอนบอสตาย: ทั้งสองเครื่องเห็นอันดับเดียวกัน (รวมดาเมจปิดฉากของ A ที่ส่งตามหลัง 'dead')
+  const resOf = P => P.waitForFunction(() => WB.resultOpen, null, { timeout: 5000 }).then(() => P.waitForTimeout(1200)).catch(() => {})
+    .then(() => P.evaluate(() => { const el = document.getElementById('wb-result');
+      return { open: !!el && !el.hidden, top: WB.top('mistlake').map(r => `${r.rank}.${r.n}`).join(','), sum: WB.ranking('mistlake').reduce((a, r) => a + r.d, 0), max: MOBS.wb_seraph_pudding.hp, txt: el ? el.textContent : '' }; }));
+  const [ra, rb] = [await resOf(A), await resOf(B)];
+  ok('การ์ดสรุปดาเมจขึ้นทั้งสองเครื่อง (อันดับตรงกัน)', ra.open && rb.open && ra.top === rb.top && ra.top === '1.Alice,2.Bobby' && /#1/.test(ra.txt) && /#2/.test(rb.txt), `${ra.top} / ${rb.top}`);
+  ok('ยอดดาเมจรวมเท่ากันและเท่าเลือดบอส', ra.sum === rb.sum && Math.abs(ra.sum - ra.max) <= 1, `${ra.sum} / ${rb.sum} / ${ra.max}`);
   // ปราบแล้วไม่เกิดซ้ำในรอบเดียวกัน แม้เข้าแผนที่ใหม่
   await B.evaluate(async () => { changeMap('eldheim', 20, 20); await new Promise(r => setTimeout(r, 300)); changeMap('mistlake', 20, 20); await new Promise(r => setTimeout(r, 1500)); });
   ok('ปราบแล้วไม่เกิดซ้ำในรอบเดียวกัน', await B.evaluate(() => !WB.live()));

@@ -1478,25 +1478,74 @@ function updateMob(m, dt) {
 
 // สกิลบอสเพิ่มเติมจากไฟล์เนื้อหา (เช่น js/content_ch6.js): BOSS_SKILLS[ชื่อ] = m => { ... } แล้วใส่ bossSkill: 'ชื่อ' ในข้อมูลมอน
 const BOSS_SKILLS = {};
+// MVP แต่ละตัวสลับท่าตามลำดับนี้ (ใช้ชื่อ bossSkill ในข้อมูลมอนเป็นกุญแจ) • World Boss ใช้ชุดเดียวกับร่างต้นแบบ
+const BOSS_ROTATION = { heal: ['shockwave', 'heal'], firestorm: ['firestorm', 'slam', 'shockwave'], rootquake: ['rootquake', 'slam', 'shockwave'] };
 function bossSkill(m) {
-  const p = G.player;
-  if (BOSS_SKILLS[m.def.bossSkill]) return BOSS_SKILLS[m.def.bossSkill](m);
-  if (m.def.bossSkill === 'heal') {
+  const p = G.player, list = BOSS_ROTATION[m.def.bossSkill] || [m.def.bossSkill];
+  const i = m.bossSeq || 0; m.bossSeq = i + 1;
+  const k = list[i % list.length];
+  if (BOSS_SKILLS[k]) return BOSS_SKILLS[k](m);
+  if (k === 'heal') {
     const amt = Math.floor(m.maxHp * 0.08);
     m.hp = Math.min(m.maxHp, m.hp + amt);
     addFloater(m.x, m.y - 2, `+${amt}`, '#70ff70', true);
     addFx({ type: 'heal', ref: m, dur: 1.2 });
     UI.msg(L(`${m.def.name} ใช้เวทฟื้นฟูตัวเอง!`, `${m.def.name} casts a healing spell on itself!`), 'mvp');
   } else {
-    addFx({ type: 'warnring', x: m.x, y: m.y, dur: 1.0, r: 3 });
-    UI.msg(L(`${m.def.name} กำลังร่ายเวทไฟ! ถอยออกมา!`, `${m.def.name} is casting a fire spell! Get back!`), 'mvp');
-    later(1.0, () => {
-      if (m.dead) return;
-      addFx({ type: 'firering', x: m.x, y: m.y, dur: 0.6, r: 3 });
-      if (!p.dead && U.dist(m.x, m.y, p.x, p.y) <= 3) {
-        const dmg = Math.max(1, Math.round(U.randi(m.def.atk[0], m.def.atk[1]) * 1.3 * (1 - p.d.mdef / 100) - p.d.softMdef));
-        damagePlayer(dmg, '#ff8040');
-      }
-    });
+    const x = m.x, y = m.y;
+    UI.msg(L(`${m.def.name} กำลังร่ายเวทไฟ! ถอยออกจากวงแดง!`, `${m.def.name} is casting a fire spell! Get out of the red circle!`), 'mvp');
+    telegraph(m, { shape: 'circle', x, y, r: 3, dur: 1.1 }, () => {
+      damagePlayer(Math.max(1, Math.round(U.randi(m.def.atk[0], m.def.atk[1]) * 1.3 * (1 - p.d.mdef / 100) - p.d.softMdef)), '#ff8040');
+    }, () => addFx({ type: 'firering', x, y, dur: 0.6, r: 3 }));
   }
 }
+
+// ---------- ป้ายเตือนท่าบอส (telegraph) ----------
+// พื้นที่สีแดงบนพื้นขึ้นก่อนดาเมจลง dur วินาที (สีแดงด้านในค่อย ๆ เต็ม = เวลาที่เหลือ) • ครบเวลาแล้วดาเมจโดนเฉพาะผู้เล่นที่ "ยังยืนอยู่ในพื้นที่"
+// เดินออกทันก็หลบได้ • บอสตาย/เปลี่ยนแมพ = ยกเลิก (เก็บใน G.fx ที่ล้างตอนเปลี่ยนแมพ) • วาดใน R.drawTelegraphs (js/render.js)
+// รูปทรง: circle {x,y,r} • ring {x,y,r0,r} (วงโดนัท) • line {x,y,a,len,w} (แถบจาก x,y ไปทางมุม a) • cone {x,y,a,arc,r}
+function teleInside(f, x, y) {
+  const dx = x - f.x, dy = y - f.y, d = Math.hypot(dx, dy);
+  if (f.shape === 'circle') return d <= f.r;
+  if (f.shape === 'ring') return d >= f.r0 && d <= f.r;
+  if (f.shape === 'line') { const c = Math.cos(f.a), s = Math.sin(f.a), al = dx * c + dy * s; return al >= -0.5 && al <= f.len && Math.abs(dy * c - dx * s) <= f.w / 2; }
+  if (f.shape === 'cone') { const da = Math.atan2(Math.sin(Math.atan2(dy, dx) - f.a), Math.cos(Math.atan2(dy, dx) - f.a)); return d <= f.r && (d < 0.6 || Math.abs(da) <= f.arc / 2); }
+  return false;
+}
+// onHit = ดาเมจต่อผู้เล่น (เรียกเมื่อยังอยู่ในพื้นที่) • boom = เอฟเฟกต์ตอนระเบิด (เรียกเสมอ)
+function telegraph(m, shape, onHit, boom) {
+  const p = G.player;
+  m.nextAtk = Math.max(m.nextAtk || 0, G.time + 0.9); // ระหว่างร่าย บอสไม่ตีปกติซ้อน (ไม่โดนมึนกลางวงจนหนีไม่ทัน)
+  const f = addFx(Object.assign({ type: 'tele', dur: 1.1 }, shape, {
+    owner: m,
+    onHit: () => {
+      if (m.dead) return;
+      f.linger = 0.35; // แฟลชตอนดาเมจลง
+      if (boom) boom();
+      if (!p.dead && teleInside(f, p.x, p.y)) onHit();
+    },
+  }));
+  return f;
+}
+// ทุบพื้นเป็นแนวตรงพุ่งไปหาผู้เล่น — ก้าวออกด้านข้างก็พ้น
+BOSS_SKILLS.slam = m => {
+  const p = G.player; if (p.dead) return;
+  const a = Math.atan2(p.y - m.y, p.x - m.x), x = m.x, y = m.y;
+  faceTo(m, p.x, p.y);
+  UI.msg(L(`${m.def.name} ง้างตัวจะทุบพื้นเป็นแนวตรง! ก้าวหลบออกด้านข้าง!`, `${m.def.name} rears up for a line slam! Step to the side!`), 'mvp');
+  telegraph(m, { shape: 'line', x, y, a, len: 8, w: 1.8, dur: 1.1 }, () => {
+    const d = p.d;
+    damagePlayer(Math.max(1, Math.round(U.randi(m.def.atk[0], m.def.atk[1]) * 1.5 * (1 - d.def / 100) - d.softDef)), '#ff5a3a');
+    R.kick(6, 0.2);
+  }, () => { m.atkAnim = 1; for (let i = 1; i <= 4; i++) addFx({ type: 'ring', x: x + Math.cos(a) * i * 1.9, y: y + Math.sin(a) * i * 1.9, dur: 0.45, r: 1.1, color: '255,120,80' }); });
+};
+// คลื่นกระแทก 3 วง: วงในสุดระเบิดก่อน แล้วไล่ออกไปข้างนอก — ถอยออกนอกวง หรือก้าวเข้าวงในที่ระเบิดไปแล้ว
+BOSS_SKILLS.shockwave = m => {
+  const p = G.player; if (p.dead) return;
+  const x = m.x, y = m.y;
+  UI.msg(L(`${m.def.name} ปล่อยคลื่นกระแทก 3 วง! วงในระเบิดก่อน — ถอยออกนอกวง หรือก้าวเข้าวงที่ระเบิดไปแล้ว!`, `${m.def.name} unleashes a 3-ring shockwave! The inner ring bursts first — get outside, or step into a ring that has already burst!`), 'mvp');
+  for (const [r0, r, dur] of [[0, 2.2, 1.1], [2.2, 4.2, 1.6], [4.2, 6.2, 2.1]]) telegraph(m, { shape: 'ring', x, y, r0, r, dur }, () => {
+    const d = p.d;
+    damagePlayer(Math.max(1, Math.round(U.randi(m.def.atk[0], m.def.atk[1]) * (1 - d.def / 100) - d.softDef)), '#ff7050');
+  }, () => addFx({ type: 'ring', x, y, dur: 0.5, r, color: '255,110,70', waves: 2 }));
+};

@@ -40,20 +40,34 @@ NPC.scripts.bifrost = async n => {
       await UI.say(nm, L(`ข้าจดจำเจ้าไว้แล้ว ... แปลก ข้าไม่เคยจำเจ้ามาก่อน<br>เมื่อใช้ Return Beacon หรือล้มลง ใบไม้จะพาเจ้ากลับมาที่ ${B(G.map.def.name)}`, `I remember you now ... Strange. I have never remembered you before.<br>When you use a Return Beacon or fall, the leaves will carry you back to ${B(G.map.def.name)}.`));
     } else await UI.say(nm, L(`ข้าจดจำ ${B(G.map.def.name)} ไว้ให้เจ้าแล้ว<br>เมื่อใช้ Return Beacon หรือล้มลงในการต่อสู้ ใบไม้จะพาเจ้ากลับมาที่นี่`, `I remember ${B(G.map.def.name)} for you.<br>When you use a Return Beacon or fall in battle, the leaves will carry you back here.`));
   } else if (c === 1) {
-    const dests = [['meadow', 300], ['mistlake', 600], ['wolfwood', 800], ['helcave', 1200], ['arena', 0]];
+    // [แผนที่, ค่าผ่านทาง, Base Lv ขั้นต่ำ] • บทที่ 6 (ใต้ Hel's Hollow) เปิดเมื่อเลเวลถึงช่วงของแผนที่
+    const dests = [['meadow', 300], ['mistlake', 600], ['wolfwood', 800], ['helcave', 1200], ['archive', 1800, 33], ['roots', 2500, 45], ['arena', 0]].filter(([id]) => MAP_DEFS[id]);
     const i = await UI.menu(nm, L('ข้าจดจำปลายทางเหล่านี้ — จะให้สายรุ้งพาเจ้าไปที่ใด?', 'I remember these destinations — where shall the rainbow take you?'),
-      [...dests.map(([id, z]) => MAP_DEFS[id].pvp ? L(`${MAP_DEFS[id].name} — ลานประลอง PvP (ฟรี)`, `${MAP_DEFS[id].name} — PvP Arena (Free)`) : `${MAP_DEFS[id].name} (Lv ${MAP_DEFS[id].level.split(' ')[0]}) — ${U.fmt(z)} ${CUR}`), L('ยกเลิก', 'Cancel')]);
+      [...dests.map(([id, z, lv]) => MAP_DEFS[id].pvp ? L(`${MAP_DEFS[id].name} — ลานประลอง PvP (ฟรี)`, `${MAP_DEFS[id].name} — PvP Arena (Free)`)
+        : `${MAP_DEFS[id].name} (Lv ${MAP_DEFS[id].level.split(' ')[0]}) — ${U.fmt(z)} ${CUR}${lv && p.baseLv < lv ? L(` · 🔒 ต้อง Base Lv ${lv}`, ` · 🔒 Base Lv ${lv}+`) : ''}`), L('ยกเลิก', 'Cancel')]);
     if (i < dests.length) {
-      const [id, z] = dests[i];
+      const [id, z, lv] = dests[i];
+      if (lv && p.baseLv < lv) { await UI.say(nm, L(`สายรุ้งยังไม่ยอมพาเจ้าลงไปที่ ${B(MAP_DEFS[id].name)}... ข้าจดจำได้ทุกหน่วยที่ลงไปก่อนจะพร้อม<br>กลับมาหาข้าเมื่อเจ้ามี ${B('Base Lv ' + lv)} นะ (ตอนนี้ ${p.baseLv}) — หรือเดินลงไปเองผ่าน Hel's Hollow ถ้ามั่นใจ`, `The rainbow will not yet carry you down to ${B(MAP_DEFS[id].name)}... I remember every unit that went down before it was ready.<br>Come back to me at ${B('Base Lv ' + lv)} (you are ${p.baseLv}) — or walk down through Hel's Hollow yourself, if you are sure.`)); return; }
       if (p.zeny < z) { await UI.say(nm, L(`ข้าจดจำได้ว่า ${CUR} ของเจ้าไม่พอค่าผ่านทาง`, `I remember that your ${CUR} will not cover the toll.`)); return; }
       p.zeny -= z;
       UI.dlgClose();
-      const map = getMap(id);
-      changeMap(id, (map.w >> 1) + 0.5, (map.h >> 1) + 0.5);
+      const map = getMap(id), at = bifrostArrival(map);
+      changeMap(id, at.x, at.y);
       UI.msg(L(`สะพานไบฟรอสต์พาคุณไปยัง ${MAP_DEFS[id].name} (-${U.fmt(z)} ${CUR})`, `The Bifrost carries you to ${MAP_DEFS[id].name} (-${U.fmt(z)} ${CUR})`), 'sys');
     }
   }
 };
+
+// จุดลงจากสะพานสายรุ้ง: MAP_DEFS[id].arrive.bifrost ถ้ากำหนดไว้ ไม่งั้นกลางแผนที่ • ถ้าเดินไม่ได้/ทับวาร์ป เลื่อนไปช่องว่างที่ใกล้ที่สุด
+function bifrostArrival(map) {
+  const a = map.def.arrive && map.def.arrive.bifrost, cx = a ? Math.floor(a[0]) : map.w >> 1, cy = a ? Math.floor(a[1]) : map.h >> 1;
+  for (let r = 0; r < 12; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+    if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+    const x = cx + dx, y = cy + dy;
+    if (map.walkable(x, y) && !map.portals.some(q => U.dist(q.x, q.y, x, y) < 3)) return { x: x + 0.5, y: y + 0.5 };
+  }
+  return { x: cx + 0.5, y: cy + 0.5 };
+}
 
 NPC.scripts.jobmaster = async n => {
   const p = G.player, st = Story.st();
