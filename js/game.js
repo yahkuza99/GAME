@@ -566,6 +566,7 @@ function getMap(id) {
 function changeMap(id, x, y, opts = {}) {
   const p = G.player;
   const map = getMap(id);
+  if (!map.walkable(Math.floor(x), Math.floor(y))) ({ x, y } = map.nearestWalkable(x, y)); // เซฟเก่า/พิกัดที่กลายเป็นลำต้นไม้
   G.map = map;
   p.map = id;
   teleportPlayer(x, y);

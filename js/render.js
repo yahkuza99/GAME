@@ -218,7 +218,8 @@ R.render = () => {
   // เรียงวาดตามแกน y
   const L = R.camX / TILE - 2, Rr = (R.camX + vw) / TILE + 2, Tp = wTop / TILE - 1, B = (wTop + wH) / TILE + 4;
   const list = [];
-  for (const o of map.objects) if (o.x > L && o.x < Rr && o.y > Tp && o.y < B) list.push({ y: o.y + 0.3, f: () => Sprites.drawTree(g, o, t) });
+  if (map.flora && typeof Flora !== 'undefined') Flora.collect(list, g, map, t, L, Rr, Tp, B); // ต้นไม้ใหญ่ + ของประดับ (js/flora.js)
+  else for (const o of map.objects) if (o.x > L && o.x < Rr && o.y > Tp && o.y < B) list.push({ y: o.y + 0.3, f: () => Sprites.drawTree(g, o, t) });
   for (const o of map.props || []) if (o.x > L && o.x < Rr && o.y > Tp && o.y < B + 2) list.push({ y: o.y, f: () => Sprites.drawProp(g, o, t) });
   for (const b of map.buildings) if (b.img) list.push({ y: b.y + b.h - 0.5, f: () => Sprites.drawBuildingImg(g, b, t) });
   if (map.fountainImg) list.push({ y: map.fountain.y + 1.2, f: () => Sprites.drawFountainImg(g, map.fountain, t) });
