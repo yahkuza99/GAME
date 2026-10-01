@@ -407,9 +407,9 @@ function useItem(entry) {
   }
   if (it.effect === 'return') {
     addFx({ type: 'warp', x: p.x, y: p.y, dur: 0.6 });
-    changeMap(p.save.map, p.save.x, p.save.y);
+    changeMap(p.save.map, p.save.x, p.save.y, { quiet: true });
   }
-  if (it.heal || it.spHeal) Sound.play('potion'); else Sound.play('warp');
+  if (it.heal || it.spHeal) Sound.play('potion'); // ใช้ปีก/บีคอนวาร์ป: ไม่มีเสียง (ยะยาสั่ง)
   removeEntry(entry, 1);
 }
 function usePotbar(i) { useSlot(G.player.potbar[i]); }
@@ -488,7 +488,7 @@ function getMap(id) {
   if (!G.mapCache[id]) G.mapCache[id] = new GameMap(id);
   return G.mapCache[id];
 }
-function changeMap(id, x, y) {
+function changeMap(id, x, y, opts = {}) {
   const p = G.player;
   const map = getMap(id);
   G.map = map;
@@ -504,7 +504,7 @@ function changeMap(id, x, y) {
   UI.onMapChange(map);
   if (typeof Nav !== 'undefined') Nav.onMapChange();
   Online.joinMap(id);
-  Sound.play('warp');
+  if (!opts.quiet) Sound.play('warp');
   saveGame(true, true);
 }
 function teleportPlayer(x, y) {
@@ -597,6 +597,7 @@ function applyHit(m, r, opts = {}) {
   if (m.dead) return;
   if (r.miss) {
     addFloater(m.x, m.y - 1, 'Miss', '#c8d0ff');
+    Sound.play('miss');
     aggroMob(m);
     return;
   }
@@ -635,7 +636,10 @@ function damageMob(m, dmg, opts = {}) {
   if (opts.crit) addFx({ type: 'crit', x: m.x, y: m.y - 0.5, dur: 0.35 });
   else addFx({ type: 'hit', x: m.x + U.rand(-0.2, 0.2), y: m.y - 0.5 * s + U.rand(-0.2, 0.2), dur: 0.2 });
   aggroMob(m);
-  Sound.play(opts.crit ? 'crit' : 'hit');
+  // เสียงตีโดน 1 เสียงต่อครั้ง: คริ > ตีบอส > ดาเมจแรง (≥25% เลือดเต็ม) > เสียงของท่านั้น (ฟัน/ทุบ) หรือ 'hit'
+  const big = !m.def.dummy && dmg >= m.maxHp * 0.25;
+  const sfx = opts.crit ? 'crit' : (m.def.boss || m.isMvp) ? 'hit_boss' : big ? 'hit_big' : opts.sfx === undefined ? 'hit' : opts.sfx;
+  if (sfx) Sound.play(sfx);
   if (m.hp <= 0) killMob(m);
 }
 // Zeny ที่ได้ทันทีเมื่อฆ่า: ตั้งเองได้ด้วย MOBS[id].zeny = [min, max] ไม่งั้น (Lv+2) ถึง 2×(Lv+2) • MVP ×40–60
@@ -709,7 +713,8 @@ function playerAttack(m) {
   const doHit = () => {
     if (m.dead) return;
     const r = physHit(m, masteryMul('attack'), { forceCrit: ambush });
-    applyHit(m, r);
+    // ตีธรรมดา: ประชิด = เสียงฟัน (มีด/ดาบ/ขวาน) หรือทุบ (กระบอง/คทา/มือเปล่า) • ธนู = เสียงยิงตอนปล่อย ตอนโดนไม่ซ้อนอีก
+    applyHit(m, r, { sfx: p.d.ranged ? '' : (['dagger', 'sword', 'axe'].includes(weaponType()) ? 'slash' : 'smash') });
     if (!r.miss && !m.def.dummy) addMastery('attack');
     if (!r.miss && p.d.venom && !m.def.boss) applyStatus(m, { kind: 'poison', chance: () => p.d.venom, dur: () => 8 }, 1);
   };
@@ -718,7 +723,6 @@ function playerAttack(m) {
     Sound.play('bow');
   } else {
     doHit();
-    Sound.play('swing');
   }
 }
 
@@ -967,7 +971,7 @@ function executeSkill(id, lv, tgt) {
   p.atkAnim = 1;
   p.skillPose = G.time; // ท่าใช้สกิล (1 ท่าต่ออาชีพ) — ความต่างของแต่ละสกิลอยู่ที่เอฟเฟกต์
   if (tgt) faceTo(p, tgt.x, tgt.y);
-  Sound.play('skill');
+  Sound.play(skillRange(s) > 3 ? 'skill_range' : 'skill');
 
   if (s.selfFx) {
     const fxMap = {

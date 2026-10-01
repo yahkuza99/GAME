@@ -8,6 +8,9 @@
 // ปรับความดังรายเสียงให้ใกล้กัน (เสียงลม/ประกายที่ผ่านฟิลเตอร์แคบจะเบากว่าเสียงอื่นมาก)
 const SFX_GAIN = { swing: 3.5, bow: 2.5, skill: 3, magic: 2.5, equip: 2, click: 2.5, storage: 2, emote: 2, ice: 2, buy: 1.6, pickup: 1.6, warp: 1.5 };
 
+// ชื่อเสียงที่มีไฟล์จริงแต่ไม่มีเสียงสังเคราะห์ → ใช้เสียงสังเคราะห์ตัวใกล้เคียงแทน (ตอนยังโหลดไฟล์ไม่เสร็จ/ไม่มีไฟล์)
+const SYNTH_ALIAS = { slash: 'hit', smash: 'hit', hit_big: 'crit', hit_boss: 'crit', miss: 'swing', skill_range: 'skill' };
+
 const Sound = {
   ctx: null, out: null, rev: null, k: 1, last: {}, files: {}, bgm: {}, buffers: {}, _noise: null,
   ensure() {
@@ -125,6 +128,7 @@ const Sound = {
 
   // เสียงสังเคราะห์ของแต่ละชื่อ (j = สุ่มระดับเสียงเล็กน้อย ตีรัว ๆ จะได้ไม่ซ้ำซาก)
   synth(name) {
+    name = SYNTH_ALIAS[name] || name; // ชื่อเสียงใหม่ที่ยังไม่มีเสียงสังเคราะห์ของตัวเอง
     const j = 1 + (Math.random() - 0.5) * 0.08;
     this.k = SFX_GAIN[name] || 1;
     switch (name) {
