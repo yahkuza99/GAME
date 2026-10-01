@@ -213,8 +213,35 @@ for (const [id, spec] of Object.entries({
   norn: { hue: 230, sat: 1.0, bri: 1.08, tint: ['#e8d8ff', 0.25] },
   phantom: { hue: 50, sat: 1.25, bri: 0.92, tint: ['#c040a0', 0.2] },
   warlord: { hue: -15, sat: 1.1, bri: 0.85, tint: ['#5a1a08', 0.25] },
+  hersir: { hue: -20, sat: 1.25, bri: 0.9, tint: ['#8a1a10', 0.22] },
+  seidr: { hue: 60, sat: 1.1, bri: 0.85, tint: ['#5a2a90', 0.3] },
+  ullr: { hue: 40, sat: 1.0, bri: 1.0, tint: ['#c0d070', 0.2] },
+  gythja: { hue: -25, sat: 1.15, bri: 1.0, tint: ['#e08a30', 0.22] },
+  skald: { hue: -90, sat: 1.0, bri: 1.05, tint: ['#4a7ad0', 0.22] },
+  jotun: { hue: 15, sat: 0.7, bri: 0.95, tint: ['#8a7a6a', 0.3] },
 })) {
   const base = JOBS[id].parent;
   for (const g of ['f', 'm']) Art.alias(`job_${id}_${g}`, `job_${base}_${g}`, Object.assign({ flip: true }, spec));
   Art.alias(`emblem_${id}`, `emblem_${base}`, spec);
 }
+
+// ไอคอนสกิลคลาสขั้น 2: ย้อมจากไอคอนสกิลที่ใกล้เคียง (สีประจำคลาส + เหลื่อมสีทีละสกิล ไม่ให้ซ้ำกัน)
+(() => {
+  const SRC = {
+    valkyrie: ['iron_body', 'holy_spear', 'war_cry', 'whirlwind', 'light_of_freyja'],
+    galdr: ['rune_mastery', 'fire_rune', 'ice_rune', 'thunder_rune', 'blessing_of_odin'],
+    skadi: ['eagle_eye', 'piercing_arrow', 'ice_rune', 'blast_trap', 'blood_frenzy'],
+    norn: ['sanctuary', 'light_of_freyja', 'blessing_of_odin', 'thunder_rune', 'holy_spear'],
+    phantom: ['shadow_step', 'backstab', 'venom_blade', 'smoke_veil', 'whirlwind'],
+    warlord: ['wolf_blood', 'rage_strike', 'whirlwind', 'howl', 'blood_frenzy'],
+    hersir: ['iron_body', 'shield_slam', 'piercing_arrow', 'war_cry', 'whirlwind'],
+    seidr: ['rune_mastery', 'thunder_rune', 'venom_blade', 'fire_rune', 'holy_spear'],
+    ullr: ['eagle_eye', 'piercing_arrow', 'blast_trap', 'smoke_veil', 'wolf_companion'],
+    gythja: ['sanctuary', 'rage_strike', 'shield_slam', 'holy_spear', 'first_aid'],
+    skald: ['shadow_step', 'thunder_rune', 'howl', 'war_cry', 'blessing_of_odin'],
+    jotun: ['wolf_blood', 'shield_slam', 'rage_strike', 'blood_frenzy', 'light_of_freyja'],
+  };
+  const HUE = { valkyrie: 30, galdr: 50, skadi: 160, norn: 230, phantom: 60, warlord: -20, hersir: -25, seidr: 80, ullr: 45, gythja: -30, skald: -100, jotun: 20 };
+  for (const job in SRC) JOBS[job].skills.forEach((id, i) =>
+    Art.alias('skill_' + id, 'skill_' + SRC[job][i], { hue: HUE[job] + i * 22, sat: 1.15, bri: i % 2 ? 0.95 : 1.05, flip: i % 2 === 0 }));
+})();

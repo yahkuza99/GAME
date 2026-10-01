@@ -10,14 +10,14 @@ const { chromium } = require('playwright');
   await p.click('#prologue-skip', { timeout: 3000 }).catch(() => {});
   const res = await p.evaluate(async () => {
     const out = {};
-    for (const job of FIRST_JOBS.flatMap(j => [j, SECOND_JOBS[j]])) {
+    for (const job of FIRST_JOBS.flatMap(j => [j, ...SECOND_JOBS[j]])) {
       document.querySelectorAll('.win:not(.hidden)').forEach(w => w.classList.add('hidden'));
       const pl = G.player;
       pl.job = job; pl.baseLv = 40; pl.jobLv = JOBS[job].jobMax; pl.job1Lv = 26; pl.skills = {}; pl.buffs = {}; pl.cds = {}; pl.skillReadyAt = 0;
       for (const id of jobLine(job).flatMap(j => JOBS[j].skills)) if (SKILLS[id] && !SKILLS[id].noLearn) pl.skills[id] = SKILLS[id].max;
       // สเตตัสตามอาชีพ (แบบผู้เล่นทั่วไป)
       const st = { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 };
-      const plan = { einherjar: ['str', 'vit'], runecaster: ['int', 'dex'], wildhunter: ['dex', 'agi'], volva: ['int', 'vit'], trickster: ['agi', 'str'], berserker: ['str', 'agi'] }[jobRoot(job)];
+      const plan = { einherjar: ['str', 'vit'], runecaster: ['int', 'dex'], wildhunter: ['dex', 'agi'], volva: ['int', 'vit'], trickster: ['agi', 'str'], berserker: ['str', 'agi'], gythja: ['str', 'vit'], ullr: ['dex', 'luk'], skald: ['agi', 'dex'], jotun: ['str', 'vit'] }[JOBS[job].stats && ['gythja', 'ullr', 'skald', 'jotun'].includes(job) ? job : jobRoot(job)];
       st[plan[0]] = 70; st[plan[1]] = 42; pl.stats = st;
       unequipInvalid(); addItem(JOB_STARTER[jobRoot(job)], 1, true); equipItem(pl.inventory.find(e => e.id === JOB_STARTER[jobRoot(job)]), true);
       recalc(); pl.hp = pl.d.maxHp; pl.sp = pl.d.maxSp;
