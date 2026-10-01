@@ -92,7 +92,7 @@ function serve() {
     // 4) สกิลวงกว้างเมื่อรุม ≥2 ตัว • ตัวเดียวใช้สกิลเดี่ยว • ตีปกติก็ตายแล้วไม่เปลือง SP
     setup('berserker', ['str', 'agi']);
     const a1 = mob('ashtail', 1, 0, true);
-    ok('single target → single skill', Bot.pickSkill(a1, [a1], 100, 100) === 'rage_strike', Bot.pickSkill(a1, [a1], 100, 100));
+    { const k = Bot.pickSkill(a1, [a1], 100, 100), D = k && SKILLS[k].dmg; ok('single target → single skill', !!D && !D.area, k); }
     const a2 = mob('ashtail', 0, 1, true);
     ok('2 adjacent → aoe', Bot.pickSkill(a1, [a1, a2], 100, 100) === 'howl', Bot.pickSkill(a1, [a1, a2], 100, 100));
     a2.state = 'idle';

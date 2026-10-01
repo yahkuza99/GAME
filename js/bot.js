@@ -34,20 +34,20 @@ const Bot = {
   toggle(force) {
     const p = G.player;
     const want = force != null ? force : !this.on;
-    if (want && p.dead) { UI.msg('ฟื้นคืนชีพก่อนจึงจะเปิดบอทได้', 'err'); return; }
+    if (want && p.dead) { UI.msg(L('ฟื้นคืนชีพก่อนจึงจะเปิดบอทได้', 'Revive first before turning on the bot'), 'err'); return; }
     // ช่วงแรกให้เล่นเอง: บอทปลดล็อกเมื่ออัปเกรดคลาสแรกแล้ว
-    if (want && !this.unlocked()) { UI.msg(`🔒 บอท AUTO ปลดล็อกเมื่ออัปเกรดคลาสแรก (Job Lv ${JOB_CHANGE_LV} แล้วคุยกับ Mimir AI)`, 'err'); return; }
+    if (want && !this.unlocked()) { UI.msg(L(`🔒 บอท AUTO ปลดล็อกเมื่ออัปเกรดคลาสแรก (Job Lv ${JOB_CHANGE_LV} แล้วคุยกับ Mimir AI)`, `🔒 The AUTO bot unlocks with your first class (reach Job Lv ${JOB_CHANGE_LV}, then talk to Mimir AI)`), 'err'); return; }
     this.on = want;
     this.resting = false; this.pauseUntil = 0; this.warnedTown = false;
     this.reset();
     if (want) {
       this.setAnchor(true);
       this.stats = { start: G.time, kills: 0, bexp: 0, jexp: 0, items: 0, zenyStart: p.zeny };
-      UI.msg('▶ เริ่มบอทล่ามอนสเตอร์อัตโนมัติ (แตะ AUTO อีกครั้งเพื่อหยุด)', 'sys');
-      if (G.map.def.kind === 'town') UI.msg('บอทจะเริ่มทำงานเมื่อออกไปยังแผนที่ที่มีมอนสเตอร์', 'info');
+      UI.msg(L('▶ เริ่มบอทล่ามอนสเตอร์อัตโนมัติ (แตะ AUTO อีกครั้งเพื่อหยุด)', '▶ Auto hunt started (tap AUTO again to stop)'), 'sys');
+      if (G.map.def.kind === 'town') UI.msg(L('บอทจะเริ่มทำงานเมื่อออกไปยังแผนที่ที่มีมอนสเตอร์', 'The bot starts once you head out to a map with monsters'), 'info');
     } else {
       p.sitting = false;
-      UI.msg('■ หยุดบอทแล้ว', 'sys');
+      UI.msg(L('■ หยุดบอทแล้ว', '■ Auto hunt stopped'), 'sys');
     }
     UI.updateBotButton();
     UI.dirty();
@@ -64,7 +64,7 @@ const Bot = {
     const p = G.player;
     if (G.map.def.kind === 'town') { this.anchor = null; return; }
     this.anchor = { map: G.map.id, x: p.x, y: p.y };
-    if (!quiet) UI.msg('ตั้งศูนย์กลางขอบเขตการล่าที่ตำแหน่งนี้แล้ว', 'info');
+    if (!quiet) UI.msg(L('ตั้งศูนย์กลางขอบเขตการล่าที่ตำแหน่งนี้แล้ว', 'Hunting zone centred here'), 'info');
   },
   zone() {
     const c = this.cfg();
@@ -91,7 +91,7 @@ const Bot = {
   onDeath() {
     if (!this.on) return;
     this.toggle(false);
-    UI.msg('บอทหยุดทำงานเพราะตัวละครเสียชีวิต', 'err');
+    UI.msg(L('บอทหยุดทำงานเพราะตัวละครเสียชีวิต', 'Auto hunt stopped — your character has fallen'), 'err');
   },
 
   findItem(list) {
@@ -202,10 +202,10 @@ const Bot = {
     if (!this.on || p.dead || G.time < this.nextThink) return;
     this.nextThink = G.time + 0.2;
     if (G.time < this.pauseUntil || NPC.busy) return;
-    if (G.map.def.pvp) { if (!this.warnedPvp) { this.warnedPvp = true; UI.msg('บอทไม่ทำงานในลานประลอง PvP', 'info'); } return; }
+    if (G.map.def.pvp) { if (!this.warnedPvp) { this.warnedPvp = true; UI.msg(L('บอทไม่ทำงานในลานประลอง PvP', 'The bot does not work in the PvP Arena'), 'info'); } return; }
     this.warnedPvp = false;
     if (G.map.def.kind === 'town') {
-      if (!this.warnedTown) { this.warnedTown = true; UI.msg('บอทรออยู่: ออกไปยังแผนที่ล่ามอนสเตอร์ได้เลย', 'info'); }
+      if (!this.warnedTown) { this.warnedTown = true; UI.msg(L('บอทรออยู่: ออกไปยังแผนที่ล่ามอนสเตอร์ได้เลย', 'Bot standing by: head out to a hunting map'), 'info'); }
       return;
     }
     this.warnedTown = false;
@@ -219,7 +219,7 @@ const Bot = {
 
     // 1) ฟื้นฟู: สกิลฮีล (ยาใช้ระบบปั๊มยาอัตโนมัติร่วมกับการเล่นเอง — autoPotTick)
     if (hpPct < c.healAt && this.castHeal()) return;
-    if (hpPct < 20 && threats.length && c.returnHome && !this.findItem(HP_POTS)) return this.goHome('HP ต่ำและยาหมด');
+    if (hpPct < 20 && threats.length && c.returnHome && !this.findItem(HP_POTS)) return this.goHome(L('HP ต่ำและยาหมด', 'low HP and out of potions'));
     if (p.cast) return;
     // เดินเข้าระยะสกิลค้างนานเกินไป (ทางตัน/โดนบัง) → ยกเลิกแล้วข้ามตัวนั้นไปก่อน
     if (p.skillIntent) {
@@ -609,7 +609,7 @@ const Bot = {
   goHome(reason) {
     const p = G.player, e = p.inventory.find(x => x.id === 'hearth_rune');
     this.toggle(false);
-    UI.msg(`บอทหยุด: ${reason}${e ? ' — ใช้ Return Beacon กลับฐาน' : ''}`, 'err');
+    UI.msg(L(`บอทหยุด: ${reason}${e ? ' — ใช้ Return Beacon กลับฐาน' : ''}`, `Bot stopped: ${reason}${e ? ' — using a Return Beacon to go home' : ''}`), 'err');
     if (e) useItem(e);
   },
   summary() {

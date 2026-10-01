@@ -17,7 +17,7 @@ const WB = {
       const b = MOBS[this.MAPS[map].mvp]; if (!b) { delete this.MAPS[map]; continue; }
       const id = this.id(map), M = this.MULT;
       MOBS[id] = Object.assign({}, b, {
-        id, base: b.id, name: `Ancient ${b.name}`, lv: b.lv + 10, hp: b.hp * M, atk: [Math.round(b.atk[0] * 1.5), Math.round(b.atk[1] * 1.5)],
+        id, base: b.id, name: `Ancient ${b.name}`, lv: b.lv + 10, hp: b.hp * M, atk: [Math.round(b.atk[0] * 3), Math.round(b.atk[1] * 3)], // ATK ×3 (เจ้าของเกมกำหนด)
         def: Math.min(80, b.def + 15), mdef: Math.min(80, b.mdef + 15), hit: b.hit + 20, flee: b.flee + 10,
         exp: b.exp * M, jexp: b.jexp * M, scale: (b.scale || 1.6) * 1.3, worldBoss: true, respawn: this.PERIOD,
         hue: 35, sat: 1.25, bri: 1.05, tint: ['#ffcf4a', 0.25],
