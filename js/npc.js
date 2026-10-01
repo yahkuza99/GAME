@@ -236,30 +236,50 @@ NPC.scripts.refine = async n => {
   const slot = slots[i], e = p.equip[slot];
   if ((e.refine || 0) >= 10) { await UI.say(nm, 'ชิ้นนี้ถูกตีบวกถึง +10 แล้ว ไม่มีอะไรให้ข้าทำอีก — ฝีมือข้าเองนี่นา ฮ่าฮ่า!'); return; }
   const lvl = e.refine || 0;
-  const cost = (slot === 'weapon' ? 250 : 400) * (lvl + 1);
+  const costAt = l => (slot === 'weapon' ? 250 : 400) * (l + 1);
   const rate = RATE[lvl];
-  const c = await UI.menu(nm, `ตีบวก ${B(itemDisplayName(e))} เป็น ${B('+' + (lvl + 1))}<br>ค่าบริการ: ${B(U.fmt(cost) + ' ' + CUR)} • โอกาสสำเร็จ: ${B(Math.round(rate * 100) + '%')}${rate < 1 ? '<br>หากพลาด อุปกรณ์ยังอยู่ครบ เสียแค่ค่าบริการ' : ''}`,
-    ['ตีเลย!', 'ยกเลิก']);
-  if (c !== 0) return;
-  if (p.zeny < cost) { await UI.say(nm, `${CUR} ไม่พอนะเจ้าหนู`); return; }
-  if (p.equip[slot] !== e) return;
-  p.zeny -= cost;
+  const c = await UI.menu(nm, `ตีบวก ${B(itemDisplayName(e))} (ตอนนี้ +${lvl})<br>ครั้งถัดไป +${lvl + 1}: ค่าบริการ ${B(U.fmt(costAt(lvl)) + ' ' + CUR)} • โอกาสสำเร็จ ${B(Math.round(rate * 100) + '%')}<br>หากพลาด อุปกรณ์ยังอยู่ครบ เสียแค่ค่าบริการ • มี ${B(U.fmt(p.zeny) + ' ' + CUR)}`,
+    ['ตี 1 ครั้ง', 'ตีต่อเนื่องอัตโนมัติจนถึงเป้า', 'ยกเลิก']);
+  if (c !== 0 && c !== 1) return;
+  let target = lvl + 1;
+  if (c === 1) {
+    const tg = [];
+    for (let t = lvl + 1; t <= 10; t++) tg.push(t);
+    const k = await UI.menu(nm, `ตีต่อเนื่องจนถึง +เท่าไร? ข้าจะตีไปเรื่อย ๆ ไม่ต้องสั่งใหม่ — หยุดเองเมื่อถึงเป้าหรือ ${CUR} ไม่พอ`,
+      [...tg.map(t => { let sum = 0; for (let l = lvl; l < t; l++) sum += costAt(l) / RATE[l]; return `+${t} (เฉลี่ยราว ${U.fmt(Math.round(sum))} ${CUR})`; }), 'ยกเลิก']);
+    if (k >= tg.length) return;
+    target = tg[k];
+  }
+  if (p.zeny < costAt(lvl)) { await UI.say(nm, `${CUR} ไม่พอนะเจ้าหนู`); return; }
   UI.dlgClose();
-  await new Promise(r => setTimeout(r, 400));
-  if (U.chance(rate)) {
-    e.refine = lvl + 1;
-    Quest.onEvent('refine');
-    recalc();
-    addFx({ type: 'levelup', ref: p, dur: 1.5 });
-    UI.msg(`ตีบวกสำเร็จ! ${itemDisplayName(e)}`, 'lvl');
-    Sound.play('refine_ok');
-    await UI.say(nm, `ฮ่าฮ่า! สำเร็จ! ตอนนี้กลายเป็น ${B(itemDisplayName(e))} แล้ว!`);
-  } else {
-    UI.msg(`ตีบวกพลาด... ${itemDisplayName(e)} ยังอยู่ครบ`, 'err');
-    Sound.play('refine_fail');
-    await UI.say(nm, 'โอ๊ะ! ค้อนพลาดไปนิด... อุปกรณ์ยังปลอดภัยดี ลองใหม่ได้เสมอ!');
+  let tries = 0, spent = 0, fails = 0;
+  // ตีทีละครั้ง เว้นจังหวะให้เห็นผล (เสียง + ข้อความ) จนถึงเป้า / เงินไม่พอ / อุปกรณ์ถูกถอด / ผู้เล่นตาย
+  while ((e.refine || 0) < target) {
+    const l = e.refine || 0, cost = costAt(l);
+    if (p.zeny < cost || p.equip[slot] !== e || p.dead) break;
+    p.zeny -= cost; spent += cost; tries++;
+    await new Promise(r => setTimeout(r, c === 1 ? 380 : 400));
+    if (U.chance(RATE[l])) {
+      e.refine = l + 1;
+      Quest.onEvent('refine');
+      recalc();
+      addFx({ type: 'levelup', ref: p, dur: 1.2 });
+      addFloater(p.x, p.y - 1.5, `+${e.refine}!`, '#ffe36a', true);
+      UI.msg(`ตีบวกสำเร็จ! ${itemDisplayName(e)}`, 'lvl');
+      Sound.play('refine_ok');
+    } else {
+      fails++;
+      addFloater(p.x, p.y - 1.5, 'พลาด', '#ff9aa8');
+      UI.msg(`ตีบวก +${l + 1} พลาด... ${itemDisplayName(e)} ยังอยู่ครบ`, 'err');
+      Sound.play('refine_fail');
+    }
+    UI.dirty();
+    if (c === 0) break;
   }
   saveGame();
+  const done = (e.refine || 0) >= target;
+  if (c === 0) await UI.say(nm, done ? `ฮ่าฮ่า! สำเร็จ! ตอนนี้กลายเป็น ${B(itemDisplayName(e))} แล้ว!` : 'โอ๊ะ! ค้อนพลาดไปนิด... อุปกรณ์ยังปลอดภัยดี ลองใหม่ได้เสมอ!');
+  else await UI.say(nm, `${done ? 'ถึงเป้าแล้ว! ฮ่าฮ่า!' : p.zeny < costAt(e.refine || 0) ? `${CUR} หมดกระเป๋าก่อนถึงเป้า — พักไปหาเงินแล้วมาใหม่!` : 'หยุดก่อนนะเจ้าหนู'}<br>ตอนนี้: ${B(itemDisplayName(e))}<br>ตีไป ${B(tries + ' ครั้ง')} (พลาด ${fails}) • ใช้ไป ${B(U.fmt(spent) + ' ' + CUR)}`);
 };
 
 // Brokk: เมนูแรก ตีบวก / ถอดชิปออกจากอุปกรณ์ (ฟรี ชิปกลับเข้ากระเป๋าครบ)

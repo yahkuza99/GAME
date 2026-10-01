@@ -245,3 +245,8 @@ for (const [id, spec] of Object.entries({
   for (const job in SRC) JOBS[job].skills.forEach((id, i) =>
     Art.alias('skill_' + id, 'skill_' + SRC[job][i], { hue: HUE[job] + i * 22, sat: 1.15, bri: i % 2 ? 0.95 : 1.05, flip: i % 2 === 0 }));
 })();
+
+// ไอคอนสกิลที่ 6 ของคลาสแรก
+for (const [id, from, hue] of [['shield_throw', 'shield_slam', 40], ['earth_rune', 'thunder_rune', -60], ['charge_arrow', 'piercing_arrow', 40],
+  ['divine_shield', 'blessing_of_odin', 180], ['throwing_knife', 'backstab', 50], ['axe_throw', 'rage_strike', 30]])
+  Art.alias('skill_' + id, 'skill_' + from, { hue, sat: 1.1, flip: true });
