@@ -197,6 +197,7 @@
   <div id="title">
     <canvas id="title-bg" aria-hidden="true"></canvas>
     <div id="title-ver"></div>
+    <div class="title-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     <div class="hero-stage" aria-hidden="true">
       <div class="hero-ring"></div>
       <img id="title-hero-a" class="hero" alt=""><img id="title-hero-b" class="hero" alt="">
@@ -208,6 +209,7 @@
         <span id="hero-cap" class="hero-cap"></span>
       </div>
       <form id="auth" class="card auth hidden" autocomplete="on">
+        <div class="card-kicker" aria-hidden="true">ACCOUNT<span>บัญชีผู้เล่น</span></div>
         <div id="au-tabs" class="seg"><button type="button" data-mode="login" class="on">เข้าสู่ระบบ</button><button type="button" data-mode="register">สมัครสมาชิก</button></div>
         <label for="au-user">ชื่อผู้ใช้</label>
         <input id="au-user" name="username" maxlength="16" autocomplete="username" placeholder="a-z, 0-9 หรือ _ (3-16 ตัว)" autocapitalize="off" spellcheck="false">
@@ -233,6 +235,7 @@
         <div class="cr-left"><canvas id="cr-preview" width="220" height="260"></canvas>
           <div class="cr-rot"><button id="cr-rl" type="button" aria-label="หมุนซ้าย">⟲</button><button id="cr-spin" type="button" class="on">หมุนอัตโนมัติ</button><button id="cr-rr" type="button" aria-label="หมุนขวา">⟳</button></div></div>
         <div class="cr-right">
+          <div class="card-kicker" aria-hidden="true">NEW UNIT<span>สร้างตัวละครใหม่</span></div>
           <label>ชื่อตัวละคร</label>
           <input id="cr-name" maxlength="16" placeholder="ตั้งชื่อ (ไม่เกิน 16 ตัวอักษร)" autocomplete="off">
           <label>โครงร่าง (Frame)</label>
