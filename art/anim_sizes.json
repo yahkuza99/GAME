@@ -43,5 +43,80 @@
    "scale_src": 0.615,
    "median_src_h": 243.90243902439025
   }
+ },
+ "mob_hel_maiden": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4399,
+   "median_src_h": 341
+  },
+  "_k1536": 0.35912,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4399,
+   "median_src_h": 341.0028333147694
+  }
+ },
+ "mob_bone_warden": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.3521,
+   "median_src_h": 426
+  },
+  "_k1536": 0.28747,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.3521,
+   "median_src_h": 425.9955386649042
+  }
+ },
+ "mob_draugr": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4076,
+   "median_src_h": 368
+  },
+  "_k1536": 0.33277,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4076,
+   "median_src_h": 368.0047405114643
+  }
+ },
+ "mob_mossback": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4688,
+   "median_src_h": 320
+  },
+  "_k1536": 0.38269,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4687,
+   "median_src_h": 320.0003592986491
+  }
+ },
+ "mob_tuskboar": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.5137,
+   "median_src_h": 292
+  },
+  "_k1536": 0.41939,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.5137,
+   "median_src_h": 291.9977526884284
+  }
  }
 }

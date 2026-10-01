@@ -2,7 +2,7 @@
 
 สร้างอัตโนมัติด้วย `python3 tools/make_notepad.py` (ดูว่าอะไรมีแล้วจาก assets) • ✅ = ติดตั้งแล้ว • ⬜ = ยังขาด
 
-**ยังขาด: ตัวละคร 78 ภาพ • มอนสเตอร์ 19 ภาพ • NPC 1 ภาพ**
+**ยังขาด: ตัวละคร 78 ภาพ • มอนสเตอร์ 14 ภาพ • NPC 1 ภาพ**
 
 ## วิธีใช้
 
@@ -325,7 +325,7 @@ IMAGE 6 — DEAD (template tpl_dead.png): DEAD, 4 frames per direction: 1 knees 
 Start now with IMAGE 1.
 ```
 
-### มอนสเตอร์ทั้งหมด — 19 ภาพ
+### มอนสเตอร์ทั้งหมด — 14 ภาพ
 
 แชตใหม่ • แนบ mobsprite ของตัวที่ 1 (Gel Unit) + tpl_mob.png • จากนั้นพิมพ์ next + แนบ mobsprite ตัวถัดไป + tpl_mob.png
 
@@ -347,13 +347,8 @@ IMAGE 9 — Moss Unit: MOVE = squash and jump like a slime, the clover leaf boun
 IMAGE 10 — Seraph Core (MVP): MOVE = hovers with the wings flapping, halo glowing, gentle bob. ATTACK = rise up, wings spread wide, SLAM down, float back.
 IMAGE 11 — Ash Stalker: MOVE = four-legged trot cycle (legs alternate diagonally), striped tail swishing. ATTACK = crouch, pounce forward, claw SWIPE, land.
 IMAGE 12 — Fenrir Unit: MOVE = four-legged run cycle (gallop), cyan fins stay the same. ATTACK = lower head and snarl, lunge, BITE, pull back.
-IMAGE 13 — Iron Brute: MOVE = heavy four-legged bear walk, moss sways. ATTACK = rear up on hind legs, both paws raised, heavy SLAM down, back to four legs.
-IMAGE 14 — Tusk Trooper: MOVE = four-legged trot, head bobbing. ATTACK = paw the ground, head down, CHARGE with the tusks forward, skid stop.
-IMAGE 15 — Draugr Husk: MOVE = shambling undead walk, torn cloak swaying, axe dragging. ATTACK = raise the rusty axe, lurch forward, CHOP, stagger back.
-IMAGE 16 — Frame Warden: MOVE = stiff skeleton march with the shield up. ATTACK = shield up, raise the sword, SLASH, back behind the shield.
-IMAGE 17 — Hel Maiden Unit: MOVE = floats forward, the ragged robe trailing, lantern swinging. ATTACK = lantern raised high, lean back, thrust the lantern forward, float back.
-IMAGE 18 — Hel Guard Unit: MOVE = heavy armored march, cape swaying, halberd upright. ATTACK = halberd raised overhead, step in, heavy CLEAVE, recover.
-IMAGE 19 — Kitsura EX (MVP): MOVE = graceful floating walk, nine tails fanning and waving. ATTACK = tails fan out, palm raised, thrust the palm forward, tails settle.
+IMAGE 13 — Hel Guard Unit: MOVE = heavy armored march, cape swaying, halberd upright. ATTACK = halberd raised overhead, step in, heavy CLEAVE, recover.
+IMAGE 14 — Kitsura EX (MVP): MOVE = graceful floating walk, nine tails fanning and waving. ATTACK = tails fan out, palm raised, thrust the palm forward, tails settle.
 
 Start now with IMAGE 1.
 ```
@@ -1135,55 +1130,15 @@ Bottom row = ATTACK, 4 frames: lower head and snarl, lunge, BITE, pull back.
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
-⬜ **Iron Brute** (Wolfwood Forest) — แนบ `mobsprite_mossback.webp` + `tpl_mob.png`
+✅ **Iron Brute** (Wolfwood Forest) — แนบ `mobsprite_mossback.webp` + `tpl_mob.png`
 
-```
-Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Iron Brute.
-Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
-Top row = MOVE loop, 4 frames: heavy four-legged bear walk, moss sways.
-Bottom row = ATTACK, 4 frames: rear up on hind legs, both paws raised, heavy SLAM down, back to four legs.
-Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **Tusk Trooper** (Wolfwood Forest) — แนบ `mobsprite_tuskboar.webp` + `tpl_mob.png`
 
-⬜ **Tusk Trooper** (Wolfwood Forest) — แนบ `mobsprite_tuskboar.webp` + `tpl_mob.png`
+✅ **Draugr Husk** (Hel's Hollow) — แนบ `mobsprite_draugr.webp` + `tpl_mob.png`
 
-```
-Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Tusk Trooper.
-Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
-Top row = MOVE loop, 4 frames: four-legged trot, head bobbing.
-Bottom row = ATTACK, 4 frames: paw the ground, head down, CHARGE with the tusks forward, skid stop.
-Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **Frame Warden** (Hel's Hollow) — แนบ `mobsprite_bone_warden.webp` + `tpl_mob.png`
 
-⬜ **Draugr Husk** (Hel's Hollow) — แนบ `mobsprite_draugr.webp` + `tpl_mob.png`
-
-```
-Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Draugr Husk.
-Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
-Top row = MOVE loop, 4 frames: shambling undead walk, torn cloak swaying, axe dragging.
-Bottom row = ATTACK, 4 frames: raise the rusty axe, lurch forward, CHOP, stagger back.
-Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
-```
-
-⬜ **Frame Warden** (Hel's Hollow) — แนบ `mobsprite_bone_warden.webp` + `tpl_mob.png`
-
-```
-Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Frame Warden.
-Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
-Top row = MOVE loop, 4 frames: stiff skeleton march with the shield up.
-Bottom row = ATTACK, 4 frames: shield up, raise the sword, SLASH, back behind the shield.
-Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
-```
-
-⬜ **Hel Maiden Unit** (Hel's Hollow) — แนบ `mobsprite_hel_maiden.webp` + `tpl_mob.png`
-
-```
-Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Hel Maiden Unit.
-Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
-Top row = MOVE loop, 4 frames: floats forward, the ragged robe trailing, lantern swinging.
-Bottom row = ATTACK, 4 frames: lantern raised high, lean back, thrust the lantern forward, float back.
-Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **Hel Maiden Unit** (Hel's Hollow) — แนบ `mobsprite_hel_maiden.webp` + `tpl_mob.png`
 
 ⬜ **Hel Guard Unit** (Hel's Hollow) — แนบ `mobsprite_hel_guard.webp` + `tpl_mob.png`
 

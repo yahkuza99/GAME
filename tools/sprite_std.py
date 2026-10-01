@@ -64,7 +64,7 @@ def template(cols=4, rows=2, cw=384, chh=512):
     return im
 
 
-def knock_bg(im, tol=40, hole_tol=14, hole_min=700):
+def knock_bg(im, tol=40, hole_tol=14, hole_min=240):
     """ลบพื้นหลังสีเรียบแบบ "น้ำท่วมจากขอบภาพ" — สีขาวที่อยู่ในตัวละคร (หน้ากาก ชุดเกราะขาว) ไม่ถูกลบ
     ช่องว่างที่ถูกล้อมไว้ (เช่น ระหว่างแขนกับลำตัว) ลบเฉพาะที่สีตรงพื้นเป๊ะและกว้างพอ"""
     im = im.convert('RGBA')
@@ -207,7 +207,13 @@ def frames_from_grid(im, cols, rows):
             # ขยายกรอบออกไปรอบ ๆ แล้วเก็บเฉพาะก้อนที่ "จุดศูนย์กลางอยู่ในช่องนี้" — ผม/อาวุธที่ล้นช่องไม่โดนตัด
             ex = (max(0, int(x0 - cw_ * mx)), max(0, int(y0 - ch_ * my)), min(W, int(x1 + cw_ * mx)), min(H, int(y1 + ch_ * my)))
             big = knock_lines(im.crop(ex))
-            m = main_blob(big.getchannel('A'), core=(x0 - ex[0], y0 - ex[1], x1 - ex[0], y1 - ex[1]))
+            core = (x0 - ex[0], y0 - ex[1], x1 - ex[0], y1 - ex[1])
+            m = main_blob(big.getchannel('A'), core=core)
+            if m is not None:  # ก้อนที่ได้ไปชนขอบกรอบขยาย = ติดกับตัวช่องข้าง ๆ (เช่น ปลายดาบแตะโล่) → แยกด้วยการกัดขอบ
+                bb = m.getbbox()
+                if bb and ((bb[0] <= 2 and ex[0] > 0) or (bb[2] >= m.width - 2 and ex[2] < W)):
+                    m2 = main_blob(big.getchannel('A'), core=core, split=True)
+                    if m2 is not None: m = m2
             if m is not None:
                 cell = big
             else:  # ตัวละครชนกับช่องข้าง ๆ (ก้อนเดียวกัน) → ตัดตามเส้นแบ่งแบบเดิม
@@ -246,11 +252,15 @@ def knock_lines(cell):
     return cell
 
 
-def main_blob(a, f=4, core=None):
+def main_blob(a, f=4, core=None, split=False):
     """หน้ากากของก้อนหลัก (ตัวละคร) + ก้อนที่ใหญ่พอจะเป็นส่วนของมัน (อาวุธ/เอฟเฟกต์ที่หลุดออกไป)"""
     W, H = a.size; w, h = max(1, W // f), max(1, H // f)
     sm = a.resize((w, h), Image.BOX).load()
     solid = [[sm[x, y] > 70 for x in range(w)] for y in range(h)]
+    orig = solid
+    if split:  # ตัวละครชนกัน (ปลายดาบแตะโล่ตัวข้าง ๆ): กัดขอบ 2 ชั้นให้จุดแตะบาง ๆ ขาดก่อนแยกก้อน
+        for _ in range(2):
+            solid = [[solid[y][x] and all(0 <= x + dx < w and 0 <= y + dy < h and solid[y + dy][x + dx] for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))) for x in range(w)] for y in range(h)]
     lab = [[-1] * w for _ in range(h)]; comps = []
     for y0 in range(h):
         for x0 in range(w):
@@ -265,6 +275,7 @@ def main_blob(a, f=4, core=None):
                             lab[ny][nx] = cid; st.append((nx, ny))
             comps.append(pts)
     if not comps: return None
+    all_comps = list(comps)
     if core is not None:
         # เลือกเฉพาะก้อนที่จุดศูนย์กลางอยู่ในช่องหลัก • ก้อนที่กว้างเกินช่องมาก = ชนกับตัวข้าง ๆ → ใช้ไม่ได้
         cx0, cy0, cx1, cy1 = (v / f for v in core)
@@ -275,14 +286,53 @@ def main_blob(a, f=4, core=None):
         main = max(inside, key=len); xs = [q[0] for q in main]
         ys = [q[1] for q in main]
         if max(xs) - min(xs) > (cx1 - cx0) * 1.55 or max(ys) - min(ys) > (cy1 - cy0) * 1.12: return None
-        comps = inside
+        # ชิ้นที่หลุดจากตัวหลัก: เก็บเฉพาะที่อยู่ในช่องทั้งชิ้น หรืออยู่ชิดตัวหลัก (ไม่งั้นมักเป็นเศษตัวช่องข้าง ๆ)
+        mx0, mx1, my0, my1 = min(xs), max(xs), min(ys), max(ys)
+        def keep(p):
+            if p is main: return True
+            px_ = [q[0] for q in p]; py_ = [q[1] for q in p]
+            inside_all = min(px_) >= cx0 and max(px_) < cx1 and min(py_) >= cy0 and max(py_) < cy1
+            gap = max(mx0 - max(px_), min(px_) - mx1, my0 - max(py_), min(py_) - my1, 0)
+            return inside_all or gap <= 3
+        comps = [p for p in inside if keep(p)]
     else:
         big = max(len(p) for p in comps)
         if big < 40: return None
+        # ตัดตรงตามเส้นแบ่ง: เศษที่ชนขอบช่องและห่างจากตัวหลัก = ชิ้นของตัวในช่องข้าง ๆ
+        main = max(comps, key=len); xs = [q[0] for q in main]; ys = [q[1] for q in main]
+        mx0, mx1, my0, my1 = min(xs), max(xs), min(ys), max(ys)
+        def keep2(p):
+            if p is main: return True
+            px_ = [q[0] for q in p]; py_ = [q[1] for q in p]
+            edge = min(px_) <= 1 or min(py_) <= 1 or max(px_) >= w - 2 or max(py_) >= h - 2
+            gap = max(mx0 - max(px_), min(px_) - mx1, my0 - max(py_), min(py_) - my1, 0)
+            return not edge or gap <= 3
+        comps = [p for p in comps if keep2(p)]
     m = Image.new('L', (w, h), 0); mp = m.load()
-    for pts in comps:
-        if len(pts) >= big * 0.12:
-            for x, y in pts: mp[x, y] = 255
+    if split:
+        # คืนส่วนที่กัดไป: แผ่จากทุกก้อนพร้อมกันบนเนื้อภาพจริง (ใครถึงก่อนได้พิกเซลนั้น)
+        # รายละเอียดบาง ๆ (ชายผ้า เถาวัลย์ ปลายมีด) กลับไปหาเจ้าของ จุดแตะระหว่างสองตัวถูกแบ่งครึ่ง
+        from collections import deque
+        keepset = {id(p) for p in comps if len(p) >= big * 0.12}
+        owner = [[-1] * w for _ in range(h)]; q = deque()
+        for ci, pts in enumerate(all_comps):
+            for x, y in pts: owner[y][x] = ci; q.append((x, y))
+        while q:
+            x, y = q.popleft(); ci = owner[y][x]
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < w and 0 <= ny < h and orig[ny][nx] and owner[ny][nx] < 0:
+                    owner[ny][nx] = ci; q.append((nx, ny))
+        keep_ids = {ci for ci, pts in enumerate(all_comps) if id(pts) in keepset}
+        for y in range(h):
+            for x in range(w):
+                o = owner[y][x]
+                if o in keep_ids: mp[x, y] = 255
+                elif o < 0 and orig[y][x] and (core is None or (core[0] / f <= x < core[2] / f and core[1] / f <= y < core[3] / f)): mp[x, y] = 255  # ชิ้นเล็กที่หายไปตอนกัด
+    else:
+        for pts in comps:
+            if len(pts) >= big * 0.12:
+                for x, y in pts: mp[x, y] = 255
     return m.resize((W, H), Image.NEAREST).filter(ImageFilter.MaxFilter(2 * f + 1))
 
 
