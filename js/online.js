@@ -124,8 +124,18 @@ const Online = {
     this.user = user;
     this.username = username || (user.user_metadata && user.user_metadata.username) || String(user.email || '').split('@')[0];
   },
+  // รอจนบันทึกคลาวด์ที่ค้างอยู่ส่งเสร็จ (ก่อนเปลี่ยนตัวละคร/ออกจากระบบ) — สำเนาในเครื่องเขียนไว้แล้วเสมอ
+  async flushAll(ms = 4000) {
+    const end = performance.now() + ms;
+    while (this.online && (this.pendingSave || this.saving) && performance.now() < end) {
+      clearTimeout(this.saveTimer); this.saveTimer = null;
+      await this.flushSave();
+      if (this.saving || this.pendingSave) await new Promise(r => setTimeout(r, 60));
+    }
+  },
   async logout() {
-    await this.flushSave();
+    await this.flushAll();
+    this.rowName = null;
     if (this.local) { try { localStorage.removeItem(this.LS.session); } catch (e) { /* ignore */ } this.user = null; return; }
     this.leaveMap();
     if (this.chatChannel) { this.sb.removeChannel(this.chatChannel); this.chatChannel = null; }
@@ -134,20 +144,26 @@ const Online = {
   },
 
   // ---------------- ตัวละคร ----------------
+  // คืน "ก้อนบัญชี" { v: 2, active, chars: [...] } (เซฟรุ่นเก่าตัวเดียวถูกห่อเป็นช่องแรก — ดู Acct ใน game.js)
   async loadCharacter() {
-    if (this.local) return this.lsGet(this.LS.char(this.username), null);
-    const { data, error } = await this.sb.from('characters').select('data').eq('user_id', this.user.id).maybeSingle();
+    if (this.local) return Acct.wrap(this.lsGet(this.LS.char(this.username), null));
+    const { data, error } = await this.sb.from('characters').select('name, data').eq('user_id', this.user.id).maybeSingle();
     if (error) throw new Error(this.errText(error));
+    this.rowName = data ? data.name : null;
     const cloud = data ? data.data : null, mirror = this.lsGet(this.mirrorKey(), null);
-    // ใช้ตัวที่ใหม่กว่าระหว่างคลาวด์กับสำเนาในเครื่อง แล้วส่งตัวที่ใหม่กว่าขึ้นคลาวด์
-    if (mirror && mirror.name && (!cloud || (mirror.savedAt || 0) > (cloud.savedAt || 0))) { this.queueSave(mirror, true); return mirror; }
-    return cloud;
+    // ใช้ก้อนที่ใหม่กว่าระหว่างคลาวด์กับสำเนาในเครื่อง (เทียบ savedAt ของทั้งก้อน) แล้วส่งตัวที่ใหม่กว่าขึ้นคลาวด์
+    const { acct, push } = Acct.merge(cloud, mirror);
+    if (push) this.queueSave(acct, true);
+    else this.lsSet(this.mirrorKey(), acct); // สำเนาในเครื่อง = ก้อนล่าสุดเสมอ (การเซฟจะรวมกับสำเนานี้ — ดู Acct.withStored)
+    return acct;
   },
   mirrorKey() { return `nm_cloud_mirror_${this.user && this.user.id}`; },
+  // ชื่อทุกตัวในเซฟ (ก้อนบัญชีหรือเซฟรุ่นเก่า)
+  charNames(d) { return Acct.wrap(d).chars.map(c => String(c.name).toLowerCase()); },
   async nameAvailable(name) {
-    if (this.local) { // ชื่อซ้ำกับตัวละครของบัญชีอื่นในเครื่องนี้ไม่ได้
-      const acc = this.lsGet(this.LS.accounts, {}), me = this.username.toLowerCase();
-      return !Object.keys(acc).some(k => k !== me && (this.lsGet(this.LS.char(k), {}) || {}).name === name);
+    if (this.local) { // ชื่อซ้ำกับตัวละครของบัญชีอื่นในเครื่องนี้ไม่ได้ (ทุกช่อง)
+      const acc = this.lsGet(this.LS.accounts, {}), me = this.username.toLowerCase(), n = name.trim().toLowerCase();
+      return !Object.keys(acc).some(k => k !== me && this.charNames(this.lsGet(this.LS.char(k), null)).includes(n));
     }
     const { data, error } = await this.sb.rpc('name_available', { n: name });
     if (error) throw new Error(this.errText(error));
@@ -171,10 +187,20 @@ const Online = {
     if (!this.online || !this.pendingSave || this.saving) return;
     const data = this.pendingSave;
     this.pendingSave = null;
+    // คอลัมน์ name = ชื่อตัวละครที่เล่นอยู่ (แชท/เช็กชื่อซ้ำใช้คอลัมน์นี้) • ไม่มีตัวละครเหลือ = คงชื่อเดิมของแถว
+    const act = Acct.isV2(data) ? data.chars[data.active] : data;
+    const name = (act && act.name) || this.rowName;
+    if (!name) return;
     this.saving = true;
     try {
-      const { error } = await this.sb.from('characters').upsert({ user_id: this.user.id, name: data.name, data, updated_at: new Date().toISOString() });
+      let { error } = await this.sb.from('characters').upsert({ user_id: this.user.id, name, data, updated_at: new Date().toISOString() });
+      // ชื่อชนกับคอลัมน์ name ของคนอื่น (เซิร์ฟเวอร์ที่ยังไม่อัปเดต name_available) → เก็บข้อมูลไว้ก่อนโดยคงชื่อเดิมของแถว
+      if (error && this.rowName && name !== this.rowName && (error.code === '23505' || /duplicate|unique/i.test(error.message || ''))) {
+        ({ error } = await this.sb.from('characters').upsert({ user_id: this.user.id, name: this.rowName, data, updated_at: new Date().toISOString() }));
+        if (!error) { UI.setNet('ok'); return; }
+      }
       if (error) throw error;
+      this.rowName = name;
       UI.setNet('ok');
     } catch (e) {
       UI.setNet('err');

@@ -344,7 +344,7 @@ body.visor #title::before { content: ""; position: absolute; inset: 0; z-index: 
     linear-gradient(90deg, rgba(6, 10, 18, 0.86) 0%, rgba(6, 10, 18, 0.62) 28%, rgba(6, 10, 18, 0.12) 56%, rgba(6, 10, 18, 0) 70%),
     linear-gradient(0deg, rgba(6, 10, 18, 0.72), rgba(6, 10, 18, 0) 34%),
     linear-gradient(180deg, rgba(6, 10, 18, 0.5), rgba(6, 10, 18, 0) 22%); }
-body.visor #title.creating::before { background: radial-gradient(60% 70% at 50% 60%, rgba(6, 10, 18, 0.5), rgba(6, 10, 18, 0.72)); }
+body.visor #title.creating::before, body.visor #title.selecting::before { background: radial-gradient(60% 70% at 50% 60%, rgba(6, 10, 18, 0.5), rgba(6, 10, 18, 0.72)); }
 body.visor .title-inner { z-index: 2; }
 body.visor #title-ver { right: calc(28px + var(--sr)); bottom: calc(20px + var(--sb)); z-index: 3; display: flex; align-items: center; gap: 8px;
   font: 500 10.5px var(--mono); letter-spacing: 0.14em; color: rgba(198, 208, 220, 0.75); text-shadow: var(--sh); }
@@ -443,8 +443,8 @@ body.visor .chip { display: inline-block; vertical-align: 1px; margin-right: 8px
   background: rgba(111, 243, 255, 0.16); border: 1px solid rgba(111, 243, 255, 0.4); box-shadow: 0 0 14px -4px rgba(111, 243, 255, 0.6); }
 
 /* ---------- สร้างตัวละคร: เวทีพรีวิว (ซ้าย) + แบบฟอร์ม (ขวา) ---------- */
-body.visor #title.creating .title-inner { width: min(860px, 100%); gap: 16px; padding-left: 16px; }
-body.visor #title.creating .logo.logo-img img { width: min(250px, 56vw); }
+body.visor #title.creating .title-inner, body.visor #title.selecting .title-inner { width: min(860px, 100%); gap: 16px; padding-left: 16px; }
+body.visor #title.creating .logo.logo-img img, body.visor #title.selecting .logo.logo-img img { width: min(250px, 56vw); }
 body.visor .create { width: min(800px, 100%); padding: 12px; gap: 14px; max-height: calc(100dvh - 48px - var(--st) - var(--sb)); }
 body.visor .cr-left { position: relative; width: 268px; flex-shrink: 0; align-items: center; gap: 10px; padding: 18px 16px 16px; border-radius: 20px; overflow: hidden;
   background: radial-gradient(ellipse at 50% 80%, rgba(111, 243, 255, 0.2), rgba(111, 243, 255, 0) 60%), rgba(4, 8, 14, 0.5);
@@ -466,7 +466,7 @@ body.visor .cr-btns { margin-top: auto; padding: 14px 0 6px; margin-bottom: -6px
   body.visor #title::before { background:
     linear-gradient(0deg, rgba(6, 10, 18, 0.9), rgba(6, 10, 18, 0.45) 36%, rgba(6, 10, 18, 0) 58%),
     linear-gradient(180deg, rgba(6, 10, 18, 0.62), rgba(6, 10, 18, 0) 26%); }
-  body.visor #title.creating::before { background: rgba(6, 10, 18, 0.7); }
+  body.visor #title.creating::before, body.visor #title.selecting::before { background: rgba(6, 10, 18, 0.7); }
   body.visor .title-inner { width: 100%; padding: calc(22px + var(--st)) 16px calc(44px + var(--sb)); gap: 0; }
   body.visor .logo.logo-img img { width: min(320px, 78vw); }
   body.visor .logo-sub { justify-content: center; font-size: 11.5px; letter-spacing: 0.06em; }
@@ -478,8 +478,8 @@ body.visor .cr-btns { margin-top: auto; padding: 14px 0 6px; margin-bottom: -6px
   body.visor .tbtn { width: 100%; }
   body.visor .title-foot { margin-top: 6px; font-size: 11.5px; text-align: center; max-width: 100%; }
   body.visor #title-ver { right: auto; left: 50%; transform: translateX(-50%); bottom: calc(14px + var(--sb)); white-space: nowrap; }
-  body.visor #title.creating .title-inner { gap: 12px; padding-top: calc(16px + var(--st)); }
-  body.visor #title.creating .logo.logo-img img { width: min(200px, 52vw); }
+  body.visor #title.creating .title-inner, body.visor #title.selecting .title-inner { gap: 12px; padding-top: calc(16px + var(--st)); }
+  body.visor #title.creating .logo.logo-img img, body.visor #title.selecting .logo.logo-img img { width: min(200px, 52vw); }
   body.visor .create { flex-direction: column; padding: 10px; gap: 10px; max-height: calc(100dvh - 120px - var(--st) - var(--sb)); }
   body.visor .cr-left { width: 100%; padding: 14px 16px 12px; border-radius: 18px; }
   body.visor .cr-left canvas { width: 150px; height: 176px; margin: 0; }
@@ -515,8 +515,8 @@ body.visor .cr-btns { margin-top: auto; padding: 14px 0 6px; margin-bottom: -6px
   body.visor .title-menu { gap: 8px; }
   body.visor .tbtn { width: min(340px, 100%); padding: 11px 50px 11px 20px; font-size: 15px; border-radius: 18px; }
   body.visor .title-foot { margin-top: 6px; max-width: 360px; font-size: 11px; line-height: 1.5; }
-  body.visor #title.creating .title-top { display: none; }
-  body.visor #title.creating .title-inner { justify-content: center; padding-left: calc(16px + var(--sl)); padding-right: calc(16px + var(--sr)); }
+  body.visor #title.creating .title-top, body.visor #title.selecting .title-top { display: none; }
+  body.visor #title.creating .title-inner, body.visor #title.selecting .title-inner { justify-content: center; padding-left: calc(16px + var(--sl)); padding-right: calc(16px + var(--sr)); }
   body.visor .create { width: min(760px, 100%); padding: 10px; gap: 12px; max-height: calc(100dvh - 20px - var(--st) - var(--sb)); }
   body.visor .cr-left { width: 200px; padding: 12px 14px 10px; border-radius: 16px; }
   body.visor .cr-left canvas { width: 150px; height: 176px; }
@@ -1057,4 +1057,115 @@ body:not(.pad-mode) #hud:has(#mm-wb:not([hidden])) #menubar { top: calc(258px + 
 /* ===== มือถือแนวตั้ง: เควสต์ไม่ทับการ์ดตัวละคร/มินิแมพ (ป้าย MVP + บอสโลกทำให้คอลัมน์มินิแมพยาวขึ้น) ===== */
 @media (orientation: portrait) {
   body.visor.pad-mode #hud #quest-track, body.visor.pad-mode #hud:has(#buffs .buff) #quest-track { top: calc(292px + var(--st)); right: calc(var(--gap) + var(--sr)); width: min(46vw, 190px); }
+}
+
+/* =====================================================================
+   หน้าเลือกตัวละคร: เวทีตัวละครที่เลือก (ซ้าย) + รายการช่องตัวละคร 5 ช่อง (ขวา)
+   ===================================================================== */
+body.visor .acct.offline::before { background: #ffd27a; box-shadow: 0 0 10px #ffd27a; }
+body.visor .charsel { width: min(820px, 100%); padding: 12px; gap: 14px; max-height: calc(100dvh - 190px - var(--st) - var(--sb)); min-height: 0; }
+body.visor .cs-stage { width: 268px; justify-content: flex-start; }
+body.visor .cs-stage::before { content: "UNIT " attr(data-slot); }
+body.visor .charsel.empty .cs-stage::before { content: "UNIT"; }
+body.visor .cs-stage canvas { width: 200px; height: 236px; margin: 0; }
+body.visor .cs-info { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; margin-top: -6px; }
+body.visor .cs-name { font: 700 20px/1.2 var(--font); color: #fff; text-shadow: 0 0 18px rgba(111, 243, 255, 0.35); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.visor .cs-job { display: inline-flex; align-items: center; gap: 6px; font: 500 13px var(--font); color: var(--ink-dim); }
+body.visor .cs-job img, body.visor .cs-main small img { width: 18px; height: 18px; object-fit: contain; filter: drop-shadow(0 0 4px rgba(111, 243, 255, 0.4)); }
+body.visor .cs-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; margin-top: 8px; }
+body.visor .cs-stats span { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 8px; border-radius: 12px; background: var(--fill); border: 1px solid var(--edge); min-width: 0; }
+body.visor .cs-stats .wide { grid-column: 1 / -1; }
+body.visor .cs-stats small { font: 600 9.5px var(--mono); letter-spacing: 0.16em; color: var(--ink-faint); text-transform: uppercase; }
+body.visor .cs-stats b { font: 600 15px var(--font); color: var(--ink); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.visor .cs-empty { font: 500 13px/1.6 var(--font); color: var(--ink-dim); padding: 0 6px; }
+
+body.visor .cs-right { padding: 8px 6px 4px 4px; gap: 0; }
+body.visor .cs-right .card-kicker b { order: 3; font: 600 10.5px var(--mono); letter-spacing: 0.14em; color: var(--ink-dim); }
+body.visor .cs-list { gap: 7px; padding: 4px 4px 4px 2px; margin: 0 -4px 0 -2px; flex: 1 1 auto; }
+body.visor .cs-slot { position: relative; min-height: 62px; padding: 8px 16px 8px 9px; border-radius: 18px; gap: 12px; background: var(--fill); border: 1px solid var(--edge); color: var(--ink);
+  font: inherit; cursor: pointer; flex-shrink: 0; transition: background 0.18s, border-color 0.18s, box-shadow 0.18s, transform 0.18s; }
+body.visor .cs-slot:hover { background: var(--fill-2); border-color: var(--edge-2); }
+body.visor .cs-slot:focus-visible { outline: none; box-shadow: var(--glow-soft); }
+body.visor .cs-slot.on { background: linear-gradient(90deg, rgba(111, 243, 255, 0.16), rgba(111, 243, 255, 0.05)); border-color: rgba(111, 243, 255, 0.55);
+  box-shadow: 0 0 26px -10px rgba(111, 243, 255, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.07); }
+body.visor .cs-slot.on::before { content: ""; position: absolute; left: -1px; top: 14px; bottom: 14px; width: 3px; border-radius: 3px; background: var(--cy); box-shadow: 0 0 10px var(--cy); }
+body.visor .cs-face { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; background: #18202c; box-shadow: 0 0 0 1px var(--edge-2); }
+body.visor .cs-slot.on .cs-face { box-shadow: 0 0 0 2px var(--cy), 0 0 14px rgba(111, 243, 255, 0.5); }
+body.visor .cs-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+body.visor .cs-main b { font: 600 15.5px/1.25 var(--font); color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body.visor .cs-main small { display: flex; align-items: center; gap: 5px; min-width: 0; font: 500 12px/1.3 var(--font); color: var(--ink-dim); white-space: nowrap; overflow: hidden; }
+body.visor .cs-main small i { font-style: normal; color: var(--ink-faint); overflow: hidden; text-overflow: ellipsis; }
+body.visor .cs-lv { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; flex-shrink: 0; }
+body.visor .cs-lv b { font: 600 13px var(--mono); color: var(--cy); letter-spacing: 0.04em; }
+body.visor .cs-lv small { font: 500 11px var(--mono); color: var(--ink-faint); letter-spacing: 0.04em; }
+body.visor .cs-slot.empty { background: transparent; border-style: dashed; border-color: var(--edge-2); color: var(--ink-faint); min-height: 54px; }
+body.visor .cs-slot.empty:hover { background: rgba(111, 243, 255, 0.06); border-color: rgba(111, 243, 255, 0.45); }
+body.visor .cs-slot.empty b { color: var(--ink-dim); font-weight: 500; font-size: 14px; }
+body.visor .cs-slot.empty small { color: var(--ink-faint); font-size: 11.5px; }
+body.visor .cs-slot.empty:hover b { color: var(--cy); }
+body.visor .cs-plus { width: 44px; height: 36px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; font: 300 24px/1 var(--font); color: var(--cy); opacity: 0.85; }
+body.visor .cs-wait { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 18px 12px; font: 500 13.5px/1.5 var(--font); color: var(--ink-dim); }
+body.visor .charsel.loading .cs-stage canvas { opacity: 0.25; }
+
+/* ปุ่มล่าง: ลบ (ซ้าย) • สร้างใหม่ + เข้าเกม (ขวา) */
+body.visor .cs-btns { margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--edge); gap: 10px; align-items: center; }
+body.visor .cs-btns #cs-delete { margin-right: auto; }
+body.visor .cs-btns .tbtn.small { min-height: 44px; white-space: nowrap; justify-content: center; }
+body.visor #btn-continue { flex-direction: row; align-items: center; gap: 8px; min-width: 150px; justify-content: center; }
+body.visor #btn-continue small { font-size: 12px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.visor .tbtn.small.danger { background: transparent; color: #ffb3bb; border-color: rgba(255, 107, 125, 0.35); box-shadow: none; }
+body.visor .tbtn.small.danger:hover { background: rgba(255, 107, 125, 0.16); border-color: rgba(255, 107, 125, 0.65); color: #ffd6da; }
+body.visor .tbtn.small.danger:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+body.visor .cs-links { align-items: flex-start; margin-top: 4px; }
+body.visor .cs-links .linkbtn { padding: 6px 2px 0; text-align: left; }
+body.visor .cs-right .err { margin: 6px 0 0 6px; min-height: 0; }
+body.visor .cs-right .err:empty { display: none; }
+
+/* ยืนยันลบ: พิมพ์ชื่อตัวละคร */
+body.visor .cs-confirm { margin-top: 10px; padding: 14px 16px; border-radius: 18px; background: rgba(255, 70, 90, 0.08); border: 1px solid rgba(255, 107, 125, 0.4);
+  display: flex; flex-direction: column; gap: 10px; animation: fadeUp 0.2s ease-out both; }
+body.visor .cs-cf-text { display: flex; flex-direction: column; gap: 4px; font: 500 12.5px/1.55 var(--font); color: var(--ink-dim); }
+body.visor .cs-cf-text b { font: 600 15px var(--font); color: #ffd6da; }
+body.visor .cs-confirm input { font: 16px/1.3 var(--font); padding: 10px 14px; border-radius: var(--r-ctl); background: var(--fill); border: 1px solid rgba(255, 107, 125, 0.4); color: var(--ink); outline: none; width: 100%; }
+body.visor .cs-confirm input:focus { border-color: rgba(255, 107, 125, 0.75); box-shadow: 0 0 0 4px rgba(255, 107, 125, 0.12); }
+body.visor .cs-cf-btns { display: flex; justify-content: flex-end; gap: 10px; }
+body.visor .charsel.confirming .cs-btns { display: none; }
+
+/* มือถือแนวตั้ง: เวทีตัวละครเป็นแถบแนวนอนด้านบน รายการอยู่ล่าง ปุ่มติดล่างการ์ด */
+@media (max-width: 760px) {
+  body.visor #title.selecting .title-inner { justify-content: flex-start; }
+  body.visor #title.selecting .acct { margin: 0; }
+  body.visor .charsel { flex-direction: column; padding: 10px; gap: 8px; width: 100%; max-height: calc(100dvh - 176px - var(--st) - var(--sb)); }
+  body.visor .cs-stage { width: 100%; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 10px 14px 12px; border-radius: 18px; flex-shrink: 0; }
+  body.visor .cs-stage::before { flex-basis: 100%; }
+  body.visor .cs-stage canvas { width: 104px; height: 123px; flex-shrink: 0; }
+  body.visor .cs-info { flex: 1; min-width: 0; align-items: flex-start; text-align: left; margin: 0; }
+  body.visor .cs-name { font-size: 18px; }
+  body.visor .cs-stats { margin-top: 6px; gap: 5px; }
+  body.visor .cs-stats span { padding: 4px 6px; border-radius: 10px; }
+  body.visor .cs-stats b { font-size: 13.5px; }
+  body.visor .cs-right { padding: 2px 4px 2px; min-height: 0; flex: 1 1 auto; }
+  body.visor .cs-right .card-kicker { margin-bottom: 6px; }
+  body.visor .cs-slot { min-height: 56px; padding: 6px 14px 6px 7px; border-radius: 16px; }
+  body.visor .cs-slot.empty { min-height: 46px; }
+  body.visor .cs-face { width: 40px; height: 40px; }
+  body.visor .cs-btns { padding-top: 10px; gap: 8px; flex-wrap: nowrap; }
+  body.visor .cs-btns .tbtn.small { padding: 10px 14px; font-size: 13.5px; }
+  body.visor .cs-btns .tbtn.small.primary { flex: 1; min-width: 0; padding-right: 36px; }
+  body.visor .cs-btns .tbtn.small.primary::after { right: 13px; }
+  body.visor #btn-continue small { display: none; }
+  body.visor .cs-btns #cs-delete { margin-right: 0; }
+}
+/* มือถือแนวนอน (จอเตี้ย) */
+@media (max-height: 520px) and (orientation: landscape) {
+  body.visor #title.selecting .title-inner { flex-direction: column; justify-content: center; gap: 6px; }
+  body.visor #title.selecting .acct { position: static; }
+  body.visor #title.selecting #title-ver { display: none; }
+  body.visor .charsel { width: min(760px, 100%); padding: 8px; gap: 10px; max-height: calc(100dvh - 56px - var(--st) - var(--sb)); }
+  body.visor .cs-stage { width: 220px; padding: 10px 12px; }
+  body.visor .cs-stage canvas { width: 110px; height: 130px; }
+  body.visor .cs-stats { display: none; }
+  body.visor .cs-slot { min-height: 46px; padding: 4px 12px 4px 6px; }
+  body.visor .cs-face { width: 34px; height: 34px; }
+  body.visor .cs-plus { height: 28px; }
 }

@@ -59,30 +59,104 @@ function saveData() {
   data.savedAt = Date.now();
   return data;
 }
+// ------------------------------------------------------------
+//  บัญชี = หลายตัวละคร (สูงสุด 5 ช่อง) เก็บรวมเป็นก้อนเดียว
+//  { v: 2, active: <ช่องที่เล่นอยู่>, chars: [<เซฟตัวละคร>, ...], savedAt, job, baseLv }
+//  ใช้ทั้งเซฟในเครื่อง (SAVE_KEY), บัญชีในเครื่อง (nm_char_<user>), แถวเดียวในตาราง characters และสำเนาคลาวด์
+//  เซฟรุ่นเก่า (ตัวละครเดียว ไม่มี chars) ถูกห่อเป็นช่องแรกอัตโนมัติ — ไม่มีใครเสียตัวละคร
+// ------------------------------------------------------------
+const Acct = {
+  MAX: 5,
+  data: null, // ก้อนบัญชีที่ใช้อยู่ (อ่านจากที่เก็บตามโหมดตอนเข้าหน้าเลือกตัวละคร)
+  isV2(d) { return !!(d && typeof d === 'object' && Array.isArray(d.chars)); },
+  wrap(d) {
+    if (this.isV2(d)) {
+      const chars = d.chars.filter(c => c && typeof c === 'object' && c.name).slice(0, this.MAX);
+      const active = Math.max(0, Math.min(chars.length - 1, (d.active | 0)));
+      return { v: 2, active, chars, savedAt: d.savedAt || Math.max(0, ...chars.map(c => c.savedAt || 0)), job: d.job, baseLv: d.baseLv };
+    }
+    if (d && typeof d === 'object' && d.name) return { v: 2, active: 0, chars: [d], savedAt: d.savedAt || 0, job: d.job, baseLv: d.baseLv };
+    return { v: 2, active: 0, chars: [] };
+  },
+  // รวมก้อนจากคลาวด์กับสำเนาในเครื่อง: ปกติใช้ก้อนที่ savedAt ใหม่กว่า
+  // ถ้าฝั่งหนึ่งเป็นเซฟรุ่นเก่า (ตัวเดียว) → รวมตามชื่อเข้าก้อนใหม่ (ตัวที่ใหม่กว่าชนะ) ไม่ทิ้งช่องอื่น
+  // คืน { acct, push } push = ต้องส่งผลลัพธ์ขึ้นคลาวด์
+  merge(cloud, mirror) {
+    const c = this.wrap(cloud), m = this.wrap(mirror);
+    if (!mirror || !(m.chars.length || this.isV2(mirror))) return { acct: c, push: false };
+    if (!cloud) return { acct: m, push: true };
+    if (this.isV2(cloud) === this.isV2(mirror)) return (m.savedAt || 0) > (c.savedAt || 0) ? { acct: m, push: true } : { acct: c, push: false };
+    const base = this.isV2(cloud) ? c : m, leg = (this.isV2(cloud) ? m : c).chars[0];
+    let push = base === m;
+    if (leg) {
+      const i = base.chars.findIndex(x => x.name.toLowerCase() === leg.name.toLowerCase());
+      if (i >= 0) { if ((leg.savedAt || 0) > (base.chars[i].savedAt || 0)) { base.chars[i] = leg; push = true; } }
+      else if (base.chars.length < this.MAX) { base.chars.push(leg); push = true; }
+    }
+    if (push) base.savedAt = Math.max(c.savedAt || 0, m.savedAt || 0, Date.now());
+    return { acct: base, push };
+  },
+  get chars() { return this.data ? this.data.chars : []; },
+  current() { return this.data && this.data.chars[this.data.active] || null; },
+  hasName(name, except = -1) { const n = String(name).trim().toLowerCase(); return this.chars.some((c, i) => i !== except && String(c.name).toLowerCase() === n); },
+  // เซฟในเครื่อง (เล่นแบบไม่ล็อกอิน)
+  readLocal() { try { return this.wrap(JSON.parse(localStorage.getItem(SAVE_KEY))); } catch (e) { return this.wrap(null); } },
+  // ก้อนล่าสุดในเครื่องนี้ตามโหมด (เซฟในเครื่อง / บัญชีในเครื่อง / สำเนาคลาวด์)
+  stored() {
+    if (Online.loggedIn) return Online.lsGet(Online.local ? Online.LS.char(Online.username) : Online.mirrorKey(), null);
+    try { return JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) { return null; }
+  },
+  // เปิดหลายแท็บเล่นคนละตัวในบัญชีเดียวกัน: เขียนเฉพาะช่องของตัวที่เล่นอยู่ลงก้อนล่าสุด ไม่ทับช่องอื่นด้วยข้อมูลเก่า
+  withStored(a) {
+    const me = a.chars[a.active], raw = me && this.stored();
+    if (!raw) return a;
+    const s = this.wrap(raw), n = String(me.name).toLowerCase();
+    let i = s.chars.findIndex(c => String(c.name).toLowerCase() === n);
+    if (i < 0) { if (s.chars.length >= this.MAX) return a; i = s.chars.length; }
+    s.chars[i] = me; s.active = i;
+    return s;
+  },
+  // เขียนก้อนบัญชีลงที่เก็บตามโหมด (คลาวด์/บัญชีในเครื่อง/เซฟในเครื่อง)
+  // exact = เขียนตามนี้ทั้งก้อน (ลบ/ย้ายตัวละคร) • ปกติ = รวมกับก้อนล่าสุดในเครื่องก่อน (ดู withStored)
+  persist(immediate, exact) {
+    if (!this.data) return false;
+    const a = this.data = exact ? this.data : this.withStored(this.data);
+    const c = a.chars[a.active];
+    a.v = 2; a.savedAt = Date.now(); a.job = c ? c.job : null; a.baseLv = c ? c.baseLv : null;
+    if (Online.loggedIn) { Online.queueSave(a, immediate); return true; }
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(a)); return true; } catch (e) { return false; }
+  },
+  remove(i) {
+    const a = this.data; if (!a || !a.chars[i]) return false;
+    a.chars.splice(i, 1);
+    if (a.active > i || a.active >= a.chars.length) a.active = Math.max(0, a.active - 1);
+    return this.persist(true, true);
+  },
+};
+
 function saveGame(silent = true, immediate = false) {
   const p = G.player;
   if (!p || !G.started) return;
   const data = saveData();
+  if (!Acct.data) Acct.data = Acct.wrap(null);
+  const a = Acct.data;
+  if (!a.chars[a.active] || a.chars[a.active].name === data.name || a.active >= a.chars.length) a.chars[a.active] = data;
+  else { // ช่องที่ใช้อยู่ไม่ใช่ตัวนี้ (ไม่ควรเกิด) → หาช่องตามชื่อ ไม่เขียนทับตัวอื่น
+    const i = a.chars.findIndex(c => c.name === data.name);
+    if (i >= 0) { a.active = i; a.chars[i] = data; } else if (a.chars.length < Acct.MAX) { a.active = a.chars.length; a.chars.push(data); } else return;
+  }
   // ล็อกอินอยู่: เซฟแยกตามบัญชี (คลาวด์ หรือช่องของบัญชีในเครื่อง) ไม่ทับเซฟแบบไม่ล็อกอิน
-  if (Online.loggedIn) {
-    Online.queueSave(data, immediate || !silent);
-    if (!silent) UI.msg(Online.local ? L(`บันทึกเกมของบัญชี ${Online.username} แล้ว`, `Game saved for account ${Online.username}.`) : L('บันทึกเกมลงเซิร์ฟเวอร์แล้ว', 'Game saved to the server.'), 'sys');
-    return;
-  }
-  try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-    if (!silent) UI.msg(L('บันทึกเกมเรียบร้อย', 'Game saved.'), 'sys');
-  } catch (e) {
-    if (!silent) UI.msg(L('บันทึกเกมไม่สำเร็จ (เบราว์เซอร์ไม่อนุญาต)', 'Save failed (blocked by the browser).'), 'err');
-  }
+  const ok = Acct.persist(immediate || !silent);
+  if (silent) return;
+  if (Online.loggedIn) UI.msg(Online.local ? L(`บันทึกเกมของบัญชี ${Online.username} แล้ว`, `Game saved for account ${Online.username}.`) : L('บันทึกเกมลงเซิร์ฟเวอร์แล้ว', 'Game saved to the server.'), 'sys');
+  else if (ok) UI.msg(L('บันทึกเกมเรียบร้อย', 'Game saved.'), 'sys');
+  else UI.msg(L('บันทึกเกมไม่สำเร็จ (เบราว์เซอร์ไม่อนุญาต)', 'Save failed (blocked by the browser).'), 'err');
 }
-function hasSave() {
-  try { return !!localStorage.getItem(SAVE_KEY); } catch (e) { return false; }
-}
+function hasSave() { return Acct.readLocal().chars.length > 0; }
+// โหลดตัวละครที่เล่นล่าสุดจากเซฟในเครื่อง (ไม่ล็อกอิน)
 function loadGame() {
-  let data;
-  try { data = JSON.parse(localStorage.getItem(SAVE_KEY)); } catch (e) { return null; }
-  return loadGameFrom(data);
+  Acct.data = Acct.readLocal();
+  return loadGameFrom(Acct.current());
 }
 function loadGameFrom(data) {
   if (!data || !data.name) return null;
@@ -115,7 +189,8 @@ function loadGameFrom(data) {
   recalc();
   return p;
 }
-function deleteSave() { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* ignore */ } }
+// ลบตัวละครที่เล่นอยู่ (ช่องอื่นในบัญชีไม่ถูกแตะ)
+function deleteSave() { if (Acct.data) Acct.remove(Acct.data.active); }
 
 // ------------------------------------------------------------
 //  ค่าสถานะที่คำนวณได้

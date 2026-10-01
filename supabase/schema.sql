@@ -4,7 +4,9 @@
 --  รันซ้ำได้ (idempotent)
 -- ============================================================
 
--- ---------- ตัวละคร (1 บัญชี = 1 ตัวละคร) ----------
+-- ---------- ตัวละคร (1 บัญชี = 1 แถว) ----------
+-- data = ก้อนบัญชี { v: 2, active, chars: [ตัวละคร 1..5] } (เซฟรุ่นเก่าเป็นตัวละครเดียว — เกมห่อให้อัตโนมัติ)
+-- name = ชื่อตัวละครที่เล่นอยู่ (ใช้ในแชท)
 create table if not exists public.characters (
   user_id    uuid primary key references auth.users (id) on delete cascade,
   name       text not null check (char_length(name) between 1 and 16),
@@ -29,7 +31,7 @@ drop policy if exists "update own character" on public.characters;
 create policy "update own character" on public.characters
   for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
 
--- ตรวจว่าชื่อตัวละครยังว่างอยู่ (โดยไม่เปิดให้อ่านข้อมูลตัวละครของคนอื่น)
+-- ตรวจว่าชื่อตัวละครยังว่างอยู่ (โดยไม่เปิดให้อ่านข้อมูลตัวละครของคนอื่น) — เช็กทุกช่องตัวละครใน data.chars ด้วย
 create or replace function public.name_available(n text)
 returns boolean
 language sql
@@ -38,8 +40,13 @@ set search_path = public
 stable
 as $$
   select not exists (
-    select 1 from public.characters
-    where lower(name) = lower(trim(n)) and user_id <> coalesce(auth.uid(), '00000000-0000-0000-0000-000000000000'::uuid)
+    select 1 from public.characters c
+    where c.user_id <> coalesce(auth.uid(), '00000000-0000-0000-0000-000000000000'::uuid)
+      and (lower(c.name) = lower(trim(n))
+        or exists (
+          select 1 from jsonb_array_elements(case when jsonb_typeof(c.data->'chars') = 'array' then c.data->'chars' else '[]'::jsonb end) e
+          where lower(e->>'name') = lower(trim(n))
+        ))
   );
 $$;
 grant execute on function public.name_available(text) to authenticated;

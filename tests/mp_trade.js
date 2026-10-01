@@ -68,13 +68,17 @@ async function offerStack(P, id, n) {
     const p = G.player; p.zeny = 5000;
     addItem('cutter', 1, true);
     const c = p.inventory.find(e => e.id === 'cutter'); c.refine = 7; c.cards = ['mosspud_card'];
-    window.__saves = []; const q = Online.queueSave.bind(Online); Online.queueSave = (d, imm) => { window.__saves.push({ zeny: d.zeny, imm: !!imm }); return q(d, imm); };
-    window.__ups = []; const f = Online.sb.from; Online.sb.from = t => { const x = f(t), u = x.upsert; x.upsert = row => { window.__ups.push(row.data && row.data.zeny); return u(row); }; return x; };
+    // เซฟเป็นก้อนบัญชี { active, chars: [...] } (หลายตัวละคร) → zeny ของตัวที่เล่นอยู่
+    window.__cz = d => d && Array.isArray(d.chars) ? (d.chars[d.active] || {}).zeny : d && d.zeny;
+    window.__saves = []; const q = Online.queueSave.bind(Online); Online.queueSave = (d, imm) => { window.__saves.push({ zeny: __cz(d), imm: !!imm }); return q(d, imm); };
+    window.__ups = []; const f = Online.sb.from; Online.sb.from = t => { const x = f(t), u = x.upsert; x.upsert = row => { window.__ups.push(__cz(row.data)); return u(row); }; return x; };
   });
   await B.evaluate(() => {
     G.player.zeny = 3000; addItem('apple', 5, true);
-    window.__saves = []; const q = Online.queueSave.bind(Online); Online.queueSave = (d, imm) => { window.__saves.push({ zeny: d.zeny, imm: !!imm }); return q(d, imm); };
-    window.__ups = []; const f = Online.sb.from; Online.sb.from = t => { const x = f(t), u = x.upsert; x.upsert = row => { window.__ups.push(row.data && row.data.zeny); return u(row); }; return x; };
+    // เซฟเป็นก้อนบัญชี { active, chars: [...] } (หลายตัวละคร) → zeny ของตัวที่เล่นอยู่
+    window.__cz = d => d && Array.isArray(d.chars) ? (d.chars[d.active] || {}).zeny : d && d.zeny;
+    window.__saves = []; const q = Online.queueSave.bind(Online); Online.queueSave = (d, imm) => { window.__saves.push({ zeny: __cz(d), imm: !!imm }); return q(d, imm); };
+    window.__ups = []; const f = Online.sb.from; Online.sb.from = t => { const x = f(t), u = x.upsert; x.upsert = row => { window.__ups.push(__cz(row.data)); return u(row); }; return x; };
   });
   const a0 = await bag(A), b0 = await bag(B);
   const cutUid = a0.cutters[0].uid;

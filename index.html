@@ -239,12 +239,24 @@
         <button id="au-offline" type="button" class="linkbtn" data-en="Play offline (saved on this device)">เล่นแบบไม่ล็อกอิน (เซฟในเครื่องนี้)</button>
         <div id="au-note" class="au-note"></div>
       </form>
-      <div id="acct" class="acct hidden"><span data-en="Logged in as">ล็อกอินเป็น</span> <b id="acct-name"></b> · <button id="acct-logout" type="button" class="linkbtn" data-en="Log out">ออกจากระบบ</button></div>
-      <div id="title-menu" class="title-menu">
-        <button id="btn-continue" class="tbtn hidden" data-en="Continue">เล่นต่อ</button>
-        <button id="btn-new" class="tbtn primary" data-en="New Game&lt;small&gt;Create a new character&lt;/small&gt;">เริ่มเล่น<small>สร้างตัวละครใหม่</small></button>
-        <button id="btn-login" class="linkbtn hidden" data-en="Log in / Sign up">เข้าสู่ระบบ / สมัครสมาชิก</button>
-        <div class="title-foot" data-en="&lt;span class=&quot;chip&quot;&gt;DEMO&lt;/span&gt; Year 2XXX: humanity is gone. Only androids remain to carry on the legend of Midgard."><span class="chip">DEMO</span> ปี 2XXX มนุษย์หายไป เหลือเพียงแอนดรอยด์ผู้สืบทอดตำนานแห่งมิดการ์ด</div>
+      <div id="acct" class="acct hidden"><span id="acct-label" data-en="Logged in as">ล็อกอินเป็น</span> <b id="acct-name"></b> · <button id="acct-logout" type="button" class="linkbtn" data-en="Log out">ออกจากระบบ</button></div>
+      <div id="charsel" class="card charsel hidden">
+        <div class="cr-left cs-stage" data-slot="">
+          <canvas id="cs-preview" width="220" height="260"></canvas>
+          <div id="cs-info" class="cs-info"></div>
+        </div>
+        <div class="cs-right">
+          <div class="card-kicker" aria-hidden="true">UNITS<span data-en="Select a character">เลือกตัวละคร</span><b id="cs-count"></b></div>
+          <div id="cs-list" class="cs-list" role="listbox" aria-label="ตัวละคร" data-en-aria-label="Characters"></div>
+          <div id="cs-confirm" class="cs-confirm hidden"></div>
+          <div id="cs-err" class="err"></div>
+          <div class="cs-btns">
+            <button id="cs-delete" type="button" class="tbtn small danger" data-en="Delete">ลบ</button>
+            <button id="btn-new" type="button" class="tbtn small" data-en="+ New Character">+ สร้างตัวละคร</button>
+            <button id="btn-continue" type="button" class="tbtn small primary" data-en="Play">เข้าเกม</button>
+          </div>
+          <div class="cs-links"><button id="cs-import" type="button" class="linkbtn hidden"></button></div>
+        </div>
       </div>
       <div id="create" class="card create hidden">
         <div class="cr-left"><canvas id="cr-preview" width="220" height="260"></canvas></div>

@@ -8,7 +8,10 @@
   const db = () => { try { return JSON.parse(localStorage.getItem(DB)) || { users: {}, chars: {}, chat: [] }; } catch (e) { return { users: {}, chars: {}, chat: [] }; } };
   const save = d => localStorage.setItem(DB, JSON.stringify(d));
   const ok = data => Promise.resolve({ data, error: null });
-  let session = null;
+  // เซสชันอยู่ต่อหลังรีโหลดแท็บเดิม (เหมือน persistSession ของจริง) แต่แยกตามแท็บ ให้หลายผู้เล่นในเบราว์เซอร์เดียวไม่ชนกัน
+  const SKEY = 'fake_sb_session';
+  let session = (() => { try { return JSON.parse(sessionStorage.getItem(SKEY)); } catch (e) { return null; } })();
+  const setSession = s => { session = s; try { if (s) sessionStorage.setItem(SKEY, JSON.stringify(s)); else sessionStorage.removeItem(SKEY); } catch (e) { /* ignore */ } };
 
   function query(table) {
     const q = { table, filters: [], op: 'select', row: null };
@@ -77,21 +80,24 @@
     async signUp({ email, password, options }) {
       const d = db(); if (d.users[email]) return { data: {}, error: { message: 'User already registered' } };
       const user = { id: 'u_' + Math.random().toString(36).slice(2, 10), email, user_metadata: options && options.data || {} };
-      d.users[email] = { user, password }; save(d); session = { user };
+      d.users[email] = { user, password }; save(d); setSession({ user });
       return { data: { session, user }, error: null };
     },
     async signInWithPassword({ email, password }) {
       const u = db().users[email]; if (!u || u.password !== password) return { data: {}, error: { message: 'Invalid login credentials' } };
-      session = { user: u.user }; return { data: { session, user: u.user }, error: null };
+      setSession({ user: u.user }); return { data: { session, user: u.user }, error: null };
     },
     async getSession() { return { data: { session } }; },
-    async signOut() { session = null; return { error: null }; },
+    async signOut() { setSession(null); return { error: null }; },
   };
 
   window.__FAKE_SUPABASE__ = true;
   window.supabase = {
     createClient() {
-      return { auth, from: query, rpc: (fn, args) => ok(fn === 'name_available' ? !Object.values(db().chars).some(c => c.name === args.n && (!session || c.user_id !== session.user.id)) : null),
+      // name_available: เหมือน supabase/migrations/..._multi_char.sql — เช็กทั้งคอลัมน์ name และทุกช่องใน data.chars ของคนอื่น (ไม่สนตัวพิมพ์)
+      const lc = s => String(s || '').trim().toLowerCase();
+      const names = c => [c.name, ...((c.data && Array.isArray(c.data.chars)) ? c.data.chars.map(x => x && x.name) : [])].map(lc);
+      return { auth, from: query, rpc: (fn, args) => ok(fn === 'name_available' ? !Object.values(db().chars).some(c => names(c).includes(lc(args.n)) && (!session || c.user_id !== session.user.id)) : null),
         channel, removeChannel(ch) { ch && ch._leave && ch._leave(); } };
     },
   };
