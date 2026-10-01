@@ -169,7 +169,14 @@ const Anim = {
     if (p.lift) g.translate(0, -p.lift * k);
     g.scale(p.flip ? -k : k, k * (p.breathe ? 1 + Math.sin(t * 2.4 + (st.seed || 0)) * 0.012 : 1));
     if (st.flash) g.filter = 'brightness(1.9)';
-    g.drawImage(p.img, p.f * C, p.row * C, C, C, -this.CX, -this.GROUND, C, C);
+    if (st.filter) { // ใส่ filter ที่ช่องเฟรมขนาด 240px แทนแคนวาสหลัก (filter บนแคนวาสหลัก = เลเยอร์เต็มจอ ช้ามาก)
+      const fc = this._fc || (this._fc = document.createElement('canvas'));
+      if (fc.width !== C) { fc.width = C; fc.height = C; }
+      const fg = fc.getContext('2d');
+      fg.clearRect(0, 0, C, C); fg.filter = st.filter;
+      fg.drawImage(p.img, p.f * C, p.row * C, C, C, 0, 0, C, C); fg.filter = 'none';
+      g.drawImage(fc, 0, 0, C, C, -this.CX, -this.GROUND, C, C);
+    } else g.drawImage(p.img, p.f * C, p.row * C, C, C, -this.CX, -this.GROUND, C, C);
     g.restore();
     return true;
   },
