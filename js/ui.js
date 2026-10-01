@@ -995,7 +995,8 @@ const UI = {
   renderQuest() {
     const body = $('#w-quest .win-body'), q = Quest.current(), s = Quest.state();
     const [a, b] = Quest.progress(q);
-    const key = `${s.i}|${a}|${b}`;
+    const bs = Bounty.state();
+    const key = `${s.i}|${a}|${b}|${bs ? bs.list.map(x => x.got + (x.claimed ? 'c' : '')).join(',') : ''}`;
     if (body.dataset.key === key) return;
     body.dataset.key = key; body.innerHTML = '';
     if (q) {
@@ -1005,6 +1006,10 @@ const UI = {
         h('p', { class: 'q-rw' }, `รางวัล: ${Quest.rewardText(q)}`),
         h('div', { class: 'opt-btns' }, h('button', { class: 'btn', onclick: () => { Quest.go(); this.close('w-quest'); } }, '🧭 นำทางไปทำเควสต์'))));
     } else body.append(h('div', { class: 'q-card' }, h('h4', {}, '🏆 จบเควสต์เริ่มต้นแล้ว'), h('p', {}, 'ออกผจญภัยล่ามอนสเตอร์ MVP และเก็บชิปหายากต่อได้เลย!')));
+    body.append(h('div', { class: 'q-card' }, h('h4', {}, '📋 งานล่าค่าหัววันนี้'),
+      bs ? bs.list.map(x => h('p', { class: x.claimed ? 'q-rw' : 'q-obj' }, `${x.claimed ? '✅' : x.got >= x.n ? '🎁 ส่งได้ —' : '•'} ${Bounty.line(x)} — ${U.fmt(x.zeny)} z`))
+        : h('p', { class: 'q-rw' }, `เปิดที่ Base Lv ${BOUNTY_MIN_LV} — รับงานที่ Guard Unit Rolf ในเมือง`),
+      bs ? h('p', { class: 'q-rw' }, 'ส่งงานที่ Guard Unit Rolf • ทำครบ 3 งานได้โบนัส • งานใหม่ทุกวัน') : null));
     body.append(h('div', { class: 'q-done' }, h('span', {}, `สำเร็จแล้ว ${s.done.length}/${QUESTS.length}`),
       ...QUESTS.filter(x => s.done.includes(x.id)).map(x => h('b', {}, `✔ ${x.title}`))));
   },

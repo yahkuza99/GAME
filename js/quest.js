@@ -177,3 +177,57 @@ const Quest = {
     );
   },
 };
+
+// ============================================================
+//  งานล่าค่าหัวประจำวัน (รับ/ส่งที่ Guard Unit Rolf) — ทำซ้ำได้ทุกวัน
+//  วันละ 3 งาน สุ่มจากมอนที่เลเวลใกล้ตัวเรา (สุ่มตามวันที่+ชื่อ ได้ชุดเดิมทั้งวัน) • ทำครบ 3 งานได้โบนัส
+//  เก็บใน p.bounty = { day, list: [{ mob, n, got, zeny, bexp, jexp, claimed }], bonus }
+// ============================================================
+const BOUNTY_MIN_LV = 8;
+const Bounty = {
+  today() { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; },
+  open() { return G.player.baseLv >= BOUNTY_MIN_LV; },
+  state() {
+    const p = G.player, day = this.today();
+    if (!this.open()) return null;
+    if (!p.bounty || p.bounty.day !== day) p.bounty = { day, list: this.roll(p, day), bonus: false };
+    return p.bounty;
+  },
+  mapOf(id) { return Object.keys(MAP_DEFS).find(m => (MAP_DEFS[m].spawns || []).some(s => s[0] === id)); },
+  roll(p, day) {
+    let h = 7; for (const c of day + p.name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+    const rnd = U.seeded(h);
+    const pool = Object.values(MOBS).filter(m => !m.boss && !m.dummy && this.mapOf(m.id))
+      .sort((a, b) => Math.abs(a.lv - p.baseLv) - Math.abs(b.lv - p.baseLv)).slice(0, 6);
+    const out = [];
+    while (out.length < 3 && pool.length) {
+      const m = pool.splice(Math.floor(rnd() * pool.length), 1)[0];
+      const n = 8 + Math.floor(rnd() * 4) * 2; // 8–14 ตัว
+      const [z0, z1] = mobZeny(m);
+      out.push({ mob: m.id, n, got: 0, zeny: Math.round((z0 + z1) / 2 * n * 1.5), bexp: Math.round(m.exp * n * 0.5), jexp: Math.round(m.jexp * n * 0.5), claimed: false });
+    }
+    return out;
+  },
+  onKill(id) {
+    const s = this.state(); if (!s) return;
+    for (const b of s.list) if (b.mob === id && b.got < b.n) {
+      b.got++;
+      if (b.got === b.n) { UI.msg(`📋 งานล่าค่าหัวเสร็จ: ${MOBS[id].name} ${b.n} ตัว — กลับไปรับรางวัลที่ Guard Unit Rolf`, 'lvl'); Sound.play('quest_new'); }
+      UI.dirty();
+    }
+  },
+  ready() { const s = this.state(); return s ? s.list.filter(b => b.got >= b.n && !b.claimed) : []; },
+  claim(b) {
+    const p = G.player, s = this.state();
+    if (!s || b.claimed || b.got < b.n) return '';
+    b.claimed = true; p.zeny += b.zeny; gainExp(b.bexp, b.jexp);
+    let msg = `รับรางวัล ${U.fmt(b.zeny)} z • ${U.fmt(b.bexp)} Base EXP • ${U.fmt(b.jexp)} Job EXP`;
+    if (!s.bonus && s.list.every(x => x.claimed)) { // โบนัสครบ 3 งาน
+      s.bonus = true; addItem('yellow_potion', 3, true); addItem('blink_feather', 2, true); p.zeny += 500;
+      msg += '<br>🎁 โบนัสทำครบ 3 งาน: Repair Kit L ×3, Blink Chip ×2, 500 z';
+    }
+    addFloater(p.x, p.y - 1.8, 'BOUNTY CLEAR!', '#ffd34a', true); Sound.play('quest'); UI.dirty(); saveGame();
+    return msg;
+  },
+  line(b) { const m = MOBS[b.mob], map = this.mapOf(b.mob); return `${m.name} ${Math.min(b.got, b.n)}/${b.n}${map ? ` • ${MAP_DEFS[map].name}` : ''}`; },
+};

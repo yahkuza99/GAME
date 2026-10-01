@@ -92,6 +92,11 @@ const ok = (name, cond, info = '') => { checks.push([name, !!cond, info]); };
       return out.join(' ');
     });
     ok(`${name}: job change + skills`, !/:0/.test(jobs), jobs);
+    // daily bounty: 3 jobs, kills count, claim pays
+    const bt = await p.evaluate(() => { const pl = G.player; pl.baseLv = Math.max(pl.baseLv, 12); pl.bounty = null; const s = Bounty.state(), b0 = s.list[0], z0 = pl.zeny;
+      for (let i = 0; i < b0.n; i++) killMob(spawnMob(b0.mob, { x: pl.x + 2, y: pl.y })); const kz = pl.zeny - z0; Bounty.claim(b0);
+      return { n: s.list.length, claimed: b0.claimed, paid: pl.zeny - z0 - kz === b0.zeny }; });
+    ok(`${name}: daily bounty`, bt.n === 3 && bt.claimed && bt.paid, JSON.stringify(bt));
     // passive tree: allocate a path, stats change, cannot skip ahead
     const pt = await p.evaluate(() => {
       const pl = G.player; pl.baseLv = 10; recalc(); const s0 = pl.d.str;

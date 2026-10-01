@@ -125,14 +125,30 @@ NPC.scripts.nurse = async n => {
 NPC.scripts.guide = async n => {
   const nm = `[${n.name}]`;
   for (;;) {
-    const i = await UI.menu(nm, 'ยินดีต้อนรับสู่ <b>นีโอเอลด์ไฮม์</b> ฐานที่มั่นสุดท้ายของแอนดรอยด์!<br>มีอะไรให้ข้าช่วยแนะนำ?',
-      ['วิธีควบคุม', 'แผนที่รอบเมือง', 'ผู้คนในเมือง', 'คลาสอัปเกรดทั้ง 6', 'เคล็ดลับ', 'ขอบคุณ']);
+    let i = await UI.menu(nm, 'ยินดีต้อนรับสู่ <b>นีโอเอลด์ไฮม์</b> ฐานที่มั่นสุดท้ายของแอนดรอยด์!<br>มีอะไรให้ข้าช่วยแนะนำ?',
+      ['📋 งานล่าค่าหัวประจำวัน' + (Bounty.ready().length ? ` (ส่งได้ ${Bounty.ready().length})` : ''), 'วิธีควบคุม', 'แผนที่รอบเมือง', 'ผู้คนในเมือง', 'คลาสอัปเกรดทั้ง 6', 'เคล็ดลับ', 'ขอบคุณ']);
+    if (i === 0) { await NPC.bountyBoard(nm); continue; }
+    i--;
     if (i === 0) await UI.say(nm, `• ${B('คลิกซ้าย')} ที่พื้นเพื่อเดิน / คลิกค้างเพื่อเดินตามเมาส์<br>• ${B('คลิกมอนสเตอร์')} เพื่อโจมตีอัตโนมัติ<br>• ${B('คลิกไอเทม')} บนพื้นเพื่อเก็บ<br>• ${B('1-9')} ใช้ปุ่มลัด • ${B('X')} นั่งพัก (ฟื้นฟูเร็วขึ้น)<br>• ${B('A')} สถานะ • ${B('E')} ไอเทม • ${B('Q')} อุปกรณ์ • ${B('S')} สกิล • ${B('Enter')} แชท<br>• ${B('ล้อเมาส์')} ซูมเข้า/ออก`);
     else if (i === 1) await UI.say(nm, `• ${B('ทางตะวันออก')} → Emerald Meadow (Lv 1-6) → Mistlake Plains (Lv 8-16, MVP Seraph Core)<br>• ${B('ทางใต้')} → Wolfwood Forest (Lv 18-30) → Hel's Hollow (Lv 17-45, MVP Kitsura EX)<br><br>วงแสงสีฟ้าคือ ${B('ประตูมิติ')} เดินเข้าไปเพื่อย้ายแผนที่`);
     else if (i === 2) await UI.say(nm, `• ${B('Bifrost Keeper')} — บันทึกจุดเกิด / เทเลพอร์ต<br>• ${B('Mimir AI')} — อัปเกรดร่าง/คลาส (Job Lv ${JOB_CHANGE_LV})<br>• ${B('Eir Repair Unit')} — ซ่อมแซมและบัฟฟรี<br>• ${B('Tool / Weapon / Armor Dealer')} — ซื้อขายของ<br>• ${B('Brokk Forge-Bot')} — ตีบวกอาวุธและชุดเกราะ<br>• ${B('Storage Unit Kaia')} — ฝากของ (คลังเก็บของ)`);
     else if (i === 3) await UI.say(nm, FIRST_JOBS.map(j => `• ${B(JOBS[j].name)} (${JOBS[j].thai}) — ${JOBS[j].role} [${JOBS[j].stats}]`).join('<br>'));
     else if (i === 4) await UI.say(nm, `• อัปสเตตัสด้วย Status Point ทุกครั้งที่เลเวลอัป (กด A)<br>• มอนสเตอร์บางชนิดจะ ${B('โจมตีก่อน')}! ระวังตัวด้วย<br>• ${B('ชิป')} ดรอปยาก ใส่ในอุปกรณ์ที่มีช่อง [ ] เพื่อเพิ่มพลัง<br>• ธาตุมีผล! ไฟแรงกับดิน น้ำแรงกับไฟ ศักดิ์สิทธิ์แรงกับอมตะ<br>• สกิลแต่ละอันอัปได้สูงสุด Lv 5`);
     else return;
+  }
+};
+
+// บอร์ดงานล่าค่าหัว: ส่งงานที่เสร็จ / นำทางไปงานที่ยังไม่เสร็จ
+NPC.bountyBoard = async nm => {
+  if (!Bounty.open()) { await UI.say(nm, `งานล่าค่าหัวสำหรับหน่วยที่ผ่านการฝึกแล้วเท่านั้น<br>กลับมาเมื่อถึง ${B('Base Lv ' + BOUNTY_MIN_LV)} นะ`); return; }
+  for (;;) {
+    const s = Bounty.state(), ready = Bounty.ready(), todo = s.list.filter(b => b.got < b.n);
+    const rows = s.list.map(b => `${b.claimed ? '✅' : b.got >= b.n ? '🎁' : '•'} ${Bounty.line(b)} — ${U.fmt(b.zeny)} z`).join('<br>');
+    const opts = [...ready.map(b => `รับรางวัล: ${MOBS[b.mob].name}`), ...(todo.length ? [`🧭 นำทางไปล่า ${MOBS[todo[0].mob].name}`] : []), 'กลับ'];
+    const c = await UI.menu(nm, `งานล่าค่าหัววันนี้ (รีเซ็ตทุกวัน)<br>${rows}<br><br>ทำครบ 3 งานรับโบนัสพิเศษ${s.bonus ? ' — รับไปแล้ววันนี้ ✓' : ''}`, opts);
+    if (c < ready.length) { const m = Bounty.claim(ready[c]); if (m) await UI.say(nm, `เยี่ยมมาก! ${m}`); continue; }
+    if (todo.length && c === ready.length) { const map = Bounty.mapOf(todo[0].mob); UI.dlgClose(); Nav.goTo({ kind: 'map', map, name: MAP_DEFS[map].name }); return; }
+    return;
   }
 };
 

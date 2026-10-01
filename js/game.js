@@ -10,7 +10,7 @@ const G = {
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
 const SAVE_FIELDS = ['name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
-  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives'];
+  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty'];
 
 // ------------------------------------------------------------
 //  สร้าง / บันทึก / โหลด
@@ -582,6 +582,7 @@ function killMob(m) {
   if (p.target === m) p.target = null;
   Bot.onKill(m);
   Quest.onKill(d.id);
+  Bounty.onKill(d.id);
   p.kills = p.kills || {}; p.kills[d.id] = (p.kills[d.id] || 0) + 1; // สมุดมอนสเตอร์: จำนวนที่ล่าได้
   gainExp(d.exp, d.jexp);
   const [z0, z1] = mobZeny(d), z = U.randi(z0, z1);
