@@ -1002,7 +1002,8 @@ function executeSkill(id, lv, tgt) {
   if (tgt) faceTo(p, tgt.x, tgt.y);
   Sound.play(skillRange(s) > 3 ? 'skill_range' : 'skill');
 
-  if (s.selfFx) {
+  const vfx = typeof FX2 !== 'undefined' && FX2.cast(s, lv, tgt); // เอฟเฟกต์เฉพาะสกิล (js/fx2.js) แทน selfFx เดิม
+  if (s.selfFx && !vfx) {
     const fxMap = {
       heal: { type: 'heal', ref: p, dur: 1.1 }, buff: { type: 'buff', ref: p, dur: 1, color: s.icon },
       whirl: { type: 'whirl', x: p.x, y: p.y, dur: 0.45, r: (s.dmg && s.dmg.area) || 2 },
@@ -1045,7 +1046,7 @@ function skillDamage(s, lv, tgt) {
       const perp = Math.abs((m.x - p.x) * uy - (m.y - p.y) * ux);
       return t >= 0 && t <= reach && perp < 0.8;
     });
-    if (D.line) addFx({ type: 'arrow', sx: p.x, sy: p.y - 0.6, tx: p.x + ux * reach, ty: p.y + uy * reach, dur: 0.25, big: true });
+    if (D.line && !s.vfx) addFx({ type: 'arrow', sx: p.x, sy: p.y - 0.6, tx: p.x + ux * reach, ty: p.y + uy * reach, dur: 0.25, big: true });
   } else targets = tgt ? [tgt] : [];
   const hits = typeof D.hits === 'function' ? D.hits(lv) : (D.hits || 1);
   targets.forEach((m, ti) => {
@@ -1066,6 +1067,7 @@ function skillHitOne(s, lv, m) {
     }
   };
   const fx = s.fx;
+  if (s.vfx && typeof FX2 !== 'undefined' && FX2.hit(s, lv, m, deliver)) return;
   if (fx === 'arrow' && !D.line) {
     addFx({ type: 'arrow', sx: p.x, sy: p.y - 0.6, ref: m, dur: Math.max(0.08, U.dist(p.x, p.y, m.x, m.y) / 20), big: true, onHit: deliver });
     Sound.play('bow');
