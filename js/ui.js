@@ -592,6 +592,16 @@ const UI = {
       ['ATK', d.atkDisplay], ['MATK', `${d.matkMin} ~ ${d.matkMax}`], ['HIT', d.hit], ['CRIT', d.crit],
       ['DEF', `${d.def} + ${d.softDef}`], ['MDEF', `${d.mdef} + ${d.softMdef}`], ['FLEE', `${d.flee} + ${d.pdodge}`], ['ASPD', d.aspd],
     ].map(([k, v]) => h('div', { class: 'st-row2' }, h('span', {}, k), h('b', {}, String(v))));
+    // ค่าพิเศษ (จากต้นไม้พาสซีฟ/สกิล/บัฟ) — แสดงเฉพาะที่มีผล
+    const castCut = Math.round((1 - d.castMul * Math.max(0, 1 - d.dex / 150)) * 100);
+    const extra = [
+      ['ความเร็วเดิน', Math.round((d.speed / 4.6 - 1) * 100), '%'], ['ร่ายเร็วขึ้น', castCut, '%'], ['ดาเมจกายภาพ', d.atkPct, '%'],
+      ['แรงคริติคอล', Math.round((d.critMul - 1.4) * 100), '%'], ['ดูดเลือด', d.leech, '%'], ['ฮีลแรงขึ้น', d.healPct, '%'],
+      ['ต้านมึน (VIT+พาสซีฟ)', d.unshaken ? 100 : Math.round((1 - (1 - Math.min(0.9, d.vit / 100)) * (1 - d.stunRes / 100)) * 100), '%'], ['SP ที่ใช้', d.spCostPct, '%'], ['HP ฟื้นต่อรอบ', d.regenPct, '%'],
+      ['ATK ตาม HP ที่เสีย', d.rage, '%'], ['โอกาสติดพิษ', d.venom, '%'],
+    ].filter(([, v]) => v).map(([k, v, u]) => h('div', { class: 'st-row2' }, h('span', {}, k), h('b', {}, `${v > 0 ? '+' : ''}${Math.round(v * 10) / 10}${u}`)));
+    const ks = Passive.list(p).filter(x => PTREE[x].kdesc).map(x => h('div', { class: 'st-ks' }, h('b', {}, PTREE[x].name), ' — ', PTREE[x].kdesc));
+    if (extra.length || ks.length) right.push(h('div', { class: 'st-sub' }, 'ค่าพิเศษ'), ...extra, ...ks);
     const body = $('#w-status .win-body');
     body.innerHTML = '';
     body.append(
