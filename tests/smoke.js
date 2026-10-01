@@ -51,14 +51,15 @@ const ok = (name, cond, info = '') => { checks.push([name, !!cond, info]); };
     ok(`${name}: novice_f animated`, await p.evaluate(() => Anim.has('novice_f')));
     ok(`${name}: quest tracker`, await p.evaluate(() => Quest.current() && Quest.current().id === 'welcome' && !document.querySelector('#quest-track').hidden));
     // training dummy: attack it for a while
+    // วัดเป็น "เวลาในเกม" ไม่ใช่เวลาจริง: เฟรมช้า (headless/เครื่องโหลดหนัก) dt ถูกจำกัด 0.05 → 4 วิจริงอาจได้แค่ ~2 วิในเกม = ตีได้ 1 ที
+    // และ Novice Lv 1 (HIT 2) ตีหุ่นโดน ~82% → เดิมพลาดครั้งเดียวก็ตก • รอจนตีโดน 1 ครั้ง (สูงสุด 10 วิในเกม ≈ 7 ครั้ง)
     const hits = await p.evaluate(async () => {
-      const d = G.mobs.find(m => m.def.dummy); G.player.target = d;
-      await new Promise(r => setTimeout(r, 4000));
+      const d = G.mobs.find(m => m.def.dummy), t0 = G.time, w0 = Date.now(); G.player.target = d;
+      while (!(d.dmgLog || []).length && G.time - t0 < 10 && Date.now() - w0 < 30000) await new Promise(r => setTimeout(r, 100));
       const n = (d.dmgLog || []).length;
-      if (!n) console.log('DUMMY-DEBUG', JSON.stringify({ pro: !!(document.querySelector('#prologue-skip') || {}).offsetParent, tgt: !!G.player.target, dist: Math.hypot(d.x - G.player.x, d.y - G.player.y), path: G.player.path.length, dead: G.player.dead, dlg: !document.querySelector('#w-dialog').classList.contains('hidden'), busy: NPC.busy, t: G.time }));
-      return n;
+      return n ? `${n} hits` : 'NO HIT ' + JSON.stringify({ pro: !!(document.querySelector('#prologue-skip') || {}).offsetParent, tgt: !!G.player.target, dist: +Math.hypot(d.x - G.player.x, d.y - G.player.y).toFixed(2), path: G.player.path.length, dead: G.player.dead, dlg: !document.querySelector('#w-dialog').classList.contains('hidden'), busy: NPC.busy, gameSec: +(G.time - t0).toFixed(2) });
     });
-    ok(`${name}: attack dummy`, hits > 0, `${hits} hits`);
+    ok(`${name}: attack dummy`, /^\d+ hits$/.test(hits), hits);
     // walk to the field
     await p.evaluate(() => changeMap('meadow', 28.5, 28.5)); await p.waitForTimeout(800);
     ok(`${name}: field has monsters`, await p.evaluate(() => G.mobs.length > 20));
