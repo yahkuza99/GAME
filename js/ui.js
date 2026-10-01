@@ -1629,6 +1629,7 @@ const UI = {
       chk('rest', L('นั่งพักเมื่อ HP/SP ต่ำ (ไม่มีศัตรูรอบตัว)', 'Sit to rest when HP/SP is low (no enemies near)')),
       c.rest ? slider('restHp', L('นั่งพักเมื่อ HP ต่ำกว่า', 'Rest below HP'), 0, 90) : null,
       c.rest && c.style !== 'basic' ? slider('restSp', L('นั่งพักเมื่อ SP ต่ำกว่า', 'Rest below SP'), 0, 90) : null,
+      c.rest && c.style !== 'basic' ? h('div', { class: 'hint' }, L('นั่งรอ SP เฉพาะสายที่พึ่งสกิล (สายเวท) — สายที่ตีปกติแรงจะตีต่อไปแทนการนั่งรอ', 'Only skill-reliant builds (casters) sit for SP — strong basic-attack builds keep fighting instead')) : null,
       h('div', { class: 'bot-sec' }, L('อื่น ๆ', 'Other')),
       chk('useBuffs', L('ใช้บัฟ / เรียกสัตว์คู่ใจอัตโนมัติ', 'Auto buff / summon companion')),
       chk('avoidMvp', L('ไม่เข้าตี MVP เอง', 'Avoid engaging MVPs')),

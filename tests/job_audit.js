@@ -1,5 +1,5 @@
 // ตรวจทุกอาชีพ: สกิลทุกตัวใช้ได้จริง (SP/คูลดาวน์/ผล) + บอทล่าจริง 180 วิ ต่ออาชีพ
-// ใช้: NODE_PATH=$(npm root -g) node tests/job_audit.js   (ต้องมีเซิร์ฟเวอร์ที่ localhost:8790)
+// ใช้: NODE_PATH=$(npm root -g) node tests/job_audit.js   (ต้องมีเซิร์ฟเวอร์ที่ localhost:8790 หรือตั้ง BASE=http://localhost:พอร์ต/index.html)
 const { chromium } = require('playwright');
 (async () => {
   const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
@@ -48,12 +48,12 @@ const { chromium } = require('playwright');
       const cast = {}; const ex = window.executeSkill; window.executeSkill = (id, ...a) => { cast[id] = (cast[id] || 0) + 1; return ex(id, ...a); };
       Bot.toggle(true); let deaths = 0;
       for (let i = 0; i < 180 * 15; i++) { updateGame(1 / 15); if (pl.sp < minCost) lowSp++; if (pl.dead) { deaths++; respawnPlayer(true); Bot.toggle(true); } }
-      const kills = Bot.stats.kills; Bot.toggle(false); window.executeSkill = ex;
-      out[job] = { skills, kills, killsPerMin: +(kills / 3).toFixed(1), deaths, cast, potsLeft: countItem('white_potion'), spLeft: countItem('blue_potion'), lowSpPct: Math.round(lowSp / (180 * 15) * 100), atk: pl.d.statusAtk + pl.d.weaponAtk + pl.d.atkBonus, aspd: pl.d.aspd };
+      const kills = Bot.stats.kills, bexp = Bot.stats.bexp; Bot.toggle(false); window.executeSkill = ex;
+      out[job] = { skills, kills, killsPerMin: +(kills / 3).toFixed(1), expPerMin: Math.round(bexp / 3), deaths, cast, potsLeft: countItem('white_potion'), spLeft: countItem('blue_potion'), lowSpPct: Math.round(lowSp / (180 * 15) * 100), atk: pl.d.statusAtk + pl.d.weaponAtk + pl.d.atkBonus, aspd: pl.d.aspd };
     }
     return out;
   });
-  for (const [j, r] of Object.entries(res)) console.log(j.padEnd(11), 'kills/min', String(r.killsPerMin).padEnd(5), 'deaths', r.deaths, 'HP pots', 40 - r.potsLeft, 'SP pots', 15 - r.spLeft, 'SP-empty%', r.lowSpPct, 'ATK', r.atk, 'ASPD', r.aspd, '| casts', JSON.stringify(r.cast));
+  for (const [j, r] of Object.entries(res)) console.log(j.padEnd(11), 'kills/min', String(r.killsPerMin).padEnd(5), 'exp/min', r.expPerMin, 'deaths', r.deaths, 'HP pots', 40 - r.potsLeft, 'SP pots', 15 - r.spLeft, 'SP-empty%', r.lowSpPct, 'ATK', r.atk, 'ASPD', r.aspd, '| casts', JSON.stringify(r.cast));
   console.log('errors', errs);
   await b.close();
 })();
