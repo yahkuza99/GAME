@@ -180,6 +180,13 @@ R.render = () => {
     }
   });
 
+  // วงเล็งเป้าหมายที่พื้น
+  for (const m of G.mobs) {
+    if (m.dead) continue;
+    const tgt = p.target === m, hov = G.hover && G.hover.ref === m;
+    if (tgt || hov) upright(m.y * TILE, () => R.targetRing(g, m.x * TILE, m.y * TILE + 2, 20 * (m.def.scale || 1), tgt ? 'rgba(255,107,125,1)' : 'rgba(255,255,255,1)', t));
+  }
+
   // เรียงวาดตามแกน y
   const L = R.camX / TILE - 2, Rr = (R.camX + vw) / TILE + 2, Tp = wTop / TILE - 1, B = (wTop + wH) / TILE + 4;
   const list = [];
@@ -217,25 +224,25 @@ R.render = () => {
   const P = R.py;
   const qt = G.started && Quest.current() ? Quest.current().obj : null, qNpc = qt && (qt.type === 'talk' || qt.type === 'event' || qt.type === 'job') ? qt.npc : null;
   for (const n of G.npcs) {
-    R.label(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 12, n.name, '#9fd0ff');
+    R.tag(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 14, n.name, '#d6f6ff', '#6ff3ff');
     if (n.id === qNpc) R.questMark(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) - 92, t); // เครื่องหมายเควสต์เหนือหัว NPC
     else if (n.emote && n.emote.until > G.time) Emote.draw(g, n.x * TILE + TILE / 2 + 4, P((n.y + 0.5) * TILE + 10) - 96, n.emote, t);
   }
   for (const m of G.mobs) {
     if (m.dead) continue;
     const x = m.x * TILE, y = P(m.y * TILE), s = (m.def.scale || 1);
-    if (m.hp < m.maxHp || m.isMvp) R.bar(g, x, y + 10, m.isMvp ? 60 : 36, m.hp / m.maxHp, m.isMvp ? '#c02828' : '#c84040');
-    if (m.isMvp) R.label(g, x, y + 22, `★ ${m.def.name} ★`, '#ff8080', true);
-    else if ((G.hover && G.hover.ref === m) || p.target === m) R.label(g, x, y + 22, `${m.def.name} (Lv ${m.def.lv})`, m.def.aggro ? '#ffb0a0' : '#ffffff');
+    if (m.hp < m.maxHp || m.isMvp) R.bar(g, x, y + 10, m.isMvp ? 64 : 38, m.hp / m.maxHp, m.isMvp ? '#ff4f6a' : '#ff6b7d');
+    if (m.isMvp) R.tag(g, x, y + 26, `MVP · ${m.def.name}`, '#ffd98a', '#ff6b7d');
+    else if ((G.hover && G.hover.ref === m) || p.target === m) R.tag(g, x, y + 26, `${m.def.name} · Lv ${m.def.lv}`, '#ffffff', m.def.aggro ? '#ff6b7d' : '#8fe3a8');
     if (m.emoteUntil > G.time) R.emote(g, x + 12, y - 44 * s, '!');
   }
   for (const o of Online.others.values()) {
     if (o.stealth) continue;
     const x = o.x * TILE, y = P(o.y * TILE);
-    R.label(g, x, y + 24, o.name, '#ffe9a0');
-    R.label(g, x, y + 37, `${JOBS[o.job].name} Lv ${o.baseLv}${o.bot ? ' • AUTO' : ''}`, '#c8d4e8');
-    if (o.speech) R.speech(g, x, y - 62, o.speech.text, false);
-    if (o.emote && o.emote.until > G.time) Emote.draw(g, x + 2, y - (o.speech ? 96 : 84), o.emote, t);
+    R.tag(g, x, y + 26, o.name, '#fff3c8', '#ffd34a');
+    R.label(g, x, y + 41, `${JOBS[o.job].name} Lv ${o.baseLv}${o.bot ? ' · AUTO' : ''}`, '#c8d4e8');
+    if (o.speech) R.speech(g, x, y - 92, o.speech.text, false);
+    if (o.emote && o.emote.until > G.time) Emote.draw(g, x + 2, y - (o.speech ? 122 : 84), o.emote, t);
   }
   for (const a of G.allies) R.label(g, a.x * TILE, P(a.y * TILE) + 14, `${a.name} ${Math.ceil(a.until - G.time)}s`, '#b8e0ff');
   if (G.hover && G.hover.kind === 'drop') {
@@ -245,18 +252,18 @@ R.render = () => {
   // ผู้เล่น
   {
     const x = p.x * TILE, y = P(p.y * TILE);
-    R.label(g, x, y + 24, p.name, '#ffffff');
-    if (Bot.on) R.label(g, x, y - 58, Bot.resting ? '[AUTO • พัก]' : '[AUTO]', '#7dffb0', true);
+    R.tag(g, x, y + 28, p.name, '#ffffff');
+    if (Bot.on) R.tag(g, x, y - 60, Bot.resting ? 'AUTO · พัก' : 'AUTO', '#d8ffe8', '#7dffb4');
     if (Nav.target) Nav.draw(g, t);
-    R.bar(g, x, y + 10, 38, p.hp / p.d.maxHp, p.hp / p.d.maxHp < 0.25 ? '#b83232' : '#3a9a44', p.sp / p.d.maxSp);
+    R.bar(g, x, y + 10, 40, p.hp / p.d.maxHp, p.hp / p.d.maxHp < 0.25 ? '#ff4f6a' : '#5fe08a', p.sp / p.d.maxSp);
     if (p.cast) {
       const k = U.clamp((G.time - p.cast.start) / (p.cast.end - p.cast.start), 0, 1);
       g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(x - 30, y - 66, 60, 8);
       g.fillStyle = '#60ff60'; g.fillRect(x - 29, y - 65, 58 * k, 6);
     }
-    if (p.speech) R.speech(g, x, y - (p.cast ? 76 : 62), p.speech.text, p.speech.shout);
+    if (p.speech) R.speech(g, x, y - (p.cast ? 104 : 92), p.speech.text, p.speech.shout);
     if (p.sitting && !(p.emote && p.emote.until > G.time)) R.emote(g, x + 14, y - 46, 'z');
-    if (p.emote && p.emote.until > G.time) Emote.draw(g, x + 2, y - (p.speech ? 96 : 84), p.emote, t);
+    if (p.emote && p.emote.until > G.time) Emote.draw(g, x + 2, y - (p.speech ? 122 : 84), p.emote, t);
   }
   // ตัวเลขลอย
   for (const f of G.floaters) R.drawFloater(g, f);
@@ -449,21 +456,59 @@ R.drawGrassWind = (g, map, t, sx, sy, sw, sh) => {
   }
   g.drawImage(W.cv, W.ox, W.oy);
 };
+// ป้ายตัวหนังสือในฉาก: ฟอนต์เดียวกับ HUD + เงานุ่ม (ไม่ใช่ขอบดำแข็ง)
+R.FONT = '"IBM Plex Sans Thai", "Noto Sans Thai", Tahoma, sans-serif';
 R.label = (g, x, y, text, color, bold) => {
-  g.font = `${bold ? 'bold ' : ''}12px "Noto Sans Thai", Tahoma, sans-serif`;
-  g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,0.8)';
-  g.strokeText(text, x, y); g.fillStyle = color; g.fillText(text, x, y);
+  g.font = `${bold ? 600 : 500} 12px ${R.FONT}`;
+  g.save();
+  g.shadowColor = 'rgba(0,0,0,0.85)'; g.shadowBlur = 4; g.shadowOffsetY = 1;
+  g.lineJoin = 'round'; g.lineWidth = 2.5; g.strokeStyle = 'rgba(4,8,14,0.55)'; g.strokeText(text, x, y);
+  g.shadowBlur = 0; g.shadowOffsetY = 0;
+  g.fillStyle = color; g.fillText(text, x, y);
+  g.restore();
 };
+// ป้ายชื่อแบบแคปซูล (ผู้เล่น / NPC / มอนที่เล็งอยู่): พื้นกระจกเข้มมุมมน + จุดสีนำหน้า (ถ้ามี)
+R.tag = (g, x, y, text, color, dot) => {
+  g.font = `600 12px ${R.FONT}`;
+  const tw = g.measureText(text).width, pad = 8, dw = dot ? 10 : 0, w = Math.ceil(tw + pad * 2 + dw), h = 18;
+  const x0 = Math.round(x - w / 2), y0 = Math.round(y - h / 2);
+  g.save();
+  g.shadowColor = 'rgba(0,0,0,0.45)'; g.shadowBlur = 6; g.shadowOffsetY = 1;
+  g.fillStyle = 'rgba(8,13,22,0.62)'; rr(g, x0, y0, w, h, h / 2); g.fill();
+  g.shadowBlur = 0; g.shadowOffsetY = 0;
+  g.strokeStyle = 'rgba(255,255,255,0.12)'; g.lineWidth = 1; rr(g, x0 + 0.5, y0 + 0.5, w - 1, h - 1, h / 2 - 0.5); g.stroke();
+  if (dot) { g.fillStyle = dot; g.beginPath(); g.arc(x0 + pad + 3, y, 3, 0, 7); g.fill(); }
+  g.fillStyle = color; g.fillText(text, x + dw / 2, y + 0.5);
+  g.restore();
+};
+// หลอด HP (และ SP) เหนือ/ใต้ตัว: แคปซูลมน พื้นเข้มโปร่ง ไล่สีอ่อน ๆ
 R.bar = (g, x, y, w, k, color, k2) => {
-  const h1 = 4, h2 = 3, H = k2 != null ? h1 + h2 + 1 : h1;
+  const h1 = 5, h2 = 3, gap = 2, H = k2 != null ? h1 + gap + h2 : h1;
   x = Math.round(x - w / 2); y = Math.round(y);
-  g.fillStyle = '#0c0e12'; g.fillRect(x - 1, y - 1, w + 2, H + 2);
-  g.fillStyle = '#2a2e36'; g.fillRect(x, y, w, h1);
-  g.fillStyle = color; g.fillRect(x, y, Math.round(w * U.clamp(k, 0, 1)), h1);
-  if (k2 != null) {
-    g.fillStyle = '#2a2e36'; g.fillRect(x, y + h1 + 1, w, h2);
-    g.fillStyle = '#3563bf'; g.fillRect(x, y + h1 + 1, Math.round(w * U.clamp(k2, 0, 1)), h2);
-  }
+  g.save();
+  g.fillStyle = 'rgba(6,10,18,0.72)'; rr(g, x - 2, y - 2, w + 4, H + 4, (H + 4) / 2); g.fill();
+  const fill = (yy, hh, kk, c) => {
+    g.fillStyle = 'rgba(255,255,255,0.1)'; rr(g, x, yy, w, hh, hh / 2); g.fill();
+    const fw = Math.max(0, Math.round(w * U.clamp(kk, 0, 1)));
+    if (fw < 1) return;
+    const grd = g.createLinearGradient(0, yy, 0, yy + hh); grd.addColorStop(0, '#ffffff'); grd.addColorStop(0.35, c); grd.addColorStop(1, c);
+    g.fillStyle = grd; g.globalAlpha = 0.95; rr(g, x, yy, Math.max(fw, hh), hh, hh / 2); g.fill(); g.globalAlpha = 1;
+  };
+  fill(y, h1, k, color);
+  if (k2 != null) fill(y + h1 + gap, h2, k2, '#6ff3ff');
+  g.restore();
+};
+// วงเล็งเป้าหมายที่พื้น (มอนที่กำลังตี = ชมพูแดง, ที่ชี้เมาส์ = ขาว)
+R.targetRing = (g, x, y, r, color, t) => {
+  g.save();
+  g.translate(x, y); g.scale(1, 0.38);
+  const pulse = 1 + Math.sin(t * 5) * 0.05;
+  const grd = g.createRadialGradient(0, 0, r * 0.4, 0, 0, r * 1.15);
+  grd.addColorStop(0, 'rgba(0,0,0,0)'); grd.addColorStop(0.75, color.replace('1)', '0.32)')); grd.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = grd; g.beginPath(); g.arc(0, 0, r * 1.15, 0, 7); g.fill();
+  g.shadowColor = color; g.shadowBlur = 8; g.strokeStyle = color; g.lineWidth = 3.5; g.setLineDash([r * 0.9, r * 0.45]); g.lineDashOffset = -t * 30;
+  g.beginPath(); g.arc(0, 0, r * pulse, 0, 7); g.stroke();
+  g.restore();
 };
 R.emote = (g, x, y, ch) => {
   g.fillStyle = '#fff'; g.strokeStyle = '#333'; g.lineWidth = 1.5;
@@ -488,10 +533,13 @@ R.speech = (g, x, y, text, shout) => {
     g.fillStyle = '#fffbd0'; g.fillText(text, x, y);
     return;
   }
-  const w = Math.min(220, g.measureText(text).width + 16);
-  g.fillStyle = 'rgba(255,255,255,0.95)'; g.strokeStyle = '#444'; g.lineWidth = 1;
-  rr(g, x - w / 2, y - 12, w, 22, 6); g.fill(); g.stroke();
-  g.fillStyle = '#222'; g.fillText(text, x, y, 210);
+  g.font = `500 13px ${R.FONT}`;
+  const w = Math.min(230, g.measureText(text).width + 22);
+  g.save(); g.shadowColor = 'rgba(0,0,0,0.35)'; g.shadowBlur = 8; g.shadowOffsetY = 2;
+  g.fillStyle = 'rgba(250,252,255,0.96)'; rr(g, x - w / 2, y - 13, w, 25, 12.5); g.fill();
+  g.beginPath(); g.moveTo(x - 5, y + 11); g.lineTo(x, y + 17); g.lineTo(x + 5, y + 11); g.fill();
+  g.restore();
+  g.fillStyle = '#1a2230'; g.fillText(text, x, y, 216);
 };
 
 R.fxPos = f => {
