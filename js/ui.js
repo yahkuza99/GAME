@@ -354,7 +354,7 @@ const UI = {
     g.clearRect(0, 0, W, H);
     g.save();
     const square = document.body.classList.contains('visor');
-    g.beginPath(); if (square) g.rect(0, 0, W, H); else g.arc(W / 2, H / 2, W / 2, 0, 7); g.clip();
+    g.beginPath(); if (square) { const rr = W * 0.115; if (g.roundRect) g.roundRect(0, 0, W, H, rr); else g.rect(0, 0, W, H); } else g.arc(W / 2, H / 2, W / 2, 0, 7); g.clip();
     g.fillStyle = '#060a12'; g.fillRect(0, 0, W, H);
     g.imageSmoothingEnabled = true;
     g.drawImage(full, x0 * S, y0 * S, span * S, span * S, 0, 0, W, H);
