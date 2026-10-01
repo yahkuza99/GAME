@@ -640,14 +640,18 @@ const UI = {
     return out;
   },
   // เทียบกับชิ้นที่สวมอยู่ในช่องเดียวกัน: ▲ เขียว = ดีขึ้น ▼ แดง = แย่ลง
-  compareLine(e) {
+  // เทียบค่าตัวละครก่อน/หลังเปลี่ยนไอเทม (ค่าสุดท้ายจริง รวมสเตตัส บัฟ และพาสซีฟ)
+  compareLine(e, compact) {
     const it = ITEMS[e.id]; if (!isEquipType(it)) return null;
-    const slot = it.type === 'weapon' ? 'weapon' : it.slot, cur = G.player.equip[slot];
-    const a = this.equipStats(e, slot), b = this.equipStats(cur, slot);
-    const LBL = { atk: 'ATK', matk: 'MATK', def: 'DEF', mdef: 'MDEF', str: 'STR', agi: 'AGI', vit: 'VIT', int: 'INT', dex: 'DEX', luk: 'LUK', hp: 'HP', sp: 'SP', hit: 'HIT', flee: 'FLEE', crit: 'CRIT', range: 'ระยะ' };
-    const keys = [...new Set([...Object.keys(a), ...Object.keys(b)])].filter(k => LBL[k] && (a[k] || 0) !== (b[k] || 0));
-    const chips = keys.map(k => { const d = (a[k] || 0) - (b[k] || 0); return h('span', { class: 'cmp ' + (d > 0 ? 'up' : 'down') }, `${LBL[k]} ${d > 0 ? '+' : ''}${d}`); });
-    return h('div', { class: 'det-line cmp-row' }, h('span', { class: 'cmp-h' }, cur ? `เทียบกับ ${itemDisplayName(cur)}:` : 'ช่องนี้ยังว่าง:'), ...(chips.length ? chips : [h('span', { class: 'cmp' }, 'เท่ากัน')]));
+    const pv = previewEquip(e); if (!pv) return null;
+    const cur = pv.replaced, ok = canEquip(it, false);
+    const chips = pv.diff.map(([k, dv, v]) => h('span', { class: 'cmp ' + (dv > 0 ? 'up' : 'down') },
+      h('i', {}, k), `${dv > 0 ? '+' : '−'}${U.fmt(Math.abs(dv))}`, compact ? null : h('small', {}, ` → ${U.fmt(v)}`)));
+    const up = pv.diff.filter(x => x[1] > 0).length, down = pv.diff.length - up;
+    const verdict = !ok ? ['no', 'ใส่ไม่ได้'] : !pv.diff.length ? ['eq', 'เท่าเดิม'] : !down ? ['up', 'ดีขึ้น'] : !up ? ['down', 'แย่ลง'] : ['mix', 'ได้อย่างเสียอย่าง'];
+    return h('div', { class: 'det-line cmp-row' + (compact ? ' compact' : '') },
+      h('div', { class: 'cmp-h' }, h('span', {}, cur ? `เทียบกับ ${itemDisplayName(cur)}` : `ช่อง${SLOT_THAI[it.slot] || ''}ยังว่าง`), h('b', { class: 'cmp-v ' + verdict[0] }, verdict[1])),
+      h('div', { class: 'cmp-chips' }, chips.length ? chips : h('span', { class: 'cmp' }, 'ค่าไม่เปลี่ยน')));
   },
   renderInv() {
     const p = G.player;
@@ -764,7 +768,7 @@ const UI = {
   },
 
   // ---------------- นำทาง ----------------
-  navTab: 'here',
+  navTab: 'mob',
   // สถานะ MVP: กำลังอาละวาด / พร้อมปรากฏ / นับถอยหลังเกิดใหม่
   mvpStatus(id) {
     const m = Object.keys(MAP_DEFS).find(k => MAP_DEFS[k].mvp === id); if (!m) return '';
@@ -1033,10 +1037,10 @@ const UI = {
   },
   renderNav() {
     const body = $('#w-nav .win-body');
-    const key = this.navTab + '|' + G.map.id;
+    const key = this.navTab + '|' + G.map.id + '|' + G.player.baseLv;
     if (body.dataset.key === key) return;
     body.dataset.key = key; body.innerHTML = '';
-    const tabs = [['here', 'แผนที่นี้'], ['place', 'สถานที่'], ['map', 'แผนที่'], ['mob', 'มอนสเตอร์']];
+    const tabs = [['mob', 'ล่าเก็บเลเวล'], ['here', 'แผนที่นี้'], ['place', 'สถานที่'], ['map', 'แผนที่']];
     body.append(h('div', { class: 'tabs' }, ...tabs.map(([k, l]) => h('button', { class: 'tab' + (this.navTab === k ? ' on' : ''), onclick: () => { this.navTab = k; body.dataset.key = ''; this.renderNav(); } }, l))));
     const list = h('div', { class: 'nav-list' });
     const row = (t, sub, extra) => h('button', { class: 'nav-row' + (t.map === G.map.id ? ' here' : ''), onclick: () => Nav.goTo(t) },
@@ -1044,13 +1048,34 @@ const UI = {
     if (this.navTab === 'here') for (const t of Nav.here()) list.append(row(t, `${t.sub} • ${Math.round(t.d)} ช่อง`));
     else if (this.navTab === 'place') for (const t of Nav.places()) list.append(row(t, MAP_DEFS[t.map].name));
     else if (this.navTab === 'map') for (const t of Nav.maps()) list.append(row(t, `${t.thai}${t.level ? ` • Lv ${t.level}` : ''}`, t.map === G.map.id ? 'อยู่ที่นี่' : null));
-    else for (const t of Nav.mobs()) {
-      const kc = (G.player.kills || {})[t.mobId] || 0;
-      const r = row(t, `${t.mapName} • Lv ${t.lv}${kc ? ` • ล่าแล้ว ${U.fmt(kc)}` : ''}${t.mvp ? ` • ${this.mvpStatus(t.mobId).replace(/^[^ ]+ /, '')}` : ''}`, t.mvp ? 'MVP' : null);
-      const info = h('span', { class: 'nav-info', title: 'ข้อมูลมอนสเตอร์', onclick: e => { e.stopPropagation(); this.showMob(t.mobId); } }, 'ⓘ');
-      r.append(info); list.append(r);
+    else this.renderHuntList(list);
+    body.append(list, h('div', { class: 'hint' }, 'แตะแล้วตัวละครจะเดินไปเองและเริ่มตี ข้ามแผนที่ได้ • แตะพื้นเพื่อยกเลิก'));
+  },
+  // รายการล่าเก็บเลเวล: จัดกลุ่มตามความเหมาะกับเลเวลผู้เล่น แตะเพื่อเดินไปตีทันที
+  renderHuntList(list) {
+    const p = G.player, lv = p.baseLv, lo = lv - 5, hi = lv + 5;
+    const fit = t => t.mvp ? 'mvp' : t.lv > hi ? 'hard' : t.lv < lo ? 'easy' : 'good';
+    const all = Nav.mobs(), groups = { good: [], hard: [], mvp: [], easy: [] };
+    for (const t of all) groups[fit(t)].push(t);
+    groups.good.sort((a, b) => MOBS[b.mobId].exp - MOBS[a.mobId].exp);
+    groups.easy.reverse();
+    list.append(h('div', { class: 'hunt-head' }, h('b', {}, `Base Lv ${lv}`), h('span', {}, `มอนที่เหมาะ: Lv ${Math.max(1, lo)}–${hi}`)));
+    const HEAD = { good: ['เหมาะกับคุณ', 'EXP ดี ตีไม่ตาย'], hard: ['เลเวลสูงกว่า', 'EXP มากแต่อันตราย'], mvp: ['MVP', 'บอสประจำแผนที่ ไปเป็นทีม'], easy: ['ผ่านมาแล้ว', 'ง่ายเกินไป EXP น้อย'] };
+    for (const k of ['good', 'hard', 'mvp', 'easy']) {
+      if (!groups[k].length) continue;
+      list.append(h('div', { class: 'hunt-sec ' + k }, h('b', {}, HEAD[k][0]), h('span', {}, HEAD[k][1])));
+      for (const t of groups[k]) {
+        const d = MOBS[t.mobId], kc = (p.kills || {})[t.mobId] || 0, spr = Art.get('mobsprite_' + t.mobId);
+        const r = h('button', { class: `hunt-row ${k}` + (t.map === G.map.id ? ' here' : ''), onclick: () => Nav.goTo(t) },
+          h('span', { class: 'hunt-pic' }, spr ? h('img', { src: spr.src, alt: '' }) : h('i', { style: `background:${d.color || '#6ff3ff'}` })),
+          h('span', { class: 'hunt-mid' },
+            h('span', { class: 'hunt-n' }, t.name, d.aggro ? h('span', { class: 'hunt-tag bad' }, 'ตีก่อน') : null),
+            h('span', { class: 'hunt-s' }, `${t.mapName}${t.map === G.map.id ? ' · อยู่ที่นี่' : ''}${kc ? ` · ล่าแล้ว ${U.fmt(kc)}` : ''}${t.mvp ? ` · ${this.mvpStatus(t.mobId).replace(/^[^ ]+ /, '')}` : ''}`)),
+          h('span', { class: 'hunt-r' }, h('b', {}, `Lv ${t.lv}`), h('small', {}, `+${U.fmt(d.exp)} EXP`)),
+          h('span', { class: 'hunt-info', title: 'ข้อมูลมอนสเตอร์', onclick: e => { e.stopPropagation(); this.showMob(t.mobId); } }, 'i'));
+        list.append(r);
+      }
     }
-    body.append(list, h('div', { class: 'hint' }, 'เลือกแล้วตัวละครจะเดินไปเอง ข้ามแผนที่ได้ • คลิกที่พื้นเพื่อยกเลิก'));
   },
   renderOptions() {
     const p = G.player, o = p.options;
@@ -1181,7 +1206,7 @@ const UI = {
         if (isEquipType(it)) qty.style.visibility = 'hidden';
         list.append(h('div', { class: 'shop-row' + (usable ? '' : ' dim'), title: it.desc },
           h('img', { src: itemIconUrl(id), alt: '' }),
-          h('div', { class: 'shop-n' }, h('b', {}, it.name + (it.slots ? ` [${it.slots}]` : '')), h('small', {}, it.desc + (it.lv ? ` (Lv ${it.lv}+)` : '')), isEquipType(it) && usable ? this.compareLine({ id, refine: 0, cards: [] }) : null),
+          h('div', { class: 'shop-n' }, h('b', {}, it.name + (it.slots ? ` [${it.slots}]` : '')), h('small', {}, it.desc + (it.lv ? ` (Lv ${it.lv}+)` : '')), isEquipType(it) && usable ? this.compareLine({ id, refine: 0, cards: [] }, true) : null),
           h('span', { class: 'shop-p' }, U.fmt(it.price) + ' ' + CUR),
           qty,
           h('button', { class: 'btn small', onclick: () => this.buy(id, Math.max(1, Math.min(999, parseInt(qty.value, 10) || 1))) }, 'ซื้อ')));
@@ -1213,6 +1238,7 @@ const UI = {
     p.zeny -= cost;
     addItem(id, qty, true);
     this.msg(`ซื้อ ${it.name} ×${qty} (-${U.fmt(cost)} ${CUR})`, 'item');
+      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.autoCounter !== false ? 'checked' : false, onchange: e => { o.autoCounter = e.target.checked; saveGame(); } }), ' โจมตีกลับอัตโนมัติเมื่อถูกโจมตี'),
     Sound.play('buy');
     this.dirty();
   },

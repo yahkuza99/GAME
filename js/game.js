@@ -23,7 +23,7 @@ function newPlayer(name, gender, hair, look) {
     equip: { head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null },
     hotbar: [null, null, null, null, null, null, null, null], potbar: [null, null, null, null],
     map: HOME_MAP, x: 20.5, y: 24.5, save: { map: HOME_MAP, x: 20.5, y: 24.5 },
-    hp: 1, sp: 1, options: { autoLoot: true, sound: true, music: false, musicVol: 0.7, expMsg: true }, uidSeq: 1, quests: { i: 0, n: 0, done: [] }, storage: [], kills: {},
+    hp: 1, sp: 1, options: { autoLoot: true, autoCounter: true, sound: true, music: false, musicVol: 0.7, expMsg: true }, uidSeq: 1, quests: { i: 0, n: 0, done: [] }, storage: [], kills: {},
   };
   initRuntime(p);
   G.player = p;
@@ -313,13 +313,35 @@ function equipItem(entry, silent) {
   const it = ITEMS[entry.id];
   if (!isEquipType(it) || !canEquip(it, !silent)) return;
   if (it.wtype === 'bow' && p.equip.shield) unequip('shield', true);
+  const pv = silent ? null : previewEquip(entry);
   if (p.equip[it.slot]) unequip(it.slot, true);
   const i = p.inventory.indexOf(entry);
   if (i >= 0) p.inventory.splice(i, 1);
   p.equip[it.slot] = entry;
   recalc();
-  if (!silent) { UI.msg(`สวมใส่ ${itemDisplayName(entry)}`, 'sys'); Sound.play('equip'); }
+  if (!silent) { UI.msg(`สวมใส่ ${itemDisplayName(entry)}${pv && pv.diff.length ? ` (${fmtDiff(pv.diff)})` : ''}`, 'sys'); Sound.play('equip'); }
 }
+// เทียบค่าสุดท้ายของตัวละคร ถ้าเปลี่ยนไปใส่ entry (จำลองแล้วคืนค่าเดิม ไม่กระทบเกม)
+const CMP_STATS = [
+  ['ATK', d => d.statusAtk + d.weaponAtk + d.atkBonus], ['MATK', d => d.matkMax], ['DEF', d => d.def], ['MDEF', d => d.mdef],
+  ['HP', d => d.maxHp], ['SP', d => d.maxSp], ['HIT', d => d.hit], ['FLEE', d => d.flee], ['CRIT', d => d.crit], ['ASPD', d => d.aspd],
+  ['STR', d => d.str], ['AGI', d => d.agi], ['VIT', d => d.vit], ['INT', d => d.int], ['DEX', d => d.dex], ['LUK', d => d.luk],
+];
+function statSnap(d) { const o = {}; for (const [k, f] of CMP_STATS) o[k] = f(d); return o; }
+function previewEquip(entry) {
+  const p = G.player, it = entry && ITEMS[entry.id];
+  if (!it || !isEquipType(it)) return null;
+  const save = { equip: Object.assign({}, p.equip), d: p.d, hp: p.hp, sp: p.sp, dirty: UI.isDirty };
+  const before = statSnap(p.d);
+  if (it.wtype === 'bow') p.equip.shield = null;
+  p.equip[it.slot] = entry;
+  let after;
+  try { recalc(); after = statSnap(p.d); }
+  finally { p.equip = save.equip; p.d = save.d; p.hp = save.hp; p.sp = save.sp; UI.isDirty = save.dirty; }
+  const diff = CMP_STATS.map(([k]) => [k, after[k] - before[k], after[k]]).filter(([, dv]) => dv);
+  return { before, after, diff, replaced: save.equip[it.slot] };
+}
+const fmtDiff = diff => diff.map(([k, dv]) => `${k} ${dv > 0 ? '+' : '−'}${U.fmt(Math.abs(dv))}`).join(' · ');
 function unequip(slot, silent) {
   const p = G.player, e = p.equip[slot];
   if (!e) return;
@@ -657,6 +679,7 @@ function mobAttack(m) {
   m.nextAtk = G.time + (md.atkDelay || 1.7);
   m.atkAnim = 1;
   faceTo(m, p.x, p.y);
+  autoCounter(m);
   if (U.chance(d.pdodge / 100)) { addFloater(p.x, p.y - 1.2, 'Lucky!', '#a0ffa0'); return; }
   const hitRate = U.clamp(80 + md.hit - d.flee, 5, 95);
   if (!U.chance(hitRate / 100)) { addFloater(p.x, p.y - 1.2, 'Miss', '#a0c0ff'); return; }
@@ -664,6 +687,15 @@ function mobAttack(m) {
   dmg = Math.max(1, Math.round(dmg * (1 - d.def / 100) - d.softDef * U.rand(0.7, 1)));
   damagePlayer(dmg);
   if (md.stun && !d.unshaken && U.chance(md.stun[0] / 100 * (1 - Math.min(0.9, d.vit / 100)) * (1 - d.stunRes / 100))) stunPlayer(md.stun[1]);
+}
+// โจมตีกลับอัตโนมัติ (ตั้งค่าได้): ยืนเฉย ๆ / นั่งพัก แล้วโดนตี → หันไปตีตัวที่ตีเรา
+// ไม่แย่งการควบคุม: ถ้ากำลังเดิน, นำทาง, คุย NPC, ร่ายสกิล, มีเป้าอยู่แล้ว หรือบอททำงานอยู่ จะไม่ทำ
+function autoCounter(m) {
+  const p = G.player;
+  if (p.options.autoCounter === false || p.dead || m.dead || isStunned()) return;
+  if ((p.target && !p.target.dead) || p.npcTarget || p.pickTarget || p.cast || p.skillIntent || p.path.length) return;
+  if (Bot.on || (typeof Nav !== 'undefined' && Nav.target) || NPC.busy) return;
+  p.sitting = false; p.target = m; p.repathAt = 0;
 }
 // มึน: ล้มลงกับพื้น ขยับ/ตี/ใช้สกิล/ใช้ของไม่ได้จนกว่าจะลุก (VIT สูงต้านได้)
 function stunPlayer(dur) {
