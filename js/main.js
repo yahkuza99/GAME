@@ -494,6 +494,7 @@ function startGame(p, isNew) {
 }
 
 window.addEventListener('load', () => {
+  document.body.classList.add('visor'); // HUD แบบ Visor เป็นค่าเริ่มต้น (หน้าเว็บที่ไม่มีแท็ก <body> ของเราเองก็ได้)
   R.init();
   Art.load();
   Online.init();
