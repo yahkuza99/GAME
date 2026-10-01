@@ -190,3 +190,34 @@ NPC.scripts.refine = async n => {
   }
   saveGame();
 };
+
+// Brokk: เมนูแรก ตีบวก / ถอดชิปออกจากอุปกรณ์ (ฟรี ชิปกลับเข้ากระเป๋าครบ)
+{
+  const forge = NPC.scripts.refine;
+  NPC.scripts.refine = async n => {
+    const nm = `[${n.name}]`;
+    const c = await UI.menu(nm, 'มาหา Brokk มีงานอะไรให้ข้าทำ?', ['ตีบวกอุปกรณ์', 'ถอดชิปออกจากอุปกรณ์ (ฟรี)', 'ยกเลิก']);
+    if (c === 0) return forge(n);
+    if (c === 1) return NPC.unsocket(nm);
+  };
+}
+NPC.unsocket = async nm => {
+  const p = G.player;
+  // อุปกรณ์ที่มีชิปติดอยู่ ทั้งที่สวมและที่อยู่ในกระเป๋า
+  const list = [...EQUIP_SLOTS.map(s => p.equip[s]).filter(Boolean), ...p.inventory.filter(e => isEquipType(ITEMS[e.id]))].filter(e => e.cards && e.cards.length);
+  if (!list.length) { await UI.say(nm, 'ไม่มีอุปกรณ์ชิ้นไหนติดชิปอยู่เลย<br>ติดชิปได้ที่ช่องเก็บของ แท็บ <b>ชิป</b> แล้วกด "ใส่ชิป"'); return; }
+  const i = await UI.menu(nm, `จะถอดชิปจากชิ้นไหน? ${B('ไม่คิดค่าบริการ')} ชิปจะกลับเข้ากระเป๋าครบ`,
+    [...list.map(e => `${itemDisplayName(e)} — ${e.cards.map(c => ITEMS[c].name).join(', ')}`), 'ยกเลิก']);
+  if (i >= list.length) return;
+  const e = list[i];
+  const opts = e.cards.length > 1 ? [...e.cards.map(c => ITEMS[c].name), 'ถอดทั้งหมด', 'ยกเลิก'] : [ITEMS[e.cards[0]].name, 'ยกเลิก'];
+  const j = await UI.menu(nm, `ถอดชิปชิ้นไหนออกจาก ${B(itemDisplayName(e))}?`, opts);
+  const all = e.cards.length > 1 && j === e.cards.length;
+  if (!all && j >= e.cards.length) return;
+  const out = all ? e.cards.splice(0) : e.cards.splice(j, 1);
+  for (const id of out) addItem(id, 1, true);
+  recalc(); saveGame(); UI.dirty();
+  Sound.play('equip');
+  UI.msg(`ถอด ${out.map(id => ITEMS[id].name).join(', ')} ออกจาก ${itemDisplayName(e)} แล้ว (ฟรี)`, 'item');
+  await UI.say(nm, `เรียบร้อย! ${B(out.map(id => ITEMS[id].name).join(', '))} กลับเข้ากระเป๋าแล้ว ช่องว่างพร้อมใส่ชิปใหม่`);
+};

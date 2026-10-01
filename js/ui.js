@@ -1327,7 +1327,7 @@ const UI = {
     if (!target) { this.msg(`ต้องสวมใส่${SLOT_THAI[card.slot]}ก่อน จึงจะใส่ ${card.name} ได้`, 'err'); return; }
     const ti = ITEMS[target.id];
     if (!ti.slots || target.cards.length >= ti.slots) { this.msg(`${itemDisplayName(target)} ไม่มีช่องชิปว่าง`, 'err'); return; }
-    if (!(await this.confirm(`ติดตั้ง ${card.name} ลงใน ${itemDisplayName(target)}? (ถอดออกไม่ได้)`))) return;
+    if (!(await this.confirm(`ติดตั้ง ${card.name} ลงใน ${itemDisplayName(target)}? (ถอดคืนได้ฟรีที่ Brokk Forge-Bot)`))) return;
     if (!p.inventory.includes(entry) || p.equip[card.slot] !== target) return;
     target.cards.push(entry.id);
     removeEntry(entry, 1);
