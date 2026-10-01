@@ -495,14 +495,17 @@ const UI = {
         let lpTimer = null, lpFired = false;
         el.addEventListener('pointerdown', e => {
           e.stopPropagation();
-          if (e.pointerType === 'mouse') return;
+          if (e.pointerType === 'mouse' || this.equipMode) return;
           lpFired = false;
           el.classList.add('press');
           lpTimer = setTimeout(() => { lpFired = true; this.chooseFor(bar, i, el); }, 550); // แตะค้าง: เปลี่ยน/ล้างช่องนี้
         });
         const cancelLp = () => { clearTimeout(lpTimer); el.classList.remove('press'); };
         el.addEventListener('pointerup', cancelLp); el.addEventListener('pointerleave', cancelLp); el.addEventListener('pointercancel', cancelLp);
-        el.addEventListener('click', () => { if (lpFired) { lpFired = false; return; } use(); });
+        el.addEventListener('click', () => {
+          if (this.equipMode) { if (this.equipMode.bar === bar) this.finishEquip(i); return; } // โหมดติดตั้ง: แตะช่อง = วางสกิล/ไอเทมลงช่องนี้
+          if (lpFired) { lpFired = false; return; } use();
+        });
         el.addEventListener('contextmenu', e => { e.preventDefault(); clear(); });
         el.addEventListener('dragover', e => e.preventDefault());
         el.addEventListener('drop', e => {
@@ -582,6 +585,36 @@ const UI = {
     const bar = b.t === 'skill' ? 'hotbar' : 'potbar', i = this.BARS[bar].keys.findIndex(x => x.toLowerCase() === k);
     if (i < 0) return false;
     this.bindSlot(b.t, b.id, i); return true;
+  },
+  // ---------- โหมดติดตั้งแบบเกมมือถือมาตรฐาน: เลือกสกิล → กด "ติดตั้ง" → ช่องจริงบนจอสว่างขึ้น → แตะช่องที่ต้องการ ----------
+  equipMode: null,
+  startEquip(t, id) {
+    document.getElementById('slot-pick')?.remove();
+    this.cancelEquip(true);
+    const bar = t === 'skill' ? 'hotbar' : 'potbar';
+    const wins = $$('.win:not(.hidden)').map(w => w.id).filter(w => w !== 'w-dialog');
+    wins.forEach(w => $('#' + w).classList.add('hidden')); // หลบหน้าต่างให้เห็นช่องบนจอ
+    this.equipMode = { t, id, bar, wins };
+    document.body.classList.add('equip-mode', 'equip-' + bar);
+    const name = t === 'skill' ? SKILLS[id].name : ITEMS[id].name;
+    const ic = t === 'skill' ? this.skillIcon(id) : h('img', { src: itemIconUrl(id), alt: '' });
+    const ban = h('div', { id: 'equip-banner', role: 'status' }, h('div', { class: 'eb-ic' }, ic),
+      h('div', { class: 'eb-t' }, h('b', {}, name), h('span', {}, L('แตะช่องที่สว่างเพื่อวาง', 'Tap a glowing slot to place it'))),
+      h('button', { type: 'button', class: 'btn small', onclick: e => { e.stopPropagation(); this.cancelEquip(); } }, L('ยกเลิก', 'Cancel')));
+    document.body.append(ban);
+    Sound.play('click');
+  },
+  finishEquip(i) {
+    const m = this.equipMode; if (!m) return;
+    this.bindSlot(m.t, m.id, i);
+    this.cancelEquip();
+  },
+  cancelEquip(silent) {
+    const m = this.equipMode; if (!m) return;
+    this.equipMode = null;
+    document.body.classList.remove('equip-mode', 'equip-hotbar', 'equip-potbar');
+    document.getElementById('equip-banner')?.remove();
+    if (!silent) m.wins.forEach(w => this.open(w)); // กลับไปหน้าต่างเดิม จะติดตั้งสกิลอื่นต่อได้เลย
   },
   // แตะช่องปุ่มลัดที่ว่าง / แตะค้างช่องที่มีของ → เลือกสกิล (หรือไอเทม) ใส่ช่องนั้นได้เลย ไม่ต้องลาก (มือถือ)
   chooseFor(bar, i, anchor) {
@@ -910,7 +943,7 @@ const UI = {
       if (it.type === 'use') acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, L('ใช้', 'Use')));
       if (isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, L('สวมใส่', 'Equip')));
       if (it.type === 'card') acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, L('ใส่ชิป', 'Insert')));
-      if (it.type === 'use' || isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: ev => this.pickSlot('item', e.id, ev.currentTarget) }, L('ตั้งปุ่มลัด', 'Set hotkey')));
+      if (it.type === 'use' || isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: () => this.startEquip('item', e.id) }, L('ตั้งปุ่มลัด', 'Set hotkey')));
       acts.push(h('button', { class: 'btn danger', onclick: () => this.discard(e) }, L('ทิ้ง', 'Drop')));
       det.append(...[
         h('div', { class: 'det-head' }, h('img', { src: itemIconUrl(e.id), alt: '' }), h('b', { class: rarCls(e.id) }, itemDisplayName(e)), e.qty > 1 ? ` ×${e.qty}` : ''),
@@ -995,7 +1028,7 @@ const UI = {
         h('div', { class: 'sk-acts' },
           canLearn(id) ? h('button', { class: 'btn small', onclick: () => learnSkill(id) }, '+') : null,
           lv && s.type === 'active' ? h('button', { class: 'btn small', onclick: () => useSkill(id) }, L('ใช้', 'Use')) : null,
-          lv && s.type === 'active' ? h('button', { class: 'btn small', title: L('ตั้งปุ่มลัด (หรือชี้ที่สกิลแล้วกด 1–8)', 'Set hotkey (or hover the skill and press 1–8)'), onclick: e => this.pickSlot('skill', id, e.currentTarget) }, '📌') : null)), id));
+          lv && s.type === 'active' ? h('button', { class: 'btn small sk-equip' + (p.hotbar.some(x => x && x.id === id) ? ' on' : ''), title: L('ติดตั้งลงช่องสกิล (คอม: ชี้ที่สกิลแล้วกด 1–8 ได้)', 'Equip to a skill slot (PC: hover and press 1–8)'), onclick: () => this.startEquip('skill', id) }, p.hotbar.some(x => x && x.id === id) ? L('ย้ายช่อง', 'Move') : L('ติดตั้ง', 'Equip')) : null)), id));
       if (lv && s.type === 'active') this.markBind(list.lastElementChild, 'skill', id);
     }
     body.append(list);

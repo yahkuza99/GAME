@@ -165,6 +165,8 @@ function bindInput() {
     if (k.startsWith('arrow')) { e.preventDefault(); keysDown.add(k); return; }
     if (e.altKey && /^Digit[1-9]$/.test(e.code)) { e.preventDefault(); Emote.play(EMOTES[+e.code.slice(5) - 1].k); return; } // ใช้ e.code: Option+เลขบน Mac ให้อักขระพิเศษ
     if (!e.repeat && UI.bindKey(/^f[1-8]$/.test(k) ? k.slice(1) : k)) { e.preventDefault(); return; } // ชี้ที่สกิล/ไอเทมแล้วกดปุ่มลัด = ตั้งช่องนั้น
+    if (UI.equipMode && UI.equipMode.bar === 'hotbar' && k >= '1' && k <= '8') { UI.finishEquip(+k - 1); return; }
+    if (UI.equipMode && UI.equipMode.bar === 'potbar' && ['z', 'c', 'v', 'f'].includes(k)) { UI.finishEquip(['z', 'c', 'v', 'f'].indexOf(k)); return; }
     if (k >= '1' && k <= '8') { useHotbar(+k - 1); return; }
     if (/^f[1-8]$/.test(k)) { e.preventDefault(); useHotbar(+k.slice(1) - 1); return; }
     const pot = ['z', 'c', 'v', 'f'].indexOf(k);
@@ -192,7 +194,8 @@ function bindInput() {
       case 'tab': e.preventDefault(); UI.toggleMenu(); break;
       case 'enter': e.preventDefault(); $('#chat-input').focus(); break;
       case 'escape':
-        if (G.pendingSkill) { G.pendingSkill = null; UI.msg(L('ยกเลิกการใช้สกิล', 'Skill cancelled.'), 'info'); }
+        if (UI.equipMode) UI.cancelEquip();
+        else if (G.pendingSkill) { G.pendingSkill = null; UI.msg(L('ยกเลิกการใช้สกิล', 'Skill cancelled.'), 'info'); }
         else UI.closeTop();
         break;
     }
