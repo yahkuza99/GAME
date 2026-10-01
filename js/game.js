@@ -156,7 +156,7 @@ function recalc() {
   d.ranged = wt === 'bow';
   d.statusAtk = d.ranged
     ? d.dex + Math.floor(d.dex / 10) ** 2 + Math.floor(d.str / 5) + Math.floor(d.luk / 5)
-    : d.str + Math.floor(d.str / 10) ** 2 + Math.floor(d.dex / 5) + Math.floor(d.luk / 5);
+    : d.str + Math.floor(d.str / 10) ** 2 + Math.floor(d.dex / 5) + Math.floor(d.luk / 5) + (wt === 'dagger' ? Math.floor(d.agi / 3) : 0) + (p.job === 'einherjar' ? Math.floor(d.vit / 2) : 0); // มีด: AGI ช่วยแรงตี • Einherjar: VIT ช่วยแรงตี (แทงค์ที่ยังตีได้)
   d.weaponAtk = weaponAtk;
   d.atkBonus = b.atk;
   const mp = 1 + (b.matkPct || 0) / 100;
