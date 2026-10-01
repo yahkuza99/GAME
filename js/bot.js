@@ -14,7 +14,8 @@ const Bot = {
 
   defaults() {
     return { skills: {}, hpPot: 50, spPot: 20, restHp: 35, restSp: 10, healAt: 60, useBuffs: true, avoidMvp: true,
-      radius: 14, returnHome: true, restock: true, restockQty: 30 };
+      radius: 14, returnHome: true, restock: true, restockQty: 30,
+      rest: true, style: 'skills', leash: false };
   },
   cfg() {
     const o = G.player.options;
@@ -34,6 +35,7 @@ const Bot = {
     if (this.mode && Nav.target) Nav.cancel(true); // ปิดบอทกลางทางเติมของ = หยุดเดินด้วย
     this.mode = null;
     if (want) {
+      this.setAnchor(true);
       this.stats = { start: G.time, kills: 0, bexp: 0, jexp: 0, items: 0, zenyStart: p.zeny };
       UI.msg('▶ เริ่มบอทล่ามอนสเตอร์อัตโนมัติ (แตะ AUTO อีกครั้งเพื่อหยุด)', 'sys');
       if (G.map.def.kind === 'town') UI.msg('บอทจะเริ่มทำงานเมื่อออกไปยังแผนที่ที่มีมอนสเตอร์', 'info');
@@ -43,6 +45,20 @@ const Bot = {
     }
     UI.updateBotButton();
     UI.dirty();
+  },
+  // ขอบเขตการล่า: วงรัศมี radius รอบจุดที่เปิดบอท (หรือกด "ตั้งศูนย์กลางที่นี่")
+  anchor: null,
+  setAnchor(quiet) {
+    const p = G.player;
+    if (G.map.def.kind === 'town') { this.anchor = null; return; }
+    this.anchor = { map: G.map.id, x: p.x, y: p.y };
+    if (!quiet) UI.msg('ตั้งศูนย์กลางขอบเขตการล่าที่ตำแหน่งนี้แล้ว', 'info');
+  },
+  zone() {
+    const c = this.cfg();
+    if (!c.leash) return null;
+    if (!this.anchor || this.anchor.map !== G.map.id) this.setAnchor(true); // เปลี่ยนแมพ = ตั้งศูนย์กลางใหม่
+    return this.anchor && { x: this.anchor.x, y: this.anchor.y, r: c.radius };
   },
   // ผู้เล่นสั่งเดินเอง → หยุดบอทชั่วคราว
   manualOverride() {
@@ -138,12 +154,13 @@ const Bot = {
     }
     if (p.cast || p.skillIntent) return;
 
-    // 2) นั่งพัก
+    // 2) นั่งพัก (โหมดตีปกติไม่ใช้ SP จึงไม่พักเพราะ SP)
+    const needSp = c.style !== 'basic';
     if (this.resting) {
-      if (threats.length || (hpPct >= 95 && spPct >= Math.min(90, c.restSp + 50))) { this.resting = false; p.sitting = false; }
+      if (threats.length || !c.rest || (hpPct >= Math.min(90, c.restHp + 45) && (!needSp || spPct >= Math.min(80, c.restSp + 35)))) { this.resting = false; p.sitting = false; }
       else { if (!p.sitting) { p.path = []; p.target = null; p.sitting = true; } return; }
     }
-    if (!threats.length && (hpPct < c.restHp || spPct < c.restSp)) {
+    if (c.rest && !threats.length && (hpPct < c.restHp || (needSp && spPct < c.restSp))) {
       this.resting = true; p.target = null; p.path = []; p.sitting = true;
       return;
     }
@@ -177,7 +194,8 @@ const Bot = {
     }
     if (!t) { this.wander(); return; }
 
-    // 6) ใช้สกิลโจมตี
+    // 6) ใช้สกิลโจมตี (โหมด "ตีปกติ" ข้าม)
+    if (c.style === 'basic') return;
     const dist = U.dist(p.x, p.y, t.x, t.y);
     const ids = Object.keys(p.skills).filter(id => this.canCast(id));
     const order = ids.length ? ids.slice(this.skillIdx % ids.length).concat(ids.slice(0, this.skillIdx % ids.length)) : [];
@@ -201,14 +219,19 @@ const Bot = {
     const byDist = (a, b) => U.dist(a.x, a.y, p.x, p.y) - U.dist(b.x, b.y, p.x, p.y);
     const th = threats.filter(ok).sort(byDist);
     if (th.length) return th[0];
-    return G.mobs.filter(m => ok(m) && U.dist(m.x, m.y, p.x, p.y) <= c.radius).sort(byDist)[0] || null;
+    const z = this.zone();
+    const inRange = m => z ? U.dist(m.x, m.y, z.x, z.y) <= z.r : U.dist(m.x, m.y, p.x, p.y) <= c.radius;
+    return G.mobs.filter(m => ok(m) && inRange(m)).sort(byDist)[0] || null;
   },
   wander() {
     const p = G.player;
     if (p.path.length && G.time < this.wanderAt) return;
     this.wanderAt = G.time + 6;
+    const z = this.zone();
     for (let i = 0; i < 20; i++) {
-      const tx = Math.floor(p.x) + U.randi(-10, 10), ty = Math.floor(p.y) + U.randi(-10, 10);
+      const cx = z ? z.x : p.x, cy = z ? z.y : p.y, span = z ? Math.max(2, Math.floor(z.r * 0.8)) : 10;
+      const tx = Math.floor(cx) + U.randi(-span, span), ty = Math.floor(cy) + U.randi(-span, span);
+      if (z && U.dist(tx + 0.5, ty + 0.5, z.x, z.y) > z.r) continue;
       if (G.map.walkable(tx, ty) && !G.map.portalAt(tx, ty) && !G.map.portals.some(pt => U.dist(pt.x, pt.y, tx, ty) < 4)) {
         playerWalkTo(tx, ty);
         return;

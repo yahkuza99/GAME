@@ -180,6 +180,18 @@ R.render = () => {
     }
   });
 
+  // ขอบเขตการล่าของบอท: วงนุ่ม ๆ บนพื้น
+  const zone = Bot.on && Bot.zone();
+  if (zone) {
+    const rx = zone.r * TILE, ry = rx * K;
+    g.save(); g.translate(zone.x * TILE, zone.y * TILE * K);
+    const grd = g.createRadialGradient(0, 0, rx * 0.6, 0, 0, rx);
+    grd.addColorStop(0, 'rgba(111,243,255,0)'); grd.addColorStop(1, 'rgba(111,243,255,0.10)');
+    g.scale(1, K); g.fillStyle = grd; g.beginPath(); g.arc(0, 0, rx, 0, 7); g.fill(); g.scale(1, 1 / K);
+    g.strokeStyle = 'rgba(111,243,255,0.55)'; g.lineWidth = 2; g.setLineDash([14, 10]); g.lineDashOffset = -t * 12;
+    g.beginPath(); g.ellipse(0, 0, rx, ry, 0, 0, 7); g.stroke();
+    g.restore();
+  }
   // วงเล็งเป้าหมายที่พื้น
   for (const m of G.mobs) {
     if (m.dead) continue;

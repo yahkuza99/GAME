@@ -1442,21 +1442,30 @@ const UI = {
     };
     const chk = (key, label) => h('label', { class: 'opt' },
       h('input', { type: 'checkbox', checked: c[key] ? 'checked' : false, onchange: e => { c[key] = e.target.checked; saveGame(); } }), ' ', label);
-    body.append(
+    const seg = (key, opts) => h('div', { class: 'seg bot-seg' }, ...opts.map(([v, l]) =>
+      h('button', { type: 'button', class: c[key] === v ? 'on' : '', onclick: () => { c[key] = v; saveGame(); this.renderBot(); } }, l)));
+    body.append(...[
+      h('div', { class: 'bot-sec' }, 'วิธีโจมตี'),
+      seg('style', [['skills', 'ใช้สกิล + ตีปกติ'], ['basic', 'ตีปกติอย่างเดียว']]),
+      h('div', { class: 'hint' }, c.style === 'basic' ? 'ไม่ใช้สกิลโจมตี (ยังใช้ฮีล/บัฟตามที่ติ๊กด้านล่าง) และไม่นั่งพักเพราะ SP' : 'ใช้สกิลที่ติ๊กไว้ด้านล่างสลับกับการตีปกติ'),
+      h('div', { class: 'bot-sec' }, 'ขอบเขตการล่า'),
+      slider('radius', c.leash ? 'รัศมีวงล่า' : 'ระยะค้นหามอนรอบตัว', 5, 30, ' ช่อง'),
+      chk('leash', 'ล่าเฉพาะในวงรอบจุดที่เปิดบอท (เห็นวงบนพื้น)'),
+      c.leash ? h('button', { class: 'btn', type: 'button', onclick: () => Bot.setAnchor() }, 'ตั้งศูนย์กลางวงที่ตำแหน่งนี้') : null,
       h('div', { class: 'bot-sec' }, 'การฟื้นฟู'),
       slider('hpPot', 'ใช้ชุดซ่อมเมื่อ HP ต่ำกว่า', 0, 95),
       slider('spPot', 'ใช้เซลล์พลังงานเมื่อ SP ต่ำกว่า', 0, 95),
       slider('healAt', 'ใช้สกิลฮีลเมื่อ HP ต่ำกว่า', 0, 95),
-      slider('restHp', 'นั่งพักเมื่อ HP ต่ำกว่า', 0, 90),
-      slider('restSp', 'นั่งพักเมื่อ SP ต่ำกว่า', 0, 90),
-      h('div', { class: 'bot-sec' }, 'การล่า'),
-      slider('radius', 'ระยะค้นหามอนสเตอร์', 5, 30, ' ช่อง'),
+      chk('rest', 'นั่งพักเมื่อ HP/SP ต่ำ (ไม่มีศัตรูรอบตัว)'),
+      c.rest ? slider('restHp', 'นั่งพักเมื่อ HP ต่ำกว่า', 0, 90) : null,
+      c.rest && c.style !== 'basic' ? slider('restSp', 'นั่งพักเมื่อ SP ต่ำกว่า', 0, 90) : null,
+      h('div', { class: 'bot-sec' }, 'อื่น ๆ'),
       chk('useBuffs', 'ใช้บัฟ / เรียกสัตว์คู่ใจอัตโนมัติ'),
       chk('avoidMvp', 'ไม่เข้าตี MVP เอง'),
       chk('restock', 'เติมของอัตโนมัติ: ยาหมด → กลับเมืองขายของดรอป ซื้อยา แล้วกลับมาล่าต่อ'),
       chk('returnHome', 'กลับเมืองเมื่อยาหมดและ HP วิกฤต'),
       h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: p.options.autoLoot ? 'checked' : false, onchange: e => { p.options.autoLoot = e.target.checked; saveGame(); } }), ' เก็บไอเทมอัตโนมัติ'),
-    );
+    ].filter(Boolean));
     const act = Object.keys(p.skills).filter(id => SKILLS[id] && SKILLS[id].type === 'active');
     body.append(h('div', { class: 'bot-sec' }, 'สกิลที่ให้บอทใช้'));
     if (!act.length) body.append(h('div', { class: 'hint' }, 'ยังไม่มีสกิลที่ใช้งานได้'));
