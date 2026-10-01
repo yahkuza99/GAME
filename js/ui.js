@@ -59,6 +59,7 @@ const UI = {
     this.bindMapClick($('#minimap-cv'));
     this.bindMapClick($('#bigmap-cv'));
     $('#map-open').onclick = () => this.toggle('w-map');
+    $('#minimap .mm-ring').addEventListener('click', () => this.toggle('w-map')); // แตะมินิแมพ = เปิดแผนที่ใหญ่
     $$('#zoom-ctl button').forEach(b => b.onclick = () => { R.zoom = U.clamp(R.zoom * +b.dataset.zoom, R.ZMIN, R.ZMAX); });
   },
 
@@ -152,7 +153,9 @@ const UI = {
   // ---------------- ข้อความ ----------------
   msg(text, cls = 'sys') {
     const log = $('#chat-log');
-    log.append(h('div', { class: 'cl ' + cls }, text));
+    const line = h('div', { class: 'cl ' + cls }, text);
+    log.append(line);
+    setTimeout(() => line.classList.add('old'), 6000); // มือถือแนวตั้ง: ข้อความเก่าค่อย ๆ หาย ไม่ค้างบังฉาก (ประวัติเต็มยังอยู่ในแชต)
     while (log.children.length > 120) log.firstChild.remove();
     log.scrollTop = log.scrollHeight;
   },
@@ -233,7 +236,9 @@ const UI = {
     if (p.skillPoints > 0) pts.push(`<span class="pt" data-open="w-skills">Skill +${p.skillPoints}</span>`);
     const pf = Passive.free(p);
     if (pf > 0) pts.push(`<span class="pt" data-open="w-tree">Passive +${pf}</span>`);
-    const ptsHtml = pts.join(' ');
+    // มือถือแนวตั้ง: รวมป้ายแต้มเป็นอันเดียว (แตะแล้วเปิดหน้าต่างของแต้มอันแรกที่มี)
+    const compact = innerWidth <= 760 && innerHeight > innerWidth && pts.length > 1;
+    const ptsHtml = compact ? `<span class="pt" data-open="${/data-open="([^"]+)"/.exec(pts[0])[1]}">${L('แต้ม', 'Points')} +${(p.statPoints || 0) + (p.skillPoints || 0) + Math.max(0, pf)}</span>` : pts.join(' ');
     const ptsEl = $('#bi-points');
     if (ptsEl.innerHTML !== ptsHtml) { ptsEl.innerHTML = ptsHtml; this.stackTop(); }
     // บัฟ
@@ -1863,7 +1868,10 @@ UI.stackTop = () => {
   let below = biB + 6;
   if (vis(nav)) { if (top(nav) < below) nav.style.top = below + 'px'; below = nav.getBoundingClientRect().bottom + 6; }
   let tTop = top(tg);
-  if (below > tTop) { tTop = below; tg.style.top = tTop + 'px'; }
+  const tgR = tg.getBoundingClientRect(), biR = bi.getBoundingClientRect(), navR = vis(nav) ? nav.getBoundingClientRect() : null;
+  const hit = r => r && tgR.left < r.right + 6 && tgR.right > r.left - 6; // แถบเป้าหมายอยู่ใต้มินิแมพ (ขวา): ดันลงเฉพาะเมื่อทับแนวเดียวกันจริง
+  const tBelow = hit(navR) ? navR.bottom + 6 : hit(biR) ? biR.bottom + 6 : 0;
+  if (tBelow > tTop) { tTop = tBelow; tg.style.top = tTop + 'px'; }
   if (bf && bf.querySelector('.buff') && top(bf) < below) bf.style.top = below + 'px';
   // เควสต์ (คอลัมน์ขวา): ห้ามทับแถบนำทาง และถ้าแนวตั้งชนปุ่ม AUTO ให้ขยับไปอยู่ทางซ้ายของปุ่มแทน
   if (vis(qt)) {

@@ -1267,3 +1267,20 @@ body.visor .charsel.confirming .cs-btns { display: none; }
   #zoom-ctl button:nth-child(2) { left: -16px; top: 32px; }
   #map-open { left: -10px; top: 62px; }
 }
+
+/* ===== มือถือแนวตั้ง: จัดระเบียบ ลดของบนจอ (ซูมใช้สองนิ้ว • แตะมินิแมพเปิดแผนที่ • ช่องไอเทมว่างซ่อน • ข้อความหายเองใน 6 วิ) ===== */
+@media (max-width: 760px) and (orientation: portrait) {
+  .pad-mode #zoom-ctl, .pad-mode #map-open { display: none; }
+  #minimap .mm-ring { cursor: pointer; }
+  body.visor #bi-zeny { display: none; }
+  body.visor .bi-foot:has(#bi-points:empty) { display: none; }
+  .pad-mode #potbar .hb.blank { display: none; }
+  .pad-mode #chat-log { max-height: 52px; }
+  .pad-mode #chat-log .cl.old { display: none; }
+  body.visor.pad-mode #quest-track::before { display: none; }
+  body.visor.pad-mode #quest-track .qt-obj { display: none; }
+  body.visor.pad-mode #quest-track .qt-ic { display: none; }
+}
+@media (max-width: 760px) and (orientation: portrait) {
+  body.visor #target { top: calc(134px + var(--st)); }
+}
