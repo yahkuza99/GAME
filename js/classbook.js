@@ -242,7 +242,7 @@ const ClassBook = {
       const total = B.build.reduce((a, [, n]) => a + n, 0);
       const ol = h('ol', { class: 'cb-build' }, ...B.build.map(([sid, n]) => {
         const s = SKILLS[sid]; if (!s) return null;
-        return h('li', {}, UI.skillIcon(sid), h('div', {}, h('b', {}, `${s.name} `, h('span', {}, `Lv ${n}${n < s.max ? '/' + s.max : ' (MAX)'}`), s.type === 'passive' ? h('em', {}, L('ติดตัว', 'Passive')) : null), h('small', {}, s.desc)));
+        return UI.skillTipFor(h('li', {}, UI.skillIcon(sid), h('div', {}, h('b', {}, `${s.name} `, h('span', {}, `Lv ${n}${n < s.max ? '/' + s.max : ' (MAX)'}`), s.type === 'passive' ? h('em', {}, L('ติดตัว', 'Passive')) : null), h('small', {}, s.desc))), sid);
       }).filter(Boolean));
       const note = J.tier === 2 ? L(`ใช้แต้มคลาสนี้ ${total} แต้ม (Job 1→${J.jobMax}) — แต้มคลาสแรกที่เหลือยกมาใช้ต่อได้`, `Uses ${total} points from this class (Job 1→${J.jobMax}) — leftover first-class points carry over.`)
         : id === 'novice' ? L(`${total} แต้ม (Job 1→${J.jobMax})`, `${total} points (Job 1→${J.jobMax})`)
@@ -252,7 +252,7 @@ const ClassBook = {
     // สกิลทั้งหมดของอาชีพ
     det.append(this.sec(L(`สกิลทั้งหมด (${J.skills.length})`, `All skills (${J.skills.length})`), h('div', { class: 'cb-all' }, ...J.skills.filter(k => SKILLS[k]).map(k => {
       const s = SKILLS[k];
-      return h('div', { class: 'cb-sk' }, UI.skillIcon(k), h('div', {}, h('b', {}, s.name, s.type === 'passive' ? h('em', {}, L('ติดตัว', 'Passive')) : null), h('small', {}, s.desc + (s.cd ? L(` [คูลดาวน์ ${s.cd} วิ]`, ` [Cooldown ${s.cd}s]`) : ''))));
+      return UI.skillTipFor(h('div', { class: 'cb-sk' }, UI.skillIcon(k), h('div', {}, h('b', {}, s.name, s.type === 'passive' ? h('em', {}, L('ติดตัว', 'Passive')) : null), h('small', {}, s.desc + (s.cd ? L(` [คูลดาวน์ ${s.cd} วิ]`, ` [Cooldown ${s.cd}s]`) : '')))), k);
     }))));
     if (B.tips) det.append(this.sec(L('เคล็ดลับ', 'Tips'), h('p', { class: 'cb-tip' }, '💡 ', B.tips)));
     body.append(h('div', { class: 'cb-wrap' }, toc, det));

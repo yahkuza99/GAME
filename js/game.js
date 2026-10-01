@@ -824,6 +824,20 @@ function masteryUses(id) { return (G.player.mastery || {})[id] || 0; }
 function masteryLv(id) { const u = masteryUses(id); let lv = 0; while (lv < MASTERY_MAX && u >= masteryNeed(lv + 1, id)) lv++; return lv; }
 function masteryPct(id) { return masteryLv(id) * (id === 'attack' ? 2 : 3); }
 function masteryMul(id) { return 1 + masteryPct(id) / 100; }
+// ความชำนาญทำอะไรกับสกิลนี้ (ไม่ใช่ทุกสกิลเป็นการโจมตี): ดาเมจ / ฮีล / บัฟนานขึ้น / อยู่นานขึ้น / กับดักแรงขึ้น
+function masteryKind(id) {
+  if (id === 'attack') return 'dmg';
+  const s = SKILLS[id]; if (!s) return 'dmg';
+  if (s.dmg) return 'dmg';
+  if (s.heal) return 'heal';
+  if (s.buff) return 'buff';
+  return s.special === 'summon_wolf' ? 'summon' : s.special === 'stealth' ? 'stealth' : s.special === 'trap' ? 'trap' : 'dmg';
+}
+function masteryEffect(id, pct = masteryPct(id)) {
+  const t = { dmg: L(`แรงขึ้น +${pct}%`, `Power +${pct}%`), heal: L(`ฮีลแรงขึ้น +${pct}%`, `Healing +${pct}%`), buff: L(`บัฟนานขึ้น +${pct}%`, `Buff duration +${pct}%`),
+    summon: L(`อยู่ช่วยนานขึ้น +${pct}%`, `Summon duration +${pct}%`), stealth: L(`หายตัวนานขึ้น +${pct}%`, `Stealth duration +${pct}%`), trap: L(`กับดักแรงขึ้น +${pct}%`, `Trap damage +${pct}%`) };
+  return t[masteryKind(id)];
+}
 function addMastery(id) {
   const p = G.player; p.mastery = p.mastery || {};
   const before = masteryLv(id);
@@ -832,7 +846,7 @@ function addMastery(id) {
   if (now > before) {
     const name = id === 'attack' ? L('การโจมตีปกติ', 'Basic Attack') : SKILLS[id].name;
     addFloater(p.x, p.y - 1.9, `MASTERY ${now}!`, '#9ff0ff', true);
-    UI.msg(L(`★ ความชำนาญ ${name} เพิ่มเป็น Lv ${now} — แรงขึ้น +${masteryPct(id)}%`, `★ ${name} Mastery reached Lv ${now} — power +${masteryPct(id)}%`), 'lvl');
+    UI.msg(L(`★ ความชำนาญ ${name} เพิ่มเป็น Lv ${now} — ${masteryEffect(id)}`, `★ ${name} Mastery reached Lv ${now} — ${masteryEffect(id)}`), 'lvl');
     Sound.play('buff');
   }
   UI.dirty();
@@ -989,7 +1003,7 @@ function executeSkill(id, lv, tgt) {
     else { healPlayer(amt, s.name); Sound.play('heal'); }
   }
   if (s.buff) {
-    p.buffs[id] = { lv, until: G.time + s.buff.dur(lv) };
+    p.buffs[id] = { lv, until: G.time + s.buff.dur(lv) * masteryMul(id) }; // ความชำนาญ: บัฟนานขึ้น
     recalc();
     Sound.play('buff');
   }
@@ -1058,16 +1072,16 @@ function runSpecialSkill(kind, s, lv) {
     G.allies = G.allies.filter(a => a.kind !== 'wolf');
     G.allies.push({
       kind: 'wolf', name: 'Wolf', x: p.x + 0.8, y: p.y, path: [], facing: p.facing, moving: false, seed: Math.random(),
-      until: G.time + s.dur(lv), lv, nextAtk: 0, repathAt: 0, atkAnim: 0, target: null, state: 'ally',
+      until: G.time + s.dur(lv) * masteryMul(s.id), lv, nextAtk: 0, repathAt: 0, atkAnim: 0, target: null, state: 'ally',
       def: { size: 0.85, color: '#c8c8d4', color2: '#8a8a98', variant: 'wolf' },
     });
     addFx({ type: 'warp', x: p.x + 0.8, y: p.y, dur: 0.6 });
     UI.msg(L(`หมาป่าคู่ใจมาช่วยสู้ ${s.dur(lv)} วินาที!`, `Your loyal wolf joins the fight for ${s.dur(lv)}s!`), 'sys');
   } else if (kind === 'trap') {
     if (G.traps.length >= 3) G.traps.shift();
-    G.traps.push({ x: p.x, y: p.y, lv, until: G.time + 40, armed: G.time + 0.6 });
+    G.traps.push({ x: p.x, y: p.y, lv, until: G.time + 40, armed: G.time + 0.6, mul: masteryMul(s.id) });
   } else if (kind === 'stealth') {
-    p.stealthUntil = G.time + s.dur(lv);
+    p.stealthUntil = G.time + s.dur(lv) * masteryMul(s.id);
     p.target = null;
     for (const m of G.mobs) if (m.state === 'chase') { m.state = 'idle'; m.path = []; }
     addFx({ type: 'ring', ref: p, dur: 0.6, r: 1.5, color: '140,140,170', waves: 2 });
@@ -1141,7 +1155,7 @@ function updateTraps() {
     for (const m of G.mobs) {
       if (m.dead || U.dist(m.x, m.y, t.x, t.y) > 1.5) continue;
       const base = (p.d.dex * 3 + p.baseLv * 2 + p.d.statusAtk * 0.5) * (0.6 + 0.2 * t.lv);
-      const dmg = Math.max(1, Math.round(base * U.rand(0.9, 1.1) * elemMod('fire', m.def.element)));
+      const dmg = Math.max(1, Math.round(base * (t.mul || 1) * U.rand(0.9, 1.1) * elemMod('fire', m.def.element)));
       damageMob(m, dmg, { color: '#ffb060' });
     }
   }

@@ -525,7 +525,7 @@ const UI = {
       const x = p[bar][i];
       const ic = $('.ic', el), q = $('.q', el);
       ic.innerHTML = ''; q.textContent = ''; el.title = L(`ปุ่มลัด ${key}`, `Hotkey ${key}`);
-      el.classList.remove('empty'); el.classList.toggle('blank', !x);
+      el.classList.remove('empty', 'has-tip'); el._tip = null; el.classList.toggle('blank', !x);
       if (x && x.t === 'skill' && !skillLv(x.id)) { p[bar][i] = null; el.classList.add('blank'); return; }
       if (!x) return;
       if (x.t === 'skill') {
@@ -533,10 +533,12 @@ const UI = {
         q.textContent = 'Lv' + skillLv(x.id);
         const sk = SKILLS[x.id], lv = skillLv(x.id), cost = skillCost(x.id, lv);
         el.title = `${sk.name} Lv ${lv} [${key}]${cost ? ` • SP ${cost}` : ''}${sk.cd ? L(` • คูลดาวน์ ${+(sk.cd * (1 - (G.player.d.cdCut || 0) / 100)).toFixed(1)} วิ`, ` • Cooldown ${+(sk.cd * (1 - (G.player.d.cdCut || 0) / 100)).toFixed(1)}s`) : ''}\n${sk.desc || ''}`;
+        this.skillTipFor(el, x.id);
       } else {
         ic.append(h('img', { src: itemIconUrl(x.id), alt: '' }));
         q.textContent = countItem(x.id);
         el.title = `${ITEMS[x.id].name} ×${countItem(x.id)} [${key}]\n${ITEMS[x.id].desc || ''}`;
+        this.tipFor(el, G.player.inventory.find(e => e.id === x.id) || { id: x.id }); el.removeAttribute('title');
       }
     });
   },
@@ -681,6 +683,49 @@ const UI = {
 
   // ---------- การ์ดข้อมูลไอเทมเมื่อเอาเมาส์ชี้ (กระเป๋า / อุปกรณ์ / ร้านค้า) ----------
   tipFor(el, entry, worn) { el.classList.add('has-tip'); el._tip = { entry, worn }; return el; },
+  skillTipFor(el, id) { el.classList.add('has-tip'); el._tip = { skill: id }; el.removeAttribute('title'); return el; },
+  // การ์ดรายละเอียดสกิล (เมาส์ชี้): SP / คูลดาวน์ / ร่าย / ระยะ / ความชำนาญ / ค่าติดตัวที่ได้จริง
+  skillTipBody(id) {
+    const s = SKILLS[id], p = G.player, lv = skillLv(id), show = Math.max(1, lv), d = p.d || {};
+    const lines = [], add = (k, v) => lines.push(h('div', { class: 'tip-line' }, h('span', { class: 'tip-k' }, k + ' '), v));
+    if (s.type === 'active') {
+      const cost = skillCost(id, show); if (cost) add('SP', String(cost));
+      if (s.hpCost) add('HP', `-${s.hpCost(show)}%`);
+      if (s.cd) add(L('คูลดาวน์', 'Cooldown'), L(`${+(s.cd * (1 - (d.cdCut || 0) / 100)).toFixed(1)} วิ`, `${+(s.cd * (1 - (d.cdCut || 0) / 100)).toFixed(1)}s`) + (d.cdCut ? L(` (AGI ลด ${d.cdCut}%)`, ` (AGI -${d.cdCut}%)`) : ''));
+      if (s.cast) add(L('ร่าย', 'Cast'), L(`${+(s.cast(show) * (d.castMul || 1) / 1000).toFixed(2)} วิ`, `${+(s.cast(show) * (d.castMul || 1) / 1000).toFixed(2)}s`));
+      add(L('เป้าหมาย', 'Target'), s.target === 'self' ? (s.dmg && s.dmg.area ? L(`รอบตัว ${s.dmg.area} ช่อง`, `Around you, ${s.dmg.area} tiles`) : L('ตัวเอง', 'Self'))
+        : `${s.melee ? L('ประชิด', 'Melee') : s.bow ? L('ระยะธนู', 'Bow range') : L(`ระยะ ${skillRange(s)} ช่อง`, `Range ${skillRange(s)} tiles`)}${s.dmg && s.dmg.area ? L(` • วงกว้าง ${s.dmg.area} ช่อง`, ` • Area ${s.dmg.area}`) : ''}${s.dmg && s.dmg.line ? L(' • ทะลุแนว', ' • Pierces') : ''}`);
+      if (s.dmg && s.dmg.element) add(L('ธาตุ', 'Element'), ELEM_THAI[s.dmg.element] || s.dmg.element);
+    }
+    const pas = s.passive ? s.passive(show) : s.buff ? s.buff.stats(show) : null;
+    const req = s.req ? Object.entries(s.req).map(([k, v]) => `${SKILLS[k].name} ${v}`).join(', ') : '';
+    return [
+      h('div', { class: 'tip-head' }, this.skillIcon(id), h('div', {}, h('b', {}, s.name), h('small', {}, `${s.type === 'passive' ? L('ติดตัว', 'Passive') : L('กดใช้', 'Active')} • Lv ${lv}/${s.max}${lv ? '' : L(' (ยังไม่เรียน)', ' (not learned)')}`))),
+      s.desc ? h('div', { class: 'tip-desc' }, s.desc) : null,
+      ...lines,
+      pas && typeof PSTAT !== 'undefined' ? h('div', { class: 'tip-bon' }, ...Object.entries(pas).filter(([k]) => PSTAT[k]).map(([k, v]) => h('span', {}, PSTAT_FMT(k, Math.round(v * 10) / 10)))) : null,
+      s.buff ? h('div', { class: 'tip-line' }, L(`นาน ${Math.round(s.buff.dur(show) * masteryMul(id))} วิ`, `Lasts ${Math.round(s.buff.dur(show) * masteryMul(id))}s`)) : null,
+      s.type === 'active' ? h('div', { class: 'tip-line tip-mas' }, L(`ความชำนาญ Lv ${masteryLv(id)}/${MASTERY_MAX} — ${masteryEffect(id)}`, `Mastery Lv ${masteryLv(id)}/${MASTERY_MAX} — ${masteryEffect(id)}`)) : null,
+      req ? h('div', { class: 'tip-line' + (skillReqMet(id) ? '' : ' tip-bad') }, L(`ต้องการ: ${req}`, `Requires: ${req}`)) : null,
+    ].filter(Boolean);
+  },
+  // ของชิ้นนี้หาได้จากมอนตัวไหน (ตารางดรอป + ชิปประจำมอน) — แสดงในการ์ดไอเทม
+  dropSources(id) {
+    const src = [];
+    for (const mid in MOBS) {
+      const m = MOBS[mid]; if (m.dummy || m.worldBoss) continue;
+      const d = (m.drops || []).find(x => x[0] === id);
+      if (d) src.push([m, d[1]]);
+      if (typeof MOB_CHIP !== 'undefined' && MOB_CHIP[mid] === id) src.push([m, -1]);
+    }
+    if (!src.length) return null;
+    src.sort((a, b) => (b[1] < 0 ? 1 : b[1]) - (a[1] < 0 ? 1 : a[1]));
+    const where = mid => { const k = Object.keys(MAP_DEFS).find(k => (MAP_DEFS[k].spawns || []).some(s => s[0] === mid) || MAP_DEFS[k].mvp === mid); return k ? MAP_DEFS[k].name : ''; };
+    const pct = c => c >= 0.1 ? `${Math.round(c * 100)}%` : `${+(c * 100).toFixed(2)}%`;
+    return h('div', { class: 'tip-src' }, h('b', {}, L('ได้จาก', 'Dropped by')),
+      ...src.slice(0, 5).map(([m, c]) => h('div', {}, `${m.name}${m.boss ? ' (MVP)' : ''} · Lv ${m.lv}`, h('small', {}, ` ${where(m.id)}${where(m.id) ? ' · ' : ''}${c < 0 ? L(`ล่าครบ ${chipNeed(m)} ตัว`, `defeat ${chipNeed(m)}`) : pct(c)}`))),
+      src.length > 5 ? h('small', {}, L(`และอีก ${src.length - 5} ตัว`, `and ${src.length - 5} more`)) : null);
+  },
   hideTip() { const t = $('#item-tip'); if (t) t.hidden = true; this._tipEl = null; },
   tipBody(entry, worn) {
     const it = ITEMS[entry.id], bon = {};
@@ -694,6 +739,7 @@ const UI = {
       Object.keys(bon).length ? h('div', { class: 'tip-bon' }, ...Object.entries(bon).filter(([k]) => typeof PSTAT !== 'undefined' && PSTAT[k]).map(([k, v]) => h('span', {}, PSTAT_FMT(k, v)))) : null,
       it.heal ? h('div', { class: 'tip-line' }, L(`ฟื้น HP ${it.heal[0]}~${it.heal[1]}`, `Restores HP ${it.heal[0]}~${it.heal[1]}`)) : null,
       it.spHeal ? h('div', { class: 'tip-line' }, L(`ฟื้น SP ${it.spHeal[0]}~${it.spHeal[1]}`, `Restores SP ${it.spHeal[0]}~${it.spHeal[1]}`)) : null,
+      this.dropSources(entry.id),
       !worn && isEquipType(it) && G.player.inventory.includes(entry) ? this.compareLine(entry, true) : null,
     ].filter(Boolean);
   },
@@ -709,7 +755,7 @@ const UI = {
       if (ev.pointerType !== 'mouse') return;
       const el = ev.target.closest && ev.target.closest('.has-tip');
       if (!el || !el._tip) { if (!tip.hidden) this.hideTip(); return; }
-      if (this._tipEl !== el) { this._tipEl = el; tip.innerHTML = ''; tip.append(...this.tipBody(el._tip.entry, el._tip.worn)); tip.hidden = false; }
+      if (this._tipEl !== el) { this._tipEl = el; tip.innerHTML = ''; tip.append(...(el._tip.skill ? this.skillTipBody(el._tip.skill) : this.tipBody(el._tip.entry, el._tip.worn))); tip.hidden = false; }
       place(ev.clientX, ev.clientY);
     }, { passive: true });
     document.addEventListener('pointerdown', () => this.hideTip(), { passive: true });
@@ -841,11 +887,11 @@ const UI = {
       const pct = lv >= MASTERY_MAX ? 100 : Math.floor((u - a) / (z - a) * 100);
       return h('div', { class: 'sk-mas', title: lv >= MASTERY_MAX ? L('ความชำนาญสูงสุดแล้ว', 'Mastery maxed') : L(`ใช้อีก ${U.fmt(z - u)} ครั้งถึง Lv ${lv + 1}`, `${U.fmt(z - u)} more uses to Lv ${lv + 1}`) },
         h('span', {}, L(`ความชำนาญ Lv ${lv}/${MASTERY_MAX}`, `Mastery Lv ${lv}/${MASTERY_MAX}`)), h('i', {}, h('b', { style: `width:${pct}%` })),
-        h('em', {}, `${id === 'attack' ? L('ตีแรงขึ้น', 'Attack power') : SKILLS[id] && SKILLS[id].heal ? L('ฮีลแรงขึ้น', 'Healing power') : L('แรงขึ้น', 'Power')} +${masteryPct(id)}%`));
+        h('em', {}, id === 'attack' ? L(`ตีแรงขึ้น +${masteryPct(id)}%`, `Attack power +${masteryPct(id)}%`) : masteryEffect(id)));
     };
     // อธิบายว่าความชำนาญทำอะไร (ผู้เล่นถามบ่อย)
     body.append(h('div', { class: 'sk-mas-help' }, h('b', {}, L('ความชำนาญ = ยิ่งใช้ยิ่งเก่ง', 'Mastery: practice makes perfect')),
-      L(` สกิลที่ใช้บ่อยจะแรงขึ้นเอง ${MASTERY_MAX} ขั้น: สกิล +3% ต่อขั้น (ดาเมจและฮีล สูงสุด +30%) • ตีปกติ +2% ต่อขั้น (สูงสุด +20%) — ไม่ต้องใช้แต้ม ไม่หายตอนเปลี่ยนอาชีพ`, ` Skills you use often grow stronger over ${MASTERY_MAX} ranks: skills +3% per rank (damage and healing, up to +30%) • basic attacks +2% per rank (up to +20%) — no points needed, kept on job change`)));
+      L(` สกิลที่ใช้บ่อยจะเก่งขึ้นเอง ${MASTERY_MAX} ขั้น ขั้นละ +3% ตามชนิดสกิล: สกิลโจมตี = แรงขึ้น • ฮีล = ฮีลแรงขึ้น • บัฟ = อยู่นานขึ้น • เรียกสัตว์/หายตัว = อยู่นานขึ้น • กับดัก = แรงขึ้น (สูงสุด +30%) • ตีปกติ +2% ต่อขั้น — ไม่ต้องใช้แต้ม ไม่หายตอนเปลี่ยนอาชีพ`, ` Skills you use often improve over ${MASTERY_MAX} ranks, +3% per rank by skill type: attacks hit harder • heals heal more • buffs last longer • summons/stealth last longer • traps hit harder (up to +30%) • basic attacks +2% per rank — no points needed, kept on job change`)));
     list.append(h('div', { class: 'sk-row' }, h('div', { class: 'sk-info' },
       h('div', { class: 'sk-name' }, L('การโจมตีปกติ', 'Basic Attack')), h('div', { class: 'sk-desc' }, L('ตีโดนทุกครั้งสะสมความชำนาญ ยิ่งตียิ่งแรง', 'Every hit builds mastery — the more you strike, the harder you hit')), mastery('attack'))));
     for (const id of ids) {
@@ -857,7 +903,7 @@ const UI = {
         ic.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', JSON.stringify({ t: 'skill', id })));
         ic.title = L('ลากไปวางที่ปุ่มลัด', 'Drag onto the hotbar');
       }
-      list.append(h('div', { class: 'sk-row' + (lv ? '' : ' locked') },
+      list.append(this.skillTipFor(h('div', { class: 'sk-row' + (lv ? '' : ' locked') },
         ic,
         h('div', { class: 'sk-info' },
           h('div', { class: 'sk-name' }, s.name, h('span', { class: 'sk-lv' }, ` Lv ${lv}/${s.max}`), s.type === 'passive' ? h('span', { class: 'tag' }, L('ติดตัว', 'Passive')) : null),
@@ -867,7 +913,7 @@ const UI = {
         h('div', { class: 'sk-acts' },
           canLearn(id) ? h('button', { class: 'btn small', onclick: () => learnSkill(id) }, '+') : null,
           lv && s.type === 'active' ? h('button', { class: 'btn small', onclick: () => useSkill(id) }, L('ใช้', 'Use')) : null,
-          lv && s.type === 'active' ? h('button', { class: 'btn small', title: L('ตั้งปุ่มลัด', 'Set hotkey'), onclick: () => this.assignHotbar('skill', id) }, '📌') : null)));
+          lv && s.type === 'active' ? h('button', { class: 'btn small', title: L('ตั้งปุ่มลัด', 'Set hotkey'), onclick: () => this.assignHotbar('skill', id) }, '📌') : null)), id));
     }
     body.append(list);
     if (SECOND_JOBS[p.job]) body.append(h('div', { class: 'hint' }, L(`คลาสขั้น 2 (เลือก 1 สาย: ${SECOND_JOBS[p.job].map(j => JOBS[j].name).join(' / ')}): Base Lv ${SECOND_JOB_REQ.base} และ Job Lv ${SECOND_JOB_REQ.job} แล้วคุยกับ Mimir AI ในนีโอเอลด์ไฮม์`, `2nd class (choose one: ${SECOND_JOBS[p.job].map(j => JOBS[j].name).join(' / ')}): reach Base Lv ${SECOND_JOB_REQ.base} and Job Lv ${SECOND_JOB_REQ.job}, then talk to Mimir AI in Neo Eldheim`)));

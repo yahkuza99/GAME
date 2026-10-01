@@ -1058,3 +1058,11 @@ body:not(.pad-mode) #hud:has(#mm-wb:not([hidden])) #menubar { top: calc(258px + 
 @media (orientation: portrait) {
   body.visor.pad-mode #hud #quest-track, body.visor.pad-mode #hud:has(#buffs .buff) #quest-track { top: calc(292px + var(--st)); right: calc(var(--gap) + var(--sr)); width: min(46vw, 190px); }
 }
+#item-tip .tip-k { color: #8fa4bc; }
+#item-tip .tip-mas { color: #8ff4ff; margin-top: 4px; }
+#item-tip .tip-bad { color: #ffa0a8; }
+#item-tip .tip-src { margin-top: 7px; padding-top: 6px; border-top: 1px solid rgba(255, 255, 255, 0.08); display: grid; gap: 1px; }
+#item-tip .tip-src b { font-size: 11px; color: #ffd98a; letter-spacing: .04em; }
+#item-tip .tip-src div { color: #e6eef8; }
+#item-tip .tip-src small { color: #9fb0c4; }
+#item-tip .tip-head .sicon { width: 34px; height: 34px; flex: none; }
