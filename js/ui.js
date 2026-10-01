@@ -1804,17 +1804,37 @@ UI.autoFoldMenu = function () {
 
 // มือถือแนวตั้ง: กล่องข้อมูลตัวละครสูงขึ้นเมื่อมีป้าย Status/Skill/Passive หลายอัน → ดันแถบเป้าหมายและแชตลงมาไม่ให้ทับกัน
 UI.stackTop = () => {
-  const bi = $('#basic-info'), tg = $('#target'), ch = $('#chat');
+  const bi = $('#basic-info'), tg = $('#target'), ch = $('#chat'), nav = $('#nav-pill'), bf = $('#buffs'), qt = $('#quest-track'), ab = $('#auto-btn');
   if (!bi || !tg) return;
-  tg.style.top = ''; if (ch) ch.style.top = '';
+  for (const e of [tg, ch, nav, bf, qt]) if (e) e.style.top = '';
+  if (qt) qt.style.right = ''; if (ch) ch.style.width = '';
   if (innerWidth > 760 || innerHeight <= innerWidth || !bi.getClientRects().length) return;
+  const vis = e => e && !e.hidden && e.getClientRects().length && getComputedStyle(e).display !== 'none';
+  const top = e => parseFloat(getComputedStyle(e).top) || 0;
   const biB = bi.getBoundingClientRect().bottom;
-  let tTop = parseFloat(getComputedStyle(tg).top) || 0;
-  if (biB + 6 > tTop) { tTop = biB + 6; tg.style.top = tTop + 'px'; }
+  // แถบนำทาง (กว้างเต็มแถว) ใต้กล่องข้อมูลตัวละคร → ของที่อยู่ใต้มันเลื่อนตาม
+  let below = biB + 6;
+  if (vis(nav)) { if (top(nav) < below) nav.style.top = below + 'px'; below = nav.getBoundingClientRect().bottom + 6; }
+  let tTop = top(tg);
+  if (below > tTop) { tTop = below; tg.style.top = tTop + 'px'; }
+  if (bf && bf.querySelector('.buff') && top(bf) < below) bf.style.top = below + 'px';
+  // เควสต์ (คอลัมน์ขวา): ห้ามทับแถบนำทาง และถ้าแนวตั้งชนปุ่ม AUTO ให้ขยับไปอยู่ทางซ้ายของปุ่มแทน
+  if (vis(qt)) {
+    if (top(qt) < below + 2) qt.style.top = (below + 2) + 'px';
+    if (vis(ab)) {
+      const a = ab.getBoundingClientRect(), q = qt.getBoundingClientRect();
+      if (q.bottom > a.top - 4 && q.top < a.bottom + 4 && q.right > a.left - 4) qt.style.right = Math.round(innerWidth - a.left + 6) + 'px';
+    }
+  }
   if (ch && document.body.classList.contains('pad-mode')) {
-    const bf = $('#buffs'), bfB = bf && bf.querySelector('.buff') ? bf.getBoundingClientRect().bottom + 6 : 0;
+    const bfB = bf && bf.querySelector('.buff') ? bf.getBoundingClientRect().bottom + 6 : below;
     const cTop = parseFloat(getComputedStyle(ch).top) || 0, need = Math.max(tTop + 52, bfB);
     if (need > cTop) ch.style.top = need + 'px';
+    // ข้อความแชตยาวไม่วิ่งไปทับแถบเควสต์ทางขวา
+    if (vis(qt)) {
+      const c = ch.getBoundingClientRect(), q = qt.getBoundingClientRect();
+      if (c.bottom > q.top && c.top < q.bottom && c.right > q.left - 8) ch.style.width = Math.max(150, Math.round(q.left - 10 - c.left)) + 'px';
+    }
   }
 };
 setInterval(() => { if (typeof G !== 'undefined' && G.started) UI.stackTop(); }, 1000); // บัฟขึ้น/หาย ป้ายแต้มเปลี่ยน → จัดใหม่

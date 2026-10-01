@@ -1220,3 +1220,9 @@ body.visor .charsel.confirming .cs-btns { display: none; }
   .wbt-r small { font-size: 9px; }
   .wbr-t { font-size: 17px; } .wbr-me b { font-size: 15px; }
 }
+
+/* มือถือแนวตั้ง: แถบเควสต์กะทัดรัด (บรรทัดเดียวต่อหัวข้อ) — ตำแหน่งหลบปุ่ม AUTO จัดใน js: UI.stackTop */
+@media (orientation: portrait) and (max-width: 760px) {
+  body.visor.pad-mode #quest-track .qt-title, body.visor.pad-mode #quest-track .qt-obj { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  body.visor.pad-mode #quest-track::before { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.08em; }
+}
