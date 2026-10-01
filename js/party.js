@@ -48,7 +48,7 @@ const Party = {
   },
   needOnline() {
     if (Online.online && Online.sb) return true;
-    UI.msg('ระบบปาร์ตี้ใช้ได้เฉพาะโหมดออนไลน์ (ล็อกอินบัญชีออนไลน์)', 'err');
+    UI.msg(L('ระบบปาร์ตี้ใช้ได้เฉพาะโหมดออนไลน์ (ล็อกอินบัญชีออนไลน์)', 'Parties are only available in online mode (log in with an online account).'), 'err');
     return false;
   },
   cleanName(s) { return String(s || '').replace(/[\u0000-\u001f<>"]/g, '').trim().slice(0, 24); },
@@ -77,7 +77,7 @@ const Party = {
     ch.subscribe(st => {
       if (ch !== this.ch) return;
       if (st === 'SUBSCRIBED') this.heartbeat(true);
-      else if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT') UI.msg('การเชื่อมต่อปาร์ตี้สะดุด กำลังลองใหม่…', 'err');
+      else if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT') UI.msg(L('การเชื่อมต่อปาร์ตี้สะดุด กำลังลองใหม่…', 'Party connection hiccup — retrying…'), 'err');
     });
     this.ch = ch;
     this.refresh();
@@ -86,28 +86,28 @@ const Party = {
   // ---------------- สร้าง / ออก / เตะ ----------------
   create(name) {
     if (!this.needOnline()) return false;
-    if (this.party) { UI.msg('คุณอยู่ในปาร์ตี้แล้ว — ออกก่อนด้วย /leave', 'err'); return false; }
-    name = this.cleanName(name) || `ปาร์ตี้ของ ${G.player.name}`;
+    if (this.party) { UI.msg(L('คุณอยู่ในปาร์ตี้แล้ว — ออกก่อนด้วย /leave', 'You\'re already in a party — leave it first with /leave'), 'err'); return false; }
+    name = this.cleanName(name) || L(`ปาร์ตี้ของ ${G.player.name}`, `${G.player.name}'s Party`);
     this.join('p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), name, Date.now());
-    UI.msg(`★ ตั้งปาร์ตี้ "${name}" แล้ว — เชิญเพื่อนได้ที่หน้าต่างปาร์ตี้ (Y) หรือพิมพ์ /invite ชื่อ`, 'party');
+    UI.msg(L(`★ ตั้งปาร์ตี้ "${name}" แล้ว — เชิญเพื่อนได้ที่หน้าต่างปาร์ตี้ (Y) หรือพิมพ์ /invite ชื่อ`, `★ Party "${name}" created — invite friends from the Party window (Y) or type /invite name`), 'party');
     Sound.play('buff');
     return true;
   },
   leave(quiet) {
-    if (!this.party) { if (!quiet) UI.msg('คุณไม่ได้อยู่ในปาร์ตี้', 'err'); return; }
+    if (!this.party) { if (!quiet) UI.msg(L('คุณไม่ได้อยู่ในปาร์ตี้', 'You\'re not in a party.'), 'err'); return; }
     const name = this.party.name, ch = this.ch;
     const sent = this.send('leave', { id: this.me(), since: this.party.since });
     this.ch = null; this.party = null; this.queue = [];
     // ปิดช่องหลังส่งข้อความลาเสร็จ (ไม่งั้นข้อความอาจหายระหว่างทาง)
     if (ch) Promise.resolve(sent).catch(() => {}).then(() => { if (Online.sb) Online.sb.removeChannel(ch); });
-    if (!quiet) UI.msg(`ออกจากปาร์ตี้ "${name}" แล้ว`, 'party');
+    if (!quiet) UI.msg(L(`ออกจากปาร์ตี้ "${name}" แล้ว`, `You left the party "${name}".`), 'party');
     this.refresh();
   },
   async kick(id) {
     const m = this.member(id);
     if (!m) return;
-    if (!this.isLeader()) { UI.msg('เฉพาะหัวหน้าปาร์ตี้เท่านั้นที่เตะสมาชิกได้', 'err'); return; }
-    if (!(await UI.confirm(`เตะ ${m.name} ออกจากปาร์ตี้?`)) || !this.has(id)) return;
+    if (!this.isLeader()) { UI.msg(L('เฉพาะหัวหน้าปาร์ตี้เท่านั้นที่เตะสมาชิกได้', 'Only the party leader can kick members.'), 'err'); return; }
+    if (!(await UI.confirm(L(`เตะ ${m.name} ออกจากปาร์ตี้?`, `Kick ${m.name} from the party?`))) || !this.has(id)) return;
     this.send('kick', { id, by: this.me() });
     this.removeMember(id, 'kick');
   },
@@ -117,9 +117,9 @@ const Party = {
     const lead0 = this.leaderId();
     this.party.members.delete(id);
     if (why !== 'timeout') this.gone.set(id, m.since);
-    UI.msg(why === 'kick' ? `${m.name} ถูกเตะออกจากปาร์ตี้` : why === 'timeout' ? `${m.name} ขาดการเชื่อมต่อจากปาร์ตี้` : `${m.name} ออกจากปาร์ตี้`, 'party');
+    UI.msg(why === 'kick' ? L(`${m.name} ถูกเตะออกจากปาร์ตี้`, `${m.name} was kicked from the party.`) : why === 'timeout' ? L(`${m.name} ขาดการเชื่อมต่อจากปาร์ตี้`, `${m.name} lost connection to the party.`) : L(`${m.name} ออกจากปาร์ตี้`, `${m.name} left the party.`), 'party');
     const lead1 = this.leaderId();
-    if (lead1 !== lead0) UI.msg(lead1 === this.me() ? '♛ คุณเป็นหัวหน้าปาร์ตี้คนใหม่' : `♛ ${this.member(lead1).name} เป็นหัวหน้าปาร์ตี้คนใหม่`, 'party');
+    if (lead1 !== lead0) UI.msg(lead1 === this.me() ? L('♛ คุณเป็นหัวหน้าปาร์ตี้คนใหม่', '♛ You are the new party leader.') : L(`♛ ${this.member(lead1).name} เป็นหัวหน้าปาร์ตี้คนใหม่`, `♛ ${this.member(lead1).name} is the new party leader.`), 'party');
     this.refresh();
   },
 
@@ -127,24 +127,24 @@ const Party = {
   // target = { id, name } จากรายชื่อในแผนที่ หรือ { name } จาก /invite (หาไม่เจอในแผนที่ = ส่งตามชื่อ ข้ามแผนที่ได้)
   inviteName(name) {
     name = this.cleanName(name);
-    if (!name) { UI.msg('พิมพ์ /invite ตามด้วยชื่อตัวละคร เช่น /invite Alice', 'err'); return; }
+    if (!name) { UI.msg(L('พิมพ์ /invite ตามด้วยชื่อตัวละคร เช่น /invite Alice', 'Type /invite followed by a character name, e.g. /invite Alice'), 'err'); return; }
     const o = [...Online.others.values()].find(x => String(x.name || '').toLowerCase() === name.toLowerCase());
     this.sendInvite(o ? { id: o.id, name: o.name } : { name });
   },
   sendInvite(t) {
     if (!this.needOnline()) return;
-    if (String(t.name).toLowerCase() === String(G.player.name).toLowerCase()) { UI.msg('เชิญตัวเองไม่ได้', 'err'); return; }
+    if (String(t.name).toLowerCase() === String(G.player.name).toLowerCase()) { UI.msg(L('เชิญตัวเองไม่ได้', 'You can\'t invite yourself.'), 'err'); return; }
     if (!this.party && !this.create()) return; // ยังไม่มีปาร์ตี้ = ตั้งให้อัตโนมัติ
-    if (!this.isLeader()) { UI.msg('เฉพาะหัวหน้าปาร์ตี้เท่านั้นที่เชิญสมาชิกได้', 'err'); return; }
-    if (this.roster().length >= PARTY_MAX) { UI.msg(`ปาร์ตี้เต็มแล้ว (สูงสุด ${PARTY_MAX} คน)`, 'err'); return; }
-    if ((t.id && this.has(t.id)) || [...this.party.members.values()].some(m => m.name.toLowerCase() === String(t.name).toLowerCase())) { UI.msg(`${t.name} อยู่ในปาร์ตี้แล้ว`, 'info'); return; }
+    if (!this.isLeader()) { UI.msg(L('เฉพาะหัวหน้าปาร์ตี้เท่านั้นที่เชิญสมาชิกได้', 'Only the party leader can invite members.'), 'err'); return; }
+    if (this.roster().length >= PARTY_MAX) { UI.msg(L(`ปาร์ตี้เต็มแล้ว (สูงสุด ${PARTY_MAX} คน)`, `The party is full (max ${PARTY_MAX}).`), 'err'); return; }
+    if ((t.id && this.has(t.id)) || [...this.party.members.values()].some(m => m.name.toLowerCase() === String(t.name).toLowerCase())) { UI.msg(L(`${t.name} อยู่ในปาร์ตี้แล้ว`, `${t.name} is already in the party.`), 'info'); return; }
     const key = t.id || 'n:' + t.name.toLowerCase();
-    if ((this.invited.get(key) || 0) > Date.now()) { UI.msg(`ส่งคำเชิญถึง ${t.name} แล้ว กำลังรอคำตอบ`, 'info'); return; }
+    if ((this.invited.get(key) || 0) > Date.now()) { UI.msg(L(`ส่งคำเชิญถึง ${t.name} แล้ว กำลังรอคำตอบ`, `Invite already sent to ${t.name} — waiting for a reply.`), 'info'); return; }
     this.invited.set(key, Date.now() + PARTY_INVITE_SEC * 1000);
     const r = this.roster();
     this.sendSocial('invite', { to: t.id || null, toName: t.id ? null : t.name, from: this.me(), fromName: G.player.name,
       partyId: this.party.id, partyName: this.party.name, since: Math.max(...r.map(m => m.since)), n: r.length });
-    UI.msg(`ส่งคำเชิญเข้าปาร์ตี้ถึง ${t.name} แล้ว`, 'party');
+    UI.msg(L(`ส่งคำเชิญเข้าปาร์ตี้ถึง ${t.name} แล้ว`, `Party invite sent to ${t.name}.`), 'party');
     this.refresh();
   },
   onInvite(v) {
@@ -153,9 +153,9 @@ const Party = {
     if (!mine) return;
     if (this.party) { this.reply(v, 'busy'); return; }
     if (this.invite && this.invite.partyId !== v.partyId) this.reply(this.invite, 'no'); // คำเชิญใหม่แทนอันเดิม
-    this.invite = { from: String(v.from), fromName: this.cleanName(v.fromName) || 'ผู้เล่น', partyId: String(v.partyId).slice(0, 40),
-      partyName: this.cleanName(v.partyName) || 'ปาร์ตี้', since: +v.since || 0, n: +v.n || 1, exp: Date.now() + PARTY_INVITE_SEC * 1000 };
-    UI.msg(`${this.invite.fromName} เชิญคุณเข้าปาร์ตี้ "${this.invite.partyName}"`, 'party');
+    this.invite = { from: String(v.from), fromName: this.cleanName(v.fromName) || L('ผู้เล่น', 'Player'), partyId: String(v.partyId).slice(0, 40),
+      partyName: this.cleanName(v.partyName) || L('ปาร์ตี้', 'Party'), since: +v.since || 0, n: +v.n || 1, exp: Date.now() + PARTY_INVITE_SEC * 1000 };
+    UI.msg(L(`${this.invite.fromName} เชิญคุณเข้าปาร์ตี้ "${this.invite.partyName}"`, `${this.invite.fromName} invited you to the party "${this.invite.partyName}"`), 'party');
     Sound.play('quest_new');
     this.showInvite();
   },
@@ -164,13 +164,13 @@ const Party = {
     const v = this.invite;
     if (!v) return;
     this.invite = null; this.showInvite();
-    if (this.party) { UI.msg('ออกจากปาร์ตี้เดิมก่อน จึงจะเข้าปาร์ตี้ใหม่ได้', 'err'); this.reply(v, 'busy'); return; }
+    if (this.party) { UI.msg(L('ออกจากปาร์ตี้เดิมก่อน จึงจะเข้าปาร์ตี้ใหม่ได้', 'Leave your current party before joining a new one.'), 'err'); this.reply(v, 'busy'); return; }
     if (!this.needOnline()) return;
-    if (v.n >= PARTY_MAX) { UI.msg('ปาร์ตี้นั้นเต็มแล้ว', 'err'); this.reply(v, 'full'); return; }
+    if (v.n >= PARTY_MAX) { UI.msg(L('ปาร์ตี้นั้นเต็มแล้ว', 'That party is already full.'), 'err'); this.reply(v, 'full'); return; }
     // เวลาเข้าต้องหลังสมาชิกเดิมทุกคน (นาฬิกาแต่ละเครื่องไม่ตรงกัน) หัวหน้าจะได้ไม่สลับ
     this.join(v.partyId, v.partyName, Math.max(Date.now(), v.since + 1));
     this.reply(v, 'yes');
-    UI.msg(`★ เข้าร่วม "${v.partyName}" แล้ว — พิมพ์ /p ข้อความ เพื่อคุยในปาร์ตี้`, 'party');
+    UI.msg(L(`★ เข้าร่วม "${v.partyName}" แล้ว — พิมพ์ /p ข้อความ เพื่อคุยในปาร์ตี้`, `★ Joined "${v.partyName}" — type /p message to talk to your party`), 'party');
     Sound.play('buff');
   },
   decline(why) {
@@ -178,16 +178,16 @@ const Party = {
     if (!v) return;
     this.invite = null; this.showInvite();
     this.reply(v, why || 'no');
-    UI.msg(why === 'timeout' ? `คำเชิญจาก ${v.fromName} หมดเวลาแล้ว` : `ปฏิเสธคำเชิญจาก ${v.fromName}`, 'info');
+    UI.msg(why === 'timeout' ? L(`คำเชิญจาก ${v.fromName} หมดเวลาแล้ว`, `The invite from ${v.fromName} has expired.`) : L(`ปฏิเสธคำเชิญจาก ${v.fromName}`, `Declined the invite from ${v.fromName}.`), 'info');
   },
   onReply(r) {
     if (!r || r.to !== this.me()) return;
-    const n = this.cleanName(r.fromName) || 'ผู้เล่น';
+    const n = this.cleanName(r.fromName) || L('ผู้เล่น', 'Player');
     this.invited.delete(r.from); this.invited.delete('n:' + n.toLowerCase());
-    if (r.ans === 'busy') UI.msg(`${n} อยู่ในปาร์ตี้อื่นอยู่แล้ว`, 'err');
-    else if (r.ans === 'full') UI.msg(`${n} เข้าปาร์ตี้ไม่ได้ เพราะปาร์ตี้เต็ม`, 'err');
-    else if (r.ans === 'no') UI.msg(`${n} ปฏิเสธคำเชิญเข้าปาร์ตี้`, 'info');
-    else if (r.ans === 'timeout') UI.msg(`${n} ไม่ได้ตอบคำเชิญ`, 'info');
+    if (r.ans === 'busy') UI.msg(L(`${n} อยู่ในปาร์ตี้อื่นอยู่แล้ว`, `${n} is already in another party.`), 'err');
+    else if (r.ans === 'full') UI.msg(L(`${n} เข้าปาร์ตี้ไม่ได้ เพราะปาร์ตี้เต็ม`, `${n} couldn't join because the party is full.`), 'err');
+    else if (r.ans === 'no') UI.msg(L(`${n} ปฏิเสธคำเชิญเข้าปาร์ตี้`, `${n} declined your party invite.`), 'info');
+    else if (r.ans === 'timeout') UI.msg(L(`${n} ไม่ได้ตอบคำเชิญ`, `${n} didn't respond to your invite.`), 'info');
     this.refresh(); // 'yes' → ข้อความ "เข้าร่วม" มากับ heartbeat แรกของเขา
   },
   // โทสต์คำเชิญ (รับ / ปฏิเสธ + แถบเวลานับถอยหลัง)
@@ -203,11 +203,11 @@ const Party = {
     const ic = h('span', { class: 'pinv-ic' }); ic.innerHTML = partySvg('party');
     const left = Math.max(1, (v.exp - Date.now()) / 1000);
     el.append(ic,
-      h('div', { class: 'pinv-t' }, h('small', {}, 'คำเชิญเข้าปาร์ตี้'),
-        h('span', {}, h('b', {}, v.fromName), ' ชวนคุณเข้า ', h('b', { class: 'pinv-pn' }, v.partyName))),
+      h('div', { class: 'pinv-t' }, h('small', {}, L('คำเชิญเข้าปาร์ตี้', 'Party Invite')),
+        h('span', {}, h('b', {}, v.fromName), L(' ชวนคุณเข้า ', ' invites you to join '), h('b', { class: 'pinv-pn' }, v.partyName))),
       h('div', { class: 'pinv-btns' },
-        h('button', { type: 'button', class: 'btn pinv-yes', onclick: () => this.accept() }, 'รับ'),
-        h('button', { type: 'button', class: 'btn pinv-no', onclick: () => this.decline() }, 'ปฏิเสธ')),
+        h('button', { type: 'button', class: 'btn pinv-yes', onclick: () => this.accept() }, L('รับ', 'Accept')),
+        h('button', { type: 'button', class: 'btn pinv-no', onclick: () => this.decline() }, L('ปฏิเสธ', 'Decline'))),
       h('i', { class: 'pinv-bar' }, h('b', { style: `animation-duration:${left.toFixed(1)}s` })));
     el.hidden = false;
   },
@@ -239,36 +239,36 @@ const Party = {
     if (fresh) {
       this.gone.delete(s.id);
       this.heartbeat(true); // ให้คนที่เพิ่งเข้าเห็นเราทันที ไม่ต้องรอรอบถัดไป
-      if (m.since > this.party.since) UI.msg(`★ ${m.name} เข้าร่วมปาร์ตี้`, 'party');
+      if (m.since > this.party.since) UI.msg(L(`★ ${m.name} เข้าร่วมปาร์ตี้`, `★ ${m.name} joined the party`), 'party');
       Sound.play('click');
       // คนเกิน 6: คนที่เข้าหลังสุดออกเอง
       const r = this.roster();
-      if (r.length > PARTY_MAX && r.findIndex(x => x.me) >= PARTY_MAX) { UI.msg(`ปาร์ตี้เต็มแล้ว (สูงสุด ${PARTY_MAX} คน)`, 'err'); this.leave(true); return; }
+      if (r.length > PARTY_MAX && r.findIndex(x => x.me) >= PARTY_MAX) { UI.msg(L(`ปาร์ตี้เต็มแล้ว (สูงสุด ${PARTY_MAX} คน)`, `The party is full (max ${PARTY_MAX}).`), 'err'); this.leave(true); return; }
     }
     if (s.pn && s.id === this.leaderId()) this.party.name = this.cleanName(s.pn) || this.party.name; // ชื่อปาร์ตี้ตามหัวหน้า
   },
   onLeave(v) { if (v && this.has(v.id)) this.removeMember(v.id, 'leave'); },
   onKick(v) {
     if (!this.party || !v || v.by !== this.leaderId()) return;
-    if (v.id === this.me()) { UI.msg(`คุณถูกเตะออกจากปาร์ตี้ "${this.party.name}"`, 'err'); this.leave(true); return; }
+    if (v.id === this.me()) { UI.msg(L(`คุณถูกเตะออกจากปาร์ตี้ "${this.party.name}"`, `You were kicked from the party "${this.party.name}".`), 'err'); this.leave(true); return; }
     this.removeMember(v.id, 'kick');
   },
 
   // ---------------- แชทปาร์ตี้ ----------------
   sendChat(text) {
-    if (!this.party) { UI.msg('คุณยังไม่ได้อยู่ในปาร์ตี้ — ตั้งปาร์ตี้ด้วย /party create', 'err'); return; }
+    if (!this.party) { UI.msg(L('คุณยังไม่ได้อยู่ในปาร์ตี้ — ตั้งปาร์ตี้ด้วย /party create', 'You\'re not in a party yet — create one with /party create'), 'err'); return; }
     const t = String(text || '').trim().slice(0, 80);
-    if (!t) { UI.msg('พิมพ์ /p ตามด้วยข้อความ เช่น /p ไปตีบอสกัน', 'err'); return; }
+    if (!t) { UI.msg(L('พิมพ์ /p ตามด้วยข้อความ เช่น /p ไปตีบอสกัน', 'Type /p followed by a message, e.g. /p let\'s go fight the boss'), 'err'); return; }
     const now = performance.now();
-    if (now - this.lastChat < 600) { UI.msg('ส่งข้อความเร็วเกินไป', 'err'); return; }
+    if (now - this.lastChat < 600) { UI.msg(L('ส่งข้อความเร็วเกินไป', 'You\'re sending messages too fast.'), 'err'); return; }
     this.lastChat = now;
     this.send('chat', { id: this.me(), name: G.player.name, t });
-    UI.msg(`[ปาร์ตี้] ${G.player.name} : ${t}`, 'party');
+    UI.msg(L(`[ปาร์ตี้] ${G.player.name} : ${t}`, `[Party] ${G.player.name} : ${t}`), 'party');
   },
   onChat(c) {
     if (!this.party || !c || !c.t || this.gone.has(c.id)) return;
     const m = this.member(c.id);
-    UI.msg(`[ปาร์ตี้] ${m ? m.name : this.cleanName(c.name)} : ${String(c.t).slice(0, 80)}`, 'party');
+    UI.msg(L(`[ปาร์ตี้] ${m ? m.name : this.cleanName(c.name)} : ${String(c.t).slice(0, 80)}`, `[Party] ${m ? m.name : this.cleanName(c.name)} : ${String(c.t).slice(0, 80)}`), 'party');
   },
   // คำสั่งแชท: คืน true ถ้าจัดการแล้ว
   chatCmd(text) {
@@ -371,7 +371,7 @@ const Party = {
       el.dataset.key = key; el.innerHTML = '';
       el.classList.toggle('folded', this.fold);
       el.dataset.n = others.length; // CSS จัดแถวตามจำนวนคน (คนเยอะ = แถวบรรทัดเดียว / หลายคอลัมน์บนจอเตี้ย)
-      const head = h('button', { type: 'button', class: 'ph-head', title: this.fold ? 'แสดงสมาชิกปาร์ตี้' : 'ย่อแถบปาร์ตี้',
+      const head = h('button', { type: 'button', class: 'ph-head', title: this.fold ? L('แสดงสมาชิกปาร์ตี้', 'Show party members') : L('ย่อแถบปาร์ตี้', 'Collapse party bar'),
         'aria-expanded': this.fold ? 'false' : 'true', onclick: e => { e.stopPropagation(); this.fold = !this.fold; this.renderHud(); } },
       h('span', { class: 'ph-k' }, 'PARTY'), h('span', { class: 'ph-name' }, this.party.name), h('span', { class: 'ph-n' }, `${others.length + 1}/${PARTY_MAX}`), h('i', { class: 'ph-chev' }));
       el.append(head);
@@ -380,7 +380,7 @@ const Party = {
         for (const m of others) {
           const off = m.map !== here;
           const row = h('button', { type: 'button', class: 'ph-row' + (off ? ' off' : ''), 'data-id': m.id,
-            title: off ? `${m.name} อยู่ที่ ${MAP_DEFS[m.map] ? MAP_DEFS[m.map].name : m.map} — แตะเพื่อนำทางไปแผนที่นั้น` : `${m.name} — แตะเพื่อเดินไปหา`,
+            title: off ? L(`${m.name} อยู่ที่ ${MAP_DEFS[m.map] ? MAP_DEFS[m.map].name : m.map} — แตะเพื่อนำทางไปแผนที่นั้น`, `${m.name} is in ${MAP_DEFS[m.map] ? MAP_DEFS[m.map].name : m.map} — tap to navigate to that map`) : L(`${m.name} — แตะเพื่อเดินไปหา`, `${m.name} — tap to walk over`),
             onclick: e => { e.stopPropagation(); this.goTo(this.member(m.id)); } },
           h('span', { class: 'ph-top' }, m.id === lead ? h('i', { class: 'ph-crown', html: partySvg('crown') }) : null,
             h('b', {}, m.name), h('small', {}, off ? (MAP_DEFS[m.map] ? MAP_DEFS[m.map].name : '—') : `Lv ${m.lv}`)),
@@ -388,7 +388,7 @@ const Party = {
           list.append(row);
         }
         if (!others.length) list.append(h('button', { type: 'button', class: 'ph-row ph-add', onclick: e => { e.stopPropagation(); UI.open('w-party'); } },
-          h('span', { class: 'ph-top', html: `${partySvg('plus')}<b>เชิญสมาชิก</b>` })));
+          h('span', { class: 'ph-top', html: L(`${partySvg('plus')}<b>เชิญสมาชิก</b>`, `${partySvg('plus')}<b>Invite Members</b>`) })));
         el.append(list);
       }
     }
@@ -422,46 +422,46 @@ const Party = {
     body.dataset.key = key;
     const scroll = body.scrollTop;
     body.innerHTML = '';
-    w.querySelector('.win-title span').textContent = this.party ? `ปาร์ตี้ — ${this.party.name}` : 'ปาร์ตี้ (Party)';
+    w.querySelector('.win-title span').textContent = this.party ? L(`ปาร์ตี้ — ${this.party.name}`, `Party — ${this.party.name}`) : L('ปาร์ตี้ (Party)', 'Party');
     const icon = (k, cls) => h('span', { class: cls || 'py-ic', html: partySvg(k) });
     const avatar = (job, crown) => {
       const em = Art.get('emblem_' + job);
       return h('span', { class: 'py-av', style: `--c:${(JOBS[job] && JOBS[job].glow) || '#6ff3ff'}` },
-        em ? h('img', { src: em.src, alt: '' }) : h('i'), crown ? h('i', { class: 'py-crown', title: 'หัวหน้าปาร์ตี้', html: partySvg('crown') }) : null);
+        em ? h('img', { src: em.src, alt: '' }) : h('i'), crown ? h('i', { class: 'py-crown', title: L('หัวหน้าปาร์ตี้', 'Party Leader'), html: partySvg('crown') }) : null);
     };
     const nearList = (canInvite) => {
       const box = h('div', { class: 'py-near' });
       for (const o of near) {
         const p = pend(o.id);
         box.append(h('div', { class: 'py-nrow' }, avatar(o.job),
-          h('span', { class: 'py-mid' }, h('b', {}, o.name), h('small', {}, `${JOBS[o.job] ? JOBS[o.job].name : ''} · Lv ${o.baseLv || 1}${o.dead ? ' · ล้มอยู่' : ''}`)),
+          h('span', { class: 'py-mid' }, h('b', {}, o.name), h('small', {}, `${JOBS[o.job] ? JOBS[o.job].name : ''} · Lv ${o.baseLv || 1}${o.dead ? L(' · ล้มอยู่', ' · fallen') : ''}`)),
           canInvite ? h('button', { type: 'button', class: 'btn small py-inv' + (p ? ' wait' : ''), disabled: p ? 'disabled' : false,
-            onclick: () => this.sendInvite({ id: o.id, name: o.name }) }, p ? 'รอตอบ…' : 'เชิญ') : null));
+            onclick: () => this.sendInvite({ id: o.id, name: o.name }) }, p ? L('รอตอบ…', 'Waiting…') : L('เชิญ', 'Invite')) : null));
       }
-      if (!near.length) box.append(h('div', { class: 'py-none' }, 'ยังไม่มีผู้เล่นอื่นในแผนที่นี้ • ชวนคนที่อยู่แผนที่อื่นได้ด้วย /invite ชื่อ'));
+      if (!near.length) box.append(h('div', { class: 'py-none' }, L('ยังไม่มีผู้เล่นอื่นในแผนที่นี้ • ชวนคนที่อยู่แผนที่อื่นได้ด้วย /invite ชื่อ', 'No other players on this map yet • Invite players on other maps with /invite name')));
       return box;
     };
 
     if (!online) {
       body.append(h('div', { class: 'py-empty' }, icon('party', 'py-hero'),
-        h('b', {}, 'ปาร์ตี้ใช้ได้ในโหมดออนไลน์'),
-        h('p', {}, Online.loggedIn ? `ตอนนี้คุณเล่นด้วยบัญชีในเครื่อง (${Online.username}) จึงยังไม่เห็นผู้เล่นคนอื่น` : 'ตอนนี้คุณเล่นแบบไม่ล็อกอิน (เซฟในเครื่องนี้) จึงยังไม่เห็นผู้เล่นคนอื่น'),
-        h('p', { class: 'py-dim' }, 'เมื่อเชื่อมต่อเซิร์ฟเวอร์ออนไลน์ได้ คุณจะตั้งปาร์ตี้ ชวนเพื่อน แชทในทีม และแบ่ง EXP กันได้')));
+        h('b', {}, L('ปาร์ตี้ใช้ได้ในโหมดออนไลน์', 'Parties are available in online mode')),
+        h('p', {}, Online.loggedIn ? L(`ตอนนี้คุณเล่นด้วยบัญชีในเครื่อง (${Online.username}) จึงยังไม่เห็นผู้เล่นคนอื่น`, `You're playing with a local account (${Online.username}), so you can't see other players yet.`) : L('ตอนนี้คุณเล่นแบบไม่ล็อกอิน (เซฟในเครื่องนี้) จึงยังไม่เห็นผู้เล่นคนอื่น', 'You\'re playing without logging in (saved on this device), so you can\'t see other players yet.')),
+        h('p', { class: 'py-dim' }, L('เมื่อเชื่อมต่อเซิร์ฟเวอร์ออนไลน์ได้ คุณจะตั้งปาร์ตี้ ชวนเพื่อน แชทในทีม และแบ่ง EXP กันได้', 'Once connected to the online server, you can form parties, invite friends, chat with your team, and share EXP.'))));
       body.scrollTop = scroll;
       return;
     }
 
     if (!this.party) {
-      const inp = h('input', { type: 'text', maxlength: 24, placeholder: `ปาร์ตี้ของ ${G.player.name}`, 'aria-label': 'ชื่อปาร์ตี้',
+      const inp = h('input', { type: 'text', maxlength: 24, placeholder: L(`ปาร์ตี้ของ ${G.player.name}`, `${G.player.name}'s Party`), 'aria-label': L('ชื่อปาร์ตี้', 'Party name'),
         onkeydown: e => { if (e.key === 'Enter') { e.preventDefault(); this.create(inp.value); } e.stopPropagation(); } });
       body.append(
         h('div', { class: 'py-empty' }, icon('party', 'py-hero'),
-          h('b', {}, 'ยังไม่มีปาร์ตี้'),
-          h('p', {}, 'รวมทีมได้สูงสุด 6 คน ล่ามอนใกล้กันได้ EXP แบ่งเท่ากัน + โบนัส 15% ต่อสมาชิกที่ร่วมล่า'),
-          h('div', { class: 'py-create' }, inp, h('button', { type: 'button', class: 'btn py-go', onclick: () => this.create(inp.value) }, 'สร้างปาร์ตี้'))),
-        h('div', { class: 'py-sec' }, h('span', {}, 'ผู้เล่นในแผนที่นี้'), h('small', {}, near.length ? `${near.length} คน · เชิญ = ตั้งปาร์ตี้ให้อัตโนมัติ` : '')),
+          h('b', {}, L('ยังไม่มีปาร์ตี้', 'No Party Yet')),
+          h('p', {}, L('รวมทีมได้สูงสุด 6 คน ล่ามอนใกล้กันได้ EXP แบ่งเท่ากัน + โบนัส 15% ต่อสมาชิกที่ร่วมล่า', 'Team up with up to 6 players. Hunt near each other to share EXP evenly, plus a 15% bonus for each member who joins the hunt.')),
+          h('div', { class: 'py-create' }, inp, h('button', { type: 'button', class: 'btn py-go', onclick: () => this.create(inp.value) }, L('สร้างปาร์ตี้', 'Create Party')))),
+        h('div', { class: 'py-sec' }, h('span', {}, L('ผู้เล่นในแผนที่นี้', 'Players on This Map')), h('small', {}, near.length ? L(`${near.length} คน · เชิญ = ตั้งปาร์ตี้ให้อัตโนมัติ`, `${near.length} here · Inviting creates a party automatically`) : '')),
         nearList(true),
-        h('div', { class: 'hint' }, 'คำสั่งแชท: /party create • /invite ชื่อ • /leave • /p ข้อความ'));
+        h('div', { class: 'hint' }, L('คำสั่งแชท: /party create • /invite ชื่อ • /leave • /p ข้อความ', 'Chat commands: /party create • /invite name • /leave • /p message')));
       body.scrollTop = scroll;
       return;
     }
@@ -473,24 +473,24 @@ const Party = {
       list.append(h('div', { class: `py-row${m.me ? ' me' : ''}${off ? ' off' : ''}${m.dead ? ' dead' : ''}` },
         avatar(m.job, m.id === lead),
         h('span', { class: 'py-mid' },
-          h('span', { class: 'py-n' }, h('b', {}, m.name), m.me ? h('em', {}, 'คุณ') : null, m.id === lead ? h('small', { class: 'py-lead' }, 'หัวหน้า') : null,
-            h('small', { class: 'py-s' }, `${JOBS[m.job] ? JOBS[m.job].name : ''} · Lv ${m.lv}${m.dead ? ' · ล้ม' : ''}`)),
+          h('span', { class: 'py-n' }, h('b', {}, m.name), m.me ? h('em', {}, L('คุณ', 'You')) : null, m.id === lead ? h('small', { class: 'py-lead' }, L('หัวหน้า', 'Leader')) : null,
+            h('small', { class: 'py-s' }, `${JOBS[m.job] ? JOBS[m.job].name : ''} · Lv ${m.lv}${m.dead ? L(' · ล้ม', ' · fallen') : ''}`)),
           off ? h('span', { class: 'py-map', html: `${partySvg('pin')}<span>${U.esc(MAP_DEFS[m.map] ? MAP_DEFS[m.map].name : m.map)}</span>` })
             : h('span', { class: 'py-bars' }, bar('hp', hk, `${Math.round(m.hp)}/${m.maxHp}`), bar('sp', sk, `${Math.round(m.sp)}/${m.maxSp}`))),
-        leader && !m.me ? h('button', { type: 'button', class: 'btn small danger py-kick', title: `เตะ ${m.name} ออกจากปาร์ตี้`, onclick: () => this.kick(m.id) }, 'เตะ') : null));
+        leader && !m.me ? h('button', { type: 'button', class: 'btn small danger py-kick', title: L(`เตะ ${m.name} ออกจากปาร์ตี้`, `Kick ${m.name} from the party`), onclick: () => this.kick(m.id) }, L('เตะ', 'Kick')) : null));
     }
     const n = elig + 1;
     body.append(
       h('div', { class: 'py-head' },
         h('span', { class: 'py-count' }, h('b', {}, String(roster.length)), `/${PARTY_MAX}`),
-        h('span', { class: 'py-share' }, h('b', {}, 'แบ่ง EXP เท่ากัน'),
-          h('small', {}, n > 1 ? `ตอนนี้แบ่งกับ ${n - 1} คน · EXP รวม +${Math.round(PARTY_BONUS * (n - 1) * 100)}%` : `ต้องอยู่แผนที่เดียวกันในระยะ ${PARTY_RANGE} ช่อง`))),
+        h('span', { class: 'py-share' }, h('b', {}, L('แบ่ง EXP เท่ากัน', 'Even EXP Share')),
+          h('small', {}, n > 1 ? L(`ตอนนี้แบ่งกับ ${n - 1} คน · EXP รวม +${Math.round(PARTY_BONUS * (n - 1) * 100)}%`, `Sharing with ${n - 1} now · Total EXP +${Math.round(PARTY_BONUS * (n - 1) * 100)}%`) : L(`ต้องอยู่แผนที่เดียวกันในระยะ ${PARTY_RANGE} ช่อง`, `Must be on the same map within ${PARTY_RANGE} tiles`)))),
       list);
-    if (leader && roster.length < PARTY_MAX) body.append(h('div', { class: 'py-sec' }, h('span', {}, 'เชิญผู้เล่นใกล้ ๆ'), h('small', {}, near.length ? `${near.length} คนในแผนที่นี้` : '')), nearList(true));
-    else if (!leader) body.append(h('div', { class: 'py-none' }, 'เฉพาะหัวหน้าปาร์ตี้ (มงกุฎ) ที่เชิญและเตะสมาชิกได้'));
+    if (leader && roster.length < PARTY_MAX) body.append(h('div', { class: 'py-sec' }, h('span', {}, L('เชิญผู้เล่นใกล้ ๆ', 'Invite Nearby Players')), h('small', {}, near.length ? L(`${near.length} คนในแผนที่นี้`, `${near.length} on this map`) : '')), nearList(true));
+    else if (!leader) body.append(h('div', { class: 'py-none' }, L('เฉพาะหัวหน้าปาร์ตี้ (มงกุฎ) ที่เชิญและเตะสมาชิกได้', 'Only the party leader (crown) can invite and kick members.')));
     body.append(
-      h('div', { class: 'py-foot' }, h('span', { class: 'hint' }, 'แชทปาร์ตี้: /p ข้อความ • แตะชื่อบนแถบปาร์ตี้เพื่อเดินไปหาเพื่อน'),
-        h('button', { type: 'button', class: 'btn danger py-leave', onclick: () => this.leave() }, 'ออกจากปาร์ตี้')));
+      h('div', { class: 'py-foot' }, h('span', { class: 'hint' }, L('แชทปาร์ตี้: /p ข้อความ • แตะชื่อบนแถบปาร์ตี้เพื่อเดินไปหาเพื่อน', 'Party chat: /p message • Tap a name on the party bar to walk to a friend')),
+        h('button', { type: 'button', class: 'btn danger py-leave', onclick: () => this.leave() }, L('ออกจากปาร์ตี้', 'Leave Party'))));
     body.scrollTop = scroll;
   },
 };
