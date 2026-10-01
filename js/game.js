@@ -710,7 +710,7 @@ function playerDie() {
   UI.msg(`คุณถูกสังหาร!${lost ? ` เสีย Base EXP ${U.fmt(lost)}` : ''}`, 'err');
   Sound.play('die');
   Bot.onDeath();
-  UI.showDeath();
+  UI.showDeath(lost);
 }
 // here = เกิดในแมพเดิม (ที่จุดที่เดินเข้าแมพนี้มา) • ไม่งั้นกลับจุดเซฟ
 function respawnPlayer(here) {

@@ -169,9 +169,44 @@ body.visor #nav-pill { clip-path: none; border-radius: 999px; padding: 5px 6px 5
 body.visor #nav-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--cy); box-shadow: 0 0 8px var(--cy); flex-shrink: 0; }
 body.visor #nav-cancel { border-radius: 50%; border-color: var(--edge); background: var(--fill); }
 body.visor #nav-cancel:hover { background: rgba(255, 107, 125, 0.25); border-color: rgba(255, 107, 125, 0.6); color: #fff; }
-body.visor #death-mini { border-radius: 999px; border-color: rgba(255, 107, 125, 0.5); background: rgba(40, 8, 16, 0.75); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
-body.visor .death-box { clip-path: none; border-radius: var(--r-card); background: linear-gradient(160deg, rgba(40, 12, 22, 0.8), rgba(12, 6, 12, 0.7)); border-color: rgba(255, 107, 125, 0.35);
-  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.9), 0 0 80px -20px rgba(255, 60, 80, 0.35); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+/* ---------- พลังงานหมด: จอรีบูตแบบแอนดรอยด์ (ไม่มีกะโหลก) ---------- */
+body.visor #death { background: radial-gradient(ellipse at 50% 45%, rgba(10, 16, 26, 0.35), rgba(4, 6, 12, 0.78) 70%);
+  -webkit-backdrop-filter: saturate(0.25) brightness(0.8); backdrop-filter: saturate(0.25) brightness(0.8); animation: dIn 0.6s ease both; }
+body.visor .death-box { clip-path: none; width: min(380px, calc(100vw - 32px)); padding: 30px 28px 20px; border-radius: 28px;
+  background: linear-gradient(170deg, rgba(26, 34, 50, 0.72), rgba(10, 14, 22, 0.78)); border: 1px solid var(--edge-2);
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.07); -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px);
+  display: flex; flex-direction: column; align-items: center; animation: dBox 0.7s cubic-bezier(.2, .9, .3, 1.2) both 0.1s; }
+body.visor .death-core { position: relative; width: 104px; height: 104px; margin-bottom: 14px; }
+body.visor .dc-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+body.visor .dc-ring circle { fill: none; stroke-width: 4; stroke-linecap: round; }
+body.visor .dc-track { stroke: rgba(255, 255, 255, 0.08); }
+body.visor .dc-arc { stroke: var(--cy); stroke-dasharray: 100; stroke-dashoffset: 100; filter: drop-shadow(0 0 6px rgba(95, 231, 255, 0.7)); animation: dArc 2.4s ease-in-out infinite; }
+body.visor .dc-glyph { position: absolute; inset: 18px; border-radius: 50%; display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 40%, rgba(255, 170, 120, 0.16), rgba(10, 14, 22, 0.2) 70%); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06); }
+body.visor .death-box svg:not(.dc-ring), body.visor #death-mini svg { fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+body.visor .dc-glyph svg { width: 40px; height: 40px; color: #ffb48a; filter: drop-shadow(0 0 8px rgba(255, 150, 100, 0.6)); animation: dBlink 2.4s ease-in-out infinite; }
+body.visor .death-k { font: 500 10.5px var(--mono); letter-spacing: 0.32em; color: var(--cy); opacity: 0.85; }
+body.visor .death-t { margin-top: 4px; font: 600 30px/1.2 var(--display); letter-spacing: 0.01em; color: var(--ink); text-shadow: 0 0 22px rgba(255, 170, 120, 0.35); }
+body.visor .death-s { margin: 6px 0 12px; color: var(--ink-dim); font-size: 13.5px; line-height: 1.5; text-wrap: balance; }
+body.visor .death-info { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 18px; }
+body.visor .death-info span { font: 500 11.5px var(--mono); padding: 4px 11px; border-radius: 999px; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--edge); color: var(--ink-dim); }
+body.visor .death-info span:empty { display: none; }
+body.visor .death-info span:first-child { color: #ffc2a0; }
+body.visor .death-btns { flex-direction: column; width: 100%; gap: 8px; }
+body.visor .death-btns .btn { width: 100%; min-height: 46px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+body.visor .death-btns .btn svg { width: 18px; height: 18px; }
+body.visor #death-hide { margin-top: 12px; color: var(--ink-dim); font-size: 12.5px; }
+body.visor #death-mini { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 10px 20px 10px 14px; color: var(--ink);
+  border: 1px solid rgba(95, 231, 255, 0.45); background: rgba(10, 16, 26, 0.72); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  box-shadow: 0 0 0 0 rgba(95, 231, 255, 0.5); animation: dPing 1.8s ease-out infinite; }
+body.visor #death-mini.hidden { display: none; }
+body.visor #death-mini svg { width: 18px; height: 18px; color: var(--cy); }
+@keyframes dIn { from { opacity: 0; } }
+@keyframes dBox { from { opacity: 0; transform: translateY(14px) scale(0.96); } }
+@keyframes dArc { 0% { stroke-dashoffset: 100; } 70% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes dBlink { 0%, 100% { opacity: 0.55; } 60% { opacity: 1; } }
+@keyframes dPing { 70% { box-shadow: 0 0 0 12px rgba(95, 231, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(95, 231, 255, 0); } }
+@media (prefers-reduced-motion: reduce) { body.visor .dc-arc, body.visor .dc-glyph svg, body.visor #death-mini { animation: none; } body.visor .dc-arc { stroke-dashoffset: 0; } }
 
 /* ---------- หน้าต่าง: การ์ดกระจกฝ้ามุมโค้ง เงาฟุ้ง ---------- */
 body.visor .win { clip-path: none; overflow: hidden; border-radius: 20px; background: linear-gradient(160deg, rgba(16, 24, 38, 0.8), rgba(8, 12, 20, 0.74)); border: 1px solid var(--edge-2);
@@ -469,3 +504,9 @@ body.visor .cr-btns { margin-top: auto; padding: 14px 0 6px; margin-bottom: -6px
   body.visor #hud:has(#target:not([hidden])) #quest-track { display: none; }
   body.visor .pad-mode #chat, body.visor.pad-mode #chat { top: calc(238px + var(--st)); }
 }
+body.visor .death-btns .btn.primary { background: linear-gradient(180deg, #8ff6ff, #62e6f6); color: #04121f; border-color: rgba(255, 255, 255, 0.35); font-weight: 600;
+  box-shadow: 0 14px 30px -12px rgba(111, 243, 255, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.6); }
+body.visor .death-btns .btn.primary:hover { background: linear-gradient(180deg, #a9f9ff, #78ecf9); }
+body.visor .death-btns .btn:not(.primary) { background: rgba(255, 255, 255, 0.06); color: var(--ink); border: 1px solid var(--edge-2); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06); }
+body.visor .death-btns .btn:not(.primary):hover { background: rgba(255, 255, 255, 0.12); }
+body.visor.pad-mode #death-mini, body.visor .pad-mode #death-mini { bottom: calc(232px + var(--sb, 0px)); }

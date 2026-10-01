@@ -1293,6 +1293,11 @@ const UI = {
     el.title = state === 'ok' ? 'เชื่อมต่อเซิร์ฟเวอร์แล้ว' : 'การเชื่อมต่อมีปัญหา กำลังลองใหม่';
   },
 
-  showDeath() { $('#death').classList.remove('hidden'); $('#death-mini').classList.add('hidden'); },
+  showDeath(lost) {
+    const p = G.player, sv = p.save && MAP_DEFS[p.save.map];
+    $('#death-loss').textContent = lost ? `Base EXP −${U.fmt(lost)}` : 'ไม่เสีย EXP';
+    $('#death-save').textContent = sv ? `จุดเซฟ · ${sv.name}` : '';
+    $('#death').classList.remove('hidden'); $('#death-mini').classList.add('hidden');
+  },
   hideDeath() { $('#death').classList.add('hidden'); $('#death-mini').classList.add('hidden'); },
 };

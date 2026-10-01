@@ -181,16 +181,22 @@
 
     <div id="death" class="hidden">
       <div class="death-box">
-        <div class="death-t">SYSTEM DOWN</div>
-        <div class="death-s">ร่างถูกทำลาย — ข้อมูลของคุณถูกสำรองไว้ที่จุดเซฟ</div>
-        <div class="death-btns">
-          <button id="death-btn" class="btn big">รีบูตที่จุดเซฟ</button>
-          <button id="death-here" class="btn big">เกิดในแมพนี้</button>
+        <div class="death-core" aria-hidden="true">
+          <svg class="dc-ring" viewBox="0 0 120 120"><circle class="dc-track" cx="60" cy="60" r="52"/><circle class="dc-arc" cx="60" cy="60" r="52" pathLength="100"/></svg>
+          <div class="dc-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></svg></div>
         </div>
-        <button id="death-hide" class="linkbtn">ซ่อนหน้าต่างนี้</button>
+        <div class="death-k">REBOOT REQUIRED</div>
+        <div class="death-t">พลังงานหมด</div>
+        <div class="death-s">ร่างหยุดทำงานชั่วคราว<br>ความทรงจำของคุณถูกสำรองไว้ครบ</div>
+        <div class="death-info"><span id="death-loss"></span><span id="death-save"></span></div>
+        <div class="death-btns">
+          <button id="death-btn" class="btn big primary"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></svg>รีบูตที่จุดเซฟ</button>
+          <button id="death-here" class="btn big">รีบูตในแมพนี้</button>
+        </div>
+        <button id="death-hide" class="linkbtn">ดูสนามก่อน</button>
       </div>
     </div>
-    <button id="death-mini" class="hidden">💀 ฟื้นคืนชีพ</button>
+    <button id="death-mini" class="hidden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8"/><path d="M6.6 6.6a8 8 0 1 0 10.8 0"/></svg><span>รีบูต</span></button>
   </div>
 
   <!-- ================= หน้าไตเติล ================= -->
