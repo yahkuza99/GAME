@@ -1335,7 +1335,7 @@ const UI = {
     return new Promise((res, rej) => {
       this.dlgOpen(name);
       const b = $('#w-dialog .win-body');
-      b.append(h('div', { class: 'dlg-text', html: text }), h('div', { class: 'dlg-btns' }, h('button', { class: 'btn', onclick: () => { this.dialog = null; res(); } }, 'ต่อไป ▸')));
+      b.append(h('div', { class: 'dlg-text', html: text }), h('div', { class: 'dlg-btns' }, h('button', { class: 'btn', onclick: () => { this.dialog = null; res(); } }, 'ต่อไป ▸', Pad.enabled() ? null : h('kbd', {}, 'Space'))));
       this.dialog = { reject: rej };
     });
   },
@@ -1344,11 +1344,24 @@ const UI = {
       this.dlgOpen(name);
       const b = $('#w-dialog .win-body');
       if (text) b.append(h('div', { class: 'dlg-text', html: text }));
-      b.append(h('div', { class: 'dlg-menu' }, options.map((o, i) => h('button', { class: 'dlg-opt', onclick: () => { this.dialog = null; res(i); } }, o))));
+      b.append(h('div', { class: 'dlg-menu' }, options.map((o, i) => h('button', { class: 'dlg-opt' + (i === 0 && !Pad.enabled() ? ' kbd' : ''), onclick: () => { this.dialog = null; res(i); } },
+        Pad.enabled() || i > 8 ? null : h('kbd', {}, String(i + 1)), o))));
       this.dialog = { reject: rej };
     });
   },
   dlgClose() { this.dialog = null; $('#w-dialog').classList.add('hidden'); },
+  dlgKey(k) {
+    const w = $('#w-dialog'), next = $('.dlg-btns button', w), opts = $$('.dlg-opt', w);
+    if (next && (k === ' ' || k === 'enter')) { next.click(); return true; }
+    if (!opts.length) return false;
+    let i = opts.findIndex(o => o.classList.contains('kbd'));
+    const mark = j => { opts.forEach(o => o.classList.remove('kbd')); opts[j].classList.add('kbd'); opts[j].scrollIntoView({ block: 'nearest' }); };
+    if (k === 'arrowdown' || k === 's') { mark(i < 0 ? 0 : (i + 1) % opts.length); return true; }
+    if (k === 'arrowup' || k === 'w') { mark(i <= 0 ? opts.length - 1 : i - 1); return true; }
+    if (k === ' ' || k === 'enter') { opts[i < 0 ? 0 : i].click(); return true; }
+    if (/^[1-9]$/.test(k) && +k <= opts.length) { opts[+k - 1].click(); return true; }
+    return false;
+  },
   // ภาพประกอบตัวละครข้างกล่องบทสนทนา (แบบเกมอนิเมะ)
   illust(key) {
     const el = $('#illust');

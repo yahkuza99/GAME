@@ -249,8 +249,11 @@ R.render = () => {
   g.textAlign = 'center'; g.textBaseline = 'middle';
   const P = R.py;
   const qt = G.started && Quest.current() ? Quest.current().obj : null, qNpc = qt && (qt.type === 'talk' || qt.type === 'event' || qt.type === 'job') ? qt.npc : null;
+  // NPC ที่อยู่ใกล้พอจะคุย (ระยะเดียวกับปุ่ม Space/ปุ่มโจมตีบนจอ): ป้ายบอกปุ่มใต้ชื่อ
+  const talkN = G.started && !p.dead && !NPC.busy ? G.npcs.filter(n => U.dist(p.x, p.y, n.x + 0.5, n.y + 0.5) < 2.6).sort((a, b) => U.dist(p.x, p.y, a.x + 0.5, a.y + 0.5) - U.dist(p.x, p.y, b.x + 0.5, b.y + 0.5))[0] : null;
   for (const n of G.npcs) {
     R.tag(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 14, n.name, '#d6f6ff', '#6ff3ff');
+    if (n === talkN) R.tag(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 34, Pad.enabled() ? 'แตะปุ่มโจมตีเพื่อคุย' : 'Space · คุย', '#fff3c4', '#ffd56a');
     if (n.id === qNpc) R.questMark(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) - 92, t); // เครื่องหมายเควสต์เหนือหัว NPC
     else if (n.emote && n.emote.until > G.time) Emote.draw(g, n.x * TILE + TILE / 2 + 4, P((n.y + 0.5) * TILE + 10) - 96, n.emote, t);
   }

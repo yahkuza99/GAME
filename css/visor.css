@@ -570,3 +570,16 @@ body.visor .buff.debuff { border-color: rgba(190, 120, 255, 0.6); }
   body.visor .buff { height: 24px; padding-right: 7px; } body.visor .buff .bf-ic, body.visor .buff .bf-ic img { width: 20px; height: 20px; }
 }
 @media (prefers-reduced-motion: reduce) { body.visor .buff.ending { animation: none; } }
+
+/* ---------- เมนูขวา: ไม่ล้นจอเตี้ย • บนมือถือเป็นแผงกระจกทึบที่ไม่ทับเควสต์ ---------- */
+body.visor:not(.pad-mode) #menubar:not(.folded) { max-height: calc(100dvh - 232px - var(--st) - var(--sb) - 12px); overflow-y: auto; overflow-x: hidden; scrollbar-width: none; flex-wrap: nowrap; }
+body.visor:not(.pad-mode) #menubar::-webkit-scrollbar { display: none; }
+body.visor:not(.pad-mode) #menubar > button { flex-shrink: 0; }
+@media (max-height: 760px) {
+  body.visor:not(.pad-mode) #menubar { gap: 2px; }
+  body.visor:not(.pad-mode) #menubar button:not(.menu-fold) { height: 40px; }
+}
+body.visor.pad-mode #menubar:not(.folded) { padding: 6px; width: calc(44px * 5 + 5px * 4 + 14px); border-radius: 22px; background: rgba(10, 16, 26, 0.86);
+  border: 1px solid var(--edge-2); box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.9); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+body.visor.pad-mode #menubar:not(.folded) button { filter: none; }
+body.visor.pad-mode #hud:has(#menubar:not(.folded)) #quest-track { visibility: hidden; }
