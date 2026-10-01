@@ -1421,10 +1421,15 @@ const UI = {
     const img = Art.get(key);
     const el = $('#splash');
     el.innerHTML = '';
-    if (img) el.append(Object.assign(new Image(), { src: img.src, alt: '' }));
-    el.append(h('div', { class: 'sp-text' }, h('small', {}, sub || 'WARNING'), h('b', {}, title)));
+    const pic = img ? Object.assign(new Image(), { src: img.src, alt: '' }) : null;
+    const txt = h('div', { class: 'sp-text' }, h('small', {}, sub || 'WARNING'), h('b', {}, title));
+    // บอส: การ์ดภาพครอปกลางจอ (ไม่บังทั้งจอ) • อัปเกรดคลาส: ภาพเต็มจอแบบเดิม
+    const boss = cls !== 'upgrade';
+    if (boss) el.append(h('div', { class: 'sp-card' }, pic, h('i', { class: 'sp-sheen' }), txt));
+    else el.append(pic, txt);
     el.classList.toggle('noimg', !img);
-    el.classList.toggle('upgrade', cls === 'upgrade');
+    el.classList.toggle('upgrade', !boss);
+    el.classList.toggle('boss', boss);
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   },
 

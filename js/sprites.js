@@ -1036,19 +1036,33 @@ Sprites.drawTree = (g, o, t) => {
 };
 
 Sprites.drawPortal = (g, p, t) => {
+  // วาร์ปใหญ่ขึ้น (~1.6 เท่า) มองเห็นง่าย และเข้าได้ภายในรัศมี 1 ช่อง (ดู PORTAL_REACH)
   const x = p.x * TILE + TILE / 2, y = p.y * TILE + TILE / 2;
-  for (let i = 0; i < 4; i++) {
-    const k = ((t * 0.8 + i / 4) % 1);
-    g.strokeStyle = `rgba(${120 + i * 30},${200 + i * 10},255,${1 - k})`;
-    g.lineWidth = 3;
-    g.beginPath(); g.ellipse(x, y, 6 + k * 20, (6 + k * 20) * 0.45, 0, 0, 7); g.stroke();
+  const glow = g.createRadialGradient(x, y, 4, x, y, 40);
+  glow.addColorStop(0, 'rgba(170,230,255,0.55)'); glow.addColorStop(1, 'rgba(120,200,255,0)');
+  g.fillStyle = glow; g.beginPath(); g.ellipse(x, y, 40, 18, 0, 0, 7); g.fill();
+  g.save(); g.shadowColor = 'rgba(80,200,255,0.9)'; g.shadowBlur = 10;
+  for (let i = 0; i < 5; i++) {
+    const k = ((t * 0.8 + i / 5) % 1);
+    g.strokeStyle = `rgba(${70 + i * 30},${190 + i * 12},255,${1 - k * 0.85})`;
+    g.lineWidth = 3.5;
+    g.beginPath(); g.ellipse(x, y, 8 + k * 30, (8 + k * 30) * 0.45, 0, 0, 7); g.stroke();
   }
-  g.fillStyle = 'rgba(160,220,255,0.35)';
-  g.beginPath(); g.ellipse(x, y, 20, 9, 0, 0, 7); g.fill();
-  for (let i = 0; i < 6; i++) {
-    const a = t * 2 + i * 1.05, h = (t * 30 + i * 13) % 40;
-    g.fillStyle = `rgba(200,240,255,${1 - h / 40})`;
-    g.fillRect(x + Math.cos(a) * 14 - 1, y - h, 2, 4);
+  g.restore();
+  g.fillStyle = 'rgba(90,190,255,0.45)';
+  g.beginPath(); g.ellipse(x, y, 32, 14, 0, 0, 7); g.fill();
+  g.fillStyle = 'rgba(235,250,255,0.55)';
+  g.beginPath(); g.ellipse(x, y, 14, 6, 0, 0, 7); g.fill();
+  // ลำแสงตั้งขึ้นจากวาร์ป (เห็นได้แม้มีต้นไม้/มอนบังบางส่วน)
+  const pulse = 0.75 + 0.25 * Math.sin(t * 3);
+  const beam = g.createLinearGradient(0, y - 96, 0, y);
+  beam.addColorStop(0, 'rgba(110,205,255,0)'); beam.addColorStop(1, `rgba(120,215,255,${0.5 * pulse})`);
+  g.fillStyle = beam;
+  g.beginPath(); g.moveTo(x - 26, y); g.lineTo(x - 14, y - 96); g.lineTo(x + 14, y - 96); g.lineTo(x + 26, y); g.closePath(); g.fill();
+  for (let i = 0; i < 10; i++) {
+    const a = t * 2 + i * 0.63, h = (t * 34 + i * 11) % 60, r = 12 + (i % 3) * 6;
+    g.fillStyle = `rgba(200,240,255,${1 - h / 60})`;
+    g.fillRect(x + Math.cos(a) * r - 1, y + Math.sin(a) * r * 0.4 - h, 2, 5);
   }
 };
 

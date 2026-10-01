@@ -932,3 +932,25 @@ body.visor .bi-id b { max-width: 100%; }
   .opt input[type=checkbox] { width: 22px; height: 22px; }
   .st-up { min-height: 34px; } .tab { min-height: 36px; }
 }
+
+/* ===== ฉากบอสปรากฏ: การ์ดภาพครอปกลางจอ (ไม่บังเต็มจอ) ===== */
+#splash.boss { background: radial-gradient(ellipse 60% 45% at 50% 46%, rgba(60,0,10,.42), transparent 70%); padding: 0 16px 10vh; }
+#splash.boss.show { animation: bossFade 3.6s ease forwards; }
+#splash.boss .sp-card { position: relative; width: min(640px, 100%); aspect-ratio: 16 / 7; border-radius: 24px; overflow: hidden;
+  background: #12060a; box-shadow: 0 0 0 1px rgba(255,150,160,.38), 0 0 0 5px rgba(255,60,80,.08), 0 0 46px rgba(255,40,64,.38), 0 24px 60px rgba(0,0,0,.6);
+  animation: bossCard 3.6s cubic-bezier(.2,.8,.2,1) forwards; }
+#splash.boss.noimg .sp-card { aspect-ratio: auto; }
+#splash.boss .sp-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%;
+  -webkit-mask-image: none; mask-image: none; animation: bossZoom 3.6s ease-out forwards; }
+#splash.boss .sp-sheen { position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(105deg, transparent 35%, rgba(255,220,225,.22) 50%, transparent 65%); transform: translateX(-120%); animation: bossSheen 1.4s .35s ease-out forwards; }
+#splash.boss .sp-text { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; margin: 0; padding: 30px 22px 16px; text-align: center;
+  background: linear-gradient(180deg, transparent, rgba(24,0,6,.62) 40%, rgba(16,0,4,.9)); }
+#splash.boss.noimg .sp-text { position: relative; padding: 18px 22px; }
+#splash.boss .sp-text small { color: #ffb8c0; font-size: 12px; letter-spacing: .2em; }
+#splash.boss .sp-text b { font-size: clamp(22px, 4.6vw, 38px); text-shadow: 0 0 18px rgba(255,48,72,.85), 0 2px 6px rgba(0,0,0,.7); }
+@keyframes bossFade { 0% { opacity: 0; } 8% { opacity: 1; } 84% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes bossCard { 0% { transform: translateY(14px) scale(.92); } 12% { transform: none; } 84% { transform: none; } 100% { transform: translateY(-8px) scale(.98); } }
+@keyframes bossZoom { from { transform: scale(1.12); } to { transform: scale(1); } }
+@keyframes bossSheen { to { transform: translateX(120%); } }
+@media (max-height: 520px) and (orientation: landscape) { #splash.boss .sp-card { width: min(520px, 100%); } #splash.boss { padding-bottom: 4vh; } }

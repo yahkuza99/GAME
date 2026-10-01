@@ -86,6 +86,12 @@ class GameMap {
     if (def.kind === 'town') this.genTown();
     else if (def.kind === 'cave') this.genCave();
     else this.genField();
+    // ลานหน้าวาร์ป: เอาต้นไม้ที่ยอดไม้บังวาร์ปออก (ต้นที่อยู่ต่ำกว่าวาร์ป 3 แถว ยอดจะบัง) ในเมืองคงต้นไม้ขอบนอกข้างวาร์ปไว้
+    for (const p of this.portals) for (let dy = -1; dy <= 3; dy++) for (let dx = -2; dx <= 2; dx++) {
+      const x = p.x + dx, y = p.y + dy;
+      if (!this.inb(x, y) || (def.kind === 'town' && dy < 1 && (x <= 0 || y <= 0 || x >= this.w - 1 || y >= this.h - 1))) continue;
+      if (this.tile(x, y) === T.TREE) this.set(x, y, this.tile(p.x, p.y));
+    }
     for (const n of def.npcs || []) this.block[this.idx(n.x, n.y)] = 1;
     this.collectObjects();
     this.renderGround();

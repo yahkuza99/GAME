@@ -1336,13 +1336,16 @@ function updatePlayer(dt) {
     if (p.hp > p.d.maxHp * 0.25) damagePlayer(Math.max(1, Math.floor(p.d.maxHp * 0.015)), '#c080ff');
   }
   // วาร์ปพอร์ทัล
-  const portal = G.map.portalAt(Math.floor(p.x), Math.floor(p.y));
+  // เข้าวาร์ปได้เมื่อตัวละครอยู่ในรัศมี PORTAL_REACH ช่องจากกลางวาร์ป (จุดเกิดอยู่ห่าง 2 ช่อง จึงไม่เด้งกลับ)
+  const portal = G.map.portals.find(q => U.dist(q.x + 0.5, q.y + 0.5, p.x, p.y) <= PORTAL_REACH);
   if (portal) {
     const td = MAP_DEFS[portal.to], ar = td.arrive && td.arrive[G.map.id];
     if (ar) changeMap(portal.to, ar[0], ar[1]);
     else { const a = PORTAL_SIDE[portal.toSide](td.w, td.h); changeMap(portal.to, a.ax + 0.5, a.ay + 0.5); }
   }
 }
+
+const PORTAL_REACH = 1.1;
 
 function updateMob(m, dt) {
   if (m.isPlayer) return; // ตัวแทนผู้เล่นใน PvP: ตำแหน่งมาจากเครือข่าย
