@@ -18,10 +18,20 @@ R.init = () => {
   // ซูมเริ่มต้นแบบ Trickster: กล้องใกล้ ตัวละคร/ต้นไม้ใหญ่เด่น (จอเล็กซูมน้อยลงเพื่อให้เห็นรอบตัวพอ)
   const short = Math.min(window.innerWidth, window.innerHeight);
   R.zoom = short < 500 ? 1.35 : short < 700 ? 1.55 : 1.8;
+  if (window.innerHeight > window.innerWidth && short < 500) R.zoom = 1.2; // มือถือแนวตั้ง: จอแคบ ซูมน้อยลงให้เห็นข้าง ๆ พอ
   window.addEventListener('resize', R.resize);
+  // iOS / เบราว์เซอร์ในแอป (LINE ฯลฯ): ปิดคีย์บอร์ดหรือหมุนจอแล้วบางทีไม่ส่ง resize หรือส่งก่อนขนาดจอจะอัปเดต
+  // → แคนวาสค้างขนาดตอนคีย์บอร์ดเปิด (ครึ่งล่างดำ) จึงเช็กซ้ำหลังเหตุการณ์เหล่านี้ และเช็กเบา ๆ ทุก 0.5 วิ
+  const later = () => { R.fitCheck(); setTimeout(R.fitCheck, 300); setTimeout(R.fitCheck, 900); };
+  window.addEventListener('orientationchange', later);
+  window.addEventListener('focusout', later);
+  window.addEventListener('pageshow', later);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', later);
+  setInterval(R.fitCheck, 500);
 };
 // คุณภาพกราฟิก: 'low' = ความละเอียด 1x ไม่มีหญ้าพลิ้ว/หมอก/ฝุ่นลอย (มือถือรุ่นเก่าลื่นขึ้นมาก)
 R.setQuality = q => { R.quality = q === 'low' ? 'low' : 'high'; R.resize(); };
+R.fitCheck = () => { if (window.innerWidth !== R.W || window.innerHeight !== R.H) R.resize(); };
 R.resize = () => {
   R.dpr = Math.min(window.devicePixelRatio || 1, R.quality === 'low' ? 1 : 2);
   R.W = window.innerWidth; R.H = window.innerHeight;
