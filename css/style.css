@@ -849,3 +849,56 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
 .dlg-btns kbd { margin-left: 8px; }
 .dlg-opt.kbd { border-color: rgba(111,243,255,.6) !important; background: rgba(111,243,255,.12) !important; box-shadow: inset 3px 0 0 var(--cy); }
 .dlg-opt.kbd kbd { color: #04121f; background: var(--cy); border-color: transparent; }
+
+/* ---------------- เรื่องราว: บทนำ (บทที่ 0) ---------------- */
+#prologue { position: fixed; inset: 0; z-index: 9500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; overflow: hidden;
+  padding: calc(24px + var(--st)) 24px calc(28px + var(--sb)); background: #04060f; color: var(--ink); cursor: pointer; opacity: 0; transition: opacity .9s ease; }
+#prologue.show { opacity: 1; }
+#prologue.leaving { opacity: 0; transition: opacity .7s ease; pointer-events: none; }
+.pl-bg { position: absolute; inset: 0; pointer-events: none; opacity: .45; transition: opacity 1.8s ease;
+  background: radial-gradient(60% 42% at 50% 112%, rgba(98,227,255,.18), rgba(98,227,255,0) 70%), radial-gradient(70% 50% at 50% -24%, rgba(255,224,138,.06), transparent 70%); }
+#prologue.lit .pl-bg { opacity: 1; }
+#prologue.welcome .pl-bg { opacity: 1; background: radial-gradient(70% 50% at 50% 112%, rgba(98,227,255,.24), rgba(98,227,255,0) 70%), radial-gradient(80% 55% at 50% -24%, rgba(255,224,138,.1), transparent 70%); }
+.pl-kicker { position: relative; display: flex; align-items: center; gap: 10px; font: 600 11px/1 var(--mono, ui-monospace, monospace); letter-spacing: .26em; color: var(--cy); }
+.pl-kicker span { font: 500 13px/1 var(--font); letter-spacing: 0; color: var(--ink-dim); }
+.pl-visor { position: relative; width: min(420px, 70vw); height: 2px; border-radius: 2px; background: linear-gradient(90deg, transparent, var(--cy), transparent); opacity: .12; transform: scaleX(.22);
+  transition: opacity 1.4s ease, transform 1.4s cubic-bezier(.2,.8,.2,1), box-shadow 1.4s ease; }
+#prologue.lit .pl-visor { opacity: 1; transform: scaleX(1); box-shadow: 0 0 18px var(--cy-glow), 0 0 56px rgba(98,227,255,.28); }
+#prologue.welcome .pl-visor { animation: plBreath 3s ease-in-out infinite; }
+.pl-lines { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; width: min(600px, 100%); min-height: min(42vh, 380px); }
+.pl-line { margin: 0; text-align: center; font: 400 clamp(16px, 2.2vw, 20px)/1.65 var(--font); color: var(--ink); text-wrap: balance; opacity: 0; transform: translateY(10px);
+  transition: opacity .9s ease, transform .9s cubic-bezier(.2,.8,.2,1); }
+.pl-line.in { opacity: 1; transform: none; }
+.pl-line.in.past { opacity: .38; }
+.pl-line .nb { white-space: nowrap; }
+.pl-line.pl-final { margin-top: 8px; font: 600 clamp(19px, 3vw, 27px)/1.5 var(--display); color: #fff; letter-spacing: .01em; text-shadow: 0 0 24px var(--cy-glow), 0 2px 6px rgba(0,0,0,.6); }
+.pl-dots { position: relative; display: flex; gap: 8px; }
+.pl-dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.16); transition: background .4s, box-shadow .4s; }
+.pl-dots i.on { background: var(--cy); box-shadow: 0 0 8px var(--cy); }
+.pl-hint { position: relative; font: 500 11.5px/1 var(--mono, ui-monospace, monospace); letter-spacing: .14em; color: var(--ink-dim); animation: plHint 2.6s ease-in-out infinite; }
+.pl-skip { position: absolute; right: calc(16px + var(--sr)); top: calc(14px + var(--st)); z-index: 2; padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,.06); color: var(--ink-dim); font: 500 13px/1.2 var(--font); transition: color .15s, border-color .15s, background .15s; }
+.pl-skip::after { content: " ▸"; }
+.pl-skip:hover { color: #fff; border-color: rgba(98,227,255,.5); background: rgba(98,227,255,.1); }
+@keyframes plHint { 50% { opacity: .35; } }
+@keyframes plBreath { 50% { opacity: .55; box-shadow: 0 0 10px var(--cy-glow); } }
+@media (max-height: 520px) {
+  #prologue { gap: 10px; }
+  .pl-lines { gap: 7px; min-height: 0; }
+  .pl-line { font-size: 14.5px; line-height: 1.5; }
+  .pl-line.pl-final { font-size: 18px; margin-top: 2px; }
+}
+@media (prefers-reduced-motion: reduce) { .pl-hint, #prologue.welcome .pl-visor { animation: none; } .pl-line, .pl-visor, .pl-bg { transition-duration: .2s; } }
+
+/* ---------------- เรื่องราว: บรรทัดตำนานใต้ชื่อแผนที่ / บทในหน้าต่างเควสต์ ---------------- */
+.mb-story { margin: 8px auto 0; max-width: min(540px, 88vw); font: 400 14px/1.5 var(--font); color: rgba(230,241,251,.94); text-shadow: 0 0 8px #000, 0 1px 2px #000; white-space: normal; text-wrap: balance; }
+/* แบนเนอร์แบบมีภาพ: ขอบล่างถูกมาสก์ให้จาง → ดันข้อความขึ้นและจำกัดความกว้างให้อยู่ในโซนทึบของมาสก์ */
+#map-banner.has-img .mb-story { font-size: 13.5px; max-width: 72%; margin-top: 6px; }
+#map-banner.has-img.story { padding-bottom: 28px; }
+#map-banner.story.show { animation-duration: 4.8s; }
+@media (max-width: 760px) {
+  .mb-story { font-size: 12.5px; }
+  #map-banner.has-img.story { aspect-ratio: 3 / 1.8; max-height: 48vh; padding-bottom: 34px; }
+  #map-banner.has-img .mb-story { max-width: 78%; }
+}
+.q-chapter { font: 600 10.5px/1.2 var(--mono, ui-monospace, monospace); letter-spacing: .18em; color: var(--cy); margin-bottom: 4px; }

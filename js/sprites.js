@@ -840,6 +840,7 @@ const NPC_LOOKS = {
   nurse:    { skin: '#f6f6fa', glow: '#ff7ac0', hair: '#f4a8c8', hairStyle: 'long', outfit: '#ffffff', outfit2: '#f0a0c0', hat: 'nurse', robe: true, visor: 'band' },
   storage:  { skin: '#eef0f6', glow: '#7ae0c8', hair: '#3a4a6a', hairStyle: 'long', outfit: '#2e5a8a', outfit2: '#e8e0c8', hat: 'ribbon', robe: true, visor: 'band' },
   guide:    { skin: '#e6e8ee', glow: '#ff4a4a', hair: '#c8ccd4', outfit: '#e6e8ee', outfit2: '#a82a30', hat: 'viking', hatColor: '#d8d2c4', cape: '#a82a30', bulky: 1.1, visor: 'band' },
+  hel:      { skin: '#d8dce8', glow: '#60f0d0', hair: '#e8e8f0', hairStyle: 'long', outfit: '#1c2238', outfit2: '#9fe8d8', hat: 'hood', hatColor: '#2a2a3a', robe: true, cape: '#141a2a', visor: 'band' },
 };
 // ดาวหมุนเหนือหัวตอนมึน
 Sprites.stunStars = (g, x, y, t) => {

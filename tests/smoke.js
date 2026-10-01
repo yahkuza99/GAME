@@ -41,6 +41,8 @@ const ok = (name, cond, info = '') => { checks.push([name, !!cond, info]); };
     ok(`${name}: login card on entry`, await p.isVisible('#auth'));
     await p.click('#au-offline'); await p.click('#btn-new');
     await p.fill('#cr-name', 'Smoke'); await p.click('#cr-start'); await p.waitForTimeout(1500);
+    await p.click('#prologue-skip', { timeout: 3000 }).catch(() => {}); // บทนำ (บทที่ 0) แสดงครั้งแรกเมื่อสร้างตัวละคร
+    await p.waitForTimeout(800);
     await p.click('#w-help .win-x').catch(() => {});
     ok(`${name}: game started`, await p.evaluate(() => G.started && G.map.id === HOME_MAP));
     ok(`${name}: art loaded`, await p.evaluate(() => Object.keys(Art.imgs).length > 100), await p.evaluate(() => Object.keys(Art.imgs).length));

@@ -504,6 +504,7 @@ function startGame(p, isNew) {
     UI.msg('เคล็ดลับ: เริ่มต้นด้วยการแจก Status Point (กด A) แล้วออกไปล่า Gel Unit ทางตะวันออกของเมือง', 'info');
   }
   saveGame();
+  if (typeof Story !== 'undefined') Story.onStart(p, isNew); // บทนำ (บทที่ 0) ครั้งแรกที่เข้าโลก
 }
 
 window.addEventListener('load', () => {
