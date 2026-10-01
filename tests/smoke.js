@@ -42,6 +42,8 @@ const ok = (name, cond, info = '') => { checks.push([name, !!cond, info]); };
     await p.click('#au-offline'); await p.click('#btn-new');
     await p.fill('#cr-name', 'Smoke'); await p.click('#cr-start'); await p.waitForTimeout(1500);
     await p.click('#prologue-skip', { timeout: 3000 }).catch(() => {}); // บทนำ (บทที่ 0) แสดงครั้งแรกเมื่อสร้างตัวละคร
+    // บทนำอาจเริ่มช้า (โหลดเสียง/ภาพ) → ถ้ายังค้างอยู่ กดข้ามอีกรอบ
+    await p.waitForFunction(() => { const b = document.querySelector('#prologue-skip'); if (b && b.offsetParent) b.click(); return !b || !b.offsetParent; }, null, { timeout: 8000, polling: 250 }).catch(() => {});
     await p.waitForTimeout(800);
     await p.click('#w-help .win-x').catch(() => {});
     ok(`${name}: game started`, await p.evaluate(() => G.started && G.map.id === HOME_MAP));
@@ -52,7 +54,9 @@ const ok = (name, cond, info = '') => { checks.push([name, !!cond, info]); };
     const hits = await p.evaluate(async () => {
       const d = G.mobs.find(m => m.def.dummy); G.player.target = d;
       await new Promise(r => setTimeout(r, 4000));
-      return (d.dmgLog || []).length;
+      const n = (d.dmgLog || []).length;
+      if (!n) console.log('DUMMY-DEBUG', JSON.stringify({ pro: !!(document.querySelector('#prologue-skip') || {}).offsetParent, tgt: !!G.player.target, dist: Math.hypot(d.x - G.player.x, d.y - G.player.y), path: G.player.path.length, dead: G.player.dead, dlg: !document.querySelector('#w-dialog').classList.contains('hidden'), busy: NPC.busy, t: G.time }));
+      return n;
     });
     ok(`${name}: attack dummy`, hits > 0, `${hits} hits`);
     // walk to the field
