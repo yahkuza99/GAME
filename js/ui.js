@@ -678,8 +678,8 @@ const UI = {
     const p = G.player;
     const body = $('#w-inv .win-body');
     body.innerHTML = '';
-    const tabs = [['use', 'ของใช้'], ['equip', 'อุปกรณ์'], ['etc', 'อื่น ๆ']];
-    const tabType = e => { const t = ITEMS[e.id].type; return t === 'use' ? 'use' : isEquipType(ITEMS[e.id]) ? 'equip' : 'etc'; };
+    const tabs = [['use', 'ของใช้'], ['equip', 'อุปกรณ์'], ['card', 'ชิป'], ['etc', 'อื่น ๆ']];
+    const tabType = e => { const t = ITEMS[e.id].type; return t === 'use' ? 'use' : t === 'card' ? 'card' : isEquipType(ITEMS[e.id]) ? 'equip' : 'etc'; };
     body.append(h('div', { class: 'tabs' }, tabs.map(([k, l]) => h('button', {
       class: 'tab' + (this.invTab === k ? ' on' : ''), onclick: () => { this.invTab = k; this.selItem = null; this.renderInv(); },
     }, l, h('small', {}, ` ${p.inventory.filter(e => tabType(e) === k).length}`)))));
@@ -696,6 +696,7 @@ const UI = {
       grid.append(cell);
     }
     for (let i = list.length; i < Math.max(24, Math.ceil(list.length / 6) * 6); i++) grid.append(h('div', { class: 'inv-cell empty' }));
+    if (this.invTab === 'card' && !list.length) body.append(h('div', { class: 'hint' }, `ยังไม่มีชิป — ล่ามอนชนิดเดียวกันครบ ${CHIP_KILLS} ตัวได้ชิปของมัน 1 ชิ้น (MVP ได้ตั้งแต่ครั้งแรก)`));
     body.append(grid);
     const det = h('div', { class: 'inv-detail' });
     const e = this.selItem && p.inventory.includes(this.selItem) ? this.selItem : null;

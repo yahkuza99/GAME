@@ -1184,11 +1184,12 @@ function updatePlayer(dt) {
   // ฟื้นฟู
   const moving = p.path.length > 0;
   p.hpTimer += dt; p.spTimer += dt;
-  const hpInt = p.sitting ? 3 : 6, spInt = p.sitting ? 4 : 8;
+  // นั่งพัก: ถี่ขึ้น 3 เท่าและได้ต่อครั้ง 2 เท่า (รวม ~6 เท่าของยืนนิ่ง) — นั่งราว 1.5 นาทีจากเกือบหมดจนเกือบเต็ม
+  const hpInt = p.sitting ? 2 : 6, spInt = p.sitting ? 2.7 : 8, sitMul = p.sitting ? 2 : 1;
   if (p.hpTimer >= hpInt) {
     p.hpTimer = 0;
     if (!moving || p.sitting || p.d.regenPct) {
-      const amt = Math.max(1, Math.floor(p.d.maxHp / 200)) + Math.floor(p.d.vit / 5) + Math.floor(p.d.maxHp * p.d.regenPct / 100);
+      const amt = (Math.max(1, Math.floor(p.d.maxHp / 200)) + Math.floor(p.d.vit / 5)) * sitMul + Math.floor(p.d.maxHp * p.d.regenPct / 100);
       const got = Math.min(p.d.maxHp - p.hp, amt);
       p.hp += got;
       // ฟื้นจากพาสซีฟ (regenPct) โชว์ให้เห็น • ฟื้นธรรมชาติปกติเงียบไว้ไม่ให้รก
@@ -1197,7 +1198,7 @@ function updatePlayer(dt) {
   }
   if (p.spTimer >= spInt) {
     p.spTimer = 0;
-    const amt = 1 + Math.floor(p.d.maxSp / 100) + Math.floor(p.d.int / 6);
+    const amt = (1 + Math.floor(p.d.maxSp / 100) + Math.floor(p.d.int / 6)) * sitMul;
     p.sp = Math.min(p.d.maxSp, p.sp + amt);
   }
   if (p.stunUntil > G.time) { p.moving = false; p.path = []; return; }
