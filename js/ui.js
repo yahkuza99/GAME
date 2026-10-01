@@ -553,6 +553,51 @@ const UI = {
     this.msg(L(`ตั้งปุ่มลัด ${keys[i]}: ${t === 'skill' ? SKILLS[id].name : ITEMS[id].name}`, `Hotkey ${keys[i]}: ${t === 'skill' ? SKILLS[id].name : ITEMS[id].name}`), 'info');
     this.dirty();
   },
+  // ตั้งสกิล/ไอเทมลงช่องที่เลือกเอง (ถ้าอยู่ช่องอื่นอยู่แล้ว = สลับช่องกัน)
+  bindSlot(t, id, i) {
+    const p = G.player, bar = t === 'skill' ? 'hotbar' : 'potbar', keys = this.BARS[bar].keys;
+    if (i < 0 || i >= keys.length) return;
+    const from = p[bar].findIndex(x => x && x.t === t && x.id === id), prev = p[bar][i];
+    if (from === i) { this.msg(L(`อยู่ที่ปุ่ม ${keys[i]} แล้ว`, `Already on ${keys[i]}`), 'info'); return; }
+    p[bar][i] = { t, id };
+    if (from >= 0) p[bar][from] = prev || null;
+    this.msg(L(`ตั้งปุ่มลัด ${keys[i]}: ${t === 'skill' ? SKILLS[id].name : ITEMS[id].name}`, `Hotkey ${keys[i]}: ${t === 'skill' ? SKILLS[id].name : ITEMS[id].name}`), 'info');
+    Sound.play('click'); this.dirty();
+  },
+  // ชี้ที่สกิล (หน้าต่างสกิล) แล้วกด 1–8 / ชี้ที่ไอเทม (กระเป๋า) แล้วกด Z C V F = ตั้งปุ่มลัดช่องนั้นทันที
+  hoverBind: null,
+  markBind(el, t, id) {
+    el.addEventListener('pointerenter', () => { this.hoverBind = { t, id, el }; });
+    el.addEventListener('pointerleave', () => { if (this.hoverBind && this.hoverBind.el === el) this.hoverBind = null; });
+    return el;
+  },
+  bindKey(k) {
+    const b = this.hoverBind;
+    if (!b || !b.el.isConnected || !b.el.matches(':hover')) return false;
+    const bar = b.t === 'skill' ? 'hotbar' : 'potbar', i = this.BARS[bar].keys.findIndex(x => x.toLowerCase() === k);
+    if (i < 0) return false;
+    this.bindSlot(b.t, b.id, i); return true;
+  },
+  // ปุ่ม 📌: เลือกช่องปุ่มลัดเอง (ใช้ได้ทั้งเมาส์และจอสัมผัส)
+  pickSlot(t, id, anchor) {
+    document.getElementById('slot-pick')?.remove();
+    const p = G.player, bar = t === 'skill' ? 'hotbar' : 'potbar', keys = this.BARS[bar].keys;
+    const box = h('div', { id: 'slot-pick', class: 'slot-pick', role: 'dialog' },
+      h('div', { class: 'sp-h' }, L('เลือกช่องปุ่มลัด', 'Choose a hotkey slot')),
+      h('div', { class: 'sp-row' }, ...keys.map((k, i) => {
+        const x = p[bar][i], cur = x && x.t === t && x.id === id;
+        const ic = !x ? null : x.t === 'skill' ? this.skillIcon(x.id) : h('img', { src: itemIconUrl(x.id), alt: '' });
+        return h('button', { type: 'button', class: 'sp-slot' + (cur ? ' cur' : '') + (x ? '' : ' empty'), title: x ? (x.t === 'skill' ? SKILLS[x.id].name : ITEMS[x.id].name) : L('ว่าง', 'Empty'),
+          onclick: e => { e.stopPropagation(); box.remove(); this.bindSlot(t, id, i); } }, h('div', { class: 'sp-ic' }, ic), h('b', {}, k));
+      })),
+      h('div', { class: 'sp-tip' }, matchMedia('(pointer: coarse)').matches ? L('แตะค้างที่ปุ่มลัดเพื่อล้าง', 'Long-press a hotkey to clear it') : L(`ทางลัด: ชี้ที่${t === 'skill' ? 'สกิล' : 'ไอเทม'}แล้วกด ${keys.join(' ')} • คลิกขวาที่ปุ่มลัดเพื่อล้าง`, `Shortcut: hover the ${t === 'skill' ? 'skill' : 'item'} and press ${keys.join(' ')} • right-click a hotkey to clear it`)));
+    document.body.append(box);
+    const r = anchor.getBoundingClientRect(), bw = box.offsetWidth, bh = box.offsetHeight;
+    box.style.left = Math.max(8, Math.min(innerWidth - bw - 8, r.right - bw)) + 'px';
+    box.style.top = (r.bottom + 6 + bh < innerHeight ? r.bottom + 6 : Math.max(8, r.top - bh - 6)) + 'px';
+    const close = e => { if (!box.contains(e.target)) { box.remove(); document.removeEventListener('pointerdown', close, true); } };
+    setTimeout(() => document.addEventListener('pointerdown', close, true), 0);
+  },
   skillIcon(id) {
     const s = SKILLS[id];
     if (Art.has('skill_' + id)) return h('div', { class: 'sicon art', style: `--c:${s.icon}` }, h('img', { src: Art.get('skill_' + id).src, alt: '' }));
@@ -817,6 +862,7 @@ const UI = {
         e.qty > 1 || !isEquipType(ITEMS[e.id]) ? h('span', { class: 'q' }, String(e.qty)) : null,
         e.refine ? h('span', { class: 'rf' }, '+' + e.refine) : null);
       this.tipFor(cell, e); cell.removeAttribute('title');
+      if (ITEMS[e.id].type === 'use' || isEquipType(ITEMS[e.id])) this.markBind(cell, 'item', e.id);
       cell.addEventListener('click', () => { this.selItem = e; this.renderInv(); });
       cell.addEventListener('dblclick', () => { useItem(e); });
       cell.addEventListener('dragstart', ev => ev.dataTransfer.setData('text/plain', JSON.stringify({ t: 'item', id: e.id })));
@@ -833,7 +879,7 @@ const UI = {
       if (it.type === 'use') acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, L('ใช้', 'Use')));
       if (isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, L('สวมใส่', 'Equip')));
       if (it.type === 'card') acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, L('ใส่ชิป', 'Insert')));
-      if (it.type === 'use' || isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: () => this.assignHotbar('item', e.id) }, L('ตั้งปุ่มลัด', 'Set hotkey')));
+      if (it.type === 'use' || isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: ev => this.pickSlot('item', e.id, ev.currentTarget) }, L('ตั้งปุ่มลัด', 'Set hotkey')));
       acts.push(h('button', { class: 'btn danger', onclick: () => this.discard(e) }, L('ทิ้ง', 'Drop')));
       det.append(...[
         h('div', { class: 'det-head' }, h('img', { src: itemIconUrl(e.id), alt: '' }), h('b', { class: rarCls(e.id) }, itemDisplayName(e)), e.qty > 1 ? ` ×${e.qty}` : ''),
@@ -844,7 +890,7 @@ const UI = {
         this.dropSources(e.id),
         h('div', { class: 'det-line' }, L(`ราคาขาย: ${U.fmt(Math.floor(it.price / 2))} ${CUR}`, `Sell price: ${U.fmt(Math.floor(it.price / 2))} ${CUR}`)),
         h('div', { class: 'det-acts' }, acts)].filter(Boolean));
-    } else det.append(h('div', { class: 'hint' }, L('คลิกเพื่อดูรายละเอียด • ดับเบิลคลิกเพื่อใช้/สวมใส่ • ลากไปวางที่ปุ่มลัดได้', 'Click for details • double-click to use/equip • drag onto the hotbar')));
+    } else det.append(h('div', { class: 'hint' }, L('คลิกเพื่อดูรายละเอียด • ดับเบิลคลิกเพื่อใช้/สวมใส่ • ลากไปวางที่ปุ่มลัด หรือชี้แล้วกด Z C V F', 'Click for details • double-click to use/equip • drag onto the hotbar, or hover and press Z C V F')));
     body.append(det, h('div', { class: 'inv-foot' }, h('button', { class: 'btn small inv-sort', type: 'button', onclick: () => { sortItems(p.inventory); saveGame(); this.renderInv(); Sound.play('click'); } }, L('จัดเรียง', 'Sort')),
       h('span', {}, `${CUR}: `, h('b', {}, U.fmt(p.zeny)))));
   },
@@ -918,7 +964,8 @@ const UI = {
         h('div', { class: 'sk-acts' },
           canLearn(id) ? h('button', { class: 'btn small', onclick: () => learnSkill(id) }, '+') : null,
           lv && s.type === 'active' ? h('button', { class: 'btn small', onclick: () => useSkill(id) }, L('ใช้', 'Use')) : null,
-          lv && s.type === 'active' ? h('button', { class: 'btn small', title: L('ตั้งปุ่มลัด', 'Set hotkey'), onclick: () => this.assignHotbar('skill', id) }, '📌') : null)), id));
+          lv && s.type === 'active' ? h('button', { class: 'btn small', title: L('ตั้งปุ่มลัด (หรือชี้ที่สกิลแล้วกด 1–8)', 'Set hotkey (or hover the skill and press 1–8)'), onclick: e => this.pickSlot('skill', id, e.currentTarget) }, '📌') : null)), id));
+      if (lv && s.type === 'active') this.markBind(list.lastElementChild, 'skill', id);
     }
     body.append(list);
     if (SECOND_JOBS[p.job]) body.append(h('div', { class: 'hint' }, L(`คลาสขั้น 2 (เลือก 1 สาย: ${SECOND_JOBS[p.job].map(j => JOBS[j].name).join(' / ')}): Base Lv ${SECOND_JOB_REQ.base} และ Job Lv ${SECOND_JOB_REQ.job} แล้วคุยกับ Mimir AI ในนีโอเอลด์ไฮม์`, `2nd class (choose one: ${SECOND_JOBS[p.job].map(j => JOBS[j].name).join(' / ')}): reach Base Lv ${SECOND_JOB_REQ.base} and Job Lv ${SECOND_JOB_REQ.job}, then talk to Mimir AI in Neo Eldheim`)));

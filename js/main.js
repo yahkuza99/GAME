@@ -164,6 +164,7 @@ function bindInput() {
     if (UI.dialog && UI.isOpen('w-dialog') && (e.repeat ? [' ', 'enter'].includes(k) : UI.dlgKey(k))) { e.preventDefault(); return; }
     if (k.startsWith('arrow')) { e.preventDefault(); keysDown.add(k); return; }
     if (e.altKey && /^Digit[1-9]$/.test(e.code)) { e.preventDefault(); Emote.play(EMOTES[+e.code.slice(5) - 1].k); return; } // ใช้ e.code: Option+เลขบน Mac ให้อักขระพิเศษ
+    if (!e.repeat && UI.bindKey(/^f[1-8]$/.test(k) ? k.slice(1) : k)) { e.preventDefault(); return; } // ชี้ที่สกิล/ไอเทมแล้วกดปุ่มลัด = ตั้งช่องนั้น
     if (k >= '1' && k <= '8') { useHotbar(+k - 1); return; }
     if (/^f[1-8]$/.test(k)) { e.preventDefault(); useHotbar(+k.slice(1) - 1); return; }
     const pot = ['z', 'c', 'v', 'f'].indexOf(k);

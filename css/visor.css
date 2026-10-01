@@ -1177,6 +1177,7 @@ body.visor .charsel.confirming .cs-btns { display: none; }
   body.visor .cs-slot { min-height: 46px; padding: 4px 12px 4px 6px; }
   body.visor .cs-face { width: 34px; height: 34px; }
   body.visor .cs-plus { height: 28px; }
+}
 /* ===== World Boss: ตารางดาเมจ (ข้างมินิแมพ) + การ์ดสรุปตอนบอสตาย ===== */
 #wb-top { position: fixed; z-index: 19; top: calc(var(--gap) + var(--st) + 190px); right: calc(var(--gap) + var(--sr) + 172px); width: 212px; padding: 8px 10px 7px; border-radius: 16px;
   background: linear-gradient(160deg, rgba(16, 24, 38, 0.72), rgba(8, 12, 20, 0.62)); border: 1px solid rgba(255, 200, 80, 0.28);
@@ -1226,3 +1227,18 @@ body.visor .charsel.confirming .cs-btns { display: none; }
   body.visor.pad-mode #quest-track .qt-title, body.visor.pad-mode #quest-track .qt-obj { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   body.visor.pad-mode #quest-track::before { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0.08em; }
 }
+
+/* ตัวเลือกช่องปุ่มลัด (ปุ่ม 📌 ในหน้าต่างสกิล / ตั้งปุ่มลัดในกระเป๋า) */
+.slot-pick { position: fixed; z-index: 100000; padding: 10px 12px 9px; border-radius: 14px; background: rgba(10, 16, 26, 0.94); border: 1px solid rgba(111, 243, 255, 0.45);
+  box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.85); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); max-width: calc(100vw - 16px); }
+.slot-pick .sp-h { font: 600 12px var(--font); color: #c8fbff; letter-spacing: .04em; margin-bottom: 8px; }
+.slot-pick .sp-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.slot-pick .sp-slot { width: 44px; display: grid; justify-items: center; gap: 3px; padding: 4px 0 3px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04); color: #e6eef8; cursor: pointer; }
+.slot-pick .sp-slot:hover, .slot-pick .sp-slot:focus-visible { border-color: #6ff3ff; background: rgba(111, 243, 255, 0.14); outline: none; }
+.slot-pick .sp-slot.cur { border-color: #ffd56a; }
+.slot-pick .sp-ic { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; background: rgba(0, 0, 0, 0.35); overflow: hidden; }
+.slot-pick .sp-ic img, .slot-pick .sp-ic .sicon { width: 32px; height: 32px; }
+.slot-pick .sp-slot.empty .sp-ic { border: 1px dashed rgba(255, 255, 255, 0.18); background: none; }
+.slot-pick .sp-slot b { font: 600 11px var(--mono); color: #9fdcff; }
+.slot-pick .sp-tip { margin-top: 8px; font-size: 11px; color: #9fb0c4; max-width: 400px; }
