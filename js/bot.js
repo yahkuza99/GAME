@@ -73,7 +73,7 @@ const Bot = {
     if (this.cfg().skills[id] === false) return false;
     if (G.time < p.skillReadyAt || p.cast) return false;
     if (s.bow && weaponType() !== 'bow') return false;
-    return p.sp >= skillCost(id, lv);
+    return canPaySkill(skillCost(id, lv)) && (!p.d.bloodmagic || p.hp - skillCost(id, lv) > p.d.maxHp * 0.4);
   },
   // บทบาทของสกิลสำหรับบอท
   role(id) {

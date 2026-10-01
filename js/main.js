@@ -166,6 +166,7 @@ function bindInput() {
       case 'g': UI.toggle('w-nav'); break;
       case 'j': UI.toggle('w-quest'); break;
       case 'w': UI.toggle('w-world'); break;
+      case 'p': UI.toggle('w-tree'); break;
       case 'b': Bot.toggle(); break;
       case 'm': UI.toggle('w-map'); break;
       case 'u': UI.toggleHud(); break;

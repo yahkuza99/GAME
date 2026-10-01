@@ -209,6 +209,8 @@ const UI = {
     const pts = [];
     if (p.statPoints > 0) pts.push(`<span class="pt" data-open="w-status">Status +${p.statPoints}</span>`);
     if (p.skillPoints > 0) pts.push(`<span class="pt" data-open="w-skills">Skill +${p.skillPoints}</span>`);
+    const pf = Passive.free(p);
+    if (pf > 0) pts.push(`<span class="pt" data-open="w-tree">Passive +${pf}</span>`);
     const ptsHtml = pts.join(' ');
     const ptsEl = $('#bi-points');
     if (ptsEl.innerHTML !== ptsHtml) ptsEl.innerHTML = ptsHtml;
@@ -228,7 +230,7 @@ const UI = {
       if (hb && hb.t === 'skill') {
         const left = p.skillReadyAt - G.time;
         cd.style.height = left > 0 ? '100%' : '0';
-        el.classList.toggle('nosp', p.sp < skillCost(hb.id, skillLv(hb.id)));
+        el.classList.toggle('nosp', !canPaySkill(skillCost(hb.id, skillLv(hb.id))));
       } else { cd.style.height = '0'; el.classList.remove('nosp'); }
       if (hb && hb.t === 'item') { const q = $('.q', el); const c = countItem(hb.id); if (q.textContent !== String(c)) q.textContent = c; el.classList.toggle('empty', c === 0); }
     });
@@ -499,6 +501,7 @@ const UI = {
       options: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
       emote: '<circle cx="12" cy="12" r="9"/><path d="M8.5 14.5a4 4 0 0 0 7 0"/><circle cx="9" cy="10" r="1"/><circle cx="15" cy="10" r="1"/>',
       quest: '<path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h4"/>',
+      tree: '<circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="4" r="1.6"/><circle cx="19" cy="16" r="1.6"/><circle cx="5" cy="16" r="1.6"/><path d="M12 9.5V5.6M14.2 13.2l3.4 2M9.8 13.2l-3.4 2"/>',
       nav: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
       help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7"/><circle cx="12" cy="17" r=".6"/>',
       sit: '<path d="M6 21v-5h9l3 5"/><circle cx="10" cy="5" r="2.5"/><path d="M10 8v8M10 11h5"/>',
@@ -506,7 +509,7 @@ const UI = {
     const icon = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${P[k]}</svg>`;
     const items = [
       ['w-status', 'สถานะ', 'A', 'status'], ['w-inv', 'ไอเทม', 'E', 'bag'], ['w-equip', 'อุปกรณ์', 'Q', 'equip'],
-      ['w-skills', 'สกิล', 'S', 'skill'], ['w-map', 'แผนที่', 'M', 'map'], ['w-quest', 'เควสต์', 'J', 'quest'], ['w-emote', 'อีโมต', 'Alt', 'emote'], ['w-nav', 'นำทาง', 'G', 'nav'], ['w-bot', 'บอท', 'N', 'bot'], ['w-options', 'ตั้งค่า', 'O', 'options'], ['w-help', 'วิธีเล่น', 'H', 'help'],
+      ['w-skills', 'สกิล', 'S', 'skill'], ['w-tree', 'พาสซีฟ', 'P', 'tree'], ['w-map', 'แผนที่', 'M', 'map'], ['w-quest', 'เควสต์', 'J', 'quest'], ['w-emote', 'อีโมต', 'Alt', 'emote'], ['w-nav', 'นำทาง', 'G', 'nav'], ['w-bot', 'บอท', 'N', 'bot'], ['w-options', 'ตั้งค่า', 'O', 'options'], ['w-help', 'วิธีเล่น', 'H', 'help'],
     ];
     const m = $('#menubar');
     for (const [id, label, key, ic] of items) {
@@ -566,6 +569,7 @@ const UI = {
     if (this.isOpen('w-storage')) this.renderStorage();
     if (this.isOpen('w-mob')) this.renderMob();
     if (this.isOpen('w-world')) this.renderWorld();
+    if (this.isOpen('w-tree')) this.renderTree();
     if (this.isOpen('w-bot')) this.renderBot();
     if (this.isOpen('w-map')) $('#w-map .win-title span').textContent = `แผนที่ — ${G.map.def.name}`;
     if (this.isOpen('w-shop') && this.shop) this.renderShop();
@@ -781,6 +785,131 @@ const UI = {
     }
     body.append(grid, h('div', { class: 'hint' }, 'แตะแผนที่เพื่อเดินทางไปเอง (ผ่านประตูอัตโนมัติ) • เส้นคือทางเชื่อมระหว่างแผนที่'));
   },
+  // ---------------- ต้นไม้พาสซีฟ (แบบ PoE) ----------------
+  // ลากเพื่อเลื่อน • ล้อเมาส์/ปุ่ม +− ซูม • แตะจุดเพื่อดูรายละเอียด แล้วกดปุ่มเปิด (เปิดทั้งเส้นทางได้ถ้าแต้มพอ)
+  tree: { x: 0, y: 0, z: 0.55, sel: null, hover: null },
+  renderTree() {
+    const body = $('#w-tree .win-body'), T = this.tree, p = G.player;
+    if (!body.dataset.built) {
+      body.dataset.built = '1'; body.innerHTML = '';
+      const cv = h('canvas', { class: 'pt-cv' });
+      const zoom = k => () => { T.z = U.clamp(T.z * k, 0.25, 1.6); this.drawTree(); };
+      body.append(h('div', { class: 'pt-head' }, h('span', { id: 'pt-pts' }), h('span', { class: 'pt-zoom' },
+        h('button', { class: 'btn', type: 'button', onclick: zoom(1 / 1.25) }, '−'), h('button', { class: 'btn', type: 'button', onclick: zoom(1.25) }, '+'),
+        h('button', { class: 'btn', type: 'button', onclick: () => { T.x = 0; T.y = 0; T.z = U.clamp(cv.clientHeight / 1100, 0.32, 0.7); this.drawTree(); } }, 'กลาง'),
+        h('button', { class: 'btn', type: 'button', onclick: () => { T.sum = !T.sum; this.renderTree(); } }, 'สรุปโบนัส'))),
+        h('div', { class: 'pt-wrap' }, cv, h('div', { class: 'pt-info', id: 'pt-info' })),
+        h('div', { class: 'hint' }, 'ลากเพื่อเลื่อน • แตะจุดเพื่อดูรายละเอียด • ได้ 1 แต้มต่อ 1 Base Level • จุดใหญ่ = Notable • จุดหกเหลี่ยมปลายแฉก = Keystone (เปลี่ยนกติกา)'));
+      this.treeInput(cv);
+      T.z = U.clamp(cv.clientHeight / 1100, 0.32, 0.7); // ครั้งแรก: ให้เห็นแกนกลางและจุด Notable วงในพอดีจอ
+    }
+    const free = Passive.free(p);
+    $('#pt-pts').innerHTML = `แต้มพาสซีฟ: <b>${free}</b> / ${Passive.total(p)}`;
+    const info = $('#pt-info'), id = T.hover || T.sel;
+    // สร้างกล่องรายละเอียดใหม่เฉพาะเมื่อข้อมูลเปลี่ยน (ไม่งั้นปุ่มถูกแทนที่ระหว่างกด)
+    const ikey = [id, free, Passive.list(p).length, p.zeny, T.sum].join('|');
+    if (info.dataset.key === ikey) { this.drawTree(); return; }
+    info.dataset.key = ikey; info.innerHTML = '';
+    if (T.sum && !id) {
+      const b = Passive.bonus(p), ks = Passive.list(p).filter(x => PTREE[x].kdesc).map(x => `${PTREE[x].name}: ${PTREE[x].kdesc}`);
+      info.append(h('b', {}, 'โบนัสรวมจากต้นไม้'), ...(Object.keys(b).length ? Object.entries(b).map(([k, v]) => h('div', {}, PSTAT_FMT(k, Math.round(v * 10) / 10))) : [h('div', { class: 'dim' }, 'ยังไม่ได้เปิดจุดไหน')]), ...ks.map(t => h('div', { class: 'ks' }, t)));
+    } else if (id) {
+      const n = PTREE[id], path = Passive.has(p, id) ? [] : this.treePath(id), have = Passive.has(p, id);
+      const sect = n.sect >= 0 ? PSECT[n.sect] : null;
+      info.append(h('b', { style: sect ? `color:${sect.color}` : '' }, n.name),
+        h('small', {}, { start: 'จุดเริ่มต้น', small: 'จุดเล็ก', notable: 'Notable', key: 'Keystone' }[n.kind] + (sect ? ` • สาย${sect.th}` : n.mix ? ` • ผสม ${PSECT[n.mix[0]].th}/${PSECT[n.mix[1]].th}` : '')),
+        ...Passive.desc(n).map(t => h('div', { class: n.kdesc === t ? 'ks' : '' }, t)));
+      if (id === 'core') info.append(h('div', { class: 'dim' }, 'ทุกคนเริ่มจากตรงนี้'));
+      else if (have) {
+        const cost = Passive.refundCost(p), ok = Passive.canRefund(p, id);
+        info.append(h('button', { class: 'btn', type: 'button', disabled: ok ? null : 'disabled', onclick: () => { const e = Passive.refund(p, id); UI.msg(e || `คืนแต้ม ${n.name} แล้ว`, e ? 'err' : 'sys'); this.renderTree(); } },
+          `คืนแต้ม${cost ? ` (${U.fmt(cost)} z)` : ' (ฟรีถึง Lv 15)'}`), ok ? '' : h('div', { class: 'dim' }, 'คืนได้เฉพาะจุดปลายทาง'));
+      } else if (path.length) {
+        const can = path.length <= free;
+        info.append(h('button', { class: 'btn' + (can ? ' primary' : ''), type: 'button', disabled: can ? null : 'disabled',
+          onclick: () => { for (const x of path) Passive.alloc(p, x); T.hover = null; this.renderTree(); } },
+          path.length === 1 ? 'เปิดจุดนี้ (1 แต้ม)' : `เปิดทั้งเส้นทาง (${path.length} แต้ม)`), can ? '' : h('div', { class: 'dim' }, `แต้มไม่พอ (มี ${free})`));
+      }
+    } else info.append(h('div', { class: 'dim' }, 'แตะจุดบนต้นไม้เพื่อดูรายละเอียด'));
+    this.drawTree();
+  },
+  // เส้นทางสั้นที่สุดจากจุดที่เปิดแล้วไปยัง id (ไม่รวมจุดที่เปิดแล้ว)
+  treePath(id) {
+    const p = G.player, prev = { [id]: null }, q = [id];
+    while (q.length) {
+      const c = q.shift();
+      if (Passive.has(p, c)) { const out = []; for (let x = prev[c]; x; x = prev[x]) out.push(x); return out; }
+      for (const l of PTREE[c].links) if (!(l in prev)) { prev[l] = c; q.push(l); }
+    }
+    return [];
+  },
+  treeInput(cv) {
+    const T = this.tree, pts = new Map();
+    let moved = 0, pinch = 0;
+    const at = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left - r.width / 2) / T.z - T.x, (e.clientY - r.top - r.height / 2) / T.z - T.y]; };
+    const pick = e => {
+      const [x, y] = at(e); let best = null, bd = 1e9;
+      for (const n of Object.values(PTREE)) { const d = Math.hypot(n.x - x, n.y - y), rr = this.treeR(n) + 8 / T.z; if (d < rr && d < bd) { bd = d; best = n.id; } }
+      return best;
+    };
+    cv.addEventListener('pointerdown', e => { pts.set(e.pointerId, [e.clientX, e.clientY]); moved = 0; cv.setPointerCapture(e.pointerId); if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = Math.hypot(a[0] - b[0], a[1] - b[1]); } });
+    cv.addEventListener('pointermove', e => {
+      if (!pts.has(e.pointerId)) { if (e.pointerType === 'mouse') { const id = pick(e); if (id !== T.hover) { T.hover = id; this.renderTree(); } } return; }
+      const o = pts.get(e.pointerId), dx = e.clientX - o[0], dy = e.clientY - o[1];
+      pts.set(e.pointerId, [e.clientX, e.clientY]);
+      if (pts.size === 2) { const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (pinch) T.z = U.clamp(T.z * d / pinch, 0.25, 1.6); pinch = d; moved += 10; }
+      else { moved += Math.abs(dx) + Math.abs(dy); T.x += dx / T.z; T.y += dy / T.z; }
+      this.drawTree();
+    });
+    const up = e => {
+      if (pts.size === 1 && moved < 6) { T.sel = pick(e); T.hover = null; this.renderTree(); }
+      pts.delete(e.pointerId); if (pts.size < 2) pinch = 0;
+    };
+    cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', e => pts.delete(e.pointerId));
+    cv.addEventListener('pointerleave', () => { if (T.hover) { T.hover = null; this.renderTree(); } });
+    cv.addEventListener('wheel', e => { e.preventDefault(); T.z = U.clamp(T.z * (e.deltaY < 0 ? 1.12 : 1 / 1.12), 0.25, 1.6); this.drawTree(); }, { passive: false });
+  },
+  treeR(n) { return n.kind === 'key' ? 22 : n.kind === 'notable' ? 15 : n.kind === 'start' ? 20 : 8; },
+  drawTree() {
+    const cv = $('#w-tree .pt-cv'); if (!cv || !this.isOpen('w-tree')) return;
+    const T = this.tree, p = G.player, dpr = Math.min(2, window.devicePixelRatio || 1);
+    const W = cv.clientWidth, H = cv.clientHeight;
+    if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    const g = cv.getContext('2d');
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.fillStyle = '#060b14'; g.fillRect(0, 0, W, H);
+    g.translate(W / 2, H / 2); g.scale(T.z, T.z); g.translate(T.x, T.y);
+    const has = id => Passive.has(p, id), free = Passive.free(p) > 0;
+    const path = new Set((T.hover || T.sel) && !has(T.hover || T.sel) ? this.treePath(T.hover || T.sel) : []);
+    const col = n => (n.sect >= 0 ? PSECT[n.sect].color : '#9fe8ff');
+    // ชื่อแฉก
+    g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = 'bold 30px sans-serif';
+    PSECT.forEach((S, i) => { const a = (-90 + i * 60) * Math.PI / 180; g.fillStyle = S.color + '55'; g.fillText(`${S.name} • ${S.th}`, Math.cos(a) * 735, Math.sin(a) * 735); });
+    // เส้นเชื่อม
+    const seen = new Set();
+    for (const n of Object.values(PTREE)) for (const l of n.links) {
+      const k = n.id < l ? n.id + l : l + n.id; if (seen.has(k)) continue; seen.add(k);
+      const m = PTREE[l], both = has(n.id) && has(l), half = has(n.id) || has(l), onPath = (path.has(n.id) || has(n.id)) && (path.has(l) || has(l)) && (path.has(n.id) || path.has(l));
+      g.strokeStyle = both ? '#ffd86a' : onPath ? '#9ff0ff' : half && free ? 'rgba(160,220,255,.55)' : 'rgba(120,150,190,.22)';
+      g.lineWidth = both ? 6 : onPath ? 5 : 3;
+      g.beginPath(); g.moveTo(n.x, n.y); g.lineTo(m.x, m.y); g.stroke();
+    }
+    // จุด
+    for (const n of Object.values(PTREE)) {
+      const r = this.treeR(n), on = has(n.id), can = !on && Passive.canAlloc(p, n.id), c = col(n);
+      g.beginPath();
+      if (n.kind === 'key') for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3 + Math.PI / 6; g[i ? 'lineTo' : 'moveTo'](n.x + Math.cos(a) * r, n.y + Math.sin(a) * r); }
+      else g.arc(n.x, n.y, r, 0, Math.PI * 2);
+      g.closePath();
+      g.fillStyle = on ? c : path.has(n.id) ? '#24405a' : '#141c2a'; g.fill();
+      g.lineWidth = n.kind === 'small' ? 2.5 : 4;
+      g.strokeStyle = on ? '#fff3c0' : can ? '#bff4ff' : path.has(n.id) ? '#9ff0ff' : c + '88'; g.stroke();
+      if (n.kind !== 'small' && n.kind !== 'start') { g.beginPath(); g.arc(n.x, n.y, r + 5, 0, Math.PI * 2); g.lineWidth = 2; g.strokeStyle = on ? c : c + '55'; g.stroke(); }
+      if (n.id === T.sel || n.id === T.hover) { g.beginPath(); g.arc(n.x, n.y, r + 10, 0, Math.PI * 2); g.lineWidth = 3; g.strokeStyle = '#ffffff'; g.stroke(); }
+      if (n.kind !== 'small' && T.z > 0.33) { g.font = `${n.kind === 'key' ? 'bold 17' : '14'}px sans-serif`; g.fillStyle = on ? '#fff3c0' : '#c8d6ea'; g.fillText(n.name, n.x, n.y + r + 17); }
+    }
+  },
+
   // ---------------- สมุดมอนสเตอร์ ----------------
   showMob(id) { this.mobInfo = id; const b = $('#w-mob .win-body'); if (b) b.dataset.key = ''; this.open('w-mob'); this.renderMob(); },
   renderMob() {

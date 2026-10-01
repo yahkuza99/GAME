@@ -62,15 +62,22 @@ const ok = (name, cond, info = '') => { checks.push([name, !!cond, info]); };
     });
     ok(`${name}: walking`, moved > 1, moved.toFixed(2));
     // windows open without errors
-    for (const wnd of ['w-status', 'w-inv', 'w-equip', 'w-skills', 'w-quest', 'w-nav', 'w-emote', 'w-options']) {
+    for (const wnd of ['w-status', 'w-inv', 'w-equip', 'w-skills', 'w-tree', 'w-quest', 'w-nav', 'w-emote', 'w-options']) {
       await p.evaluate(id => UI.open(id), wnd); await p.waitForTimeout(80);
       ok(`${name}: open ${wnd}`, await p.evaluate(id => UI.isOpen(id) && document.querySelector('#' + id + ' .win-body').childElementCount > 0, wnd));
       await p.evaluate(id => UI.close(id), wnd);
     }
+    // passive tree: allocate a path, stats change, cannot skip ahead
+    const pt = await p.evaluate(() => {
+      const pl = G.player; pl.baseLv = 10; recalc(); const s0 = pl.d.str;
+      const jump = Passive.alloc(pl, '1e'); ['1a', '1b', '1c', '1e'].forEach(id => Passive.alloc(pl, id));
+      return { jump, n: pl.passives.length, gain: pl.d.str - s0, free: Passive.free(pl) };
+    });
+    ok(`${name}: passive tree`, !pt.jump && pt.n === 4 && pt.gain === 14 && pt.free === 5, JSON.stringify(pt));
     // save/continue
     await p.evaluate(() => saveGame(true, true)); await p.reload(); await p.waitForTimeout(1500);
     await p.click('#au-offline'); await p.click('#btn-continue'); await p.waitForTimeout(1200);
-    ok(`${name}: continue save`, await p.evaluate(() => G.started && G.player.name === 'Smoke'));
+    ok(`${name}: continue save`, await p.evaluate(() => G.started && G.player.name === 'Smoke' && G.player.passives.length === 4));
     await ctx.close();
   }
   await browser.close(); srv.close();

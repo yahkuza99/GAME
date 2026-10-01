@@ -734,3 +734,17 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
   .hero-stage { height: 96vh; width: 40vw; }
   #title.creating .logo.logo-img img { width: 160px; }
 }
+
+/* ต้นไม้พาสซีฟ */
+.pt-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.pt-head b { color: #ffd86a; font-size: 15px; }
+.pt-zoom { display: flex; gap: 4px; flex-wrap: wrap; }
+.pt-zoom .btn { min-width: 34px; padding: 4px 8px; }
+.pt-wrap { position: relative; }
+.pt-cv { display: block; width: 100%; height: min(62vh, 560px); touch-action: none; cursor: grab; border: 1px solid var(--line-2); }
+.pt-info { position: absolute; left: 8px; bottom: 8px; max-width: min(300px, calc(100% - 16px)); display: grid; gap: 3px; padding: 9px 11px;
+  background: rgba(6,11,20,.9); border: 1px solid var(--line-2); font-size: 12.5px; }
+.pt-info b { font-size: 14px; } .pt-info small { color: var(--ink-dim); }
+.pt-info .ks { color: #ffb08a; } .pt-info .dim { color: var(--ink-dim); }
+.pt-info .btn { margin-top: 5px; justify-self: start; }
+.pt-info .btn.primary { border-color: #ffd86a; color: #ffd86a; box-shadow: 0 0 10px rgba(255,216,106,.25); }

@@ -10,7 +10,7 @@ const G = {
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
 const SAVE_FIELDS = ['name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
-  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills'];
+  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives'];
 
 // ------------------------------------------------------------
 //  สร้าง / บันทึก / โหลด
@@ -19,7 +19,7 @@ function newPlayer(name, gender, hair, look) {
   const p = {
     name, gender, hair, look: Object.assign({ head: gender === 'f' ? 'long' : 'spiky', color: '#e6e9ef', glow: '#7ad8ff', visor: 'band' }, look || {}), job: 'novice', baseLv: 1, jobLv: 1, baseExp: 0, jobExp: 0,
     stats: { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 }, statPoints: 48, skillPoints: 0,
-    skills: { first_aid: 1 }, zeny: 500, inventory: [],
+    skills: { first_aid: 1 }, passives: [], zeny: 500, inventory: [],
     equip: { head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null },
     hotbar: [null, null, null, null, null, null, null, null], potbar: [null, null, null, null],
     map: HOME_MAP, x: 20.5, y: 24.5, save: { map: HOME_MAP, x: 20.5, y: 24.5 },
@@ -143,6 +143,7 @@ function recalc() {
     const sk = SKILLS[id];
     if (sk && sk.passive) add(sk.passive(p.skills[id]));
   }
+  add(Passive.bonus(p)); // ต้นไม้พาสซีฟ
   const bf = p.buffs;
   for (const id in bf) {
     const sk = SKILLS[id];
@@ -165,14 +166,19 @@ function recalc() {
   d.regenPct = b.regenPct || 0;
   d.rage = b.rage || 0;
   d.venom = b.venom || 0;
+  // ต้นไม้พาสซีฟ: ค่าเปอร์เซ็นต์ + Keystone
+  d.atkPct = b.atkPct || 0; d.critMul = 1.4 + (b.critDmgPct || 0) / 100; d.leech = b.leech || 0;
+  d.healPct = b.healPct || 0; d.stunRes = Math.min(90, b.stunRes || 0); d.spCostPct = Math.max(-50, b.spCostPct || 0);
+  for (const ks of ['unshaken', 'phantom', 'resolute', 'bloodmagic', 'mom']) d[ks] = Passive.keystone(p, ks);
   d.def = Math.min(90, b.def); d.softDef = Math.floor(d.vit / 2);
   d.mdef = Math.min(90, b.mdef); d.softMdef = Math.floor(d.int / 2);
   d.hit = p.baseLv + d.dex + b.hit;
-  d.flee = p.baseLv + d.agi + b.flee;
+  d.flee = d.unshaken ? 0 : Math.floor((p.baseLv + d.agi + b.flee) * (d.phantom ? 1.5 : 1));
+  if (d.phantom) { d.def = Math.floor(d.def / 2); d.softDef = Math.floor(d.softDef / 2); }
   d.pdodge = 1 + Math.floor(d.luk / 10);
   d.crit = 1 + Math.floor(d.luk * 0.3) + b.crit;
   d.maxHp = Math.floor((35 + p.baseLv * (8 + p.baseLv * 0.12) * j.hp) * (1 + d.vit / 100) * (1 + (b.hpPct || 0) / 100)) + b.hp;
-  d.maxSp = Math.floor((10 + p.baseLv * 2.2 * j.sp) * (1 + d.int / 100)) + b.sp;
+  d.maxSp = Math.floor((10 + p.baseLv * 2.2 * j.sp) * (1 + d.int / 100) * (1 + (b.spPct || 0) / 100)) + b.sp;
   const base = j.aspd * (WEAPON_ASPD_MOD[wt] || 1);
   d.aspdDelay = Math.max(250, Math.floor(base * (1 - Math.min(0.72, (d.agi + d.dex / 4) / 140)) * (1 - (b.aspdPct || 0) / 100)));
   d.aspd = Math.floor(200 - d.aspdDelay / 10);
@@ -215,7 +221,7 @@ function gainExp(bexp, jexp) {
     p.hp = p.d.maxHp; p.sp = p.d.maxSp;
     addFx({ type: 'levelup', ref: p, dur: 2.2 });
     addFloater(p.x, p.y - 1.4, 'LEVEL UP!', '#ffe36a', true);
-    UI.msg(`★ Base Level เพิ่มเป็น ${p.baseLv}! ได้รับ Status Point`, 'lvl');
+    UI.msg(`★ Base Level เพิ่มเป็น ${p.baseLv}! ได้รับ Status Point + แต้มพาสซีฟ (กด P)`, 'lvl');
     Sound.play('levelup');
   }
   if (jobUp) {
@@ -494,16 +500,16 @@ function playerWalkTo(tx, ty) {
 // ------------------------------------------------------------
 function physHit(m, mult = 1, opts = {}) {
   const p = G.player, d = p.d, md = m.def;
-  const crit = opts.forceCrit || (!opts.skill && U.chance(Math.max(0, d.crit - md.lv * 0.1) / 100));
+  const crit = !d.resolute && (opts.forceCrit || (!opts.skill && U.chance(Math.max(0, d.crit - md.lv * 0.1) / 100)));
   const hitRate = U.clamp(80 + d.hit + (opts.hitBonus || 0) - md.flee, 5, 100);
-  if (!crit && !opts.sureHit && !U.chance(hitRate / 100)) return { miss: true };
+  if (!crit && !opts.sureHit && !d.resolute && !U.chance(hitRate / 100)) return { miss: true };
   let atk = d.statusAtk + d.weaponAtk * (crit ? 1 : U.rand(0.8, 1.0)) + d.atkBonus + (opts.flatAtk || 0);
   if (d.rage) atk *= 1 + (1 - p.hp / d.maxHp) * d.rage / 100;
   const em = elemMod(opts.element || 'neutral', md.element);
-  let dmg = atk * mult * em;
-  if (crit) dmg *= 1.4;
+  let dmg = atk * mult * em * (1 + d.atkPct / 100);
+  if (crit) dmg *= d.critMul;
   else dmg = dmg * (1 - md.def / 100) - md.vit * 0.5 * U.rand(0.7, 1);
-  return { dmg: em === 0 ? 0 : Math.max(1, Math.round(dmg)), crit };
+  return { dmg: em === 0 ? 0 : Math.max(1, Math.round(dmg)), crit, phys: true };
 }
 function magicHit(m, mult = 1, element = 'neutral') {
   const d = G.player.d, md = m.def;
@@ -520,6 +526,9 @@ function applyHit(m, r, opts = {}) {
     return;
   }
   damageMob(m, r.dmg, Object.assign({ crit: r.crit }, opts));
+  // ดูดเลือด (ต้นไม้พาสซีฟ): ดาเมจกายภาพส่วนหนึ่งกลับมาเป็น HP แบบเงียบ ๆ
+  const p = G.player;
+  if (r.phys && p.d.leech && !p.dead && !m.def.dummy) p.hp = Math.min(p.d.maxHp, p.hp + Math.max(1, Math.round(r.dmg * p.d.leech / 100)));
 }
 function aggroMob(m) {
   if (m.dead) return;
@@ -610,7 +619,7 @@ function mobAttack(m) {
   let dmg = U.randi(md.atk[0], md.atk[1]);
   dmg = Math.max(1, Math.round(dmg * (1 - d.def / 100) - d.softDef * U.rand(0.7, 1)));
   damagePlayer(dmg);
-  if (md.stun && U.chance(md.stun[0] / 100 * (1 - Math.min(0.9, d.vit / 100)))) stunPlayer(md.stun[1]);
+  if (md.stun && !d.unshaken && U.chance(md.stun[0] / 100 * (1 - Math.min(0.9, d.vit / 100)) * (1 - d.stunRes / 100))) stunPlayer(md.stun[1]);
 }
 // มึน: ล้มลงกับพื้น ขยับ/ตี/ใช้สกิล/ใช้ของไม่ได้จนกว่าจะลุก (VIT สูงต้านได้)
 function stunPlayer(dur) {
@@ -632,7 +641,8 @@ function stunBlocked() {
 function damagePlayer(dmg, color = '#ff5050') {
   const p = G.player;
   if (p.dead) return;
-  p.hp -= dmg;
+  if (p.d.mom) { const s = Math.min(Math.floor(p.sp), Math.floor(dmg * 0.3)); p.sp -= s; p.hp -= dmg - s; } // Mind over Matter
+  else p.hp -= dmg;
   p.sitting = false;
   addFloater(p.x, p.y - 1.2, dmg, color);
   p.hurtFlash = 0.15;
@@ -675,7 +685,13 @@ function respawnPlayer(here) {
 // ------------------------------------------------------------
 //  สกิล
 // ------------------------------------------------------------
-function skillCost(id, lv) { const s = SKILLS[id]; return s.sp ? s.sp(lv) : 0; }
+function skillCost(id, lv) {
+  const s = SKILLS[id], d = G.player.d;
+  return s.sp ? Math.max(1, Math.round(s.sp(lv) * (1 + ((d && d.spCostPct) || 0) / 100))) : 0;
+}
+// Blood Circuit (ต้นไม้พาสซีฟ): จ่ายค่าสกิลด้วย HP แทน SP (ต้องเหลือ HP มากกว่าค่าสกิล)
+function canPaySkill(cost) { const p = G.player; return p.d.bloodmagic ? p.hp > cost : p.sp >= cost; }
+function paySkill(cost) { const p = G.player; if (p.d.bloodmagic) p.hp -= cost; else p.sp -= cost; }
 function skillReqMet(id) {
   const req = SKILLS[id].req;
   if (!req) return true;
@@ -735,7 +751,7 @@ function beginSkill(id, lv, tgt) {
   const p = G.player, s = SKILLS[id];
   G.pendingSkill = null;
   if (G.time < p.skillReadyAt) { UI.msg('ยังไม่สามารถใช้สกิลได้ (ดีเลย์)', 'err'); return; }
-  if (p.sp < skillCost(id, lv)) { UI.msg('SP ไม่เพียงพอ', 'err'); addFloater(p.x, p.y - 1.3, 'SP ไม่พอ', '#8fb0ff'); return; }
+  if (!canPaySkill(skillCost(id, lv))) { const w = p.d.bloodmagic ? 'HP' : 'SP'; UI.msg(`${w} ไม่เพียงพอ`, 'err'); addFloater(p.x, p.y - 1.3, `${w} ไม่พอ`, '#8fb0ff'); return; }
   if (tgt) {
     const dist = U.dist(p.x, p.y, tgt.x, tgt.y);
     const range = skillRange(s);
@@ -761,8 +777,8 @@ function executeSkill(id, lv, tgt) {
   const p = G.player, s = SKILLS[id];
   if (tgt && tgt.dead) return;
   const cost = skillCost(id, lv);
-  if (p.sp < cost) { UI.msg('SP ไม่เพียงพอ', 'err'); return; }
-  p.sp -= cost;
+  if (!canPaySkill(cost)) { UI.msg(`${p.d.bloodmagic ? 'HP' : 'SP'} ไม่เพียงพอ`, 'err'); return; }
+  paySkill(cost);
   if (s.hpCost) {
     const hc = Math.floor(p.hp * s.hpCost(lv) / 100);
     if (hc > 0) { p.hp = Math.max(1, p.hp - hc); addFloater(p.x, p.y - 1.2, `-${hc}`, '#ff8080'); }
@@ -787,7 +803,7 @@ function executeSkill(id, lv, tgt) {
     if (fxMap[s.selfFx]) addFx(fxMap[s.selfFx]);
   }
   if (s.heal) {
-    const amt = s.heal(lv, p.d, p);
+    const amt = Math.floor(s.heal(lv, p.d, p) * (1 + p.d.healPct / 100));
     if (tgt) { damageMob(tgt, Math.max(1, Math.floor(amt / 2 * elemMod('holy', tgt.def.element))), { color: '#fff6a0' }); addFx({ type: 'holy', ref: tgt, dur: 0.5 }); }
     else { healPlayer(amt); Sound.play('heal'); }
   }
