@@ -5,22 +5,22 @@
 // ============================================================
 
 const EMOTES = [
-  { k: '!', sym: '!', col: '#ff4a4a', name: 'ตกใจ' },
-  { k: '?', sym: '?', col: '#4a8cff', name: 'สงสัย' },
-  { k: 'lv', sym: '♥', col: '#ff5fa2', name: 'รัก' },
-  { k: 'ho', sym: '♪', col: '#e0a820', name: 'ร้องเพลง' },
-  { k: 'swt', sym: 'drop', col: '#5fb8ff', name: 'เหงื่อตก' },
-  { k: 'ic', sym: 'bulb', col: '#ffd34a', name: 'ไอเดีย' },
+  { k: '!', sym: '!', col: '#ff4a4a', name: L('ตกใจ', 'Surprised') },
+  { k: '?', sym: '?', col: '#4a8cff', name: L('สงสัย', 'Confused') },
+  { k: 'lv', sym: '♥', col: '#ff5fa2', name: L('รัก', 'Love') },
+  { k: 'ho', sym: '♪', col: '#e0a820', name: L('ร้องเพลง', 'Sing') },
+  { k: 'swt', sym: 'drop', col: '#5fb8ff', name: L('เหงื่อตก', 'Sweat') },
+  { k: 'ic', sym: 'bulb', col: '#ffd34a', name: L('ไอเดีย', 'Idea') },
   { k: 'gg', sym: 'GG', col: '#3fae5a', name: 'GG' },
-  { k: 'thx', sym: 'THX', col: '#e07830', name: 'ขอบคุณ' },
-  { k: 'zzz', sym: 'zZ', col: '#8a7ae0', name: 'ง่วง' },
-  { k: 'heh', sym: '^^', col: '#e0a820', name: 'ยิ้ม' },
-  { k: 'omg', sym: '!?', col: '#ff7a3a', name: 'อะไรนะ' },
-  { k: 'sob', sym: 'T_T', col: '#5fb8ff', name: 'ร้องไห้' },
-  { k: 'ok', sym: 'OK', col: '#3fae5a', name: 'โอเค' },
-  { k: 'go', sym: 'GO!', col: '#ff4a4a', name: 'ลุย' },
-  { k: 'angry', sym: 'anger', col: '#e03030', name: 'โกรธ' },
-  { k: 'dots', sym: '...', col: '#667', name: 'เงียบ' },
+  { k: 'thx', sym: 'THX', col: '#e07830', name: L('ขอบคุณ', 'Thanks') },
+  { k: 'zzz', sym: 'zZ', col: '#8a7ae0', name: L('ง่วง', 'Sleepy') },
+  { k: 'heh', sym: '^^', col: '#e0a820', name: L('ยิ้ม', 'Smile') },
+  { k: 'omg', sym: '!?', col: '#ff7a3a', name: L('อะไรนะ', 'What?!') },
+  { k: 'sob', sym: 'T_T', col: '#5fb8ff', name: L('ร้องไห้', 'Cry') },
+  { k: 'ok', sym: 'OK', col: '#3fae5a', name: L('โอเค', 'OK') },
+  { k: 'go', sym: 'GO!', col: '#ff4a4a', name: L('ลุย', 'Go!') },
+  { k: 'angry', sym: 'anger', col: '#e03030', name: L('โกรธ', 'Angry') },
+  { k: 'dots', sym: '...', col: '#667', name: L('เงียบ', 'Silence') },
 ];
 const EMOTE_BY = Object.fromEntries(EMOTES.map(e => [e.k, e]));
 

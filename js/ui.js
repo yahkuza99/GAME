@@ -68,7 +68,7 @@ const UI = {
   initFolds() {
     const st = this.foldState();
     const menu = $('#menubar');
-    const mf = h('button', { class: 'fold-btn menu-fold', title: 'เมนู (Tab)', 'aria-label': 'เปิดหรือปิดเมนู' });
+    const mf = h('button', { class: 'fold-btn menu-fold', title: L('เมนู (Tab)', 'Menu (Tab)'), 'aria-label': L('เปิดหรือปิดเมนู', 'Toggle menu') });
     mf.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
     menu.prepend(mf);
     // จอเล็ก/จอสัมผัส: เริ่มต้นพับเมนูและแชทไว้ให้เห็นเกมเต็ม ๆ
@@ -92,14 +92,14 @@ const UI = {
     const on = !$('#hud').classList.contains('hud-min');
     $('#hud').classList.toggle('hud-min', on);
     const st = this.foldState(); st.all = on; this.saveFold(st);
-    this.msg(on ? 'ซ่อน HUD แล้ว (กด U หรือปุ่ม ◉ เพื่อแสดง)' : 'แสดง HUD', 'info');
+    this.msg(on ? L('ซ่อน HUD แล้ว (กด U หรือปุ่ม ◉ เพื่อแสดง)', 'HUD hidden (press U or ◉ to show)') : L('แสดง HUD', 'HUD shown'), 'info');
   },
 
   // ---------------- หน้าต่าง ----------------
   makeWindow(w) {
     const bar = $('.win-title', w);
     if (bar && !$('.win-x', bar) && !w.dataset.noclose) {
-      bar.append(h('button', { class: 'win-x', title: 'ปิด (Esc)', onclick: () => this.close(w.id) }, '×'));
+      bar.append(h('button', { class: 'win-x', title: L('ปิด (Esc)', 'Close (Esc)'), onclick: () => this.close(w.id) }, '×'));
     }
     w.addEventListener('pointerdown', () => { w.style.zIndex = ++this.z; });
     if (!bar) return;
@@ -167,12 +167,12 @@ const UI = {
       if (cmd === 'sit') toggleSit();
       else if (cmd === 'where') this.msg(`${G.map.def.name} (${Math.floor(p.x)}, ${Math.floor(p.y)})`, 'info');
       else if (cmd === 'save') saveGame(false);
-      else if (cmd === 'autoloot') { p.options.autoLoot = !p.options.autoLoot; this.msg(`Auto Loot: ${p.options.autoLoot ? 'เปิด' : 'ปิด'}`, 'info'); }
+      else if (cmd === 'autoloot') { p.options.autoLoot = !p.options.autoLoot; this.msg(`Auto Loot: ${p.options.autoLoot ? L('เปิด', 'On') : L('ปิด', 'Off')}`, 'info'); }
       else if (cmd === 'help') this.open('w-help');
       else if (cmd === 'emote' || cmd === 'e') this.toggle('w-emote');
       else if (/^trade(\s|$)/.test(cmd)) Trade.command(text.slice(6));
       else if (Emote.fromChat(cmd)) { /* อีโมต */ }
-      else this.msg(`คำสั่ง: /sit /where /save /autoloot /help /emote • ปาร์ตี้: /party create /invite ชื่อ /leave /p ข้อความ • อีโมต: ${EMOTES.map(e => '/' + e.k).join(' ')}`, 'info');
+      else this.msg(L(`คำสั่ง: /sit /where /save /autoloot /help /emote • ปาร์ตี้: /party create /invite ชื่อ /leave /p ข้อความ • อีโมต: ${EMOTES.map(e => '/' + e.k).join(' ')}`, `Commands: /sit /where /save /autoloot /help /emote • Party: /party create /invite name /leave /p message • Emotes: ${EMOTES.map(e => '/' + e.k).join(' ')}`), 'info');
       return;
     }
     this.msg(`${p.name} : ${text}`, 'say');
@@ -185,7 +185,7 @@ const UI = {
     this.close('w-dialog'); this.close('w-shop');
     $('#map-name').textContent = map.def.name;
     this.announceMap(map);
-    this.msg(`เข้าสู่ ${map.def.name} — ${map.def.thai}${map.def.level ? ` (มอนสเตอร์ Lv ${map.def.level})` : ''}`, 'map');
+    this.msg(L(`เข้าสู่ ${map.def.name} — ${map.def.thai}${map.def.level ? ` (มอนสเตอร์ Lv ${map.def.level})` : ''}`, `Entered ${map.def.name} — ${map.def.thai}${map.def.level ? ` (Monsters Lv ${map.def.level})` : ''}`), 'map');
   },
   announceMap(map) {
     const el = $('#map-banner');
@@ -240,7 +240,7 @@ const UI = {
       const ic = Art.has('skill_' + k) ? `<img src="${Art.get('skill_' + k).src}" alt="">` : `<b>${s.glyph}</b>`;
       return `<div class="buff${left <= 10 ? ' ending' : ''}" style="--c:${s.icon}" title="${s.name}"><span class="bf-ic">${ic}</span><span class="bf-n">${s.name}</span><i>${fmtLeft(left)}</i></div>`;
     });
-    if (p.poisonUntil > G.time) buffs.push(`<div class="buff debuff" style="--c:#a050e0" title="ติดพิษ"><span class="bf-ic"><b>✦</b></span><span class="bf-n">ติดพิษ</span><i>${fmtLeft(Math.ceil(p.poisonUntil - G.time))}</i></div>`);
+    if (p.poisonUntil > G.time) buffs.push(L(`<div class="buff debuff" style="--c:#a050e0" title="ติดพิษ"><span class="bf-ic"><b>✦</b></span><span class="bf-n">ติดพิษ</span><i>${fmtLeft(Math.ceil(p.poisonUntil - G.time))}</i></div>`, `<div class="buff debuff" style="--c:#a050e0" title="Poisoned"><span class="bf-ic"><b>✦</b></span><span class="bf-n">Poisoned</span><i>${fmtLeft(Math.ceil(p.poisonUntil - G.time))}</i></div>`));
     const bh = buffs.join('');
     const be = $('#buffs');
     if (be.innerHTML !== bh) be.innerHTML = bh;
@@ -250,7 +250,7 @@ const UI = {
       const id = G.map.def.mvp; let t = '';
       if (id) {
         const alive = G.mobs.some(m => m.isMvp && !m.dead), left = mvpLeft(G.map.id);
-        t = alive ? `⚠ MVP ${MOBS[id].name} อยู่ในแมพ` : left > 0 ? `MVP ${MOBS[id].name} · ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')}` : '';
+        t = alive ? L(`⚠ MVP ${MOBS[id].name} อยู่ในแมพ`, `⚠ MVP ${MOBS[id].name} is here`) : left > 0 ? `MVP ${MOBS[id].name} · ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')}` : '';
         mv.classList.toggle('alive', alive);
       }
       if (mv.textContent !== t) mv.textContent = t;
@@ -263,7 +263,7 @@ const UI = {
       if (ph.hidden === on) ph.hidden = !on;
       if (on) {
         const s = p.pvp || { k: 0, d: 0 }, foes = G.mobs.filter(m => m.isPlayer).length;
-        const html = `<b>⚔ ลานประลอง</b><span>ฆ่า <i>${s.k}</i></span><span>ล้ม <i>${s.d}</i></span><span class="pv-n">${Online.online ? `คู่ต่อสู้ ${foes} คน` : 'ต้องเล่นออนไลน์'}</span>`;
+        const html = L(`<b>⚔ ลานประลอง</b><span>ฆ่า <i>${s.k}</i></span><span>ล้ม <i>${s.d}</i></span><span class="pv-n">${Online.online ? `คู่ต่อสู้ ${foes} คน` : 'ต้องเล่นออนไลน์'}</span>`, `<b>⚔ Arena</b><span>Kills <i>${s.k}</i></span><span>Deaths <i>${s.d}</i></span><span class="pv-n">${Online.online ? `${foes} opponents` : 'Online only'}</span>`);
         if (ph.innerHTML !== html) ph.innerHTML = html;
       }
     }
@@ -275,7 +275,7 @@ const UI = {
       else {
         if (sa.dataset.id !== id) {
           sa.dataset.id = id; const ic = $('.sa-ic', sa); ic.innerHTML = ''; ic.append(this.skillIcon(id));
-          $('.sa-t', sa).innerHTML = `<b>${SKILLS[id].name}</b> ${Pad.enabled() ? 'แตะมอนเพื่อใช้ • แตะซ้ำ = ตัวใกล้สุด' : 'คลิกมอนเพื่อใช้ • คลิกขวา/Esc ยกเลิก'}`;
+          $('.sa-t', sa).innerHTML = `<b>${SKILLS[id].name}</b> ${Pad.enabled() ? L('แตะมอนเพื่อใช้ • แตะซ้ำ = ตัวใกล้สุด', 'Tap a monster to cast • tap again = nearest') : L('คลิกมอนเพื่อใช้ • คลิกขวา/Esc ยกเลิก', 'Click a monster to cast • right-click/Esc to cancel')}`;
           $('#sa-x').onclick = () => { G.pendingSkill = null; };
         }
         sa.hidden = false;
@@ -481,10 +481,10 @@ const UI = {
     for (const bar of ['hotbar', 'potbar']) {
       const cfg = this.BARS[bar], root = $('#' + bar);
       for (let i = 0; i < cfg.n; i++) {
-        const el = h('div', { class: 'hb', 'data-i': i, 'data-bar': bar, title: `ปุ่มลัด ${cfg.keys[i]}` },
+        const el = h('div', { class: 'hb', 'data-i': i, 'data-bar': bar, title: L(`ปุ่มลัด ${cfg.keys[i]}`, `Hotkey ${cfg.keys[i]}`) },
           h('div', { class: 'ic' }), h('span', { class: 'k' }, cfg.keys[i]), h('span', { class: 'q' }), h('div', { class: 'cd' }));
         const use = () => (bar === 'hotbar' ? useHotbar(i) : usePotbar(i));
-        const clear = () => { if (G.player[bar][i]) { G.player[bar][i] = null; this.msg(`ล้างปุ่มลัด ${cfg.keys[i]}`, 'info'); this.dirty(); } };
+        const clear = () => { if (G.player[bar][i]) { G.player[bar][i] = null; this.msg(L(`ล้างปุ่มลัด ${cfg.keys[i]}`, `Cleared hotkey ${cfg.keys[i]}`), 'info'); this.dirty(); } };
         let lpTimer = null, lpFired = false;
         el.addEventListener('pointerdown', e => {
           e.stopPropagation();
@@ -502,7 +502,7 @@ const UI = {
           e.preventDefault();
           try {
             const d = JSON.parse(e.dataTransfer.getData('text/plain'));
-            if (d.t !== cfg.t) { this.msg(cfg.t === 'skill' ? 'แถบนี้สำหรับสกิลเท่านั้น' : 'แถบนี้สำหรับไอเทมเท่านั้น', 'err'); return; }
+            if (d.t !== cfg.t) { this.msg(cfg.t === 'skill' ? L('แถบนี้สำหรับสกิลเท่านั้น', 'This bar is for skills only') : L('แถบนี้สำหรับไอเทมเท่านั้น', 'This bar is for items only'), 'err'); return; }
             G.player[bar][i] = { t: d.t, id: d.id };
             if (d.bar === bar && d.from != null && d.from !== i) G.player[bar][d.from] = null;
             this.dirty();
@@ -524,7 +524,7 @@ const UI = {
       const bar = el.dataset.bar, i = +el.dataset.i, key = this.BARS[bar].keys[i];
       const x = p[bar][i];
       const ic = $('.ic', el), q = $('.q', el);
-      ic.innerHTML = ''; q.textContent = ''; el.title = `ปุ่มลัด ${key}`;
+      ic.innerHTML = ''; q.textContent = ''; el.title = L(`ปุ่มลัด ${key}`, `Hotkey ${key}`);
       el.classList.remove('empty'); el.classList.toggle('blank', !x);
       if (x && x.t === 'skill' && !skillLv(x.id)) { p[bar][i] = null; el.classList.add('blank'); return; }
       if (!x) return;
@@ -532,7 +532,7 @@ const UI = {
         ic.append(this.skillIcon(x.id));
         q.textContent = 'Lv' + skillLv(x.id);
         const sk = SKILLS[x.id], lv = skillLv(x.id), cost = skillCost(x.id, lv);
-        el.title = `${sk.name} Lv ${lv} [${key}]${cost ? ` • SP ${cost}` : ''}${sk.cd ? ` • คูลดาวน์ ${+(sk.cd * (1 - (G.player.d.cdCut || 0) / 100)).toFixed(1)} วิ` : ''}\n${sk.desc || ''}`;
+        el.title = `${sk.name} Lv ${lv} [${key}]${cost ? ` • SP ${cost}` : ''}${sk.cd ? L(` • คูลดาวน์ ${+(sk.cd * (1 - (G.player.d.cdCut || 0) / 100)).toFixed(1)} วิ`, ` • Cooldown ${+(sk.cd * (1 - (G.player.d.cdCut || 0) / 100)).toFixed(1)}s`) : ''}\n${sk.desc || ''}`;
       } else {
         ic.append(h('img', { src: itemIconUrl(x.id), alt: '' }));
         q.textContent = countItem(x.id);
@@ -542,11 +542,11 @@ const UI = {
   },
   assignHotbar(t, id) {
     const p = G.player, bar = t === 'skill' ? 'hotbar' : 'potbar', keys = this.BARS[bar].keys;
-    if (p[bar].some(x => x && x.t === t && x.id === id)) { this.msg('อยู่ในปุ่มลัดแล้ว', 'info'); return; }
+    if (p[bar].some(x => x && x.t === t && x.id === id)) { this.msg(L('อยู่ในปุ่มลัดแล้ว', 'Already on the hotbar'), 'info'); return; }
     const i = p[bar].findIndex(x => !x);
-    if (i < 0) { this.msg(t === 'skill' ? 'แถบสกิลเต็ม (แตะค้าง/คลิกขวาที่ช่องเพื่อลบ)' : 'แถบไอเทมเต็ม (แตะค้าง/คลิกขวาที่ช่องเพื่อลบ)', 'err'); return; }
+    if (i < 0) { this.msg(t === 'skill' ? L('แถบสกิลเต็ม (แตะค้าง/คลิกขวาที่ช่องเพื่อลบ)', 'Skill bar full (long-press/right-click a slot to clear)') : L('แถบไอเทมเต็ม (แตะค้าง/คลิกขวาที่ช่องเพื่อลบ)', 'Item bar full (long-press/right-click a slot to clear)'), 'err'); return; }
     p[bar][i] = { t, id };
-    this.msg(`ตั้งปุ่มลัด ${keys[i]}: ${t === 'skill' ? SKILLS[id].name : ITEMS[id].name}`, 'info');
+    this.msg(L(`ตั้งปุ่มลัด ${keys[i]}: ${t === 'skill' ? SKILLS[id].name : ITEMS[id].name}`, `Hotkey ${keys[i]}: ${t === 'skill' ? SKILLS[id].name : ITEMS[id].name}`), 'info');
     this.dirty();
   },
   skillIcon(id) {
@@ -575,8 +575,8 @@ const UI = {
     };
     const icon = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${P[k]}</svg>`;
     const items = [
-      ['w-status', 'สถานะ', 'A', 'status'], ['w-inv', 'ไอเทม', 'E', 'bag'], ['w-equip', 'อุปกรณ์', 'Q', 'equip'],
-      ['w-skills', 'สกิล', 'S', 'skill'], ['w-tree', 'พาสซีฟ', 'P', 'tree'], ['w-map', 'แผนที่', 'M', 'map'], ['w-quest', 'เควสต์', 'J', 'quest'], ['w-party', 'ปาร์ตี้', 'Y', 'party'], ['w-emote', 'อีโมต', 'Alt', 'emote'], ['w-nav', 'นำทาง', 'G', 'nav'], ['w-bot', 'บอท', 'N', 'bot'], ['w-options', 'ตั้งค่า', 'O', 'options'], ['w-help', 'วิธีเล่น', 'H', 'help'],
+      ['w-status', L('สถานะ', 'Status'), 'A', 'status'], ['w-inv', L('ไอเทม', 'Items'), 'E', 'bag'], ['w-equip', L('อุปกรณ์', 'Equip'), 'Q', 'equip'],
+      ['w-skills', L('สกิล', 'Skills'), 'S', 'skill'], ['w-tree', L('พาสซีฟ', 'Passive'), 'P', 'tree'], ['w-map', L('แผนที่', 'Map'), 'M', 'map'], ['w-quest', L('เควสต์', 'Quests'), 'J', 'quest'], ['w-party', L('ปาร์ตี้', 'Party'), 'Y', 'party'], ['w-emote', L('อีโมต', 'Emote'), 'Alt', 'emote'], ['w-nav', L('นำทาง', 'Navi'), 'G', 'nav'], ['w-bot', L('บอท', 'Bot'), 'N', 'bot'], ['w-options', L('ตั้งค่า', 'Settings'), 'O', 'options'], ['w-help', L('วิธีเล่น', 'Help'), 'H', 'help'],
     ];
     const m = $('#menubar');
     for (const [id, label, key, ic] of items) {
@@ -584,8 +584,8 @@ const UI = {
       b.innerHTML = `${icon(ic)}<span>${label}</span><small>${key}</small>`;
       m.append(b);
     }
-    const sit = h('button', { onclick: () => { toggleSit(); if (Pad.enabled()) this.setFold(m, true); }, title: 'นั่งพัก (X)' });
-    sit.innerHTML = `${icon('sit')}<span>นั่ง</span><small>X</small>`;
+    const sit = h('button', { onclick: () => { toggleSit(); if (Pad.enabled()) this.setFold(m, true); }, title: L('นั่งพัก (X)', 'Sit (X)') });
+    sit.innerHTML = L(`${icon('sit')}<span>นั่ง</span><small>X</small>`, `${icon('sit')}<span>Sit</span><small>X</small>`);
     m.append(sit);
     document.addEventListener('click', e => {
       const t = e.target.closest('[data-open]');
@@ -639,14 +639,14 @@ const UI = {
     if (this.isOpen('w-world')) this.renderWorld();
     if (this.isOpen('w-tree')) this.renderTree();
     if (this.isOpen('w-bot')) this.renderBot();
-    if (this.isOpen('w-map')) $('#w-map .win-title span').textContent = `แผนที่ — ${G.map.def.name}`;
+    if (this.isOpen('w-map')) $('#w-map .win-title span').textContent = L(`แผนที่ — ${G.map.def.name}`, `Map — ${G.map.def.name}`);
     if (this.isOpen('w-shop') && this.shop) this.renderShop();
   },
 
   renderStatus() {
     const p = G.player, d = p.d;
     const stats = ['str', 'agi', 'vit', 'int', 'dex', 'luk'];
-    const desc = { str: 'พลังโจมตีระยะประชิด', agi: 'ความเร็วโจมตี/หลบหลีก/ลดคูลดาวน์สกิล', vit: 'HP/ป้องกัน', int: 'พลังเวท/SP', dex: 'ความแม่นยำ/ธนู/ร่ายเร็ว', luk: 'คริติคอล/โชค' };
+    const desc = { str: L('พลังโจมตีระยะประชิด', 'Melee attack power'), agi: L('ความเร็วโจมตี/หลบหลีก/ลดคูลดาวน์สกิล', 'Attack speed / evasion / skill cooldown'), vit: L('HP/ป้องกัน', 'HP / defense'), int: L('พลังเวท/SP', 'Magic attack / SP'), dex: L('ความแม่นยำ/ธนู/ร่ายเร็ว', 'Accuracy / bows / cast speed'), luk: L('คริติคอล/โชค', 'Critical / luck') };
     const left = stats.map(s => {
       const cost = statCost(p.stats[s]);
       const can = p.statPoints >= cost && p.stats[s] < 99;
@@ -663,19 +663,19 @@ const UI = {
     // ค่าพิเศษ (จากต้นไม้พาสซีฟ/สกิล/บัฟ) — แสดงเฉพาะที่มีผล
     const castCut = Math.round((1 - d.castMul * Math.max(0, 1 - d.dex / 150)) * 100);
     const extra = [
-      ['ความเร็วเดิน', Math.round((d.speed / 4.6 - 1) * 100), '%'], ['ร่ายเร็วขึ้น', castCut, '%'], ['ลดคูลดาวน์สกิล', d.cdCut, '%'], ['ดาเมจกายภาพ', d.atkPct, '%'],
-      ['แรงคริติคอล', Math.round((d.critMul - 1.4) * 100), '%'], ['ดูดเลือด', d.leech, '%'], ['ฮีลแรงขึ้น', d.healPct, '%'],
-      ['ต้านมึน (VIT+พาสซีฟ)', d.unshaken ? 100 : Math.round((1 - (1 - Math.min(0.9, d.vit / 100)) * (1 - d.stunRes / 100)) * 100), '%'], ['SP ที่ใช้', d.spCostPct, '%'], ['HP ฟื้นต่อรอบ', d.regenPct, '%'],
-      ['ATK ตาม HP ที่เสีย', d.rage, '%'], ['โอกาสติดพิษ', d.venom, '%'],
+      [L('ความเร็วเดิน', 'Move speed'), Math.round((d.speed / 4.6 - 1) * 100), '%'], [L('ร่ายเร็วขึ้น', 'Cast speed'), castCut, '%'], [L('ลดคูลดาวน์สกิล', 'Cooldown reduction'), d.cdCut, '%'], [L('ดาเมจกายภาพ', 'Physical damage'), d.atkPct, '%'],
+      [L('แรงคริติคอล', 'Crit damage'), Math.round((d.critMul - 1.4) * 100), '%'], [L('ดูดเลือด', 'Lifesteal'), d.leech, '%'], [L('ฮีลแรงขึ้น', 'Healing power'), d.healPct, '%'],
+      [L('ต้านมึน (VIT+พาสซีฟ)', 'Stun resist'), d.unshaken ? 100 : Math.round((1 - (1 - Math.min(0.9, d.vit / 100)) * (1 - d.stunRes / 100)) * 100), '%'], [L('SP ที่ใช้', 'SP cost'), d.spCostPct, '%'], [L('HP ฟื้นต่อรอบ', 'HP regen per tick'), d.regenPct, '%'],
+      [L('ATK ตาม HP ที่เสีย', 'ATK per missing HP'), d.rage, '%'], [L('โอกาสติดพิษ', 'Poison chance'), d.venom, '%'],
     ].filter(([, v]) => v).map(([k, v, u]) => h('div', { class: 'st-row2' }, h('span', {}, k), h('b', {}, `${v > 0 ? '+' : ''}${Math.round(v * 10) / 10}${u}`)));
     const ks = Passive.list(p).filter(x => PTREE[x].kdesc).map(x => h('div', { class: 'st-ks' }, h('b', {}, PTREE[x].name), ' — ', PTREE[x].kdesc));
-    if (extra.length || ks.length) right.push(h('div', { class: 'st-sub' }, 'ค่าพิเศษ'), ...extra, ...ks);
+    if (extra.length || ks.length) right.push(h('div', { class: 'st-sub' }, L('ค่าพิเศษ', 'Bonuses')), ...extra, ...ks);
     const body = $('#w-status .win-body');
     body.innerHTML = '';
     body.append(
       h('div', { class: 'st-grid' }, h('div', {}, left), h('div', {}, right)),
       h('div', { class: 'st-foot' }, `Status Point: `, h('b', {}, String(p.statPoints)),
-        h('span', { class: 'hint' }, ' — ตัวเลขขวาคือแต้มที่ใช้เพิ่ม 1 ค่า')),
+        h('span', { class: 'hint' }, L(' — ตัวเลขขวาคือแต้มที่ใช้เพิ่ม 1 ค่า', ' — right number = cost to raise by 1'))),
     );
   },
 
@@ -686,14 +686,14 @@ const UI = {
     const it = ITEMS[entry.id], bon = {};
     const add = o => { if (o) for (const k in o) bon[k] = (bon[k] || 0) + o[k]; };
     add(it.b); for (const c of entry.cards || []) add(ITEMS[c].b);
-    const tag = it.type === 'weapon' ? 'อาวุธ' : it.type === 'armor' ? (SLOT_THAI[it.slot] || 'ชุด') : it.type === 'card' ? 'ชิป' : it.type === 'use' ? 'ของใช้' : 'ของสะสม';
+    const tag = it.type === 'weapon' ? L('อาวุธ', 'Weapon') : it.type === 'armor' ? (SLOT_THAI[it.slot] || L('ชุด', 'Armor')) : it.type === 'card' ? L('ชิป', 'Chip') : it.type === 'use' ? L('ของใช้', 'Usable') : L('ของสะสม', 'Misc');
     return [
-      h('div', { class: 'tip-head' }, h('img', { src: itemIconUrl(entry.id), alt: '' }), h('div', {}, h('b', {}, itemDisplayName(entry)), h('small', {}, tag + (worn ? ' • สวมอยู่' : '')))),
+      h('div', { class: 'tip-head' }, h('img', { src: itemIconUrl(entry.id), alt: '' }), h('div', {}, h('b', {}, itemDisplayName(entry)), h('small', {}, tag + (worn ? L(' • สวมอยู่', ' • Equipped') : '')))),
       it.desc ? h('div', { class: 'tip-desc' }, it.desc) : null,
       ...this.itemTooltip(entry).map(l => h('div', { class: 'tip-line' }, l)),
       Object.keys(bon).length ? h('div', { class: 'tip-bon' }, ...Object.entries(bon).filter(([k]) => typeof PSTAT !== 'undefined' && PSTAT[k]).map(([k, v]) => h('span', {}, PSTAT_FMT(k, v)))) : null,
-      it.heal ? h('div', { class: 'tip-line' }, `ฟื้น HP ${it.heal[0]}~${it.heal[1]}`) : null,
-      it.spHeal ? h('div', { class: 'tip-line' }, `ฟื้น SP ${it.spHeal[0]}~${it.spHeal[1]}`) : null,
+      it.heal ? h('div', { class: 'tip-line' }, L(`ฟื้น HP ${it.heal[0]}~${it.heal[1]}`, `Restores HP ${it.heal[0]}~${it.heal[1]}`)) : null,
+      it.spHeal ? h('div', { class: 'tip-line' }, L(`ฟื้น SP ${it.spHeal[0]}~${it.spHeal[1]}`, `Restores SP ${it.spHeal[0]}~${it.spHeal[1]}`)) : null,
       !worn && isEquipType(it) && G.player.inventory.includes(entry) ? this.compareLine(entry, true) : null,
     ].filter(Boolean);
   },
@@ -718,12 +718,12 @@ const UI = {
   itemTooltip(entry) {
     const it = ITEMS[entry.id];
     const lines = [];
-    if (it.type === 'weapon') lines.push(`ประเภท: ${WTYPE_THAI[it.wtype]}  ATK ${it.atk}${it.matk ? `  MATK ${it.matk}` : ''}`);
-    if (it.type === 'armor') lines.push(`ตำแหน่ง: ${SLOT_THAI[it.slot]}${it.def ? `  DEF ${it.def}` : ''}${it.mdef ? `  MDEF ${it.mdef}` : ''}`);
-    if (it.type === 'card') lines.push(`ใส่ใน: ${SLOT_THAI[it.slot]}`);
+    if (it.type === 'weapon') lines.push(L(`ประเภท: ${WTYPE_THAI[it.wtype]}  ATK ${it.atk}${it.matk ? `  MATK ${it.matk}` : ''}`, `Type: ${WTYPE_THAI[it.wtype]}  ATK ${it.atk}${it.matk ? `  MATK ${it.matk}` : ''}`));
+    if (it.type === 'armor') lines.push(L(`ตำแหน่ง: ${SLOT_THAI[it.slot]}${it.def ? `  DEF ${it.def}` : ''}${it.mdef ? `  MDEF ${it.mdef}` : ''}`, `Slot: ${SLOT_THAI[it.slot]}${it.def ? `  DEF ${it.def}` : ''}${it.mdef ? `  MDEF ${it.mdef}` : ''}`));
+    if (it.type === 'card') lines.push(L(`ใส่ใน: ${SLOT_THAI[it.slot]}`, `Fits: ${SLOT_THAI[it.slot]}`));
     if (isEquipType(it)) {
-      lines.push(`อาชีพ: ${it.jobs === 'all' ? 'ทุกอาชีพ' : it.jobs.map(j => JOBS[j].name).join(', ')}${it.lv ? `  |  Lv ${it.lv}+` : ''}`);
-      if (it.slots) lines.push(`ช่องชิป: ${(entry.cards || []).map(c => ITEMS[c].name).join(', ') || '-'} (${(entry.cards || []).length}/${it.slots})`);
+      lines.push(L(`อาชีพ: ${it.jobs === 'all' ? 'ทุกอาชีพ' : it.jobs.map(j => JOBS[j].name).join(', ')}${it.lv ? `  |  Lv ${it.lv}+` : ''}`, `Jobs: ${it.jobs === 'all' ? 'All' : it.jobs.map(j => JOBS[j].name).join(', ')}${it.lv ? `  |  Lv ${it.lv}+` : ''}`));
+      if (it.slots) lines.push(L(`ช่องชิป: ${(entry.cards || []).map(c => ITEMS[c].name).join(', ') || '-'} (${(entry.cards || []).length}/${it.slots})`, `Chip slots: ${(entry.cards || []).map(c => ITEMS[c].name).join(', ') || '-'} (${(entry.cards || []).length}/${it.slots})`));
     }
     return lines;
   },
@@ -746,16 +746,16 @@ const UI = {
     const chips = pv.diff.map(([k, dv, v]) => h('span', { class: 'cmp ' + (dv > 0 ? 'up' : 'down') },
       h('i', {}, k), `${dv > 0 ? '+' : '−'}${U.fmt(Math.abs(dv))}`, compact ? null : h('small', {}, ` → ${U.fmt(v)}`)));
     const up = pv.diff.filter(x => x[1] > 0).length, down = pv.diff.length - up;
-    const verdict = !ok ? ['no', 'ใส่ไม่ได้'] : !pv.diff.length ? ['eq', 'เท่าเดิม'] : !down ? ['up', 'ดีขึ้น'] : !up ? ['down', 'แย่ลง'] : ['mix', 'ได้อย่างเสียอย่าง'];
+    const verdict = !ok ? ['no', L('ใส่ไม่ได้', 'Cannot equip')] : !pv.diff.length ? ['eq', L('เท่าเดิม', 'No change')] : !down ? ['up', L('ดีขึ้น', 'Better')] : !up ? ['down', L('แย่ลง', 'Worse')] : ['mix', L('ได้อย่างเสียอย่าง', 'Trade-off')];
     return h('div', { class: 'det-line cmp-row' + (compact ? ' compact' : '') },
-      h('div', { class: 'cmp-h' }, h('span', {}, cur ? `เทียบกับ ${itemDisplayName(cur)}` : `ช่อง${SLOT_THAI[it.slot] || ''}ยังว่าง`), h('b', { class: 'cmp-v ' + verdict[0] }, verdict[1])),
-      h('div', { class: 'cmp-chips' }, chips.length ? chips : h('span', { class: 'cmp' }, 'ค่าไม่เปลี่ยน')));
+      h('div', { class: 'cmp-h' }, h('span', {}, cur ? L(`เทียบกับ ${itemDisplayName(cur)}`, `vs. ${itemDisplayName(cur)}`) : L(`ช่อง${SLOT_THAI[it.slot] || ''}ยังว่าง`, `${SLOT_THAI[it.slot] || 'Slot'} slot is empty`)), h('b', { class: 'cmp-v ' + verdict[0] }, verdict[1])),
+      h('div', { class: 'cmp-chips' }, chips.length ? chips : h('span', { class: 'cmp' }, L('ค่าไม่เปลี่ยน', 'No stat change'))));
   },
   renderInv() {
     const p = G.player;
     const body = $('#w-inv .win-body');
     body.innerHTML = '';
-    const tabs = [['use', 'ของใช้'], ['equip', 'อุปกรณ์'], ['card', 'ชิป'], ['etc', 'อื่น ๆ']];
+    const tabs = [['use', L('ของใช้', 'Usable')], ['equip', L('อุปกรณ์', 'Equip')], ['card', L('ชิป', 'Chips')], ['etc', L('อื่น ๆ', 'Etc')]];
     const tabType = e => { const t = ITEMS[e.id].type; return t === 'use' ? 'use' : t === 'card' ? 'card' : isEquipType(ITEMS[e.id]) ? 'equip' : 'etc'; };
     body.append(h('div', { class: 'tabs' }, tabs.map(([k, l]) => h('button', {
       class: 'tab' + (this.invTab === k ? ' on' : ''), onclick: () => { this.invTab = k; this.selItem = null; this.renderInv(); },
@@ -774,32 +774,32 @@ const UI = {
       grid.append(cell);
     }
     for (let i = list.length; i < Math.max(24, Math.ceil(list.length / 6) * 6); i++) grid.append(h('div', { class: 'inv-cell empty' }));
-    if (this.invTab === 'card' && !list.length) body.append(h('div', { class: 'hint' }, `ยังไม่มีชิป — ล่ามอนชนิดเดียวกันครบ ${CHIP_KILLS} ตัวได้ชิปของมัน 1 ชิ้น (MVP ได้ตั้งแต่ครั้งแรก)`));
+    if (this.invTab === 'card' && !list.length) body.append(h('div', { class: 'hint' }, L(`ยังไม่มีชิป — ล่ามอนชนิดเดียวกันครบ ${CHIP_KILLS} ตัวได้ชิปของมัน 1 ชิ้น (MVP ได้ตั้งแต่ครั้งแรก)`, `No chips yet — defeat ${CHIP_KILLS} of one monster type to earn its chip (MVPs give one on the first kill)`)));
     body.append(grid);
     const det = h('div', { class: 'inv-detail' });
     const e = this.selItem && p.inventory.includes(this.selItem) ? this.selItem : null;
     if (e) {
       const it = ITEMS[e.id];
       const acts = [];
-      if (it.type === 'use') acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, 'ใช้'));
-      if (isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, 'สวมใส่'));
-      if (it.type === 'card') acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, 'ใส่ชิป'));
-      if (it.type === 'use' || isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: () => this.assignHotbar('item', e.id) }, 'ตั้งปุ่มลัด'));
-      acts.push(h('button', { class: 'btn danger', onclick: () => this.discard(e) }, 'ทิ้ง'));
+      if (it.type === 'use') acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, L('ใช้', 'Use')));
+      if (isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, L('สวมใส่', 'Equip')));
+      if (it.type === 'card') acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, L('ใส่ชิป', 'Insert')));
+      if (it.type === 'use' || isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: () => this.assignHotbar('item', e.id) }, L('ตั้งปุ่มลัด', 'Set hotkey')));
+      acts.push(h('button', { class: 'btn danger', onclick: () => this.discard(e) }, L('ทิ้ง', 'Drop')));
       det.append(...[
         h('div', { class: 'det-head' }, h('img', { src: itemIconUrl(e.id), alt: '' }), h('b', {}, itemDisplayName(e)), e.qty > 1 ? ` ×${e.qty}` : ''),
         h('div', { class: 'det-desc' }, it.desc || ''),
         ...this.itemTooltip(e).map(l => h('div', { class: 'det-line' }, l)),
         this.compareLine(e),
-        h('div', { class: 'det-line' }, `ราคาขาย: ${U.fmt(Math.floor(it.price / 2))} ${CUR}`),
+        h('div', { class: 'det-line' }, L(`ราคาขาย: ${U.fmt(Math.floor(it.price / 2))} ${CUR}`, `Sell price: ${U.fmt(Math.floor(it.price / 2))} ${CUR}`)),
         h('div', { class: 'det-acts' }, acts)].filter(Boolean));
-    } else det.append(h('div', { class: 'hint' }, 'คลิกเพื่อดูรายละเอียด • ดับเบิลคลิกเพื่อใช้/สวมใส่ • ลากไปวางที่ปุ่มลัดได้'));
-    body.append(det, h('div', { class: 'inv-foot' }, h('button', { class: 'btn small inv-sort', type: 'button', onclick: () => { sortItems(p.inventory); saveGame(); this.renderInv(); Sound.play('click'); } }, 'จัดเรียง'),
+    } else det.append(h('div', { class: 'hint' }, L('คลิกเพื่อดูรายละเอียด • ดับเบิลคลิกเพื่อใช้/สวมใส่ • ลากไปวางที่ปุ่มลัดได้', 'Click for details • double-click to use/equip • drag onto the hotbar')));
+    body.append(det, h('div', { class: 'inv-foot' }, h('button', { class: 'btn small inv-sort', type: 'button', onclick: () => { sortItems(p.inventory); saveGame(); this.renderInv(); Sound.play('click'); } }, L('จัดเรียง', 'Sort')),
       h('span', {}, `${CUR}: `, h('b', {}, U.fmt(p.zeny)))));
   },
   async discard(e) {
     const it = ITEMS[e.id];
-    const ok = await this.confirm(`ทิ้ง ${itemDisplayName(e)}${e.qty > 1 ? ` ทั้งหมด ${e.qty} ชิ้น` : ''} หรือไม่? (จะวางไว้บนพื้น)`);
+    const ok = await this.confirm(L(`ทิ้ง ${itemDisplayName(e)}${e.qty > 1 ? ` ทั้งหมด ${e.qty} ชิ้น` : ''} หรือไม่? (จะวางไว้บนพื้น)`, `Drop ${itemDisplayName(e)}${e.qty > 1 ? ` (all ${e.qty})` : ''}? (It will be left on the ground)`));
     if (!ok || !G.player.inventory.includes(e)) return;
     removeEntry(e, e.qty);
     if (isEquipType(it)) G.drops.push({ uid: G.uid++, id: e.id, qty: 1, x: G.player.x + 0.4, y: G.player.y + 0.3, born: G.time });
@@ -825,7 +825,7 @@ const UI = {
       return e ? this.tipFor(el, e, true) : el;
     });
     body.append(h('div', { class: 'eq-wrap' }, prev, h('div', { class: 'eq-slots' }, slots)),
-      h('div', { class: 'hint' }, 'คลิกที่อุปกรณ์เพื่อถอด • สวมใส่ได้จากหน้าต่างไอเทม'));
+      h('div', { class: 'hint' }, L('คลิกที่อุปกรณ์เพื่อถอด • สวมใส่ได้จากหน้าต่างไอเทม', 'Click a piece to unequip it • equip items from the Inventory window')));
   },
 
   renderSkills() {
@@ -839,15 +839,15 @@ const UI = {
     const mastery = id => {
       const lv = masteryLv(id), u = masteryUses(id), a = masteryNeed(lv, id), z = masteryNeed(lv + 1, id);
       const pct = lv >= MASTERY_MAX ? 100 : Math.floor((u - a) / (z - a) * 100);
-      return h('div', { class: 'sk-mas', title: lv >= MASTERY_MAX ? 'ความชำนาญสูงสุดแล้ว' : `ใช้อีก ${U.fmt(z - u)} ครั้งถึง Lv ${lv + 1}` },
-        h('span', {}, `ความชำนาญ Lv ${lv}/${MASTERY_MAX}`), h('i', {}, h('b', { style: `width:${pct}%` })),
-        h('em', {}, `${id === 'attack' ? 'ตีแรงขึ้น' : SKILLS[id] && SKILLS[id].heal ? 'ฮีลแรงขึ้น' : 'แรงขึ้น'} +${masteryPct(id)}%`));
+      return h('div', { class: 'sk-mas', title: lv >= MASTERY_MAX ? L('ความชำนาญสูงสุดแล้ว', 'Mastery maxed') : L(`ใช้อีก ${U.fmt(z - u)} ครั้งถึง Lv ${lv + 1}`, `${U.fmt(z - u)} more uses to Lv ${lv + 1}`) },
+        h('span', {}, L(`ความชำนาญ Lv ${lv}/${MASTERY_MAX}`, `Mastery Lv ${lv}/${MASTERY_MAX}`)), h('i', {}, h('b', { style: `width:${pct}%` })),
+        h('em', {}, `${id === 'attack' ? L('ตีแรงขึ้น', 'Attack power') : SKILLS[id] && SKILLS[id].heal ? L('ฮีลแรงขึ้น', 'Healing power') : L('แรงขึ้น', 'Power')} +${masteryPct(id)}%`));
     };
     // อธิบายว่าความชำนาญทำอะไร (ผู้เล่นถามบ่อย)
-    body.append(h('div', { class: 'sk-mas-help' }, h('b', {}, 'ความชำนาญ = ยิ่งใช้ยิ่งเก่ง'),
-      ` สกิลที่ใช้บ่อยจะแรงขึ้นเอง ${MASTERY_MAX} ขั้น: สกิล +3% ต่อขั้น (ดาเมจและฮีล สูงสุด +30%) • ตีปกติ +2% ต่อขั้น (สูงสุด +20%) — ไม่ต้องใช้แต้ม ไม่หายตอนเปลี่ยนอาชีพ`));
+    body.append(h('div', { class: 'sk-mas-help' }, h('b', {}, L('ความชำนาญ = ยิ่งใช้ยิ่งเก่ง', 'Mastery: practice makes perfect')),
+      L(` สกิลที่ใช้บ่อยจะแรงขึ้นเอง ${MASTERY_MAX} ขั้น: สกิล +3% ต่อขั้น (ดาเมจและฮีล สูงสุด +30%) • ตีปกติ +2% ต่อขั้น (สูงสุด +20%) — ไม่ต้องใช้แต้ม ไม่หายตอนเปลี่ยนอาชีพ`, ` Skills you use often grow stronger over ${MASTERY_MAX} ranks: skills +3% per rank (damage and healing, up to +30%) • basic attacks +2% per rank (up to +20%) — no points needed, kept on job change`)));
     list.append(h('div', { class: 'sk-row' }, h('div', { class: 'sk-info' },
-      h('div', { class: 'sk-name' }, 'การโจมตีปกติ'), h('div', { class: 'sk-desc' }, 'ตีโดนทุกครั้งสะสมความชำนาญ ยิ่งตียิ่งแรง'), mastery('attack'))));
+      h('div', { class: 'sk-name' }, L('การโจมตีปกติ', 'Basic Attack')), h('div', { class: 'sk-desc' }, L('ตีโดนทุกครั้งสะสมความชำนาญ ยิ่งตียิ่งแรง', 'Every hit builds mastery — the more you strike, the harder you hit')), mastery('attack'))));
     for (const id of ids) {
       const s = SKILLS[id], lv = skillLv(id);
       const reqTxt = s.req ? Object.entries(s.req).map(([k, v]) => `${SKILLS[k].name} ${v}`).join(', ') : '';
@@ -855,23 +855,23 @@ const UI = {
       if (lv && s.type === 'active') {
         ic.draggable = true;
         ic.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', JSON.stringify({ t: 'skill', id })));
-        ic.title = 'ลากไปวางที่ปุ่มลัด';
+        ic.title = L('ลากไปวางที่ปุ่มลัด', 'Drag onto the hotbar');
       }
       list.append(h('div', { class: 'sk-row' + (lv ? '' : ' locked') },
         ic,
         h('div', { class: 'sk-info' },
-          h('div', { class: 'sk-name' }, s.name, h('span', { class: 'sk-lv' }, ` Lv ${lv}/${s.max}`), s.type === 'passive' ? h('span', { class: 'tag' }, 'ติดตัว') : null),
-          h('div', { class: 'sk-desc' }, s.desc + (s.sp && lv ? ` [SP ${s.sp(lv)}]` : '') + (s.cd ? ` [คูลดาวน์ ${+(s.cd * (1 - (p.d.cdCut || 0) / 100)).toFixed(1)} วิ]` : '')),
-          reqTxt ? h('div', { class: 'sk-req' + (skillReqMet(id) ? ' ok' : '') }, `ต้องการ: ${reqTxt}`) : null,
+          h('div', { class: 'sk-name' }, s.name, h('span', { class: 'sk-lv' }, ` Lv ${lv}/${s.max}`), s.type === 'passive' ? h('span', { class: 'tag' }, L('ติดตัว', 'Passive')) : null),
+          h('div', { class: 'sk-desc' }, s.desc + (s.sp && lv ? ` [SP ${s.sp(lv)}]` : '') + (s.cd ? L(` [คูลดาวน์ ${+(s.cd * (1 - (p.d.cdCut || 0) / 100)).toFixed(1)} วิ]`, ` [Cooldown ${+(s.cd * (1 - (p.d.cdCut || 0) / 100)).toFixed(1)}s]`) : '')),
+          reqTxt ? h('div', { class: 'sk-req' + (skillReqMet(id) ? ' ok' : '') }, L(`ต้องการ: ${reqTxt}`, `Requires: ${reqTxt}`)) : null,
           lv && s.type === 'active' ? mastery(id) : null),
         h('div', { class: 'sk-acts' },
           canLearn(id) ? h('button', { class: 'btn small', onclick: () => learnSkill(id) }, '+') : null,
-          lv && s.type === 'active' ? h('button', { class: 'btn small', onclick: () => useSkill(id) }, 'ใช้') : null,
-          lv && s.type === 'active' ? h('button', { class: 'btn small', title: 'ตั้งปุ่มลัด', onclick: () => this.assignHotbar('skill', id) }, '📌') : null)));
+          lv && s.type === 'active' ? h('button', { class: 'btn small', onclick: () => useSkill(id) }, L('ใช้', 'Use')) : null,
+          lv && s.type === 'active' ? h('button', { class: 'btn small', title: L('ตั้งปุ่มลัด', 'Set hotkey'), onclick: () => this.assignHotbar('skill', id) }, '📌') : null)));
     }
     body.append(list);
-    if (SECOND_JOBS[p.job]) body.append(h('div', { class: 'hint' }, `คลาสขั้น 2 (เลือก 1 สาย: ${SECOND_JOBS[p.job].map(j => JOBS[j].name).join(' / ')}): Base Lv ${SECOND_JOB_REQ.base} และ Job Lv ${SECOND_JOB_REQ.job} แล้วคุยกับ Mimir AI ในนีโอเอลด์ไฮม์`));
-    if (p.job === 'novice') body.append(h('div', { class: 'hint' }, `เก็บ Job Lv ${JOB_CHANGE_LV} แล้วไปหา Mimir AI ในนีโอเอลด์ไฮม์ เพื่ออัปเกรดร่างเป็น 1 ใน 6 คลาส`));
+    if (SECOND_JOBS[p.job]) body.append(h('div', { class: 'hint' }, L(`คลาสขั้น 2 (เลือก 1 สาย: ${SECOND_JOBS[p.job].map(j => JOBS[j].name).join(' / ')}): Base Lv ${SECOND_JOB_REQ.base} และ Job Lv ${SECOND_JOB_REQ.job} แล้วคุยกับ Mimir AI ในนีโอเอลด์ไฮม์`, `2nd class (choose one: ${SECOND_JOBS[p.job].map(j => JOBS[j].name).join(' / ')}): reach Base Lv ${SECOND_JOB_REQ.base} and Job Lv ${SECOND_JOB_REQ.job}, then talk to Mimir AI in Neo Eldheim`)));
+    if (p.job === 'novice') body.append(h('div', { class: 'hint' }, L(`เก็บ Job Lv ${JOB_CHANGE_LV} แล้วไปหา Mimir AI ในนีโอเอลด์ไฮม์ เพื่ออัปเกรดร่างเป็น 1 ใน 6 คลาส`, `Reach Job Lv ${JOB_CHANGE_LV}, then visit Mimir AI in Neo Eldheim to upgrade your frame into one of 6 classes`)));
   },
 
   // ---------------- นำทาง ----------------
@@ -879,10 +879,10 @@ const UI = {
   // สถานะ MVP: กำลังอาละวาด / พร้อมปรากฏ / นับถอยหลังเกิดใหม่
   mvpStatus(id) {
     const m = Object.keys(MAP_DEFS).find(k => MAP_DEFS[k].mvp === id); if (!m) return '';
-    if (G.map && G.map.id === m && G.mobs.some(x => x.isMvp && !x.dead)) return `⚔ กำลังอาละวาดอยู่ที่ ${MAP_DEFS[m].name}!`;
+    if (G.map && G.map.id === m && G.mobs.some(x => x.isMvp && !x.dead)) return L(`⚔ กำลังอาละวาดอยู่ที่ ${MAP_DEFS[m].name}!`, `⚔ Rampaging in ${MAP_DEFS[m].name}!`);
     const left = mvpLeft(m);
-    if (left > 0) return `⏳ เกิดใหม่ในอีก ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')} นาที`;
-    return `✦ พร้อมปรากฏที่ ${MAP_DEFS[m].name} (เข้าแผนที่เพื่อเจอ)`;
+    if (left > 0) return L(`⏳ เกิดใหม่ในอีก ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')} นาที`, `⏳ Respawns in ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')}`);
+    return L(`✦ พร้อมปรากฏที่ ${MAP_DEFS[m].name} (เข้าแผนที่เพื่อเจอ)`, `✦ Ready to appear in ${MAP_DEFS[m].name} (enter the map)`);
   },
   // ---------------- แผนที่โลก: วางแผนที่ตามทิศของประตู (E/W/S/N) จากเมืองหลัก ----------------
   worldLayout() {
@@ -916,11 +916,11 @@ const UI = {
       const d = MAP_DEFS[id], art = Art.get('map_' + id), here = id === G.map.id;
       const card = h('button', { class: 'wm-card' + (here ? ' here' : ''), style: `grid-column:${x + 1};grid-row:${y + 1}` + (art ? `;background-image:linear-gradient(transparent 30%, rgba(4,8,16,.92)), url(${art.src})` : ''),
         onclick: () => { if (!here) { Nav.goTo({ kind: 'map', map: id, name: d.name }); this.close('w-world'); } } },
-        h('b', {}, d.name), h('small', {}, d.kind === 'town' ? 'เมือง • ปลอดภัย' : `Lv ${String(d.level || '').replace(/\s*\(.*\)/, '')}`),
-        h('span', { class: 'wm-tags' }, here ? h('i', { class: 'wm-here' }, '📍 อยู่ที่นี่') : null, d.mvp ? h('i', { class: 'wm-mvp' }, 'MVP') : null, qt && qt.map === id ? h('i', { class: 'wm-q' }, '📜 เควสต์') : null));
+        h('b', {}, d.name), h('small', {}, d.kind === 'town' ? L('เมือง • ปลอดภัย', 'Town • Safe') : `Lv ${String(d.level || '').replace(/\s*\(.*\)/, '')}`),
+        h('span', { class: 'wm-tags' }, here ? h('i', { class: 'wm-here' }, L('📍 อยู่ที่นี่', '📍 You are here')) : null, d.mvp ? h('i', { class: 'wm-mvp' }, 'MVP') : null, qt && qt.map === id ? h('i', { class: 'wm-q' }, L('📜 เควสต์', '📜 Quest')) : null));
       grid.append(card);
     }
-    body.append(grid, h('div', { class: 'hint' }, 'แตะแผนที่เพื่อเดินทางไปเอง (ผ่านประตูอัตโนมัติ) • เส้นคือทางเชื่อมระหว่างแผนที่'));
+    body.append(grid, h('div', { class: 'hint' }, L('แตะแผนที่เพื่อเดินทางไปเอง (ผ่านประตูอัตโนมัติ) • เส้นคือทางเชื่อมระหว่างแผนที่', 'Tap a map to travel there automatically (through portals) • lines show map connections')));
   },
   // ---------------- ต้นไม้พาสซีฟ (แบบ PoE) ----------------
   // ลากเพื่อเลื่อน • ล้อเมาส์/ปุ่ม +− ซูม • แตะจุดเพื่อดูรายละเอียด แล้วกดปุ่มเปิด (เปิดทั้งเส้นทางได้ถ้าแต้มพอ)
@@ -937,17 +937,17 @@ const UI = {
       const zoom = k => () => { T.z = U.clamp(T.z * k, 0.25, 1.8); this.drawTree(); };
       body.append(h('div', { class: 'pt-head' }, h('span', { id: 'pt-pts' }), h('span', { class: 'pt-zoom' },
         h('button', { class: 'btn', type: 'button', onclick: zoom(1 / 1.25) }, '−'), h('button', { class: 'btn', type: 'button', onclick: zoom(1.25) }, '+'),
-        h('button', { class: 'btn', type: 'button', onclick: () => { T.x = 0; T.y = 0; T.z = this.treeFit(cv); this.drawTree(); } }, 'กลาง'),
-        h('button', { class: 'btn', type: 'button', onclick: () => { T.sum = !T.sum; this.renderTree(); } }, 'สรุปโบนัส'))),
+        h('button', { class: 'btn', type: 'button', onclick: () => { T.x = 0; T.y = 0; T.z = this.treeFit(cv); this.drawTree(); } }, L('กลาง', 'Center')),
+        h('button', { class: 'btn', type: 'button', onclick: () => { T.sum = !T.sum; this.renderTree(); } }, L('สรุปโบนัส', 'Summary')))),
         h('div', { class: 'pt-wrap' }, cv, h('div', { class: 'pt-info', id: 'pt-info' })),
         this.treeLegend(),
-        h('div', { class: 'hint' }, 'ลากเพื่อเลื่อน • ล้อเมาส์/สองนิ้วเพื่อซูม • แตะจุดเพื่อดูรายละเอียด • ได้ 1 แต้มต่อ 1 Base Level'));
+        h('div', { class: 'hint' }, L('ลากเพื่อเลื่อน • ล้อเมาส์/สองนิ้วเพื่อซูม • แตะจุดเพื่อดูรายละเอียด • ได้ 1 แต้มต่อ 1 Base Level', 'Drag to pan • wheel/pinch to zoom • tap a node for details • 1 point per Base Level')));
       this.treeInput(cv);
       T.z = this.treeFit(cv); // ครั้งแรก: ให้เห็นแกนกลางและจุด Notable วงในพอดีจอ
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { T.lpos = null; this.drawTree(); }); // วัดป้ายใหม่เมื่อฟอนต์โหลดเสร็จ
     }
     const free = Passive.free(p);
-    $('#pt-pts').innerHTML = `แต้มพาสซีฟ <b>${free}</b> / ${Passive.total(p)}`;
+    $('#pt-pts').innerHTML = L(`แต้มพาสซีฟ <b>${free}</b> / ${Passive.total(p)}`, `Passive points <b>${free}</b> / ${Passive.total(p)}`);
     const info = $('#pt-info'), id = T.hover || T.sel;
     // สร้างกล่องรายละเอียดใหม่เฉพาะเมื่อข้อมูลเปลี่ยน (ไม่งั้นปุ่มถูกแทนที่ระหว่างกด)
     const ikey = [id, free, Passive.list(p).length, p.zeny, T.sum].join('|');
@@ -955,33 +955,33 @@ const UI = {
     info.dataset.key = ikey; info.innerHTML = ''; info.style.removeProperty('--pc');
     if (T.sum && !id) {
       const b = Passive.bonus(p), ks = Passive.list(p).filter(x => PTREE[x].kdesc).map(x => `${PTREE[x].name}: ${PTREE[x].kdesc}`);
-      info.append(h('b', {}, 'โบนัสรวมจากต้นไม้'),
-        ...(Object.keys(b).length ? Object.entries(b).map(([k, v]) => h('div', { class: 'pt-i-row' }, this.treeSvg(PGLYPH[k] || 'sparkle', 14), PSTAT_FMT(k, Math.round(v * 10) / 10))) : [h('div', { class: 'dim' }, 'ยังไม่ได้เปิดจุดไหน')]),
+      info.append(h('b', {}, L('โบนัสรวมจากต้นไม้', 'Total tree bonuses')),
+        ...(Object.keys(b).length ? Object.entries(b).map(([k, v]) => h('div', { class: 'pt-i-row' }, this.treeSvg(PGLYPH[k] || 'sparkle', 14), PSTAT_FMT(k, Math.round(v * 10) / 10))) : [h('div', { class: 'dim' }, L('ยังไม่ได้เปิดจุดไหน', 'No nodes allocated yet'))]),
         ...ks.map(t => h('div', { class: 'ks' }, t)));
     } else if (id) {
       const n = PTREE[id], have = Passive.has(p, id), path = have ? [] : this.treePath(id);
       const sect = n.sect >= 0 ? PSECT[n.sect] : null, c = sect ? sect.color : n.mix ? PSECT[n.mix[0]].color : '#9fe8ff';
-      const kindTh = { start: 'จุดเริ่มต้น', small: 'จุดเล็ก', notable: 'Notable', key: 'Keystone' }[n.kind];
-      const where = sect ? `สาย${sect.th}` : n.mix ? `ผสม ${PSECT[n.mix[0]].th} + ${PSECT[n.mix[1]].th}` : '';
-      const st = have ? ['เปิดแล้ว', 'on'] : path.length === 1 ? ['เปิดได้เลย', 'can'] : path.length ? [`ห่าง ${path.length} จุด`, 'far'] : null;
+      const kindTh = { start: L('จุดเริ่มต้น', 'Start'), small: L('จุดเล็ก', 'Minor'), notable: 'Notable', key: 'Keystone' }[n.kind];
+      const where = sect ? L(`สาย${sect.th}`, `${sect.name} path`) : n.mix ? L(`ผสม ${PSECT[n.mix[0]].th} + ${PSECT[n.mix[1]].th}`, `Hybrid ${PSECT[n.mix[0]].name} + ${PSECT[n.mix[1]].name}`) : '';
+      const st = have ? [L('เปิดแล้ว', 'Allocated'), 'on'] : path.length === 1 ? [L('เปิดได้เลย', 'Available'), 'can'] : path.length ? [L(`ห่าง ${path.length} จุด`, `${path.length} nodes away`), 'far'] : null;
       info.style.setProperty('--pc', c);
       info.append(h('div', { class: 'pt-i-head' }, h('span', { class: 'pt-i-ic pt-i-' + n.kind }, this.treeSvg(Passive.glyph(n), 20)),
         h('div', { class: 'pt-i-t' }, h('b', {}, n.name), h('small', {}, kindTh + (where ? ` • ${where}` : ''))),
         st ? h('em', { class: 'pt-i-st ' + st[1] }, st[0]) : null));
       for (const [k, v] of Object.entries(n.b)) info.append(h('div', { class: 'pt-i-row' }, this.treeSvg(PGLYPH[k] || 'sparkle', 14), PSTAT_FMT(k, v)));
       if (n.kdesc) info.append(h('div', { class: 'ks' }, n.kdesc));
-      if (id === 'core') info.append(h('div', { class: 'dim' }, 'ทุกคนเริ่มจากตรงนี้'));
+      if (id === 'core') info.append(h('div', { class: 'dim' }, L('ทุกคนเริ่มจากตรงนี้', 'Everyone starts here')));
       else if (have) {
         const cost = Passive.refundCost(p), ok = Passive.canRefund(p, id);
-        info.append(h('button', { class: 'btn', type: 'button', disabled: ok ? null : 'disabled', onclick: () => { const e = Passive.refund(p, id); UI.msg(e || `คืนแต้ม ${n.name} แล้ว`, e ? 'err' : 'sys'); this.renderTree(); } },
-          `คืนแต้ม${cost ? ` (${U.fmt(cost)} ${CUR})` : ' (ฟรีถึง Lv 15)'}`), ok ? '' : h('div', { class: 'dim' }, 'คืนได้เฉพาะจุดปลายทาง'));
+        info.append(h('button', { class: 'btn', type: 'button', disabled: ok ? null : 'disabled', onclick: () => { const e = Passive.refund(p, id); UI.msg(e || L(`คืนแต้ม ${n.name} แล้ว`, `Refunded ${n.name}`), e ? 'err' : 'sys'); this.renderTree(); } },
+          L(`คืนแต้ม${cost ? ` (${U.fmt(cost)} ${CUR})` : ' (ฟรีถึง Lv 15)'}`, `Refund${cost ? ` (${U.fmt(cost)} ${CUR})` : ' (free until Lv 15)'}`)), ok ? '' : h('div', { class: 'dim' }, L('คืนได้เฉพาะจุดปลายทาง', 'Only end nodes can be refunded')));
       } else if (path.length) {
         const can = path.length <= free;
         info.append(h('button', { class: 'btn' + (can ? ' primary' : ''), type: 'button', disabled: can ? null : 'disabled',
           onclick: () => { for (const x of path) Passive.alloc(p, x); T.hover = null; this.renderTree(); } },
-          path.length === 1 ? 'เปิดจุดนี้ (1 แต้ม)' : `เปิดทั้งเส้นทาง (${path.length} แต้ม)`), can ? '' : h('div', { class: 'dim' }, `แต้มไม่พอ (มี ${free})`));
+          path.length === 1 ? L('เปิดจุดนี้ (1 แต้ม)', 'Allocate (1 point)') : L(`เปิดทั้งเส้นทาง (${path.length} แต้ม)`, `Allocate path (${path.length} points)`)), can ? '' : h('div', { class: 'dim' }, L(`แต้มไม่พอ (มี ${free})`, `Not enough points (have ${free})`)));
       }
-    } else info.append(h('div', { class: 'dim' }, 'แตะจุดบนต้นไม้เพื่อดูรายละเอียด'));
+    } else info.append(h('div', { class: 'dim' }, L('แตะจุดบนต้นไม้เพื่อดูรายละเอียด', 'Tap a node on the tree for details')));
     this.drawTree();
   },
   // ไอคอนเส้นแบบ <svg> (ใช้ในกล่องรายละเอียดและคำอธิบายไอคอน) — path เดียวกับที่วาดบน canvas
@@ -992,7 +992,7 @@ const UI = {
     return s;
   },
   treeLegend() {
-    const kinds = [['small', 'จุดเล็ก'], ['notable', 'Notable'], ['key', 'Keystone']].map(([k, l]) => h('span', { class: 'pt-lg pt-lg-' + k }, h('i', {}), l));
+    const kinds = [['small', L('จุดเล็ก', 'Minor')], ['notable', 'Notable'], ['key', 'Keystone']].map(([k, l]) => h('span', { class: 'pt-lg pt-lg-' + k }, h('i', {}), l));
     return h('div', { class: 'pt-legend' }, ...kinds, h('span', { class: 'pt-lg-sep' }), ...PGLYPH_LEGEND.map(([g, l]) => h('span', { class: 'pt-lg' }, this.treeSvg(g, 13), l)));
   },
   // เส้นทางสั้นที่สุดจากจุดที่เปิดแล้วไปยัง id (ไม่รวมจุดที่เปิดแล้ว)
@@ -1129,11 +1129,11 @@ const UI = {
     PSECT.forEach((S, i) => {
       const a = (-90 + i * 60) * Math.PI / 180, x = Math.cos(a) * 335, y = Math.sin(a) * 335;
       g.font = `600 64px ${MONO}`; g.fillStyle = rgba(S.color, 0.085); g.fillText(S.name.toUpperCase(), x, y - 14);
-      g.font = `500 26px ${FONT}`; g.fillStyle = rgba(S.color, 0.12); g.fillText(S.th, x, y + 30);
+      if (LANG !== 'en') { g.font = `500 26px ${FONT}`; g.fillStyle = rgba(S.color, 0.12); g.fillText(S.th, x, y + 30); } // อังกฤษ: ไม่มีชื่อไทยใต้ชื่อแฉก
     });
     PSECT.forEach((S, i) => {
       const a = (-90 + i * 60) * Math.PI / 180, x = Math.cos(a) * 850, y = Math.sin(a) * 850;
-      g.font = `600 30px ${FONT}`; const w1 = g.measureText(`${S.name} • ${S.th}`).width;
+      g.font = `600 30px ${FONT}`; const w1 = g.measureText(L(`${S.name} • ${S.th}`, S.name)).width;
       g.font = `500 17px ${MONO}`; const w2 = g.measureText(S.tag).width;
       const w = Math.max(w1, w2) + 44 + 36, hh = 74;
       g.fillStyle = rgba(S.color, 0.1); this.treeRoundRect(g, x - w / 2, y - hh / 2, w, hh, 26); g.fill();
@@ -1141,7 +1141,7 @@ const UI = {
       g.fillStyle = rgba(S.color, 0.18); g.beginPath(); g.arc(x - w / 2 + 34, y, 22, 0, Math.PI * 2); g.fill();
       this.treeGlyph(g, S.icon, x - w / 2 + 34, y, 26, S.color, 2.2);
       g.textAlign = 'left'; g.textBaseline = 'middle';
-      g.font = `600 30px ${FONT}`; g.fillStyle = S.color; g.fillText(`${S.name} • ${S.th}`, x - w / 2 + 66, y - 15);
+      g.font = `600 30px ${FONT}`; g.fillStyle = S.color; g.fillText(L(`${S.name} • ${S.th}`, S.name), x - w / 2 + 66, y - 15);
       g.font = `500 17px ${MONO}`; g.fillStyle = rgba(S.color, 0.85); g.fillText(S.tag, x - w / 2 + 66, y + 18);
     });
     // เส้นเชื่อม: เปิดแล้ว=สีแฉกเรือง • เส้นทางที่กำลังจะเปิด=ฟ้า • ติดจุดที่เปิดแล้ว (เปิดได้)=สว่างขึ้น • อื่น ๆ=จาง
@@ -1211,7 +1211,7 @@ const UI = {
     const d = MOBS[this.mobInfo], body = $('#w-mob .win-body');
     if (!d || body.dataset.key === d.id) return;
     body.dataset.key = d.id; body.innerHTML = '';
-    const RACE = { brute: 'สัตว์กลไก', plant: 'พืชกลไก', insect: 'แมลงกลไก', undead: 'อมตะ', demon: 'ปีศาจ', angel: 'เทวดา', formless: 'ไร้รูป', fish: 'สัตว์น้ำ', dragon: 'มังกร', human: 'แอนดรอยด์' };
+    const RACE = { brute: L('สัตว์กลไก', 'Mech Beast'), plant: L('พืชกลไก', 'Mech Plant'), insect: L('แมลงกลไก', 'Mech Insect'), undead: L('อมตะ', 'Undead'), demon: L('ปีศาจ', 'Demon'), angel: L('เทวดา', 'Angel'), formless: L('ไร้รูป', 'Formless'), fish: L('สัตว์น้ำ', 'Aquatic'), dragon: L('มังกร', 'Dragon'), human: L('แอนดรอยด์', 'Android') };
     const cv = h('canvas', { width: 96, height: 96, class: 'mb-cv' });
     const spr = Art.get('mobsprite_' + d.id), g = cv.getContext('2d');
     if (spr) { const k = Math.min(96 / spr.width, 96 / spr.height) * 0.9; g.drawImage(spr, (96 - spr.width * k) / 2, (96 - spr.height * k) / 2, spr.width * k, spr.height * k); }
@@ -1222,21 +1222,21 @@ const UI = {
     body.append(
       h('div', { class: 'mb-head' }, cv, h('div', {},
         h('div', { class: 'mb-name' }, d.name, d.boss ? h('span', { class: 'tag' }, 'MVP') : null),
-        h('div', { class: 'mb-sub' }, `Lv ${d.lv} • ธาตุ${ELEM_THAI[d.element] || d.element} • ${RACE[d.race] || d.race}`),
-        h('div', { class: 'mb-sub ' + (d.aggro ? 'bad' : 'ok') }, d.aggro ? '⚠ โจมตีก่อน (Aggressive)' : 'ไม่โจมตีก่อน (Passive)'),
-        h('div', { class: 'mb-sub' }, `ล่าแล้ว: ${U.fmt((G.player.kills || {})[d.id] || 0)} ตัว`),
-        MOB_CHIP[d.id] ? h('div', { class: 'mb-sub' }, (G.player.chips || []).includes(d.id) ? `✦ ได้ ${ITEMS[MOB_CHIP[d.id]].name} แล้ว`
-          : `✦ ${ITEMS[MOB_CHIP[d.id]].name}: ล่าอีก ${Math.max(0, chipNeed(d) - ((G.player.kills || {})[d.id] || 0))} ตัว`) : null,
-        weak.length ? h('div', { class: 'mb-sub' }, `แพ้ธาตุ: ${weak.slice(0, 3).map(([e, m]) => `${ELEM_THAI[e]} ×${m}`).join(', ')}`) : null)),
+        h('div', { class: 'mb-sub' }, L(`Lv ${d.lv} • ธาตุ${ELEM_THAI[d.element] || d.element} • ${RACE[d.race] || d.race}`, `Lv ${d.lv} • ${ELEM_THAI[d.element] || d.element} • ${RACE[d.race] || d.race}`)),
+        h('div', { class: 'mb-sub ' + (d.aggro ? 'bad' : 'ok') }, d.aggro ? L('⚠ โจมตีก่อน (Aggressive)', '⚠ Aggressive') : L('ไม่โจมตีก่อน (Passive)', 'Passive (non-aggressive)')),
+        h('div', { class: 'mb-sub' }, L(`ล่าแล้ว: ${U.fmt((G.player.kills || {})[d.id] || 0)} ตัว`, `Defeated: ${U.fmt((G.player.kills || {})[d.id] || 0)}`)),
+        MOB_CHIP[d.id] ? h('div', { class: 'mb-sub' }, (G.player.chips || []).includes(d.id) ? L(`✦ ได้ ${ITEMS[MOB_CHIP[d.id]].name} แล้ว`, `✦ ${ITEMS[MOB_CHIP[d.id]].name} obtained`)
+          : L(`✦ ${ITEMS[MOB_CHIP[d.id]].name}: ล่าอีก ${Math.max(0, chipNeed(d) - ((G.player.kills || {})[d.id] || 0))} ตัว`, `✦ ${ITEMS[MOB_CHIP[d.id]].name}: ${Math.max(0, chipNeed(d) - ((G.player.kills || {})[d.id] || 0))} more to go`)) : null,
+        weak.length ? h('div', { class: 'mb-sub' }, L(`แพ้ธาตุ: ${weak.slice(0, 3).map(([e, m]) => `${ELEM_THAI[e]} ×${m}`).join(', ')}`, `Weak to: ${weak.slice(0, 3).map(([e, m]) => `${ELEM_THAI[e]} ×${m}`).join(', ')}`)) : null)),
       h('div', { class: 'mb-grid' }, row('HP', U.fmt(d.hp)), row('ATK', `${d.atk[0]}–${d.atk[1]}`), row('DEF', d.def), row('MDEF', d.mdef),
         row('HIT', d.hit), row('FLEE', d.flee), row('Base EXP', U.fmt(d.exp)), row('Job EXP', U.fmt(d.jexp)), row(CUR, `${U.fmt(mobZeny(d)[0])}–${U.fmt(mobZeny(d)[1])}`)),
-      h('div', { class: 'mb-h' }, 'ไอเทมที่ดรอป'),
+      h('div', { class: 'mb-h' }, L('ไอเทมที่ดรอป', 'Drops')),
       h('div', { class: 'mb-drops' }, ...(d.drops.length ? d.drops.map(([id, ch]) => h('div', { class: 'mb-drop', title: ITEMS[id].desc || '' },
-        h('img', { src: itemIconUrl(id), alt: '' }), h('span', {}, ITEMS[id].name), h('em', {}, `${ch >= 0.1 ? Math.round(ch * 100) : (ch * 100).toFixed(ch < 0.01 ? 2 : 1)}%`))) : [h('span', { class: 'hint' }, 'ไม่มี')])),
+        h('img', { src: itemIconUrl(id), alt: '' }), h('span', {}, ITEMS[id].name), h('em', {}, `${ch >= 0.1 ? Math.round(ch * 100) : (ch * 100).toFixed(ch < 0.01 ? 2 : 1)}%`))) : [h('span', { class: 'hint' }, L('ไม่มี', 'None'))])),
       d.boss ? h('div', { class: 'mb-mvp', id: 'mb-mvp' }, this.mvpStatus(d.id)) : null,
-      h('div', { class: 'mb-h' }, 'พบได้ที่'),
+      h('div', { class: 'mb-h' }, L('พบได้ที่', 'Found in')),
       h('div', { class: 'mb-where' }, where.length ? where.map(m => `${MAP_DEFS[m].name}${MAP_DEFS[m].level ? ` (Lv ${MAP_DEFS[m].level})` : ''}`).join(' • ') : '-'),
-      where.length ? h('div', { class: 'opt-btns' }, h('button', { class: 'btn', onclick: () => { Nav.goTo({ kind: 'mob', map: where[0], mobId: d.id, name: d.name }); this.close('w-mob'); } }, '🧭 นำทางไปล่า')) : null,
+      where.length ? h('div', { class: 'opt-btns' }, h('button', { class: 'btn', onclick: () => { Nav.goTo({ kind: 'mob', map: where[0], mobId: d.id, name: d.name }); this.close('w-mob'); } }, L('🧭 นำทางไปล่า', '🧭 Go hunt'))) : null,
     );
   },
   renderStorage() {
@@ -1248,24 +1248,24 @@ const UI = {
     const pane = (title, list, onPick, cap) => {
       const grid = h('div', { class: 'inv-grid st-pane' });
       for (const e of list) {
-        const cell = h('div', { class: 'inv-cell', title: `${itemDisplayName(e)}${e.qty > 1 ? ' ×' + e.qty : ''} — แตะเพื่อย้าย` },
+        const cell = h('div', { class: 'inv-cell', title: L(`${itemDisplayName(e)}${e.qty > 1 ? ' ×' + e.qty : ''} — แตะเพื่อย้าย`, `${itemDisplayName(e)}${e.qty > 1 ? ' ×' + e.qty : ''} — tap to move`) },
           h('img', { src: itemIconUrl(e.id), alt: '' }),
           e.qty > 1 || !isEquipType(ITEMS[e.id]) ? h('span', { class: 'q' }, String(e.qty)) : null,
           e.refine ? h('span', { class: 'rf' }, '+' + e.refine) : null);
         cell.addEventListener('click', () => { onPick(e); saveGame(); this.renderStorage(); });
         grid.append(cell);
       }
-      if (!list.length) grid.append(h('div', { class: 'hint' }, 'ว่าง'));
+      if (!list.length) grid.append(h('div', { class: 'hint' }, L('ว่าง', 'Empty')));
       return h('div', { class: 'st-col' }, h('div', { class: 'st-h' }, title, h('small', {}, cap)), grid);
     };
     body.append(
       h('div', { class: 'st-cols' },
-        pane('กระเป๋า', p.inventory, e => storeItem(e), `${p.inventory.length}`),
-        pane('คลัง', p.storage, e => takeItem(e), `${p.storage.length}/${STORAGE_MAX}`)),
+        pane(L('กระเป๋า', 'Inventory'), p.inventory, e => storeItem(e), `${p.inventory.length}`),
+        pane(L('คลัง', 'Storage'), p.storage, e => takeItem(e), `${p.storage.length}/${STORAGE_MAX}`)),
       h('div', { class: 'opt-btns' },
-        h('button', { class: 'btn', onclick: () => { for (const e of p.inventory.filter(x => ['etc', 'card'].includes(ITEMS[x.id].type))) storeItem(e); saveGame(); this.renderStorage(); } }, 'ฝากของอื่น ๆ + ชิปทั้งหมด'),
-        h('button', { class: 'btn', onclick: () => { sortItems(p.inventory); sortItems(p.storage); saveGame(); this.renderStorage(); } }, 'จัดเรียงทั้งสองฝั่ง')),
-      h('div', { class: 'hint' }, 'แตะไอเทมเพื่อย้ายไปอีกฝั่ง (ย้ายทั้งกอง) • ของที่สวมอยู่ต้องถอดก่อน'));
+        h('button', { class: 'btn', onclick: () => { for (const e of p.inventory.filter(x => ['etc', 'card'].includes(ITEMS[x.id].type))) storeItem(e); saveGame(); this.renderStorage(); } }, L('ฝากของอื่น ๆ + ชิปทั้งหมด', 'Store all Etc + chips')),
+        h('button', { class: 'btn', onclick: () => { sortItems(p.inventory); sortItems(p.storage); saveGame(); this.renderStorage(); } }, L('จัดเรียงทั้งสองฝั่ง', 'Sort both'))),
+      h('div', { class: 'hint' }, L('แตะไอเทมเพื่อย้ายไปอีกฝั่ง (ย้ายทั้งกอง) • ของที่สวมอยู่ต้องถอดก่อน', 'Tap an item to move it across (whole stack) • unequip worn items first')));
   },
   renderEmote() {
     const body = $('#w-emote .win-body');
@@ -1278,7 +1278,7 @@ const UI = {
       draw();
       grid.append(h('button', { class: 'emote-b', title: `/${e.k}${i < 9 ? ` • Alt+${i + 1}` : ''}`, onclick: () => { Emote.play(e.k); if (Pad.enabled()) this.close('w-emote'); } }, c, h('span', {}, e.name)));
     });
-    body.append(grid, h('div', { class: 'hint' }, 'พิมพ์ /คำสั่ง ในแชตก็ได้ เช่น /lv /gg /thx • คอม: Alt+1..9'));
+    body.append(grid, h('div', { class: 'hint' }, L('พิมพ์ /คำสั่ง ในแชตก็ได้ เช่น /lv /gg /thx • คอม: Alt+1..9', 'Or type a /command in chat, e.g. /lv /gg /thx • PC: Alt+1..9')));
   },
   renderQuest() {
     const body = $('#w-quest .win-body'), q = Quest.current(), s = Quest.state();
@@ -1291,15 +1291,15 @@ const UI = {
       body.append(h('div', { class: 'q-card' },
         q.ch ? h('div', { class: 'q-chapter' }, Quest.chapterText(q)) : null,
         h('h4', {}, `📜 ${q.title}`), h('p', {}, q.desc),
-        h('p', { class: 'q-obj' }, `เป้าหมาย: ${Quest.objText(q)}`),
-        h('p', { class: 'q-rw' }, `รางวัล: ${Quest.rewardText(q)}`),
-        h('div', { class: 'opt-btns' }, h('button', { class: 'btn', onclick: () => { Quest.go(); this.close('w-quest'); } }, '🧭 นำทางไปทำเควสต์'))));
-    } else body.append(h('div', { class: 'q-card' }, h('div', { class: 'q-chapter' }, 'บทที่ 6 — รากที่ถูกแทะ'), h('h4', {}, '🏆 เร็ว ๆ นี้'), h('p', {}, 'เสียงแทะยังดังอยู่ใต้โพรง... ระหว่างรอ ออกล่า MVP และเก็บชิปหายากต่อได้เลย!')));
-    body.append(h('div', { class: 'q-card' }, h('h4', {}, 'งานล่าค่าหัววันนี้'),
-      bs ? bs.list.map(x => h('p', { class: x.claimed ? 'q-rw' : 'q-obj' }, `${x.claimed ? '✅' : x.got >= x.n ? '🎁 ส่งได้ —' : '•'} ${Bounty.line(x)} — ${U.fmt(x.zeny)} ${CUR}`))
-        : h('p', { class: 'q-rw' }, `เปิดที่ Base Lv ${BOUNTY_MIN_LV} — รับงานที่ Guard Unit Rolf ในเมือง`),
-      bs ? h('p', { class: 'q-rw' }, 'ส่งงานที่ Guard Unit Rolf • ทำครบ 3 งานได้โบนัส • งานใหม่ทุกวัน') : null));
-    body.append(h('div', { class: 'q-done' }, h('span', {}, `สำเร็จแล้ว ${s.done.length}/${QUESTS.length}`),
+        h('p', { class: 'q-obj' }, L(`เป้าหมาย: ${Quest.objText(q)}`, `Objective: ${Quest.objText(q)}`)),
+        h('p', { class: 'q-rw' }, L(`รางวัล: ${Quest.rewardText(q)}`, `Reward: ${Quest.rewardText(q)}`)),
+        h('div', { class: 'opt-btns' }, h('button', { class: 'btn', onclick: () => { Quest.go(); this.close('w-quest'); } }, L('🧭 นำทางไปทำเควสต์', '🧭 Go to quest')))));
+    } else body.append(h('div', { class: 'q-card' }, h('div', { class: 'q-chapter' }, L('บทที่ 6 — รากที่ถูกแทะ', 'Chapter 6 — The Gnawed Root')), h('h4', {}, L('🏆 เร็ว ๆ นี้', '🏆 Coming Soon')), h('p', {}, L('เสียงแทะยังดังอยู่ใต้โพรง... ระหว่างรอ ออกล่า MVP และเก็บชิปหายากต่อได้เลย!', 'The gnawing still echoes beneath the hollow... Until then, hunt MVPs and keep collecting rare chips!'))));
+    body.append(h('div', { class: 'q-card' }, h('h4', {}, L('งานล่าค่าหัววันนี้', 'Daily Bounties')),
+      bs ? bs.list.map(x => h('p', { class: x.claimed ? 'q-rw' : 'q-obj' }, `${x.claimed ? '✅' : x.got >= x.n ? L('🎁 ส่งได้ —', '🎁 Ready —') : '•'} ${Bounty.line(x)} — ${U.fmt(x.zeny)} ${CUR}`))
+        : h('p', { class: 'q-rw' }, L(`เปิดที่ Base Lv ${BOUNTY_MIN_LV} — รับงานที่ Guard Unit Rolf ในเมือง`, `Unlocks at Base Lv ${BOUNTY_MIN_LV} — take bounties from Guard Unit Rolf in town`)),
+      bs ? h('p', { class: 'q-rw' }, L('ส่งงานที่ Guard Unit Rolf • ทำครบ 3 งานได้โบนัส • งานใหม่ทุกวัน', 'Turn in to Guard Unit Rolf • bonus for all 3 • new bounties daily')) : null));
+    body.append(h('div', { class: 'q-done' }, h('span', {}, L(`สำเร็จแล้ว ${s.done.length}/${QUESTS.length}`, `Completed ${s.done.length}/${QUESTS.length}`)),
       ...QUESTS.filter(x => s.done.includes(x.id)).map(x => h('b', {}, `✔ ${x.title}`))));
   },
   renderNav() {
@@ -1308,16 +1308,16 @@ const UI = {
     const key = this.navTab + '|' + G.map.id + '|' + G.player.baseLv + (this.navTab === 'mob' ? '|' + Math.floor(G.time / 5) : '');
     if (body.dataset.key === key) return;
     body.dataset.key = key; body.innerHTML = '';
-    const tabs = [['mob', 'ล่าเก็บเลเวล'], ['here', 'แผนที่นี้'], ['place', 'สถานที่'], ['map', 'แผนที่']];
+    const tabs = [['mob', L('ล่าเก็บเลเวล', 'Leveling')], ['here', L('แผนที่นี้', 'This Map')], ['place', L('สถานที่', 'Places')], ['map', L('แผนที่', 'Maps')]];
     body.append(h('div', { class: 'tabs' }, ...tabs.map(([k, l]) => h('button', { class: 'tab' + (this.navTab === k ? ' on' : ''), onclick: () => { this.navTab = k; body.dataset.key = ''; this.renderNav(); } }, l))));
     const list = h('div', { class: 'nav-list' });
     const row = (t, sub, extra) => h('button', { class: 'nav-row' + (t.map === G.map.id ? ' here' : ''), onclick: () => Nav.goTo(t) },
       h('span', { class: 'nav-n' }, t.name, extra ? h('span', { class: 'tag' }, extra) : null), h('span', { class: 'nav-s' }, sub));
-    if (this.navTab === 'here') for (const t of Nav.here()) list.append(row(t, `${t.sub} • ${Math.round(t.d)} ช่อง`));
+    if (this.navTab === 'here') for (const t of Nav.here()) list.append(row(t, L(`${t.sub} • ${Math.round(t.d)} ช่อง`, `${t.sub} • ${Math.round(t.d)} tiles`)));
     else if (this.navTab === 'place') for (const t of Nav.places()) list.append(row(t, MAP_DEFS[t.map].name));
-    else if (this.navTab === 'map') for (const t of Nav.maps()) list.append(row(t, `${t.thai}${t.level ? ` • Lv ${t.level}` : ''}`, t.map === G.map.id ? 'อยู่ที่นี่' : null));
+    else if (this.navTab === 'map') for (const t of Nav.maps()) list.append(row(t, `${t.thai}${t.level ? ` • Lv ${t.level}` : ''}`, t.map === G.map.id ? L('อยู่ที่นี่', 'Here') : null));
     else this.renderHuntList(list);
-    body.append(list, h('div', { class: 'hint' }, 'แตะแล้วตัวละครจะเดินไปเองและเริ่มตี ข้ามแผนที่ได้ • แตะพื้นเพื่อยกเลิก'));
+    body.append(list, h('div', { class: 'hint' }, L('แตะแล้วตัวละครจะเดินไปเองและเริ่มตี ข้ามแผนที่ได้ • แตะพื้นเพื่อยกเลิก', 'Tap to auto-walk there and attack, even across maps • tap the ground to cancel')));
   },
   // รายการล่าเก็บเลเวล: จัดกลุ่มตามความเหมาะกับเลเวลผู้เล่น แตะเพื่อเดินไปตีทันที
   renderHuntList(list) {
@@ -1327,8 +1327,8 @@ const UI = {
     for (const t of all) groups[fit(t)].push(t);
     groups.good.sort((a, b) => MOBS[b.mobId].exp - MOBS[a.mobId].exp);
     groups.easy.reverse();
-    list.append(h('div', { class: 'hunt-head' }, h('b', {}, `Base Lv ${lv}`), h('span', {}, `มอนที่เหมาะ: Lv ${Math.max(1, lo)}–${hi}`)));
-    const HEAD = { good: ['เหมาะกับคุณ', 'EXP ดี ตีไม่ตาย'], hard: ['เลเวลสูงกว่า', 'EXP มากแต่อันตราย'], mvp: ['MVP', 'บอสประจำแผนที่ ไปเป็นทีม'], easy: ['ผ่านมาแล้ว', 'ง่ายเกินไป EXP น้อย'] };
+    list.append(h('div', { class: 'hunt-head' }, h('b', {}, `Base Lv ${lv}`), h('span', {}, L(`มอนที่เหมาะ: Lv ${Math.max(1, lo)}–${hi}`, `Suggested: Lv ${Math.max(1, lo)}–${hi}`))));
+    const HEAD = { good: [L('เหมาะกับคุณ', 'Your level'), L('EXP ดี ตีไม่ตาย', 'Good EXP, safe')], hard: [L('เลเวลสูงกว่า', 'Higher level'), L('EXP มากแต่อันตราย', 'More EXP, but dangerous')], mvp: ['MVP', L('บอสประจำแผนที่ ไปเป็นทีม', 'Map bosses — bring a party')], easy: [L('ผ่านมาแล้ว', 'Outleveled'), L('ง่ายเกินไป EXP น้อย', 'Too easy, low EXP')] };
     for (const k of ['good', 'hard', 'mvp', 'easy']) {
       if (!groups[k].length) continue;
       list.append(h('div', { class: 'hunt-sec ' + k }, h('b', {}, HEAD[k][0]), h('span', {}, HEAD[k][1])));
@@ -1337,10 +1337,10 @@ const UI = {
         const r = h('button', { class: `hunt-row ${k}` + (t.map === G.map.id ? ' here' : ''), onclick: () => Nav.goTo(t) },
           h('span', { class: 'hunt-pic' }, spr ? h('img', { src: spr.src, alt: '' }) : h('i', { style: `background:${d.color || '#6ff3ff'}` })),
           h('span', { class: 'hunt-mid' },
-            h('span', { class: 'hunt-n' }, t.name, d.aggro ? h('span', { class: 'hunt-tag bad' }, 'ตีก่อน') : null),
-            h('span', { class: 'hunt-s' }, `${t.mapName}${t.map === G.map.id ? ' · อยู่ที่นี่' : ''}${kc ? ` · ล่าแล้ว ${U.fmt(kc)}` : ''}${t.mvp ? ` · ${this.mvpStatus(t.mobId).replace(/^[^ ]+ /, '')}` : ''}`)),
+            h('span', { class: 'hunt-n' }, t.name, d.aggro ? h('span', { class: 'hunt-tag bad' }, L('ตีก่อน', 'Aggro')) : null),
+            h('span', { class: 'hunt-s' }, `${t.mapName}${t.map === G.map.id ? L(' · อยู่ที่นี่', ' · Here') : ''}${kc ? L(` · ล่าแล้ว ${U.fmt(kc)}`, ` · ${U.fmt(kc)} defeated`) : ''}${t.mvp ? ` · ${this.mvpStatus(t.mobId).replace(/^[^ ]+ /, '')}` : ''}`)),
           h('span', { class: 'hunt-r' }, h('b', {}, `Lv ${t.lv}`), h('small', {}, `+${U.fmt(d.exp)} EXP`)),
-          h('span', { class: 'hunt-info', title: 'ข้อมูลมอนสเตอร์', onclick: e => { e.stopPropagation(); this.showMob(t.mobId); } }, 'i'));
+          h('span', { class: 'hunt-info', title: L('ข้อมูลมอนสเตอร์', 'Monster info'), onclick: e => { e.stopPropagation(); this.showMob(t.mobId); } }, 'i'));
         list.append(r);
       }
     }
@@ -1357,9 +1357,9 @@ const UI = {
     };
     return [
       h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: c.on ? 'checked' : false,
-        onchange: e => { c.on = e.target.checked; saveGame(); rekey(true); } }), ' ปั๊มยาอัตโนมัติ (เล่นเองและบอทใช้ค่าเดียวกัน)'),
-      slider('hp', 'ปั๊ม HP เมื่อต่ำกว่า'),
-      slider('sp', 'ปั๊ม SP เมื่อต่ำกว่า'),
+        onchange: e => { c.on = e.target.checked; saveGame(); rekey(true); } }), L(' ปั๊มยาอัตโนมัติ (เล่นเองและบอทใช้ค่าเดียวกัน)', ' Auto-potion (shared by manual play and bot)')),
+      slider('hp', L('ปั๊ม HP เมื่อต่ำกว่า', 'HP potion below')),
+      slider('sp', L('ปั๊ม SP เมื่อต่ำกว่า', 'SP potion below')),
     ];
   },
   renderOptions(force) {
@@ -1372,37 +1372,37 @@ const UI = {
     const chk = (key, label) => h('label', { class: 'opt' },
       h('input', { type: 'checkbox', checked: o[key] ? 'checked' : false, onchange: e => { o[key] = e.target.checked; saveGame(); } }), ' ', label);
     body.append(
-      chk('autoLoot', 'เก็บไอเทมอัตโนมัติ (Auto Loot)'),
+      chk('autoLoot', L('เก็บไอเทมอัตโนมัติ (Auto Loot)', 'Auto Loot')),
       ...this.autoPotControls(full => { if (full) this.renderOptions(true); else body.dataset.key = this.optKey(); }),
-      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.autoCounter !== false ? 'checked' : false, onchange: e => { o.autoCounter = e.target.checked; saveGame(); } }), ' โจมตีกลับอัตโนมัติเมื่อถูกโจมตี'),
-      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.skillAim !== false ? 'checked' : false, onchange: e => { o.skillAim = e.target.checked; G.pendingSkill = null; saveGame(); } }), ' กดสกิลแล้วคลิกเลือกเป้า (แบบ RO) — ปิด = ใช้ใส่เป้าปัจจุบันทันที'),
-      chk('sound', 'เสียงเอฟเฟกต์'),
-      h('label', { class: 'opt' }, 'ความดังเอฟเฟกต์ ',
+      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.autoCounter !== false ? 'checked' : false, onchange: e => { o.autoCounter = e.target.checked; saveGame(); } }), L(' โจมตีกลับอัตโนมัติเมื่อถูกโจมตี', ' Auto counter-attack when hit')),
+      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.skillAim !== false ? 'checked' : false, onchange: e => { o.skillAim = e.target.checked; G.pendingSkill = null; saveGame(); } }), L(' กดสกิลแล้วคลิกเลือกเป้า (แบบ RO) — ปิด = ใช้ใส่เป้าปัจจุบันทันที', ' Click a target after pressing a skill (RO-style) — off = cast on current target')),
+      chk('sound', L('เสียงเอฟเฟกต์', 'Sound effects')),
+      h('label', { class: 'opt' }, L('ความดังเอฟเฟกต์ ', 'SFX volume '),
         h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: o.sfxVol != null ? o.sfxVol : 0.8, oninput: e => { o.sfxVol = +e.target.value; Sound.setVolume(); body.dataset.key = this.optKey(); }, onchange: () => { saveGame(); Sound.play('pickup'); } })),
-      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.music ? 'checked' : false, onchange: e => { o.music = e.target.checked; o.musicSet = true; saveGame(); } }), ' เพลงประกอบ (BGM)'),
-      h('label', { class: 'opt' }, 'ความดังเพลง ',
+      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.music ? 'checked' : false, onchange: e => { o.music = e.target.checked; o.musicSet = true; saveGame(); } }), L(' เพลงประกอบ (BGM)', ' Music (BGM)')),
+      h('label', { class: 'opt' }, L('ความดังเพลง ', 'Music volume '),
         h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: o.musicVol != null ? o.musicVol : 0.7, oninput: e => { o.musicVol = +e.target.value; Music.setVolume(o.musicVol); body.dataset.key = this.optKey(); }, onchange: () => saveGame() })),
-      chk('expMsg', 'แสดงข้อความ EXP ในแชท'),
+      chk('expMsg', L('แสดงข้อความ EXP ในแชท', 'Show EXP messages in chat')),
       h('div', { class: 'opt-lbl' }, 'ภาษา / Language'),
       h('div', { class: 'seg' }, ...[['th', 'ไทย'], ['en', 'English']].map(([v, l]) =>
         h('button', { type: 'button', class: LANG === v ? 'on' : '', onclick: () => setLang(v) }, l))),
-      h('div', { class: 'opt-lbl' }, 'รูปแบบ HUD'),
-      h('div', { class: 'seg' }, ...[['visor', 'Visor (มินิมอล)'], ['classic', 'คลาสสิก']].map(([v, l]) =>
+      h('div', { class: 'opt-lbl' }, L('รูปแบบ HUD', 'HUD style')),
+      h('div', { class: 'seg' }, ...[['visor', L('Visor (มินิมอล)', 'Visor (minimal)')], ['classic', L('คลาสสิก', 'Classic')]].map(([v, l]) =>
         h('button', { type: 'button', class: (o.hud || 'visor') === v ? 'on' : '', onclick: () => { o.hud = v; applyHudStyle(); saveGame(); this.renderOptions(true); } }, l))),
-      h('div', { class: 'opt-lbl' }, 'คุณภาพกราฟิก'),
-      h('div', { class: 'seg' }, ...[['high', 'สวย (ค่าเริ่มต้น)'], ['low', 'ประหยัด (มือถือรุ่นเก่า)']].map(([v, l]) =>
+      h('div', { class: 'opt-lbl' }, L('คุณภาพกราฟิก', 'Graphics quality')),
+      h('div', { class: 'seg' }, ...[['high', L('สวย (ค่าเริ่มต้น)', 'High (default)')], ['low', L('ประหยัด (มือถือรุ่นเก่า)', 'Low (older phones)')]].map(([v, l]) =>
         h('button', { type: 'button', class: (o.gfx || 'high') === v ? 'on' : '', onclick: () => { o.gfx = v; R.setQuality(v); saveGame(); this.renderOptions(true); } }, l))),
-      h('div', { class: 'opt-lbl' }, 'ปุ่มควบคุมบนจอ (จอย + ปุ่มโจมตี)'),
-      h('div', { class: 'seg' }, ...[['auto', 'อัตโนมัติ'], ['on', 'เปิด'], ['off', 'ปิด']].map(([v, l]) =>
+      h('div', { class: 'opt-lbl' }, L('ปุ่มควบคุมบนจอ (จอย + ปุ่มโจมตี)', 'On-screen controls')),
+      h('div', { class: 'seg' }, ...[['auto', L('อัตโนมัติ', 'Auto')], ['on', L('เปิด', 'On')], ['off', L('ปิด', 'Off')]].map(([v, l]) =>
         h('button', { type: 'button', class: Pad.mode === v ? 'on' : '', onclick: () => { Pad.setMode(v); this.renderOptions(true); } }, l))),
       h('div', { class: 'opt-btns' },
-        h('button', { class: 'btn', onclick: () => saveGame(false) }, 'บันทึกเกม'),
-        Online.loggedIn ? h('button', { class: 'btn', onclick: async () => { saveGame(true, true); await Online.logout(); location.reload(); } }, `ออกจากระบบ (${Online.username})`) : null,
-        h('button', { class: 'btn', onclick: () => this.open('w-help') }, 'วิธีเล่น'),
-        document.fullscreenEnabled ? h('button', { class: 'btn', onclick: () => toggleFullscreen() }, document.fullscreenElement ? 'ออกจากเต็มจอ' : 'เต็มจอ') : null,
+        h('button', { class: 'btn', onclick: () => saveGame(false) }, L('บันทึกเกม', 'Save game')),
+        Online.loggedIn ? h('button', { class: 'btn', onclick: async () => { saveGame(true, true); await Online.logout(); location.reload(); } }, L(`ออกจากระบบ (${Online.username})`, `Log out (${Online.username})`)) : null,
+        h('button', { class: 'btn', onclick: () => this.open('w-help') }, L('วิธีเล่น', 'Help')),
+        document.fullscreenEnabled ? h('button', { class: 'btn', onclick: () => toggleFullscreen() }, document.fullscreenElement ? L('ออกจากเต็มจอ', 'Exit fullscreen') : L('เต็มจอ', 'Fullscreen')) : null,
         Online.loggedIn ? null : h('button', { class: 'btn danger', onclick: async () => {
-          if (await this.confirm('ลบข้อมูลตัวละครทั้งหมดและเริ่มใหม่? (ย้อนกลับไม่ได้)')) { deleteSave(); G.started = false; location.reload(); }
-        } }, 'ลบเซฟ / เริ่มใหม่')),
+          if (await this.confirm(L('ลบข้อมูลตัวละครทั้งหมดและเริ่มใหม่? (ย้อนกลับไม่ได้)', 'Delete all character data and start over? (This cannot be undone)'))) { deleteSave(); G.started = false; location.reload(); }
+        } }, L('ลบเซฟ / เริ่มใหม่', 'Delete save / restart'))),
     );
   },
 
@@ -1413,23 +1413,23 @@ const UI = {
       $('.win-body', w).innerHTML = '';
       $('.win-body', w).append(h('div', { class: 'cf-text' }, text),
         h('div', { class: 'cf-btns' },
-          h('button', { class: 'btn', onclick: () => { w.classList.add('hidden'); res(true); } }, 'ตกลง'),
-          h('button', { class: 'btn', onclick: () => { w.classList.add('hidden'); res(false); } }, 'ยกเลิก')));
+          h('button', { class: 'btn', onclick: () => { w.classList.add('hidden'); res(true); } }, L('ตกลง', 'OK')),
+          h('button', { class: 'btn', onclick: () => { w.classList.add('hidden'); res(false); } }, L('ยกเลิก', 'Cancel'))));
       w.classList.remove('hidden'); w.style.zIndex = ++this.z + 1000;
     });
   },
   async compoundCard(entry) {
     const p = G.player, card = ITEMS[entry.id];
     const target = p.equip[card.slot];
-    if (!target) { this.msg(`ต้องสวมใส่${SLOT_THAI[card.slot]}ก่อน จึงจะใส่ ${card.name} ได้`, 'err'); return; }
+    if (!target) { this.msg(L(`ต้องสวมใส่${SLOT_THAI[card.slot]}ก่อน จึงจะใส่ ${card.name} ได้`, `Equip a ${SLOT_THAI[card.slot]} first to insert ${card.name}`), 'err'); return; }
     const ti = ITEMS[target.id];
-    if (!ti.slots || target.cards.length >= ti.slots) { this.msg(`${itemDisplayName(target)} ไม่มีช่องชิปว่าง`, 'err'); return; }
-    if (!(await this.confirm(`ติดตั้ง ${card.name} ลงใน ${itemDisplayName(target)}? (ถอดคืนได้ฟรีที่ Brokk Forge-Bot)`))) return;
+    if (!ti.slots || target.cards.length >= ti.slots) { this.msg(L(`${itemDisplayName(target)} ไม่มีช่องชิปว่าง`, `${itemDisplayName(target)} has no free chip slot`), 'err'); return; }
+    if (!(await this.confirm(L(`ติดตั้ง ${card.name} ลงใน ${itemDisplayName(target)}? (ถอดคืนได้ฟรีที่ Brokk Forge-Bot)`, `Insert ${card.name} into ${itemDisplayName(target)}? (Brokk Forge-Bot can remove it for free)`)))) return;
     if (!p.inventory.includes(entry) || p.equip[card.slot] !== target) return;
     target.cards.push(entry.id);
     removeEntry(entry, 1);
     recalc();
-    this.msg(`ติดตั้ง ${card.name} สำเร็จ!`, 'lvl');
+    this.msg(L(`ติดตั้ง ${card.name} สำเร็จ!`, `${card.name} inserted!`), 'lvl');
     Sound.play('refine_ok');
   },
 
@@ -1444,7 +1444,7 @@ const UI = {
     return new Promise((res, rej) => {
       this.dlgOpen(name);
       const b = $('#w-dialog .win-body');
-      b.append(h('div', { class: 'dlg-text', html: text }), h('div', { class: 'dlg-btns' }, h('button', { class: 'btn', onclick: () => { this.dialog = null; res(); } }, 'ต่อไป ▸', Pad.enabled() ? null : h('kbd', {}, 'Space'))));
+      b.append(h('div', { class: 'dlg-text', html: text }), h('div', { class: 'dlg-btns' }, h('button', { class: 'btn', onclick: () => { this.dialog = null; res(); } }, L('ต่อไป ▸', 'Next ▸'), Pad.enabled() ? null : h('kbd', {}, 'Space'))));
       this.dialog = { reject: rej };
     });
   },
@@ -1511,8 +1511,8 @@ const UI = {
     const old = $('.shop-list', body), keep = { list: old ? old.scrollTop : 0, body: body.scrollTop, mode: old && old.dataset.mode };
     body.innerHTML = '';
     body.append(h('div', { class: 'tabs' },
-      h('button', { class: 'tab' + (s.mode === 'buy' ? ' on' : ''), onclick: () => { s.mode = 'buy'; this.renderShop(); } }, 'ซื้อ'),
-      h('button', { class: 'tab' + (s.mode === 'sell' ? ' on' : ''), onclick: () => { s.mode = 'sell'; this.renderShop(); } }, 'ขาย')));
+      h('button', { class: 'tab' + (s.mode === 'buy' ? ' on' : ''), onclick: () => { s.mode = 'buy'; this.renderShop(); } }, L('ซื้อ', 'Buy')),
+      h('button', { class: 'tab' + (s.mode === 'sell' ? ' on' : ''), onclick: () => { s.mode = 'sell'; this.renderShop(); } }, L('ขาย', 'Sell'))));
     const list = h('div', { class: 'shop-list' });
     if (s.mode === 'buy') {
       for (const id of s.list) {
@@ -1525,24 +1525,24 @@ const UI = {
           h('div', { class: 'shop-n' }, h('b', {}, it.name + (it.slots ? ` [${it.slots}]` : '')), h('small', {}, it.desc + (it.lv ? ` (Lv ${it.lv}+)` : '')), isEquipType(it) && usable ? this.compareLine({ id, refine: 0, cards: [] }, true) : null),
           h('span', { class: 'shop-p' + (it.price > p.zeny ? ' poor' : '') }, U.fmt(it.price) + ' ' + CUR),
           qty,
-          h('button', { class: 'btn small', onclick: () => this.buy(id, Math.max(1, Math.min(999, parseInt(qty.value, 10) || 1))) }, 'ซื้อ')));
+          h('button', { class: 'btn small', onclick: () => this.buy(id, Math.max(1, Math.min(999, parseInt(qty.value, 10) || 1))) }, L('ซื้อ', 'Buy'))));
       }
     } else {
       const inv = p.inventory.slice();
-      if (!inv.length) list.append(h('div', { class: 'hint' }, 'ไม่มีไอเทมให้ขาย'));
+      if (!inv.length) list.append(h('div', { class: 'hint' }, L('ไม่มีไอเทมให้ขาย', 'Nothing to sell')));
       for (const e of inv) {
         const it = ITEMS[e.id];
         const price = Math.floor(it.price / 2);
         list.append(h('div', { class: 'shop-row' },
           this.tipFor(h('img', { src: itemIconUrl(e.id), alt: '' }), e),
-          h('div', { class: 'shop-n' }, h('b', {}, itemDisplayName(e)), h('small', {}, `มี ${e.qty} ชิ้น`)),
+          h('div', { class: 'shop-n' }, h('b', {}, itemDisplayName(e)), h('small', {}, L(`มี ${e.qty} ชิ้น`, `Owned: ${e.qty}`))),
           h('span', { class: 'shop-p' }, U.fmt(price) + ' ' + CUR),
-          h('button', { class: 'btn small', onclick: () => this.sell(e, 1) }, 'ขาย 1'),
-          e.qty > 1 ? h('button', { class: 'btn small', onclick: () => this.sell(e, e.qty) }, 'ทั้งหมด') : null));
+          h('button', { class: 'btn small', onclick: () => this.sell(e, 1) }, L('ขาย 1', 'Sell 1')),
+          e.qty > 1 ? h('button', { class: 'btn small', onclick: () => this.sell(e, e.qty) }, L('ทั้งหมด', 'All')) : null));
       }
       if (inv.some(e => ITEMS[e.id].type === 'etc')) {
         list.prepend(h('div', { class: 'shop-row sellall' },
-          h('button', { class: 'btn', onclick: () => { for (const e of p.inventory.filter(x => ITEMS[x.id].type === 'etc')) this.sell(e, e.qty, true); Sound.play('buy'); } }, 'ขายของดรอป (Etc) ทั้งหมด')));
+          h('button', { class: 'btn', onclick: () => { for (const e of p.inventory.filter(x => ITEMS[x.id].type === 'etc')) this.sell(e, e.qty, true); Sound.play('buy'); } }, L('ขายของดรอป (Etc) ทั้งหมด', 'Sell all Etc items'))));
       }
     }
     list.dataset.mode = s.mode;
@@ -1552,10 +1552,10 @@ const UI = {
   buy(id, qty) {
     const p = G.player, it = ITEMS[id];
     const cost = it.price * qty;
-    if (p.zeny < cost) { this.msg(`${CUR} ไม่เพียงพอ`, 'err'); return; }
+    if (p.zeny < cost) { this.msg(L(`${CUR} ไม่เพียงพอ`, `Not enough ${CUR}`), 'err'); return; }
     p.zeny -= cost;
     addItem(id, qty, true);
-    this.msg(`ซื้อ ${it.name} ×${qty} (-${U.fmt(cost)} ${CUR})`, 'item');
+    this.msg(L(`ซื้อ ${it.name} ×${qty} (-${U.fmt(cost)} ${CUR})`, `Bought ${it.name} ×${qty} (-${U.fmt(cost)} ${CUR})`), 'item');
     Sound.play('buy');
     this.dirty();
   },
@@ -1565,7 +1565,7 @@ const UI = {
     const gain = Math.floor(it.price / 2) * qty;
     removeEntry(e, qty);
     p.zeny += gain;
-    if (!quiet) { this.msg(`ขาย ${it.name} ×${qty} (+${U.fmt(gain)} ${CUR})`, 'item'); Sound.play('buy'); }
+    if (!quiet) { this.msg(L(`ขาย ${it.name} ×${qty} (+${U.fmt(gain)} ${CUR})`, `Sold ${it.name} ×${qty} (+${U.fmt(gain)} ${CUR})`), 'item'); Sound.play('buy'); }
     this.dirty();
   },
 
@@ -1574,22 +1574,22 @@ const UI = {
     const b = $('#auto-btn');
     b.classList.toggle('on', Bot.on);
     b.classList.toggle('locked', !Bot.unlocked());
-    const t = !Bot.unlocked() ? 'ล็อก' : Bot.on ? (Bot.resting ? 'พัก' : 'เปิด') : 'ปิด';
+    const t = !Bot.unlocked() ? L('ล็อก', 'Lock') : Bot.on ? (Bot.resting ? L('พัก', 'Rest') : L('เปิด', 'On')) : L('ปิด', 'Off');
     const sm = $('small', b);
     if (sm.textContent !== t) sm.textContent = t;
   },
   botPotsText() {
     const hpN = HP_POTS.reduce((a, id) => a + countItem(id), 0), spN = SP_POTS.reduce((a, id) => a + countItem(id), 0);
-    return `ชุดซ่อมคงเหลือ ${hpN} • เซลล์พลังงานคงเหลือ ${spN} — บอททำงานต่อแม้สลับแท็บ/แอป (จำลองย้อนหลังสูงสุด 10 นาที)`;
+    return L(`ชุดซ่อมคงเหลือ ${hpN} • เซลล์พลังงานคงเหลือ ${spN} — บอททำงานต่อแม้สลับแท็บ/แอป (จำลองย้อนหลังสูงสุด 10 นาที)`, `Repair kits: ${hpN} • Energy cells: ${spN} — the bot keeps running when you switch tabs/apps (catches up to 10 min)`);
   },
   updateBotStats() {
     const pe = $('#bot-pots'); if (pe) { const t = this.botPotsText(); if (pe.textContent !== t) pe.textContent = t; }
     const el = $('#bot-stats');
     if (!el) return;
     const sum = Bot.summary();
-    const html = sum ? [['เวลา', `${sum.mins.toFixed(1)} นาที`], ['ล่าได้', `${sum.kills} ตัว`], ['Base EXP', '+' + U.fmt(sum.bexp)],
-      ['Job EXP', '+' + U.fmt(sum.jexp)], ['ไอเทม', `${sum.items} ชิ้น`], ['EXP/นาที', U.fmt(sum.mins > 0.05 ? sum.bexp / sum.mins : 0)]]
-      .map(([k, v]) => `<div>${k}<b>${v}</b></div>`).join('') : '<div class="hint" style="grid-column:1/-1">สถิติจะแสดงเมื่อเริ่มบอท</div>';
+    const html = sum ? [[L('เวลา', 'Time'), L(`${sum.mins.toFixed(1)} นาที`, `${sum.mins.toFixed(1)} min`)], [L('ล่าได้', 'Kills'), L(`${sum.kills} ตัว`, `${sum.kills}`)], ['Base EXP', '+' + U.fmt(sum.bexp)],
+      ['Job EXP', '+' + U.fmt(sum.jexp)], [L('ไอเทม', 'Items'), L(`${sum.items} ชิ้น`, `${sum.items}`)], [L('EXP/นาที', 'EXP/min'), U.fmt(sum.mins > 0.05 ? sum.bexp / sum.mins : 0)]]
+      .map(([k, v]) => `<div>${k}<b>${v}</b></div>`).join('') : L('<div class="hint" style="grid-column:1/-1">สถิติจะแสดงเมื่อเริ่มบอท</div>', '<div class="hint" style="grid-column:1/-1">Stats appear once the bot starts</div>');
     if (el.innerHTML !== html) el.innerHTML = html;
   },
   botKey() { const p = G.player; return [JSON.stringify(Bot.cfg()), JSON.stringify(autoPotCfg()), G.map.id, Object.keys(p.skills).join(), Bot.on, p.options.autoLoot].join('|'); },
@@ -1601,7 +1601,7 @@ const UI = {
     if (!force && body.dataset.key === key) { this.updateBotStats(); return; }
     body.dataset.key = key;
     body.innerHTML = '';
-    body.append(h('button', { class: 'btn big bot-toggle' + (Bot.on ? ' on' : ''), onclick: () => Bot.toggle() }, Bot.on ? '■ หยุดบอท' : '▶ เริ่มบอท'));
+    body.append(h('button', { class: 'btn big bot-toggle' + (Bot.on ? ' on' : ''), onclick: () => Bot.toggle() }, Bot.on ? L('■ หยุดบอท', '■ Stop Bot') : L('▶ เริ่มบอท', '▶ Start Bot')));
     body.append(h('div', { id: 'bot-stats', class: 'bot-stats' }));
     this.updateBotStats();
     const slider = (key, label, min, max, unit = '%') => {
@@ -1614,37 +1614,37 @@ const UI = {
     const seg = (key, opts) => h('div', { class: 'seg bot-seg' }, ...opts.map(([v, l]) =>
       h('button', { type: 'button', class: c[key] === v ? 'on' : '', onclick: () => { c[key] = v; saveGame(); this.renderBot(); } }, l)));
     body.append(...[
-      h('div', { class: 'bot-sec' }, 'วิธีโจมตี'),
-      seg('style', [['skills', 'ใช้สกิล + ตีปกติ'], ['basic', 'ตีปกติอย่างเดียว']]),
-      h('div', { class: 'hint' }, c.style === 'basic' ? 'ไม่ใช้สกิลโจมตี (ยังใช้ฮีล/บัฟตามที่ติ๊กด้านล่าง) และไม่นั่งพักเพราะ SP' : 'ใช้สกิลที่ติ๊กไว้ด้านล่างสลับกับการตีปกติ'),
-      h('div', { class: 'bot-sec' }, 'ขอบเขตการล่า'),
-      slider('radius', c.leash ? 'รัศมีวงล่า' : 'ระยะค้นหามอนรอบตัว', 5, 30, ' ช่อง'),
-      chk('leash', 'ล่าเฉพาะในวงรอบจุดที่เปิดบอท (เห็นวงบนพื้น)'),
-      c.leash ? h('button', { class: 'btn', type: 'button', onclick: () => Bot.setAnchor() }, 'ตั้งศูนย์กลางวงที่ตำแหน่งนี้') : null,
-      h('div', { class: 'bot-sec' }, 'มอนที่จะล่า'),
+      h('div', { class: 'bot-sec' }, L('วิธีโจมตี', 'Attack style')),
+      seg('style', [['skills', L('ใช้สกิล + ตีปกติ', 'Skills + attacks')], ['basic', L('ตีปกติอย่างเดียว', 'Basic attacks only')]]),
+      h('div', { class: 'hint' }, c.style === 'basic' ? L('ไม่ใช้สกิลโจมตี (ยังใช้ฮีล/บัฟตามที่ติ๊กด้านล่าง) และไม่นั่งพักเพราะ SP', 'No attack skills (still uses heals/buffs ticked below) and never rests for SP') : L('ใช้สกิลที่ติ๊กไว้ด้านล่างสลับกับการตีปกติ', 'Mixes the skills ticked below with basic attacks')),
+      h('div', { class: 'bot-sec' }, L('ขอบเขตการล่า', 'Hunting area')),
+      slider('radius', c.leash ? L('รัศมีวงล่า', 'Hunt radius') : L('ระยะค้นหามอนรอบตัว', 'Search range'), 5, 30, L(' ช่อง', ' tiles')),
+      chk('leash', L('ล่าเฉพาะในวงรอบจุดที่เปิดบอท (เห็นวงบนพื้น)', 'Only hunt inside a circle around the start point (shown on the ground)')),
+      c.leash ? h('button', { class: 'btn', type: 'button', onclick: () => Bot.setAnchor() }, L('ตั้งศูนย์กลางวงที่ตำแหน่งนี้', 'Set circle center here')) : null,
+      h('div', { class: 'bot-sec' }, L('มอนที่จะล่า', 'Targets')),
       this.botMobPicker(c),
-      h('div', { class: 'bot-sec' }, 'การฟื้นฟู'),
+      h('div', { class: 'bot-sec' }, L('การฟื้นฟู', 'Recovery')),
       ...this.autoPotControls(full => { if (full) this.renderBot(); else body.dataset.key = this.botKey(); }),
-      slider('healAt', 'ใช้สกิลฮีลเมื่อ HP ต่ำกว่า', 0, 95),
-      chk('rest', 'นั่งพักเมื่อ HP/SP ต่ำ (ไม่มีศัตรูรอบตัว)'),
-      c.rest ? slider('restHp', 'นั่งพักเมื่อ HP ต่ำกว่า', 0, 90) : null,
-      c.rest && c.style !== 'basic' ? slider('restSp', 'นั่งพักเมื่อ SP ต่ำกว่า', 0, 90) : null,
-      h('div', { class: 'bot-sec' }, 'อื่น ๆ'),
-      chk('useBuffs', 'ใช้บัฟ / เรียกสัตว์คู่ใจอัตโนมัติ'),
-      chk('avoidMvp', 'ไม่เข้าตี MVP เอง'),
-      chk('returnHome', 'กลับเมืองเมื่อยาหมดและ HP วิกฤต'),
-      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: p.options.autoLoot ? 'checked' : false, onchange: e => { p.options.autoLoot = e.target.checked; saveGame(); } }), ' เก็บไอเทมอัตโนมัติ'),
+      slider('healAt', L('ใช้สกิลฮีลเมื่อ HP ต่ำกว่า', 'Heal skill below HP'), 0, 95),
+      chk('rest', L('นั่งพักเมื่อ HP/SP ต่ำ (ไม่มีศัตรูรอบตัว)', 'Sit to rest when HP/SP is low (no enemies near)')),
+      c.rest ? slider('restHp', L('นั่งพักเมื่อ HP ต่ำกว่า', 'Rest below HP'), 0, 90) : null,
+      c.rest && c.style !== 'basic' ? slider('restSp', L('นั่งพักเมื่อ SP ต่ำกว่า', 'Rest below SP'), 0, 90) : null,
+      h('div', { class: 'bot-sec' }, L('อื่น ๆ', 'Other')),
+      chk('useBuffs', L('ใช้บัฟ / เรียกสัตว์คู่ใจอัตโนมัติ', 'Auto buff / summon companion')),
+      chk('avoidMvp', L('ไม่เข้าตี MVP เอง', 'Avoid engaging MVPs')),
+      chk('returnHome', L('กลับเมืองเมื่อยาหมดและ HP วิกฤต', 'Return to town when out of potions at critical HP')),
+      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: p.options.autoLoot ? 'checked' : false, onchange: e => { p.options.autoLoot = e.target.checked; saveGame(); } }), L(' เก็บไอเทมอัตโนมัติ', ' Auto Loot')),
     ].filter(Boolean));
     const act = Object.keys(p.skills).filter(id => SKILLS[id] && SKILLS[id].type === 'active');
-    body.append(h('div', { class: 'bot-sec' }, 'สกิลที่ให้บอทใช้'));
-    if (!act.length) body.append(h('div', { class: 'hint' }, 'ยังไม่มีสกิลที่ใช้งานได้'));
+    body.append(h('div', { class: 'bot-sec' }, L('สกิลที่ให้บอทใช้', 'Bot skills')));
+    if (!act.length) body.append(h('div', { class: 'hint' }, L('ยังไม่มีสกิลที่ใช้งานได้', 'No usable skills yet')));
     for (const id of act) {
       c.skillHp = c.skillHp || {};
-      const gate = h('select', { class: 'bot-gate', title: 'เงื่อนไขการใช้สกิลนี้', onchange: e => { const v = +e.target.value; if (v) c.skillHp[id] = v; else delete c.skillHp[id]; saveGame(); } },
-        [0, 30, 50, 70, 90].map(v => h('option', { value: v, selected: (c.skillHp[id] || 0) === v ? 'selected' : false }, v ? `เมื่อ HP < ${v}%` : 'ใช้ตลอด')));
+      const gate = h('select', { class: 'bot-gate', title: L('เงื่อนไขการใช้สกิลนี้', 'When to use this skill'), onchange: e => { const v = +e.target.value; if (v) c.skillHp[id] = v; else delete c.skillHp[id]; saveGame(); } },
+        [0, 30, 50, 70, 90].map(v => h('option', { value: v, selected: (c.skillHp[id] || 0) === v ? 'selected' : false }, v ? L(`เมื่อ HP < ${v}%`, `When HP < ${v}%`) : L('ใช้ตลอด', 'Always'))));
       body.append(h('div', { class: 'bot-skill-row' }, h('label', { class: 'opt bot-skill' },
         h('input', { type: 'checkbox', checked: c.skills[id] !== false ? 'checked' : false, onchange: e => { c.skills[id] = e.target.checked; saveGame(); } }),
-        this.skillIcon(id), ` ${SKILLS[id].name}`, h('small', {}, ` (${({ heal: 'ฮีล', summon: 'เรียกสัตว์', opener: 'เปิดฉาก', buff: 'บัฟ', trap: 'กับดัก', aoe: 'โจมตีรอบตัว', attack: 'โจมตี' })[Bot.role(id)] || ''})`)), gate));
+        this.skillIcon(id), ` ${SKILLS[id].name}`, h('small', {}, ` (${({ heal: L('ฮีล', 'heal'), summon: L('เรียกสัตว์', 'summon'), opener: L('เปิดฉาก', 'opener'), buff: L('บัฟ', 'buff'), trap: L('กับดัก', 'trap'), aoe: L('โจมตีรอบตัว', 'AoE'), attack: L('โจมตี', 'attack') })[Bot.role(id)] || ''})`)), gate));
     }
     body.append(h('div', { class: 'hint', id: 'bot-pots' }, this.botPotsText()));
   },
@@ -1653,22 +1653,22 @@ const UI = {
   botMobPicker(c) {
     const d = G.map.def, skip = c.skipMobs || (c.skipMobs = {});
     const ids = [...new Set([...(d.spawns || []).map(s => s[0]), ...(d.mvp ? [d.mvp] : [])])].filter(id => MOBS[id] && !MOBS[id].dummy);
-    if (!ids.length) return h('div', { class: 'hint' }, 'แมพนี้ไม่มีมอนสเตอร์ — ออกไปยังแมพล่าแล้วเลือกได้');
+    if (!ids.length) return h('div', { class: 'hint' }, L('แมพนี้ไม่มีมอนสเตอร์ — ออกไปยังแมพล่าแล้วเลือกได้', 'No monsters on this map — head to a hunting map to choose'));
     const set = v => { for (const id of ids) { if (v) delete skip[id]; else skip[id] = true; } saveGame(); this.renderBot(); };
     const on = ids.filter(id => !skip[id]).length;
     return h('div', { class: 'bot-mobs' },
-      h('div', { class: 'bm-head' }, h('span', {}, `${G.map.def.name} • ล่า ${on}/${ids.length} ชนิด`),
-        h('button', { type: 'button', class: 'linkbtn', onclick: () => set(true) }, 'เลือกทั้งหมด'),
-        h('button', { type: 'button', class: 'linkbtn', onclick: () => set(false) }, 'ไม่เลือกเลย')),
+      h('div', { class: 'bm-head' }, h('span', {}, L(`${G.map.def.name} • ล่า ${on}/${ids.length} ชนิด`, `${G.map.def.name} • hunting ${on}/${ids.length} types`)),
+        h('button', { type: 'button', class: 'linkbtn', onclick: () => set(true) }, L('เลือกทั้งหมด', 'Select all')),
+        h('button', { type: 'button', class: 'linkbtn', onclick: () => set(false) }, L('ไม่เลือกเลย', 'Select none'))),
       h('div', { class: 'bm-grid' }, ids.map(id => {
         const m = MOBS[id], spr = Art.get('mobsprite_' + id), sel = !skip[id];
         return h('button', { type: 'button', class: 'bm-card' + (sel ? ' on' : ''), 'aria-pressed': sel ? 'true' : 'false',
           onclick: () => { if (sel) skip[id] = true; else delete skip[id]; saveGame(); this.renderBot(); } },
           h('span', { class: 'bm-pic' }, spr ? h('img', { src: spr.src, alt: '' }) : h('i', { style: `background:${m.color || '#6ff3ff'}` })),
-          h('b', {}, m.name), h('small', {}, `Lv ${m.lv}${m.boss ? ' • MVP' : ''}${m.aggro ? ' • ตีก่อน' : ''}`),
+          h('b', {}, m.name), h('small', {}, `Lv ${m.lv}${m.boss ? ' • MVP' : ''}${m.aggro ? L(' • ตีก่อน', ' • Aggro') : ''}`),
           h('span', { class: 'bm-chk' }, sel ? '✓' : ''));
       })),
-      h('div', { class: 'hint' }, on ? 'ตัวที่ไม่ได้เลือก บอทจะไม่เข้าไปตีเอง แต่ถ้ามันตีเราก่อนจะสู้กลับ' : 'ยังไม่ได้เลือกมอนเลย — บอทจะสู้เฉพาะตัวที่เข้ามาตีเรา'));
+      h('div', { class: 'hint' }, on ? L('ตัวที่ไม่ได้เลือก บอทจะไม่เข้าไปตีเอง แต่ถ้ามันตีเราก่อนจะสู้กลับ', 'The bot won’t engage unselected monsters, but fights back if they attack first') : L('ยังไม่ได้เลือกมอนเลย — บอทจะสู้เฉพาะตัวที่เข้ามาตีเรา', 'No monsters selected — the bot only fights what attacks you')));
   },
 
   setNet(state) {
@@ -1676,13 +1676,13 @@ const UI = {
     if (!el) return;
     el.hidden = !Online.online;
     el.className = 'net ' + state;
-    el.title = state === 'ok' ? 'เชื่อมต่อเซิร์ฟเวอร์แล้ว' : 'การเชื่อมต่อมีปัญหา กำลังลองใหม่';
+    el.title = state === 'ok' ? L('เชื่อมต่อเซิร์ฟเวอร์แล้ว', 'Connected to server') : L('การเชื่อมต่อมีปัญหา กำลังลองใหม่', 'Connection problem, retrying');
   },
 
   showDeath(lost) {
     const p = G.player, sv = p.save && MAP_DEFS[p.save.map];
-    $('#death-loss').textContent = lost ? `Base EXP −${U.fmt(lost)}` : 'ไม่เสีย EXP';
-    $('#death-save').textContent = sv ? `จุดเซฟ · ${sv.name}` : '';
+    $('#death-loss').textContent = lost ? `Base EXP −${U.fmt(lost)}` : L('ไม่เสีย EXP', 'No EXP lost');
+    $('#death-save').textContent = sv ? L(`จุดเซฟ · ${sv.name}`, `Save point · ${sv.name}`) : '';
     $('#death').classList.remove('hidden'); $('#death-mini').classList.add('hidden');
   },
   hideDeath() { $('#death').classList.add('hidden'); $('#death-mini').classList.add('hidden'); },

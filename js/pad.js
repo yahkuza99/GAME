@@ -18,7 +18,7 @@ const Pad = {
     $('#pad-atk').addEventListener('pointerup', rel); $('#pad-atk').addEventListener('pointercancel', rel); $('#pad-atk').addEventListener('pointerleave', rel);
     window.addEventListener('gamepadconnected', e => {
       this.gp.connected = true;
-      if (G.started) UI.msg(`🎮 เชื่อมต่อจอย: ${e.gamepad.id.slice(0, 40)} — A โจมตี/คุย, X Y LB RB = สกิล 1-4, D-pad = สกิล 5-8, LT/RT = ไอเทม`, 'info');
+      if (G.started) UI.msg(L(`🎮 เชื่อมต่อจอย: ${e.gamepad.id.slice(0, 40)} — A โจมตี/คุย, X Y LB RB = สกิล 1-4, D-pad = สกิล 5-8, LT/RT = ไอเทม`, `🎮 Gamepad connected: ${e.gamepad.id.slice(0, 40)} — A attack/talk, X Y LB RB = skills 1-4, D-pad = skills 5-8, LT/RT = items`), 'info');
     });
     window.addEventListener('gamepaddisconnected', () => { this.gp.connected = [...(navigator.getGamepads ? navigator.getGamepads() : [])].some(Boolean); });
     matchMedia('(pointer: coarse)').addEventListener?.('change', () => this.apply());
@@ -103,7 +103,7 @@ const Pad = {
     if (G.pendingSkill) {
       const m = this.nearestMob();
       const id = G.pendingSkill; G.pendingSkill = null;
-      if (m) beginSkill(id, skillLv(id), m); else UI.msg('ไม่มีเป้าหมายในระยะ', 'err');
+      if (m) beginSkill(id, skillLv(id), m); else UI.msg(L('ไม่มีเป้าหมายในระยะ', 'No target in range'), 'err');
       return;
     }
     p.sitting = false;
@@ -117,7 +117,7 @@ const Pad = {
     const m = this.nearestMob();
     if (m) { p.target = m; p.pickTarget = null; p.npcTarget = null; p.repathAt = 0; }
     else if (npc) { p.npcTarget = npc; p.path = []; }
-    else UI.msg('ไม่มีเป้าหมายใกล้ ๆ — เดินออกไปหามอนสเตอร์ก่อน', 'info');
+    else UI.msg(L('ไม่มีเป้าหมายใกล้ ๆ — เดินออกไปหามอนสเตอร์ก่อน', 'No target nearby — go find some monsters first'), 'info');
   },
 
   // ---------------- จอยเกม ----------------

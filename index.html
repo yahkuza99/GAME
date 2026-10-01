@@ -25,7 +25,7 @@
     <div id="basic-info" class="foldable" data-fold="info">
       <div class="bi-face"><canvas id="bi-portrait" width="112" height="112"></canvas><svg id="bi-rings" viewBox="0 0 88 88" aria-hidden="true"><circle class="rb" cx="44" cy="44" r="41" stroke-width="4"/><circle id="ring-hp" cx="44" cy="44" r="41" transform="rotate(-90 44 44)"/><circle class="rb" cx="44" cy="44" r="35" stroke-width="3"/><circle id="ring-sp" cx="44" cy="44" r="35" transform="rotate(-90 44 44)"/></svg><em id="bi-lvbadge"></em></div>
       <div class="bi-main">
-        <div class="bi-id"><b id="bi-name"></b><span id="bi-job"></span><button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายแผงสถานะ"></button></div>
+        <div class="bi-id"><b id="bi-name"></b><span id="bi-job"></span><button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายแผงสถานะ" data-en-title="Collapse/expand" data-en-aria-label="Collapse or expand the status panel"></button></div>
         <div class="gauge hp"><div id="bi-hp" class="fill"></div><i>HP</i><span id="bi-hp-t"></span></div>
         <div class="gauge sp"><div id="bi-sp" class="fill"></div><i>SP</i><span id="bi-sp-t"></span></div>
         <div class="bi-exp">
@@ -37,14 +37,14 @@
     </div>
     <div id="buffs"></div>
     <div id="pvp-hud" hidden></div>
-    <div id="skill-aim" hidden><span class="sa-ic"></span><span class="sa-t"></span><button type="button" id="sa-x" aria-label="ยกเลิก">ยกเลิก</button></div>
+    <div id="skill-aim" hidden><span class="sa-ic"></span><span class="sa-t"></span><button type="button" id="sa-x" aria-label="ยกเลิก" data-en-aria-label="Cancel" data-en="Cancel">ยกเลิก</button></div>
     <div id="exp-line"><i id="exp-line-fill"></i></div>
-    <div id="quest-track" hidden title="แตะเพื่อนำทางไปทำเควสต์ (J = สมุดเควสต์)"></div>
-    <div id="party-hud" hidden aria-label="สมาชิกปาร์ตี้"></div>
-    <div id="nav-pill" hidden><span class="nav-ic">🧭</span><span id="nav-text"></span><button id="nav-cancel" type="button" aria-label="ยกเลิกการนำทาง">×</button></div>
+    <div id="quest-track" hidden title="แตะเพื่อนำทางไปทำเควสต์ (J = สมุดเควสต์)" data-en-title="Tap to navigate to your quest (J = Quest Log)"></div>
+    <div id="party-hud" hidden aria-label="สมาชิกปาร์ตี้" data-en-aria-label="Party members"></div>
+    <div id="nav-pill" hidden><span class="nav-ic">🧭</span><span id="nav-text"></span><button id="nav-cancel" type="button" aria-label="ยกเลิกการนำทาง" data-en-aria-label="Cancel navigation">×</button></div>
     <div id="target" hidden>
       <canvas id="tg-cv" width="84" height="84"></canvas>
-      <div class="tg-main"><div class="tg-id"><b id="tg-name"></b><span id="tg-lv"></span><span class="tg-info" title="ข้อมูลมอนสเตอร์">ⓘ</span></div>
+      <div class="tg-main"><div class="tg-id"><b id="tg-name"></b><span id="tg-lv"></span><span class="tg-info" title="ข้อมูลมอนสเตอร์" data-en-title="Monster info">ⓘ</span></div>
         <div class="gauge hp"><div id="tg-hp" class="fill"></div><span id="tg-hp-t"></span></div></div>
     </div>
 
@@ -57,9 +57,9 @@
       <div class="mm-head"><span id="net" class="net ok" hidden></span><span id="map-name"></span></div>
       <div class="mm-sub"><span id="map-coord"></span></div>
       <div id="mm-mvp" hidden></div>
-      <button id="map-open" class="mm-btn b1" title="แผนที่ใหญ่ (M)" aria-label="แผนที่ใหญ่"><svg viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></button>
-      <div id="zoom-ctl"><button class="mm-btn" data-zoom="1.18" title="ซูมเข้า (+)" aria-label="ซูมเข้า">+</button><button class="mm-btn" data-zoom="0.85" title="ซูมออก (-)" aria-label="ซูมออก">−</button></div>
-      <button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายเรดาร์"></button>
+      <button id="map-open" class="mm-btn b1" title="แผนที่ใหญ่ (M)" aria-label="แผนที่ใหญ่" data-en-title="Area map (M)" data-en-aria-label="Area map"><svg viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></button>
+      <div id="zoom-ctl"><button class="mm-btn" data-zoom="1.18" title="ซูมเข้า (+)" aria-label="ซูมเข้า" data-en-title="Zoom in (+)" data-en-aria-label="Zoom in">+</button><button class="mm-btn" data-zoom="0.85" title="ซูมออก (-)" aria-label="ซูมออก" data-en-title="Zoom out (-)" data-en-aria-label="Zoom out">−</button></div>
+      <button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายเรดาร์" data-en-title="Collapse/expand" data-en-aria-label="Collapse or expand the radar"></button>
     </div>
 
     <!-- เมนู (ใต้เรดาร์) -->
@@ -67,26 +67,26 @@
 
     <!-- แชท -->
     <div id="chat" class="foldable" data-fold="chat">
-      <button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายแชท"></button>
+      <button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายแชท" data-en-title="Collapse/expand" data-en-aria-label="Collapse or expand chat"></button>
       <div id="chat-log"></div>
-      <input id="chat-input" placeholder="Enter เพื่อแชท • /help" maxlength="80" autocomplete="off" enterkeyhint="send">
+      <input id="chat-input" placeholder="Enter เพื่อแชท • /help" data-en-placeholder="Enter to chat • /help" maxlength="80" autocomplete="off" enterkeyhint="send">
     </div>
-    <button id="chat-btn" type="button" title="แชท" aria-label="เปิดช่องแชท"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg></button>
+    <button id="chat-btn" type="button" title="แชท" aria-label="เปิดช่องแชท" data-en-title="Chat" data-en-aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg></button>
 
     <!-- แถบแอ็กชัน: AUTO + สกิล 8 ช่อง + ไอเทม 4 ช่อง -->
     <div id="dock">
-      <button id="auto-btn" title="บอทล่ามอนอัตโนมัติ (B)"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 4v4"/><circle cx="12" cy="3.5" r="1"/><path d="M9 13h6"/></svg><b>AUTO</b><small>ปิด</small></button>
-      <div id="hotbar" aria-label="แถบสกิล"></div>
-      <div id="potbar" aria-label="แถบไอเทม"></div>
+      <button id="auto-btn" title="บอทล่ามอนอัตโนมัติ (B)" data-en-title="Auto-hunt bot (B)"><svg viewBox="0 0 24 24"><rect x="5" y="8" width="14" height="11" rx="2"/><path d="M12 4v4"/><circle cx="12" cy="3.5" r="1"/><path d="M9 13h6"/></svg><b>AUTO</b><small data-en="Off">ปิด</small></button>
+      <div id="hotbar" aria-label="แถบสกิล" data-en-aria-label="Skill bar"></div>
+      <div id="potbar" aria-label="แถบไอเทม" data-en-aria-label="Item bar"></div>
     </div>
 
     <!-- ปุ่มควบคุมบนจอ (โหมด PAD) -->
     <div id="pad">
       <div id="joy-zone"><div id="joy"><div id="joy-knob"></div></div></div>
-      <button id="pad-atk" aria-label="โจมตี / คุย / เก็บของ"><svg viewBox="0 0 24 24"><path d="M5 19l9-9"/><path d="M14 4l6 0 0 6-9 9-6-6z"/><path d="M4 16l4 4"/></svg></button>
+      <button id="pad-atk" aria-label="โจมตี / คุย / เก็บของ" data-en-aria-label="Attack / talk / pick up"><svg viewBox="0 0 24 24"><path d="M5 19l9-9"/><path d="M14 4l6 0 0 6-9 9-6-6z"/><path d="M4 16l4 4"/></svg></button>
     </div>
 
-    <button id="hud-toggle" title="ซ่อน/แสดง HUD ทั้งหมด (U)" aria-label="ซ่อนหรือแสดง HUD"></button>
+    <button id="hud-toggle" title="ซ่อน/แสดง HUD ทั้งหมด (U)" aria-label="ซ่อนหรือแสดง HUD" data-en-title="Hide/show the whole HUD (U)" data-en-aria-label="Hide or show HUD"></button>
     <div id="announce"></div>
     <div id="illust" aria-hidden="true"></div>
     <div id="splash" aria-hidden="true"></div>
@@ -94,99 +94,99 @@
 
     <!-- หน้าต่าง -->
     <div id="w-status" class="win hidden" style="left:12px;top:170px;width:340px">
-      <div class="win-title"><span>สถานะ (Status)</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Status">สถานะ (Status)</span></div><div class="win-body"></div>
     </div>
     <div id="w-inv" class="win hidden" style="right:12px;top:200px;width:330px">
-      <div class="win-title"><span>ไอเทม (Inventory)</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Inventory">ไอเทม (Inventory)</span></div><div class="win-body"></div>
     </div>
     <div id="w-equip" class="win hidden" style="right:352px;top:200px;width:330px">
-      <div class="win-title"><span>อุปกรณ์ (Equipment)</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Equipment">อุปกรณ์ (Equipment)</span></div><div class="win-body"></div>
     </div>
     <div id="w-skills" class="win hidden" style="left:12px;top:170px;width:400px">
-      <div class="win-title"><span>สกิล (Skill Tree)</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Skill Tree">สกิล (Skill Tree)</span></div><div class="win-body"></div>
     </div>
     <div id="w-mob" class="win hidden" style="left:12px;top:170px;width:360px">
-      <div class="win-title"><span>ข้อมูลมอนสเตอร์</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Monster Info">ข้อมูลมอนสเตอร์</span></div><div class="win-body"></div>
     </div>
     <div id="w-storage" class="win hidden" style="left:50%;top:90px;width:min(560px, calc(100vw - 24px));transform:translateX(-50%)">
-      <div class="win-title"><span>คลังเก็บของ (Storage)</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Storage">คลังเก็บของ (Storage)</span></div><div class="win-body"></div>
     </div>
     <div id="w-emote" class="win hidden" style="left:12px;top:170px;width:300px">
-      <div class="win-title"><span>อีโมต (Emote)</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Emotes">อีโมต (Emote)</span></div><div class="win-body"></div>
     </div>
     <div id="w-quest" class="win hidden" style="left:12px;top:170px;width:360px">
-      <div class="win-title"><span>เควสต์ (Quest)</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Quests">เควสต์ (Quest)</span></div><div class="win-body"></div>
     </div>
     <div id="w-nav" class="win hidden" style="left:12px;top:170px;width:360px">
-      <div class="win-title"><span>นำทาง (Navigate)</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Navigation">นำทาง (Navigate)</span></div><div class="win-body"></div>
     </div>
     <div id="w-party" class="win hidden" style="right:64px;top:200px;width:360px">
-      <div class="win-title"><span>ปาร์ตี้ (Party)</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Party">ปาร์ตี้ (Party)</span></div><div class="win-body"></div>
     </div>
     <div id="w-options" class="win hidden center" style="width:320px">
-      <div class="win-title"><span>ตั้งค่า</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Settings">ตั้งค่า</span></div><div class="win-body"></div>
     </div>
     <div id="w-shop" class="win hidden" style="left:50%;top:90px;width:420px;transform:translateX(-50%)">
-      <div class="win-title"><span>ร้านค้า</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Shop">ร้านค้า</span></div><div class="win-body"></div>
     </div>
     <div id="w-map" class="win hidden center" style="width:min(480px, calc(100vw - 24px))">
-      <div class="win-title"><span>แผนที่</span></div>
-      <div class="win-body"><canvas id="bigmap-cv"></canvas><div class="hint">แตะ/คลิกบนแผนที่เพื่อเดินไปยังจุดนั้น • ➜ คือประตูไปแผนที่ถัดไป</div><div class="opt-btns"><button class="btn" type="button" data-open="w-world">🌐 แผนที่โลก (W)</button></div></div>
+      <div class="win-title"><span data-en="Map">แผนที่</span></div>
+      <div class="win-body"><canvas id="bigmap-cv"></canvas><div class="hint" data-en="Tap/click the map to walk there • ➜ marks a portal to the next map">แตะ/คลิกบนแผนที่เพื่อเดินไปยังจุดนั้น • ➜ คือประตูไปแผนที่ถัดไป</div><div class="opt-btns"><button class="btn" type="button" data-open="w-world" data-en="🌐 World Map (W)">🌐 แผนที่โลก (W)</button></div></div>
     </div>
     <div id="w-world" class="win hidden center" style="width:min(540px, calc(100vw - 24px))">
-      <div class="win-title"><span>แผนที่โลก — Midgard</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="World Map — Midgard">แผนที่โลก — Midgard</span></div><div class="win-body"></div>
     </div>
     <div id="w-tree" class="win hidden center" style="width:min(860px, calc(100vw - 24px))">
-      <div class="win-title"><span>ต้นไม้พาสซีฟ (P)</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Passive Tree (P)">ต้นไม้พาสซีฟ (P)</span></div><div class="win-body"></div>
     </div>
     <div id="w-bot" class="win hidden" style="right:12px;top:200px;width:340px">
-      <div class="win-title"><span>ระบบบอท (Auto Hunt)</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Bot (Auto Hunt)">ระบบบอท (Auto Hunt)</span></div><div class="win-body"></div>
     </div>
     <div id="w-trade" class="win hidden center" style="width:min(380px, calc(100vw - 24px))">
-      <div class="win-title"><span>แลกเปลี่ยน (Trade)</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Trade">แลกเปลี่ยน (Trade)</span></div><div class="win-body"></div>
     </div>
     <div id="w-dialog" class="win hidden dialog">
       <div class="win-title"><span>NPC</span></div><div class="win-body"></div>
     </div>
     <div id="w-confirm" class="win hidden center" data-noclose="1" style="width:320px">
-      <div class="win-title"><span>ยืนยัน</span></div><div class="win-body"></div>
+      <div class="win-title"><span data-en="Confirm">ยืนยัน</span></div><div class="win-body"></div>
     </div>
     <div id="w-help" class="win hidden center" style="width:460px">
-      <div class="win-title"><span>วิธีเล่น</span></div>
+      <div class="win-title"><span data-en="How to Play">วิธีเล่น</span></div>
       <div class="win-body help">
-        <h4>การควบคุม</h4>
+        <h4 data-en="Controls">การควบคุม</h4>
         <ul>
-          <li><b>คลิกซ้าย</b> ที่พื้น = เดิน (กดค้างเพื่อเดินตามเมาส์)</li>
-          <li><b>คลิกมอนสเตอร์</b> = โจมตีต่อเนื่องอัตโนมัติ</li>
-          <li><b>คลิกไอเทม</b> บนพื้น = เก็บ • <b>คลิก NPC</b> = คุย</li>
-          <li><b>1-8</b> = แถบสกิล • <b>Z C V F</b> = แถบไอเทม (ลากสกิล/ไอเทมมาวางได้) • <b>Space</b> = โจมตี/คุย/เก็บของ ที่ใกล้ที่สุด</li>
-          <li><b>A</b> สถานะ • <b>E</b> ไอเทม • <b>Q</b> อุปกรณ์ • <b>S</b> สกิล • <b>O</b> ตั้งค่า • <b>H</b> วิธีเล่น</li>
-          <li><b>U</b> ซ่อน/แสดง HUD ทั้งหมด • ปุ่ม <b>▾</b> มุมแผงเพื่อพับเก็บทีละแผง</li>
-          <li><b>X</b> นั่งพัก • <b>Enter</b> แชท • <b>Esc</b> ปิดหน้าต่าง • <b>ล้อเมาส์ / + −</b> ซูม</li>
-          <li><b>B</b> เปิด/ปิดบอท • <b>N</b> ตั้งค่าบอท • <b>M</b> แผนที่ใหญ่ (คลิกเพื่อเดินไปได้)</li>
-          <li><b>J</b> เควสต์ — ภารกิจแนะนำทีละขั้น แตะแถบเควสต์ใต้การ์ดยูนิตเพื่อเดินไปทำทันที</li>
-          <li><b>Y</b> ปาร์ตี้ (ออนไลน์) — ตั้งปาร์ตี้ ชวนคนในแผนที่ ล่าใกล้กันแบ่ง EXP เท่ากัน • แชทปาร์ตี้ <b>/p ข้อความ</b> • <b>/invite ชื่อ</b> • <b>/leave</b></li>
-          <li><b>G</b> นำทาง — เลือก NPC / แผนที่ / มอนสเตอร์ แล้วตัวละครจะเดินไปเอง ข้ามแผนที่ได้ (คลิกชื่อบนแผนที่ใหญ่ก็ได้)</li>
-          <li><b>Tab</b> เปิด/ปิดเมนู • <b>ปุ่มลูกศร</b> เดิน 8 ทิศ (กดสองปุ่มพร้อมกันเพื่อเดินแนวทแยง) • คลิกมินิแมพเพื่อเดินไปจุดนั้น</li>
+          <li data-en="&lt;b&gt;Left-click&lt;/b&gt; the ground = walk (hold to follow the cursor)"><b>คลิกซ้าย</b> ที่พื้น = เดิน (กดค้างเพื่อเดินตามเมาส์)</li>
+          <li data-en="&lt;b&gt;Click a monster&lt;/b&gt; = auto-attack continuously"><b>คลิกมอนสเตอร์</b> = โจมตีต่อเนื่องอัตโนมัติ</li>
+          <li data-en="&lt;b&gt;Click an item&lt;/b&gt; on the ground = pick up • &lt;b&gt;Click an NPC&lt;/b&gt; = talk"><b>คลิกไอเทม</b> บนพื้น = เก็บ • <b>คลิก NPC</b> = คุย</li>
+          <li data-en="&lt;b&gt;1-8&lt;/b&gt; = skill bar • &lt;b&gt;Z C V F&lt;/b&gt; = item bar (drag skills/items onto them) • &lt;b&gt;Space&lt;/b&gt; = attack/talk/pick up the nearest target"><b>1-8</b> = แถบสกิล • <b>Z C V F</b> = แถบไอเทม (ลากสกิล/ไอเทมมาวางได้) • <b>Space</b> = โจมตี/คุย/เก็บของ ที่ใกล้ที่สุด</li>
+          <li data-en="&lt;b&gt;A&lt;/b&gt; Status • &lt;b&gt;E&lt;/b&gt; Inventory • &lt;b&gt;Q&lt;/b&gt; Equipment • &lt;b&gt;S&lt;/b&gt; Skills • &lt;b&gt;O&lt;/b&gt; Settings • &lt;b&gt;H&lt;/b&gt; Help"><b>A</b> สถานะ • <b>E</b> ไอเทม • <b>Q</b> อุปกรณ์ • <b>S</b> สกิล • <b>O</b> ตั้งค่า • <b>H</b> วิธีเล่น</li>
+          <li data-en="&lt;b&gt;U&lt;/b&gt; hide/show the whole HUD • the &lt;b&gt;▾&lt;/b&gt; button on a panel corner folds that panel"><b>U</b> ซ่อน/แสดง HUD ทั้งหมด • ปุ่ม <b>▾</b> มุมแผงเพื่อพับเก็บทีละแผง</li>
+          <li data-en="&lt;b&gt;X&lt;/b&gt; sit • &lt;b&gt;Enter&lt;/b&gt; chat • &lt;b&gt;Esc&lt;/b&gt; close window • &lt;b&gt;Mouse wheel / + −&lt;/b&gt; zoom"><b>X</b> นั่งพัก • <b>Enter</b> แชท • <b>Esc</b> ปิดหน้าต่าง • <b>ล้อเมาส์ / + −</b> ซูม</li>
+          <li data-en="&lt;b&gt;B&lt;/b&gt; toggle bot • &lt;b&gt;N&lt;/b&gt; bot settings • &lt;b&gt;M&lt;/b&gt; area map (click to walk there)"><b>B</b> เปิด/ปิดบอท • <b>N</b> ตั้งค่าบอท • <b>M</b> แผนที่ใหญ่ (คลิกเพื่อเดินไปได้)</li>
+          <li data-en="&lt;b&gt;J&lt;/b&gt; Quests — step-by-step guided missions; tap the quest tracker under your unit card to head there"><b>J</b> เควสต์ — ภารกิจแนะนำทีละขั้น แตะแถบเควสต์ใต้การ์ดยูนิตเพื่อเดินไปทำทันที</li>
+          <li data-en="&lt;b&gt;Y&lt;/b&gt; Party (online) — form a party, invite players on your map, share EXP evenly when hunting together • party chat &lt;b&gt;/p message&lt;/b&gt; • &lt;b&gt;/invite name&lt;/b&gt; • &lt;b&gt;/leave&lt;/b&gt;"><b>Y</b> ปาร์ตี้ (ออนไลน์) — ตั้งปาร์ตี้ ชวนคนในแผนที่ ล่าใกล้กันแบ่ง EXP เท่ากัน • แชทปาร์ตี้ <b>/p ข้อความ</b> • <b>/invite ชื่อ</b> • <b>/leave</b></li>
+          <li data-en="&lt;b&gt;G&lt;/b&gt; Navigation — pick an NPC / map / monster and your character walks there, even across maps (or click a name on the area map)"><b>G</b> นำทาง — เลือก NPC / แผนที่ / มอนสเตอร์ แล้วตัวละครจะเดินไปเอง ข้ามแผนที่ได้ (คลิกชื่อบนแผนที่ใหญ่ก็ได้)</li>
+          <li data-en="&lt;b&gt;Tab&lt;/b&gt; toggle menu • &lt;b&gt;Arrow keys&lt;/b&gt; walk in 8 directions (press two for diagonals) • click the minimap to walk there"><b>Tab</b> เปิด/ปิดเมนู • <b>ปุ่มลูกศร</b> เดิน 8 ทิศ (กดสองปุ่มพร้อมกันเพื่อเดินแนวทแยง) • คลิกมินิแมพเพื่อเดินไปจุดนั้น</li>
         </ul>
-        <h4>มือถือ / แท็บเล็ต</h4>
+        <h4 data-en="Mobile / Tablet">มือถือ / แท็บเล็ต</h4>
         <ul>
-          <li><b>จอยซ้ายล่าง</b> = เดิน 8 ทิศ • <b>ปุ่มดาบขวาล่าง</b> = โจมตีมอนที่ใกล้สุด / คุย NPC / เก็บของ</li>
-          <li>สกิลที่ต้องเลือกเป้า จะเล็งมอนที่ใกล้ที่สุดให้เอง • ปิด/เปิดปุ่มบนจอได้ใน ตั้งค่า</li>
-          <li><b>แตะ</b> พื้นเพื่อเดิน, แตะมอนสเตอร์เพื่อโจมตี, แตะค้างเพื่อเดินตามนิ้ว</li>
-          <li><b>ถ่างสองนิ้ว</b> เพื่อซูม • <b>แตะค้างที่ปุ่มลัด</b> เพื่อลบ • ใช้ปุ่ม 📌 ในหน้าต่างสกิล/ไอเทมเพื่อตั้งปุ่มลัด</li>
-          <li><b>จอยเกม</b>: สติ๊กซ้ายเดิน • A โจมตี/คุย • B ยกเลิก/นั่ง • X Y LB RB = สกิล 1-4 • D-pad = สกิล 5-8 • LT RT L3 R3 = ไอเทม • Select แผนที่ • Start เมนู</li>
-          <li>ปุ่ม <b>AUTO</b> = ปล่อยบอทล่ามอน (ใช้ชุดซ่อม ใช้สกิล นั่งพัก เก็บของเอง) ทำงานต่อแม้สลับแอป สูงสุด 10 นาที</li>
+          <li data-en="&lt;b&gt;Bottom-left stick&lt;/b&gt; = walk in 8 directions • &lt;b&gt;Bottom-right sword button&lt;/b&gt; = attack the nearest monster / talk to NPC / pick up"><b>จอยซ้ายล่าง</b> = เดิน 8 ทิศ • <b>ปุ่มดาบขวาล่าง</b> = โจมตีมอนที่ใกล้สุด / คุย NPC / เก็บของ</li>
+          <li data-en="Targeted skills auto-aim at the nearest monster • toggle on-screen controls in Settings">สกิลที่ต้องเลือกเป้า จะเล็งมอนที่ใกล้ที่สุดให้เอง • ปิด/เปิดปุ่มบนจอได้ใน ตั้งค่า</li>
+          <li data-en="&lt;b&gt;Tap&lt;/b&gt; the ground to walk, tap a monster to attack, hold to follow your finger"><b>แตะ</b> พื้นเพื่อเดิน, แตะมอนสเตอร์เพื่อโจมตี, แตะค้างเพื่อเดินตามนิ้ว</li>
+          <li data-en="&lt;b&gt;Pinch&lt;/b&gt; to zoom • &lt;b&gt;Long-press a hotkey&lt;/b&gt; to clear it • use 📌 in the Skills/Inventory window to set hotkeys"><b>ถ่างสองนิ้ว</b> เพื่อซูม • <b>แตะค้างที่ปุ่มลัด</b> เพื่อลบ • ใช้ปุ่ม 📌 ในหน้าต่างสกิล/ไอเทมเพื่อตั้งปุ่มลัด</li>
+          <li data-en="&lt;b&gt;Gamepad&lt;/b&gt;: left stick walk • A attack/talk • B cancel/sit • X Y LB RB = skills 1-4 • D-pad = skills 5-8 • LT RT L3 R3 = items • Select map • Start menu"><b>จอยเกม</b>: สติ๊กซ้ายเดิน • A โจมตี/คุย • B ยกเลิก/นั่ง • X Y LB RB = สกิล 1-4 • D-pad = สกิล 5-8 • LT RT L3 R3 = ไอเทม • Select แผนที่ • Start เมนู</li>
+          <li data-en="&lt;b&gt;AUTO&lt;/b&gt; = let the bot hunt (uses repair kits and skills, rests, loots on its own); keeps running for up to 10 min when you switch apps">ปุ่ม <b>AUTO</b> = ปล่อยบอทล่ามอน (ใช้ชุดซ่อม ใช้สกิล นั่งพัก เก็บของเอง) ทำงานต่อแม้สลับแอป สูงสุด 10 นาที</li>
         </ul>
-        <h4>เส้นทางการเติบโต</h4>
+        <h4 data-en="Progression">เส้นทางการเติบโต</h4>
         <ol>
-          <li>แจก Status Point (กด A) — STR สำหรับสายตี, INT สายเวท, DEX สายธนู, AGI ตีเร็ว/หลบ, VIT ถึก</li>
-          <li>ออกไปทางตะวันออกของเมืองเพื่อล่า <b>Gel Unit</b> ใน Emerald Meadow</li>
-          <li>เก็บ <b>Job Lv 10</b> แล้วไปหา <b>Mimir AI</b> ในเมืองเพื่อ <b>อัปเกรดร่าง</b> เป็นคลาสใหม่</li>
-          <li>6 คลาสอัปเกรด: Einherjar, Rune Caster, Wildhunter, Völva, Loki's Trickster, Berserker</li>
-          <li>ท้าทาย MVP: <b>Seraph Core</b> (Mistlake Plains) และ <b>Kitsura EX</b> (Hel's Hollow)</li>
+          <li data-en="Spend Status Points (press A) — STR for melee, INT for magic, DEX for archery, AGI for speed/evasion, VIT for toughness">แจก Status Point (กด A) — STR สำหรับสายตี, INT สายเวท, DEX สายธนู, AGI ตีเร็ว/หลบ, VIT ถึก</li>
+          <li data-en="Head east of town to hunt &lt;b&gt;Gel Units&lt;/b&gt; in Emerald Meadow">ออกไปทางตะวันออกของเมืองเพื่อล่า <b>Gel Unit</b> ใน Emerald Meadow</li>
+          <li data-en="Reach &lt;b&gt;Job Lv 10&lt;/b&gt;, then visit &lt;b&gt;Mimir AI&lt;/b&gt; in town to &lt;b&gt;upgrade your frame&lt;/b&gt; into a new class">เก็บ <b>Job Lv 10</b> แล้วไปหา <b>Mimir AI</b> ในเมืองเพื่อ <b>อัปเกรดร่าง</b> เป็นคลาสใหม่</li>
+          <li data-en="6 upgrade classes: Einherjar, Rune Caster, Wildhunter, Völva, Loki's Trickster, Berserker">6 คลาสอัปเกรด: Einherjar, Rune Caster, Wildhunter, Völva, Loki's Trickster, Berserker</li>
+          <li data-en="Challenge the MVPs: &lt;b&gt;Seraph Core&lt;/b&gt; (Mistlake Plains) and &lt;b&gt;Kitsura EX&lt;/b&gt; (Hel's Hollow)">ท้าทาย MVP: <b>Seraph Core</b> (Mistlake Plains) และ <b>Kitsura EX</b> (Hel's Hollow)</li>
         </ol>
-        <p class="hint">เกมบันทึกอัตโนมัติทุก 30 วินาทีและทุกครั้งที่ย้ายแผนที่ (เก็บในเบราว์เซอร์นี้)</p>
+        <p class="hint" data-en="The game autosaves every 30 seconds and whenever you change maps (stored in this browser)">เกมบันทึกอัตโนมัติทุก 30 วินาทีและทุกครั้งที่ย้ายแผนที่ (เก็บในเบราว์เซอร์นี้)</p>
       </div>
     </div>
 
@@ -196,17 +196,17 @@
           <i class="dc-halo"></i><i class="dc-mote m1"></i><i class="dc-mote m2"></i><i class="dc-mote m3"></i>
           <div class="dc-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="lf" d="M5 20c-.6-6.4 3.6-13.4 15-16-1 9.6-6.2 15.4-15 16z"/><path d="M5 20c3.2-4.6 6.6-8.4 11-12"/></svg></div>
         </div>
-        <div class="death-t">คุณล้มลงแล้ว</div>
-        <div class="death-s">พักหายใจสักครู่ แล้วลุกขึ้นสู้อีกครั้ง</div>
+        <div class="death-t" data-en="You have fallen">คุณล้มลงแล้ว</div>
+        <div class="death-s" data-en="Catch your breath, then rise and fight again">พักหายใจสักครู่ แล้วลุกขึ้นสู้อีกครั้ง</div>
         <div class="death-info"><span id="death-loss"></span><span id="death-save"></span></div>
         <div class="death-btns">
-          <button id="death-btn" class="btn big primary">ฟื้นที่จุดเซฟ</button>
-          <button id="death-here" class="btn big">ฟื้นในแมพนี้</button>
+          <button id="death-btn" class="btn big primary" data-en="Revive at save point">ฟื้นที่จุดเซฟ</button>
+          <button id="death-here" class="btn big" data-en="Revive here">ฟื้นในแมพนี้</button>
         </div>
-        <button id="death-hide" class="linkbtn">ดูสนามก่อน</button>
+        <button id="death-hide" class="linkbtn" data-en="Look around first">ดูสนามก่อน</button>
       </div>
     </div>
-    <button id="death-mini" class="hidden"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="lf" d="M5 20c-.6-6.4 3.6-13.4 15-16-1 9.6-6.2 15.4-15 16z"/><path d="M5 20c3.2-4.6 6.6-8.4 11-12"/></svg><span>ฟื้นคืนชีพ</span></button>
+    <button id="death-mini" class="hidden"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="lf" d="M5 20c-.6-6.4 3.6-13.4 15-16-1 9.6-6.2 15.4-15 16z"/><path d="M5 20c3.2-4.6 6.6-8.4 11-12"/></svg><span data-en="Revive">ฟื้นคืนชีพ</span></button>
   </div>
 
   <!-- ================= หน้าไตเติล ================= -->
@@ -220,52 +220,52 @@
     <div class="title-inner">
       <div class="title-top">
         <div class="logo">NEO MIDGARD</div>
-        <div class="logo-sub">Android Saga • ตำนานหุ่นยนต์แห่งมิดการ์ด</div>
+        <div class="logo-sub" data-en="Android Saga • Legend of the Midgard Machines">Android Saga • ตำนานหุ่นยนต์แห่งมิดการ์ด</div>
         <span id="hero-cap" class="hero-cap"></span>
       </div>
       <form id="auth" class="card auth hidden" autocomplete="on">
-        <div class="card-kicker" aria-hidden="true">ACCOUNT<span>บัญชีผู้เล่น</span></div>
-        <div id="au-tabs" class="seg"><button type="button" data-mode="login" class="on">เข้าสู่ระบบ</button><button type="button" data-mode="register">สมัครสมาชิก</button></div>
-        <label for="au-user">ชื่อผู้ใช้</label>
-        <input id="au-user" name="username" maxlength="16" autocomplete="username" placeholder="a-z, 0-9 หรือ _ (3-16 ตัว)" autocapitalize="off" spellcheck="false">
-        <label for="au-pass">รหัสผ่าน</label>
-        <input id="au-pass" name="password" type="password" autocomplete="current-password" placeholder="อย่างน้อย 6 ตัวอักษร">
+        <div class="card-kicker" aria-hidden="true">ACCOUNT<span data-en="Player account">บัญชีผู้เล่น</span></div>
+        <div id="au-tabs" class="seg"><button type="button" data-mode="login" class="on" data-en="Log in">เข้าสู่ระบบ</button><button type="button" data-mode="register" data-en="Sign up">สมัครสมาชิก</button></div>
+        <label for="au-user" data-en="Username">ชื่อผู้ใช้</label>
+        <input id="au-user" name="username" maxlength="16" autocomplete="username" placeholder="a-z, 0-9 หรือ _ (3-16 ตัว)" data-en-placeholder="a-z, 0-9 or _ (3-16 chars)" autocapitalize="off" spellcheck="false">
+        <label for="au-pass" data-en="Password">รหัสผ่าน</label>
+        <input id="au-pass" name="password" type="password" autocomplete="current-password" placeholder="อย่างน้อย 6 ตัวอักษร" data-en-placeholder="At least 6 characters">
         <div id="au-pass2-wrap" class="hidden">
-          <label for="au-pass2">ยืนยันรหัสผ่าน</label>
-          <input id="au-pass2" type="password" autocomplete="new-password" placeholder="พิมพ์รหัสผ่านอีกครั้ง">
+          <label for="au-pass2" data-en="Confirm password">ยืนยันรหัสผ่าน</label>
+          <input id="au-pass2" type="password" autocomplete="new-password" placeholder="พิมพ์รหัสผ่านอีกครั้ง" data-en-placeholder="Re-enter your password">
         </div>
         <div id="au-err" class="err"></div>
-        <button id="au-submit" type="submit" class="tbtn primary">เข้าสู่ระบบ</button>
-        <button id="au-offline" type="button" class="linkbtn">เล่นแบบไม่ล็อกอิน (เซฟในเครื่องนี้)</button>
+        <button id="au-submit" type="submit" class="tbtn primary" data-en="Log in">เข้าสู่ระบบ</button>
+        <button id="au-offline" type="button" class="linkbtn" data-en="Play offline (saved on this device)">เล่นแบบไม่ล็อกอิน (เซฟในเครื่องนี้)</button>
         <div id="au-note" class="au-note"></div>
       </form>
-      <div id="acct" class="acct hidden">ล็อกอินเป็น <b id="acct-name"></b> · <button id="acct-logout" type="button" class="linkbtn">ออกจากระบบ</button></div>
+      <div id="acct" class="acct hidden"><span data-en="Logged in as">ล็อกอินเป็น</span> <b id="acct-name"></b> · <button id="acct-logout" type="button" class="linkbtn" data-en="Log out">ออกจากระบบ</button></div>
       <div id="title-menu" class="title-menu">
-        <button id="btn-continue" class="tbtn hidden">เล่นต่อ</button>
-        <button id="btn-new" class="tbtn primary">เริ่มเล่น<small>สร้างตัวละครใหม่</small></button>
-        <button id="btn-login" class="linkbtn hidden">เข้าสู่ระบบ / สมัครสมาชิก</button>
-        <div class="title-foot"><span class="chip">DEMO</span> ปี 2XXX มนุษย์หายไป เหลือเพียงแอนดรอยด์ผู้สืบทอดตำนานแห่งมิดการ์ด</div>
+        <button id="btn-continue" class="tbtn hidden" data-en="Continue">เล่นต่อ</button>
+        <button id="btn-new" class="tbtn primary" data-en="New Game&lt;small&gt;Create a new character&lt;/small&gt;">เริ่มเล่น<small>สร้างตัวละครใหม่</small></button>
+        <button id="btn-login" class="linkbtn hidden" data-en="Log in / Sign up">เข้าสู่ระบบ / สมัครสมาชิก</button>
+        <div class="title-foot" data-en="&lt;span class=&quot;chip&quot;&gt;DEMO&lt;/span&gt; Year 2XXX: humanity is gone. Only androids remain to carry on the legend of Midgard."><span class="chip">DEMO</span> ปี 2XXX มนุษย์หายไป เหลือเพียงแอนดรอยด์ผู้สืบทอดตำนานแห่งมิดการ์ด</div>
       </div>
       <div id="create" class="card create hidden">
         <div class="cr-left"><canvas id="cr-preview" width="220" height="260"></canvas></div>
         <div class="cr-right">
-          <div class="card-kicker" aria-hidden="true">NEW UNIT<span>สร้างตัวละครใหม่</span></div>
-          <label>ชื่อตัวละคร</label>
-          <input id="cr-name" maxlength="16" placeholder="ตั้งชื่อ (ไม่เกิน 16 ตัวอักษร)" autocomplete="off">
-          <label>โครงร่าง (Frame)</label>
-          <div id="cr-gender" class="seg"><button data-g="f" class="on">Type-A เพรียว</button><button data-g="m">Type-B แกร่ง</button></div>
-          <label>ทรงแผ่นหัว</label>
+          <div class="card-kicker" aria-hidden="true">NEW UNIT<span data-en="Create a new character">สร้างตัวละครใหม่</span></div>
+          <label data-en="Character name">ชื่อตัวละคร</label>
+          <input id="cr-name" maxlength="16" placeholder="ตั้งชื่อ (ไม่เกิน 16 ตัวอักษร)" data-en-placeholder="Enter a name (max 16 characters)" autocomplete="off">
+          <label data-en="Frame">โครงร่าง (Frame)</label>
+          <div id="cr-gender" class="seg"><button data-g="f" class="on" data-en="Type-A Sleek">Type-A เพรียว</button><button data-g="m" data-en="Type-B Sturdy">Type-B แกร่ง</button></div>
+          <label data-en="Head plate">ทรงแผ่นหัว</label>
           <div id="cr-head" class="seg seg-wrap"></div>
-          <label>สีแผ่นหัว</label>
+          <label data-en="Head plate color">สีแผ่นหัว</label>
           <div id="cr-hair" class="swatches"></div>
-          <label>สีโครงตัว</label>
+          <label data-en="Body color">สีโครงตัว</label>
           <div id="cr-color" class="swatches"></div>
-          <label>สีไฟพลังงาน</label>
+          <label data-en="Energy glow color">สีไฟพลังงาน</label>
           <div id="cr-glow" class="swatches"></div>
-          <label>วิเซอร์</label>
+          <label data-en="Visor">วิเซอร์</label>
           <div id="cr-visor" class="seg"></div>
           <div id="cr-err" class="err"></div>
-          <div class="cr-btns"><button id="cr-back" class="tbtn small">ย้อนกลับ</button><button id="cr-start" class="tbtn small primary">เริ่มเกม!</button></div>
+          <div class="cr-btns"><button id="cr-back" class="tbtn small" data-en="Back">ย้อนกลับ</button><button id="cr-start" class="tbtn small primary" data-en="Start!">เริ่มเกม!</button></div>
         </div>
       </div>
     </div>
