@@ -1284,3 +1284,13 @@ body.visor .charsel.confirming .cs-btns { display: none; }
 @media (max-width: 760px) and (orientation: portrait) {
   body.visor #target { top: calc(134px + var(--st)); }
 }
+/* มือถือแนวตั้ง: แถวเดียวใต้กรอบตัวละคร — บัฟ (ซ้าย) | เป้าหมาย (ขวา ใต้มินิแมพ) • เมนูลงไปใต้แถวนี้ */
+@media (max-width: 760px) and (orientation: portrait) {
+  body.visor #buffs { top: calc(140px + var(--st)); max-width: calc(100vw - 246px - var(--sl) - var(--sr)); gap: 4px; }
+  body.visor .buff { padding: 0 6px 0 2px; gap: 4px; }
+  body.visor #target { top: calc(140px + var(--st)); }
+  body.visor #menubar { top: calc(184px + var(--st)); }
+  body.visor .buff { height: 26px; }
+  body.visor .buff .bf-ic, body.visor .buff .bf-ic img { width: 22px; height: 22px; }
+  body.visor .buff i { font-size: 10px; letter-spacing: -0.02em; }
+}
