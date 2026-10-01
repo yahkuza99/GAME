@@ -291,6 +291,23 @@ function moveStack(from, to, entry, qty) {
 }
 function storeItem(entry, qty) { const p = G.player; if (!moveStack(p.inventory, p.storage, entry, qty)) { UI.msg(`คลังเต็มแล้ว (${STORAGE_MAX} ช่อง)`, 'err'); return false; } return true; }
 function takeItem(entry, qty) { const p = G.player; return moveStack(p.storage, p.inventory, entry, qty); }
+// จัดเรียงไอเทม: รวมกองที่แยกกัน แล้วเรียงตามหมวด → ชนิดย่อย → เลเวล/ตีบวก → ชื่อ (ใช้ได้ทั้งกระเป๋าและคลัง)
+const SORT_TYPE = { use: 0, weapon: 1, armor: 2, card: 3, etc: 4 };
+function sortItems(list) {
+  const merged = [];
+  for (const e of list) {
+    const it = ITEMS[e.id], plain = !isEquipType(it) && !e.refine && !(e.cards && e.cards.length);
+    const into = plain && merged.find(x => x.id === e.id && !x.refine && !(x.cards && x.cards.length));
+    if (into) into.qty += e.qty; else merged.push(e);
+  }
+  const key = e => {
+    const it = ITEMS[e.id];
+    const sub = it.type === 'use' ? (it.heal ? 0 : it.spHeal ? 1 : 2) : isEquipType(it) ? EQUIP_SLOTS.indexOf(it.type === 'weapon' ? 'weapon' : it.slot) : it.type === 'card' ? EQUIP_SLOTS.indexOf(it.slot) : 0;
+    return [SORT_TYPE[it.type] ?? 9, sub, it.type === 'etc' ? -(it.price || 0) : (it.heal ? it.heal[0] : it.spHeal ? it.spHeal[0] : -(it.lv || 0)), -(e.refine || 0), it.name];
+  };
+  merged.sort((a, b) => { const x = key(a), y = key(b); for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] < y[i] ? -1 : 1; return 0; });
+  list.splice(0, list.length, ...merged);
+}
 function countItem(id) { return G.player.inventory.filter(e => e.id === id).reduce((a, e) => a + e.qty, 0); }
 function itemDisplayName(entry) {
   const it = ITEMS[entry.id];

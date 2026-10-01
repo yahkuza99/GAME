@@ -727,7 +727,8 @@ const UI = {
         h('div', { class: 'det-line' }, `ราคาขาย: ${U.fmt(Math.floor(it.price / 2))} ${CUR}`),
         h('div', { class: 'det-acts' }, acts)].filter(Boolean));
     } else det.append(h('div', { class: 'hint' }, 'คลิกเพื่อดูรายละเอียด • ดับเบิลคลิกเพื่อใช้/สวมใส่ • ลากไปวางที่ปุ่มลัดได้'));
-    body.append(det, h('div', { class: 'inv-foot' }, `${CUR}: `, h('b', {}, U.fmt(p.zeny))));
+    body.append(det, h('div', { class: 'inv-foot' }, h('button', { class: 'btn small inv-sort', type: 'button', onclick: () => { sortItems(p.inventory); saveGame(); this.renderInv(); Sound.play('click'); } }, 'จัดเรียง'),
+      h('span', {}, `${CUR}: `, h('b', {}, U.fmt(p.zeny)))));
   },
   async discard(e) {
     const it = ITEMS[e.id];
@@ -771,8 +772,12 @@ const UI = {
       const lv = masteryLv(id), u = masteryUses(id), a = masteryNeed(lv, id), z = masteryNeed(lv + 1, id);
       const pct = lv >= MASTERY_MAX ? 100 : Math.floor((u - a) / (z - a) * 100);
       return h('div', { class: 'sk-mas', title: lv >= MASTERY_MAX ? 'ความชำนาญสูงสุดแล้ว' : `ใช้อีก ${U.fmt(z - u)} ครั้งถึง Lv ${lv + 1}` },
-        h('span', {}, `ความชำนาญ Lv ${lv}/${MASTERY_MAX}`), h('i', {}, h('b', { style: `width:${pct}%` })), h('em', {}, `+${masteryPct(id)}%`));
+        h('span', {}, `ความชำนาญ Lv ${lv}/${MASTERY_MAX}`), h('i', {}, h('b', { style: `width:${pct}%` })),
+        h('em', {}, `${id === 'attack' ? 'ตีแรงขึ้น' : SKILLS[id] && SKILLS[id].heal ? 'ฮีลแรงขึ้น' : 'แรงขึ้น'} +${masteryPct(id)}%`));
     };
+    // อธิบายว่าความชำนาญทำอะไร (ผู้เล่นถามบ่อย)
+    body.append(h('div', { class: 'sk-mas-help' }, h('b', {}, 'ความชำนาญ = ยิ่งใช้ยิ่งเก่ง'),
+      ` สกิลที่ใช้บ่อยจะแรงขึ้นเอง ${MASTERY_MAX} ขั้น: สกิล +3% ต่อขั้น (ดาเมจและฮีล สูงสุด +30%) • ตีปกติ +2% ต่อขั้น (สูงสุด +20%) — ไม่ต้องใช้แต้ม ไม่หายตอนเปลี่ยนอาชีพ`));
     list.append(h('div', { class: 'sk-row' }, h('div', { class: 'sk-info' },
       h('div', { class: 'sk-name' }, 'การโจมตีปกติ'), h('div', { class: 'sk-desc' }, 'ตีโดนทุกครั้งสะสมความชำนาญ ยิ่งตียิ่งแรง'), mastery('attack'))));
     for (const id of ids) {
@@ -1189,7 +1194,8 @@ const UI = {
         pane('กระเป๋า', p.inventory, e => storeItem(e), `${p.inventory.length}`),
         pane('คลัง', p.storage, e => takeItem(e), `${p.storage.length}/${STORAGE_MAX}`)),
       h('div', { class: 'opt-btns' },
-        h('button', { class: 'btn', onclick: () => { for (const e of p.inventory.filter(x => ['etc', 'card'].includes(ITEMS[x.id].type))) storeItem(e); saveGame(); this.renderStorage(); } }, 'ฝากของอื่น ๆ + ชิปทั้งหมด')),
+        h('button', { class: 'btn', onclick: () => { for (const e of p.inventory.filter(x => ['etc', 'card'].includes(ITEMS[x.id].type))) storeItem(e); saveGame(); this.renderStorage(); } }, 'ฝากของอื่น ๆ + ชิปทั้งหมด'),
+        h('button', { class: 'btn', onclick: () => { sortItems(p.inventory); sortItems(p.storage); saveGame(); this.renderStorage(); } }, 'จัดเรียงทั้งสองฝั่ง')),
       h('div', { class: 'hint' }, 'แตะไอเทมเพื่อย้ายไปอีกฝั่ง (ย้ายทั้งกอง) • ของที่สวมอยู่ต้องถอดก่อน'));
   },
   renderEmote() {
