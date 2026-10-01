@@ -31,11 +31,17 @@ const { chromium } = require('playwright');
         if (s.bow && weaponType() !== 'bow') { skills[id] = 'needs bow (ok)'; continue; }
         const sp0 = pl.sp, hp0 = m ? m.hp : 0;
         try {
+          // ตีพลาด (Miss) = สกิลทำงานแล้ว แค่ดวงไม่ดี → นับว่าใช้ได้
+          let swung = false; const ah = window.applyHit; window.applyHit = (mm, r, o) => { if (mm === m) swung = true; return ah(mm, r, o); };
           if (s.target === 'enemy') beginSkill(id, s.max, m); else beginSkill(id, s.max, null);
-          for (let i = 0; i < 40; i++) updateGame(1 / 15); // ร่าย/โปรเจกไทล์
+          // คูลดาวน์: ตรวจทันทีหลังสกิลทำงาน (สกิลคูลดาวน์สั้น ≤ 2.5 วิ หมดก่อนจบลูป 40 เฟรม)
+          let cdSeen = skillCdLeft(id) > 0;
+          // ร่าย/โปรเจกไทล์ • มอนรอบตัวห้ามตีระหว่างทดสอบ (โดนตีมึน = การร่ายถูกยกเลิก → ขึ้น NO-SP ทั้งที่สกิลไม่ได้ผิด)
+          for (let i = 0; i < 40; i++) { for (const o of G.mobs) o.nextAtk = G.time + 1; updateGame(1 / 15); if (skillCdLeft(id) > 0) cdSeen = true; }
+          window.applyHit = ah;
           const usedSp = pl.sp < sp0 || (pl.d.bloodmagic && pl.hp < pl.d.maxHp);
-          const cd = skillCdLeft(id) > 0 || !s.cd;
-          const effect = s.target === 'enemy' ? (m && (m.hp < hp0 || m.dead)) : (!!pl.buffs[id] || s.heal || s.special || (s.dmg && s.dmg.at === 'self') || G.allies.length > 0 || G.traps.length > 0 || pl.stealthUntil > G.time);
+          const cd = cdSeen || !s.cd;
+          const effect = s.target === 'enemy' ? (m && (m.hp < hp0 || m.dead || swung)) : (!!pl.buffs[id] || s.heal || s.special || (s.dmg && s.dmg.at === 'self') || G.allies.length > 0 || G.traps.length > 0 || pl.stealthUntil > G.time);
           skills[id] = (usedSp ? '' : 'NO-SP ') + (cd ? '' : 'NO-CD ') + (effect ? 'ok' : 'NO-EFFECT');
         } catch (e) { skills[id] = 'ERROR ' + e.message; }
       }
