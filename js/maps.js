@@ -36,7 +36,7 @@ const MAP_DEFS = {
     name: 'Mistlake Plains', thai: L('ที่ราบทะเลสาบหมอก', 'Plains of the Misty Lake'), w: 56, h: 56, kind: 'field', seed: 303,
     links: { W: 'meadow' }, level: '8-16 (MVP: Seraph Core)',
     spawns: [['fiddlehopper', 10], ['stumpling', 8], ['capshroom', 8], ['moss_pudding', 8]], mvp: 'seraph_pudding',
-    grass: '#86b04a', trees: 0.8, ponds: 4, flowers: 0.08, treeHue: '#5f9a3a',
+    grass: '#86b04a', trees: 0.8, ponds: 4, flowers: 0.08, treeHue: '#5f9a3a', flora: 'lake',
   },
   wolfwood: {
     name: 'Wolfwood Forest', thai: L('ป่าหมาป่า', 'Forest of the Wolves'), w: 56, h: 56, kind: 'field', seed: 404,
@@ -48,7 +48,7 @@ const MAP_DEFS = {
   arena: {
     name: 'Valhalla Arena', thai: L('ลานประลองวัลฮัลลา (PvP)', 'Valhalla Proving Grounds (PvP)'), w: 34, h: 34, kind: 'field', seed: 606, pvp: true,
     links: { S: 'eldheim' }, level: 'PvP', spawns: [], dummies: [[15, 9], [17, 9], [19, 9]],
-    grass: '#8a9a5a', trees: 0.25, ponds: 0, flowers: 0.02,
+    grass: '#8a9a5a', trees: 0.25, ponds: 0, flowers: 0.02, flora: 'arena',
   },
   helcave: {
     name: "Hel's Hollow", thai: L('โพรงถ้ำแห่งเฮล', 'Cavern of Hel'), w: 50, h: 50, kind: 'cave', seed: 505, dark: true,
@@ -169,10 +169,15 @@ class GameMap {
     const d = this.def, R = this.rng, w = this.w, h = this.h;
     this.fill(T.GRASS);
     this.border(T.TREE, 2);
-    const clusters = Math.floor((w * h / 170) * (d.trees || 1));
+    const clusters = Math.floor((w * h / 170) * (d.trees || 1) * (typeof Flora !== 'undefined' ? 1.35 : 1));
+    // Flora (js/flora.js): ต้นไม้ใหญ่ยอดกว้าง → ชนเฉพาะลำต้น วางเป็นกลุ่ม 1-3 ต้นห่างกันพอเดินลอดได้
+    // ป่าทึบ (trees ≥ 1.5) ยังมีพุ่มไม้ทึบขนาดเล็กปนบ้าง • ไม่มี Flora = ก้อนต้นไม้แบบเดิม
+    const groves = typeof Flora !== 'undefined';
     for (let i = 0; i < clusters; i++) {
       const cx = 3 + R() * (w - 6), cy = 3 + R() * (h - 6);
-      this.disc(cx, cy, 0.6 + R() * 2.4, T.TREE, 0.75);
+      if (!groves) this.disc(cx, cy, 0.6 + R() * 2.4, T.TREE, 0.75);
+      else if ((d.trees || 1) >= 1.5 && i % 4 === 0) this.disc(cx, cy, 0.6 + R() * 1.2, T.TREE, 0.75);
+      else this.grove(cx, cy, (d.trees || 1) >= 1.5);
     }
     for (let i = 0; i < (d.ponds || 0); i++) {
       const cx = 8 + R() * (w - 16), cy = 8 + R() * (h - 16), r = 2 + R() * 2.5;
@@ -187,6 +192,19 @@ class GameMap {
     this.disc(cx + 0.5, cy + 0.5, 3.5, T.GRASS, 10, [T.TREE, T.WATER, T.FLOWER]);
     for (const p of this.portals) { this.set(p.x, p.y, T.DIRT); this.set(p.ax, p.ay, T.DIRT); }
     this.floodCleanup(cx, cy, T.TREE);
+  }
+
+  // กลุ่มต้นไม้ 1-3(4) ต้น: ลำต้นละ 1 ช่อง ไม่ติดกัน (8 ทิศ) → มีช่องเดินระหว่างต้นเสมอ
+  grove(cx, cy, thick) {
+    const R = this.rng, n = 1 + Math.floor(R() * (thick ? 4 : 3));
+    for (let i = 0; i < n; i++) {
+      let x = Math.floor(cx), y = Math.floor(cy);
+      if (i) { const a = R() * Math.PI * 2, r = 2 + R() * 0.9; x = Math.round(cx - 0.5 + Math.cos(a) * r); y = Math.round(cy - 0.5 + Math.sin(a) * r * 0.8); }
+      if (x < 3 || y < 3 || x >= this.w - 3 || y >= this.h - 3 || this.tile(x, y) !== T.GRASS) continue;
+      let ok = true;
+      for (let yy = y - 1; yy <= y + 1 && ok; yy++) for (let xx = x - 1; xx <= x + 1; xx++) if (this.tile(xx, yy) === T.TREE) { ok = false; break; }
+      if (ok && !(this.def.dummies || []).some(q => Math.abs(q[0] - x) <= 1 && Math.abs(q[1] - y) <= 1)) this.set(x, y, T.TREE);
+    }
   }
 
   genCave() {
@@ -263,6 +281,7 @@ class GameMap {
 
   collectObjects() {
     const d = this.def;
+    if (typeof Flora !== 'undefined' && d.kind !== 'cave') { Flora.plan(this); return; } // ต้นไม้ใหญ่หลายพันธุ์ + ของประดับ (js/flora.js)
     for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) {
       if (this.tile(x, y) !== T.TREE) continue;
       const r = U.hash2(x, y, d.seed);
@@ -370,7 +389,8 @@ class GameMap {
     }
     // 1.6) หน้ากากหญ้าความละเอียดต่ำ (4px/ช่อง เบลอแล้ว) สำหรับหญ้าพลิ้วตามลมตอนเล่น
     this.grassMask = null;
-    if (this.texClasses.has('grass')) {
+    // มี Flora: หญ้านิ่งแบบภาพวาด (หย่อมดิน/หญ้ากระจุก/เงาต้นไม้ที่อบลงพื้นจะไม่ถูกชั้นหญ้าพลิ้วทับ) — ต้นไม้/พุ่มไม้ยังไหวตามลม
+    if (this.texClasses.has('grass') && typeof Flora === 'undefined') {
       const MS = 4, raw = document.createElement('canvas'); raw.width = this.w * MS; raw.height = this.h * MS;
       const rg = raw.getContext('2d');
       rg.fillStyle = '#fff';
@@ -386,6 +406,8 @@ class GameMap {
     for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) this.detailTile(g, x, y);
     // 3) ขอบธรรมชาติระหว่างพื้นต่างชนิด
     for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) this.edgeTile(g, x, y, P);
+    // 3.2) หย่อมดิน เงาต้นไม้ หญ้ากระจุก ดอกไม้จิ๋ว กรวด (js/flora.js)
+    if (typeof Flora !== 'undefined' && this.flora) Flora.bake(this, g);
     // 3.5) น้ำทรงธรรมชาติจากหน้ากากเบลอ
     this.drawWater(g, P, depth);
     // 4) ผนังหิน (ถ้ำ) มีมิติ
@@ -657,10 +679,11 @@ class GameMap {
         if (r < 0.035) { if (!this.addProp('crystal', cx, cy, 0.8 + r * 6)) this.drawCrystal(g, cx, cy, r); }
         else if (r < 0.08) this.drawStone(g, cx, cy, 0.7, '#6a5a4c');
       } else if (t === T.GRASS && d.kind !== 'town') {
+        if (this.flora && r < 0.018 && U.hash2(x, y, seed + 5) < 0.5) continue; // ทุ่งแบบนิทาน: ซากเทคโนโลยีน้อยลงครึ่งหนึ่ง
         if (r < 0.006) { if (!this.addProp('pylon', cx, cy)) this.drawPylon(g, cx, cy); }
         else if (r < 0.012) { if (!this.addProp('crate', cx, cy)) this.drawCrate(g, cx, cy, r); }
         else if (r < 0.018) { if (!this.addProp('scrap', cx, cy)) this.drawScrap(g, cx, cy, r); }
-        else if (r < 0.03) { if (!this.addProp('bush', cx, cy, 0.85 + r * 5)) this.drawBush(g, cx, cy, r); }
+        else if (r < 0.03) { if (!this.flora && !this.addProp('bush', cx, cy, 0.85 + r * 5)) this.drawBush(g, cx, cy, r); } // มี Flora: พุ่มไม้วางเป็นกลุ่มแทน
         else if (r < 0.045) { if (!this.addProp('rock', cx, cy, 0.7 + r * 6)) this.drawStone(g, cx, cy, 0.8 + r * 6, '#9a9a90'); }
         else if (r < 0.055) { if (!this.addProp('mushroom', cx, cy, d.pine ? 1 : 0.8)) this.drawMushroom(g, cx, cy); }
       } else if (t === T.GRASS && d.kind === 'town' && r < 0.03) { if (!this.addProp('bush', cx, cy, 0.85)) this.drawBush(g, cx, cy, r); }
@@ -816,6 +839,12 @@ class GameMap {
     this.mini = c; this.miniScale = S;
   }
 
+  nearestWalkable(x, y) {
+    const fx = Math.floor(x), fy = Math.floor(y);
+    for (let r = 1; r < 12; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++)
+      if (Math.max(Math.abs(dx), Math.abs(dy)) === r && this.walkable(fx + dx, fy + dy)) return { x: fx + dx + 0.5, y: fy + dy + 0.5 };
+    return { x: (this.w >> 1) + 0.5, y: (this.h >> 1) + 0.5 };
+  }
   randomWalkable(avoid = [], minDist = 0, tries = 300) {
     for (let i = 0; i < tries; i++) {
       const x = U.randi(2, this.w - 3), y = U.randi(2, this.h - 3);
