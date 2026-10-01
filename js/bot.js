@@ -18,9 +18,12 @@ const Bot = {
       rest: true, style: 'skills', leash: false, skipMobs: {} };
   },
   cfg() {
+    // แก้ "ในที่เดิม" เสมอ: ถ้าสร้างอ็อบเจกต์ใหม่ทุกครั้ง ค่าที่ผู้เล่นเพิ่งปรับ (ผ่านตัวเลื่อนที่ถืออ็อบเจกต์เก่า) จะหาย
     const o = G.player.options;
-    o.bot = Object.assign(this.defaults(), o.bot || {});
-    delete o.bot.restock; delete o.bot.restockQty; // ระบบกลับเมืองซื้อยาเองถูกเอาออก (ผู้เล่นซื้อเอง)
+    if (!o.bot || typeof o.bot !== 'object') o.bot = {};
+    const d = this.defaults();
+    for (const k in d) if (!(k in o.bot)) o.bot[k] = d[k];
+    if ('restock' in o.bot) { delete o.bot.restock; delete o.bot.restockQty; } // ระบบกลับเมืองซื้อยาเองถูกเอาออก (ผู้เล่นซื้อเอง)
     return o.bot;
   },
 

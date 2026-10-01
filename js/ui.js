@@ -1237,9 +1237,13 @@ const UI = {
       }
     }
   },
-  renderOptions() {
+  optKey() { return JSON.stringify(G.player.options, (k, v) => k === 'bot' ? undefined : v); },
+  renderOptions(force) {
     const p = G.player, o = p.options;
     const body = $('#w-options .win-body');
+    const key = this.optKey();
+    if (!force && body.dataset.key === key) return; // ค่าไม่เปลี่ยน ไม่ต้องสร้างใหม่ (ลากตัวเลื่อนได้ลื่น)
+    body.dataset.key = key;
     body.innerHTML = '';
     const chk = (key, label) => h('label', { class: 'opt' },
       h('input', { type: 'checkbox', checked: o[key] ? 'checked' : false, onchange: e => { o[key] = e.target.checked; saveGame(); } }), ' ', label);
@@ -1248,20 +1252,20 @@ const UI = {
       h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.autoCounter !== false ? 'checked' : false, onchange: e => { o.autoCounter = e.target.checked; saveGame(); } }), ' โจมตีกลับอัตโนมัติเมื่อถูกโจมตี'),
       chk('sound', 'เสียงเอฟเฟกต์'),
       h('label', { class: 'opt' }, 'ความดังเอฟเฟกต์ ',
-        h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: o.sfxVol != null ? o.sfxVol : 0.8, oninput: e => { o.sfxVol = +e.target.value; Sound.setVolume(); }, onchange: () => { saveGame(); Sound.play('pickup'); } })),
+        h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: o.sfxVol != null ? o.sfxVol : 0.8, oninput: e => { o.sfxVol = +e.target.value; Sound.setVolume(); body.dataset.key = this.optKey(); }, onchange: () => { saveGame(); Sound.play('pickup'); } })),
       h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.music ? 'checked' : false, onchange: e => { o.music = e.target.checked; o.musicSet = true; saveGame(); } }), ' เพลงประกอบ (BGM)'),
       h('label', { class: 'opt' }, 'ความดังเพลง ',
-        h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: o.musicVol != null ? o.musicVol : 0.7, oninput: e => { o.musicVol = +e.target.value; Music.setVolume(o.musicVol); }, onchange: () => saveGame() })),
+        h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: o.musicVol != null ? o.musicVol : 0.7, oninput: e => { o.musicVol = +e.target.value; Music.setVolume(o.musicVol); body.dataset.key = this.optKey(); }, onchange: () => saveGame() })),
       chk('expMsg', 'แสดงข้อความ EXP ในแชท'),
       h('div', { class: 'opt-lbl' }, 'รูปแบบ HUD'),
       h('div', { class: 'seg' }, ...[['visor', 'Visor (มินิมอล)'], ['classic', 'คลาสสิก']].map(([v, l]) =>
-        h('button', { type: 'button', class: (o.hud || 'visor') === v ? 'on' : '', onclick: () => { o.hud = v; applyHudStyle(); saveGame(); this.renderOptions(); } }, l))),
+        h('button', { type: 'button', class: (o.hud || 'visor') === v ? 'on' : '', onclick: () => { o.hud = v; applyHudStyle(); saveGame(); this.renderOptions(true); } }, l))),
       h('div', { class: 'opt-lbl' }, 'คุณภาพกราฟิก'),
       h('div', { class: 'seg' }, ...[['high', 'สวย (ค่าเริ่มต้น)'], ['low', 'ประหยัด (มือถือรุ่นเก่า)']].map(([v, l]) =>
-        h('button', { type: 'button', class: (o.gfx || 'high') === v ? 'on' : '', onclick: () => { o.gfx = v; R.setQuality(v); saveGame(); this.renderOptions(); } }, l))),
+        h('button', { type: 'button', class: (o.gfx || 'high') === v ? 'on' : '', onclick: () => { o.gfx = v; R.setQuality(v); saveGame(); this.renderOptions(true); } }, l))),
       h('div', { class: 'opt-lbl' }, 'ปุ่มควบคุมบนจอ (จอย + ปุ่มโจมตี)'),
       h('div', { class: 'seg' }, ...[['auto', 'อัตโนมัติ'], ['on', 'เปิด'], ['off', 'ปิด']].map(([v, l]) =>
-        h('button', { type: 'button', class: Pad.mode === v ? 'on' : '', onclick: () => { Pad.setMode(v); this.renderOptions(); } }, l))),
+        h('button', { type: 'button', class: Pad.mode === v ? 'on' : '', onclick: () => { Pad.setMode(v); this.renderOptions(true); } }, l))),
       h('div', { class: 'opt-btns' },
         h('button', { class: 'btn', onclick: () => saveGame(false) }, 'บันทึกเกม'),
         Online.loggedIn ? h('button', { class: 'btn', onclick: async () => { saveGame(true, true); await Online.logout(); location.reload(); } }, `ออกจากระบบ (${Online.username})`) : null,
@@ -1425,7 +1429,12 @@ const UI = {
     const sm = $('small', b);
     if (sm.textContent !== t) sm.textContent = t;
   },
+  botPotsText() {
+    const hpN = HP_POTS.reduce((a, id) => a + countItem(id), 0), spN = SP_POTS.reduce((a, id) => a + countItem(id), 0);
+    return `ชุดซ่อมคงเหลือ ${hpN} • เซลล์พลังงานคงเหลือ ${spN} — บอททำงานต่อแม้สลับแท็บ/แอป (จำลองย้อนหลังสูงสุด 10 นาที)`;
+  },
   updateBotStats() {
+    const pe = $('#bot-pots'); if (pe) { const t = this.botPotsText(); if (pe.textContent !== t) pe.textContent = t; }
     const el = $('#bot-stats');
     if (!el) return;
     const sum = Bot.summary();
@@ -1434,16 +1443,21 @@ const UI = {
       .map(([k, v]) => `<div>${k}<b>${v}</b></div>`).join('') : '<div class="hint" style="grid-column:1/-1">สถิติจะแสดงเมื่อเริ่มบอท</div>';
     if (el.innerHTML !== html) el.innerHTML = html;
   },
-  renderBot() {
+  botKey() { const p = G.player; return [JSON.stringify(Bot.cfg()), G.map.id, Object.keys(p.skills).join(), Bot.on, p.options.autoLoot].join('|'); },
+  renderBot(force) {
     const p = G.player, c = Bot.cfg();
     const body = $('#w-bot .win-body');
+    // ระหว่างต่อสู้ UI ถูกสั่งวาดใหม่ถี่มาก → ถ้าค่าไม่เปลี่ยน ไม่ต้องสร้างใหม่ (ไม่งั้นลากตัวเลื่อนไม่ได้)
+    const key = this.botKey();
+    if (!force && body.dataset.key === key) { this.updateBotStats(); return; }
+    body.dataset.key = key;
     body.innerHTML = '';
     body.append(h('button', { class: 'btn big bot-toggle' + (Bot.on ? ' on' : ''), onclick: () => Bot.toggle() }, Bot.on ? '■ หยุดบอท' : '▶ เริ่มบอท'));
     body.append(h('div', { id: 'bot-stats', class: 'bot-stats' }));
     this.updateBotStats();
     const slider = (key, label, min, max, unit = '%') => {
       const val = h('b', {}, `${c[key]}${unit}`);
-      const inp = h('input', { type: 'range', min, max, value: c[key], oninput: e => { c[key] = +e.target.value; val.textContent = `${c[key]}${unit}`; }, onchange: () => saveGame() });
+      const inp = h('input', { type: 'range', min, max, value: c[key], oninput: e => { c[key] = +e.target.value; val.textContent = `${c[key]}${unit}`; body.dataset.key = this.botKey(); }, onchange: () => saveGame() });
       return h('label', { class: 'bot-row' }, h('span', {}, label), inp, val);
     };
     const chk = (key, label) => h('label', { class: 'opt' },
@@ -1481,8 +1495,7 @@ const UI = {
         h('input', { type: 'checkbox', checked: c.skills[id] !== false ? 'checked' : false, onchange: e => { c.skills[id] = e.target.checked; saveGame(); } }),
         this.skillIcon(id), ` ${SKILLS[id].name}`, h('small', {}, ` (${({ heal: 'ฮีล', summon: 'เรียกสัตว์', opener: 'เปิดฉาก', buff: 'บัฟ', trap: 'กับดัก', aoe: 'โจมตีรอบตัว', attack: 'โจมตี' })[Bot.role(id)] || ''})`)));
     }
-    const hpN = HP_POTS.reduce((a, id) => a + countItem(id), 0), spN = SP_POTS.reduce((a, id) => a + countItem(id), 0);
-    body.append(h('div', { class: 'hint' }, `ชุดซ่อมคงเหลือ ${hpN} • เซลล์พลังงานคงเหลือ ${spN} — บอททำงานต่อแม้สลับแท็บ/แอป (จำลองย้อนหลังสูงสุด 10 นาที)`));
+    body.append(h('div', { class: 'hint', id: 'bot-pots' }, this.botPotsText()));
   },
 
   // เลือกมอนที่ให้บอทล่าในแมพนี้ (จำแยกตามชนิดมอน ใช้ได้ทุกแมพ)
