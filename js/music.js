@@ -45,32 +45,57 @@ const Music = {
     dl.delayTime.value = 60 / T.bpm * 0.75; fb.gain.value = 0.28; wet.gain.value = 0.22;
     this.bus.connect(c.destination); this.bus.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(wet); wet.connect(c.destination);
     this.fx = { dl, fb, wet };
-    if (Sound.bgm[name]) { this.playFile(name); return; }
+    if (this.variants(name).length) { this.playFile(name); return; }
     this.song = this.compose(T);
     this.step = 0; this.nextT = c.currentTime + 0.1;
     this.timer = setInterval(() => this.schedule(), 40);
   },
-  // ไฟล์เพลงจริง assets/bgm_<ธีม>.ogg|mp3 (ถ้ามี) เล่นวนแทนเพลงสังเคราะห์ • โหลดไม่ได้ก็กลับไปใช้เพลงสังเคราะห์
+  // ไฟล์เสียงจริง assets/bgm_<ธีม>.ogg หรือหลายตัวเลือก bgm_<ธีม>_v1.ogg, _v2 … (มีหลายตัว = สุ่มเล่นสลับกันไปเรื่อย ๆ)
+  // แต่ละไฟล์ต่อหัว-ท้ายให้วนเนียนอยู่แล้ว • ตอนสลับตัวเลือกจะ crossfade 2 วินาที • โหลดไม่ได้เลยก็กลับไปใช้เพลงสังเคราะห์
+  variants(name) { return Object.keys(Sound.bgm).filter(k => k === name || k.startsWith(name + '_v')); },
+  load(key) {
+    const k = 'bgm_' + key;
+    if (Sound.buffers[k]) return Promise.resolve(Sound.buffers[k]);
+    return fetch('assets/' + Sound.bgm[key]).then(r => (r.ok ? r.arrayBuffer() : Promise.reject())).then(a => Sound.ctx.decodeAudioData(a))
+      .then(buf => (Sound.buffers[k] = buf));
+  },
   playFile(name) {
-    const c = Sound.ctx, key = 'bgm_' + name, bus = this.bus;
-    const go = buf => {
-      if (this.bus !== bus) return; // เปลี่ยนแผนที่ไปแล้ว
-      const src = c.createBufferSource(); src.buffer = buf; src.loop = true; src.connect(bus); src.start();
-      this.src = src;
+    const c = Sound.ctx, bus = this.bus, XF = 2;
+    let last = null;
+    const pick = () => {
+      const v = this.variants(name), pool = v.length > 1 ? v.filter(k => k !== last) : v;
+      return pool[Math.floor(Math.random() * pool.length)];
     };
-    if (Sound.buffers[key]) { go(Sound.buffers[key]); return; }
-    fetch('assets/' + Sound.bgm[name]).then(r => r.arrayBuffer()).then(a => c.decodeAudioData(a))
-      .then(buf => { Sound.buffers[key] = buf; go(buf); })
-      .catch(() => {
-        delete Sound.bgm[name];
+    const playNext = (fadeIn) => {
+      if (this.bus !== bus) return; // เปลี่ยนแผนที่ไปแล้ว
+      const key = pick();
+      if (!key) return this.fallback(name, bus);
+      this.load(key).then(buf => {
         if (this.bus !== bus) return;
-        this.song = this.compose(THEMES[name]); this.step = 0; this.nextT = c.currentTime + 0.1;
-        this.timer = setInterval(() => this.schedule(), 40);
-      });
+        last = key;
+        const g = c.createGain(), t = c.currentTime, src = c.createBufferSource();
+        g.gain.setValueAtTime(fadeIn ? 0 : 1, t); if (fadeIn) g.gain.linearRampToValueAtTime(1, t + XF);
+        src.buffer = buf; src.connect(g); g.connect(bus); src.start(t);
+        const end = t + buf.duration;
+        g.gain.setValueAtTime(1, end - XF); g.gain.linearRampToValueAtTime(0, end);
+        src.stop(end + 0.05);
+        this.src = src;
+        clearTimeout(this.nextFile);
+        this.nextFile = setTimeout(() => playNext(true), Math.max(0.5, buf.duration - XF) * 1000);
+      }).catch(() => { delete Sound.bgm[key]; playNext(fadeIn); });
+    };
+    playNext(false);
+  },
+  fallback(name, bus) {
+    if (this.bus !== bus || !THEMES[name]) return;
+    const c = Sound.ctx;
+    this.song = this.compose(THEMES[name]); this.step = 0; this.nextT = c.currentTime + 0.1;
+    this.timer = setInterval(() => this.schedule(), 40);
   },
   stop() {
     if (this.timer) clearInterval(this.timer);
     this.timer = null;
+    clearTimeout(this.nextFile); this.nextFile = null;
     if (this.src) { const s = this.src; this.src = null; setTimeout(() => { try { s.stop(); } catch (e) { /* หยุดไปแล้ว */ } }, 1300); }
     if (this.bus && Sound.ctx) {
       const b = this.bus, fx = this.fx, t = Sound.ctx.currentTime;
