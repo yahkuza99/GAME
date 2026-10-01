@@ -22,7 +22,7 @@ function rr(g, x, y, w, h, r) {
 // ------------------------------------------------------------
 //  อาวุธในมือ (พิกัดโลคัล: มือที่ (0,0) ชี้ขึ้น)
 // ------------------------------------------------------------
-function drawWeaponShape(g, wtype, glow = '#7ad8ff') {
+function drawWeaponShape(g, wtype, glow = '#7ad8ff', pull = 0) { // pull = ง้างสายธนู (px) [POSE]
   const edge = (fn, w = 1.4) => { g.save(); g.shadowColor = glow; g.shadowBlur = 5; g.strokeStyle = glow; g.lineWidth = w; fn(); g.stroke(); g.restore(); };
   switch (wtype) {
     case 'sword':
@@ -56,7 +56,7 @@ function drawWeaponShape(g, wtype, glow = '#7ad8ff') {
     case 'bow':
       g.strokeStyle = '#8a92a4'; g.lineWidth = 2.5;
       g.beginPath(); g.arc(-8, 0, 16, -1.1, 1.1); g.stroke();
-      edge(() => { g.beginPath(); g.moveTo(-8 + Math.cos(-1.1) * 16, Math.sin(-1.1) * 16); g.lineTo(-8 + Math.cos(1.1) * 16, Math.sin(1.1) * 16); }, 1);
+      edge(() => { g.beginPath(); g.moveTo(-8 + Math.cos(-1.1) * 16, Math.sin(-1.1) * 16); g.lineTo(-8 + Math.cos(1.1) * 16 - pull, 0); g.lineTo(-8 + Math.cos(1.1) * 16, Math.sin(1.1) * 16); }, 1);
       break;
   }
 }
@@ -92,8 +92,9 @@ Sprites.human = (g, x, y, o) => {
   g.translate(x, y);
   g.scale(D.m * s, s);
   const t = o.t || 0;
-  const walk = o.moving && !o.hover ? Math.sin(t * 14) : 0;
-  const bob = o.moving && !o.hover ? Math.abs(Math.sin(t * 14)) * 1.4 : Math.sin(t * 2) * 0.5;
+  const P = typeof Pose !== 'undefined' ? Pose.cur : null; if (P) g.translate(P.dx, -P.lift); // [POSE] ท่าทางจาก js/pose.js (null = ท่าเดิม)
+  const walk = P ? P.walk : o.moving && !o.hover ? Math.sin(t * 14) : 0;
+  const bob = P ? P.bob : o.moving && !o.hover ? Math.abs(Math.sin(t * 14)) * 1.4 : Math.sin(t * 2) * 0.5;
   const plate = o.outfit || '#6a7a90', trim = o.outfit2 || '#c0c8d4';
   const chassis = o.skin || '#e6e9ef';               // สีโครงโลหะหลัก
   const joint = o.joint || '#2a2e38';                // ข้อต่อ/ส่วนดำ
@@ -105,7 +106,7 @@ Sprites.human = (g, x, y, o) => {
   const pulse = 0.65 + Math.sin(t * 3.2) * 0.35;
   const glowFill = (a = 1) => { g.shadowColor = glow; g.shadowBlur = 6; g.fillStyle = glow; g.globalAlpha = a; };
   const glowOff = () => { g.shadowBlur = 0; g.globalAlpha = 1; };
-  if (o.dead) { g.rotate(Math.PI / 2); g.translate(-10, -6); }
+  if (o.dead) { const dk = P ? P.dead : 1; g.rotate(Math.PI / 2 * dk); g.translate(-10 * dk, -6 * dk); }
   if (o.sit) g.translate(0, 7);
   if (o.bulky) g.scale(o.bulky, 1);
   if (o.hover && !o.dead) {
@@ -147,7 +148,7 @@ Sprites.human = (g, x, y, o) => {
     }
   }
   // ผ้าคลุม / ครีบหลัง
-  const drawCape = () => {
+  const drawCape = (walk = P ? P.cape : o.moving && !o.hover ? Math.sin(t * 14) : 0) => {
     if (!o.cape) return;
     g.fillStyle = back ? o.cape : U.shade(o.cape, -0.15);
     g.beginPath();
@@ -187,11 +188,11 @@ Sprites.human = (g, x, y, o) => {
 
   // แขน: ต้นแขนโครงโลหะ → ข้อศอก → ปลายแขนเกราะ → มือกลไก
   const atk = o.atk || 0;
-  const swing = atk > 0 ? Math.sin(atk * Math.PI) * 1.9 - 0.3 : walk * 0.45;
+  const swing = P ? P.a : atk > 0 ? Math.sin(atk * Math.PI) * 1.9 - 0.3 : walk * 0.45;
   const drawArm = (ax, rot, withWeapon, shade) => {
     g.save();
     g.translate(ax, -27);
-    g.rotate(withWeapon && o.wtype === 'bow' ? -1.4 : rot);
+    g.rotate(withWeapon && o.wtype === 'bow' && !P ? -1.4 : rot);
     g.fillStyle = metal(U.shade(chassis, shade), -2.5, 0, 2.5, 0); rr(g, -2.3, -1, 4.6, 6.5, 2); g.fill(); ol(1);
     g.fillStyle = joint; g.beginPath(); g.arc(0, 6, 2.2, 0, 7); g.fill();
     g.fillStyle = metal(U.shade(plate, shade), -3, 0, 3, 0); rr(g, -2.8, 6.5, 5.6, 6, 2); g.fill(); ol(1);
@@ -200,13 +201,13 @@ Sprites.human = (g, x, y, o) => {
     if (withWeapon && o.wtype && o.wtype !== 'none') {
       g.translate(0, 13);
       if (o.wtype === 'bow') { g.rotate(1.4); g.scale(-1, 1); g.translate(-4, 0); }
-      else g.rotate(0.6);
-      drawWeaponShape(g, o.wtype, glow);
+      else g.rotate(0.6 + (P ? P.w : 0));
+      drawWeaponShape(g, o.wtype, glow, P ? P.pull : 0);
     }
     g.restore();
   };
   if (back) drawArm(9, swing, true, -0.1);
-  else if (!front) drawArm(side ? -3 : -9, -walk * 0.4, false, -0.28);
+  else if (!front) drawArm(side ? -3 : -9, P ? P.b : -walk * 0.4, false, -0.28);
 
   // ขา
   if (o.sit) {
@@ -231,7 +232,7 @@ Sprites.human = (g, x, y, o) => {
     }
   }
 
-  g.translate(0, -bob);
+  g.translate(0, -bob); if (P && P.lean) { g.translate(0, -14); g.rotate(P.lean); g.translate(0, 14); }
   // ลำตัว
   if (o.bones) {
     // โครงเหล็กเปลือย (endoskeleton)
@@ -276,8 +277,8 @@ Sprites.human = (g, x, y, o) => {
     if (front || back) { pad(-9.5); pad(9.5); } else if (side) pad(1.5); else pad(-8.5);
   }
   if (back) drawCape();
-  if (front) drawArm(-10, -walk * 0.35, false, -0.12);
-  if (back) drawArm(-9, -walk * 0.4, false, -0.22);
+  if (front) drawArm(-10, P ? P.b : -walk * 0.35, false, -0.12);
+  if (back) drawArm(-9, P ? P.b : -walk * 0.4, false, -0.22);
 
   // คอ (ข้อต่อกลไก)
   g.fillStyle = joint; g.fillRect(-2.6, -32, 5.2, 4);
