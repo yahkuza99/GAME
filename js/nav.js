@@ -18,12 +18,12 @@ const Nav = {
   here() {
     const p = G.player, out = [];
     for (const n of G.npcs) out.push({ kind: 'npc', map: G.map.id, x: n.x, y: n.y, name: n.name, npcId: n.id, sub: 'NPC', d: U.dist(p.x, p.y, n.x, n.y) });
-    for (const q of G.map.portals) out.push({ kind: 'map', map: q.to, name: `ทางไป ${MAP_DEFS[q.to].name}`, sub: `ประตู • Lv ${MAP_DEFS[q.to].level || '-'}`, d: U.dist(p.x, p.y, q.x, q.y) });
+    for (const q of G.map.portals) out.push({ kind: 'map', map: q.to, name: L(`ทางไป ${MAP_DEFS[q.to].name}`, `To ${MAP_DEFS[q.to].name}`), sub: L(`ประตู • Lv ${MAP_DEFS[q.to].level || '-'}`, `Portal • Lv ${MAP_DEFS[q.to].level || '-'}`), d: U.dist(p.x, p.y, q.x, q.y) });
     const seen = {};
     for (const m of G.mobs) {
       if (m.dead || m.isPlayer) continue;
       const d = U.dist(p.x, p.y, m.x, m.y);
-      if (!seen[m.def.id] || d < seen[m.def.id].d) seen[m.def.id] = { kind: 'mob', map: G.map.id, mobId: m.def.id, name: m.def.name, sub: `มอนสเตอร์ Lv ${m.def.lv}${m.isMvp ? ' • MVP' : ''}`, d };
+      if (!seen[m.def.id] || d < seen[m.def.id].d) seen[m.def.id] = { kind: 'mob', map: G.map.id, mobId: m.def.id, name: m.def.name, sub: L(`มอนสเตอร์ Lv ${m.def.lv}${m.isMvp ? ' • MVP' : ''}`, `Monster Lv ${m.def.lv}${m.isMvp ? ' • MVP' : ''}`), d };
     }
     out.push(...Object.values(seen));
     return out.sort((a, b) => a.d - b.d);
@@ -60,13 +60,13 @@ const Nav = {
   goTo(t) {
     const p = G.player;
     if (!G.started || !p || p.dead) return;
-    if (t.kind === 'map' && t.map === G.map.id) { UI.msg(`คุณอยู่ที่ ${t.name} แล้ว`, 'info'); return; }
-    if (this.route(G.map.id, t.map) === null) { UI.msg('หาเส้นทางไปที่นั่นไม่ได้', 'err'); return; }
+    if (t.kind === 'map' && t.map === G.map.id) { UI.msg(L(`คุณอยู่ที่ ${t.name} แล้ว`, `You are already at ${t.name}`), 'info'); return; }
+    if (this.route(G.map.id, t.map) === null) { UI.msg(L('หาเส้นทางไปที่นั่นไม่ได้', 'No route to that destination'), 'err'); return; }
     this.target = t; this.repathAt = 0; this.doneAt = 0;
     p.target = null; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.sitting = false;
     Bot.manualOverride();
     Sound.play('click');
-    UI.msg(`🧭 กำลังนำทางไป ${t.name}${t.map !== G.map.id ? ` (${MAP_DEFS[t.map].name})` : ''} — คลิกที่พื้นเพื่อยกเลิก`, 'info');
+    UI.msg(L(`🧭 กำลังนำทางไป ${t.name}${t.map !== G.map.id ? ` (${MAP_DEFS[t.map].name})` : ''} — คลิกที่พื้นเพื่อยกเลิก`, `🧭 Navigating to ${t.name}${t.map !== G.map.id ? ` (${MAP_DEFS[t.map].name})` : ''} — click the ground to cancel`), 'info');
     UI.close('w-nav'); UI.close('w-map');
     this.updatePill();
   },
@@ -74,7 +74,7 @@ const Nav = {
     if (!this.target) return;
     // ผู้เล่นยกเลิกเอง (แตะพื้น/จอย) ระหว่างบอทเดินไปเติมของ = คืนการควบคุมให้ผู้เล่น
     this.target = null;
-    if (!silent) UI.msg('ยกเลิกการนำทาง', 'info');
+    if (!silent) UI.msg(L('ยกเลิกการนำทาง', 'Navigation cancelled'), 'info');
     this.updatePill();
   },
 
@@ -103,16 +103,16 @@ const Nav = {
     if (p.target || p.npcTarget || p.cast) return; // กำลังสู้/คุยอยู่ ปล่อยให้เสร็จก่อน
     Bot.manualOverride();
     // ปลายทางเป็น "แผนที่" → ถึงทันทีที่เข้าแผนที่นั้น
-    if (t.kind === 'map' && t.map === G.map.id) { UI.msg(`ถึง ${MAP_DEFS[t.map].name} แล้ว`, 'info'); this.target = null; this.updatePill(); return; }
+    if (t.kind === 'map' && t.map === G.map.id) { UI.msg(L(`ถึง ${MAP_DEFS[t.map].name} แล้ว`, `Arrived at ${MAP_DEFS[t.map].name}`), 'info'); this.target = null; this.updatePill(); return; }
     const wp = this.waypoint();
     if (!wp) { this.cancel(); return; }
     const d = U.dist(p.x, p.y, wp.x + 0.5, wp.y + 0.5);
     const arrive = wp.mob ? 4 : wp.npc ? 1.2 : 0.8;
     if (d <= arrive && !wp.portal) {
       if (wp.npc) { const n = G.npcs.find(n => n.id === t.npcId); if (n) p.npcTarget = n; }
-      else if (wp.mob) { p.target = wp.mob; p.repathAt = 0; UI.msg(`ถึงตัว ${t.name} แล้ว — เริ่มโจมตี`, 'info'); }
-      else if (wp.none) UI.msg(`มาถึง ${MAP_DEFS[t.map].name} แล้ว แต่ยังไม่พบ ${t.name} ในตอนนี้ ลองเดินหารอบ ๆ`, 'info');
-      else UI.msg(`ถึง ${t.name} แล้ว`, 'info');
+      else if (wp.mob) { p.target = wp.mob; p.repathAt = 0; UI.msg(L(`ถึงตัว ${t.name} แล้ว — เริ่มโจมตี`, `Reached ${t.name} — attacking`), 'info'); }
+      else if (wp.none) UI.msg(L(`มาถึง ${MAP_DEFS[t.map].name} แล้ว แต่ยังไม่พบ ${t.name} ในตอนนี้ ลองเดินหารอบ ๆ`, `Arrived at ${MAP_DEFS[t.map].name}, but no ${t.name} is around right now — try searching nearby`), 'info');
+      else UI.msg(L(`ถึง ${t.name} แล้ว`, `Arrived at ${t.name}`), 'info');
       this.target = null; this.updatePill();
       return;
     }
@@ -125,7 +125,7 @@ const Nav = {
           p.path = findPath(G.map, Math.floor(p.x), Math.floor(p.y), wp.x + dx, wp.y + dy, 20000);
           if (p.path.length) break;
         }
-        if (!p.path.length) { UI.msg('เดินไปจุดนั้นไม่ได้', 'err'); this.cancel(true); }
+        if (!p.path.length) { UI.msg(L('เดินไปจุดนั้นไม่ได้', 'Cannot walk there'), 'err'); this.cancel(true); }
       }
     }
     this.updatePill();
@@ -139,7 +139,7 @@ const Nav = {
     if (!t) { el.hidden = true; return; }
     const wp = this.waypoint();
     const d = wp ? Math.round(U.dist(G.player.x, G.player.y, wp.x + 0.5, wp.y + 0.5)) : 0;
-    const txt = `${t.name}${wp && wp.portal ? ` → ${wp.label}` : ''} • ${d} ช่อง`;
+    const txt = L(`${t.name}${wp && wp.portal ? ` → ${wp.label}` : ''} • ${d} ช่อง`, `${t.name}${wp && wp.portal ? ` → ${wp.label}` : ''} • ${d} tiles`);
     const tx = $('#nav-text');
     if (tx.textContent !== txt) tx.textContent = txt;
     el.hidden = false;
