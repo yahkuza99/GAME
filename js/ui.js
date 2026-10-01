@@ -17,6 +17,7 @@ function h(tag, attrs = {}, ...kids) {
   return el;
 }
 
+const fmtLeft = t => t >= 60 ? `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}` : `${t}s`;
 const UI = {
   isDirty: true, z: 100, invTab: 'use', selItem: null, shop: null, dialog: null,
 
@@ -221,10 +222,11 @@ const UI = {
     if (ptsEl.innerHTML !== ptsHtml) ptsEl.innerHTML = ptsHtml;
     // บัฟ
     const buffs = Object.keys(p.buffs).map(k => {
-      const left = Math.ceil(p.buffs[k].until - G.time);
-      return `<div class="buff" style="--c:${SKILLS[k].icon}" title="${SKILLS[k].name}"><b>${SKILLS[k].glyph}</b><i>${left}</i></div>`;
+      const left = Math.ceil(p.buffs[k].until - G.time), s = SKILLS[k];
+      const ic = Art.has('skill_' + k) ? `<img src="${Art.get('skill_' + k).src}" alt="">` : `<b>${s.glyph}</b>`;
+      return `<div class="buff${left <= 10 ? ' ending' : ''}" style="--c:${s.icon}" title="${s.name}"><span class="bf-ic">${ic}</span><span class="bf-n">${s.name}</span><i>${fmtLeft(left)}</i></div>`;
     });
-    if (p.poisonUntil > G.time) buffs.push(`<div class="buff" style="--c:#a050e0" title="Poison"><b>☠</b><i>${Math.ceil(p.poisonUntil - G.time)}</i></div>`);
+    if (p.poisonUntil > G.time) buffs.push(`<div class="buff debuff" style="--c:#a050e0" title="ติดพิษ"><span class="bf-ic"><b>✦</b></span><span class="bf-n">ติดพิษ</span><i>${fmtLeft(Math.ceil(p.poisonUntil - G.time))}</i></div>`);
     const bh = buffs.join('');
     const be = $('#buffs');
     if (be.innerHTML !== bh) be.innerHTML = bh;
@@ -1352,6 +1354,8 @@ const UI = {
   renderShop() {
     const p = G.player, s = this.shop;
     const body = $('#w-shop .win-body');
+    // ซื้อ/ขายแล้วหน้าต่างวาดใหม่ → จำตำแหน่งเลื่อนไว้ ไม่ให้เด้งกลับขึ้นบน
+    const old = $('.shop-list', body), keep = { list: old ? old.scrollTop : 0, body: body.scrollTop, mode: old && old.dataset.mode };
     body.innerHTML = '';
     body.append(h('div', { class: 'tabs' },
       h('button', { class: 'tab' + (s.mode === 'buy' ? ' on' : ''), onclick: () => { s.mode = 'buy'; this.renderShop(); } }, 'ซื้อ'),
@@ -1388,7 +1392,9 @@ const UI = {
           h('button', { class: 'btn', onclick: () => { for (const e of p.inventory.filter(x => ITEMS[x.id].type === 'etc')) this.sell(e, e.qty, true); Sound.play('buy'); } }, 'ขายของดรอป (Etc) ทั้งหมด')));
       }
     }
+    list.dataset.mode = s.mode;
     body.append(list, h('div', { class: 'inv-foot' }, `${CUR}: `, h('b', {}, U.fmt(p.zeny))));
+    if (keep.mode === s.mode) { list.scrollTop = keep.list; body.scrollTop = keep.body; }
   },
   buy(id, qty) {
     const p = G.player, it = ITEMS[id];
@@ -1452,6 +1458,8 @@ const UI = {
       slider('radius', c.leash ? 'รัศมีวงล่า' : 'ระยะค้นหามอนรอบตัว', 5, 30, ' ช่อง'),
       chk('leash', 'ล่าเฉพาะในวงรอบจุดที่เปิดบอท (เห็นวงบนพื้น)'),
       c.leash ? h('button', { class: 'btn', type: 'button', onclick: () => Bot.setAnchor() }, 'ตั้งศูนย์กลางวงที่ตำแหน่งนี้') : null,
+      h('div', { class: 'bot-sec' }, 'มอนที่จะล่า'),
+      this.botMobPicker(c),
       h('div', { class: 'bot-sec' }, 'การฟื้นฟู'),
       slider('hpPot', 'ใช้ชุดซ่อมเมื่อ HP ต่ำกว่า', 0, 95),
       slider('spPot', 'ใช้เซลล์พลังงานเมื่อ SP ต่ำกว่า', 0, 95),
@@ -1478,6 +1486,28 @@ const UI = {
     body.append(h('div', { class: 'hint' }, `ชุดซ่อมคงเหลือ ${hpN} • เซลล์พลังงานคงเหลือ ${spN} — บอททำงานต่อแม้สลับแท็บ/แอป (จำลองย้อนหลังสูงสุด 10 นาที)`));
   },
 
+  // เลือกมอนที่ให้บอทล่าในแมพนี้ (จำแยกตามชนิดมอน ใช้ได้ทุกแมพ)
+  botMobPicker(c) {
+    const d = G.map.def, skip = c.skipMobs || (c.skipMobs = {});
+    const ids = [...new Set([...(d.spawns || []).map(s => s[0]), ...(d.mvp ? [d.mvp] : [])])].filter(id => MOBS[id] && !MOBS[id].dummy);
+    if (!ids.length) return h('div', { class: 'hint' }, 'แมพนี้ไม่มีมอนสเตอร์ — ออกไปยังแมพล่าแล้วเลือกได้');
+    const set = v => { for (const id of ids) { if (v) delete skip[id]; else skip[id] = true; } saveGame(); this.renderBot(); };
+    const on = ids.filter(id => !skip[id]).length;
+    return h('div', { class: 'bot-mobs' },
+      h('div', { class: 'bm-head' }, h('span', {}, `${G.map.def.name} • ล่า ${on}/${ids.length} ชนิด`),
+        h('button', { type: 'button', class: 'linkbtn', onclick: () => set(true) }, 'เลือกทั้งหมด'),
+        h('button', { type: 'button', class: 'linkbtn', onclick: () => set(false) }, 'ไม่เลือกเลย')),
+      h('div', { class: 'bm-grid' }, ids.map(id => {
+        const m = MOBS[id], spr = Art.get('mobsprite_' + id), sel = !skip[id];
+        return h('button', { type: 'button', class: 'bm-card' + (sel ? ' on' : ''), 'aria-pressed': sel ? 'true' : 'false',
+          onclick: () => { if (sel) skip[id] = true; else delete skip[id]; saveGame(); this.renderBot(); } },
+          h('span', { class: 'bm-pic' }, spr ? h('img', { src: spr.src, alt: '' }) : h('i', { style: `background:${m.color || '#6ff3ff'}` })),
+          h('b', {}, m.name), h('small', {}, `Lv ${m.lv}${m.boss ? ' • MVP' : ''}${m.aggro ? ' • ตีก่อน' : ''}`),
+          h('span', { class: 'bm-chk' }, sel ? '✓' : ''));
+      })),
+      h('div', { class: 'hint' }, on ? 'ตัวที่ไม่ได้เลือก บอทจะไม่เข้าไปตีเอง แต่ถ้ามันตีเราก่อนจะสู้กลับ' : 'ยังไม่ได้เลือกมอนเลย — บอทจะสู้เฉพาะตัวที่เข้ามาตีเรา'));
+  },
+
   setNet(state) {
     const el = $('#net');
     if (!el) return;
@@ -1494,3 +1524,36 @@ const UI = {
   },
   hideDeath() { $('#death').classList.add('hidden'); $('#death-mini').classList.add('hidden'); },
 };
+
+// หน้าต่างที่วาดใหม่ทั้งก้อนเมื่อกดอะไร: จำตำแหน่งเลื่อน (ทั้งตัวหน้าต่างและรายการข้างใน) แล้วคืนให้ ไม่ให้เด้งขึ้นบน
+(() => {
+  const WINS = { renderStatus: 'w-status', renderInv: 'w-inv', renderEquip: 'w-equip', renderSkills: 'w-skills', renderOptions: 'w-options',
+    renderStorage: 'w-storage', renderBot: 'w-bot', renderQuest: 'w-quest', renderNav: 'w-nav', renderEmote: 'w-emote', renderWorld: 'w-world' };
+  const snap = w => {
+    const out = new Map(), seen = {};
+    for (const el of w.querySelectorAll('.win-body, .win-body *')) {
+      if (el.scrollHeight <= el.clientHeight + 1) continue;
+      const k = el.className || el.tagName; const i = seen[k] = (seen[k] || 0) + 1;
+      if (el.scrollTop > 0) out.set(k + '#' + i, el.scrollTop);
+    }
+    return out;
+  };
+  const restore = (w, m) => {
+    if (!m.size) return;
+    const seen = {};
+    for (const el of w.querySelectorAll('.win-body, .win-body *')) {
+      if (el.scrollHeight <= el.clientHeight + 1) continue;
+      const k = el.className || el.tagName; const i = seen[k] = (seen[k] || 0) + 1;
+      const v = m.get(k + '#' + i); if (v != null) el.scrollTop = v;
+    }
+  };
+  for (const [fn, id] of Object.entries(WINS)) {
+    const orig = UI[fn];
+    if (typeof orig !== 'function') continue;
+    UI[fn] = function (...a) {
+      const w = document.getElementById(id);
+      if (!w || w.classList.contains('hidden')) return orig.apply(this, a);
+      const m = snap(w); const r = orig.apply(this, a); restore(w, m); return r;
+    };
+  }
+})();

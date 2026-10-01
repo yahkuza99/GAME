@@ -370,7 +370,7 @@ function useItem(entry) {
   p.itemReadyAt = G.time + 0.12;
   if (it.heal) {
     const amt = Math.floor(U.randi(it.heal[0], it.heal[1]) * (1 + p.d.vit * 0.02));
-    healPlayer(amt, 'item');
+    healPlayer(amt, it.name);
   }
   if (it.spHeal) {
     const amt = Math.floor(U.randi(it.spHeal[0], it.spHeal[1]) * (1 + p.d.int * 0.02));
@@ -447,6 +447,11 @@ function addFx(f) {
 }
 function addFloater(x, y, text, color, big) {
   const num = typeof text === 'number' || /^[+-]?\d+$/.test(String(text));
+  // ข้อความ (ฮีล/ดูดเลือด/Volt/เลเวลอัป) ที่เด้งพร้อมกันตรงจุดเดียวกัน: เรียงซ้อนขึ้นไป ไม่ทับกัน
+  if (!num) {
+    const near = G.floaters.filter(f => !f.num && f.t < 0.6 && Math.abs(f.x - x) < 1.6 && Math.abs(f.y - y) < 1.2).length;
+    y -= near * 0.42;
+  }
   // ตัวเลขดาเมจแบบ RO: เด้งขึ้นแล้วตกลง ส่ายซ้ายขวาเล็กน้อย / คริ = ตัวเหลืองบนดาวแตก
   G.floaters.push({ x: x + U.rand(-0.15, 0.15), y, text: String(text), color, big, num, crit: num && big,
     vx: num ? U.rand(-45, 45) : 0, t: 0, dur: num ? (big ? 1.25 : 1.0) : (big ? 1.6 : 1.1) });
@@ -569,7 +574,11 @@ function applyHit(m, r, opts = {}) {
   damageMob(m, r.dmg, Object.assign({ crit: r.crit }, opts));
   // ดูดเลือด (ต้นไม้พาสซีฟ): ดาเมจกายภาพส่วนหนึ่งกลับมาเป็น HP แบบเงียบ ๆ
   const p = G.player;
-  if (r.phys && p.d.leech && !p.dead && !m.def.dummy) p.hp = Math.min(p.d.maxHp, p.hp + Math.max(1, Math.round(r.dmg * p.d.leech / 100)));
+  if (r.phys && p.d.leech && !p.dead && !m.def.dummy && p.hp < p.d.maxHp) {
+    const amt = Math.min(p.d.maxHp - p.hp, Math.max(1, Math.round(r.dmg * p.d.leech / 100)));
+    p.hp += amt;
+    addFloater(p.x + 0.35, p.y - 1.5, `+${amt} ดูดเลือด`, '#ff8fb4');
+  }
 }
 function aggroMob(m) {
   if (m.dead) return;
@@ -717,7 +726,7 @@ function stunBlocked() {
 function damagePlayer(dmg, color = '#ff5050') {
   const p = G.player;
   if (p.dead) return;
-  if (p.d.mom) { const s = Math.min(Math.floor(p.sp), Math.floor(dmg * 0.3)); p.sp -= s; p.hp -= dmg - s; } // Mind over Matter
+  if (p.d.mom) { const s = Math.min(Math.floor(p.sp), Math.floor(dmg * 0.3)); p.sp -= s; p.hp -= dmg - s; if (s > 0) addFloater(p.x + 0.4, p.y - 1.7, `SP ดูดซับ ${s}`, '#8fb8ff'); } // Mind over Matter
   else p.hp -= dmg;
   p.sitting = false;
   addFloater(p.x, p.y - 1.2, dmg, color);
@@ -725,10 +734,11 @@ function damagePlayer(dmg, color = '#ff5050') {
   Sound.play('hurt');
   if (p.hp <= 0) playerDie();
 }
-function healPlayer(amt) {
+// label = ที่มาของการฟื้น HP (ชื่อไอเทม/สกิล/พาสซีฟ) โชว์ต่อท้ายตัวเลข ให้รู้ว่าเลือดเด้งเพราะอะไร
+function healPlayer(amt, label) {
   const p = G.player;
   p.hp = Math.min(p.d.maxHp, p.hp + amt);
-  addFloater(p.x, p.y - 1.2, `+${amt}`, '#70ff70');
+  addFloater(p.x, p.y - 1.2, `+${amt}${label ? ' ' + label : ''}`, '#70ff70');
 }
 function playerDie() {
   const p = G.player;
@@ -903,7 +913,7 @@ function executeSkill(id, lv, tgt) {
   if (s.heal) {
     const amt = Math.floor(s.heal(lv, p.d, p) * (1 + p.d.healPct / 100) * masteryMul(id));
     if (tgt) { damageMob(tgt, Math.max(1, Math.floor(amt / 2 * elemMod('holy', tgt.def.element))), { color: '#fff6a0' }); addFx({ type: 'holy', ref: tgt, dur: 0.5 }); }
-    else { healPlayer(amt); Sound.play('heal'); }
+    else { healPlayer(amt, s.name); Sound.play('heal'); }
   }
   if (s.buff) {
     p.buffs[id] = { lv, until: G.time + s.buff.dur(lv) };
@@ -1166,7 +1176,10 @@ function updatePlayer(dt) {
     p.hpTimer = 0;
     if (!moving || p.sitting || p.d.regenPct) {
       const amt = Math.max(1, Math.floor(p.d.maxHp / 200)) + Math.floor(p.d.vit / 5) + Math.floor(p.d.maxHp * p.d.regenPct / 100);
-      p.hp = Math.min(p.d.maxHp, p.hp + amt);
+      const got = Math.min(p.d.maxHp - p.hp, amt);
+      p.hp += got;
+      // ฟื้นจากพาสซีฟ (regenPct) โชว์ให้เห็น • ฟื้นธรรมชาติปกติเงียบไว้ไม่ให้รก
+      if (got > 0 && p.d.regenPct && !p.dead) addFloater(p.x - 0.35, p.y - 1.5, `+${got} ฟื้นฟู`, '#8dffb0');
     }
   }
   if (p.spTimer >= spInt) {

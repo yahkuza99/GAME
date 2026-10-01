@@ -807,3 +807,22 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
 .shop-n .cmp-row { font-size: inherit; }
 .cmp-row.compact { flex-direction: row; flex-wrap: wrap; align-items: center; background: none; border: 0; padding: 0; margin-top: 4px; }
 .cmp-row.compact .cmp-h span { display: none; }
+
+/* ---------------- บอท: เลือกมอนที่จะล่า ---------------- */
+.bot-mobs { display: flex; flex-direction: column; gap: 6px; }
+.bm-head { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--ink-dim); }
+.bm-head span { flex: 1; min-width: 0; }
+.bm-head .linkbtn { font-size: 12px; color: var(--cy); padding: 2px 0; }
+.bm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px; }
+.bm-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 6px 7px; border-radius: 16px; cursor: pointer; color: var(--ink);
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); opacity: .55; filter: grayscale(.7); transition: opacity .15s, filter .15s, border-color .15s, background .15s; }
+.bm-card.on { opacity: 1; filter: none; border-color: rgba(111,243,255,.5); background: rgba(111,243,255,.09); box-shadow: inset 0 0 0 1px rgba(111,243,255,.12); }
+.bm-card:hover { border-color: rgba(111,243,255,.6); }
+.bm-pic { width: 44px; height: 44px; display: grid; place-items: center; }
+.bm-pic img { max-width: 44px; max-height: 44px; object-fit: contain; }
+.bm-pic i { width: 18px; height: 18px; border-radius: 50%; }
+.bm-card b { font-size: 12px; font-weight: 600; text-align: center; line-height: 1.2; }
+.bm-card small { font-size: 10px; color: var(--ink-dim); text-align: center; }
+.bm-chk { position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700;
+  border: 1px solid rgba(255,255,255,.25); color: #04121f; }
+.bm-card.on .bm-chk { background: var(--cy); border-color: transparent; }

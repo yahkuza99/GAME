@@ -15,7 +15,7 @@ const Bot = {
   defaults() {
     return { skills: {}, hpPot: 50, spPot: 20, restHp: 35, restSp: 10, healAt: 60, useBuffs: true, avoidMvp: true,
       radius: 14, returnHome: true, restock: true, restockQty: 30,
-      rest: true, style: 'skills', leash: false };
+      rest: true, style: 'skills', leash: false, skipMobs: {} };
   },
   cfg() {
     const o = G.player.options;
@@ -221,7 +221,9 @@ const Bot = {
     if (th.length) return th[0];
     const z = this.zone();
     const inRange = m => z ? U.dist(m.x, m.y, z.x, z.y) <= z.r : U.dist(m.x, m.y, p.x, p.y) <= c.radius;
-    return G.mobs.filter(m => ok(m) && inRange(m)).sort(byDist)[0] || null;
+    // มอนที่ไม่ได้เลือกไว้: ไม่เข้าไปตีเอง (แต่ถ้ามันตีเราก่อน ยังสู้กลับด้านบน)
+    const skip = c.skipMobs || {};
+    return G.mobs.filter(m => ok(m) && !skip[m.def.id] && inRange(m)).sort(byDist)[0] || null;
   },
   wander() {
     const p = G.player;

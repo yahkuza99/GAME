@@ -539,3 +539,34 @@ body.visor .cr-btns { margin-top: auto; padding: 14px 0 6px; margin-bottom: -6px
   body.visor #hud:has(#target:not([hidden])) #quest-track { display: none; }
   body.visor .pad-mode #chat, body.visor.pad-mode #chat { top: calc(238px + var(--st)); }
 }
+
+/* ---------- บัฟ: แคปซูลกระจกใต้กรอบตัวละคร (ไอคอนสกิล + ชื่อ + เวลาเหลือ) ---------- */
+body.visor #buffs { top: calc(162px + var(--st)); gap: 6px; max-width: 300px; pointer-events: auto; }
+body.visor .buff .bf-n { display: none; }
+body.visor #hud:has(#buffs .buff) #quest-track { top: calc(198px + var(--st)); }
+body.visor .buff { clip-path: none; width: auto; height: 28px; display: inline-flex; align-items: center; gap: 6px; padding: 0 10px 0 2px; border-radius: 999px;
+  background: rgba(10, 16, 26, 0.62); border: 1px solid color-mix(in srgb, var(--c) 55%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: 0 6px 14px -8px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.06); }
+body.visor .buff .bf-ic { width: 24px; height: 24px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; flex: none;
+  background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--c) 70%, #fff 10%), color-mix(in srgb, var(--c) 60%, #000 40%)); box-shadow: 0 0 10px -2px var(--c); }
+body.visor .buff .bf-ic img { width: 24px; height: 24px; object-fit: cover; }
+body.visor .buff .bf-ic b { font-size: 12px; line-height: 1; color: #fff; }
+body.visor .buff .bf-n { font: 500 11.5px var(--font); color: var(--ink); white-space: nowrap; }
+body.visor .buff i { position: static; font: 500 11px var(--mono); font-style: normal; color: var(--ink-dim); text-shadow: none; font-variant-numeric: tabular-nums; }
+body.visor .buff.ending { animation: bfEnd 0.9s ease-in-out infinite; }
+body.visor .buff.ending i { color: #ffb48a; }
+body.visor .buff.debuff { border-color: rgba(190, 120, 255, 0.6); }
+@keyframes bfEnd { 50% { opacity: 0.55; } }
+@media (max-width: 760px) {
+  body.visor .buff { padding-right: 8px; }
+}
+@media (max-width: 760px) and (orientation: portrait) {
+  body.visor #buffs { top: calc(222px + var(--st)); max-width: calc(100vw - 24px); }
+  body.visor.pad-mode #hud:has(#buffs .buff) #chat { top: calc(262px + var(--st)); }
+  body.visor #hud:has(#buffs .buff) #quest-track { top: calc(146px + var(--st)); }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  body.visor #buffs { top: calc(118px + var(--st)); }
+  body.visor .buff { height: 24px; padding-right: 7px; } body.visor .buff .bf-ic, body.visor .buff .bf-ic img { width: 20px; height: 20px; }
+}
+@media (prefers-reduced-motion: reduce) { body.visor .buff.ending { animation: none; } }
