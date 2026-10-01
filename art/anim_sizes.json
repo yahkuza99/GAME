@@ -193,5 +193,50 @@
    "scale_src": 0.4132,
    "median_src_h": 363.00091671031953
   }
+ },
+ "mob_buzzfly": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4237,
+   "median_src_h": 354
+  },
+  "_k1536": 0.34593,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4237,
+   "median_src_h": 354.00496487728736
+  }
+ },
+ "mob_leafworm": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4644,
+   "median_src_h": 323
+  },
+  "_k1536": 0.37914,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4644,
+   "median_src_h": 322.9966173445166
+  }
+ },
+ "mob_kitsura": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.3778,
+   "median_src_h": 397
+  },
+  "_k1536": 0.30847,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.3778,
+   "median_src_h": 397.0354685018528
+  }
  }
 }

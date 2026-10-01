@@ -2,7 +2,7 @@
 
 สร้างอัตโนมัติด้วย `python3 tools/make_notepad.py` (ดูว่าอะไรมีแล้วจาก assets) • ✅ = ติดตั้งแล้ว • ⬜ = ยังขาด
 
-**ยังขาด: ตัวละคร 78 ภาพ • มอนสเตอร์ 9 ภาพ • NPC 1 ภาพ**
+**ยังขาด: ตัวละคร 78 ภาพ • มอนสเตอร์ 6 ภาพ • NPC 1 ภาพ**
 
 ## วิธีใช้
 
@@ -325,7 +325,7 @@ IMAGE 6 — DEAD (template tpl_dead.png): DEAD, 4 frames per direction: 1 knees 
 Start now with IMAGE 1.
 ```
 
-### มอนสเตอร์ทั้งหมด — 9 ภาพ
+### มอนสเตอร์ทั้งหมด — 6 ภาพ
 
 แชตใหม่ • แนบ mobsprite ของตัวที่ 1 (Gel Unit) + tpl_mob.png • จากนั้นพิมพ์ next + แนบ mobsprite ตัวถัดไป + tpl_mob.png
 
@@ -336,14 +336,11 @@ Top row = MOVE loop (4 frames). Bottom row = ATTACK (4 frames). Bottom of the mo
 I will ask for ONE monster at a time. After each image, wait until I type "next".
 
 IMAGE 1 — Gel Unit: MOVE = squash down, stretch up jumping, in the air, landing squash. ATTACK = squash low, lunge forward stretched, SPLAT hit, bounce back.
-IMAGE 2 — Crawler Unit: MOVE = body segments wave forward like a caterpillar (4 steps of a crawl). ATTACK = rear up, head lunges forward biting, hit, pull back.
-IMAGE 3 — Ember Unit: MOVE = squash and jump like a slime, the antenna flame flickers. ATTACK = squash low, lunge forward, SPLAT hit, bounce back.
-IMAGE 4 — Buzz Unit: MOVE = hovering, wings blur up and down, body bobbing. ATTACK = pull back, dive forward stinger first, STING, fly back.
-IMAGE 5 — Hopper Unit: MOVE = crouch, big grasshopper hop, in the air, land (keep the violin). ATTACK = crouch, leap forward, kick with the long hind legs, land.
-IMAGE 6 — Mine Unit: MOVE = waddles on its little red boots, the siren light blinks. ATTACK = cap puffs up big, siren light turns red, cap slams forward, deflate.
-IMAGE 7 — Moss Unit: MOVE = squash and jump like a slime, the clover leaf bounces. ATTACK = squash low, lunge forward, SPLAT hit, bounce back.
-IMAGE 8 — Hel Guard Unit: MOVE = heavy armored march, cape swaying, halberd upright. ATTACK = halberd raised overhead, step in, heavy CLEAVE, recover.
-IMAGE 9 — Kitsura EX (MVP): MOVE = graceful floating walk, nine tails fanning and waving. ATTACK = tails fan out, palm raised, thrust the palm forward, tails settle.
+IMAGE 2 — Ember Unit: MOVE = squash and jump like a slime, the antenna flame flickers. ATTACK = squash low, lunge forward, SPLAT hit, bounce back.
+IMAGE 3 — Hopper Unit: MOVE = crouch, big grasshopper hop, in the air, land (keep the violin). ATTACK = crouch, leap forward, kick with the long hind legs, land.
+IMAGE 4 — Mine Unit: MOVE = waddles on its little red boots, the siren light blinks. ATTACK = cap puffs up big, siren light turns red, cap slams forward, deflate.
+IMAGE 5 — Moss Unit: MOVE = squash and jump like a slime, the clover leaf bounces. ATTACK = squash low, lunge forward, SPLAT hit, bounce back.
+IMAGE 6 — Hel Guard Unit: MOVE = heavy armored march, cape swaying, halberd upright. ATTACK = halberd raised overhead, step in, heavy CLEAVE, recover.
 
 Start now with IMAGE 1.
 ```
@@ -1015,15 +1012,7 @@ Bottom row = ATTACK, 4 frames: squash low, lunge forward stretched, SPLAT hit, b
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
-⬜ **Crawler Unit** (Emerald Meadow) — แนบ `mobsprite_leafworm.webp` + `tpl_mob.png`
-
-```
-Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Crawler Unit.
-Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
-Top row = MOVE loop, 4 frames: body segments wave forward like a caterpillar (4 steps of a crawl).
-Bottom row = ATTACK, 4 frames: rear up, head lunges forward biting, hit, pull back.
-Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **Crawler Unit** (Emerald Meadow) — แนบ `mobsprite_leafworm.webp` + `tpl_mob.png`
 
 ✅ **Bunny Unit** (Emerald Meadow) — แนบ `mobsprite_moonbun.webp` + `tpl_mob.png`
 
@@ -1037,15 +1026,7 @@ Bottom row = ATTACK, 4 frames: squash low, lunge forward, SPLAT hit, bounce back
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
-⬜ **Buzz Unit** (Emerald Meadow) — แนบ `mobsprite_buzzfly.webp` + `tpl_mob.png`
-
-```
-Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Buzz Unit.
-Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
-Top row = MOVE loop, 4 frames: hovering, wings blur up and down, body bobbing.
-Bottom row = ATTACK, 4 frames: pull back, dive forward stinger first, STING, fly back.
-Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **Buzz Unit** (Emerald Meadow) — แนบ `mobsprite_buzzfly.webp` + `tpl_mob.png`
 
 ✅ **Rust Sentry** (Mistlake Plains) — แนบ `mobsprite_stumpling.webp` + `tpl_mob.png`
 
@@ -1105,15 +1086,7 @@ Bottom row = ATTACK, 4 frames: halberd raised overhead, step in, heavy CLEAVE, r
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
-⬜ **Kitsura EX (MVP)** (Hel's Hollow) — แนบ `mobsprite_kitsura.webp` + `tpl_mob.png`
-
-```
-Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Kitsura EX (MVP).
-Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
-Top row = MOVE loop, 4 frames: graceful floating walk, nine tails fanning and waving.
-Bottom row = ATTACK, 4 frames: tails fan out, palm raised, thrust the palm forward, tails settle.
-Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **Kitsura EX (MVP)** (Hel's Hollow) — แนบ `mobsprite_kitsura.webp` + `tpl_mob.png`
 
 ## NPC
 
