@@ -723,6 +723,15 @@ const UI = {
     const ids = [...new Set([...(p.job !== 'novice' ? JOBS.novice.skills : []), ...JOBS[p.job].skills])];
     body.append(h('div', { class: 'sk-head' }, `${JOBS[p.job].name} — Skill Point: `, h('b', {}, String(p.skillPoints))));
     const list = h('div', { class: 'sk-list' });
+    // ความชำนาญ: แถบความคืบหน้าถึง Lv ถัดไป
+    const mastery = id => {
+      const lv = masteryLv(id), u = masteryUses(id), a = masteryNeed(lv, id), z = masteryNeed(lv + 1, id);
+      const pct = lv >= MASTERY_MAX ? 100 : Math.floor((u - a) / (z - a) * 100);
+      return h('div', { class: 'sk-mas', title: lv >= MASTERY_MAX ? 'ความชำนาญสูงสุดแล้ว' : `ใช้อีก ${U.fmt(z - u)} ครั้งถึง Lv ${lv + 1}` },
+        h('span', {}, `ความชำนาญ Lv ${lv}/${MASTERY_MAX}`), h('i', {}, h('b', { style: `width:${pct}%` })), h('em', {}, `+${masteryPct(id)}%`));
+    };
+    list.append(h('div', { class: 'sk-row' }, h('div', { class: 'sk-info' },
+      h('div', { class: 'sk-name' }, 'การโจมตีปกติ'), h('div', { class: 'sk-desc' }, 'ตีโดนทุกครั้งสะสมความชำนาญ ยิ่งตียิ่งแรง'), mastery('attack'))));
     for (const id of ids) {
       const s = SKILLS[id], lv = skillLv(id);
       const reqTxt = s.req ? Object.entries(s.req).map(([k, v]) => `${SKILLS[k].name} ${v}`).join(', ') : '';
@@ -737,7 +746,8 @@ const UI = {
         h('div', { class: 'sk-info' },
           h('div', { class: 'sk-name' }, s.name, h('span', { class: 'sk-lv' }, ` Lv ${lv}/${s.max}`), s.type === 'passive' ? h('span', { class: 'tag' }, 'ติดตัว') : null),
           h('div', { class: 'sk-desc' }, s.desc + (s.sp && lv ? ` [SP ${s.sp(lv)}]` : '')),
-          reqTxt ? h('div', { class: 'sk-req' + (skillReqMet(id) ? ' ok' : '') }, `ต้องการ: ${reqTxt}`) : null),
+          reqTxt ? h('div', { class: 'sk-req' + (skillReqMet(id) ? ' ok' : '') }, `ต้องการ: ${reqTxt}`) : null,
+          lv && s.type === 'active' ? mastery(id) : null),
         h('div', { class: 'sk-acts' },
           canLearn(id) ? h('button', { class: 'btn small', onclick: () => learnSkill(id) }, '+') : null,
           lv && s.type === 'active' ? h('button', { class: 'btn small', onclick: () => useSkill(id) }, 'ใช้') : null,

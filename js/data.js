@@ -397,6 +397,7 @@ const MOBS = {
                drops: [['emberfang', 0.4], ['white_potion', 0.8], ['blue_potion', 0.6], ['yggdrasil_shard', 0.15]] },
 };
 for (const id in MOBS) MOBS[id].id = id;
+for (const id in SKILLS) SKILLS[id].id = id;
 // ชิปประจำมอน (ได้เมื่อล่าครบ CHIP_KILLS ตัว)
 const MOB_CHIP = {"pudding": "pudding_card", "leafworm": "leafworm_card", "moonbun": "moonbun_card", "ember_pudding": "ember_card", "buzzfly": "buzzfly_card", "stumpling": "stumpling_card", "fiddlehopper": "hopper_card", "capshroom": "capshroom_card", "moss_pudding": "mosspud_card", "seraph_pudding": "seraph_card", "ashtail": "ashtail_card", "fenrir_pup": "fenrir_card", "mossback": "bear_card", "tuskboar": "boar_card", "draugr": "draugr_card", "bone_warden": "warden_card", "hel_maiden": "helmaiden_card", "hel_guard": "helguard_card", "kitsura": "kitsura_card"};
 const CHIP_KILLS = 50;

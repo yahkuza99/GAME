@@ -10,7 +10,7 @@ const G = {
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
 const SAVE_FIELDS = ['name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
-  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips'];
+  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery'];
 
 // ------------------------------------------------------------
 //  สร้าง / บันทึก / โหลด
@@ -637,8 +637,9 @@ function playerAttack(m) {
   if (ambush) { p.stealthUntil = 0; addFloater(p.x, p.y - 1.6, 'Ambush!', '#d0a0ff'); }
   const doHit = () => {
     if (m.dead) return;
-    const r = physHit(m, 1, { forceCrit: ambush });
+    const r = physHit(m, masteryMul('attack'), { forceCrit: ambush });
     applyHit(m, r);
+    if (!r.miss && !m.def.dummy) addMastery('attack');
     if (!r.miss && p.d.venom && !m.def.boss) applyStatus(m, { kind: 'poison', chance: () => p.d.venom, dur: () => 8 }, 1);
   };
   if (p.d.ranged) {
@@ -727,6 +728,27 @@ function respawnPlayer(here) {
 // ------------------------------------------------------------
 //  สกิล
 // ------------------------------------------------------------
+// ความชำนาญ (ยิ่งเล่นยิ่งเก่ง): สกิลกดใช้และการโจมตีปกติสะสมจำนวนครั้งที่ใช้ → Lv ความชำนาญสูงสุด 10
+// สกิล: แรงขึ้น 3%/Lv (ทั้งดาเมจและฮีล) ใช้ครบ 660 ครั้งได้ Lv 10 • โจมตีปกติ: แรงขึ้น 2%/Lv ตีโดนครบ 6,600 ครั้งได้ Lv 10
+const MASTERY_MAX = 10;
+function masteryNeed(lv, id) { return Math.round((id === 'attack' ? 120 : 12) * lv * (lv + 1) / 2); } // ยอดสะสมที่ต้องมีเพื่อถึง lv
+function masteryUses(id) { return (G.player.mastery || {})[id] || 0; }
+function masteryLv(id) { const u = masteryUses(id); let lv = 0; while (lv < MASTERY_MAX && u >= masteryNeed(lv + 1, id)) lv++; return lv; }
+function masteryPct(id) { return masteryLv(id) * (id === 'attack' ? 2 : 3); }
+function masteryMul(id) { return 1 + masteryPct(id) / 100; }
+function addMastery(id) {
+  const p = G.player; p.mastery = p.mastery || {};
+  const before = masteryLv(id);
+  p.mastery[id] = (p.mastery[id] || 0) + 1;
+  const now = masteryLv(id);
+  if (now > before) {
+    const name = id === 'attack' ? 'การโจมตีปกติ' : SKILLS[id].name;
+    addFloater(p.x, p.y - 1.9, `MASTERY ${now}!`, '#9ff0ff', true);
+    UI.msg(`★ ความชำนาญ ${name} เพิ่มเป็น Lv ${now} — แรงขึ้น +${masteryPct(id)}%`, 'lvl');
+    Sound.play('buff');
+  }
+  UI.dirty();
+}
 function skillCost(id, lv) {
   const s = SKILLS[id], d = G.player.d;
   return s.sp ? Math.max(1, Math.round(s.sp(lv) * (1 + ((d && d.spCostPct) || 0) / 100))) : 0;
@@ -821,6 +843,7 @@ function executeSkill(id, lv, tgt) {
   const cost = skillCost(id, lv);
   if (!canPaySkill(cost)) { UI.msg(`${p.d.bloodmagic ? 'HP' : 'SP'} ไม่เพียงพอ`, 'err'); return; }
   paySkill(cost);
+  if (s.type === 'active') addMastery(id);
   if (s.hpCost) {
     const hc = Math.floor(p.hp * s.hpCost(lv) / 100);
     if (hc > 0) { p.hp = Math.max(1, p.hp - hc); addFloater(p.x, p.y - 1.2, `-${hc}`, '#ff8080'); }
@@ -845,7 +868,7 @@ function executeSkill(id, lv, tgt) {
     if (fxMap[s.selfFx]) addFx(fxMap[s.selfFx]);
   }
   if (s.heal) {
-    const amt = Math.floor(s.heal(lv, p.d, p) * (1 + p.d.healPct / 100));
+    const amt = Math.floor(s.heal(lv, p.d, p) * (1 + p.d.healPct / 100) * masteryMul(id));
     if (tgt) { damageMob(tgt, Math.max(1, Math.floor(amt / 2 * elemMod('holy', tgt.def.element))), { color: '#fff6a0' }); addFx({ type: 'holy', ref: tgt, dur: 0.5 }); }
     else { healPlayer(amt); Sound.play('heal'); }
   }
@@ -887,7 +910,7 @@ function skillDamage(s, lv, tgt) {
 function skillHitOne(s, lv, m) {
   const p = G.player, D = s.dmg;
   if (m.dead) return;
-  const mult = D.multAware && m.state === 'chase' ? D.multAware(lv) : D.mult(lv);
+  const mult = (D.multAware && m.state === 'chase' ? D.multAware(lv) : D.mult(lv)) * masteryMul(s.id);
   const deliver = () => {
     if (m.dead) return;
     const r = D.type === 'magic' ? magicHit(m, mult, D.element) : physHit(m, mult, { skill: true, element: D.element, sureHit: D.sureHit });
