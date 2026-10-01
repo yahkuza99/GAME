@@ -21,7 +21,11 @@
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; height: 100dvh; overflow: hidden; background: var(--bg0); font-family: var(--font); color: var(--ink); }
-body { user-select: none; -webkit-user-select: none; -webkit-text-size-adjust: 100%; overscroll-behavior: none; }
+body { user-select: none; -webkit-user-select: none; -webkit-text-size-adjust: 100%; overscroll-behavior: none; -webkit-touch-callout: none; }
+/* ข้อความในเกมไม่ถูกลาก/คลุมดำ/กดค้างแล้วขึ้นเมนู (มือถือ) — ช่องพิมพ์ยังเลือกข้อความได้ */
+* { -webkit-touch-callout: none; }
+img:not([draggable="true"]) { -webkit-user-drag: none; user-drag: none; }
+input, textarea, [contenteditable="true"] { user-select: text; -webkit-user-select: text; -webkit-touch-callout: default; }
 canvas#cv { position: fixed; inset: 0; display: block; touch-action: none; }
 .hidden { display: none !important; }
 button { font-family: inherit; cursor: pointer; color: inherit; }
@@ -245,7 +249,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round
 /* ---------------- แชท ---------------- */
 #chat { position: fixed; left: calc(var(--gap) + var(--sl)); bottom: calc(84px + var(--sb)); width: 370px; z-index: 15; padding: 6px 6px 6px 10px;
   background: linear-gradient(90deg, rgba(5,10,20,.8), rgba(5,10,20,.55) 70%, rgba(5,10,20,0)); border-left: 2px solid var(--line-2); }
-#chat-log { height: 128px; overflow-y: auto; font-size: 12.5px; padding: 2px 16px 2px 0; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; user-select: text; -webkit-user-select: text;
+#chat-log { height: 128px; overflow-y: auto; font-size: 12.5px; padding: 2px 16px 2px 0; scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; user-select: none; -webkit-user-select: none;
   -webkit-mask-image: linear-gradient(transparent, #000 16px); mask-image: linear-gradient(transparent, #000 16px); }
 .cl { line-height: 1.45; text-shadow: 0 1px 2px #000; color: var(--ink); word-break: break-word; }
 .cl.sys { color: #fff27a; } .cl.info { color: #9fdcff; } .cl.err { color: #ff8a96; } .cl.exp { color: #a8b8cc; font-size: 11px; }

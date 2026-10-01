@@ -1818,3 +1818,11 @@ UI.stackTop = () => {
   }
 };
 setInterval(() => { if (typeof G !== 'undefined' && G.started) UI.stackTop(); }, 1000); // บัฟขึ้น/หาย ป้ายแต้มเปลี่ยน → จัดใหม่
+
+// กันข้อความ/รูปถูกเลือกหรือลากโดยไม่ตั้งใจ (ยกเว้นช่องพิมพ์ และของที่ตั้งใจให้ลาก เช่น ไอเทม/สกิล)
+(() => {
+  const typing = t => t && t.closest && t.closest('input, textarea, [contenteditable="true"]');
+  document.addEventListener('selectstart', e => { if (!typing(e.target)) e.preventDefault(); });
+  document.addEventListener('dragstart', e => { if (!typing(e.target) && !(e.target.closest && e.target.closest('[draggable="true"]'))) e.preventDefault(); });
+  document.addEventListener('contextmenu', e => { if (!typing(e.target) && matchMedia('(pointer: coarse)').matches) e.preventDefault(); });
+})();
