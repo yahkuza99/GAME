@@ -944,11 +944,11 @@ Rows per priority: P1 = 36, P1+ = 6, P2 = 32, P2+ = 2, P3 = 72, P4 = 2, P4+ = 5,
 | ⬜ | 16 | P1 | `job_ullr_f.webp` | 1024×1536 · transparent |
 | ⬜ | 17 | P1 | `job_ullr_m.webp` | 1024×1536 · transparent |
 | ⬜ | 18 | P1 | `emblem_ullr.webp` | 128² · transparent |
-| ⬜ | 19 | P1 | `job_norn_f.webp` | 1024×1536 · transparent |
-| ⬜ | 20 | P1 | `job_norn_m.webp` | 1024×1536 · transparent |
-| ⬜ | 21 | P1 | `emblem_norn.webp` | 128² · transparent |
-| ⬜ | 22 | P1 | `job_gythja_f.webp` | 1024×1536 · transparent |
-| ⬜ | 23 | P1 | `job_gythja_m.webp` | 1024×1536 · transparent |
+| ✅ | 19 | P1 | `job_norn_f.webp` | 1024×1536 · transparent |
+| ✅ | 20 | P1 | `job_norn_m.webp` | 1024×1536 · transparent |
+| ✅ | 21 | P1 | `emblem_norn.webp` | 128² · transparent |
+| ✅ | 22 | P1 | `job_gythja_f.webp` | 1024×1536 · transparent |
+| ✅ | 23 | P1 | `job_gythja_m.webp` | 1024×1536 · transparent |
 | ✅ | 24 | P1 | `emblem_gythja.webp` | 128² · transparent |
 | ✅ | 25 | P1 | `job_phantom_f.webp` | 1024×1536 · transparent |
 | ✅ | 26 | P1 | `job_phantom_m.webp` | 1024×1536 · transparent |
