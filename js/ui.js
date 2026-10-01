@@ -1443,6 +1443,7 @@ const UI = {
       h('div', { class: 'opt-lbl' }, L('คุณภาพกราฟิก', 'Graphics quality')),
       h('div', { class: 'seg' }, ...[['high', L('สวย (ค่าเริ่มต้น)', 'High (default)')], ['low', L('ประหยัด (มือถือรุ่นเก่า)', 'Low (older phones)')]].map(([v, l]) =>
         h('button', { type: 'button', class: (o.gfx || 'high') === v ? 'on' : '', onclick: () => { o.gfx = v; R.setQuality(v); saveGame(); this.renderOptions(true); } }, l))),
+      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.shake !== false ? 'checked' : false, onchange: e => { o.shake = e.target.checked; saveGame(); } }), L(' จอสั่นตอนตีแรง/โดนบอส', ' Screen shake')),
       h('div', { class: 'opt-lbl' }, L('ปุ่มควบคุมบนจอ (จอย + ปุ่มโจมตี)', 'On-screen controls')),
       h('div', { class: 'seg' }, ...[['auto', L('อัตโนมัติ', 'Auto')], ['on', L('เปิด', 'On')], ['off', L('ปิด', 'Off')]].map(([v, l]) =>
         h('button', { type: 'button', class: Pad.mode === v ? 'on' : '', onclick: () => { Pad.setMode(v); this.renderOptions(true); } }, l))),
