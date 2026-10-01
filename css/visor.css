@@ -1242,3 +1242,28 @@ body.visor .charsel.confirming .cs-btns { display: none; }
 .slot-pick .sp-slot.empty .sp-ic { border: 1px dashed rgba(255, 255, 255, 0.18); background: none; }
 .slot-pick .sp-slot b { font: 600 11px var(--mono); color: #9fdcff; }
 .slot-pick .sp-tip { margin-top: 8px; font-size: 11px; color: #9fb0c4; max-width: 400px; }
+
+/* ===== มือถือแนวตั้ง: HUD กะทัดรัด (กรอบตัวละคร / แถบเป้าหมาย / ปุ่มข้างมินิแมพ เล็กลง ให้เห็นฉากมากขึ้น) ===== */
+@media (max-width: 760px) and (orientation: portrait) {
+  body.visor #basic-info { gap: 8px; width: auto; max-width: min(230px, 60vw); }
+  body.visor .bi-face, body.visor #bi-rings { width: 62px; height: 62px; }
+  body.visor .bi-face canvas { left: 9px; top: 9px; width: 44px; height: 44px; }
+  body.visor .bi-face em { font-size: 9.5px; line-height: 13px; padding: 0 5px; bottom: -3px; }
+  body.visor .bi-main { gap: 1px; }
+  body.visor .bi-id b { font-size: 15px; }
+  body.visor .bi-id span { font-size: 9px; letter-spacing: 0.12em; }
+  body.visor #basic-info .gauge i, body.visor #basic-info .gauge span, body.visor #basic-info .gauge.sp i, body.visor #basic-info .gauge.sp span { font-size: 11px; line-height: 1.2; }
+  body.visor .xrow label, body.visor .xrow > span { font-size: 8.5px; }
+  body.visor .bi-foot { font-size: 10.5px; row-gap: 2px; }
+  body.visor .pt { font-size: 9px; padding: 1px 7px; }
+  body.visor #target { width: min(46vw, 176px); padding: 3px 10px 5px 3px; gap: 6px; right: calc(var(--gap) + var(--sr) + 40px); }
+  body.visor #tg-cv { width: 26px; height: 26px; }
+  body.visor .tg-id b { font-size: 12px; }
+  body.visor .tg-id span { font-size: 9.5px; }
+  body.visor #target .gauge span { font-size: 9px; }
+  .mm-btn { width: 24px; height: 24px; }
+  .mm-btn svg { width: 13px; height: 13px; }
+  #zoom-ctl button:nth-child(1) { left: -12px; top: 4px; }
+  #zoom-ctl button:nth-child(2) { left: -16px; top: 32px; }
+  #map-open { left: -10px; top: 62px; }
+}
