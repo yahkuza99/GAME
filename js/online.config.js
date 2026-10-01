@@ -6,7 +6,7 @@
 // ============================================================
 window.ONLINE_CONFIG = {
   url: 'https://sxfjcxesjivevgqbueyk.supabase.co',
-  anonKey: '',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN4ZmpjeGVzaml2ZXZncWJ1ZXlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MTk0ODQsImV4cCI6MjEwNjM5NTQ4NH0.jPTwaMMln8OhVzLnhSj0ngID-pINIvtOTZ7_HdrmGgs',
   // ใช้สร้างอีเมลภายในจากชื่อผู้ใช้ (ผู้เล่นไม่ต้องใช้อีเมลจริง)
   emailDomain: 'players.ragnarok-web.game',
 };

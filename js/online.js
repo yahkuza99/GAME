@@ -17,6 +17,25 @@ const Online = {
     if (!cfg.url || !cfg.anonKey) { this.local = true; return; }
     if (!window.supabase || !window.supabase.createClient) { console.warn('โหลด Supabase ไม่สำเร็จ — ใช้บัญชีในเครื่อง'); this.local = true; return; }
     this.sb = window.supabase.createClient(cfg.url, cfg.anonKey, { auth: { persistSession: true, autoRefreshToken: true } });
+    this.ready = this.probe(cfg);
+  },
+  ready: Promise.resolve(),
+  // ตรวจว่าเซิร์ฟเวอร์พร้อมจริง (มีตาราง + ปิดยืนยันอีเมล + เชื่อมได้) ไม่พร้อม = ถอยไปใช้บัญชีในเครื่อง ผู้เล่นไม่ติดค้าง
+  async probe(cfg) {
+    const ctrl = new AbortController(), t = setTimeout(() => ctrl.abort(), 6000);
+    let why = '';
+    try {
+      const r = await fetch(`${cfg.url}/auth/v1/settings`, { headers: { apikey: cfg.anonKey }, signal: ctrl.signal });
+      const st = r.ok ? await r.json() : null;
+      if (!st) why = 'auth ' + r.status;
+      else if (!st.mailer_autoconfirm) why = 'ยังเปิด Confirm email';
+      else {
+        const { error } = await this.sb.from('characters').select('user_id', { head: true }).limit(1).abortSignal(ctrl.signal);
+        if (error) why = 'ยังไม่มีตาราง (รัน supabase/schema.sql): ' + error.message;
+      }
+    } catch (e) { why = 'เชื่อมต่อไม่ได้: ' + (e && e.message || e); }
+    clearTimeout(t);
+    if (why) { console.warn('เซิร์ฟเวอร์ออนไลน์ยังไม่พร้อม — ใช้บัญชีในเครื่อง:', why); this.local = true; this.sb = null; this.offlineWhy = why; }
   },
   // online = เชื่อมเซิร์ฟเวอร์จริง (เห็นผู้เล่นอื่น แชทรวม เซฟคลาวด์) • loggedIn = ล็อกอินบัญชีแล้ว (รวมบัญชีในเครื่อง)
   get online() { return this.enabled && !this.local && !!this.user; },
@@ -72,6 +91,7 @@ const Online = {
   async register(username, password) {
     if (!this.validUsername(username)) throw new Error('ชื่อผู้ใช้ต้องเป็น a-z, 0-9 หรือ _ ยาว 3-16 ตัว');
     if (password.length < 6) throw new Error('รหัสผ่านต้องยาวอย่างน้อย 6 ตัวอักษร');
+    await this.ready;
     if (this.local) return this.localRegister(username, password);
     const { data, error } = await this.sb.auth.signUp({ email: this.emailFor(username), password, options: { data: { username } } });
     if (error) throw new Error(this.errText(error));
@@ -80,6 +100,7 @@ const Online = {
   },
   async login(username, password) {
     if (!this.validUsername(username)) throw new Error('ชื่อผู้ใช้ไม่ถูกต้อง');
+    await this.ready;
     if (this.local) return this.localLogin(username, password);
     const { data, error } = await this.sb.auth.signInWithPassword({ email: this.emailFor(username), password });
     if (error) throw new Error(this.errText(error));
@@ -87,6 +108,7 @@ const Online = {
   },
   async restore() {
     if (!this.enabled) return false;
+    await this.ready;
     if (this.local) {
       const u = this.lsGet(this.LS.session, null), acc = this.lsGet(this.LS.accounts, {});
       if (u && acc[String(u).toLowerCase()]) { this.setLocal(acc[String(u).toLowerCase()].name); return true; }
