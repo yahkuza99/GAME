@@ -15,9 +15,9 @@ R.init = () => {
   R.g = R.cv.getContext('2d');
   R.dark = document.createElement('canvas');
   R.resize();
-  // ซูมเริ่มต้นแบบ RO: กล้องใกล้ ตัวละครเด่น (จอเล็กซูมน้อยลงเพื่อให้เห็นรอบตัวพอ)
+  // ซูมเริ่มต้นแบบ Trickster: กล้องใกล้ ตัวละคร/ต้นไม้ใหญ่เด่น (จอเล็กซูมน้อยลงเพื่อให้เห็นรอบตัวพอ)
   const short = Math.min(window.innerWidth, window.innerHeight);
-  R.zoom = short < 500 ? 1.2 : short < 800 ? 1.3 : 1.45;
+  R.zoom = short < 500 ? 1.35 : short < 700 ? 1.55 : 1.8;
   window.addEventListener('resize', R.resize);
 };
 // คุณภาพกราฟิก: 'low' = ความละเอียด 1x ไม่มีหญ้าพลิ้ว/หมอก/ฝุ่นลอย (มือถือรุ่นเก่าลื่นขึ้นมาก)
