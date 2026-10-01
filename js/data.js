@@ -451,7 +451,8 @@ const JOB_STARTER = { einherjar: 'sword', runecaster: 'rod', wildhunter: 'bow', 
 //  ตารางประสบการณ์
 // ------------------------------------------------------------
 const MAX_BASE_LV = 99;
-function baseExpNeed(lv) { return Math.floor(10 * Math.pow(lv, 1.9)); }
+// เส้น EXP: ต้นเกมขึ้นไว (Lv 1-4 ไม่กี่ตัว) แล้วค่อย ๆ หนักขึ้น — Lv 10 ≈ 18 ตัว, Lv 20 ≈ 37, Lv 30 ≈ 73 ตัวของมอนที่เหมาะ
+function baseExpNeed(lv) { return Math.floor(5 * Math.pow(lv, 2.75)) + 40; }
 function jobExpNeed(job, jl) {
   if (job === 'novice') return Math.floor(5 * Math.pow(jl, 1.5)) + 5;
   return Math.floor(40 * jl * jl);
