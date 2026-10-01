@@ -13,7 +13,7 @@ const { chromium } = require('playwright');
     for (const job of FIRST_JOBS) {
       document.querySelectorAll('.win:not(.hidden)').forEach(w => w.classList.add('hidden'));
       const pl = G.player;
-      pl.job = job; pl.baseLv = 25; pl.jobLv = 21; pl.skills = {}; pl.buffs = {}; pl.cds = {}; pl.skillReadyAt = 0;
+      pl.job = job; pl.baseLv = 25; pl.jobLv = JOBS[job].jobMax; pl.skills = {}; pl.buffs = {}; pl.cds = {}; pl.skillReadyAt = 0;
       for (const id of JOBS[job].skills) if (SKILLS[id] && !SKILLS[id].noLearn) pl.skills[id] = SKILLS[id].max;
       // สเตตัสตามอาชีพ (แบบผู้เล่นทั่วไป)
       const st = { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 };

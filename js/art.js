@@ -196,3 +196,11 @@ function applyTitleArt() {
     if (l && !l.querySelector('img')) { l.textContent = ''; l.append(Object.assign(new Image(), { src: Art.get('logo').src, alt: 'NEO MIDGARD' })); l.classList.add('logo-img'); }
   }
 }
+
+// ไอคอนสกิลติดตัวชุดที่ 2: ย้อมสี + กลับด้านจากไอคอนพาสซีฟแรกของอาชีพ (จนกว่าจะมีภาพจริง assets/skill_<id>.webp)
+Art.alias('skill_valhalla_oath', 'skill_iron_body', { hue: 35, sat: 1.25, bri: 1.08, tint: ['#e0a030', 0.22], flip: true });
+Art.alias('skill_runic_ward', 'skill_rune_mastery', { hue: 70, sat: 1.1, tint: ['#7ab0ff', 0.15], flip: true });
+Art.alias('skill_hunters_rhythm', 'skill_eagle_eye', { hue: -85, sat: 1.3, bri: 1.05, tint: ['#ffb040', 0.18], flip: true });
+Art.alias('skill_freyjas_grace', 'skill_sanctuary', { hue: -80, sat: 1.2, bri: 1.1, tint: ['#ffe08a', 0.25], flip: true });
+Art.alias('skill_lokis_gambit', 'skill_shadow_step', { hue: 120, sat: 1.15, tint: ['#b07ae0', 0.2], flip: true });
+Art.alias('skill_bloodthirst', 'skill_wolf_blood', { hue: -45, sat: 1.2, bri: 0.8, tint: ['#5a0030', 0.3], flip: true });
