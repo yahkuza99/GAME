@@ -44,8 +44,88 @@ const Art = {
     if (ITEMS[id] && ITEMS[id].type === 'card' && this.imgs.item_card) return 'item_card';
     return null;
   },
-  has(k) { return !!this.imgs[k]; },
-  get(k) { return this.imgs[k] || null; },
+  has(k) { return !!this.get(k); },
+  get(k) { return this.imgs[k] || this.derive(k); },
+
+  // ---------------- ภาพย้อมสี (palette swap แบบ RO: Poring → Drops → Poporing) ----------------
+  // มอนสีต่าง: MOBS[id].base = id มอนต้นแบบ + hue (องศา) / sat / bri / tint ('#สี' หรือ ['#สี', ความเข้ม 0..1])
+  //   → ภาพของต้นแบบ (mobsprite_ / anim_mob_*_<ท่า> / mvp_) ถูกย้อมครั้งแรกที่มีคนขอ แล้วเก็บไว้ใต้คีย์ของตัวใหม่
+  //   โค้ดวาดเดิมทุกจุด (Sprites.drawMob, Anim, หน้าข้อมูลมอน, รายการล่า) จึงได้ภาพสีใหม่โดยไม่ต้องแก้
+  //   ถ้าภายหลังมีไฟล์ภาพของตัวใหม่จริง (assets/mobsprite_<id>.webp) ภาพจริงจะทับภาพย้อมเอง
+  // ภาพอื่น: Art.alias('map_archive', 'map_helcave', { hue: 150, flip: true })
+  aliases: {}, _vs: Object.create(null),
+  alias(key, from, spec) { this.aliases[key] = Object.assign({ from }, spec); delete this._vs[key]; },
+  derive(k) {
+    let s = this._vs[k];
+    if (s === undefined) s = this._vs[k] = this.variantSource(k);
+    if (!s) return null;
+    const img = this.get(s.from); // ต้นแบบอาจเป็นภาพย้อมอีกทอดก็ได้
+    return img ? (this.imgs[k] = this.tint(img, s)) : null; // ต้นแบบยังโหลดไม่เสร็จ: ลองใหม่ครั้งหน้า
+  },
+  variantSource(k) {
+    if (this.aliases[k]) return this.aliases[k];
+    if (typeof MOBS === 'undefined') return null;
+    const m = /^anim_mob_(.+)_([a-z]+)$/.exec(k) || /^(mobsprite|mvp)_(.+)$/.exec(k);
+    if (!m) return null;
+    const anim = k.startsWith('anim_'), d = MOBS[anim ? m[1] : m[2]];
+    if (!d || !d.base || !MOBS[d.base]) return null;
+    if (!anim && m[1] === 'mvp' && !d.boss) return null; // ภาพเปิดตัวบอส: เฉพาะบอสสีต่าง
+    return { from: anim ? `anim_mob_${d.base}_${m[2]}` : `${m[1]}_${d.base}`, hue: d.hue, sat: d.sat, bri: d.bri, tint: d.tint };
+  },
+  // เมทริกซ์สีแบบเดียวกับ CSS hue-rotate() saturate() brightness() (ใช้ย้อมสีโค้ดวาด และเป็นทางสำรองเมื่อเบราว์เซอร์ไม่มี ctx.filter)
+  colorMatrix(s) {
+    const a = (s.hue || 0) * Math.PI / 180, c = Math.cos(a), n = Math.sin(a), v = s.sat == null ? 1 : s.sat, b = s.bri == null ? 1 : s.bri;
+    const H = [0.213 + c * 0.787 - n * 0.213, 0.715 - c * 0.715 - n * 0.715, 0.072 - c * 0.072 + n * 0.928,
+      0.213 - c * 0.213 + n * 0.143, 0.715 + c * 0.285 + n * 0.140, 0.072 - c * 0.072 - n * 0.283,
+      0.213 - c * 0.213 - n * 0.787, 0.715 - c * 0.715 + n * 0.715, 0.072 + c * 0.928 + n * 0.072];
+    const S = [0.213 + 0.787 * v, 0.715 - 0.715 * v, 0.072 - 0.072 * v, 0.213 - 0.213 * v, 0.715 + 0.285 * v, 0.072 - 0.072 * v,
+      0.213 - 0.213 * v, 0.715 - 0.715 * v, 0.072 + 0.928 * v];
+    const M = [];
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) M.push(b * (S[i * 3] * H[j] + S[i * 3 + 1] * H[3 + j] + S[i * 3 + 2] * H[6 + j]));
+    return M;
+  },
+  tintSpec(s) { return !s.tint ? null : Array.isArray(s.tint) ? s.tint : [s.tint, 0.3]; },
+  // ย้อมสีโค้ดสีเดียว ('#rrggbb') ด้วยสูตรเดียวกับภาพ — ให้มอนที่วาดด้วยโค้ด (ตอนภาพยังไม่โหลด) สีตรงกับภาพ
+  tintHex(hex, s) {
+    if (typeof hex !== 'string' || !/^#[0-9a-f]{6}$/i.test(hex)) return hex;
+    const n = parseInt(hex.slice(1), 16), rgb = [(n >> 16) & 255, (n >> 8) & 255, n & 255], M = this.colorMatrix(s), t = this.tintSpec(s);
+    let o = [0, 1, 2].map(i => M[i * 3] * rgb[0] + M[i * 3 + 1] * rgb[1] + M[i * 3 + 2] * rgb[2]);
+    if (t) { const m = parseInt(t[0].slice(1), 16), tc = [(m >> 16) & 255, (m >> 8) & 255, m & 255]; o = o.map((v, i) => v + (tc[i] - v) * t[1]); }
+    return '#' + o.map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('');
+  },
+  tint(img, s) {
+    const k = s.w ? Math.min(1, s.w / img.width) : 1; // w = ความกว้างสูงสุด (ย่อภาพใหญ่ เช่น ภาพแผนที่)
+    const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    const g = c.getContext('2d'), W = c.width, H = c.height;
+    const f = [s.hue ? `hue-rotate(${s.hue}deg)` : '', s.sat != null ? `saturate(${s.sat})` : '', s.bri != null ? `brightness(${s.bri})` : ''].join(' ').trim();
+    const native = !!f && typeof CanvasRenderingContext2D !== 'undefined' && 'filter' in CanvasRenderingContext2D.prototype;
+    const draw = () => { g.save(); if (s.flip) { g.translate(W, 0); g.scale(-1, 1); } g.drawImage(img, 0, 0, W, H); g.restore(); };
+    if (native) g.filter = f;
+    draw();
+    g.filter = 'none';
+    if (f && !native) { // Safari รุ่นเก่า (ไม่มี ctx.filter): ย้อมทีละพิกเซล
+      try {
+        const id = g.getImageData(0, 0, W, H), d = id.data, M = this.colorMatrix(s);
+        for (let i = 0; i < d.length; i += 4) {
+          if (!d[i + 3]) continue;
+          const r = d[i], gg = d[i + 1], b = d[i + 2];
+          d[i] = M[0] * r + M[1] * gg + M[2] * b; d[i + 1] = M[3] * r + M[4] * gg + M[5] * b; d[i + 2] = M[6] * r + M[7] * gg + M[8] * b;
+        }
+        g.putImageData(id, 0, 0);
+      } catch (e) { /* ภาพจาก file:// อ่านพิกเซลไม่ได้ ใช้สีเดิม */ }
+    }
+    const t = this.tintSpec(s);
+    if (t) { // เคลือบสี (เช่น สนิม) เฉพาะส่วนที่มีภาพ
+      g.globalCompositeOperation = t[2] || 'source-atop'; g.globalAlpha = t[1]; g.fillStyle = t[0]; g.fillRect(0, 0, W, H);
+      g.globalAlpha = 1;
+      if (t[2]) { g.globalCompositeOperation = 'destination-in'; draw(); } // โหมดผสมอื่น (multiply/color) ทาเลยขอบ → ตัดตามรูปเดิม
+      g.globalCompositeOperation = 'source-over';
+    }
+    // ใช้ใน <img src> (รายการล่า ข้อมูลมอน แบนเนอร์แผนที่) — แปลงเป็น URL ครั้งแรกที่ถูกขอเท่านั้น
+    Object.defineProperty(c, 'src', { get() { if (!this._url) { try { this._url = this.toDataURL('image/webp', 0.9); } catch (e) { this._url = img.src || ''; } } return this._url; } });
+    c.variantOf = s.from;
+    return c;
+  },
   // ภาพตัวละครตามอาชีพและเพศ (ถ้าไม่มีเพศนั้นใช้อีกเพศแทน)
   jobKey(job, gender) {
     const a = `job_${job}_${gender === 'm' ? 'm' : 'f'}`, b = `job_${job}_${gender === 'm' ? 'f' : 'm'}`;
