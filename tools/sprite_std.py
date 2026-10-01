@@ -64,6 +64,9 @@ def template(cols=4, rows=2, cw=384, chh=512):
     return im
 
 
+HOLE_MODE = 'block'
+
+
 def knock_bg(im, tol=40, hole_tol=14, hole_min=240):
     """ลบพื้นหลังสีเรียบแบบ "น้ำท่วมจากขอบภาพ" — สีขาวที่อยู่ในตัวละคร (หน้ากาก ชุดเกราะขาว) ไม่ถูกลบ
     ช่องว่างที่ถูกล้อมไว้ (เช่น ระหว่างแขนกับลำตัว) ลบเฉพาะที่สีตรงพื้นเป๊ะและกว้างพอ"""
@@ -100,6 +103,21 @@ def knock_bg(im, tol=40, hole_tol=14, hole_min=240):
         for x in range(W):
             if fp[x, y] == KEY: ap[x, y] = 0
     # รูที่ถูกล้อม: สีเท่าพื้นเกือบเป๊ะ และกว้างพอ (หน้ากาก/เกราะมีแสงเงา จึงไม่เข้าเกณฑ์)
+    if HOLE_MODE == 'pixel':  # (--holes pixel) ระดับพิกเซล จับช่องแคบระหว่างขาได้ — ใช้กับชีตที่ไม่มีชิ้นส่วนสีขาวล้วนเท่านั้น
+        cand = set()
+        for y in range(H):
+            for x in range(W):
+                if ap[x, y]:
+                    c = px[x, y]
+                    if abs(c[0] - bg[0]) + abs(c[1] - bg[1]) + abs(c[2] - bg[2]) < hole_tol: cand.add((x, y))
+        while cand:
+            st = [cand.pop()]; pts = list(st)
+            while st:
+                x, y = st.pop()
+                for q in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+                    if q in cand: cand.discard(q); st.append(q); pts.append(q)
+            if len(pts) >= hole_min:
+                for x, y in pts: ap[x, y] = 0
     f = 4; w, h = W // f, H // f
     cand = [[False] * w for _ in range(h)]
     for yy in range(h):
@@ -275,7 +293,7 @@ def main_blob(a, f=4, core=None, split=False):
                             lab[ny][nx] = cid; st.append((nx, ny))
             comps.append(pts)
     if not comps: return None
-    all_comps = list(comps)
+    all_comps = list(comps); small_ok = set()
     if core is not None:
         # เลือกเฉพาะก้อนที่จุดศูนย์กลางอยู่ในช่องหลัก • ก้อนที่กว้างเกินช่องมาก = ชนกับตัวข้าง ๆ → ใช้ไม่ได้
         cx0, cy0, cx1, cy1 = (v / f for v in core)
@@ -295,6 +313,14 @@ def main_blob(a, f=4, core=None, split=False):
             gap = max(mx0 - max(px_), min(px_) - mx1, my0 - max(py_), min(py_) - my1, 0)
             return inside_all or gap <= 3
         comps = [p for p in inside if keep(p)]
+        # ชิ้นเล็กที่อยู่ในช่องทั้งชิ้นและใกล้ตัว (วงแหวนเหนือหัว ประกาย ใบไม้) = ส่วนหนึ่งของดีไซน์ เก็บไว้
+        reach = (cx1 - cx0) * 0.25
+        def near_small(p):
+            px_ = [q[0] for q in p]; py_ = [q[1] for q in p]
+            inside_all = min(px_) >= cx0 and max(px_) < cx1 and min(py_) >= cy0 and max(py_) < cy1
+            gap = max(mx0 - max(px_), min(px_) - mx1, my0 - max(py_), min(py_) - my1, 0)
+            return inside_all and gap <= reach
+        small_ok = {id(p) for p in comps if near_small(p)}
     else:
         big = max(len(p) for p in comps)
         if big < 40: return None
@@ -313,7 +339,7 @@ def main_blob(a, f=4, core=None, split=False):
         # คืนส่วนที่กัดไป: แผ่จากทุกก้อนพร้อมกันบนเนื้อภาพจริง (ใครถึงก่อนได้พิกเซลนั้น)
         # รายละเอียดบาง ๆ (ชายผ้า เถาวัลย์ ปลายมีด) กลับไปหาเจ้าของ จุดแตะระหว่างสองตัวถูกแบ่งครึ่ง
         from collections import deque
-        keepset = {id(p) for p in comps if len(p) >= big * 0.12}
+        keepset = {id(p) for p in comps if len(p) >= big * 0.12 or (id(p) in small_ok and len(p) >= big * 0.006)}
         owner = [[-1] * w for _ in range(h)]; q = deque()
         for ci, pts in enumerate(all_comps):
             for x, y in pts: owner[y][x] = ci; q.append((x, y))
@@ -331,7 +357,7 @@ def main_blob(a, f=4, core=None, split=False):
                 elif o < 0 and orig[y][x] and (core is None or (core[0] / f <= x < core[2] / f and core[1] / f <= y < core[3] / f)): mp[x, y] = 255  # ชิ้นเล็กที่หายไปตอนกัด
     else:
         for pts in comps:
-            if len(pts) >= big * 0.12:
+            if len(pts) >= big * 0.12 or (id(pts) in small_ok and len(pts) >= big * 0.006):
                 for x, y in pts: mp[x, y] = 255
     return m.resize((W, H), Image.NEAREST).filter(ImageFilter.MaxFilter(2 * f + 1))
 
@@ -407,6 +433,7 @@ def main():
     ap.add_argument('--grid', default='4x2'); ap.add_argument('--cols', type=int, default=4); ap.add_argument('--rows', type=int, default=2)
     ap.add_argument('--frames', type=int, default=0, help='ใช้แค่ N เฟรมแรก')
     ap.add_argument('--dirs', default='', help='ทิศของแต่ละแถวในชีต เช่น S,SW,W,NW,N,E,SE')
+    ap.add_argument('--holes', default='block', choices=['block', 'pixel'], help='pixel = ลบช่องว่างแคบ ๆ ระหว่างขาด้วย (ห้ามใช้กับตัวที่มีส่วนสีขาวล้วน เช่น หน้ากาก)')
     ap.add_argument('--scale', type=float, default=0, help='กำหนดสเกลเอง (เช่น เท่ากับชีตอื่นที่วาดขนาดเดียวกัน)')
     ap.add_argument('--take-cols', default='', help='เก็บเฉพาะคอลัมน์เหล่านี้ของทุกแถว เช่น 1,2 (ชีตรวมหลายท่า)')
     ap.add_argument('--ref-frames', default='', help='คอลัมน์ที่เป็นท่ายืนตรง เช่น 1,6 — ใช้ความสูงของเฟรมพวกนี้ตั้งสเกลให้เท่าท่าเดิน (ChatGPT มักวาดแต่ละชีตขนาดไม่เท่ากัน)')
@@ -421,6 +448,7 @@ def main():
         out = os.path.join(HERE, '..', 'art', f'anim_template_{a.cols}x{a.rows}.png')
         template(a.cols, a.rows).save(out); print('template →', out); return
     cols, rows = map(int, a.grid.lower().split('x'))
+    global HOLE_MODE; HOLE_MODE = a.holes
     frames = frames_from_grid(Image.open(a.src), cols, rows)
     ref_scale = None
     if a.ref_frames:  # วัดจากคอลัมน์ในชีตเต็ม (ก่อนกรอง --take-cols) เช่น นั่ง ใช้ความสูงของเฟรมยืนในชีตเดียวกัน

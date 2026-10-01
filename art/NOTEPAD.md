@@ -2,7 +2,7 @@
 
 สร้างอัตโนมัติด้วย `python3 tools/make_notepad.py` (ดูว่าอะไรมีแล้วจาก assets) • ✅ = ติดตั้งแล้ว • ⬜ = ยังขาด
 
-**ยังขาด: ตัวละคร 78 ภาพ • มอนสเตอร์ 14 ภาพ • NPC 1 ภาพ**
+**ยังขาด: ตัวละคร 78 ภาพ • มอนสเตอร์ 9 ภาพ • NPC 1 ภาพ**
 
 ## วิธีใช้
 
@@ -325,7 +325,7 @@ IMAGE 6 — DEAD (template tpl_dead.png): DEAD, 4 frames per direction: 1 knees 
 Start now with IMAGE 1.
 ```
 
-### มอนสเตอร์ทั้งหมด — 14 ภาพ
+### มอนสเตอร์ทั้งหมด — 9 ภาพ
 
 แชตใหม่ • แนบ mobsprite ของตัวที่ 1 (Gel Unit) + tpl_mob.png • จากนั้นพิมพ์ next + แนบ mobsprite ตัวถัดไป + tpl_mob.png
 
@@ -337,18 +337,13 @@ I will ask for ONE monster at a time. After each image, wait until I type "next"
 
 IMAGE 1 — Gel Unit: MOVE = squash down, stretch up jumping, in the air, landing squash. ATTACK = squash low, lunge forward stretched, SPLAT hit, bounce back.
 IMAGE 2 — Crawler Unit: MOVE = body segments wave forward like a caterpillar (4 steps of a crawl). ATTACK = rear up, head lunges forward biting, hit, pull back.
-IMAGE 3 — Bunny Unit: MOVE = crouch, hop up, in the air with ears back, land. ATTACK = crouch, jump kick forward, hit, land.
-IMAGE 4 — Ember Unit: MOVE = squash and jump like a slime, the antenna flame flickers. ATTACK = squash low, lunge forward, SPLAT hit, bounce back.
-IMAGE 5 — Buzz Unit: MOVE = hovering, wings blur up and down, body bobbing. ATTACK = pull back, dive forward stinger first, STING, fly back.
-IMAGE 6 — Rust Sentry: MOVE = root legs shuffle forward one side then the other (a heavy waddle). ATTACK = lean back, swing a wooden root arm, SMASH hit, recover.
-IMAGE 7 — Hopper Unit: MOVE = crouch, big grasshopper hop, in the air, land (keep the violin). ATTACK = crouch, leap forward, kick with the long hind legs, land.
-IMAGE 8 — Mine Unit: MOVE = waddles on its little red boots, the siren light blinks. ATTACK = cap puffs up big, siren light turns red, cap slams forward, deflate.
-IMAGE 9 — Moss Unit: MOVE = squash and jump like a slime, the clover leaf bounces. ATTACK = squash low, lunge forward, SPLAT hit, bounce back.
-IMAGE 10 — Seraph Core (MVP): MOVE = hovers with the wings flapping, halo glowing, gentle bob. ATTACK = rise up, wings spread wide, SLAM down, float back.
-IMAGE 11 — Ash Stalker: MOVE = four-legged trot cycle (legs alternate diagonally), striped tail swishing. ATTACK = crouch, pounce forward, claw SWIPE, land.
-IMAGE 12 — Fenrir Unit: MOVE = four-legged run cycle (gallop), cyan fins stay the same. ATTACK = lower head and snarl, lunge, BITE, pull back.
-IMAGE 13 — Hel Guard Unit: MOVE = heavy armored march, cape swaying, halberd upright. ATTACK = halberd raised overhead, step in, heavy CLEAVE, recover.
-IMAGE 14 — Kitsura EX (MVP): MOVE = graceful floating walk, nine tails fanning and waving. ATTACK = tails fan out, palm raised, thrust the palm forward, tails settle.
+IMAGE 3 — Ember Unit: MOVE = squash and jump like a slime, the antenna flame flickers. ATTACK = squash low, lunge forward, SPLAT hit, bounce back.
+IMAGE 4 — Buzz Unit: MOVE = hovering, wings blur up and down, body bobbing. ATTACK = pull back, dive forward stinger first, STING, fly back.
+IMAGE 5 — Hopper Unit: MOVE = crouch, big grasshopper hop, in the air, land (keep the violin). ATTACK = crouch, leap forward, kick with the long hind legs, land.
+IMAGE 6 — Mine Unit: MOVE = waddles on its little red boots, the siren light blinks. ATTACK = cap puffs up big, siren light turns red, cap slams forward, deflate.
+IMAGE 7 — Moss Unit: MOVE = squash and jump like a slime, the clover leaf bounces. ATTACK = squash low, lunge forward, SPLAT hit, bounce back.
+IMAGE 8 — Hel Guard Unit: MOVE = heavy armored march, cape swaying, halberd upright. ATTACK = halberd raised overhead, step in, heavy CLEAVE, recover.
+IMAGE 9 — Kitsura EX (MVP): MOVE = graceful floating walk, nine tails fanning and waving. ATTACK = tails fan out, palm raised, thrust the palm forward, tails settle.
 
 Start now with IMAGE 1.
 ```
@@ -1030,15 +1025,7 @@ Bottom row = ATTACK, 4 frames: rear up, head lunges forward biting, hit, pull ba
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
-⬜ **Bunny Unit** (Emerald Meadow) — แนบ `mobsprite_moonbun.webp` + `tpl_mob.png`
-
-```
-Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Bunny Unit.
-Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
-Top row = MOVE loop, 4 frames: crouch, hop up, in the air with ears back, land.
-Bottom row = ATTACK, 4 frames: crouch, jump kick forward, hit, land.
-Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **Bunny Unit** (Emerald Meadow) — แนบ `mobsprite_moonbun.webp` + `tpl_mob.png`
 
 ⬜ **Ember Unit** (Emerald Meadow) — แนบ `mobsprite_ember_pudding.webp` + `tpl_mob.png`
 
@@ -1060,15 +1047,7 @@ Bottom row = ATTACK, 4 frames: pull back, dive forward stinger first, STING, fly
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
-⬜ **Rust Sentry** (Mistlake Plains) — แนบ `mobsprite_stumpling.webp` + `tpl_mob.png`
-
-```
-Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Rust Sentry.
-Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
-Top row = MOVE loop, 4 frames: root legs shuffle forward one side then the other (a heavy waddle).
-Bottom row = ATTACK, 4 frames: lean back, swing a wooden root arm, SMASH hit, recover.
-Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **Rust Sentry** (Mistlake Plains) — แนบ `mobsprite_stumpling.webp` + `tpl_mob.png`
 
 ⬜ **Hopper Unit** (Mistlake Plains) — แนบ `mobsprite_fiddlehopper.webp` + `tpl_mob.png`
 
@@ -1100,35 +1079,11 @@ Bottom row = ATTACK, 4 frames: squash low, lunge forward, SPLAT hit, bounce back
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
-⬜ **Seraph Core (MVP)** (Mistlake Plains) — แนบ `mobsprite_seraph_pudding.webp` + `tpl_mob.png`
+✅ **Seraph Core (MVP)** (Mistlake Plains) — แนบ `mobsprite_seraph_pudding.webp` + `tpl_mob.png`
 
-```
-Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Seraph Core (MVP).
-Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
-Top row = MOVE loop, 4 frames: hovers with the wings flapping, halo glowing, gentle bob.
-Bottom row = ATTACK, 4 frames: rise up, wings spread wide, SLAM down, float back.
-Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **Ash Stalker** (Wolfwood Forest) — แนบ `mobsprite_ashtail.webp` + `tpl_mob.png`
 
-⬜ **Ash Stalker** (Wolfwood Forest) — แนบ `mobsprite_ashtail.webp` + `tpl_mob.png`
-
-```
-Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Ash Stalker.
-Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
-Top row = MOVE loop, 4 frames: four-legged trot cycle (legs alternate diagonally), striped tail swishing.
-Bottom row = ATTACK, 4 frames: crouch, pounce forward, claw SWIPE, land.
-Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
-```
-
-⬜ **Fenrir Unit** (Wolfwood Forest) — แนบ `mobsprite_fenrir_pup.webp` + `tpl_mob.png`
-
-```
-Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Fenrir Unit.
-Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
-Top row = MOVE loop, 4 frames: four-legged run cycle (gallop), cyan fins stay the same.
-Bottom row = ATTACK, 4 frames: lower head and snarl, lunge, BITE, pull back.
-Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **Fenrir Unit** (Wolfwood Forest) — แนบ `mobsprite_fenrir_pup.webp` + `tpl_mob.png`
 
 ✅ **Iron Brute** (Wolfwood Forest) — แนบ `mobsprite_mossback.webp` + `tpl_mob.png`
 

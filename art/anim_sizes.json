@@ -118,5 +118,80 @@
    "scale_src": 0.5137,
    "median_src_h": 291.9977526884284
   }
+ },
+ "mob_seraph_pudding": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4967,
+   "median_src_h": 302
+  },
+  "_k1536": 0.4055,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4967,
+   "median_src_h": 301.99984586929713
+  }
+ },
+ "mob_fenrir_pup": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.5474,
+   "median_src_h": 274
+  },
+  "_k1536": 0.63227,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.5474,
+   "median_src_h": 274.00032818258023
+  }
+ },
+ "mob_ashtail": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4658,
+   "median_src_h": 322
+  },
+  "_k1536": 0.38031,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4658,
+   "median_src_h": 322.0029383923641
+  }
+ },
+ "mob_stumpling": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4274,
+   "median_src_h": 351
+  },
+  "_k1536": 0.34889,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4273,
+   "median_src_h": 351.0015692625183
+  }
+ },
+ "mob_moonbun": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4132,
+   "median_src_h": 363
+  },
+  "_k1536": 0.47725,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4132,
+   "median_src_h": 363.00091671031953
+  }
  }
 }

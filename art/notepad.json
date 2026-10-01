@@ -237,13 +237,13 @@
 "group": "แชตสั่งภาพ (แบบ next)",
 "key": "chat_มอนสเตอร์ทั้งหมด",
 "sheet": "chat",
-"title": "มอนสเตอร์ทั้งหมด — 14 ภาพ",
+"title": "มอนสเตอร์ทั้งหมด — 9 ภาพ",
 "attach": [
 "mobsprite_pudding.webp",
 "tpl_mob.png"
 ],
 "done": false,
-"prompt": "You are my monster sprite artist for a cute 2000s Korean MMORPG (Ragnarok Online style) where every monster is a cute chibi ROBOT version of a classic monster.\nFor each image I attach: (1) the monster design, (2) the 4x2 template. Draw that exact monster (same colors, same size, same art style) into the template, facing LEFT (3/4 view).\nTop row = MOVE loop (4 frames). Bottom row = ATTACK (4 frames). Bottom of the monster on the red line in every cell, even for jumps (the game adds the jump height). Every frame clearly different. Draw the monster ONLY: no effects, no motion lines, no impact bursts (the game adds them). Leave clear space between cells. Flat white background. Do NOT draw the labels, grid or guide lines.\nI will ask for ONE monster at a time. After each image, wait until I type \"next\".\n\nIMAGE 1 — Gel Unit: MOVE = squash down, stretch up jumping, in the air, landing squash. ATTACK = squash low, lunge forward stretched, SPLAT hit, bounce back.\nIMAGE 2 — Crawler Unit: MOVE = body segments wave forward like a caterpillar (4 steps of a crawl). ATTACK = rear up, head lunges forward biting, hit, pull back.\nIMAGE 3 — Bunny Unit: MOVE = crouch, hop up, in the air with ears back, land. ATTACK = crouch, jump kick forward, hit, land.\nIMAGE 4 — Ember Unit: MOVE = squash and jump like a slime, the antenna flame flickers. ATTACK = squash low, lunge forward, SPLAT hit, bounce back.\nIMAGE 5 — Buzz Unit: MOVE = hovering, wings blur up and down, body bobbing. ATTACK = pull back, dive forward stinger first, STING, fly back.\nIMAGE 6 — Rust Sentry: MOVE = root legs shuffle forward one side then the other (a heavy waddle). ATTACK = lean back, swing a wooden root arm, SMASH hit, recover.\nIMAGE 7 — Hopper Unit: MOVE = crouch, big grasshopper hop, in the air, land (keep the violin). ATTACK = crouch, leap forward, kick with the long hind legs, land.\nIMAGE 8 — Mine Unit: MOVE = waddles on its little red boots, the siren light blinks. ATTACK = cap puffs up big, siren light turns red, cap slams forward, deflate.\nIMAGE 9 — Moss Unit: MOVE = squash and jump like a slime, the clover leaf bounces. ATTACK = squash low, lunge forward, SPLAT hit, bounce back.\nIMAGE 10 — Seraph Core (MVP): MOVE = hovers with the wings flapping, halo glowing, gentle bob. ATTACK = rise up, wings spread wide, SLAM down, float back.\nIMAGE 11 — Ash Stalker: MOVE = four-legged trot cycle (legs alternate diagonally), striped tail swishing. ATTACK = crouch, pounce forward, claw SWIPE, land.\nIMAGE 12 — Fenrir Unit: MOVE = four-legged run cycle (gallop), cyan fins stay the same. ATTACK = lower head and snarl, lunge, BITE, pull back.\nIMAGE 13 — Hel Guard Unit: MOVE = heavy armored march, cape swaying, halberd upright. ATTACK = halberd raised overhead, step in, heavy CLEAVE, recover.\nIMAGE 14 — Kitsura EX (MVP): MOVE = graceful floating walk, nine tails fanning and waving. ATTACK = tails fan out, palm raised, thrust the palm forward, tails settle.\n\nStart now with IMAGE 1.",
+"prompt": "You are my monster sprite artist for a cute 2000s Korean MMORPG (Ragnarok Online style) where every monster is a cute chibi ROBOT version of a classic monster.\nFor each image I attach: (1) the monster design, (2) the 4x2 template. Draw that exact monster (same colors, same size, same art style) into the template, facing LEFT (3/4 view).\nTop row = MOVE loop (4 frames). Bottom row = ATTACK (4 frames). Bottom of the monster on the red line in every cell, even for jumps (the game adds the jump height). Every frame clearly different. Draw the monster ONLY: no effects, no motion lines, no impact bursts (the game adds them). Leave clear space between cells. Flat white background. Do NOT draw the labels, grid or guide lines.\nI will ask for ONE monster at a time. After each image, wait until I type \"next\".\n\nIMAGE 1 — Gel Unit: MOVE = squash down, stretch up jumping, in the air, landing squash. ATTACK = squash low, lunge forward stretched, SPLAT hit, bounce back.\nIMAGE 2 — Crawler Unit: MOVE = body segments wave forward like a caterpillar (4 steps of a crawl). ATTACK = rear up, head lunges forward biting, hit, pull back.\nIMAGE 3 — Ember Unit: MOVE = squash and jump like a slime, the antenna flame flickers. ATTACK = squash low, lunge forward, SPLAT hit, bounce back.\nIMAGE 4 — Buzz Unit: MOVE = hovering, wings blur up and down, body bobbing. ATTACK = pull back, dive forward stinger first, STING, fly back.\nIMAGE 5 — Hopper Unit: MOVE = crouch, big grasshopper hop, in the air, land (keep the violin). ATTACK = crouch, leap forward, kick with the long hind legs, land.\nIMAGE 6 — Mine Unit: MOVE = waddles on its little red boots, the siren light blinks. ATTACK = cap puffs up big, siren light turns red, cap slams forward, deflate.\nIMAGE 7 — Moss Unit: MOVE = squash and jump like a slime, the clover leaf bounces. ATTACK = squash low, lunge forward, SPLAT hit, bounce back.\nIMAGE 8 — Hel Guard Unit: MOVE = heavy armored march, cape swaying, halberd upright. ATTACK = halberd raised overhead, step in, heavy CLEAVE, recover.\nIMAGE 9 — Kitsura EX (MVP): MOVE = graceful floating walk, nine tails fanning and waving. ATTACK = tails fan out, palm raised, thrust the palm forward, tails settle.\n\nStart now with IMAGE 1.",
 "how": "แชตใหม่ • แนบ mobsprite ของตัวที่ 1 (Gel Unit) + tpl_mob.png • จากนั้นพิมพ์ next + แนบ mobsprite ตัวถัดไป + tpl_mob.png"
 },
 {
@@ -1287,7 +1287,7 @@
 "mobsprite_moonbun.webp",
 "tpl_mob.png"
 ],
-"done": false,
+"done": true,
 "prompt": "Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Bunny Unit.\nDraw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).\nTop row = MOVE loop, 4 frames: crouch, hop up, in the air with ears back, land.\nBottom row = ATTACK, 4 frames: crouch, jump kick forward, hit, land.\nEvery frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines."
 },
 {
@@ -1323,7 +1323,7 @@
 "mobsprite_stumpling.webp",
 "tpl_mob.png"
 ],
-"done": false,
+"done": true,
 "prompt": "Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Rust Sentry.\nDraw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).\nTop row = MOVE loop, 4 frames: root legs shuffle forward one side then the other (a heavy waddle).\nBottom row = ATTACK, 4 frames: lean back, swing a wooden root arm, SMASH hit, recover.\nEvery frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines."
 },
 {
@@ -1371,7 +1371,7 @@
 "mobsprite_seraph_pudding.webp",
 "tpl_mob.png"
 ],
-"done": false,
+"done": true,
 "prompt": "Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Seraph Core (MVP).\nDraw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).\nTop row = MOVE loop, 4 frames: hovers with the wings flapping, halo glowing, gentle bob.\nBottom row = ATTACK, 4 frames: rise up, wings spread wide, SLAM down, float back.\nEvery frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines."
 },
 {
@@ -1383,7 +1383,7 @@
 "mobsprite_ashtail.webp",
 "tpl_mob.png"
 ],
-"done": false,
+"done": true,
 "prompt": "Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Ash Stalker.\nDraw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).\nTop row = MOVE loop, 4 frames: four-legged trot cycle (legs alternate diagonally), striped tail swishing.\nBottom row = ATTACK, 4 frames: crouch, pounce forward, claw SWIPE, land.\nEvery frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines."
 },
 {
@@ -1395,7 +1395,7 @@
 "mobsprite_fenrir_pup.webp",
 "tpl_mob.png"
 ],
-"done": false,
+"done": true,
 "prompt": "Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Fenrir Unit.\nDraw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).\nTop row = MOVE loop, 4 frames: four-legged run cycle (gallop), cyan fins stay the same.\nBottom row = ATTACK, 4 frames: lower head and snarl, lunge, BITE, pull back.\nEvery frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines."
 },
 {
