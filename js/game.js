@@ -649,6 +649,20 @@ function mobZeny(d) {
   const b = d.lv + 2;
   return d.boss ? [b * 40, b * 60] : [b, b * 2];
 }
+// EXP ตามส่วนต่างเลเวลแบบ RO (Renewal): มอนเลเวลสูงกว่าได้โบนัส • ยิ่งเราเลเวลสูงกว่ามอนมาก EXP ยิ่งลดลงเรื่อย ๆ
+function expLevelMul(mobLv, myLv) {
+  const d = mobLv - myLv;
+  if (d >= 16) return 0.4;            // สูงเกินไป ตีได้แต่ไม่คุ้ม
+  if (d >= 10) return 1.4 - (d - 10) * 0.05;
+  if (d >= 3) return 1 + (d - 2) * 0.05;
+  if (d >= -5) return 1;
+  if (d >= -10) return 0.95;
+  if (d >= -15) return 0.9;
+  if (d >= -20) return 0.85;
+  if (d >= -25) return 0.6;
+  if (d >= -30) return 0.35;
+  return 0.1;
+}
 function killMob(m) {
   const p = G.player, d = m.def;
   m.dead = true; m.deathT = 0; m.hp = 0; m.path = []; m.moving = false;
@@ -658,7 +672,8 @@ function killMob(m) {
   Bounty.onKill(d.id);
   p.kills = p.kills || {}; p.kills[d.id] = (p.kills[d.id] || 0) + 1; // สมุดมอนสเตอร์: จำนวนที่ล่าได้
   grantChip(d, m);
-  Party.shareExp(d.exp, d.jexp, d); // ไม่มีปาร์ตี้ = gainExp ตามปกติ
+  const em = expLevelMul(d.lv, p.baseLv);
+  Party.shareExp(Math.max(1, Math.round(d.exp * em)), Math.max(1, Math.round(d.jexp * em)), d); // ไม่มีปาร์ตี้ = gainExp ตามปกติ
   const [z0, z1] = mobZeny(d), z = U.randi(z0, z1);
   if (z > 0) { p.zeny += z; addFloater(m.x, m.y - 0.5, `+${z} ${CUR}`, '#ffd34a'); UI.dirty(); }
   for (const [id, ch] of d.drops) if (U.chance(ch)) dropItemOnGround(id, m.x, m.y);

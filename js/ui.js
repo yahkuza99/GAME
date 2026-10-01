@@ -1275,7 +1275,7 @@ const UI = {
           : L(`✦ ${ITEMS[MOB_CHIP[d.id]].name}: ล่าอีก ${Math.max(0, chipNeed(d) - ((G.player.kills || {})[d.id] || 0))} ตัว`, `✦ ${ITEMS[MOB_CHIP[d.id]].name}: ${Math.max(0, chipNeed(d) - ((G.player.kills || {})[d.id] || 0))} more to go`)) : null,
         weak.length ? h('div', { class: 'mb-sub' }, L(`แพ้ธาตุ: ${weak.slice(0, 3).map(([e, m]) => `${ELEM_THAI[e]} ×${m}`).join(', ')}`, `Weak to: ${weak.slice(0, 3).map(([e, m]) => `${ELEM_THAI[e]} ×${m}`).join(', ')}`)) : null)),
       h('div', { class: 'mb-grid' }, row('HP', U.fmt(d.hp)), row('ATK', `${d.atk[0]}–${d.atk[1]}`), row('DEF', d.def), row('MDEF', d.mdef),
-        row('HIT', d.hit), row('FLEE', d.flee), row('Base EXP', U.fmt(d.exp)), row('Job EXP', U.fmt(d.jexp)), row(CUR, `${U.fmt(mobZeny(d)[0])}–${U.fmt(mobZeny(d)[1])}`)),
+        row('HIT', d.hit), row('FLEE', d.flee), row('Base EXP', (() => { const em = expLevelMul(d.lv, G.player.baseLv); return `${U.fmt(Math.round(d.exp * em))}${em !== 1 ? ` (${Math.round(em * 100)}%)` : ''}`; })()), row('Job EXP', U.fmt(Math.round(d.jexp * expLevelMul(d.lv, G.player.baseLv)))), row(CUR, `${U.fmt(mobZeny(d)[0])}–${U.fmt(mobZeny(d)[1])}`)),
       h('div', { class: 'mb-h' }, L('ไอเทมที่ดรอป', 'Drops')),
       h('div', { class: 'mb-drops' }, ...(d.drops.length ? d.drops.map(([id, ch]) => h('div', { class: 'mb-drop', title: ITEMS[id].desc || '' },
         h('img', { src: itemIconUrl(id), alt: '' }), h('span', {}, ITEMS[id].name), h('em', {}, `${ch >= 0.1 ? Math.round(ch * 100) : (ch * 100).toFixed(ch < 0.01 ? 2 : 1)}%`))) : [h('span', { class: 'hint' }, L('ไม่มี', 'None'))])),
@@ -1371,7 +1371,7 @@ const UI = {
     const fit = t => t.mvp ? 'mvp' : t.lv > hi ? 'hard' : t.lv < lo ? 'easy' : 'good';
     const all = Nav.mobs(), groups = { good: [], hard: [], mvp: [], easy: [] };
     for (const t of all) groups[fit(t)].push(t);
-    groups.good.sort((a, b) => MOBS[b.mobId].exp - MOBS[a.mobId].exp);
+    groups.good.sort((a, b) => MOBS[b.mobId].exp * expLevelMul(MOBS[b.mobId].lv, G.player.baseLv) - MOBS[a.mobId].exp * expLevelMul(MOBS[a.mobId].lv, G.player.baseLv));
     groups.easy.reverse();
     list.append(h('div', { class: 'hunt-head' }, h('b', {}, `Base Lv ${lv}`), h('span', {}, L(`มอนที่เหมาะ: Lv ${Math.max(1, lo)}–${hi}`, `Suggested: Lv ${Math.max(1, lo)}–${hi}`))));
     const HEAD = { good: [L('เหมาะกับคุณ', 'Your level'), L('EXP ดี ตีไม่ตาย', 'Good EXP, safe')], hard: [L('เลเวลสูงกว่า', 'Higher level'), L('EXP มากแต่อันตราย', 'More EXP, but dangerous')], mvp: ['MVP', L('บอสประจำแผนที่ ไปเป็นทีม', 'Map bosses — bring a party')], easy: [L('ผ่านมาแล้ว', 'Outleveled'), L('ง่ายเกินไป EXP น้อย', 'Too easy, low EXP')] };
@@ -1385,7 +1385,7 @@ const UI = {
           h('span', { class: 'hunt-mid' },
             h('span', { class: 'hunt-n' }, t.name, d.aggro ? h('span', { class: 'hunt-tag bad' }, L('ตีก่อน', 'Aggro')) : null),
             h('span', { class: 'hunt-s' }, `${t.mapName}${t.map === G.map.id ? L(' · อยู่ที่นี่', ' · Here') : ''}${kc ? L(` · ล่าแล้ว ${U.fmt(kc)}`, ` · ${U.fmt(kc)} defeated`) : ''}${t.mvp ? ` · ${this.mvpStatus(t.mobId).replace(/^[^ ]+ /, '')}` : ''}`)),
-          h('span', { class: 'hunt-r' }, h('b', {}, `Lv ${t.lv}`), h('small', {}, `+${U.fmt(d.exp)} EXP`)),
+          h('span', { class: 'hunt-r' }, h('b', {}, `Lv ${t.lv}`), h('small', { class: expLevelMul(d.lv, G.player.baseLv) < 1 ? 'exp-low' : expLevelMul(d.lv, G.player.baseLv) > 1 ? 'exp-hi' : '' }, `+${U.fmt(Math.round(d.exp * expLevelMul(d.lv, G.player.baseLv)))} EXP${expLevelMul(d.lv, G.player.baseLv) !== 1 ? ` · ${Math.round(expLevelMul(d.lv, G.player.baseLv) * 100)}%` : ''}`)),
           h('span', { class: 'hunt-info', title: L('ข้อมูลมอนสเตอร์', 'Monster info'), onclick: e => { e.stopPropagation(); this.showMob(t.mobId); } }, 'i'));
         list.append(r);
       }

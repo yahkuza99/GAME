@@ -1066,3 +1066,4 @@ body:not(.pad-mode) #hud:has(#mm-wb:not([hidden])) #menubar { top: calc(258px + 
 #item-tip .tip-src div { color: #e6eef8; }
 #item-tip .tip-src small { color: #9fb0c4; }
 #item-tip .tip-head .sicon { width: 34px; height: 34px; flex: none; }
+.hunt-r small.exp-low { color: #ff9aa8; } .hunt-r small.exp-hi { color: #8ff0b0; }
