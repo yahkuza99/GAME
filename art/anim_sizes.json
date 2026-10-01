@@ -277,5 +277,20 @@
    "scale_src": 0.8152,
    "median_src_h": 183.99941120188416
   }
+ },
+ "mob_archive_warden": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4121,
+   "median_src_h": 364
+  },
+  "_k1536": 0.47594,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4121,
+   "median_src_h": 364.0000577803925
+  }
  }
 }

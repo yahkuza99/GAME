@@ -970,11 +970,11 @@ Rows per priority: P1 = 36, P1+ = 6, P2 = 32, P2+ = 2, P3 = 72, P4 = 2, P4+ = 5,
 | ⬜ | 42 | P1+ | `sheet_heroes_10.png` → 4× `hero_*` | 1024² 2×2 sheet · transparent |
 | ⬜ | 43 | P2 | `mob_rust_sap.webp` | 160² · tile |
 | ⬜ | 44 | P2 | `mobsprite_rust_sap.webp` | ≤320 · transparent |
-| ⬜ | 45 | P2 | `mob_archive_warden.webp` | 160² · tile |
-| ⬜ | 46 | P2 | `mobsprite_archive_warden.webp` | ≤320 · transparent |
-| ⬜ | 47 | P2 | `anim_mob_archive_warden_walk.webp` + `anim_mob_archive_warden_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
-| ⬜ | 48 | P2 | `mob_rust_mine.webp` | 160² · tile |
-| ⬜ | 49 | P2 | `mobsprite_rust_mine.webp` | ≤320 · transparent |
+| ✅ | 45 | P2 | `mob_archive_warden.webp` | 160² · tile |
+| ✅ | 46 | P2 | `mobsprite_archive_warden.webp` | ≤320 · transparent |
+| ✅ | 47 | P2 | `anim_mob_archive_warden_walk.webp` + `anim_mob_archive_warden_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
+| ✅ | 48 | P2 | `mob_rust_mine.webp` | 160² · tile |
+| ✅ | 49 | P2 | `mobsprite_rust_mine.webp` | ≤320 · transparent |
 | ⬜ | 50 | P2 | `mob_archive_maiden.webp` | 160² · tile |
 | ⬜ | 51 | P2 | `mobsprite_archive_maiden.webp` | ≤320 · transparent |
 | ⬜ | 52 | P2 | `anim_mob_archive_maiden_walk.webp` + `anim_mob_archive_maiden_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
