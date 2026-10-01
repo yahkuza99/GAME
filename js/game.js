@@ -1275,7 +1275,7 @@ function autoPotTick() {
   if (p.dead || G.time < (p.autoPotAt || 0)) return;
   p.autoPotAt = G.time + 0.2; // ไม่กินรัวทั้งกระเป๋าในพริบตา
   const c = autoPotCfg();
-  if (!c.on || isStunned()) return;
+  if (!c.on || isStunned() || (G.map && G.map.def.pvp)) return; // ลานประลอง: กดยาเองเท่านั้น (ปั๊มอัตโนมัติทำให้ไม่มีใครล้ม)
   if (p.hp / p.d.maxHp * 100 < c.hp) { const e = Bot.findItem(HP_POTS); if (e) { useItem(e); return; } }
   if (p.sp / p.d.maxSp * 100 < c.sp) { const e = Bot.findItem(SP_POTS); if (e) useItem(e); }
 }
