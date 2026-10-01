@@ -141,7 +141,7 @@ const Art = {
       }, 60);
     }
     if (k.startsWith('rig_') && typeof Rig !== 'undefined') Rig.reset();
-    if (k.startsWith('item_') || k.startsWith('skill_') || k.startsWith('emblem_')) {
+    if (k.startsWith('item_') || k.startsWith('skill_') || k.startsWith('emblem_') || k.startsWith('mob_') || k.startsWith('mobsprite_')) { // mob_: รูปบนชิปมอน
       if (typeof clearIconCache === 'function') clearIconCache();
       if (typeof UI !== 'undefined') UI.dirty();
     }

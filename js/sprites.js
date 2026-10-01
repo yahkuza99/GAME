@@ -1195,7 +1195,45 @@ function itemIconCanvas(id, S = 24) {
 }
 const _iconUrl = {};
 function clearIconCache() { for (const k in _iconCache) delete _iconCache[k]; for (const k in _iconUrl) delete _iconUrl[k]; }
+// ชิปมอนสเตอร์แบบการ์ด RO: กรอบการ์ดตั้งตรง + รูปมอนตัวที่ให้ชิปนั้น (ภาพหน้า mob_ หรือภาพตัว mobsprite_)
+let _chipMob = null;
+function chipMobOf(id) {
+  if (!_chipMob) { _chipMob = {}; for (const m in MOB_CHIP) _chipMob[MOB_CHIP[m]] = m; }
+  return _chipMob[id];
+}
+function chipCardCanvas(id, S) {
+  const mob = chipMobOf(id), d = mob && MOBS[mob];
+  const face = d && Art.get('mob_' + mob), body = d && Art.get('mobsprite_' + mob);
+  if (!d || (!face && !body)) return null;
+  const c = document.createElement('canvas'); c.width = c.height = S;
+  const g = c.getContext('2d'), k = S / 96, boss = !!d.boss;
+  const rr = (x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
+  g.scale(k, k);
+  // ตัวการ์ด
+  const edge = boss ? ['#ffe08a', '#c08a20'] : ['#9ff4ff', '#2a8ab0'];
+  const gr = g.createLinearGradient(0, 4, 0, 92); gr.addColorStop(0, edge[0]); gr.addColorStop(1, edge[1]);
+  rr(16, 4, 64, 88, 9); g.fillStyle = gr; g.fill();
+  rr(19, 7, 58, 82, 7); g.fillStyle = boss ? '#2a1a08' : '#0a1624'; g.fill();
+  // ช่องรูปมอน
+  rr(22, 10, 52, 54, 5); g.save(); g.clip();
+  g.fillStyle = boss ? '#4a2a10' : '#14304a'; g.fillRect(22, 10, 52, 54);
+  if (face) { const sw = Math.min(face.width, face.height); g.drawImage(face, (face.width - sw) / 2, 0, sw, sw, 22, 10, 52, 54); }
+  else { const kk = Math.min(52 / body.width, 54 / body.height) * 1.15; g.drawImage(body, 48 - body.width * kk / 2, 10 + 54 - body.height * kk + 4, body.width * kk, body.height * kk); }
+  const sh = g.createLinearGradient(0, 10, 0, 64); sh.addColorStop(0, 'rgba(255,255,255,0.18)'); sh.addColorStop(0.4, 'rgba(255,255,255,0)'); g.fillStyle = sh; g.fillRect(22, 10, 52, 54);
+  g.restore();
+  rr(22, 10, 52, 54, 5); g.lineWidth = 1.2; g.strokeStyle = edge[0]; g.stroke();
+  // แถบหน้าสัมผัสชิป (ทองแดง) ใต้รูป
+  g.fillStyle = boss ? '#ffd060' : '#7fe8ff';
+  for (let i = 0; i < 6; i++) { rr(26 + i * 7.4, 70, 5, 13, 1.5); g.fill(); }
+  if (boss) { g.fillStyle = '#ff5a6a'; g.beginPath(); g.moveTo(48, 2); g.lineTo(54, 8); g.lineTo(48, 14); g.lineTo(42, 8); g.closePath(); g.fill(); }
+  return c;
+}
 function itemIconUrl(id) {
+  if (ITEMS[id] && ITEMS[id].type === 'card' && !Art.imgs['item_' + id]) {
+    if (_iconUrl[id]) return _iconUrl[id];
+    const cv = chipCardCanvas(id, 96);
+    if (cv) return (_iconUrl[id] = cv.toDataURL());
+  }
   const ak = Art.itemKey(id);
   if (ak) return Art.get(ak).src;
   if (!_iconUrl[id]) _iconUrl[id] = itemIconCanvas(id, 48).toDataURL();
