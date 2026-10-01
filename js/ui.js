@@ -817,38 +817,52 @@ const UI = {
   },
   // ---------------- ต้นไม้พาสซีฟ (แบบ PoE) ----------------
   // ลากเพื่อเลื่อน • ล้อเมาส์/ปุ่ม +− ซูม • แตะจุดเพื่อดูรายละเอียด แล้วกดปุ่มเปิด (เปิดทั้งเส้นทางได้ถ้าแต้มพอ)
-  tree: { x: 0, y: 0, z: 0.55, sel: null, hover: null },
+  // ภาพสื่อความหมายโดยไม่ต้องแตะ: สี/แสงฟุ้งประจำแฉก + ไอคอนตามโบนัสในทุกจุด (ดาบ=ATK โล่=DEF หัวใจ=HP …)
+  // ขนาด/ทรงตามชนิด (เล็ก=วงกลม, Notable=วงกลมใหญ่มีวงแหวน, Keystone=หกเหลี่ยมมน) • เปิดแล้ว=สีเต็ม, เปิดได้=วงกระพริบ, ล็อก=จาง
+  tree: { x: 0, y: 0, z: 0.55, sel: null, hover: null, raf: 0, paths: {} },
+  // ซูมเริ่มต้น: ให้จุดอ่านไอคอนออก (เห็นแกนกลาง + Notable วงใน) แล้วค่อยลากดูส่วนอื่น
+  treeFit(cv) { return U.clamp(Math.min(cv.clientHeight / 700, cv.clientWidth / 560), 0.42, 0.8); },
   renderTree() {
     const body = $('#w-tree .win-body'), T = this.tree, p = G.player;
     if (!body.dataset.built) {
       body.dataset.built = '1'; body.innerHTML = '';
       const cv = h('canvas', { class: 'pt-cv' });
-      const zoom = k => () => { T.z = U.clamp(T.z * k, 0.25, 1.6); this.drawTree(); };
+      const zoom = k => () => { T.z = U.clamp(T.z * k, 0.25, 1.8); this.drawTree(); };
       body.append(h('div', { class: 'pt-head' }, h('span', { id: 'pt-pts' }), h('span', { class: 'pt-zoom' },
         h('button', { class: 'btn', type: 'button', onclick: zoom(1 / 1.25) }, '−'), h('button', { class: 'btn', type: 'button', onclick: zoom(1.25) }, '+'),
-        h('button', { class: 'btn', type: 'button', onclick: () => { T.x = 0; T.y = 0; T.z = U.clamp(cv.clientHeight / 1100, 0.32, 0.7); this.drawTree(); } }, 'กลาง'),
+        h('button', { class: 'btn', type: 'button', onclick: () => { T.x = 0; T.y = 0; T.z = this.treeFit(cv); this.drawTree(); } }, 'กลาง'),
         h('button', { class: 'btn', type: 'button', onclick: () => { T.sum = !T.sum; this.renderTree(); } }, 'สรุปโบนัส'))),
         h('div', { class: 'pt-wrap' }, cv, h('div', { class: 'pt-info', id: 'pt-info' })),
-        h('div', { class: 'hint' }, 'ลากเพื่อเลื่อน • แตะจุดเพื่อดูรายละเอียด • ได้ 1 แต้มต่อ 1 Base Level • จุดใหญ่ = Notable • จุดหกเหลี่ยมปลายแฉก = Keystone (เปลี่ยนกติกา)'));
+        this.treeLegend(),
+        h('div', { class: 'hint' }, 'ลากเพื่อเลื่อน • ล้อเมาส์/สองนิ้วเพื่อซูม • แตะจุดเพื่อดูรายละเอียด • ได้ 1 แต้มต่อ 1 Base Level'));
       this.treeInput(cv);
-      T.z = U.clamp(cv.clientHeight / 1100, 0.32, 0.7); // ครั้งแรก: ให้เห็นแกนกลางและจุด Notable วงในพอดีจอ
+      T.z = this.treeFit(cv); // ครั้งแรก: ให้เห็นแกนกลางและจุด Notable วงในพอดีจอ
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { T.lpos = null; this.drawTree(); }); // วัดป้ายใหม่เมื่อฟอนต์โหลดเสร็จ
     }
     const free = Passive.free(p);
-    $('#pt-pts').innerHTML = `แต้มพาสซีฟ: <b>${free}</b> / ${Passive.total(p)}`;
+    $('#pt-pts').innerHTML = `แต้มพาสซีฟ <b>${free}</b> / ${Passive.total(p)}`;
     const info = $('#pt-info'), id = T.hover || T.sel;
     // สร้างกล่องรายละเอียดใหม่เฉพาะเมื่อข้อมูลเปลี่ยน (ไม่งั้นปุ่มถูกแทนที่ระหว่างกด)
     const ikey = [id, free, Passive.list(p).length, p.zeny, T.sum].join('|');
     if (info.dataset.key === ikey) { this.drawTree(); return; }
-    info.dataset.key = ikey; info.innerHTML = '';
+    info.dataset.key = ikey; info.innerHTML = ''; info.style.removeProperty('--pc');
     if (T.sum && !id) {
       const b = Passive.bonus(p), ks = Passive.list(p).filter(x => PTREE[x].kdesc).map(x => `${PTREE[x].name}: ${PTREE[x].kdesc}`);
-      info.append(h('b', {}, 'โบนัสรวมจากต้นไม้'), ...(Object.keys(b).length ? Object.entries(b).map(([k, v]) => h('div', {}, PSTAT_FMT(k, Math.round(v * 10) / 10))) : [h('div', { class: 'dim' }, 'ยังไม่ได้เปิดจุดไหน')]), ...ks.map(t => h('div', { class: 'ks' }, t)));
+      info.append(h('b', {}, 'โบนัสรวมจากต้นไม้'),
+        ...(Object.keys(b).length ? Object.entries(b).map(([k, v]) => h('div', { class: 'pt-i-row' }, this.treeSvg(PGLYPH[k] || 'sparkle', 14), PSTAT_FMT(k, Math.round(v * 10) / 10))) : [h('div', { class: 'dim' }, 'ยังไม่ได้เปิดจุดไหน')]),
+        ...ks.map(t => h('div', { class: 'ks' }, t)));
     } else if (id) {
-      const n = PTREE[id], path = Passive.has(p, id) ? [] : this.treePath(id), have = Passive.has(p, id);
-      const sect = n.sect >= 0 ? PSECT[n.sect] : null;
-      info.append(h('b', { style: sect ? `color:${sect.color}` : '' }, n.name),
-        h('small', {}, { start: 'จุดเริ่มต้น', small: 'จุดเล็ก', notable: 'Notable', key: 'Keystone' }[n.kind] + (sect ? ` • สาย${sect.th}` : n.mix ? ` • ผสม ${PSECT[n.mix[0]].th}/${PSECT[n.mix[1]].th}` : '')),
-        ...Passive.desc(n).map(t => h('div', { class: n.kdesc === t ? 'ks' : '' }, t)));
+      const n = PTREE[id], have = Passive.has(p, id), path = have ? [] : this.treePath(id);
+      const sect = n.sect >= 0 ? PSECT[n.sect] : null, c = sect ? sect.color : n.mix ? PSECT[n.mix[0]].color : '#9fe8ff';
+      const kindTh = { start: 'จุดเริ่มต้น', small: 'จุดเล็ก', notable: 'Notable', key: 'Keystone' }[n.kind];
+      const where = sect ? `สาย${sect.th}` : n.mix ? `ผสม ${PSECT[n.mix[0]].th} + ${PSECT[n.mix[1]].th}` : '';
+      const st = have ? ['เปิดแล้ว', 'on'] : path.length === 1 ? ['เปิดได้เลย', 'can'] : path.length ? [`ห่าง ${path.length} จุด`, 'far'] : null;
+      info.style.setProperty('--pc', c);
+      info.append(h('div', { class: 'pt-i-head' }, h('span', { class: 'pt-i-ic pt-i-' + n.kind }, this.treeSvg(Passive.glyph(n), 20)),
+        h('div', { class: 'pt-i-t' }, h('b', {}, n.name), h('small', {}, kindTh + (where ? ` • ${where}` : ''))),
+        st ? h('em', { class: 'pt-i-st ' + st[1] }, st[0]) : null));
+      for (const [k, v] of Object.entries(n.b)) info.append(h('div', { class: 'pt-i-row' }, this.treeSvg(PGLYPH[k] || 'sparkle', 14), PSTAT_FMT(k, v)));
+      if (n.kdesc) info.append(h('div', { class: 'ks' }, n.kdesc));
       if (id === 'core') info.append(h('div', { class: 'dim' }, 'ทุกคนเริ่มจากตรงนี้'));
       else if (have) {
         const cost = Passive.refundCost(p), ok = Passive.canRefund(p, id);
@@ -862,6 +876,17 @@ const UI = {
       }
     } else info.append(h('div', { class: 'dim' }, 'แตะจุดบนต้นไม้เพื่อดูรายละเอียด'));
     this.drawTree();
+  },
+  // ไอคอนเส้นแบบ <svg> (ใช้ในกล่องรายละเอียดและคำอธิบายไอคอน) — path เดียวกับที่วาดบน canvas
+  treeSvg(name, size = 14) {
+    const NS = 'http://www.w3.org/2000/svg', s = document.createElementNS(NS, 'svg'), path = document.createElementNS(NS, 'path');
+    s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('width', size); s.setAttribute('height', size); s.setAttribute('class', 'pt-g');
+    path.setAttribute('d', PGLYPH_PATH[name] || PGLYPH_PATH.sparkle); s.append(path);
+    return s;
+  },
+  treeLegend() {
+    const kinds = [['small', 'จุดเล็ก'], ['notable', 'Notable'], ['key', 'Keystone']].map(([k, l]) => h('span', { class: 'pt-lg pt-lg-' + k }, h('i', {}), l));
+    return h('div', { class: 'pt-legend' }, ...kinds, h('span', { class: 'pt-lg-sep' }), ...PGLYPH_LEGEND.map(([g, l]) => h('span', { class: 'pt-lg' }, this.treeSvg(g, 13), l)));
   },
   // เส้นทางสั้นที่สุดจากจุดที่เปิดแล้วไปยัง id (ไม่รวมจุดที่เปิดแล้ว)
   treePath(id) {
@@ -879,15 +904,15 @@ const UI = {
     const at = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left - r.width / 2) / T.z - T.x, (e.clientY - r.top - r.height / 2) / T.z - T.y]; };
     const pick = e => {
       const [x, y] = at(e); let best = null, bd = 1e9;
-      for (const n of Object.values(PTREE)) { const d = Math.hypot(n.x - x, n.y - y), rr = this.treeR(n) + 8 / T.z; if (d < rr && d < bd) { bd = d; best = n.id; } }
+      for (const n of Object.values(PTREE)) { const d = Math.hypot(n.x - x, n.y - y), rr = this.treeR(n) + 10 / T.z; if (d < rr && d < bd) { bd = d; best = n.id; } }
       return best;
     };
     cv.addEventListener('pointerdown', e => { pts.set(e.pointerId, [e.clientX, e.clientY]); moved = 0; cv.setPointerCapture(e.pointerId); if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = Math.hypot(a[0] - b[0], a[1] - b[1]); } });
     cv.addEventListener('pointermove', e => {
-      if (!pts.has(e.pointerId)) { if (e.pointerType === 'mouse') { const id = pick(e); if (id !== T.hover) { T.hover = id; this.renderTree(); } } return; }
+      if (!pts.has(e.pointerId)) { if (e.pointerType === 'mouse') { const id = pick(e); cv.style.cursor = id ? 'pointer' : 'grab'; if (id !== T.hover) { T.hover = id; this.renderTree(); } } return; }
       const o = pts.get(e.pointerId), dx = e.clientX - o[0], dy = e.clientY - o[1];
       pts.set(e.pointerId, [e.clientX, e.clientY]);
-      if (pts.size === 2) { const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (pinch) T.z = U.clamp(T.z * d / pinch, 0.25, 1.6); pinch = d; moved += 10; }
+      if (pts.size === 2) { const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (pinch) T.z = U.clamp(T.z * d / pinch, 0.25, 1.8); pinch = d; moved += 10; }
       else { moved += Math.abs(dx) + Math.abs(dy); T.x += dx / T.z; T.y += dy / T.z; }
       this.drawTree();
     });
@@ -897,47 +922,180 @@ const UI = {
     };
     cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', e => pts.delete(e.pointerId));
     cv.addEventListener('pointerleave', () => { if (T.hover) { T.hover = null; this.renderTree(); } });
-    cv.addEventListener('wheel', e => { e.preventDefault(); T.z = U.clamp(T.z * (e.deltaY < 0 ? 1.12 : 1 / 1.12), 0.25, 1.6); this.drawTree(); }, { passive: false });
+    cv.addEventListener('wheel', e => { e.preventDefault(); T.z = U.clamp(T.z * (e.deltaY < 0 ? 1.12 : 1 / 1.12), 0.25, 1.8); this.drawTree(); }, { passive: false });
   },
-  treeR(n) { return n.kind === 'key' ? 22 : n.kind === 'notable' ? 15 : n.kind === 'start' ? 20 : 8; },
-  drawTree() {
+  treeR(n) { return n.kind === 'key' ? 26 : n.kind === 'notable' ? 17 : n.kind === 'start' ? 22 : 11; },
+  // ---- ตัวช่วยวาด ----
+  treeRGBA(hex, a) { return `rgba(${parseInt(hex.slice(1, 3), 16)},${parseInt(hex.slice(3, 5), 16)},${parseInt(hex.slice(5, 7), 16)},${a})`; },
+  // ไอคอนเส้นบน canvas (Path2D จาก SVG path เดียวกับ treeSvg) ขนาด s หน่วยโลก ตรงกลาง (x,y)
+  treeGlyph(g, name, x, y, s, color, lw = 2.2) {
+    const P = this.tree.paths, d = PGLYPH_PATH[name] || PGLYPH_PATH.sparkle, path = P[name] || (P[name] = new Path2D(d));
+    g.save(); g.translate(x - s / 2, y - s / 2); g.scale(s / 24, s / 24);
+    g.lineWidth = lw * 24 / s; g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = color; g.stroke(path);
+    g.restore();
+  },
+  // หกเหลี่ยมมุมมน (Keystone) — นุ่มตามธีม ไม่เป็นเหลี่ยมคม
+  treeHex(g, x, y, r, cr = 0.3) {
+    const pts = []; for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3 - Math.PI / 2; pts.push([x + Math.cos(a) * r, y + Math.sin(a) * r]); }
+    g.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const p0 = pts[i], p1 = pts[(i + 1) % 6], p2 = pts[(i + 2) % 6];
+      const ax = p0[0] + (p1[0] - p0[0]) * (1 - cr), ay = p0[1] + (p1[1] - p0[1]) * (1 - cr), bx = p1[0] + (p2[0] - p1[0]) * cr, by = p1[1] + (p2[1] - p1[1]) * cr;
+      if (!i) g.moveTo(ax, ay); else g.lineTo(ax, ay);
+      g.quadraticCurveTo(p1[0], p1[1], bx, by);
+    }
+    g.closePath();
+  },
+  treeRoundRect(g, x, y, w, hh, r) {
+    g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + hh, r); g.arcTo(x + w, y + hh, x, y + hh, r); g.arcTo(x, y + hh, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+  },
+  // ตำแหน่งป้ายชื่อ Notable (คำนวณครั้งเดียว): ลอง ล่าง/บน/ขวา/ซ้าย แล้วเลือกที่ไม่ทับจุดอื่นและป้ายอื่น
+  treeLabelPos(g) {
+    const T = this.tree; if (T.lpos) return T.lpos;
+    const pos = T.lpos = {}, nodes = Object.values(PTREE), rects = [];
+    // คะแนนความแย่: ทับจุดเล็ก 2, ทับ Notable/Keystone 5, ทับป้ายอื่น 10 (ป้ายทับกันอ่านไม่ออกเลย จึงแพงสุด)
+    const hit = (rc, skip) => {
+      let bad = 0;
+      for (const m of nodes) { if (m.id === skip) continue; const rr = this.treeR(m) + 6; if (m.x + rr > rc[0] && m.x - rr < rc[2] && m.y + rr > rc[1] && m.y - rr < rc[3]) bad += m.kind === 'small' ? 2 : 5; }
+      for (const o of rects) if (o[2] > rc[0] && o[0] < rc[2] && o[3] > rc[1] && o[1] < rc[3]) bad += 10;
+      return bad;
+    };
+    g.font = '500 20px "IBM Plex Sans Thai", sans-serif';
+    for (const n of nodes) {
+      if (n.kind !== 'notable') continue;
+      const w = g.measureText(n.name).width + 8, hh = 24, r = this.treeR(n) + 6, dy = r + hh / 2;
+      const cands = [[0, dy, 'center'], [0, -dy, 'center'], [r + 4, 0, 'left'], [-r - 4, 0, 'right'],
+        [r - 4, dy - 6, 'left'], [-r + 4, dy - 6, 'right'], [r - 4, -dy + 6, 'left'], [-r + 4, -dy + 6, 'right']];
+      let best = null, bs = 1e9;
+      for (const [dx, dy, al] of cands) {
+        const x0 = al === 'center' ? n.x + dx - w / 2 : al === 'left' ? n.x + dx : n.x + dx - w;
+        const rc = [x0, n.y + dy - hh / 2, x0 + w, n.y + dy + hh / 2], sc = hit(rc, n.id);
+        if (sc < bs) { bs = sc; best = [dx, dy, al, rc]; }
+        if (!sc) break;
+      }
+      pos[n.id] = best; rects.push(best[3]);
+    }
+    return pos;
+  },
+  treeLabel(g, text, x, y, font, color, align = 'center') {
+    g.font = font; g.textAlign = align; g.textBaseline = 'middle';
+    g.lineWidth = 4; g.lineJoin = 'round'; g.strokeStyle = 'rgba(5,9,16,.85)'; g.strokeText(text, x, y);
+    g.fillStyle = color; g.fillText(text, x, y);
+  },
+  // วนวาดต่อเนื่องเฉพาะตอนหน้าต่างเปิด (ให้วงจุดที่เปิดได้กระพริบ) — หยุดเองเมื่อปิด
+  treeLoop() {
+    const T = this.tree;
+    if (T.raf) return;
+    const step = () => { if (!this.isOpen('w-tree') || document.hidden) { T.raf = 0; return; } this.drawTree(true); T.raf = requestAnimationFrame(step); };
+    T.raf = requestAnimationFrame(step);
+  },
+  drawTree(fromLoop) {
     const cv = $('#w-tree .pt-cv'); if (!cv || !this.isOpen('w-tree')) return;
-    const T = this.tree, p = G.player, dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (!fromLoop) this.treeLoop();
+    const T = this.tree, p = G.player, dpr = Math.min(2, window.devicePixelRatio || 1), now = performance.now() / 1000;
     const W = cv.clientWidth, H = cv.clientHeight;
+    if (!W || !H) return;
     if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
-    const g = cv.getContext('2d');
+    const g = cv.getContext('2d'), z = T.z, FONT = '"IBM Plex Sans Thai", "Noto Sans Thai", sans-serif', MONO = '"IBM Plex Mono", monospace';
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
-    g.fillStyle = '#060b14'; g.fillRect(0, 0, W, H);
-    g.translate(W / 2, H / 2); g.scale(T.z, T.z); g.translate(T.x, T.y);
+    // พื้นหลัง: ไล่สีฟุ้งจากกลางจอ
+    const bg = g.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.8);
+    bg.addColorStop(0, '#0d1626'); bg.addColorStop(1, '#05080f');
+    g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    g.translate(W / 2, H / 2); g.scale(z, z); g.translate(T.x, T.y);
     const has = id => Passive.has(p, id), free = Passive.free(p) > 0;
-    const path = new Set((T.hover || T.sel) && !has(T.hover || T.sel) ? this.treePath(T.hover || T.sel) : []);
-    const col = n => (n.sect >= 0 ? PSECT[n.sect].color : '#9fe8ff');
-    // ชื่อแฉก
-    g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = 'bold 30px sans-serif';
-    PSECT.forEach((S, i) => { const a = (-90 + i * 60) * Math.PI / 180; g.fillStyle = S.color + '55'; g.fillText(`${S.name} • ${S.th}`, Math.cos(a) * 735, Math.sin(a) * 735); });
-    // เส้นเชื่อม
+    const focus = T.hover || T.sel, path = new Set(focus && !has(focus) ? this.treePath(focus) : []);
+    const col = n => (n.sect >= 0 ? PSECT[n.sect].color : n.mix ? PSECT[n.mix[0]].color : '#9fe8ff');
+    const rgba = (hex, a) => this.treeRGBA(hex, a);
+    const pulse = 0.5 + 0.5 * Math.sin(now * 3.2);
+    // แสงฟุ้งประจำแฉก (วงกลมนุ่ม ไม่มีขอบคม) + วงแหวนบาง ๆ บอกชั้น
+    PSECT.forEach((S, i) => {
+      const a = (-90 + i * 60) * Math.PI / 180, cx = Math.cos(a) * 400, cy = Math.sin(a) * 400;
+      const gr = g.createRadialGradient(cx, cy, 0, cx, cy, 470);
+      gr.addColorStop(0, rgba(S.color, 0.16)); gr.addColorStop(0.6, rgba(S.color, 0.05)); gr.addColorStop(1, rgba(S.color, 0));
+      g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, 470, 0, Math.PI * 2); g.fill();
+    });
+    g.strokeStyle = 'rgba(255,255,255,.045)'; g.lineWidth = 1.5;
+    for (const r of [160, 450, 720]) { g.beginPath(); g.arc(0, 0, r, 0, Math.PI * 2); g.stroke(); }
+    // ชื่อแฉกจาง ๆ กลางแฉก (บอกทิศแม้ซูมเข้า) + ป้ายชื่อแฉกรอบนอก: แคปซูลกระจก + ไอคอน + ชื่อ + คำโปรยว่าให้อะไร
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    PSECT.forEach((S, i) => {
+      const a = (-90 + i * 60) * Math.PI / 180, x = Math.cos(a) * 335, y = Math.sin(a) * 335;
+      g.font = `600 64px ${MONO}`; g.fillStyle = rgba(S.color, 0.085); g.fillText(S.name.toUpperCase(), x, y - 14);
+      g.font = `500 26px ${FONT}`; g.fillStyle = rgba(S.color, 0.12); g.fillText(S.th, x, y + 30);
+    });
+    PSECT.forEach((S, i) => {
+      const a = (-90 + i * 60) * Math.PI / 180, x = Math.cos(a) * 850, y = Math.sin(a) * 850;
+      g.font = `600 30px ${FONT}`; const w1 = g.measureText(`${S.name} • ${S.th}`).width;
+      g.font = `500 17px ${MONO}`; const w2 = g.measureText(S.tag).width;
+      const w = Math.max(w1, w2) + 44 + 36, hh = 74;
+      g.fillStyle = rgba(S.color, 0.1); this.treeRoundRect(g, x - w / 2, y - hh / 2, w, hh, 26); g.fill();
+      g.strokeStyle = rgba(S.color, 0.45); g.lineWidth = 2; g.stroke();
+      g.fillStyle = rgba(S.color, 0.18); g.beginPath(); g.arc(x - w / 2 + 34, y, 22, 0, Math.PI * 2); g.fill();
+      this.treeGlyph(g, S.icon, x - w / 2 + 34, y, 26, S.color, 2.2);
+      g.textAlign = 'left'; g.textBaseline = 'middle';
+      g.font = `600 30px ${FONT}`; g.fillStyle = S.color; g.fillText(`${S.name} • ${S.th}`, x - w / 2 + 66, y - 15);
+      g.font = `500 17px ${MONO}`; g.fillStyle = rgba(S.color, 0.85); g.fillText(S.tag, x - w / 2 + 66, y + 18);
+    });
+    // เส้นเชื่อม: เปิดแล้ว=สีแฉกเรือง • เส้นทางที่กำลังจะเปิด=ฟ้า • ติดจุดที่เปิดแล้ว (เปิดได้)=สว่างขึ้น • อื่น ๆ=จาง
     const seen = new Set();
     for (const n of Object.values(PTREE)) for (const l of n.links) {
       const k = n.id < l ? n.id + l : l + n.id; if (seen.has(k)) continue; seen.add(k);
-      const m = PTREE[l], both = has(n.id) && has(l), half = has(n.id) || has(l), onPath = (path.has(n.id) || has(n.id)) && (path.has(l) || has(l)) && (path.has(n.id) || path.has(l));
-      g.strokeStyle = both ? '#ffd86a' : onPath ? '#9ff0ff' : half && free ? 'rgba(160,220,255,.55)' : 'rgba(120,150,190,.22)';
-      g.lineWidth = both ? 6 : onPath ? 5 : 3;
-      g.beginPath(); g.moveTo(n.x, n.y); g.lineTo(m.x, m.y); g.stroke();
+      const m = PTREE[l], both = has(n.id) && has(l), half = has(n.id) || has(l);
+      const onPath = (path.has(n.id) || has(n.id)) && (path.has(l) || has(l)) && (path.has(n.id) || path.has(l));
+      const c = n.sect >= 0 ? col(n) : col(m);
+      g.lineCap = 'round';
+      g.beginPath(); g.moveTo(n.x, n.y); g.lineTo(m.x, m.y);
+      if (both) { g.strokeStyle = rgba(c, 0.28); g.lineWidth = 13; g.stroke(); g.strokeStyle = '#fff1c8'; g.lineWidth = 5; g.stroke(); }
+      else if (onPath) { g.strokeStyle = 'rgba(111,243,255,.25)'; g.lineWidth = 12; g.stroke(); g.strokeStyle = '#9ff0ff'; g.lineWidth = 4; g.stroke(); }
+      else if (half && free) { g.strokeStyle = `rgba(190,225,255,${0.4 + 0.2 * pulse})`; g.lineWidth = 3; g.stroke(); }
+      else { g.strokeStyle = 'rgba(140,165,200,.17)'; g.lineWidth = 2.5; g.stroke(); }
     }
     // จุด
+    const showNotable = z >= 0.58, showKey = z > 0.28, showSmall = z > 0.95, lpos = this.treeLabelPos(g);
+    const nfont = Math.min(20, Math.max(13, 12.5 / z)); // ป้าย Notable ไม่เล็กกว่า ~13px บนจอ
+    const labels = []; // วาดป้ายทีหลังทุกจุด จะได้ไม่โดนจุดข้าง ๆ บัง
     for (const n of Object.values(PTREE)) {
-      const r = this.treeR(n), on = has(n.id), can = !on && Passive.canAlloc(p, n.id), c = col(n);
-      g.beginPath();
-      if (n.kind === 'key') for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3 + Math.PI / 6; g[i ? 'lineTo' : 'moveTo'](n.x + Math.cos(a) * r, n.y + Math.sin(a) * r); }
-      else g.arc(n.x, n.y, r, 0, Math.PI * 2);
-      g.closePath();
-      g.fillStyle = on ? c : path.has(n.id) ? '#24405a' : '#141c2a'; g.fill();
-      g.lineWidth = n.kind === 'small' ? 2.5 : 4;
-      g.strokeStyle = on ? '#fff3c0' : can ? '#bff4ff' : path.has(n.id) ? '#9ff0ff' : c + '88'; g.stroke();
-      if (n.kind !== 'small' && n.kind !== 'start') { g.beginPath(); g.arc(n.x, n.y, r + 5, 0, Math.PI * 2); g.lineWidth = 2; g.strokeStyle = on ? c : c + '55'; g.stroke(); }
-      if (n.id === T.sel || n.id === T.hover) { g.beginPath(); g.arc(n.x, n.y, r + 10, 0, Math.PI * 2); g.lineWidth = 3; g.strokeStyle = '#ffffff'; g.stroke(); }
-      if (n.kind !== 'small' && T.z > 0.33) { g.font = `${n.kind === 'key' ? 'bold 17' : '14'}px sans-serif`; g.fillStyle = on ? '#fff3c0' : '#c8d6ea'; g.fillText(n.name, n.x, n.y + r + 17); }
+      const r = this.treeR(n), on = has(n.id), can = !on && Passive.canAlloc(p, n.id), inPath = path.has(n.id), c = col(n), gl = Passive.glyph(n);
+      const focused = n.id === focus;
+      const shape = () => { if (n.kind === 'key') this.treeHex(g, n.x, n.y, r); else { g.beginPath(); g.arc(n.x, n.y, r, 0, Math.PI * 2); g.closePath(); } };
+      // สีจุดผสม: ไล่สีสองแฉก
+      let stroke = c, fillOn = c;
+      if (n.mix) { const gr = g.createLinearGradient(n.x - r, n.y - r, n.x + r, n.y + r); gr.addColorStop(0, PSECT[n.mix[0]].color); gr.addColorStop(1, PSECT[n.mix[1]].color); stroke = fillOn = gr; }
+      // แสงฟุ้งรอบจุดที่เปิดแล้ว / วงกระพริบรอบจุดที่เปิดได้
+      if (on && n.kind !== 'small') { g.beginPath(); g.arc(n.x, n.y, r + 9, 0, Math.PI * 2); g.fillStyle = rgba(c, 0.2); g.fill(); }
+      if (can && free) { g.beginPath(); g.arc(n.x, n.y, r + 4 + 4 * pulse, 0, Math.PI * 2); g.strokeStyle = rgba(c, 0.25 + 0.45 * (1 - pulse)); g.lineWidth = 2.5; g.stroke(); }
+      // วงแหวนรอบนอกของ Notable / Keystone
+      if (n.kind === 'notable' || n.kind === 'key') {
+        if (n.kind === 'key') this.treeHex(g, n.x, n.y, r + 6); else { g.beginPath(); g.arc(n.x, n.y, r + 5, 0, Math.PI * 2); }
+        g.lineWidth = 2; g.strokeStyle = on ? rgba(c, 0.9) : inPath ? 'rgba(159,240,255,.8)' : rgba(c, can ? 0.6 : 0.3); g.stroke();
+      }
+      // ตัวจุด
+      shape();
+      g.fillStyle = on ? fillOn : inPath ? 'rgba(111,243,255,.2)' : can ? '#141d2e' : '#0e1522'; g.fill();
+      g.lineWidth = n.kind === 'small' ? 2.5 : 3.5;
+      g.strokeStyle = on ? '#fff6d8' : inPath ? '#9ff0ff' : can ? stroke : (n.mix ? stroke : rgba(c, 0.38)); g.stroke();
+      if (on && n.kind !== 'small') { shape(); g.lineWidth = 1.5; g.strokeStyle = 'rgba(255,255,255,.35)'; g.stroke(); }
+      if (focused) { g.beginPath(); g.arc(n.x, n.y, r + 13, 0, Math.PI * 2); g.lineWidth = 3; g.strokeStyle = '#ffffff'; g.stroke(); }
+      // ไอคอนบอกว่าให้อะไร
+      const gs = n.kind === 'key' ? 30 : n.kind === 'notable' ? 21 : n.kind === 'start' ? 26 : 13.5;
+      const gcol = on ? '#0a1020' : inPath ? '#dffbff' : can ? '#ffffff' : (n.sect < 0 ? 'rgba(220,235,255,.65)' : rgba(c, 0.7));
+      this.treeGlyph(g, gl, n.x, n.y, gs, gcol, n.kind === 'small' ? 2.4 : 2.1);
+      // ชื่อ: Keystone เสมอ (ยกเว้นซูมออกมาก), Notable เมื่อซูมพอ, จุดเล็กโชว์ค่าเมื่อซูมเข้ามาก
+      if (n.kind === 'key' && showKey) {
+        const up = n.y < -0.3 * Math.hypot(n.x, n.y); // แฉกที่ชี้ขึ้นวางป้ายไว้ด้านบน (ห่างจากจุดถัดไปที่อยู่ด้านใน)
+        labels.push([n.name, n.x, n.y + (up ? -r - 24 : r + 24), `600 18px ${FONT}`, on ? '#fff6d8' : '#e6edf7']);
+        labels.push(['KEYSTONE', n.x, n.y + (up ? -r - 42 : r + 42), `600 10px ${MONO}`, rgba(c, 0.9)]);
+      } else if (n.kind === 'notable' && showNotable) {
+        const [dx, dy, al] = lpos[n.id] || [0, r + 17, 'center'];
+        labels.push([n.name, n.x + dx, n.y + dy, `500 ${nfont}px ${FONT}`, on ? '#fff6d8' : '#d5deea', al]);
+      } else if (n.kind === 'start') labels.push(['Core', n.x, n.y + r + 16, `600 14px ${FONT}`, '#dffbff']);
+      else if (n.kind === 'small' && showSmall) {
+        const txt = Object.entries(n.b).map(([k, v]) => PSTAT_SHORT(k, v)).join('  ');
+        labels.push([txt, n.x, n.y + r + 11, `500 9.5px ${MONO}`, on ? '#fff6d8' : 'rgba(214,224,238,.9)']);
+      }
     }
+    for (const l of labels) this.treeLabel(g, ...l);
   },
 
   // ---------------- สมุดมอนสเตอร์ ----------------
@@ -1085,6 +1243,7 @@ const UI = {
       h('input', { type: 'checkbox', checked: o[key] ? 'checked' : false, onchange: e => { o[key] = e.target.checked; saveGame(); } }), ' ', label);
     body.append(
       chk('autoLoot', 'เก็บไอเทมอัตโนมัติ (Auto Loot)'),
+      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.autoCounter !== false ? 'checked' : false, onchange: e => { o.autoCounter = e.target.checked; saveGame(); } }), ' โจมตีกลับอัตโนมัติเมื่อถูกโจมตี'),
       chk('sound', 'เสียงเอฟเฟกต์'),
       h('label', { class: 'opt' }, 'ความดังเอฟเฟกต์ ',
         h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: o.sfxVol != null ? o.sfxVol : 0.8, oninput: e => { o.sfxVol = +e.target.value; Sound.setVolume(); }, onchange: () => { saveGame(); Sound.play('pickup'); } })),
@@ -1238,7 +1397,6 @@ const UI = {
     p.zeny -= cost;
     addItem(id, qty, true);
     this.msg(`ซื้อ ${it.name} ×${qty} (-${U.fmt(cost)} ${CUR})`, 'item');
-      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.autoCounter !== false ? 'checked' : false, onchange: e => { o.autoCounter = e.target.checked; saveGame(); } }), ' โจมตีกลับอัตโนมัติเมื่อถูกโจมตี'),
     Sound.play('buy');
     this.dirty();
   },

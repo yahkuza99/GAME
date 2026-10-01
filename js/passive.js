@@ -22,34 +22,89 @@ const PSTAT_FMT = (k, v) => {
   return pct ? `${sign}${v}${PSTAT[k]}` : `${PSTAT[k]} ${sign}${v}`;
 };
 
+// ---------- ภาพประกอบจุด (เฉพาะหน้าตา ไม่กระทบค่า) ----------
+// ป้ายสั้นสำหรับเขียนใต้จุดเล็กตอนซูมเข้า เช่น "+3 VIT" / "+4% ATK"
+const PSHORT = {
+  str: 'STR', agi: 'AGI', vit: 'VIT', int: 'INT', dex: 'DEX', luk: 'LUK', atk: 'ATK', matk: 'MATK', def: 'DEF', mdef: 'MDEF', hit: 'HIT', flee: 'FLEE', crit: 'CRI',
+  hp: 'HP', sp: 'SP', hpPct: 'HP', spPct: 'SP', atkPct: 'ATK', matkPct: 'MATK', critDmgPct: 'CRI DMG', aspdPct: 'ASPD', castPct: 'CAST', speedPct: 'SPEED',
+  healPct: 'HEAL', regenPct: 'REGEN', leech: 'LEECH', stunRes: 'STUN RES', spCostPct: 'SP COST', range: 'RANGE', rage: 'RAGE', venom: 'VENOM',
+};
+const PSTAT_SHORT = (k, v) => {
+  const pct = /Pct$|^leech$|^stunRes$|^rage$|^venom$/.test(k), sign = v > 0 ? '+' : '';
+  return `${sign}${v}${pct ? '%' : ''} ${PSHORT[k] || k}`;
+};
+// ไอคอนเส้น (SVG path ในกรอบ 24×24, เส้นปลายมน) ใช้ได้ทั้งบน canvas (Path2D) และใน HTML (<svg>)
+const PGLYPH_PATH = {
+  sword: 'M19.5 4.5L9.5 14.5M6.5 12.5l5 5M8.5 15.5l-4 4M19.5 4.5h-4M19.5 4.5v4',
+  shield: 'M12 3.5l7 2.6v5.4c0 4.6-3 7.6-7 9.5-4-1.9-7-4.9-7-9.5V6.1z',
+  mshield: 'M12 3.5l7 2.6v5.4c0 4.6-3 7.6-7 9.5-4-1.9-7-4.9-7-9.5V6.1zM12 8.5l2.6 3.2-2.6 3.3-2.6-3.3z',
+  heart: 'M12 20.5s-7.5-4.6-7.5-10.3A4.1 4.1 0 0 1 12 7.6a4.1 4.1 0 0 1 7.5 2.6c0 5.7-7.5 10.3-7.5 10.3z',
+  pulse: 'M3 12.5h4.5l2-5.5 3 11 2.5-5.5H21',
+  battery: 'M3 8.5h14a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1zM20.5 10.5v3M5.5 11.5v2M9 11.5v2',
+  drop: 'M12 3.5s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z',
+  star: 'M12 3.2l2.6 5.5 6 .8-4.4 4.2 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.5l6-.8z',
+  sparkle: 'M12 3.5c.4 4.8 3.7 8.1 8.5 8.5-4.8.4-8.1 3.7-8.5 8.5-.4-4.8-3.7-8.1-8.5-8.5 4.8-.4 8.1-3.7 8.5-8.5z',
+  feather: 'M19.5 4.5c-5.5 0-10 4.5-12 11.5L5 20.5M7.5 15.5c4.5-.5 8.5-3 10.5-8M11 12h3.5M9 15.5l4-4',
+  bolt: 'M13.5 3L6 13.5h5.5l-1 7.5L18 10.5h-5.5z',
+  wind: 'M3.5 8h10a2.5 2.5 0 1 0-2.5-2.5M3.5 12.5h14a2.5 2.5 0 1 1-2.5 2.5M3.5 17h7',
+  wand: 'M3.5 20.5L14 10M15 4.5l1 2.3 2.3 1-2.3 1-1 2.3-1-2.3-2.3-1 2.3-1z',
+  crosshair: 'M12 3v4M12 17v4M3 12h4M17 12h4M16.5 12a4.5 4.5 0 1 1-9 0a4.5 4.5 0 1 1 9 0',
+  arrow: 'M4.5 19.5L19 5M19 5h-6.5M19 5v6.5',
+  crystal: 'M12 3l7 8.5L12 21 5 11.5zM12 3v18M5 11.5h14',
+  plus: 'M12 5v14M5 12h14',
+  flame: 'M12 3c.8 4.2 5.5 5.6 5.5 10.5a5.5 5.5 0 0 1-11 0c0-2 .9-3.4 2.2-4.6.1 1.9 1 3 2.1 3.4C10.6 9.5 11.6 6.6 12 3z',
+  skull: 'M12 3a7 7 0 0 0-7 7c0 2.6 1.4 4.2 3 5.3V19h8v-3.7c1.6-1.1 3-2.7 3-5.3a7 7 0 0 0-7-7zM9.5 10.5h.1M14.5 10.5h.1M10.5 19v2M13.5 19v2',
+  anchor: 'M12 4a2 2 0 1 0 .1 0M12 8v13M5 14a7 7 0 0 0 14 0M3.5 13.5l1.5 1.5M20.5 13.5L19 15',
+  ghost: 'M5.5 20.5V11a6.5 6.5 0 0 1 13 0v9.5l-2.2-2-2.1 2-2.2-2-2.1 2-2.2-2zM9.5 11h.1M14.5 11h.1',
+  eye: 'M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12zM15 12a3 3 0 1 1-6 0a3 3 0 1 1 6 0',
+  core: 'M12 4a8 8 0 1 0 .1 0M12 9a3 3 0 1 0 .1 0M12 1.5V4M12 20v2.5M1.5 12H4M20 12h2.5',
+};
+// โบนัสแต่ละตัว → ตระกูลไอคอน (ดาบ=ตี โล่=ป้องกัน หัวใจ=HP แบต=SP ดาว=คริ ขนนก=หลบ สายฟ้า=เร็ว เป้า=แม่น ผลึก=เวท)
+const PGLYPH = {
+  str: 'sword', atk: 'sword', atkPct: 'sword', rage: 'flame',
+  vit: 'heart', hp: 'heart', hpPct: 'heart', regenPct: 'pulse', healPct: 'plus',
+  def: 'shield', mdef: 'mshield', stunRes: 'anchor',
+  agi: 'feather', flee: 'feather', speedPct: 'wind', aspdPct: 'bolt',
+  dex: 'crosshair', hit: 'crosshair', range: 'arrow',
+  int: 'crystal', matk: 'crystal', matkPct: 'crystal', castPct: 'wand',
+  sp: 'battery', spPct: 'battery', spCostPct: 'battery',
+  crit: 'star', critDmgPct: 'star', luk: 'sparkle',
+  leech: 'drop', venom: 'skull',
+};
+// Keystone แต่ละอันมีไอคอนเฉพาะตัว
+const PKS_GLYPH = { unshaken: 'anchor', overclock: 'flame', phantom: 'ghost', resolute: 'crosshair', bloodmagic: 'drop', mom: 'eye' };
+// คำอธิบายสั้นของไอคอน (ใช้ในคำอธิบายประกอบ)
+const PGLYPH_LEGEND = [['sword', 'ATK'], ['shield', 'DEF'], ['heart', 'HP'], ['battery', 'SP'], ['star', 'CRI'], ['feather', 'FLEE'], ['bolt', 'ASPD'], ['crosshair', 'HIT'], ['crystal', 'MATK'], ['plus', 'ฮีล']];
+
 // 6 แฉก (เรียงตามเข็มนาฬิกาจากด้านบน): ธีมแฉกติดกันจะเกี่ยวข้องกัน STR → AGI → DEX → INT → VIT
+// icon/tag = ภาพประกอบ (ไอคอนแฉก + คำโปรยสั้นว่าแฉกนี้ให้อะไร)
 const PSECT = [
-  { job: 'einherjar', name: 'Bulwark', th: 'ป้อมปราการ', color: '#e05a50', main: 'vit',
+  { job: 'einherjar', name: 'Bulwark', th: 'ป้อมปราการ', color: '#e05a50', main: 'vit', icon: 'shield', tag: 'HP • DEF • ต้านมึน',
     small: [{ vit: 3 }, { def: 2 }, { hpPct: 3 }, { mdef: 2 }],
     notables: [['Iron Frame', { vit: 6, def: 5 }], ['Shield Wall', { def: 8, mdef: 6 }], ['Titan Core', { hpPct: 10, hp: 100 }],
       ['Steadfast', { stunRes: 50, vit: 4 }], ['Repair Protocol', { regenPct: 1, hpPct: 5 }]],
     key: ['Bulwark Frame', { def: 15, mdef: 10 }, 'unshaken', 'ไม่มีวันมึน แต่ FLEE เหลือ 0 (หลบไม่ได้เลย)'] },
-  { job: 'berserker', name: 'Fury', th: 'คลั่ง', color: '#ff8a3a', main: 'str',
+  { job: 'berserker', name: 'Fury', th: 'คลั่ง', color: '#ff8a3a', main: 'str', icon: 'sword', tag: 'ATK • ASPD • ดูดเลือด',
     small: [{ str: 3 }, { atkPct: 4 }, { hp: 40 }, { aspdPct: 2 }],
     notables: [['Brute Force', { str: 6, atkPct: 6 }], ['Blood Engine', { leech: 2, hp: 60 }], ['Frenzy Drive', { aspdPct: 6, atkPct: 4 }],
       ['Wound Fury', { rage: 15 }], ['Heavy Hitter', { atkPct: 10, critDmgPct: 10 }]],
     key: ['Overclock', { atkPct: 40, hpPct: -25 }, 'overclock', 'ดาเมจกายภาพ +40% แต่ HP สูงสุด -25%'] },
-  { job: 'trickster', name: 'Shadow', th: 'เงา', color: '#b070ff', main: 'agi',
+  { job: 'trickster', name: 'Shadow', th: 'เงา', color: '#b070ff', main: 'agi', icon: 'feather', tag: 'FLEE • CRI • LUK',
     small: [{ agi: 3 }, { flee: 4 }, { crit: 2 }, { luk: 3 }],
     notables: [['Quickstep', { agi: 6, speedPct: 5 }], ['Ghost Protocol', { flee: 15 }], ['Lucky Seven', { luk: 7, crit: 4 }],
       ['Assassin Code', { critDmgPct: 25 }], ['Toxin Coating', { venom: 10 }]],
     key: ['Phantom Code', {}, 'phantom', 'FLEE x1.5 แต่ DEF เหลือครึ่งเดียว'] },
-  { job: 'wildhunter', name: 'Hunt', th: 'นักล่า', color: '#5ad05a', main: 'dex',
+  { job: 'wildhunter', name: 'Hunt', th: 'นักล่า', color: '#5ad05a', main: 'dex', icon: 'crosshair', tag: 'HIT • DEX • ระยะยิง',
     small: [{ dex: 3 }, { hit: 4 }, { aspdPct: 2 }, { critDmgPct: 6 }],
     notables: [['Eagle Sight', { dex: 6, hit: 8 }], ['Long Shot', { range: 1, dex: 3 }], ['Rapid Fire', { aspdPct: 8 }],
       ['Hunter Mark', { critDmgPct: 15, crit: 3 }], ['Trail Runner', { speedPct: 8, agi: 3 }]],
     key: ['Resolute Aim', { atkPct: 10 }, 'resolute', 'ตีโดนทุกครั้ง แต่ไม่ติดคริติคอลเลย'] },
-  { job: 'runecaster', name: 'Rune', th: 'รูน', color: '#4aa8ff', main: 'int',
+  { job: 'runecaster', name: 'Rune', th: 'รูน', color: '#4aa8ff', main: 'int', icon: 'crystal', tag: 'MATK • ร่ายเร็ว • SP',
     small: [{ int: 3 }, { matkPct: 4 }, { castPct: 3 }, { sp: 20 }],
     notables: [['Rune Scholar', { int: 6, matkPct: 6 }], ['Quick Glyph', { castPct: 10 }], ['Arcane Battery', { sp: 60, spPct: 6 }],
       ['Elemental Focus', { matkPct: 12 }], ['Efficient Casting', { spCostPct: -12, int: 3 }]],
     key: ['Blood Circuit', { hpPct: 20 }, 'bloodmagic', 'ใช้สกิลด้วย HP แทน SP (HP สูงสุด +20%)'] },
-  { job: 'volva', name: 'Seer', th: 'พยากรณ์', color: '#ffd84a', main: 'int',
+  { job: 'volva', name: 'Seer', th: 'พยากรณ์', color: '#ffd84a', main: 'int', icon: 'eye', tag: 'ฮีล • SP • MDEF',
     small: [{ int: 3 }, { healPct: 6 }, { spPct: 4 }, { regenPct: 0.5 }],
     notables: [['Seer Mind', { int: 6, mdef: 5 }], ['Healing Light', { healPct: 20 }], ['Spirit Well', { spPct: 10, sp: 40 }],
       ['Sacred Ward', { mdef: 8, vit: 4 }], ['Renewal', { regenPct: 1.5 }]],
@@ -141,5 +196,12 @@ const Passive = {
     const lines = Object.entries(n.b).map(([k, v]) => PSTAT_FMT(k, v));
     if (n.kdesc) lines.push(n.kdesc);
     return lines;
+  },
+  // ไอคอนประจำจุด: Keystone ใช้ของตัวเอง, แกนกลาง = core, ที่เหลือดูจากโบนัสตัวแรก
+  glyph(n) {
+    if (n.ks && PKS_GLYPH[n.ks]) return PKS_GLYPH[n.ks];
+    if (n.kind === 'start') return 'core';
+    for (const k in n.b) if (PGLYPH[k]) return PGLYPH[k];
+    return 'sparkle';
   },
 };
