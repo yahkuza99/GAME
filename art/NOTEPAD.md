@@ -1001,7 +1001,7 @@ Bottom row = ATTACK, 4 frames: crouch, leap forward, kick with the long hind leg
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
-⬜ **Mine Unit** (Mistlake Plains) — แนบ `mobsprite_capshroom.webp` + `tpl_mob.png`
+✅ **Mine Unit** (Mistlake Plains) — แนบ `mobsprite_capshroom.webp` + `tpl_mob.png`
 
 ```
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Mine Unit.

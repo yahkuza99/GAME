@@ -343,5 +343,20 @@
    "scale_src": 0.4323,
    "median_src_h": 347.0033082088918
   }
+ },
+ "mob_capshroom": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.5639,
+   "median_src_h": 266
+  },
+  "_k1536": 0.46038,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.5639,
+   "median_src_h": 265.9996904730874
+  }
  }
 }
