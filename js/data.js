@@ -459,3 +459,14 @@ function jobExpNeed(job, jl) {
 }
 function statCost(v) { return Math.floor((v - 1) / 10) + 2; }
 function statPointsForLevel(lv) { return Math.floor(lv / 5) + 3; }
+
+// คูลดาวน์รายสกิล (วินาที) แยกจากดีเลย์รวมหลังใช้สกิล — สกิลตีเบาสั้น สกิลแรง/หมู่ปานกลาง บัฟ/สกิลพิเศษนาน
+const SKILL_CD = {
+  first_aid: 4, shield_slam: 2, war_cry: 12, whirlwind: 6,
+  fire_rune: 1.5, ice_rune: 2, thunder_rune: 8,
+  piercing_arrow: 1.5, wolf_companion: 20, blast_trap: 4,
+  light_of_freyja: 3, blessing_of_odin: 15, holy_spear: 2,
+  backstab: 4, smoke_veil: 15, venom_blade: 15,
+  rage_strike: 1.5, blood_frenzy: 25, howl: 10,
+};
+for (const id in SKILL_CD) if (SKILLS[id]) SKILLS[id].cd = SKILL_CD[id];

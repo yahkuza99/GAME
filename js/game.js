@@ -164,6 +164,7 @@ function recalc() {
   d.matkMin = Math.floor((d.int + Math.floor(d.int / 7) ** 2 + weaponMatk + b.matk) * mp);
   d.matkMax = Math.floor((d.int + Math.floor(d.int / 5) ** 2 + weaponMatk + b.matk) * mp);
   d.castMul = Math.max(0.2, 1 - (b.castPct || 0) / 100);
+  d.cdCut = Math.min(35, Math.floor(d.agi / 2.5)); // AGI ลดคูลดาวน์สกิล: 2.5 AGI = 1% สูงสุด 35%
   d.regenPct = b.regenPct || 0;
   d.rage = b.rage || 0;
   d.venom = b.venom || 0;
@@ -877,6 +878,7 @@ function useSkill(id) {
     // แบบ RO: กดสกิล → โหมดเล็ง → คลิก/แตะมอน • กดปุ่มเดิมซ้ำ = ใช้กับเป้าปัจจุบัน (หรือตัวใกล้สุด)
     if (p.options.skillAim !== false && G.pendingSkill !== id) {
       if (G.time < p.skillReadyAt) { skillDelayHint(); return; }
+      if (skillCdLeft(id) > 0) { skillCdHint(id); return; }
       G.pendingSkill = id; G.pendingAt = G.time; Sound.play('click');
       return;
     }
@@ -887,6 +889,14 @@ function useSkill(id) {
   } else beginSkill(id, lv, null);
 }
 // กดสกิลระหว่างติดดีเลย์: เตือนเหนือหัว (ไม่สแปมแชท)
+// คูลดาวน์เหลือของสกิล (วินาที)
+function skillCdLeft(id) { const p = G.player; return Math.max(0, ((p.cds || {})[id] || 0) - G.time); }
+function skillCdHint(id) {
+  const p = G.player;
+  if (G.time < (p.delayHintAt || 0)) return;
+  p.delayHintAt = G.time + 0.6;
+  addFloater(p.x, p.y - 1.6, `${SKILLS[id].name} คูลดาวน์ ${skillCdLeft(id).toFixed(1)}s`, '#9fb8d8');
+}
 function skillDelayHint() {
   const p = G.player;
   if (G.time < (p.delayHintAt || 0)) return;
@@ -897,6 +907,7 @@ function beginSkill(id, lv, tgt) {
   const p = G.player, s = SKILLS[id];
   G.pendingSkill = null;
   if (G.time < p.skillReadyAt) { skillDelayHint(); return; }
+  if (skillCdLeft(id) > 0) { skillCdHint(id); return; }
   if (!canPaySkill(skillCost(id, lv))) { const w = p.d.bloodmagic ? 'HP' : 'SP'; UI.msg(`${w} ไม่เพียงพอ`, 'err'); addFloater(p.x, p.y - 1.3, `${w} ไม่พอ`, '#8fb0ff'); return; }
   if (tgt) {
     const dist = U.dist(p.x, p.y, tgt.x, tgt.y);
@@ -932,7 +943,8 @@ function executeSkill(id, lv, tgt) {
   }
   Quest.onSkillUse();
   const delay = typeof s.delay === 'function' ? s.delay(lv) : (s.delay || 500);
-  p.skillReadyAt = G.time + delay / 1000; p.skillDelayMs = delay; // ดีเลย์หลังใช้สกิล (After-cast Delay) ทุกสกิลรอพร้อมกัน
+  p.skillReadyAt = G.time + delay / 1000; p.skillDelayMs = delay;
+  if (s.cd) { const cd = s.cd * (1 - p.d.cdCut / 100); (p.cds || (p.cds = {}))[id] = G.time + cd; (p.cdTot || (p.cdTot = {}))[id] = cd; } // ดีเลย์หลังใช้สกิล (After-cast Delay) ทุกสกิลรอพร้อมกัน
   shout(`${s.name}!!`);
   p.atkAnim = 1;
   p.skillPose = G.time; // ท่าใช้สกิล (1 ท่าต่ออาชีพ) — ความต่างของแต่ละสกิลอยู่ที่เอฟเฟกต์

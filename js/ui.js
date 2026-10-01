@@ -260,7 +260,9 @@ const UI = {
       const hb = p[el.dataset.bar][+el.dataset.i];
       const cd = $('.cd', el);
       if (hb && hb.t === 'skill') {
-        const left = p.skillReadyAt - G.time, tot = (p.skillDelayMs || 500) / 1000;
+        // วงกวาด: ดีเลย์รวม หรือคูลดาวน์ของสกิลนี้ (อันที่นานกว่า)
+        const dl = p.skillReadyAt - G.time, cl = skillCdLeft(hb.id);
+        const left = Math.max(dl, cl), tot = cl >= dl ? ((p.cdTot || {})[hb.id] || SKILLS[hb.id].cd || 1) : (p.skillDelayMs || 500) / 1000;
         const k = left > 0 ? U.clamp(left / tot, 0, 1) : 0;
         cd.style.height = k > 0 ? '100%' : '0';
         cd.style.setProperty('--cd', k.toFixed(3));
@@ -504,7 +506,7 @@ const UI = {
         ic.append(this.skillIcon(x.id));
         q.textContent = 'Lv' + skillLv(x.id);
         const sk = SKILLS[x.id], lv = skillLv(x.id), cost = skillCost(x.id, lv);
-        el.title = `${sk.name} Lv ${lv} [${key}]${cost ? ` • SP ${cost}` : ''}\n${sk.desc || ''}`;
+        el.title = `${sk.name} Lv ${lv} [${key}]${cost ? ` • SP ${cost}` : ''}${sk.cd ? ` • คูลดาวน์ ${sk.cd} วิ` : ''}\n${sk.desc || ''}`;
       } else {
         ic.append(h('img', { src: itemIconUrl(x.id), alt: '' }));
         q.textContent = countItem(x.id);
@@ -616,7 +618,7 @@ const UI = {
   renderStatus() {
     const p = G.player, d = p.d;
     const stats = ['str', 'agi', 'vit', 'int', 'dex', 'luk'];
-    const desc = { str: 'พลังโจมตีระยะประชิด', agi: 'ความเร็วโจมตี/หลบหลีก', vit: 'HP/ป้องกัน', int: 'พลังเวท/SP', dex: 'ความแม่นยำ/ธนู/ร่ายเร็ว', luk: 'คริติคอล/โชค' };
+    const desc = { str: 'พลังโจมตีระยะประชิด', agi: 'ความเร็วโจมตี/หลบหลีก/ลดคูลดาวน์สกิล', vit: 'HP/ป้องกัน', int: 'พลังเวท/SP', dex: 'ความแม่นยำ/ธนู/ร่ายเร็ว', luk: 'คริติคอล/โชค' };
     const left = stats.map(s => {
       const cost = statCost(p.stats[s]);
       const can = p.statPoints >= cost && p.stats[s] < 99;
@@ -633,7 +635,7 @@ const UI = {
     // ค่าพิเศษ (จากต้นไม้พาสซีฟ/สกิล/บัฟ) — แสดงเฉพาะที่มีผล
     const castCut = Math.round((1 - d.castMul * Math.max(0, 1 - d.dex / 150)) * 100);
     const extra = [
-      ['ความเร็วเดิน', Math.round((d.speed / 4.6 - 1) * 100), '%'], ['ร่ายเร็วขึ้น', castCut, '%'], ['ดาเมจกายภาพ', d.atkPct, '%'],
+      ['ความเร็วเดิน', Math.round((d.speed / 4.6 - 1) * 100), '%'], ['ร่ายเร็วขึ้น', castCut, '%'], ['ลดคูลดาวน์สกิล', d.cdCut, '%'], ['ดาเมจกายภาพ', d.atkPct, '%'],
       ['แรงคริติคอล', Math.round((d.critMul - 1.4) * 100), '%'], ['ดูดเลือด', d.leech, '%'], ['ฮีลแรงขึ้น', d.healPct, '%'],
       ['ต้านมึน (VIT+พาสซีฟ)', d.unshaken ? 100 : Math.round((1 - (1 - Math.min(0.9, d.vit / 100)) * (1 - d.stunRes / 100)) * 100), '%'], ['SP ที่ใช้', d.spCostPct, '%'], ['HP ฟื้นต่อรอบ', d.regenPct, '%'],
       ['ATK ตาม HP ที่เสีย', d.rage, '%'], ['โอกาสติดพิษ', d.venom, '%'],
@@ -793,7 +795,7 @@ const UI = {
         ic,
         h('div', { class: 'sk-info' },
           h('div', { class: 'sk-name' }, s.name, h('span', { class: 'sk-lv' }, ` Lv ${lv}/${s.max}`), s.type === 'passive' ? h('span', { class: 'tag' }, 'ติดตัว') : null),
-          h('div', { class: 'sk-desc' }, s.desc + (s.sp && lv ? ` [SP ${s.sp(lv)}]` : '')),
+          h('div', { class: 'sk-desc' }, s.desc + (s.sp && lv ? ` [SP ${s.sp(lv)}]` : '') + (s.cd ? ` [คูลดาวน์ ${s.cd} วิ]` : '')),
           reqTxt ? h('div', { class: 'sk-req' + (skillReqMet(id) ? ' ok' : '') }, `ต้องการ: ${reqTxt}`) : null,
           lv && s.type === 'active' ? mastery(id) : null),
         h('div', { class: 'sk-acts' },

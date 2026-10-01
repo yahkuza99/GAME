@@ -96,7 +96,7 @@ const Bot = {
     // ตั้งรายสกิล: ใช้เฉพาะตอน HP ต่ำกว่า X% (0 = ใช้ได้ตลอด)
     const hpGate = (c.skillHp || {})[id];
     if (hpGate && p.hp / p.d.maxHp * 100 >= hpGate) return false;
-    if (G.time < p.skillReadyAt || p.cast) return false;
+    if (G.time < p.skillReadyAt || p.cast || skillCdLeft(id) > 0) return false;
     if (s.bow && weaponType() !== 'bow') return false;
     return canPaySkill(skillCost(id, lv)) && (!p.d.bloodmagic || p.hp - skillCost(id, lv) > p.d.maxHp * 0.4);
   },
