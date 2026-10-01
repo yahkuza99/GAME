@@ -238,5 +238,44 @@
    "scale_src": 0.3778,
    "median_src_h": 397.0354685018528
   }
+ },
+ "novice_m": {
+  "idle": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.8152,
+   "median_src_h": 184
+  },
+  "_k1536": 0.81522,
+  "cast": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.8242,
+   "median_src_h": 182.0
+  },
+  "attack": {
+   "frames": 6,
+   "dirs": 8,
+   "scale_src": 0.8197,
+   "median_src_h": 183.0
+  },
+  "sit": {
+   "frames": 2,
+   "dirs": 8,
+   "scale_src": 0.8152,
+   "median_src_h": 183.99941120188416
+  },
+  "hurt": {
+   "frames": 2,
+   "dirs": 8,
+   "scale_src": 0.8152,
+   "median_src_h": 183.99941120188416
+  },
+  "dead": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.8152,
+   "median_src_h": 183.99941120188416
+  }
  }
 }

@@ -2,7 +2,7 @@
 
 สร้างอัตโนมัติด้วย `python3 tools/make_notepad.py` (ดูว่าอะไรมีแล้วจาก assets) • ✅ = ติดตั้งแล้ว • ⬜ = ยังขาด
 
-**ยังขาด: ตัวละคร 78 ภาพ • มอนสเตอร์ 6 ภาพ • NPC 1 ภาพ**
+**ยังขาด: ตัวละคร 73 ภาพ • มอนสเตอร์ 6 ภาพ • NPC 1 ภาพ**
 
 ## วิธีใช้
 
@@ -13,28 +13,15 @@
 
 ## แบบแชต (วางครั้งเดียวต่อแชต แล้วพิมพ์ next)
 
-### Novice ชาย (Type-B) — 6 ภาพ
+### Novice ชาย (Type-B) — 1 ภาพ
 
-แชตใหม่ • แนบ hero_novice_m.webp + tpl_walk.png • จากนั้นพิมพ์ next + แนบเทมเพลตของภาพถัดไป (tpl_idle.png, tpl_attack.png, tpl_cast.png, tpl_sit_hurt.png, tpl_dead.png)
+แนบ ภาพเดินของตัวนี้ + tpl_walk.png
 
 ```
 2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Every character is an ANDROID: smooth white faceplate with ONE glowing visor strip, NO eyes, NO mouth. Chibi proportions (head about 1/3 of the body height), thick dark outline, 2-tone cel shading, modest outfit.
-Character: male android NOVICE: spiky silver hair plates, cyan visor, olive field jacket with a red cross shoulder patch, brown belt with pouches, white armored legs, short cyan energy dagger in the right hand.
-
-RULES FOR EVERY IMAGE: follow the template I attach with each image (rows = directions FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK; columns = frames). Standing poses: top of the head on the blue line, feet on the red line. Same character, same size, same colors in every image — after IMAGE 1, the walk sheet you drew is the reference. Leave clear space between characters so they never touch. Draw the character ONLY: no effects, no glow auras, no slash arcs, no motion lines (the game adds effects). Flat white background. Do NOT draw the labels, grid or guide lines.
-
-I will ask for ONE image at a time and attach its template. After each image, wait until I type "next".
-
-IMAGE 1 — WALK (template tpl_walk.png): 4 frames per direction, legs clearly alternating: 1 LEFT leg far forward, RIGHT leg back (wide stride); 2 legs together, RIGHT knee lifted; 3 RIGHT leg far forward, LEFT leg back; 4 legs together, LEFT knee lifted. Arms swing opposite to the legs. Each row is a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK).
-IMAGE 2 — IDLE (template tpl_idle.png): IDLE standing pose, 4 frames per direction. Stands still with BOTH FEET TOGETHER side by side, both soles flat on the red line, legs straight, knees together, weapon held relaxed. Frames: 1 neutral, 2 breathe in (shoulders a tiny bit higher), 3 neutral, 4 breathe out. The legs and feet must NOT move between frames. Each row is a direction as labelled.
-IMAGE 3 — ATTACK (template tpl_attack.png): ATTACK, 6 frames per direction: 1 ready, 2 pull back (dagger arm drawn far back), 3 lunge forward, 4 full SLASH, arm fully extended, 5 follow-through, 6 back to ready. Draw the character ONLY: no slash arcs, no motion lines, no effects (the game adds them). Each row is a direction as labelled.
-IMAGE 4 — SKILL POSE (template tpl_cast.png): SKILL pose (one pose used for every skill), 4 frames per direction: 1 ready, 2 gathering power, 3 release, 4 hold the final pose. The pose: free hand raised forward, palm open. Draw the character ONLY: no magic circles, no glow, no aura, no smoke, no effects (the game adds skill effects separately). Each row is a direction as labelled.
-IMAGE 5 — SIT + HURT (template tpl_sit_hurt.png): Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
-Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
-Each row is a direction as labelled. Same character size as the walk sheet.
-IMAGE 6 — DEAD (template tpl_dead.png): DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet.
-
-Start now with IMAGE 1.
+Character: male android NOVICE: spiky silver hair plates, cyan visor, olive field jacket with a red cross shoulder patch, brown belt with pouches, white armored legs, short cyan energy dagger in the right hand. Use the attached character image for the design.
+Draw a WALK cycle into the attached template, 4 frames per direction, legs clearly alternating: 1 LEFT leg far forward, RIGHT leg back (wide stride); 2 legs together, RIGHT knee lifted; 3 RIGHT leg far forward, LEFT leg back; 4 legs together, LEFT knee lifted. Arms swing opposite to the legs. Each row is a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK).
+Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
 ### Einherjar หญิง (นักรบวิญญาณ) — 6 ภาพ
@@ -376,41 +363,15 @@ Draw a WALK cycle into the attached template, 4 frames per direction, legs clear
 Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
-⬜ **ยืนขาคู่** — แนบ `tpl_idle.png` (4×5)
+✅ **ยืนขาคู่** — แนบ `tpl_idle.png` (4×5)
 
-```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: IDLE standing pose, 4 frames per direction. Stands still with BOTH FEET TOGETHER side by side, both soles flat on the red line, legs straight, knees together, weapon held relaxed. Frames: 1 neutral, 2 breathe in (shoulders a tiny bit higher), 3 neutral, 4 breathe out. The legs and feet must NOT move between frames. Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **โจมตี** — แนบ `tpl_attack.png` (6×5)
 
-⬜ **โจมตี** — แนบ `tpl_attack.png` (6×5)
+✅ **ท่าสกิล (1 ท่าใช้กับทุกสกิล)** — แนบ `tpl_cast.png` (4×5)
 
-```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: ATTACK, 6 frames per direction: 1 ready, 2 pull back (dagger arm drawn far back), 3 lunge forward, 4 full SLASH, arm fully extended, 5 follow-through, 6 back to ready. Draw the character ONLY: no slash arcs, no motion lines, no effects (the game adds them). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **นั่ง + โดนตี** — แนบ `tpl_sit_hurt.png` (4×5)
 
-⬜ **ท่าสกิล (1 ท่าใช้กับทุกสกิล)** — แนบ `tpl_cast.png` (4×5)
-
-```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: SKILL pose (one pose used for every skill), 4 frames per direction: 1 ready, 2 gathering power, 3 release, 4 hold the final pose. The pose: free hand raised forward, palm open. Draw the character ONLY: no magic circles, no glow, no aura, no smoke, no effects (the game adds skill effects separately). Each row is a direction as labelled.
-Top of the head on the blue line, feet on the red line, one pose per cell, every frame clearly different. Same character height in every cell. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
-```
-
-⬜ **นั่ง + โดนตี** — แนบ `tpl_sit_hurt.png` (4×5)
-
-```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template.
-Columns 1-2 SIT: sitting on the ground with legs folded, resting, bottom on the red line (the head is naturally BELOW the blue line when sitting). The 2 sit frames are almost identical (calm breathing only).
-Columns 3-4 HURT (standing): 3 knocked back, body leaning away, visor flickers bright; 4 recovering back into stance. Hurt frames: top of the head on the blue line, feet on the red line.
-Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
-```
-
-⬜ **ล้ม** — แนบ `tpl_dead.png` (4×5)
-
-```
-Draw this exact character (the attached walk sheet — same design, same colors, same size) into the attached template: DEAD, 4 frames per direction: 1 knees buckle, 2 falling to the ground, 3 lying FLAT on the ground (whole body resting on the red line, seen from the game's high 3/4 camera), 4 lying still with the visor dark (turned off). Only frame 1 reaches up toward the blue line; frames 2-4 are low on the red line. Each row is a direction as labelled. Same character size as the walk sheet. Leave clear space between characters so they never touch. Output: flat white background, do NOT draw the labels, grid or guide lines.
-```
+✅ **ล้ม** — แนบ `tpl_dead.png` (4×5)
 
 ### Einherjar หญิง (นักรบวิญญาณ) — `einherjar_f`
 
