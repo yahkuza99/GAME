@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
   await p.goto('http://localhost:8790/index.html'); await p.waitForTimeout(1000);
   await p.click('#au-offline'); await p.click('#btn-new'); await p.fill('#cr-name', 'Sim'); await p.click('#cr-start'); await p.waitForTimeout(1500);
   const SECS = +process.argv[3] || 240;
-  await p.evaluate(j => { window.SIM_JOBS = j ? j.split(',') : null; window.SIM_KEYS = [null]; }, process.argv[4] || '');
+  await p.evaluate(j => { window.SIM_JOBS = j ? j.split(',') : null; window.SIM_KEYS = j ? [null] : null; }, process.argv[4] || '');
   const res = await p.evaluate(async SECS => {
     G.player.options.sound = false; UI.msg = () => {}; UI.announce = () => {}; UI.splash = () => {}; saveGame = () => {};
     const jobs = (window.SIM_JOBS || Object.keys(JOBS).filter(j => j !== 'novice'));
