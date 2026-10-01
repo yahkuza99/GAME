@@ -759,7 +759,7 @@ const UI = {
     const tabType = e => { const t = ITEMS[e.id].type; return t === 'use' ? 'use' : t === 'card' ? 'card' : isEquipType(ITEMS[e.id]) ? 'equip' : 'etc'; };
     body.append(h('div', { class: 'tabs' }, tabs.map(([k, l]) => h('button', {
       class: 'tab' + (this.invTab === k ? ' on' : ''), onclick: () => { this.invTab = k; this.selItem = null; this.renderInv(); },
-    }, l, h('small', {}, ` ${p.inventory.filter(e => tabType(e) === k).length}`)))));
+    }, l))));
     const grid = h('div', { class: 'inv-grid' });
     const list = p.inventory.filter(e => tabType(e) === this.invTab);
     for (const e of list) {

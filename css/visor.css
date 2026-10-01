@@ -927,7 +927,7 @@ body.visor .bi-id b { max-width: 100%; }
 .shop-p.poor { color: #ff9aa8 !important; }
 /* QA 16: ปุ่มเล็กบนจอสัมผัสขยายพื้นที่กด */
 @media (pointer: coarse) {
-  .fold-btn, .mm-btn, #hud-toggle, #nav-cancel, .tg-info, .hunt-info, .pt { position: relative; }
+  #nav-cancel, .tg-info, .hunt-info, .pt { position: relative; } /* ปุ่มที่วางแบบ absolute/fixed อยู่แล้ว (fold, minimap, hud-toggle) ห้ามเปลี่ยน position */
   .fold-btn::after, .mm-btn::after, #hud-toggle::after, #nav-cancel::after, .tg-info::after, .hunt-info::after, .pt::after { content: ''; position: absolute; inset: -10px; }
   .opt input[type=checkbox] { width: 22px; height: 22px; }
   .st-up { min-height: 34px; } .tab { min-height: 36px; }
@@ -1052,4 +1052,9 @@ body:not(.pad-mode) #hud:has(#mm-wb:not([hidden])) #menubar { top: calc(258px + 
   .cb-ti.l2::before { content: none; }
   .cb-all, .cb-pc, .cb-next { grid-template-columns: 1fr; }
   .cb-art { opacity: .35; height: 180px; }
+}
+
+/* ===== มือถือแนวตั้ง: เควสต์ไม่ทับการ์ดตัวละคร/มินิแมพ (ป้าย MVP + บอสโลกทำให้คอลัมน์มินิแมพยาวขึ้น) ===== */
+@media (orientation: portrait) {
+  body.visor.pad-mode #hud #quest-track, body.visor.pad-mode #hud:has(#buffs .buff) #quest-track { top: calc(292px + var(--st)); right: calc(var(--gap) + var(--sr)); width: min(46vw, 190px); }
 }
