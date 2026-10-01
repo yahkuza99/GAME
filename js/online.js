@@ -58,15 +58,15 @@ const Online = {
   },
   async localRegister(username, password) {
     const acc = this.lsGet(this.LS.accounts, {}), key = username.toLowerCase();
-    if (acc[key]) throw new Error('ชื่อผู้ใช้นี้ถูกใช้แล้ว');
+    if (acc[key]) throw new Error(L('ชื่อผู้ใช้นี้ถูกใช้แล้ว', 'That username is already taken.'));
     const salt = Math.random().toString(36).slice(2, 10);
     acc[key] = { name: username, salt, hash: await this.hash(salt, password), created: Date.now() };
-    if (!this.lsSet(this.LS.accounts, acc)) throw new Error('เบราว์เซอร์นี้ไม่อนุญาตให้บันทึกข้อมูล');
+    if (!this.lsSet(this.LS.accounts, acc)) throw new Error(L('เบราว์เซอร์นี้ไม่อนุญาตให้บันทึกข้อมูล', 'This browser does not allow saving data.'));
     this.setLocal(username);
   },
   async localLogin(username, password) {
     const a = this.lsGet(this.LS.accounts, {})[username.toLowerCase()];
-    if (!a || a.hash !== await this.hash(a.salt, password)) throw new Error('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+    if (!a || a.hash !== await this.hash(a.salt, password)) throw new Error(L('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'Incorrect username or password.'));
     this.setLocal(a.name);
   },
   setLocal(username) {
@@ -80,26 +80,26 @@ const Online = {
   emailFor(u) { return `${u.toLowerCase()}@${(window.ONLINE_CONFIG.emailDomain || 'players.ragnarok-web.game')}`; },
   errText(err) {
     const m = String((err && (err.message || err.error_description)) || err || '');
-    if (/invalid login credentials/i.test(m)) return 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
-    if (/already registered|already exists/i.test(m)) return 'ชื่อผู้ใช้นี้ถูกใช้แล้ว';
-    if (/password should be at least|weak/i.test(m)) return 'รหัสผ่านต้องยาวอย่างน้อย 6 ตัวอักษร';
-    if (/email not confirmed/i.test(m)) return 'เซิร์ฟเวอร์ยังเปิดการยืนยันอีเมลอยู่ (ผู้ดูแลต้องปิด Confirm email ใน Supabase)';
-    if (/rate limit/i.test(m)) return 'ลองใหม่อีกครั้งในอีกสักครู่';
-    if (/failed to fetch|network/i.test(m)) return 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ตรวจสอบอินเทอร์เน็ต';
-    return m || 'เกิดข้อผิดพลาด';
+    if (/invalid login credentials/i.test(m)) return L('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'Incorrect username or password.');
+    if (/already registered|already exists/i.test(m)) return L('ชื่อผู้ใช้นี้ถูกใช้แล้ว', 'That username is already taken.');
+    if (/password should be at least|weak/i.test(m)) return L('รหัสผ่านต้องยาวอย่างน้อย 6 ตัวอักษร', 'Password must be at least 6 characters.');
+    if (/email not confirmed/i.test(m)) return L('เซิร์ฟเวอร์ยังเปิดการยืนยันอีเมลอยู่ (ผู้ดูแลต้องปิด Confirm email ใน Supabase)', 'The server still requires email confirmation (an admin must disable Confirm email in Supabase).');
+    if (/rate limit/i.test(m)) return L('ลองใหม่อีกครั้งในอีกสักครู่', 'Please try again in a moment.');
+    if (/failed to fetch|network/i.test(m)) return L('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ตรวจสอบอินเทอร์เน็ต', 'Cannot reach the server. Check your internet connection.');
+    return m || L('เกิดข้อผิดพลาด', 'An error occurred.');
   },
   async register(username, password) {
-    if (!this.validUsername(username)) throw new Error('ชื่อผู้ใช้ต้องเป็น a-z, 0-9 หรือ _ ยาว 3-16 ตัว');
-    if (password.length < 6) throw new Error('รหัสผ่านต้องยาวอย่างน้อย 6 ตัวอักษร');
+    if (!this.validUsername(username)) throw new Error(L('ชื่อผู้ใช้ต้องเป็น a-z, 0-9 หรือ _ ยาว 3-16 ตัว', 'Username must be 3-16 characters: a-z, 0-9 or _.'));
+    if (password.length < 6) throw new Error(L('รหัสผ่านต้องยาวอย่างน้อย 6 ตัวอักษร', 'Password must be at least 6 characters.'));
     await this.ready;
     if (this.local) return this.localRegister(username, password);
     const { data, error } = await this.sb.auth.signUp({ email: this.emailFor(username), password, options: { data: { username } } });
     if (error) throw new Error(this.errText(error));
-    if (!data.session) throw new Error('สมัครแล้ว แต่เซิร์ฟเวอร์ต้องปิดการยืนยันอีเมล (Confirm email) ก่อนจึงจะเข้าเล่นได้');
+    if (!data.session) throw new Error(L('สมัครแล้ว แต่เซิร์ฟเวอร์ต้องปิดการยืนยันอีเมล (Confirm email) ก่อนจึงจะเข้าเล่นได้', 'Registered, but the server must disable email confirmation (Confirm email) before you can play.'));
     this.setUser(data.session.user, username);
   },
   async login(username, password) {
-    if (!this.validUsername(username)) throw new Error('ชื่อผู้ใช้ไม่ถูกต้อง');
+    if (!this.validUsername(username)) throw new Error(L('ชื่อผู้ใช้ไม่ถูกต้อง', 'Invalid username.'));
     await this.ready;
     if (this.local) return this.localLogin(username, password);
     const { data, error } = await this.sb.auth.signInWithPassword({ email: this.emailFor(username), password });
@@ -284,11 +284,11 @@ const Online = {
   async sendChat(text) {
     if (!this.online) return false;
     const now = performance.now();
-    if (now - this.lastChat < 1000) { UI.msg('ส่งข้อความเร็วเกินไป', 'err'); return true; }
+    if (now - this.lastChat < 1000) { UI.msg(L('ส่งข้อความเร็วเกินไป', 'You are sending messages too fast.'), 'err'); return true; }
     this.lastChat = now;
     if (this.mapChannel) this.mapChannel.send({ type: 'broadcast', event: 'say', payload: { id: this.user.id, t: text } });
     const { error } = await this.sb.from('chat_messages').insert({ text, map: G.map.id });
-    if (error) UI.msg(`ส่งแชทไม่สำเร็จ: ${this.errText(error)}`, 'err');
+    if (error) UI.msg(L(`ส่งแชทไม่สำเร็จ: ${this.errText(error)}`, `Failed to send message: ${this.errText(error)}`), 'err');
     return true;
   },
 
@@ -343,7 +343,7 @@ const Online = {
   onPvpDeath() {
     const p = G.player, k = this.lastHitBy && G.time - this.lastHitBy.at < 10 ? this.lastHitBy : null; // เครดิตเฉพาะคนที่ตีภายใน 10 วิ
     p.pvp = p.pvp || { k: 0, d: 0 }; p.pvp.d++;
-    UI.msg(k ? `⚔ ${k.name} ล้มคุณในลานประลอง` : 'คุณล้มลงในลานประลอง', 'err');
+    UI.msg(k ? L(`⚔ ${k.name} ล้มคุณในลานประลอง`, `⚔ ${k.name} defeated you in the Arena.`) : L('คุณล้มลงในลานประลอง', 'You have fallen in the Arena.'), 'err');
     if (this.mapChannel && k) this.mapChannel.send({ type: 'broadcast', event: 'kill', payload: { killer: k.id, kn: k.name, victim: this.user.id, vn: p.name } });
     this.lastHitBy = null;
     saveGame(true);
@@ -353,8 +353,8 @@ const Online = {
     const p = G.player;
     if (this.user && s.killer === this.user.id) {
       p.pvp = p.pvp || { k: 0, d: 0 }; p.pvp.k++;
-      UI.announce(`⚔ คุณล้ม ${s.vn} ได้!`); Sound.play('mvp'); saveGame(true);
-    } else UI.msg(`⚔ ${s.kn} ล้ม ${s.vn}`, 'sys');
+      UI.announce(L(`⚔ คุณล้ม ${s.vn} ได้!`, `⚔ You defeated ${s.vn}!`)); Sound.play('mvp'); saveGame(true);
+    } else UI.msg(L(`⚔ ${s.kn} ล้ม ${s.vn}`, `⚔ ${s.kn} defeated ${s.vn}`), 'sys');
   },
 
   // ---------------- ทุกเฟรม ----------------

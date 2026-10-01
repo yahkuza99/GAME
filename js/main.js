@@ -6,10 +6,10 @@
 const HAIR_COLORS = ['#e8ecf4', '#9aa4b8', '#3a3f4c', '#e0b050', '#c83a3a', '#3a8ae0', '#5ad0a0', '#d070d0'];
 const BODY_COLORS = ['#e6e9ef', '#c8ccd6', '#8a94a6', '#3a404e', '#e8dcc8', '#f0d6e0'];
 const GLOW_COLORS = ['#7ad8ff', '#8cff7a', '#ffe27a', '#ff8a2a', '#ff5a6a', '#c07aff', '#ff7ad8', '#ffffff'];
-const HEAD_STYLES = [['long', 'ยาว'], ['twin', 'แฝด'], ['bob', 'บ็อบ'], ['short', 'สั้น'], ['spiky', 'แหลม'], ['crest', 'หงอน']];
-const VISORS = [['band', 'แถบ'], ['v', 'ทรง V'], ['slit', 'คู่']];
+const HEAD_STYLES = [['long', L('ยาว', 'Long')], ['twin', L('แฝด', 'Twin')], ['bob', L('บ็อบ', 'Bob')], ['short', L('สั้น', 'Short')], ['spiky', L('แหลม', 'Spiky')], ['crest', L('หงอน', 'Crest')]];
+const VISORS = [['band', L('แถบ', 'Band')], ['v', L('ทรง V', 'V-Shape')], ['slit', L('คู่', 'Twin Slit')]];
 // เลขเวอร์ชัน (แสดงมุมหน้าไตเติล — แจ้งเวอร์ชันนี้เวลาส่งฟีดแบ็ก)
-const GAME_VERSION = '0.9.0 (ทดสอบ)';
+const GAME_VERSION = L('0.9.0 (ทดสอบ)', '0.9.0 (Beta)');
 const creation = { gender: 'f', hair: HAIR_COLORS[0], head: 'long', color: BODY_COLORS[0], glow: GLOW_COLORS[0], visor: 'band', dir: 3 }; // dir 3 = หันหน้าซ้ายล่าง (3/4) ยืนนิ่ง
 
 function toggleFullscreen() {
@@ -26,7 +26,7 @@ function mapWalkTo(tx, ty) {
   p.target = null; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.cast = null; p.sitting = false;
   Bot.manualOverride(); Nav.cancel(true);
   p.path = findPath(G.map, Math.floor(p.x), Math.floor(p.y), tx, ty, 20000);
-  if (!p.path.length) UI.msg('ไปจุดนั้นไม่ได้', 'err');
+  if (!p.path.length) UI.msg(L('ไปจุดนั้นไม่ได้', 'Cannot move there.'), 'err');
   else addFx({ type: 'click', x: p.path[p.path.length - 1].x + 0.5, y: p.path[p.path.length - 1].y + 0.5, dur: 0.6 });
 }
 
@@ -68,7 +68,7 @@ function toggleSit() {
   if (!G.started || p.dead || p.cast || stunBlocked()) return;
   p.sitting = !p.sitting;
   p.path = []; p.target = null; p.skillIntent = null;
-  UI.msg(p.sitting ? 'นั่งพัก — ฟื้นฟู HP/SP เร็วขึ้น 2 เท่า' : 'ลุกขึ้นยืน', 'info');
+  UI.msg(p.sitting ? L('นั่งพัก — ฟื้นฟู HP/SP เร็วขึ้น 2 เท่า', 'Resting — HP/SP recovery doubled.') : L('ลุกขึ้นยืน', 'You stand up.'), 'info');
 }
 
 // ------------------------------------------------------------
@@ -105,10 +105,10 @@ function handleClick() {
     }
     G.pendingSkill = null;
     if (m) { p.target = m; p.repathAt = 0; beginSkill(id, skillLv(id), m); }
-    else UI.msg('ยกเลิกการใช้สกิล', 'info');
+    else UI.msg(L('ยกเลิกการใช้สกิล', 'Skill cancelled.'), 'info');
     return;
   }
-  if (p.cast) { p.cast = null; UI.msg('ยกเลิกการร่ายเวท', 'info'); }
+  if (p.cast) { p.cast = null; UI.msg(L('ยกเลิกการร่ายเวท', 'Cast cancelled.'), 'info'); }
   p.target = null; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null;
   p.sitting = false;
   if (hv && hv.kind === 'mob') { p.target = hv.ref; p.repathAt = 0; return; }
@@ -146,7 +146,7 @@ function bindInput() {
   const up = e => { touches.delete(e.pointerId); if (touches.size < 2) R.pinch = null; R.mouse.down = false; };
   window.addEventListener('pointerup', up);
   window.addEventListener('pointercancel', up);
-  cv.addEventListener('contextmenu', e => { e.preventDefault(); if (G.pendingSkill) { G.pendingSkill = null; UI.msg('ยกเลิกการใช้สกิล', 'info'); } });
+  cv.addEventListener('contextmenu', e => { e.preventDefault(); if (G.pendingSkill) { G.pendingSkill = null; UI.msg(L('ยกเลิกการใช้สกิล', 'Skill cancelled.'), 'info'); } });
   cv.addEventListener('wheel', e => {
     e.preventDefault();
     R.zoom = U.clamp(R.zoom * (e.deltaY > 0 ? 0.9 : 1.1), R.ZMIN, R.ZMAX);
@@ -191,7 +191,7 @@ function bindInput() {
       case 'tab': e.preventDefault(); UI.toggleMenu(); break;
       case 'enter': e.preventDefault(); $('#chat-input').focus(); break;
       case 'escape':
-        if (G.pendingSkill) { G.pendingSkill = null; UI.msg('ยกเลิกการใช้สกิล', 'info'); }
+        if (G.pendingSkill) { G.pendingSkill = null; UI.msg(L('ยกเลิกการใช้สกิล', 'Skill cancelled.'), 'info'); }
         else UI.closeTop();
         break;
     }
@@ -211,7 +211,7 @@ function watchFps(now) {
   if (now - w.t0 >= 8000) {
     w.done = true;
     const fps = w.n / ((now - w.t0) / 1000);
-    if (fps < 38 && R.quality !== 'low') UI.msg(`⚙ เครื่องนี้แสดงผลได้ ~${Math.round(fps)} FPS — ลองตั้งค่า → คุณภาพกราฟิก: "ประหยัด" จะลื่นขึ้นมาก`, 'info');
+    if (fps < 38 && R.quality !== 'low') UI.msg(L(`⚙ เครื่องนี้แสดงผลได้ ~${Math.round(fps)} FPS — ลองตั้งค่า → คุณภาพกราฟิก: "ประหยัด" จะลื่นขึ้นมาก`, `⚙ Your device is running at ~${Math.round(fps)} FPS — try Settings → Graphics Quality: "Low" for much smoother play.`), 'info');
   }
 }
 const MAX_CATCHUP = 600; // จำลองย้อนหลังได้สูงสุด 10 นาที
@@ -227,7 +227,7 @@ function catchUp(sec) {
   G.fastSim = false;
   const s1 = Bot.summary();
   if (sec > 20 && s0 && s1) {
-    UI.msg(`⏱ ระหว่างที่ไม่อยู่ ${Math.round(Math.min(sec, MAX_CATCHUP) / 60 * 10) / 10} นาที: ล่าได้ ${s1.kills - s0.kills} ตัว, Base EXP +${U.fmt(s1.bexp - s0.bexp)}, ไอเทม ${s1.items - s0.items} ชิ้น${G.player.baseLv > lv0 ? `, เลเวลอัปเป็น ${G.player.baseLv}!` : ''}`, 'lvl');
+    UI.msg(L(`⏱ ระหว่างที่ไม่อยู่ ${Math.round(Math.min(sec, MAX_CATCHUP) / 60 * 10) / 10} นาที: ล่าได้ ${s1.kills - s0.kills} ตัว, Base EXP +${U.fmt(s1.bexp - s0.bexp)}, ไอเทม ${s1.items - s0.items} ชิ้น${G.player.baseLv > lv0 ? `, เลเวลอัปเป็น ${G.player.baseLv}!` : ''}`, `⏱ While you were away (${Math.round(Math.min(sec, MAX_CATCHUP) / 60 * 10) / 10} min): ${s1.kills - s0.kills} kills, Base EXP +${U.fmt(s1.bexp - s0.bexp)}, ${s1.items - s0.items} items${G.player.baseLv > lv0 ? `, reached Base Lv ${G.player.baseLv}!` : ''}`), 'lvl');
   }
   UI.dirty();
 }
@@ -247,7 +247,7 @@ function loop(ts) {
     const key = String(e && e.message || e);
     if (!loopErrs.has(key)) {
       loopErrs.add(key); console.error(e);
-      try { UI.msg(`⚠ เกิดข้อผิดพลาด (เกมยังเล่นต่อได้): ${key.slice(0, 120)} — แคปหน้าจอนี้ส่งผู้พัฒนาได้`, 'err'); } catch (e2) { /* ignore */ }
+      try { UI.msg(L(`⚠ เกิดข้อผิดพลาด (เกมยังเล่นต่อได้): ${key.slice(0, 120)} — แคปหน้าจอนี้ส่งผู้พัฒนาได้`, `⚠ An error occurred (you can keep playing): ${key.slice(0, 120)} — please send a screenshot to the developer.`), 'err'); } catch (e2) { /* ignore */ }
     }
   }
   requestAnimationFrame(loop);
@@ -296,7 +296,7 @@ function showAuth() {
   $('#title-menu').classList.add('hidden'); $('#create').classList.add('hidden'); $('#acct').classList.add('hidden');
   $('#title').classList.remove('creating');
   $('#auth').classList.remove('hidden');
-  $('#au-note').textContent = Online.local ? 'บัญชีเก็บในเบราว์เซอร์นี้ • ตัวละครแยกตามบัญชี' : 'บัญชีออนไลน์ • เล่นได้ทุกเครื่อง';
+  $('#au-note').textContent = Online.local ? L('บัญชีเก็บในเบราว์เซอร์นี้ • ตัวละครแยกตามบัญชี', 'Accounts are stored in this browser • Characters are saved per account') : L('บัญชีออนไลน์ • เล่นได้ทุกเครื่อง', 'Online account • Play from any device');
   if (!matchMedia('(pointer: coarse)').matches) $('#au-user').focus();
 }
 function setAuthMode(m) {
@@ -304,7 +304,7 @@ function setAuthMode(m) {
   $$('#au-tabs button').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
   $('#au-pass2-wrap').classList.toggle('hidden', m !== 'register');
   $('#au-pass').autocomplete = m === 'register' ? 'new-password' : 'current-password';
-  $('#au-submit').textContent = m === 'register' ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ';
+  $('#au-submit').textContent = m === 'register' ? L('สมัครสมาชิก', 'Register') : L('เข้าสู่ระบบ', 'Log In');
   $('#au-err').textContent = '';
 }
 async function afterLogin() {
@@ -314,22 +314,22 @@ async function afterLogin() {
   const cont = $('#btn-continue');
   $('#title-menu').classList.remove('hidden');
   cont.classList.remove('hidden'); cont.classList.add('primary');
-  cont.innerHTML = 'กำลังโหลดตัวละคร...';
+  cont.innerHTML = L('กำลังโหลดตัวละคร...', 'Loading character...');
   $('#btn-new').classList.add('hidden');
   try { cloudSave = await Online.loadCharacter(); }
-  catch (e) { cont.innerHTML = `โหลดตัวละครไม่สำเร็จ<small>${U.esc(e.message)} — แตะเพื่อลองใหม่</small>`; cont.onclick = () => afterLogin(); return; }
+  catch (e) { cont.innerHTML = L(`โหลดตัวละครไม่สำเร็จ<small>${U.esc(e.message)} — แตะเพื่อลองใหม่</small>`, `Failed to load character<small>${U.esc(e.message)} — tap to retry</small>`); cont.onclick = () => afterLogin(); return; }
   if (cloudSave) {
-    cont.innerHTML = `เข้าเกม<small>${U.esc(cloudSave.name)} • ${JOBS[cloudSave.job] ? JOBS[cloudSave.job].name : ''} Lv ${cloudSave.baseLv}</small>`;
+    cont.innerHTML = L(`เข้าเกม<small>${U.esc(cloudSave.name)} • ${JOBS[cloudSave.job] ? JOBS[cloudSave.job].name : ''} Lv ${cloudSave.baseLv}</small>`, `Enter World<small>${U.esc(cloudSave.name)} • ${JOBS[cloudSave.job] ? JOBS[cloudSave.job].name : ''} Lv ${cloudSave.baseLv}</small>`);
     cont.onclick = () => {
       const p = loadGameFrom(cloudSave);
-      if (!p) { cont.innerHTML = 'ข้อมูลตัวละครเสียหาย'; return; }
+      if (!p) { cont.innerHTML = L('ข้อมูลตัวละครเสียหาย', 'Character data is corrupted'); return; }
       startGame(p, false);
     };
   } else if (Online.local && peekSave() && peekSave().name) {
     // บัญชีใหม่ในเครื่อง + มีตัวละครที่เล่นแบบไม่ล็อกอินไว้: ให้เลือกย้ายเข้าบัญชี หรือสร้างใหม่
     const g = peekSave();
-    cont.innerHTML = `ใช้ตัวละครที่เล่นไว้<small>${U.esc(g.name)} • ${JOBS[g.job] ? JOBS[g.job].name : ''} Lv ${g.baseLv} → ย้ายเข้าบัญชีนี้</small>`;
-    cont.onclick = () => { const p = loadGameFrom(g); if (!p) { cont.innerHTML = 'ข้อมูลตัวละครเสียหาย'; return; } Online.queueSave(g, true); startGame(p, false); };
+    cont.innerHTML = L(`ใช้ตัวละครที่เล่นไว้<small>${U.esc(g.name)} • ${JOBS[g.job] ? JOBS[g.job].name : ''} Lv ${g.baseLv} → ย้ายเข้าบัญชีนี้</small>`, `Use Existing Character<small>${U.esc(g.name)} • ${JOBS[g.job] ? JOBS[g.job].name : ''} Lv ${g.baseLv} → move to this account</small>`);
+    cont.onclick = () => { const p = loadGameFrom(g); if (!p) { cont.innerHTML = L('ข้อมูลตัวละครเสียหาย', 'Character data is corrupted'); return; } Online.queueSave(g, true); startGame(p, false); };
     $('#btn-new').classList.remove('hidden');
   } else {
     // ยังไม่มีตัวละคร → ไปหน้าสร้างตัวละคร
@@ -345,8 +345,8 @@ function bindAuth() {
     e.preventDefault();
     const u = $('#au-user').value.trim(), pw = $('#au-pass').value;
     const err = $('#au-err'), btn = $('#au-submit');
-    if (authMode === 'register' && pw !== $('#au-pass2').value) { err.textContent = 'รหัสผ่านทั้งสองช่องไม่ตรงกัน'; return; }
-    btn.disabled = true; err.textContent = authMode === 'register' ? 'กำลังสมัคร...' : 'กำลังเข้าสู่ระบบ...';
+    if (authMode === 'register' && pw !== $('#au-pass2').value) { err.textContent = L('รหัสผ่านทั้งสองช่องไม่ตรงกัน', 'Passwords do not match.'); return; }
+    btn.disabled = true; err.textContent = authMode === 'register' ? L('กำลังสมัคร...', 'Registering...') : L('กำลังเข้าสู่ระบบ...', 'Logging in...');
     try {
       if (authMode === 'register') await Online.register(u, pw); else await Online.login(u, pw);
       err.textContent = '';
@@ -382,12 +382,12 @@ function setupOfflineMenu() {
   const cont = $('#btn-continue');
   if (s && s.name) {
     cont.classList.remove('hidden');
-    cont.innerHTML = `เล่นต่อ<small>${U.esc(s.name)} • ${JOBS[s.job] ? JOBS[s.job].name : ''} Lv ${s.baseLv}</small>`;
+    cont.innerHTML = L(`เล่นต่อ<small>${U.esc(s.name)} • ${JOBS[s.job] ? JOBS[s.job].name : ''} Lv ${s.baseLv}</small>`, `Continue<small>${U.esc(s.name)} • ${JOBS[s.job] ? JOBS[s.job].name : ''} Lv ${s.baseLv}</small>`);
   }
   $('#btn-new').onclick = () => { $('#title-menu').classList.add('hidden'); $('#create').classList.remove('hidden'); $('#title').classList.add('creating'); if (!matchMedia('(pointer: coarse)').matches) $('#cr-name').focus(); Sound.ensure(); };
   cont.onclick = () => {
     const p = loadGame();
-    if (!p) { cont.innerHTML = 'โหลดเซฟไม่สำเร็จ<small>กรุณาเริ่มการผจญภัยใหม่</small>'; return; }
+    if (!p) { cont.innerHTML = L('โหลดเซฟไม่สำเร็จ<small>กรุณาเริ่มการผจญภัยใหม่</small>', 'Failed to load save<small>Please begin a new adventure</small>'); return; }
     startGame(p, false);
   };
 }
@@ -420,10 +420,10 @@ function setupCreateScreen() {
   });
   $('#cr-start').onclick = async () => {
     const name = $('#cr-name').value.trim().slice(0, 16);
-    if (!name) { $('#cr-err').textContent = 'กรุณาตั้งชื่อตัวละคร'; return; }
+    if (!name) { $('#cr-err').textContent = L('กรุณาตั้งชื่อตัวละคร', 'Please name your character.'); return; }
     if (Online.loggedIn) {
-      $('#cr-err').textContent = 'กำลังตรวจสอบชื่อ...';
-      try { if (!(await Online.nameAvailable(name))) { $('#cr-err').textContent = 'ชื่อตัวละครนี้มีคนใช้แล้ว ลองชื่ออื่น'; return; } }
+      $('#cr-err').textContent = L('กำลังตรวจสอบชื่อ...', 'Checking name...');
+      try { if (!(await Online.nameAvailable(name))) { $('#cr-err').textContent = L('ชื่อตัวละครนี้มีคนใช้แล้ว ลองชื่ออื่น', 'That name is already taken. Try another.'); return; } }
       catch (e) { $('#cr-err').textContent = e.message; return; }
       G.uid = 1;
       startGame(newPlayer(name, creation.gender, creation.hair, creationLook()), true);
@@ -433,8 +433,8 @@ function setupCreateScreen() {
     // มีเซฟเดิม: กดครั้งแรกเตือน กดซ้ำเพื่อยืนยันเขียนทับ (ไม่ใช้ confirm() ของเบราว์เซอร์)
     if (s && s.name && !creation.overwriteOk) {
       creation.overwriteOk = true;
-      $('#cr-err').textContent = `มีเซฟของ ${s.name} อยู่แล้ว — กด "เริ่มเกม!" อีกครั้งเพื่อเขียนทับ`;
-      $('#cr-start').textContent = 'ยืนยันเขียนทับ';
+      $('#cr-err').textContent = L(`มีเซฟของ ${s.name} อยู่แล้ว — กด "เริ่มเกม!" อีกครั้งเพื่อเขียนทับ`, `A save for ${s.name} already exists — press the button again to overwrite it.`);
+      $('#cr-start').textContent = L('ยืนยันเขียนทับ', 'Confirm Overwrite');
       return;
     }
     G.uid = 1;
@@ -498,13 +498,13 @@ function startGame(p, isNew) {
   if (isNew) { p.hp = p.d.maxHp; p.sp = p.d.maxSp; }
   changeMap(p.map, p.x, p.y);
   UI.dirty(); UI.renderWindows(true); UI.updateHud();
-  UI.msg(`ระบบออนไลน์... ยินดีต้อนรับสู่ NEO MIDGARD, ${p.name}!`, 'lvl');
-  if (Online.online) { Online.joinChat(); UI.setNet('ok'); UI.msg(`🌐 ออนไลน์ในชื่อบัญชี ${Online.username} — กด Enter เพื่อแชทกับทุกคน`, 'sys'); }
-  else if (Online.loggedIn) UI.msg(`🔑 เข้าสู่ระบบเป็น ${Online.username} — ตัวละครบันทึกแยกตามบัญชีในเครื่องนี้`, 'sys');
-  UI.msg('กด H เพื่อดูวิธีเล่น • คุยกับ Guard Unit Rolf (หุ่นหมวกเขา) เพื่อขอคำแนะนำ', 'info');
+  UI.msg(L(`ระบบออนไลน์... ยินดีต้อนรับสู่ NEO MIDGARD, ${p.name}!`, `Systems online... Welcome to NEO MIDGARD, ${p.name}!`), 'lvl');
+  if (Online.online) { Online.joinChat(); UI.setNet('ok'); UI.msg(L(`🌐 ออนไลน์ในชื่อบัญชี ${Online.username} — กด Enter เพื่อแชทกับทุกคน`, `🌐 Online as ${Online.username} — press Enter to chat with everyone.`), 'sys'); }
+  else if (Online.loggedIn) UI.msg(L(`🔑 เข้าสู่ระบบเป็น ${Online.username} — ตัวละครบันทึกแยกตามบัญชีในเครื่องนี้`, `🔑 Logged in as ${Online.username} — characters are saved per account on this device.`), 'sys');
+  UI.msg(L('กด H เพื่อดูวิธีเล่น • คุยกับ Guard Unit Rolf (หุ่นหมวกเขา) เพื่อขอคำแนะนำ', 'Press H for the guide • Talk to Guard Unit Rolf (the horned-helm android) for advice.'), 'info');
   if (isNew) {
     UI.open('w-help');
-    UI.msg('เคล็ดลับ: เริ่มต้นด้วยการแจก Status Point (กด A) แล้วออกไปล่า Gel Unit ทางตะวันออกของเมือง', 'info');
+    UI.msg(L('เคล็ดลับ: เริ่มต้นด้วยการแจก Status Point (กด A) แล้วออกไปล่า Gel Unit ทางตะวันออกของเมือง', 'Tip: Start by spending your Status Points (press A), then hunt Gel Units east of town.'), 'info');
   }
   saveGame();
   if (typeof Story !== 'undefined') Story.onStart(p, isNew); // บทนำ (บทที่ 0) ครั้งแรกที่เข้าโลก

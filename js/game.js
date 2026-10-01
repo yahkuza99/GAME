@@ -66,14 +66,14 @@ function saveGame(silent = true, immediate = false) {
   // ล็อกอินอยู่: เซฟแยกตามบัญชี (คลาวด์ หรือช่องของบัญชีในเครื่อง) ไม่ทับเซฟแบบไม่ล็อกอิน
   if (Online.loggedIn) {
     Online.queueSave(data, immediate || !silent);
-    if (!silent) UI.msg(Online.local ? `บันทึกเกมของบัญชี ${Online.username} แล้ว` : 'บันทึกเกมลงเซิร์ฟเวอร์แล้ว', 'sys');
+    if (!silent) UI.msg(Online.local ? L(`บันทึกเกมของบัญชี ${Online.username} แล้ว`, `Game saved for account ${Online.username}.`) : L('บันทึกเกมลงเซิร์ฟเวอร์แล้ว', 'Game saved to the server.'), 'sys');
     return;
   }
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-    if (!silent) UI.msg('บันทึกเกมเรียบร้อย', 'sys');
+    if (!silent) UI.msg(L('บันทึกเกมเรียบร้อย', 'Game saved.'), 'sys');
   } catch (e) {
-    if (!silent) UI.msg('บันทึกเกมไม่สำเร็จ (เบราว์เซอร์ไม่อนุญาต)', 'err');
+    if (!silent) UI.msg(L('บันทึกเกมไม่สำเร็จ (เบราว์เซอร์ไม่อนุญาต)', 'Save failed (blocked by the browser).'), 'err');
   }
 }
 function hasSave() {
@@ -220,19 +220,19 @@ function gainExp(bexp, jexp) {
   if (jobUp) fixSkillPoints(p); // ไม่ให้แต้มเกินที่อัปได้จริง (เซฟเก่าที่ใช้แต้มยกมาไปแล้ว)
   if (p.jobLv >= jmax) p.jobExp = 0;
   Bot.onExp(bexp, jexp);
-  if (p.options.expMsg) UI.msg(`ได้รับ ${U.fmt(bexp)} Base EXP / ${U.fmt(jexp)} Job EXP`, 'exp');
+  if (p.options.expMsg) UI.msg(L(`ได้รับ ${U.fmt(bexp)} Base EXP / ${U.fmt(jexp)} Job EXP`, `Gained ${U.fmt(bexp)} Base EXP / ${U.fmt(jexp)} Job EXP`), 'exp');
   if (baseUp) {
     recalc();
     p.hp = p.d.maxHp; p.sp = p.d.maxSp;
     addFx({ type: 'levelup', ref: p, dur: 2.2 });
     addFloater(p.x, p.y - 1.4, 'LEVEL UP!', '#ffe36a', true);
-    UI.msg(`★ Base Level เพิ่มเป็น ${p.baseLv}! ได้รับ Status Point + แต้มพาสซีฟ (กด P)`, 'lvl');
+    UI.msg(L(`★ Base Level เพิ่มเป็น ${p.baseLv}! ได้รับ Status Point + แต้มพาสซีฟ (กด P)`, `★ Base Lv up to ${p.baseLv}! Gained Status Points + a passive point (press P).`), 'lvl');
     Sound.play('levelup');
   }
   if (jobUp) {
     addFx({ type: 'levelup', ref: p, dur: 2.2, job: true });
     addFloater(p.x, p.y - (baseUp ? 1.9 : 1.4), 'JOB LEVEL UP!', '#9fe0ff', true);
-    UI.msg(`★ Job Level เพิ่มเป็น ${p.jobLv}! ได้รับ Skill Point`, 'lvl');
+    UI.msg(L(`★ Job Level เพิ่มเป็น ${p.jobLv}! ได้รับ Skill Point`, `★ Job Lv up to ${p.jobLv}! Gained a skill point.`), 'lvl');
     if (!baseUp) Sound.play('levelup');
   }
   UI.dirty();
@@ -261,7 +261,7 @@ function addItem(id, qty = 1, silent = false) {
     const ex = p.inventory.find(e => e.id === id);
     if (ex) ex.qty += qty; else p.inventory.push({ id, qty });
   }
-  if (!silent) { UI.msg(`ได้รับ ${it.name} ${qty} ชิ้น`, 'item'); Bot.onItem(qty); }
+  if (!silent) { UI.msg(L(`ได้รับ ${it.name} ${qty} ชิ้น`, `Obtained ${it.name} x${qty}`), 'item'); Bot.onItem(qty); }
   UI.dirty();
   return true;
 }
@@ -293,7 +293,7 @@ function moveStack(from, to, entry, qty) {
   UI.dirty();
   return true;
 }
-function storeItem(entry, qty) { const p = G.player; if (!moveStack(p.inventory, p.storage, entry, qty)) { UI.msg(`คลังเต็มแล้ว (${STORAGE_MAX} ช่อง)`, 'err'); return false; } return true; }
+function storeItem(entry, qty) { const p = G.player; if (!moveStack(p.inventory, p.storage, entry, qty)) { UI.msg(L(`คลังเต็มแล้ว (${STORAGE_MAX} ช่อง)`, `Storage is full (${STORAGE_MAX} slots).`), 'err'); return false; } return true; }
 function takeItem(entry, qty) { const p = G.player; return moveStack(p.storage, p.inventory, entry, qty); }
 // จัดเรียงไอเทม: รวมกองที่แยกกัน แล้วเรียงตามหมวด → ชนิดย่อย → เลเวล/ตีบวก → ชื่อ (ใช้ได้ทั้งกระเป๋าและคลัง)
 const SORT_TYPE = { use: 0, weapon: 1, armor: 2, card: 3, etc: 4 };
@@ -323,9 +323,9 @@ function itemDisplayName(entry) {
 function canEquip(it, verbose) {
   const p = G.player;
   const say = m => { if (verbose) UI.msg(m, 'err'); return false; };
-  if (!canJobUse(it.jobs, p.job)) return say(`อาชีพ ${JOBS[p.job].name} ไม่สามารถสวมใส่ ${it.name} ได้`);
-  if (it.lv && p.baseLv < it.lv) return say(`ต้องมี Base Level ${it.lv} ขึ้นไป`);
-  if (it.slot === 'shield' && weaponType() === 'bow') return say('ไม่สามารถใช้โล่คู่กับธนูได้');
+  if (!canJobUse(it.jobs, p.job)) return say(L(`อาชีพ ${JOBS[p.job].name} ไม่สามารถสวมใส่ ${it.name} ได้`, `${JOBS[p.job].name} cannot equip ${it.name}.`));
+  if (it.lv && p.baseLv < it.lv) return say(L(`ต้องมี Base Level ${it.lv} ขึ้นไป`, `Requires Base Lv ${it.lv} or higher.`));
+  if (it.slot === 'shield' && weaponType() === 'bow') return say(L('ไม่สามารถใช้โล่คู่กับธนูได้', 'Shields cannot be used with a bow.'));
   return true;
 }
 function equipItem(entry, silent) {
@@ -340,7 +340,7 @@ function equipItem(entry, silent) {
   if (i >= 0) p.inventory.splice(i, 1);
   p.equip[it.slot] = entry;
   recalc();
-  if (!silent) { UI.msg(`สวมใส่ ${itemDisplayName(entry)}${pv && pv.diff.length ? ` (${fmtDiff(pv.diff)})` : ''}`, 'sys'); Sound.play('equip'); }
+  if (!silent) { UI.msg(L(`สวมใส่ ${itemDisplayName(entry)}${pv && pv.diff.length ? ` (${fmtDiff(pv.diff)})` : ''}`, `Equipped ${itemDisplayName(entry)}${pv && pv.diff.length ? ` (${fmtDiff(pv.diff)})` : ''}`), 'sys'); Sound.play('equip'); }
 }
 // เทียบค่าสุดท้ายของตัวละคร ถ้าเปลี่ยนไปใส่ entry (จำลองแล้วคืนค่าเดิม ไม่กระทบเกม)
 const CMP_STATS = [
@@ -369,7 +369,7 @@ function unequip(slot, silent) {
   p.equip[slot] = null;
   p.inventory.push(e);
   recalc();
-  if (!silent) UI.msg(`ถอด ${itemDisplayName(e)}`, 'sys');
+  if (!silent) UI.msg(L(`ถอด ${itemDisplayName(e)}`, `Unequipped ${itemDisplayName(e)}`), 'sys');
 }
 function unequipInvalid() {
   const p = G.player;
@@ -385,7 +385,7 @@ function useItem(entry) {
   const it = ITEMS[entry.id];
   if (isEquipType(it)) { equipItem(entry); return; }
   if (it.type === 'card') { UI.compoundCard(entry); return; }
-  if (it.type !== 'use') { UI.msg(`${it.name} เป็นของสะสม นำไปขายที่ร้านค้าได้`, 'info'); return; }
+  if (it.type !== 'use') { UI.msg(L(`${it.name} เป็นของสะสม นำไปขายที่ร้านค้าได้`, `${it.name} is a collectible — sell it at a shop.`), 'info'); return; }
   if (p.dead || G.time < p.itemReadyAt) return;
   if (stunBlocked()) return;
   p.itemReadyAt = G.time + 0.12;
@@ -398,7 +398,7 @@ function useItem(entry) {
     p.sp = Math.min(p.d.maxSp, p.sp + amt);
     addFloater(p.x, p.y - 1.2, `+${amt}`, '#7fb0ff');
   }
-  if (it.cure && p.poisonUntil > G.time) { p.poisonUntil = 0; UI.msg('หายจากพิษแล้ว', 'sys'); }
+  if (it.cure && p.poisonUntil > G.time) { p.poisonUntil = 0; UI.msg(L('หายจากพิษแล้ว', 'Poison cured.'), 'sys'); }
   if (it.effect === 'fly') {
     const pos = G.map.randomWalkable();
     addFx({ type: 'warp', x: p.x, y: p.y, dur: 0.6 });
@@ -420,7 +420,7 @@ function useSlot(h) {
   if (h.t === 'skill') useSkill(h.id);
   else {
     const e = p.inventory.find(x => x.id === h.id);
-    if (e) useItem(e); else UI.msg(`${ITEMS[h.id].name} หมดแล้ว`, 'err');
+    if (e) useItem(e); else UI.msg(L(`${ITEMS[h.id].name} หมดแล้ว`, `Out of ${ITEMS[h.id].name}.`), 'err');
   }
 }
 
@@ -429,7 +429,7 @@ function dropItemOnGround(id, x, y, qty = 1) {
   if (ITEMS[id] && ITEMS[id].type === 'card') {
     // การ์ดดรอป: ลำแสงทองพุ่งขึ้นฟ้า + ประกาศ
     addFx({ type: 'beam', x, y, dur: 2.6 });
-    UI.announce(`✦ ${ITEMS[id].name} ดรอปแล้ว! ✦`);
+    UI.announce(L(`✦ ${ITEMS[id].name} ดรอปแล้ว! ✦`, `✦ ${ITEMS[id].name} dropped! ✦`));
     Sound.play('refine_ok');
   }
   if (p.options.autoLoot && U.dist(x, y, p.x, p.y) < 12) { addItem(id, qty); Sound.play('pickup'); return; }
@@ -536,9 +536,9 @@ function mvpLeft(mapId) {
 function spawnMvp(id) {
   const m = spawnMob(id);
   m.isMvp = true;
-  UI.announce(`⚠ ${MOBS[id].name} (MVP) ได้ปรากฏตัวขึ้นใน ${G.map.def.name}!`);
+  UI.announce(L(`⚠ ${MOBS[id].name} (MVP) ได้ปรากฏตัวขึ้นใน ${G.map.def.name}!`, `⚠ ${MOBS[id].name} (MVP) has appeared in ${G.map.def.name}!`));
   if (!G.fastSim) UI.splash(`mvp_${id}`, MOBS[id].name, (typeof Story !== 'undefined' && Story.mvpSub(id)) || 'MVP BOSS APPEARED');
-  UI.msg(`[MVP] ${MOBS[id].name} ปรากฏตัวแล้ว!`, 'mvp');
+  UI.msg(L(`[MVP] ${MOBS[id].name} ปรากฏตัวแล้ว!`, `[MVP] ${MOBS[id].name} has appeared!`), 'mvp');
   if (typeof Story !== 'undefined') Story.onMvpSpawn(id);
 }
 
@@ -607,7 +607,7 @@ function applyHit(m, r, opts = {}) {
   if (r.phys && p.d.leech && !p.dead && !m.def.dummy && p.hp < p.d.maxHp) {
     const amt = Math.min(p.d.maxHp - p.hp, Math.max(1, Math.round(r.dmg * (m.isPlayer ? 0.6 : 1) * p.d.leech / 100))); // PvP: คิดจากดาเมจหลังลด
     p.hp += amt;
-    addFloater(p.x + 0.35, p.y - 1.5, `+${amt} ดูดเลือด`, '#ff8fb4');
+    addFloater(p.x + 0.35, p.y - 1.5, L(`+${amt} ดูดเลือด`, `+${amt} Drain`), '#ff8fb4');
   }
 }
 function aggroMob(m) {
@@ -663,8 +663,8 @@ function killMob(m) {
   if (z > 0) { p.zeny += z; addFloater(m.x, m.y - 0.5, `+${z} ${CUR}`, '#ffd34a'); UI.dirty(); }
   for (const [id, ch] of d.drops) if (U.chance(ch)) dropItemOnGround(id, m.x, m.y);
   if (m.isMvp) {
-    UI.announce(`🏆 ${p.name} ได้ปราบ MVP ${d.name} สำเร็จ!`);
-    UI.msg(`[MVP] ยินดีด้วย! คุณได้รับรางวัล MVP`, 'mvp');
+    UI.announce(L(`🏆 ${p.name} ได้ปราบ MVP ${d.name} สำเร็จ!`, `🏆 ${p.name} has slain the MVP ${d.name}!`));
+    UI.msg(L(`[MVP] ยินดีด้วย! คุณได้รับรางวัล MVP`, `[MVP] Congratulations! You earned the MVP reward.`), 'mvp');
     const bonus = U.pick(['white_potion', 'blue_potion', 'yellow_potion']);
     addItem(bonus, 3);
     (p.mvpAt || (p.mvpAt = {}))[G.map.id] = Date.now() + d.respawn;
@@ -685,8 +685,8 @@ function grantChip(d, m) {
   if (!chip || p.chips.includes(d.id) || (p.kills[d.id] || 0) < chipNeed(d)) return;
   p.chips.push(d.id); addItem(chip, 1, true);
   addFx({ type: 'beam', x: m.x, y: m.y, dur: 2.6 });
-  UI.announce(`✦ ล่า ${d.name} ครบ ${chipNeed(d)} ตัว — ได้รับ ${ITEMS[chip].name}! ✦`);
-  UI.msg(`✦ ได้รับ ${ITEMS[chip].name} — ${ITEMS[chip].desc}`, 'lvl');
+  UI.announce(L(`✦ ล่า ${d.name} ครบ ${chipNeed(d)} ตัว — ได้รับ ${ITEMS[chip].name}! ✦`, `✦ ${chipNeed(d)} ${d.name} hunted — obtained ${ITEMS[chip].name}! ✦`));
+  UI.msg(L(`✦ ได้รับ ${ITEMS[chip].name} — ${ITEMS[chip].desc}`, `✦ Obtained ${ITEMS[chip].name} — ${ITEMS[chip].desc}`), 'lvl');
   Sound.play('refine_ok');
 }
 
@@ -763,13 +763,13 @@ function isStunned() { return G.player.stunUntil > G.time; }
 function stunBlocked() {
   const p = G.player;
   if (!isStunned()) return false;
-  if (p.stunMsg !== p.stunAt) { p.stunMsg = p.stunAt; UI.msg('มึนอยู่ ทำอะไรไม่ได้ชั่วครู่', 'err'); }
+  if (p.stunMsg !== p.stunAt) { p.stunMsg = p.stunAt; UI.msg(L('มึนอยู่ ทำอะไรไม่ได้ชั่วครู่', 'You are stunned and cannot act!'), 'err'); }
   return true;
 }
 function damagePlayer(dmg, color = '#ff5050') {
   const p = G.player;
   if (p.dead) return;
-  if (p.d.mom) { const s = Math.min(Math.floor(p.sp), Math.floor(dmg * 0.3)); p.sp -= s; p.hp -= dmg - s; if (s > 0) addFloater(p.x + 0.4, p.y - 1.7, `SP ดูดซับ ${s}`, '#8fb8ff'); } // Mind over Matter
+  if (p.d.mom) { const s = Math.min(Math.floor(p.sp), Math.floor(dmg * 0.3)); p.sp -= s; p.hp -= dmg - s; if (s > 0) addFloater(p.x + 0.4, p.y - 1.7, L(`SP ดูดซับ ${s}`, `SP absorbed ${s}`), '#8fb8ff'); } // Mind over Matter
   else p.hp -= dmg;
   p.sitting = false;
   addFloater(p.x, p.y - 1.2, dmg, color);
@@ -794,7 +794,7 @@ function playerDie() {
     p.baseExp = Math.max(0, p.baseExp - lost);
   }
   for (const m of G.mobs) if (m.state === 'chase') { m.state = 'idle'; m.path = []; }
-  UI.msg(`คุณล้มลง!${lost ? ` เสีย Base EXP ${U.fmt(lost)}` : ''}`, 'err');
+  UI.msg(L(`คุณล้มลง!${lost ? ` เสีย Base EXP ${U.fmt(lost)}` : ''}`, `You have fallen!${lost ? ` Lost ${U.fmt(lost)} Base EXP.` : ''}`), 'err');
   Sound.play('die');
   Bot.onDeath();
   UI.showDeath(lost);
@@ -809,7 +809,7 @@ function respawnPlayer(here) {
   p.poisonUntil = 0;
   if (here && G.mapEntry && G.mapEntry.map === G.map.id) {
     changeMap(G.map.id, G.mapEntry.x, G.mapEntry.y);
-    UI.msg('ฟื้นคืนชีพในแมพเดิมแล้ว', 'info');
+    UI.msg(L('ฟื้นคืนชีพในแมพเดิมแล้ว', 'Revived on the same map.'), 'info');
   } else changeMap(p.save.map, p.save.x, p.save.y);
 }
 
@@ -830,9 +830,9 @@ function addMastery(id) {
   p.mastery[id] = (p.mastery[id] || 0) + 1;
   const now = masteryLv(id);
   if (now > before) {
-    const name = id === 'attack' ? 'การโจมตีปกติ' : SKILLS[id].name;
+    const name = id === 'attack' ? L('การโจมตีปกติ', 'Basic Attack') : SKILLS[id].name;
     addFloater(p.x, p.y - 1.9, `MASTERY ${now}!`, '#9ff0ff', true);
-    UI.msg(`★ ความชำนาญ ${name} เพิ่มเป็น Lv ${now} — แรงขึ้น +${masteryPct(id)}%`, 'lvl');
+    UI.msg(L(`★ ความชำนาญ ${name} เพิ่มเป็น Lv ${now} — แรงขึ้น +${masteryPct(id)}%`, `★ ${name} Mastery reached Lv ${now} — power +${masteryPct(id)}%`), 'lvl');
     Sound.play('buff');
   }
   UI.dirty();
@@ -882,10 +882,10 @@ function useSkill(id) {
   if (p.dead) return;
   const lv = skillLv(id), s = SKILLS[id];
   if (!lv || !s) return;
-  if (s.type === 'passive') { UI.msg(`${s.name} เป็นสกิลติดตัว ทำงานอัตโนมัติ`, 'info'); return; }
+  if (s.type === 'passive') { UI.msg(L(`${s.name} เป็นสกิลติดตัว ทำงานอัตโนมัติ`, `${s.name} is a passive skill and works automatically.`), 'info'); return; }
   if (p.cast) return;
   if (stunBlocked()) return;
-  if (s.bow && weaponType() !== 'bow') { UI.msg('สกิลนี้ต้องสวมธนู', 'err'); return; }
+  if (s.bow && weaponType() !== 'bow') { UI.msg(L('สกิลนี้ต้องสวมธนู', 'This skill requires a bow.'), 'err'); return; }
   if (s.heal) {
     // สกิลฮีลใช้กับมอนสเตอร์อมตะที่เมาส์ชี้อยู่ = ทำความเสียหาย
     const h = !Bot.on && G.hover && G.hover.kind === 'mob' ? G.hover.ref : null; // บอทฮีลตัวเองเสมอ (ไม่ไปตีอมตะที่เมาส์บังเอิญชี้)
@@ -903,7 +903,7 @@ function useSkill(id) {
     }
     let tgt = cur;
     if (!tgt && (Pad.enabled() || G.pendingSkill === id)) tgt = Pad.nearestMob(12);
-    if (!tgt) { G.pendingSkill = id; G.pendingAt = G.time; UI.msg(`คลิกที่มอนสเตอร์เพื่อใช้ ${s.name}`, 'info'); return; }
+    if (!tgt) { G.pendingSkill = id; G.pendingAt = G.time; UI.msg(L(`คลิกที่มอนสเตอร์เพื่อใช้ ${s.name}`, `Click a monster to use ${s.name}.`), 'info'); return; }
     beginSkill(id, lv, tgt);
   } else beginSkill(id, lv, null);
 }
@@ -914,13 +914,13 @@ function skillCdHint(id) {
   const p = G.player;
   if (G.time < (p.delayHintAt || 0)) return;
   p.delayHintAt = G.time + 0.6;
-  addFloater(p.x, p.y - 1.6, `${SKILLS[id].name} คูลดาวน์ ${skillCdLeft(id).toFixed(1)}s`, '#9fb8d8');
+  addFloater(p.x, p.y - 1.6, L(`${SKILLS[id].name} คูลดาวน์ ${skillCdLeft(id).toFixed(1)}s`, `${SKILLS[id].name} cooldown ${skillCdLeft(id).toFixed(1)}s`), '#9fb8d8');
 }
 function skillDelayHint() {
   const p = G.player;
   if (G.time < (p.delayHintAt || 0)) return;
   p.delayHintAt = G.time + 0.6;
-  addFloater(p.x, p.y - 1.6, `ดีเลย์ ${Math.max(0.1, p.skillReadyAt - G.time).toFixed(1)}s`, '#9fb8d8');
+  addFloater(p.x, p.y - 1.6, L(`ดีเลย์ ${Math.max(0.1, p.skillReadyAt - G.time).toFixed(1)}s`, `Delay ${Math.max(0.1, p.skillReadyAt - G.time).toFixed(1)}s`), '#9fb8d8');
 }
 function beginSkill(id, lv, tgt) {
   const p = G.player, s = SKILLS[id];
@@ -930,7 +930,7 @@ function beginSkill(id, lv, tgt) {
   if (stunBlocked()) return;
   if (G.time < p.skillReadyAt) { skillDelayHint(); return; }
   if (skillCdLeft(id) > 0) { skillCdHint(id); return; }
-  if (!canPaySkill(skillCost(id, lv))) { const w = p.d.bloodmagic ? 'HP' : 'SP'; UI.msg(`${w} ไม่เพียงพอ`, 'err'); addFloater(p.x, p.y - 1.3, `${w} ไม่พอ`, '#8fb0ff'); return; }
+  if (!canPaySkill(skillCost(id, lv))) { const w = p.d.bloodmagic ? 'HP' : 'SP'; UI.msg(L(`${w} ไม่เพียงพอ`, `Not enough ${w}.`), 'err'); addFloater(p.x, p.y - 1.3, L(`${w} ไม่พอ`, `Low ${w}`), '#8fb0ff'); return; }
   if (tgt) {
     const dist = U.dist(p.x, p.y, tgt.x, tgt.y);
     const range = skillRange(s);
@@ -956,7 +956,7 @@ function executeSkill(id, lv, tgt) {
   const p = G.player, s = SKILLS[id];
   if (tgt && tgt.dead) return;
   const cost = skillCost(id, lv);
-  if (!canPaySkill(cost)) { UI.msg(`${p.d.bloodmagic ? 'HP' : 'SP'} ไม่เพียงพอ`, 'err'); return; }
+  if (!canPaySkill(cost)) { UI.msg(L(`${p.d.bloodmagic ? 'HP' : 'SP'} ไม่เพียงพอ`, `Not enough ${p.d.bloodmagic ? 'HP' : 'SP'}.`), 'err'); return; }
   paySkill(cost);
   if (s.type === 'active') addMastery(id);
   if (s.hpCost) {
@@ -1062,7 +1062,7 @@ function runSpecialSkill(kind, s, lv) {
       def: { size: 0.85, color: '#c8c8d4', color2: '#8a8a98', variant: 'wolf' },
     });
     addFx({ type: 'warp', x: p.x + 0.8, y: p.y, dur: 0.6 });
-    UI.msg(`หมาป่าคู่ใจมาช่วยสู้ ${s.dur(lv)} วินาที!`, 'sys');
+    UI.msg(L(`หมาป่าคู่ใจมาช่วยสู้ ${s.dur(lv)} วินาที!`, `Your loyal wolf joins the fight for ${s.dur(lv)}s!`), 'sys');
   } else if (kind === 'trap') {
     if (G.traps.length >= 3) G.traps.shift();
     G.traps.push({ x: p.x, y: p.y, lv, until: G.time + 40, armed: G.time + 0.6 });
@@ -1155,7 +1155,7 @@ function changeJob(job) {
   // แต้มสกิลของ Novice ที่ยังไม่ใช้ → ใส่ Basic Training ให้อัตโนมัติ (แต้มไม่ยกข้ามอาชีพ)
   if (p.job === 'novice' && p.skillPoints > 0) {
     const cur = p.skills.basic_training || 0, add = Math.min(p.skillPoints, SKILLS.basic_training.max - cur);
-    if (add > 0) { p.skills.basic_training = cur + add; UI.msg(`ใส่แต้มสกิล Novice ที่เหลือ ${add} แต้มให้ Basic Training อัตโนมัติ (ATK +${2 * add}, MaxHP +${2 * add}%)`, 'sys'); }
+    if (add > 0) { p.skills.basic_training = cur + add; UI.msg(L(`ใส่แต้มสกิล Novice ที่เหลือ ${add} แต้มให้ Basic Training อัตโนมัติ (ATK +${2 * add}, MaxHP +${2 * add}%)`, `${add} leftover Novice skill point(s) auto-assigned to Basic Training (ATK +${2 * add}, MaxHP +${2 * add}%).`), 'sys'); }
   }
   const second = JOBS[job].tier === 2;
   if (second) p.job1Lv = p.jobLv; // จำ Job Lv ของคลาสแรกไว้ (แต้มสกิลคลาสแรกที่ยังไม่ใช้ ยกมาใช้ต่อได้)
@@ -1175,10 +1175,10 @@ function changeJob(job) {
   const gc = (JOBS[job].glow || '#7ad8ff').replace('#', ''), gn = parseInt(gc, 16);
   addFx({ type: 'upgrade', ref: p, dur: 3.2, col: `${(gn >> 16) & 255},${(gn >> 8) & 255},${gn & 255}` });
   later(2.2, () => addFloater(p.x, p.y - 1.5, `UPGRADE: ${JOBS[job].name}`, JOBS[job].glow || '#7ad8ff', true));
-  UI.announce(`⚙ ${p.name} อัปเกรดร่างเป็นคลาส ${JOBS[job].name} (${JOBS[job].thai}) สำเร็จ!`);
+  UI.announce(L(`⚙ ${p.name} อัปเกรดร่างเป็นคลาส ${JOBS[job].name} (${JOBS[job].thai}) สำเร็จ!`, `⚙ ${p.name} has upgraded into the ${JOBS[job].name} class!`));
   UI.splash(Art.jobKey(job, p.gender), `${JOBS[job].name}`, second ? 'SECOND CLASS AWAKENED' : 'BODY UPGRADE COMPLETE', 'upgrade');
-  if (second) UI.msg(`✦ ปลดล็อกสกิลคลาสขั้น 2 แล้ว — กด S เพื่อดูสกิลใหม่ (ใช้สกิลและอาวุธของ ${JOBS[JOBS[job].parent].name} ได้ต่อ)`, 'sys');
-  else UI.msg('🔓 ปลดล็อกบอท AUTO แล้ว — กด B หรือปุ่ม AUTO เพื่อให้ล่าอัตโนมัติ', 'sys');
+  if (second) UI.msg(L(`✦ ปลดล็อกสกิลคลาสขั้น 2 แล้ว — กด S เพื่อดูสกิลใหม่ (ใช้สกิลและอาวุธของ ${JOBS[JOBS[job].parent].name} ได้ต่อ)`, `✦ Second-class skills unlocked — press S to view them (${JOBS[JOBS[job].parent].name} skills and weapons remain usable).`), 'sys');
+  else UI.msg(L('🔓 ปลดล็อกบอท AUTO แล้ว — กด B หรือปุ่ม AUTO เพื่อให้ล่าอัตโนมัติ', '🔓 AUTO bot unlocked — press B or the AUTO button to hunt automatically.'), 'sys');
   Sound.play('levelup');
   saveGame();
 }
@@ -1287,7 +1287,7 @@ function updatePlayer(dt) {
   if (p.dead) { p.moving = false; return; }
   // บัฟหมดเวลา
   let changed = false;
-  for (const k in p.buffs) if (p.buffs[k].until <= G.time) { delete p.buffs[k]; changed = true; UI.msg(`${SKILLS[k].name} หมดฤทธิ์แล้ว`, 'info'); }
+  for (const k in p.buffs) if (p.buffs[k].until <= G.time) { delete p.buffs[k]; changed = true; UI.msg(L(`${SKILLS[k].name} หมดฤทธิ์แล้ว`, `${SKILLS[k].name} has worn off.`), 'info'); }
   if (changed) recalc();
   autoPotTick();
   // ฟื้นฟู
@@ -1302,7 +1302,7 @@ function updatePlayer(dt) {
       const got = Math.min(p.d.maxHp - p.hp, amt);
       p.hp += got;
       // ฟื้นจากพาสซีฟ (regenPct) โชว์ให้เห็น • ฟื้นธรรมชาติปกติเงียบไว้ไม่ให้รก
-      if (got > 0 && p.d.regenPct && !p.dead) addFloater(p.x - 0.35, p.y - 1.5, `+${got} ฟื้นฟู`, '#8dffb0');
+      if (got > 0 && p.d.regenPct && !p.dead) addFloater(p.x - 0.35, p.y - 1.5, L(`+${got} ฟื้นฟู`, `+${got} Regen`), '#8dffb0');
     }
   }
   if (p.spTimer >= spInt) {
@@ -1457,10 +1457,10 @@ function bossSkill(m) {
     m.hp = Math.min(m.maxHp, m.hp + amt);
     addFloater(m.x, m.y - 2, `+${amt}`, '#70ff70', true);
     addFx({ type: 'heal', ref: m, dur: 1.2 });
-    UI.msg(`${m.def.name} ใช้เวทฟื้นฟูตัวเอง!`, 'mvp');
+    UI.msg(L(`${m.def.name} ใช้เวทฟื้นฟูตัวเอง!`, `${m.def.name} casts a healing spell on itself!`), 'mvp');
   } else {
     addFx({ type: 'warnring', x: m.x, y: m.y, dur: 1.0, r: 3 });
-    UI.msg(`${m.def.name} กำลังร่ายเวทไฟ! ถอยออกมา!`, 'mvp');
+    UI.msg(L(`${m.def.name} กำลังร่ายเวทไฟ! ถอยออกมา!`, `${m.def.name} is casting a fire spell! Get back!`), 'mvp');
     later(1.0, () => {
       if (m.dead) return;
       addFx({ type: 'firering', x: m.x, y: m.y, dur: 0.6, r: 3 });
