@@ -101,6 +101,8 @@ async function pick(p, name) {
   await pick(P, 'Alpha');
   await P.evaluate(() => { G.player.zeny = 999; saveGame(true, true); });
   await P2.evaluate(() => { G.player.zeny = 888; saveGame(true, true); });
+  // Chromium ส่งค่า localStorage ข้ามแท็บแบบ async: รอให้แท็บแรกเห็นเซฟของแท็บสองก่อน (ผู้เล่นจริงไม่เซฟสองแท็บในมิลลิวินาทีเดียวกัน)
+  await P.waitForFunction(() => Acct.wrap(JSON.parse(localStorage.getItem(SAVE_KEY))).chars.some(c => c.name === 'C3' && c.zeny === 888), null, { timeout: 5000 }).catch(() => {});
   await P.evaluate(() => { G.player.zeny = 997; saveGame(true, true); });
   const tabs = await P.evaluate(() => { const d = Acct.wrap(JSON.parse(localStorage.getItem(SAVE_KEY))); return d.chars.map(c => `${c.name}:${c.zeny}`).join(','); });
   ok('สองแท็บคนละตัว: ทั้งสองตัวเก็บค่าของตัวเอง', /Alpha:997/.test(tabs) && /C3:888/.test(tabs) && tabs.split(',').length === 5, tabs);
