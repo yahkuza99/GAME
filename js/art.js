@@ -7,7 +7,7 @@
 const ART_KEYS = [
   'keyart', 'logo',
   ...['novice', 'einherjar', 'runecaster', 'wildhunter', 'volva', 'trickster', 'berserker'].flatMap(j => [`job_${j}_f`, `job_${j}_m`]),
-  ...['bifrost', 'jobmaster', 'tool', 'weapon', 'armor', 'refine', 'nurse', 'guide'].map(n => `npc_${n}`),
+  ...['bifrost', 'jobmaster', 'tool', 'weapon', 'armor', 'refine', 'nurse', 'guide', 'storage'].map(n => `npc_${n}`),
   'mvp_seraph_pudding', 'mvp_kitsura',
 ];
 

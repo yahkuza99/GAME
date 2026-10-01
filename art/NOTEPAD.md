@@ -2,7 +2,7 @@
 
 สร้างอัตโนมัติด้วย `python3 tools/make_notepad.py` (ดูว่าอะไรมีแล้วจาก assets) • ✅ = ติดตั้งแล้ว • ⬜ = ยังขาด
 
-**ยังขาด: ตัวละคร 73 ภาพ • มอนสเตอร์ 6 ภาพ • NPC 1 ภาพ**
+**ยังขาด: ตัวละคร 73 ภาพ • มอนสเตอร์ 6 ภาพ • NPC 0 ภาพ**
 
 ## วิธีใช้
 
@@ -1051,11 +1051,4 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 
 ## NPC
 
-⬜ **Storage Unit Kaia** — แนบรูป NPC ตัวไหนก็ได้ 1 รูปเป็นแบบสไตล์
-
-```
-In-game character sprite for a cute classic 2000s Korean MMORPG (chibi, about 2.5 heads tall), same art style as the attached NPC.
-Storage Unit Kaia: friendly feminine android warehouse clerk. Smooth white faceplate with ONE glowing teal visor strip, NO eyes, NO mouth.
-Dark navy hair plates in a low ponytail, small red ribbon, navy-and-cream clerk uniform with a short cape, a floating holographic crate icon beside her hand, a little cargo drone on her shoulder.
-Single full-body figure, 3/4 view FACING LEFT, standing, centered. Fully transparent background, cel-shaded, crisp dark outline, readable at 64 px. No text, no shadow.
-```
+✅ **Storage Unit Kaia** — แนบรูป NPC ตัวไหนก็ได้ 1 รูปเป็นแบบสไตล์
