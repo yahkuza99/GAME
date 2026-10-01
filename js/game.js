@@ -93,6 +93,7 @@ function loadGameFrom(data) {
   p.inventory = (p.inventory || []).filter(e => e && ITEMS[e.id]);
   p.storage = (Array.isArray(p.storage) ? p.storage : []).filter(e => e && ITEMS[e.id] && e.qty > 0);
   for (const s in p.equip) if (p.equip[s] && !ITEMS[p.equip[s].id]) p.equip[s] = null;
+  for (const e of [...Object.values(p.equip), ...p.inventory, ...p.storage]) if (e && Array.isArray(e.cards)) e.cards = e.cards.filter(c => ITEMS[c]); // ชิปที่ไม่มีแล้ว
   if (!JOBS[p.job]) p.job = 'novice';
   if (!MAP_DEFS[p.map]) { p.map = HOME_MAP; p.x = 20.5; p.y = 24.5; }
   if (!p.save || !MAP_DEFS[p.save.map]) p.save = { map: HOME_MAP, x: 20.5, y: 24.5 };

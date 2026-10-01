@@ -120,6 +120,20 @@ const ok = (name, cond, info = '') => { checks.push([name, !!cond, info]); };
     await p.evaluate(() => saveGame(true, true)); await p.reload(); await p.waitForTimeout(1500);
     await p.click('#au-offline'); await p.click('#btn-continue'); await p.waitForTimeout(1200);
     ok(`${name}: continue save`, await p.evaluate(() => G.started && G.player.name === 'Smoke' && G.player.passives.length === 4));
+    // old save (before passives/mastery/bounty/chips/Volt) with stale ids still loads and plays
+    await p.evaluate(() => { saveGame = () => {}; G.started = false; }); // กันเกมเซฟทับตอนรีโหลด
+    await p.evaluate(() => localStorage.setItem(SAVE_KEY, JSON.stringify({ name: 'Oldie', gender: 'm', hair: '#ccc', job: 'runecaster', baseLv: 15, jobLv: 12, baseExp: 0, jobExp: 0,
+      stats: { str: 1, agi: 1, vit: 10, int: 30, dex: 20, luk: 1 }, statPoints: 0, skillPoints: 2, skills: { first_aid: 1, fire_rune: 3, gone_skill: 2 }, zeny: 1234,
+      inventory: [{ id: 'red_potion', qty: 5, uid: 1, refine: 0, cards: [] }, { id: 'no_such_item', qty: 1, uid: 2 }],
+      equip: { weapon: { id: 'rod', qty: 1, uid: 3, refine: 2, cards: ['pudding_card', 'bogus_card'] } }, hotbar: [{ t: 'skill', id: 'fire_rune' }, { t: 'item', id: 'red_potion' }],
+      map: 'meadow', x: 28.5, y: 28.5, save: { map: 'eldheim', x: 20.5, y: 24.5 }, hp: 100, sp: 50, options: { sound: false }, uidSeq: 10,
+      bounty: { day: 'x', list: [{ mob: 'removed_mob', n: 5, got: 1 }] } })));
+    await p.reload(); await p.waitForTimeout(1500);
+    await p.click('#au-offline'); await p.click('#btn-continue'); await p.waitForTimeout(1500);
+    const old = await p.evaluate(() => { const pl = G.player; for (const w of ['w-status', 'w-skills', 'w-tree', 'w-quest', 'w-inv', 'w-equip']) { UI.open(w); UI.close(w); }
+      const m = spawnMob('pudding', { x: pl.x + 1, y: pl.y }); pl.sp = 999; executeSkill('fire_rune', skillLv('fire_rune'), m); killMob(m);
+      return { ok: G.started && pl.name === 'Oldie', skills: Object.keys(pl.skills).join(','), cards: pl.equip.weapon.cards.join(','), free: Passive.free(pl), bounty: (Bounty.state() || { list: [] }).list.length }; });
+    ok(`${name}: old save loads`, old.ok && !/gone_skill/.test(old.skills) && old.cards === 'pudding_card' && old.free === 14 && old.bounty === 3, JSON.stringify(old));
     await ctx.close();
   }
   await browser.close(); srv.close();

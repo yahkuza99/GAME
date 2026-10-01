@@ -190,7 +190,7 @@ const Bounty = {
   state() {
     const p = G.player, day = this.today();
     if (!this.open()) return null;
-    if (!p.bounty || p.bounty.day !== day) p.bounty = { day, list: this.roll(p, day), bonus: false };
+    if (!p.bounty || p.bounty.day !== day || !Array.isArray(p.bounty.list) || p.bounty.list.some(b => !MOBS[b.mob])) p.bounty = { day, list: this.roll(p, day), bonus: false };
     return p.bounty;
   },
   mapOf(id) { return Object.keys(MAP_DEFS).find(m => (MAP_DEFS[m].spawns || []).some(s => s[0] === id)); },
