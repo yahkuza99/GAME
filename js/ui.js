@@ -230,6 +230,18 @@ const UI = {
     const bh = buffs.join('');
     const be = $('#buffs');
     if (be.innerHTML !== bh) be.innerHTML = bh;
+    // คูลดาวน์บอสในแมพนี้ (ใต้มินิแมพ): นับถอยหลังจนเกิดใหม่ / เตือนเมื่อบอสอยู่ในแมพ
+    const mv = $('#mm-mvp');
+    if (mv) {
+      const id = G.map.def.mvp; let t = '';
+      if (id) {
+        const alive = G.mobs.some(m => m.isMvp && !m.dead), left = mvpLeft(G.map.id);
+        t = alive ? `⚠ MVP ${MOBS[id].name} อยู่ในแมพ` : left > 0 ? `MVP ${MOBS[id].name} · ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')}` : '';
+        mv.classList.toggle('alive', alive);
+      }
+      if (mv.textContent !== t) mv.textContent = t;
+      if (mv.hidden === !!t) mv.hidden = !t;
+    }
     // ลานประลอง PvP: สถิติฆ่า/ล้ม + จำนวนคู่ต่อสู้
     const ph = $('#pvp-hud');
     if (ph) {
@@ -813,7 +825,7 @@ const UI = {
   mvpStatus(id) {
     const m = Object.keys(MAP_DEFS).find(k => MAP_DEFS[k].mvp === id); if (!m) return '';
     if (G.map && G.map.id === m && G.mobs.some(x => x.isMvp && !x.dead)) return `⚔ กำลังอาละวาดอยู่ที่ ${MAP_DEFS[m].name}!`;
-    const left = (G.mvpNext[m] || 0) - G.time;
+    const left = mvpLeft(m);
     if (left > 0) return `⏳ เกิดใหม่ในอีก ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')} นาที`;
     return `✦ พร้อมปรากฏที่ ${MAP_DEFS[m].name} (เข้าแผนที่เพื่อเจอ)`;
   },

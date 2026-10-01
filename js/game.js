@@ -9,7 +9,7 @@ const G = {
   mvpNext: {}, pendingSkill: null, hover: null, uid: 1, started: false,
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
-const SAVE_FIELDS = ['pvp', 'name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
+const SAVE_FIELDS = ['pvp', 'mvpAt', 'name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
   'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery'];
 
 // ------------------------------------------------------------
@@ -99,6 +99,7 @@ function loadGameFrom(data) {
   if (!p.save || !MAP_DEFS[p.save.map]) p.save = { map: HOME_MAP, x: 20.5, y: 24.5 };
   // สกิลที่ไม่มีอยู่แล้ว (เช่น ถูกลบออกจาก data.js) คืนแต้มให้
   for (const id in p.skills) if (!SKILLS[id]) { if (!SKILLS.first_aid || id !== 'first_aid') p.skillPoints += p.skills[id]; delete p.skills[id]; }
+  fixSkillPoints(p); // เซฟเก่าที่แต้มสกิลเกิน (แต้ม Novice ค้างข้ามอาชีพ) → ปรับให้ถูกต้อง
   // แถบสกิล (8 ช่อง) แยกจากแถบไอเทม (4 ช่อง) — เซฟเก่าที่ปนกันจะถูกย้ายไอเทมไปแถบไอเทม
   const oldBar = (p.hotbar || []).filter(h => h && ((h.t === 'skill' && SKILLS[h.id]) || (h.t === 'item' && ITEMS[h.id])));
   const hadPot = Array.isArray(data.potbar);
@@ -497,7 +498,7 @@ function changeMap(id, x, y) {
   G.npcs = (map.def.npcs || []).map(n => Object.assign({}, n));
   for (const [mid, n] of map.def.spawns) for (let i = 0; i < n; i++) spawnMob(mid);
   for (const [dx, dy] of map.def.dummies || []) { const d = spawnMob('training_dummy', { x: dx, y: dy }); d.facing = 1; d.home = { x: dx + 0.5, y: dy + 0.5 }; }
-  if (map.def.mvp && (!G.mvpNext[id] || G.time >= G.mvpNext[id])) spawnMvp(map.def.mvp);
+  if (map.def.mvp && mvpLeft(id) <= 0) { if (p.mvpAt) delete p.mvpAt[id]; spawnMvp(map.def.mvp); }
   UI.onMapChange(map);
   if (typeof Nav !== 'undefined') Nav.onMapChange();
   Online.joinMap(id);
@@ -523,6 +524,8 @@ function spawnMob(id, pos) {
   G.mobs.push(m);
   return m;
 }
+// คูลดาวน์บอส: เก็บเป็นเวลาจริง (ms) ลงเซฟ → ปิดเกมเปิดใหม่ไม่รีเซ็ต ฟาร์มบอสด้วยการรีโหลดไม่ได้
+function mvpLeft(mapId) { return Math.max(0, (((G.player && G.player.mvpAt) || {})[mapId] || 0) - Date.now()) / 1000; }
 function spawnMvp(id) {
   const m = spawnMob(id);
   m.isMvp = true;
@@ -652,7 +655,8 @@ function killMob(m) {
     UI.msg(`[MVP] ยินดีด้วย! คุณได้รับรางวัล MVP`, 'mvp');
     const bonus = U.pick(['white_potion', 'blue_potion', 'yellow_potion']);
     addItem(bonus, 3);
-    G.mvpNext[G.map.id] = G.time + d.respawn / 1000;
+    (p.mvpAt || (p.mvpAt = {}))[G.map.id] = Date.now() + d.respawn;
+    saveGame(true);
     Sound.play('mvp');
   } else {
     G.respawns.push({ id: d.id, at: G.time + U.rand(6, 14) });
@@ -1130,6 +1134,12 @@ function updateTraps() {
 // ------------------------------------------------------------
 function changeJob(job) {
   const p = G.player;
+  // แต้มสกิลของ Novice ที่ยังไม่ใช้ → ใส่ Basic Training ให้อัตโนมัติ (แต้มไม่ยกข้ามอาชีพ)
+  if (p.job === 'novice' && p.skillPoints > 0) {
+    const cur = p.skills.basic_training || 0, add = Math.min(p.skillPoints, SKILLS.basic_training.max - cur);
+    if (add > 0) { p.skills.basic_training = cur + add; UI.msg(`ใส่แต้มสกิล Novice ที่เหลือ ${add} แต้มให้ Basic Training อัตโนมัติ (ATK +${2 * add}, MaxHP +${2 * add}%)`, 'sys'); }
+  }
+  p.skillPoints = 0;
   p.job = job; p.jobLv = 1; p.jobExp = 0;
   const starter = JOB_STARTER[job];
   addItem(starter, 1);
@@ -1147,6 +1157,12 @@ function changeJob(job) {
   UI.msg('🔓 ปลดล็อกบอท AUTO แล้ว — กด B หรือปุ่ม AUTO เพื่อให้ล่าอัตโนมัติ', 'sys');
   Sound.play('levelup');
   saveGame();
+}
+// แต้มสกิลที่ถูกต้อง = (Job Lv − 1) − แต้มที่ใช้ไปในสกิลของอาชีพปัจจุบัน (ได้ 1 แต้มต่อ Job Lv)
+function fixSkillPoints(p) {
+  const spent = (JOBS[p.job].skills || []).filter(id => SKILLS[id] && !SKILLS[id].noLearn).reduce((a, id) => a + (p.skills[id] || 0), 0);
+  const should = Math.max(0, (p.jobLv - 1) - spent);
+  if (p.skillPoints > should) p.skillPoints = should;
 }
 function resetSkills() {
   const p = G.player;
@@ -1194,8 +1210,9 @@ function updateGame(dt) {
     if (G.respawns[i].at <= G.time) { spawnMob(G.respawns[i].id); G.respawns.splice(i, 1); }
   }
   const mvp = G.map.def.mvp;
-  if (mvp && G.mvpNext[G.map.id] && G.time >= G.mvpNext[G.map.id] && !G.mobs.some(m => m.isMvp)) {
-    G.mvpNext[G.map.id] = 0;
+  const pa = G.player.mvpAt;
+  if (mvp && pa && pa[G.map.id] && mvpLeft(G.map.id) <= 0 && !G.mobs.some(m => m.isMvp && !m.dead)) {
+    delete pa[G.map.id];
     spawnMvp(mvp);
   }
   // ไอเทมบนพื้นหายไปหลัง 60 วิ

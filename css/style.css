@@ -869,3 +869,11 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
 .sk-mas-help b { color: var(--cy); }
 .inv-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .inv-foot .inv-sort { border-radius: 999px; padding: 4px 14px; }
+
+/* คูลดาวน์บอส (ใต้มินิแมพ) */
+#mm-mvp { margin-top: 4px; max-width: 100%; padding: 2px 10px; border-radius: 999px; font: 600 10.5px var(--mono, monospace); color: #ffd98a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  background: rgba(40, 26, 8, .66); border: 1px solid rgba(255, 208, 90, .4); font-variant-numeric: tabular-nums; }
+#mm-mvp[hidden] { display: none; }
+#mm-mvp.alive { color: #ffb3bd; background: rgba(60, 10, 20, .7); border-color: rgba(255, 107, 125, .55); animation: aimPulse 1.2s ease-in-out infinite; }
+#hud.hud-min #mm-mvp { display: none; }
+@media (max-width: 760px) { #mm-mvp { font-size: 9.5px; padding: 1px 7px; } }
