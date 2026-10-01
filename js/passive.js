@@ -53,7 +53,7 @@ const PGLYPH_PATH = {
   crystal: 'M12 3l7 8.5L12 21 5 11.5zM12 3v18M5 11.5h14',
   plus: 'M12 5v14M5 12h14',
   flame: 'M12 3c.8 4.2 5.5 5.6 5.5 10.5a5.5 5.5 0 0 1-11 0c0-2 .9-3.4 2.2-4.6.1 1.9 1 3 2.1 3.4C10.6 9.5 11.6 6.6 12 3z',
-  skull: 'M12 3a7 7 0 0 0-7 7c0 2.6 1.4 4.2 3 5.3V19h8v-3.7c1.6-1.1 3-2.7 3-5.3a7 7 0 0 0-7-7zM9.5 10.5h.1M14.5 10.5h.1M10.5 19v2M13.5 19v2',
+  vial: 'M9.5 3h5M10.5 3v5.2L5.6 16.6A3 3 0 0 0 8.2 21h7.6a3 3 0 0 0 2.6-4.4L13.5 8.2V3M7.6 14.5h8.8M11 17.5h.1M14 18.5h.1',
   anchor: 'M12 4a2 2 0 1 0 .1 0M12 8v13M5 14a7 7 0 0 0 14 0M3.5 13.5l1.5 1.5M20.5 13.5L19 15',
   ghost: 'M5.5 20.5V11a6.5 6.5 0 0 1 13 0v9.5l-2.2-2-2.1 2-2.2-2-2.1 2-2.2-2zM9.5 11h.1M14.5 11h.1',
   eye: 'M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12zM15 12a3 3 0 1 1-6 0a3 3 0 1 1 6 0',
@@ -69,7 +69,7 @@ const PGLYPH = {
   int: 'crystal', matk: 'crystal', matkPct: 'crystal', castPct: 'wand',
   sp: 'battery', spPct: 'battery', spCostPct: 'battery',
   crit: 'star', critDmgPct: 'star', luk: 'sparkle',
-  leech: 'drop', venom: 'skull',
+  leech: 'drop', venom: 'vial',
 };
 // Keystone แต่ละอันมีไอคอนเฉพาะตัว
 const PKS_GLYPH = { unshaken: 'anchor', overclock: 'flame', phantom: 'ghost', resolute: 'crosshair', bloodmagic: 'drop', mom: 'eye' };
