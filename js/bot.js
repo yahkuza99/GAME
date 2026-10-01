@@ -14,12 +14,13 @@ const Bot = {
 
   defaults() {
     return { skills: {}, hpPot: 50, spPot: 20, restHp: 35, restSp: 10, healAt: 60, useBuffs: true, avoidMvp: true,
-      radius: 14, returnHome: true, restock: true, restockQty: 30,
+      radius: 14, returnHome: true,
       rest: true, style: 'skills', leash: false, skipMobs: {} };
   },
   cfg() {
     const o = G.player.options;
     o.bot = Object.assign(this.defaults(), o.bot || {});
+    delete o.bot.restock; delete o.bot.restockQty; // ระบบกลับเมืองซื้อยาเองถูกเอาออก (ผู้เล่นซื้อเอง)
     return o.bot;
   },
 
@@ -32,8 +33,6 @@ const Bot = {
     if (want && !this.unlocked()) { UI.msg(`🔒 บอท AUTO ปลดล็อกเมื่ออัปเกรดคลาสแรก (Job Lv ${JOB_CHANGE_LV} แล้วคุยกับ Mimir AI)`, 'err'); return; }
     this.on = want;
     this.resting = false; this.pauseUntil = 0; this.warnedTown = false;
-    if (this.mode && Nav.target) Nav.cancel(true); // ปิดบอทกลางทางเติมของ = หยุดเดินด้วย
-    this.mode = null;
     if (want) {
       this.setAnchor(true);
       this.stats = { start: G.time, kills: 0, bexp: 0, jexp: 0, items: 0, zenyStart: p.zeny };
@@ -110,27 +109,12 @@ const Bot = {
     const p = G.player, c = this.cfg();
     if (!this.on || p.dead || G.time < this.nextThink) return;
     this.nextThink = G.time + 0.2;
-    if (this.mode) {
-      // ระหว่างเดินไปเติมของ: ยังกินยาและสู้กลับเมื่อโดนตี (ไม่เดินเฉยจนตาย)
-      const hp = p.hp / p.d.maxHp * 100, sp = p.sp / p.d.maxSp * 100;
-      if (hp < c.hpPot) { const e = this.findItem(HP_POTS); if (e) useItem(e); }
-      if (sp < c.spPot) { const e = this.findItem(SP_POTS); if (e) useItem(e); }
-      const foes = G.mobs.filter(m => !m.dead && m.state === 'chase' && U.dist(m.x, m.y, p.x, p.y) < 7);
-      if (foes.length && hp > 20) { if (!p.target || p.target.dead) p.target = foes.sort((a, b) => U.dist(a.x, a.y, p.x, p.y) - U.dist(b.x, b.y, p.x, p.y))[0]; return; }
-      this.restockStep(); return;
-    }
     if (G.time < this.pauseUntil || NPC.busy) return;
     if (G.map.def.kind === 'town') {
-      // เปิดบอทในเมือง: ถ้าเคยล่าที่ไหนไว้ เดินกลับไปล่าที่เดิมเอง
-      if (c.restock && this.home && MAP_DEFS[this.home] && MAP_DEFS[this.home].kind !== 'town') {
-        this.mode = 'return'; UI.msg(`🧭 บอท: เดินกลับไปล่าต่อที่ ${MAP_DEFS[this.home].name}`, 'sys');
-        Nav.goTo({ kind: 'map', map: this.home, name: MAP_DEFS[this.home].name }); return;
-      }
       if (!this.warnedTown) { this.warnedTown = true; UI.msg('บอทรออยู่: ออกไปยังแผนที่ล่ามอนสเตอร์ได้เลย', 'info'); }
       return;
     }
     this.warnedTown = false;
-    this.home = G.map.id; // แผนที่ล่าล่าสุด
     const hpPct = p.hp / p.d.maxHp * 100, spPct = p.sp / p.d.maxSp * 100;
     const threats = G.mobs.filter(m => !m.dead && m.state === 'chase' && U.dist(m.x, m.y, p.x, p.y) < 9);
 
@@ -143,15 +127,9 @@ const Bot = {
     if (hpPct < c.hpPot) {
       const e = this.findItem(HP_POTS);
       if (e) useItem(e);
-      else if (c.restock && !threats.length && this.canAffordRestock()) return this.startRestock();
-      else if (hpPct < 20 && threats.length && (c.returnHome || c.restock)) return c.restock && this.canAffordRestock() ? this.startRestock() : this.goHome('HP ต่ำและยาหมด');
+      else if (hpPct < 20 && threats.length && c.returnHome) return this.goHome('HP ต่ำและยาหมด');
     }
     if (spPct < c.spPot) { const e = this.findItem(SP_POTS); if (e) useItem(e); }
-    // ยาใกล้หมดและไม่มีใครตีอยู่ → กลับไปเติมก่อน (ไม่รอจนวิกฤตกลางวงล้อม)
-    if (c.restock && !threats.length && G.time > (this.lastRestock || -99) + 90) {
-      const pots = HP_POTS.reduce((a, id) => a + countItem(id), 0);
-      if (pots <= 2 && this.canAffordRestock()) { this.lastRestock = G.time; return this.startRestock(); }
-    }
     if (p.cast || p.skillIntent) return;
 
     // 2) นั่งพัก (โหมดตีปกติไม่ใช้ SP จึงไม่พักเพราะ SP)
@@ -239,58 +217,6 @@ const Bot = {
         return;
       }
     }
-  },
-  // ---------- เติมของอัตโนมัติ: กลับเมือง → ขายของดรอป → ซื้อยา → กลับไปล่าที่เดิม ----------
-  canAffordRestock() {
-    const p = G.player;
-    const etc = p.inventory.filter(e => ITEMS[e.id].type === 'etc').reduce((a, e) => a + Math.floor(ITEMS[e.id].price / 2) * e.qty, 0);
-    return p.zeny + etc >= ITEMS.red_potion.price * 5;
-  },
-  dealer() {
-    for (const n of MAP_DEFS[HOME_MAP].npcs) if (n.id === 'tool') return { kind: 'tile', map: HOME_MAP, x: n.x, y: n.y + 1, name: n.name };
-    return null;
-  },
-  startRestock() {
-    const p = G.player, beacon = p.inventory.find(x => x.id === 'hearth_rune');
-    this.mode = 'restock'; this.home = G.map.def.kind === 'town' ? (this.home || 'meadow') : G.map.id;
-    p.target = null; p.sitting = false; this.resting = false;
-    UI.msg('🛒 บอท: ยาหมด — กลับเมืองไปขายของและซื้อยา แล้วจะกลับมาล่าต่อ', 'sys');
-    if (beacon && p.save && p.save.map === HOME_MAP) useItem(beacon);
-    Nav.goTo(this.dealer());
-  },
-  restockStep() {
-    const p = G.player, c = this.cfg();
-    if (G.fastSim) Nav.update(); // จำลองย้อนหลัง: ขับระบบนำทางเอง
-    if (this.mode === 'restock') {
-      const d = this.dealer(); if (!d) { this.mode = null; return; }
-      if (G.map.id === HOME_MAP && U.dist(p.x, p.y, d.x + 0.5, d.y + 0.5) < 2.5) {
-        this.doRestock(c);
-        this.mode = 'return';
-        Nav.goTo({ kind: 'map', map: this.home, name: MAP_DEFS[this.home].name });
-      } else if (!Nav.target) Nav.goTo(d);
-      return;
-    }
-    if (this.mode === 'return') {
-      if (G.map.id === this.home) { if (Nav.target) { this.navOwned = true; Nav.cancel(true); this.navOwned = false; } this.mode = null; UI.msg(`▶ บอท: กลับมาล่าต่อที่ ${MAP_DEFS[this.home].name}`, 'sys'); return; }
-      if (!Nav.target) Nav.goTo({ kind: 'map', map: this.home, name: MAP_DEFS[this.home].name });
-    }
-  },
-  doRestock(c) {
-    const p = G.player;
-    let sold = 0;
-    for (const e of p.inventory.filter(x => ITEMS[x.id].type === 'etc')) { sold += Math.floor(ITEMS[e.id].price / 2) * e.qty; removeEntry(e, e.qty); }
-    p.zeny += sold;
-    // ยาที่คุ้มที่สุดที่ซื้อไหว (ใช้เงินไม่เกิน 60% ของที่มี)
-    const budget = Math.floor(p.zeny * 0.6);
-    const pot = p.d.maxHp > 900 && budget >= ITEMS.yellow_potion.price * 10 ? 'yellow_potion' : p.d.maxHp > 350 && budget >= ITEMS.orange_potion.price * 10 ? 'orange_potion' : 'red_potion';
-    const have = countItem(pot), want = Math.max(0, c.restockQty - have);
-    const qty = Math.min(want, Math.floor(budget / ITEMS[pot].price));
-    if (qty > 0) { p.zeny -= qty * ITEMS[pot].price; addItem(pot, qty, true); }
-    if (!p.inventory.some(e => e.id === 'hearth_rune') && p.zeny >= ITEMS.hearth_rune.price * 3) { p.zeny -= ITEMS.hearth_rune.price; addItem('hearth_rune', 1, true); }
-    // ใส่ยาลงแถบยาถ้ายังไม่มี
-    if (qty > 0 && !p.potbar.some(x => x && x.id === pot)) { const i = p.potbar.findIndex(x => !x || !countItem(x.id)); if (i >= 0) p.potbar[i] = { t: 'item', id: pot }; }
-    UI.msg(`🛒 บอท: ขายของดรอป +${U.fmt(sold)} ${CUR} • ซื้อ ${ITEMS[pot].name} ×${qty}`, 'item');
-    Sound.play('buy'); UI.dirty(); saveGame();
   },
   goHome(reason) {
     const p = G.player, e = p.inventory.find(x => x.id === 'hearth_rune');

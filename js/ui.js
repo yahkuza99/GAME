@@ -1470,7 +1470,6 @@ const UI = {
       h('div', { class: 'bot-sec' }, 'อื่น ๆ'),
       chk('useBuffs', 'ใช้บัฟ / เรียกสัตว์คู่ใจอัตโนมัติ'),
       chk('avoidMvp', 'ไม่เข้าตี MVP เอง'),
-      chk('restock', 'เติมของอัตโนมัติ: ยาหมด → กลับเมืองขายของดรอป ซื้อยา แล้วกลับมาล่าต่อ'),
       chk('returnHome', 'กลับเมืองเมื่อยาหมดและ HP วิกฤต'),
       h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: p.options.autoLoot ? 'checked' : false, onchange: e => { p.options.autoLoot = e.target.checked; saveGame(); } }), ' เก็บไอเทมอัตโนมัติ'),
     ].filter(Boolean));

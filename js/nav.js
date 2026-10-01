@@ -73,7 +73,6 @@ const Nav = {
   cancel(silent) {
     if (!this.target) return;
     // ผู้เล่นยกเลิกเอง (แตะพื้น/จอย) ระหว่างบอทเดินไปเติมของ = คืนการควบคุมให้ผู้เล่น
-    if (typeof Bot !== 'undefined' && Bot.mode && !Bot.navOwned) Bot.mode = null;
     this.target = null;
     if (!silent) UI.msg('ยกเลิกการนำทาง', 'info');
     this.updatePill();

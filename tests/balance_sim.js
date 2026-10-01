@@ -34,7 +34,7 @@ const { chromium } = require('playwright');
         for (const e of [['padded_plate', 1], ['red_potion', 0], ['orange_potion', 40], ['blue_potion', 15]]) if (e[1]) addItem(e[0], e[1], true);
         const pa = pl.inventory.find(x => x.id === 'padded_plate'); if (pa) equipItem(pa, true);
         recalc(); pl.hp = pl.d.maxHp; pl.sp = pl.d.maxSp;
-        pl.options.bot = Object.assign(Bot.defaults(), { restock: false, returnHome: false });
+        pl.options.bot = Object.assign(Bot.defaults(), { returnHome: false });
         changeMap('wolfwood', 28.5, 28.5);
         Bot.toggle(true);
         for (const k in st) delete st[k]; let deaths = 0, t = 0, dmgTaken = 0; const pots0 = countItem('orange_potion'), hp0 = pl.d.maxHp;
