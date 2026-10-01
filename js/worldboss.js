@@ -61,7 +61,7 @@ const WB = {
     if (this.active(map) && !live) this.spawn(map);
     else if (!this.active(map) && live && !this.state(map).dead) { // หมดเวลา: บอสจากไป (ไม่ได้ถูกปราบ)
       live.dead = true; live.deathT = 1;
-      UI.announce(`🌫 ${live.def.name} หายกลับเข้าไปในราก... จะกลับมาในรอบถัดไป`);
+      UI.announce(L(`🌫 ${live.def.name} หายกลับเข้าไปในราก... จะกลับมาในรอบถัดไป`, `🌫 ${live.def.name} sinks back into the roots... It will return next cycle.`));
     }
     this.pill(map);
   },
@@ -74,11 +74,11 @@ const WB = {
     let t = '', alive = false;
     if (map) {
       const live = this.live(), cy = this.cycleOf(map);
-      el.title = `World Boss: ${MOBS[this.id(map)].name} (แข็งกว่า MVP 5 เท่า) — เกิดทุก 60 นาที อยู่ 40 นาที เลือดใช้ร่วมกันทั้งแผนที่`;
-      if (live) { alive = true; t = `☠ บอสโลก · เลือด ${Math.ceil(live.hp / live.maxHp * 100)}%`; }
+      el.title = L(`World Boss: ${MOBS[this.id(map)].name} (แข็งกว่า MVP 5 เท่า) — เกิดทุก 60 นาที อยู่ 40 นาที เลือดใช้ร่วมกันทั้งแผนที่`, `World Boss: ${MOBS[this.id(map)].name} (5× stronger than an MVP) — spawns every 60 min and stays for 40 min. HP is shared across the whole map.`);
+      if (live) { alive = true; t = L(`☠ บอสโลก · เลือด ${Math.ceil(live.hp / live.maxHp * 100)}%`, `☠ World Boss · HP ${Math.ceil(live.hp / live.maxHp * 100)}%`); }
       else {
         const left = Math.max(0, ((this.state(map).dead || Date.now() >= cy.end) ? cy.next : cy.start) - Date.now()) / 1000;
-        t = `บอสโลก · อีก ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')}`;
+        t = L(`บอสโลก · อีก ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')}`, `World Boss · in ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')}`);
       }
     }
     el.classList.toggle('alive', alive);
@@ -91,9 +91,9 @@ const WB = {
     const m = spawnMob(id);
     m.isWB = true; m.maxHp = MOBS[id].hp; m.hp = Math.max(1, s.hp); m.wbMine = 0;
     const fresh = s.hp >= m.maxHp;
-    UI.announce(`☠ WORLD BOSS ${MOBS[id].name} ${fresh ? 'ตื่นขึ้นแล้ว' : `ยังอยู่ (เลือด ${Math.ceil(m.hp / m.maxHp * 100)}%)`} ที่ ${G.map.def.name} — ชวนเพื่อนมาช่วยกันตี!`);
-    if (fresh && !G.fastSim) UI.splash(`mvp_${id}`, MOBS[id].name, 'WORLD BOSS — แข็งกว่า MVP 5 เท่า');
-    UI.msg(`[WORLD BOSS] ${MOBS[id].name} อยู่ในแผนที่นี้ เลือดใช้ร่วมกันทุกคน — ตายแล้วกลับมาตีต่อได้ บอสไม่ฟื้นเลือด`, 'mvp');
+    UI.announce(L(`☠ WORLD BOSS ${MOBS[id].name} ${fresh ? 'ตื่นขึ้นแล้ว' : `ยังอยู่ (เลือด ${Math.ceil(m.hp / m.maxHp * 100)}%)`} ที่ ${G.map.def.name} — ชวนเพื่อนมาช่วยกันตี!`, `☠ WORLD BOSS ${MOBS[id].name} ${fresh ? 'has awakened' : `still stands (HP ${Math.ceil(m.hp / m.maxHp * 100)}%)`} in ${G.map.def.name} — rally your friends and bring it down!`));
+    if (fresh && !G.fastSim) UI.splash(`mvp_${id}`, MOBS[id].name, L('WORLD BOSS — แข็งกว่า MVP 5 เท่า', 'WORLD BOSS — 5× stronger than an MVP'));
+    UI.msg(L(`[WORLD BOSS] ${MOBS[id].name} อยู่ในแผนที่นี้ เลือดใช้ร่วมกันทุกคน — ตายแล้วกลับมาตีต่อได้ บอสไม่ฟื้นเลือด`, `[WORLD BOSS] ${MOBS[id].name} is on this map. Its HP is shared by everyone — fall, come back, and keep fighting. The boss never regenerates.`), 'mvp');
     this.send('ask');
   },
   onLocalDamage(m, d) {
@@ -107,7 +107,7 @@ const WB = {
     const s = this.state(G.map.id);
     s.dead = true; s.hp = 0; this.save(true);
     const i = G.respawns.findIndex(r => r.id === m.def.id); if (i >= 0) G.respawns.splice(i, 1); // ไม่เกิดใหม่แบบมอนปกติ
-    UI.announce(`🏆 WORLD BOSS ${m.def.name} ถูกปราบแล้ว! ทุกคนที่ร่วมตีได้รางวัล`);
+    UI.announce(L(`🏆 WORLD BOSS ${m.def.name} ถูกปราบแล้ว! ทุกคนที่ร่วมตีได้รางวัล`, `🏆 WORLD BOSS ${m.def.name} has been defeated! Everyone who joined the fight is rewarded.`));
     Sound.play('mvp');
     if (!m.wbRemote) this.send('dead');
   },
