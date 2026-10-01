@@ -298,5 +298,50 @@
    "scale_src": 0.4121,
    "median_src_h": 364.0000577803925
   }
+ },
+ "mob_fiddlehopper": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.3713,
+   "median_src_h": 404
+  },
+  "_k1536": 0.30312,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.3713,
+   "median_src_h": 404.0015093032463
+  }
+ },
+ "mob_ember_pudding": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4478,
+   "median_src_h": 335
+  },
+  "_k1536": 0.36556,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4478,
+   "median_src_h": 334.99545218295214
+  }
+ },
+ "mob_pudding": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4323,
+   "median_src_h": 347
+  },
+  "_k1536": 0.35291,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4323,
+   "median_src_h": 347.0033082088918
+  }
  }
 }

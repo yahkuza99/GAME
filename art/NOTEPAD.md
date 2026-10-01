@@ -963,7 +963,7 @@ Draw this exact character (the attached walk sheet — same design, same colors,
 
 ## มอนสเตอร์ (ตัวละ 1 ภาพ)
 
-⬜ **Gel Unit** (Emerald Meadow) — แนบ `mobsprite_pudding.webp` + `tpl_mob.png`
+✅ **Gel Unit** (Emerald Meadow) — แนบ `mobsprite_pudding.webp` + `tpl_mob.png`
 
 ```
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Gel Unit.
@@ -977,7 +977,7 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 
 ✅ **Bunny Unit** (Emerald Meadow) — แนบ `mobsprite_moonbun.webp` + `tpl_mob.png`
 
-⬜ **Ember Unit** (Emerald Meadow) — แนบ `mobsprite_ember_pudding.webp` + `tpl_mob.png`
+✅ **Ember Unit** (Emerald Meadow) — แนบ `mobsprite_ember_pudding.webp` + `tpl_mob.png`
 
 ```
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Ember Unit.
@@ -991,7 +991,7 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 
 ✅ **Rust Sentry** (Mistlake Plains) — แนบ `mobsprite_stumpling.webp` + `tpl_mob.png`
 
-⬜ **Hopper Unit** (Mistlake Plains) — แนบ `mobsprite_fiddlehopper.webp` + `tpl_mob.png`
+✅ **Hopper Unit** (Mistlake Plains) — แนบ `mobsprite_fiddlehopper.webp` + `tpl_mob.png`
 
 ```
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Hopper Unit.
