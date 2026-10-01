@@ -275,7 +275,12 @@ R.render = () => {
     if (m.isPlayer) { R.bar(g, x, y + 10, 40, m.hp / Math.max(1, m.maxHp), '#ff4f6a'); continue; } // คู่ต่อสู้ PvP: แถบเลือดแดง (ชื่อวาดโดยระบบผู้เล่นอื่น)
     if (m.hp < m.maxHp || m.isMvp) R.bar(g, x, y + 10, m.isMvp ? 64 : 38, m.hp / m.maxHp, m.isMvp ? '#ff4f6a' : '#ff6b7d');
     if (m.isMvp) R.tag(g, x, y + 26, `MVP · ${m.def.name}`, '#ffd98a', '#ff6b7d');
-    else if ((G.hover && G.hover.ref === m) || p.target === m) R.tag(g, x, y + 26, `${m.def.name} · Lv ${m.def.lv}`, '#ffffff', m.def.aggro ? '#ff6b7d' : '#8fe3a8');
+    else if ((G.hover && G.hover.ref === m) || p.target === m) {
+      // ยืนชิดผู้เล่น: ป้ายชื่อมอนจะทับชื่อผู้เล่น → เลื่อนลงไปใต้ป้ายผู้เล่น
+      let ty = y + 26; const py = P(p.y * TILE) + 28;
+      if (Math.abs(x - p.x * TILE) < 110 && Math.abs(ty - py) < 22) ty = Math.max(ty, py) + 22;
+      R.tag(g, x, ty, `${m.def.name} · Lv ${m.def.lv}`, '#ffffff', m.def.aggro ? '#ff6b7d' : '#8fe3a8');
+    }
     if (m.emoteUntil > G.time) R.emote(g, x + 12, y - 44 * s, '!');
   }
   for (const o of Online.others.values()) {

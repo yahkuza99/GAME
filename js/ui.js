@@ -235,7 +235,7 @@ const UI = {
     if (pf > 0) pts.push(`<span class="pt" data-open="w-tree">Passive +${pf}</span>`);
     const ptsHtml = pts.join(' ');
     const ptsEl = $('#bi-points');
-    if (ptsEl.innerHTML !== ptsHtml) ptsEl.innerHTML = ptsHtml;
+    if (ptsEl.innerHTML !== ptsHtml) { ptsEl.innerHTML = ptsHtml; this.stackTop(); }
     // บัฟ
     const buffs = Object.keys(p.buffs).map(k => {
       const left = Math.ceil(p.buffs[k].until - G.time), s = SKILLS[k];
@@ -1793,7 +1793,7 @@ UI.fit = function (w) {
     const w = document.getElementById(id); requestAnimationFrame(() => UI.fit(w));
     return r;
   };
-  addEventListener('resize', () => $$('.win:not(.hidden)').forEach(w => UI.fit(w)));
+  addEventListener('resize', () => { $$('.win:not(.hidden)').forEach(w => UI.fit(w)); UI.stackTop(); });
   addEventListener('pointerup', () => $$('.win:not(.hidden)').forEach(w => UI.fit(w)));
 }
 // QA: เมนู ☰ บนมือถือพับเองเมื่อเริ่มเล่น (แตะจอ/จอย/ปุ่มโจมตี) ไม่ค้างทับเป้าหมายและบัฟ
@@ -1801,3 +1801,20 @@ UI.autoFoldMenu = function () {
   const m = $('#menubar');
   if (m && typeof Pad !== 'undefined' && Pad.enabled() && !m.classList.contains('folded')) this.setFold(m, true);
 };
+
+// มือถือแนวตั้ง: กล่องข้อมูลตัวละครสูงขึ้นเมื่อมีป้าย Status/Skill/Passive หลายอัน → ดันแถบเป้าหมายและแชตลงมาไม่ให้ทับกัน
+UI.stackTop = () => {
+  const bi = $('#basic-info'), tg = $('#target'), ch = $('#chat');
+  if (!bi || !tg) return;
+  tg.style.top = ''; if (ch) ch.style.top = '';
+  if (innerWidth > 760 || innerHeight <= innerWidth || !bi.getClientRects().length) return;
+  const biB = bi.getBoundingClientRect().bottom;
+  let tTop = parseFloat(getComputedStyle(tg).top) || 0;
+  if (biB + 6 > tTop) { tTop = biB + 6; tg.style.top = tTop + 'px'; }
+  if (ch && document.body.classList.contains('pad-mode')) {
+    const bf = $('#buffs'), bfB = bf && bf.querySelector('.buff') ? bf.getBoundingClientRect().bottom + 6 : 0;
+    const cTop = parseFloat(getComputedStyle(ch).top) || 0, need = Math.max(tTop + 52, bfB);
+    if (need > cTop) ch.style.top = need + 'px';
+  }
+};
+setInterval(() => { if (typeof G !== 'undefined' && G.started) UI.stackTop(); }, 1000); // บัฟขึ้น/หาย ป้ายแต้มเปลี่ยน → จัดใหม่
