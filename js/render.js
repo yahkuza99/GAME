@@ -216,18 +216,18 @@ R.render = () => {
   }
 
   // เรียงวาดตามแกน y
-  const L = R.camX / TILE - 2, Rr = (R.camX + vw) / TILE + 2, Tp = wTop / TILE - 1, B = (wTop + wH) / TILE + 4;
+  const VL = R.camX / TILE - 2, Rr = (R.camX + vw) / TILE + 2, Tp = wTop / TILE - 1, B = (wTop + wH) / TILE + 4;
   const list = [];
-  for (const o of map.objects) if (o.x > L && o.x < Rr && o.y > Tp && o.y < B) list.push({ y: o.y + 0.3, f: () => Sprites.drawTree(g, o, t) });
-  for (const o of map.props || []) if (o.x > L && o.x < Rr && o.y > Tp && o.y < B + 2) list.push({ y: o.y, f: () => Sprites.drawProp(g, o, t) });
+  for (const o of map.objects) if (o.x > VL && o.x < Rr && o.y > Tp && o.y < B) list.push({ y: o.y + 0.3, f: () => Sprites.drawTree(g, o, t) });
+  for (const o of map.props || []) if (o.x > VL && o.x < Rr && o.y > Tp && o.y < B + 2) list.push({ y: o.y, f: () => Sprites.drawProp(g, o, t) });
   for (const b of map.buildings) if (b.img) list.push({ y: b.y + b.h - 0.5, f: () => Sprites.drawBuildingImg(g, b, t) });
   if (map.fountainImg) list.push({ y: map.fountain.y + 1.2, f: () => Sprites.drawFountainImg(g, map.fountain, t) });
   for (const n of G.npcs) list.push({ y: n.y + 0.5, f: () => Sprites.drawNpc(g, n, t) });
-  for (const m of G.mobs) if (!m.isPlayer && m.x > L && m.x < Rr && m.y > Tp && m.y < B) list.push({ y: m.y, f: () => Sprites.drawMob(g, m, t) });
+  for (const m of G.mobs) if (!m.isPlayer && m.x > VL && m.x < Rr && m.y > Tp && m.y < B) list.push({ y: m.y, f: () => Sprites.drawMob(g, m, t) });
   for (const a of G.allies) list.push({ y: a.y, f: () => Sprites.drawAlly(g, a, t) });
   // ผู้เล่นคนอื่น (ออนไลน์)
   for (const o of Online.others.values()) {
-    if (o.x < L || o.x > Rr || o.y < Tp || o.y > B) continue;
+    if (o.x < VL || o.x > Rr || o.y < Tp || o.y > B) continue;
     list.push({ y: o.y, f: () => {
       g.save();
       if (o.stealth) g.globalAlpha = 0.3;
@@ -238,8 +238,7 @@ R.render = () => {
   list.push({ y: p.y, f: () => {
     g.save();
     if (p.stealthUntil > G.time) g.globalAlpha = 0.35 + Math.sin(t * 6) * 0.08;
-    if (p.hurtFlash > 0) g.filter = 'sepia(1) saturate(6) hue-rotate(-40deg)';
-    Sprites.drawPlayer(g, p, t);
+    Sprites.drawPlayer(p.hurtFlash > 0 ? R.filterCtx(g, 'sepia(1) saturate(6) hue-rotate(-40deg)') : g, p, t);
     g.restore();
   } });
   list.sort((a, b) => a.y - b.y);
@@ -260,7 +259,7 @@ R.render = () => {
     else if (n.emote && n.emote.until > G.time) Emote.draw(g, n.x * TILE + TILE / 2 + 4, P((n.y + 0.5) * TILE + 10) - 96, n.emote, t);
   }
   for (const m of G.mobs) {
-    if (m.dead) continue;
+    if (m.dead || m.x < VL || m.x > Rr || m.y < Tp - 1 || m.y > B) continue; // นอกจอ: ไม่ต้องวาดหลอด/ป้าย
     const x = m.x * TILE, y = P(m.y * TILE), s = (m.def.scale || 1);
     if (m.isPlayer) { R.bar(g, x, y + 10, 40, m.hp / Math.max(1, m.maxHp), '#ff4f6a'); continue; } // คู่ต่อสู้ PvP: แถบเลือดแดง (ชื่อวาดโดยระบบผู้เล่นอื่น)
     if (m.hp < m.maxHp || m.isMvp) R.bar(g, x, y + 10, m.isMvp ? 64 : 38, m.hp / m.maxHp, m.isMvp ? '#ff4f6a' : '#ff6b7d');
@@ -413,14 +412,84 @@ R.drawAtmosphere = (g, map, t) => {
   if (A.grade) { g.fillStyle = A.grade; g.fillRect(0, 0, R.W, R.H); }
 };
 R.drawVignette = g => {
-  if (!R.vig || R.vig.width !== Math.ceil(R.W) || R.vig.height !== Math.ceil(R.H)) {
-    R.vig = document.createElement('canvas'); R.vig.width = Math.ceil(R.W); R.vig.height = Math.ceil(R.H);
+  // แคชที่ความละเอียดจริงของแคนวาส แล้ววางแบบ 1:1 (ไม่ต้องขยายภาพเต็มจอทุกเฟรม)
+  const cw = R.cv.width, ch = R.cv.height;
+  if (!R.vig || R.vig.width !== cw || R.vig.height !== ch) {
+    R.vig = document.createElement('canvas'); R.vig.width = cw; R.vig.height = ch;
     const vg = R.vig.getContext('2d');
+    vg.scale(cw / R.W, ch / R.H);
     const grd = vg.createRadialGradient(R.W / 2, R.H / 2, Math.min(R.W, R.H) * 0.45, R.W / 2, R.H / 2, Math.hypot(R.W, R.H) * 0.6);
     grd.addColorStop(0, 'rgba(10,8,20,0)'); grd.addColorStop(1, 'rgba(10,8,20,0.42)');
     vg.fillStyle = grd; vg.fillRect(0, 0, R.W, R.H);
   }
-  g.drawImage(R.vig, 0, 0);
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(R.vig, 0, 0); g.restore();
+};
+// ctx.filter แบบสีล้วน (กะพริบโดนตี) โดยไม่ใช้ filter บนแคนวาสหลัก: เบราว์เซอร์สร้างเลเยอร์เต็มจอให้ทุกคำสั่งวาด
+// (ตัวละครวาดด้วยโค้ดมีหลายสิบคำสั่ง = ช้ามาก) → คืน context ตัวแทนที่แปลงสีแต่ละคำสั่งผ่าน filter เดียวกันแทน
+// (fill/stroke/เงา/ไล่สี = สีที่ผ่าน filter, ภาพ = ภาพที่ผ่าน filter) ผลเท่ากับ filter รายคำสั่งเดิม
+R.fcolCache = new Map();
+R.fcolX = null;
+// สีใด ๆ → [r, g, b, a] (ให้เบราว์เซอร์แปลงรูปแบบสีให้)
+R.rgba = c => {
+  const x = R.fcolX || (R.fcolX = Object.assign(document.createElement('canvas'), { width: 1, height: 1 }).getContext('2d', { willReadFrequently: true }));
+  x.fillStyle = '#000'; x.fillStyle = c;
+  const n = x.fillStyle, m = /^rgba\((\d+), (\d+), (\d+), ([\d.]+)\)$/.exec(n);
+  return m ? [+m[1], +m[2], +m[3], +m[4]] : [parseInt(n.slice(1, 3), 16), parseInt(n.slice(3, 5), 16), parseInt(n.slice(5, 7), 16), 1];
+};
+// สีหลังผ่าน filter (วัดจากเบราว์เซอร์จริงบนแคนวาส 1x1 แล้วจำไว้)
+R.fcol = (filter, c) => {
+  if (typeof c !== 'string') return c;
+  const key = filter + '|' + c;
+  let v = R.fcolCache.get(key);
+  if (v) return v;
+  const q = R.rgba(c), x = R.fcolX, rk = `${filter}|${q[0]},${q[1]},${q[2]}`; // จำตามสีทึบ (ความโปร่งต่างกันใช้ผลเดียวกัน)
+  let d = R.fcolCache.get(rk);
+  if (!d) {
+    x.clearRect(0, 0, 1, 1); x.filter = filter; x.fillStyle = `rgb(${q[0]},${q[1]},${q[2]})`; x.fillRect(0, 0, 1, 1); x.filter = 'none';
+    d = x.getImageData(0, 0, 1, 1).data; R.fcolCache.set(rk, d);
+  }
+  v = `rgba(${d[0]},${d[1]},${d[2]},${q[3] * d[3] / 255})`;
+  if (R.fcolCache.size > 4000) R.fcolCache.clear();
+  R.fcolCache.set(key, v);
+  return v;
+};
+// ctx.filter แบบปรับสี (กะพริบโดนตี) โดยไม่ใช้ filter บนแคนวาสหลัก: เบราว์เซอร์สร้างเลเยอร์เต็มจอให้ทุกคำสั่งวาด
+// (ตัวละครวาดด้วยโค้ดมีหลายสิบคำสั่ง = ช้ามาก) → คืน context ตัวแทนที่ส่งสีของแต่ละคำสั่งผ่าน filter เดียวกันแทน
+// (fill/stroke/เงา = สีที่ผ่าน filter, ไล่สี = ซอยจุดสีถี่ ๆ แล้วผ่าน filter ทีละจุด, ภาพ = สำเนาเล็กที่ผ่าน filter) ผลเท่ากับ filter รายคำสั่งเดิม
+R.filterCtx = (g, filter) => {
+  const fns = {}, col = c => R.fcol(filter, c);
+  const style = v => {
+    if (typeof v === 'string') return col(v);
+    if (v && v._st && !v._done) { // ไล่สี: ใส่จุดสีที่ผ่าน filter แบบซอย 8 ช่วงต่อคู่จุด (filter ไม่เป็นเชิงเส้นเพราะสีตัน 0..255)
+      v._done = true;
+      const st = v._st.sort((p, q) => p[0] - q[0]), add = v._add;
+      if (st.length === 1) add(st[0][0], col(st[0][1]));
+      for (let i = 0; i + 1 < st.length; i++) {
+        const [o0, c0] = st[i], [o1, c1] = st[i + 1], a = R.rgba(c0), b = R.rgba(c1), N = o1 > o0 ? 8 : 1;
+        for (let j = i ? 1 : 0; j <= N; j++) {
+          const k = j / N, m = a.map((x, n) => x + (b[n] - x) * k);
+          add(o0 + (o1 - o0) * k, col(`rgba(${Math.round(m[0])},${Math.round(m[1])},${Math.round(m[2])},${m[3]})`));
+        }
+      }
+    }
+    return v;
+  };
+  for (const k of ['fillStyle', 'strokeStyle', 'shadowColor']) g[k] = style(g[k]);
+  const grad = k => (...a) => { const gr = g[k](...a); gr._add = gr.addColorStop.bind(gr); gr._st = []; gr.addColorStop = (o, c) => { gr._st.push([o, c]); }; return gr; };
+  fns.createLinearGradient = grad('createLinearGradient'); fns.createRadialGradient = grad('createRadialGradient');
+  fns.drawImage = (img, ...a) => { // ภาพ: ใส่ filter ที่สำเนาเล็กของส่วนที่ใช้ แล้ววาดแทน
+    let sx = 0, sy = 0, sw = img.width, sh = img.height, dst = a.length === 2 ? [a[0], a[1], sw, sh] : a;
+    if (a.length === 8) { [sx, sy, sw, sh] = a; dst = a.slice(4); }
+    const sc = R.fimgCv || (R.fimgCv = document.createElement('canvas')), w = Math.max(1, Math.ceil(sw)), h = Math.max(1, Math.ceil(sh));
+    if (sc.width < w || sc.height < h) { sc.width = Math.max(sc.width, w); sc.height = Math.max(sc.height, h); }
+    const x = sc.getContext('2d');
+    x.clearRect(0, 0, w, h); x.filter = filter; x.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh); x.filter = 'none';
+    g.drawImage(sc, 0, 0, sw, sh, ...dst);
+  };
+  return new Proxy(g, {
+    get(t, k) { if (fns[k]) return fns[k]; const v = t[k]; return typeof v === 'function' ? (fns[k] = v.bind(t)) : v; },
+    set(t, k, v) { t[k] = k === 'fillStyle' || k === 'strokeStyle' || k === 'shadowColor' ? style(v) : v; return true; },
+  });
 };
 
 // ตัวเลขดาเมจสไตล์ RO
@@ -492,7 +561,43 @@ R.drawGrassWind = (g, map, t, sx, sy, sw, sh) => {
 };
 // ป้ายตัวหนังสือในฉาก: ฟอนต์เดียวกับ HUD + เงานุ่ม (ไม่ใช่ขอบดำแข็ง)
 R.FONT = '"IBM Plex Sans Thai", "Noto Sans Thai", Tahoma, sans-serif';
+// แคชป้าย/แคปซูลชื่อเป็นภาพเล็กที่ความละเอียดจริงของจอ (คีย์ = ข้อความ+สี+สเกล) แล้ววางแบบ 1:1
+// (ตัวหนังสือ + เงาเบลอทุกเฟรมแพงมากบนมือถือ) — ใช้เฉพาะตอนสเกลเท่ากันสองแกน ไม่หมุน ไม่โปร่ง ไม่มี filter
+R.txtCache = new Map();
+if (typeof document !== 'undefined' && document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', () => R.txtCache.clear()); // ฟอนต์เว็บโหลดเสร็จ: วาดป้ายใหม่
+R.cached = (g, key, x, y, box, draw) => {
+  const m = g.getTransform(), S = m.a;
+  if (m.b || m.c || S <= 0 || m.d !== S || g.globalAlpha !== 1 || g.globalCompositeOperation !== 'source-over' || (g.filter && g.filter !== 'none')) return false;
+  key += '|' + S + '|' + g.font + '|' + g.textAlign + '|' + g.textBaseline;
+  let e = R.txtCache.get(key);
+  if (!e) {
+    const b = box(), pad = 2 + 14 / S; // เผื่อเงาเบลอ (หน่วยพิกเซลจอ ไม่ขึ้นกับซูม)
+    const ox = b.x - pad, oy = b.y - pad, cv = document.createElement('canvas');
+    cv.width = Math.max(1, Math.ceil((b.w + pad * 2) * S)); cv.height = Math.max(1, Math.ceil((b.h + pad * 2) * S));
+    const c = cv.getContext('2d');
+    c.setTransform(S, 0, 0, S, -ox * S, -oy * S);
+    c.font = g.font; c.textAlign = g.textAlign; c.textBaseline = g.textBaseline;
+    draw(c);
+    if (R.txtCache.size > 400) R.txtCache.clear();
+    R.txtCache.set(key, e = { cv, ox: ox * S, oy: oy * S });
+  }
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.drawImage(e.cv, Math.round(S * x + m.e + e.ox), Math.round(S * y + m.f + e.oy));
+  g.setTransform(m);
+  return true;
+};
+// กรอบข้อความ (เทียบจุดยึด) ตามการจัดแนวปัจจุบันของ g
+R.textBox = (g, text) => {
+  const mt = g.measureText(text), w = mt.width, al = g.textAlign;
+  const asc = mt.actualBoundingBoxAscent || 12, desc = mt.actualBoundingBoxDescent || 4;
+  return { x: al === 'center' ? -w / 2 : al === 'right' || al === 'end' ? -w : 0, y: -asc, w, h: asc + desc };
+};
 R.label = (g, x, y, text, color, bold) => {
+  g.font = `${bold ? 600 : 500} 12px ${R.FONT}`;
+  if (R.cached(g, `L|${text}|${color}|${bold ? 1 : 0}`, x, y, () => R.textBox(g, text), c => R.labelRaw(c, 0, 0, text, color, bold))) return;
+  R.labelRaw(g, x, y, text, color, bold);
+};
+R.labelRaw = (g, x, y, text, color, bold) => {
   g.font = `${bold ? 600 : 500} 12px ${R.FONT}`;
   g.save();
   g.shadowColor = 'rgba(0,0,0,0.85)'; g.shadowBlur = 4; g.shadowOffsetY = 1;
@@ -503,6 +608,12 @@ R.label = (g, x, y, text, color, bold) => {
 };
 // ป้ายชื่อแบบแคปซูล (ผู้เล่น / NPC / มอนที่เล็งอยู่): พื้นกระจกเข้มมุมมน + จุดสีนำหน้า (ถ้ามี)
 R.tag = (g, x, y, text, color, dot) => {
+  g.font = `600 12px ${R.FONT}`;
+  if (R.cached(g, `T|${text}|${color}|${dot || ''}`, x, y, () => { const w = Math.ceil(g.measureText(text).width + 16 + (dot ? 10 : 0)); return { x: -w / 2 - 1, y: -10, w: w + 2, h: 20 }; },
+    c => R.tagRaw(c, 0, 0, text, color, dot))) return;
+  R.tagRaw(g, x, y, text, color, dot);
+};
+R.tagRaw = (g, x, y, text, color, dot) => {
   g.font = `600 12px ${R.FONT}`;
   const tw = g.measureText(text).width, pad = 8, dw = dot ? 10 : 0, w = Math.ceil(tw + pad * 2 + dw), h = 18;
   const x0 = Math.round(x - w / 2), y0 = Math.round(y - h / 2);
@@ -516,6 +627,7 @@ R.tag = (g, x, y, text, color, dot) => {
   g.restore();
 };
 // หลอด HP (และ SP) เหนือ/ใต้ตัว: แคปซูลมน พื้นเข้มโปร่ง ไล่สีอ่อน ๆ
+R.barGrads = {};
 R.bar = (g, x, y, w, k, color, k2) => {
   const h1 = 5, h2 = 3, gap = 2, H = k2 != null ? h1 + gap + h2 : h1;
   x = Math.round(x - w / 2); y = Math.round(y);
@@ -525,8 +637,11 @@ R.bar = (g, x, y, w, k, color, k2) => {
     g.fillStyle = 'rgba(255,255,255,0.1)'; rr(g, x, yy, w, hh, hh / 2); g.fill();
     const fw = Math.max(0, Math.round(w * U.clamp(kk, 0, 1)));
     if (fw < 1) return;
-    const grd = g.createLinearGradient(0, yy, 0, yy + hh); grd.addColorStop(0, '#ffffff'); grd.addColorStop(0.35, c); grd.addColorStop(1, c);
-    g.fillStyle = grd; g.globalAlpha = 0.95; rr(g, x, yy, Math.max(fw, hh), hh, hh / 2); g.fill(); g.globalAlpha = 1;
+    // ไล่สีแนวตั้งสร้างครั้งเดียวต่อ (ความสูง, สี) แล้วเลื่อนแกนไปที่แถบ (ไม่สร้าง gradient ใหม่ทุกเฟรม)
+    const gk = hh + c, grd = R.barGrads[gk] || (R.barGrads[gk] = (() => { const q = g.createLinearGradient(0, 0, 0, hh); q.addColorStop(0, '#ffffff'); q.addColorStop(0.35, c); q.addColorStop(1, c); return q; })());
+    g.translate(0, yy);
+    g.fillStyle = grd; g.globalAlpha = 0.95; rr(g, x, 0, Math.max(fw, hh), hh, hh / 2); g.fill(); g.globalAlpha = 1;
+    g.translate(0, -yy);
   };
   fill(y, h1, k, color);
   if (k2 != null) fill(y + h1 + gap, h2, k2, '#6ff3ff');

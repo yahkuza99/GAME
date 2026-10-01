@@ -782,15 +782,18 @@ Sprites.drawMob = (g, m, t) => {
   const x = m.x * TILE, y = m.y * TILE;
   g.save();
   if (m.dead) g.globalAlpha = Math.max(0, 1 - m.deathT / 0.8);
-  if (m.hitFlash > 0) g.filter = 'brightness(2.2)';
   const art = typeof Art !== 'undefined' && Art.get('mobsprite_' + m.def.id);
-  const ak = 'mob_' + m.def.id;
-  if (typeof Anim !== 'undefined' && Anim.has(ak)) {
+  const ak = 'mob_' + m.def.id, anim = typeof Anim !== 'undefined' && Anim.has(ak);
+  // กะพริบโดนตี: filter บนแคนวาสหลัก = เลเยอร์เต็มจอทุกคำสั่งวาด (ช้ามาก) → ภาพแอนิเมชันใส่ filter ที่ช่องเฟรม (Anim.draw)
+  // แบบอื่นวาดตัวซ้ำผ่าน context ตัวแทนที่แปลงสีด้วย filter เดียวกัน (R.filterCtx) แล้ววาดเอฟเฟกต์สถานะตามปกติ
+  const flash = m.hitFlash > 0 && !g._mobBody ? 'brightness(2.2)' : null;
+  if (flash && !anim) { g._mobBody = true; Sprites.drawMob(R.filterCtx(g, flash), m, t); g._mobBody = false; }
+  else if (anim) {
     const d = m.def, motion = d.wings ? 'fly' : (MOB_MOTION[d.sprite] || 'walk');
     const base = { hop: 40, fly: 40, crawl: 34, sway: 50, float: 52, walk: d.sprite === 'quad' ? 44 : 60 }[motion];
     const tr = Anim.track(m, t, m.atkAnim || 0, m.hitFlash > 0, !!m.dead);
     const mo = (motion === 'hop' || motion === 'fly' || motion === 'float') && !m.dead ? Sprites.motion(m, t, motion) : null; // ภาพวาดเท้าแตะพื้นทุกเฟรม เกมยกตัวให้เอง
-    Anim.draw(g, x, y, ak, { facing: m.facing || 1, dir: m.dir, moving: m.moving, atk: tr.atk, hurt: tr.hurt, dead: m.dead, deathT: m.deathT, seed: m.x * 0.37, raise: mo ? Math.max(0, mo.lift) : 0 }, t, base * (d.scale || 1) * (d.size || 1));
+    Anim.draw(g, x, y, ak, { facing: m.facing || 1, dir: m.dir, moving: m.moving, atk: tr.atk, hurt: tr.hurt, dead: m.dead, deathT: m.deathT, seed: m.x * 0.37, raise: mo ? Math.max(0, mo.lift) : 0, filter: flash }, t, base * (d.scale || 1) * (d.size || 1));
   }
   else if (art) Sprites.mobImage(g, x, y, m, t, art);
   else switch (m.def.sprite) {
@@ -806,7 +809,7 @@ Sprites.drawMob = (g, m, t) => {
     case 'human': Sprites.mobHuman(g, x, y, m, t); break;
     case 'android': Sprites.mobAndroid(g, x, y, m, t); break;
   }
-  g.filter = 'none';
+  if (g._mobBody) { g.restore(); return; }
   const hs = (m.def.scale || 1) * (m.def.size || 1);
   if (m.stunUntil > G.time) Sprites.stunStars(g, x, y - 38 * hs, t);
   if (m.slowUntil > G.time) {
@@ -950,11 +953,38 @@ Sprites.drawProp = (g, o, t) => {
   }
   if (o.kind === 'pylon' || o.kind === 'crystal' || o.kind === 'mushroom' || o.kind === 'lamp') {
     const pulse = 0.5 + 0.5 * Math.sin(t * 2 + o.r * 9);
+    if (Sprites.glowBlit(g, img, o.kind, pulse, W, H)) { g.restore(); return; }
     g.shadowColor = o.kind === 'crystal' ? `rgba(190,120,255,${0.6 * pulse})` : o.kind === 'mushroom' ? `rgba(120,255,160,${0.5 * pulse})` : `rgba(110,220,255,${0.6 * pulse})`;
     g.shadowBlur = 10 + pulse * 8;
   }
   g.drawImage(img, -W / 2, -H, W, H);
   g.restore();
+};
+// แสงเรืองของเสาพลังงาน/เห็ด/คริสตัล/โคมไฟ: shadowBlur ทุกเฟรมแพงมาก (เบลอทีละชิ้น) → แคชภาพที่เรืองแล้ว
+// ที่ความละเอียดจริงของจอ แยกตามระดับจังหวะเรือง 16 ขั้น แล้ววางแบบ 1:1 (ใช้เฉพาะสเกลเท่ากันสองแกน ไม่หมุน ไม่โปร่ง)
+Sprites.glowCache = new Map(); Sprites.glowN = 0; Sprites.glowS = 0; Sprites.glowSAt = 0;
+Sprites.glowBlit = (g, img, kind, pulse, W, H) => {
+  const m = g.getTransform(), S = m.a;
+  if (m.b || m.c || S <= 0 || m.d !== S || g.globalAlpha !== 1 || g.globalCompositeOperation !== 'source-over' || (g.filter && g.filter !== 'none')) return false;
+  const now = performance.now(); // กำลังซูม (สเกลเปลี่ยน): วาดตรงไปก่อน ไม่สร้างแคชทุกเฟรม
+  if (S !== Sprites.glowS) { Sprites.glowS = S; Sprites.glowSAt = now; }
+  if (now - Sprites.glowSAt < 300) return false;
+  const q = Math.round(pulse * 15) / 15, key = `${img._gk || (img._gk = ++Sprites.glowN)}|${kind}|${q}|${S}|${W}|${H}`, pad = 32;
+  let c = Sprites.glowCache.get(key);
+  if (!c) {
+    c = document.createElement('canvas'); c.width = Math.ceil(W * S) + pad * 2; c.height = Math.ceil(H * S) + pad * 2;
+    const cg = c.getContext('2d');
+    cg.setTransform(S, 0, 0, S, pad + W * S / 2, pad + H * S);
+    cg.shadowColor = kind === 'crystal' ? `rgba(190,120,255,${0.6 * q})` : kind === 'mushroom' ? `rgba(120,255,160,${0.5 * q})` : `rgba(110,220,255,${0.6 * q})`;
+    cg.shadowBlur = 10 + q * 8;
+    cg.drawImage(img, -W / 2, -H, W, H);
+    if (Sprites.glowCache.size > 240) Sprites.glowCache.clear();
+    Sprites.glowCache.set(key, c);
+  }
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.drawImage(c, Math.round(m.e - pad - W * S / 2), Math.round(m.f - pad - H * S));
+  g.setTransform(m);
+  return true;
 };
 // อาคารจากภาพ: วางทับฐานอาคาร (footprint) ตั้งตรง หลังคายื่นขึ้นไปด้านบน
 Sprites.drawBuildingImg = (g, b, t) => {
