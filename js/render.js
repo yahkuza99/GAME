@@ -173,6 +173,7 @@ R.render = () => {
     const age = G.time - d.born;
     const pop = age < 0.35 ? Math.sin(age / 0.35 * Math.PI) * 14 : 0;
     Sprites.shadow(g, x, y + 6, 9, 3, 0.3);
+    if (typeof LOOT !== 'undefined') LOOT.drawDrop(g, d, x, y, t); // ลำแสงของ rare ขึ้นไป (js/loot.js)
     g.drawImage(itemIconCanvas(d.id, 26), x - 13, y - 13 - pop);
     if (ITEMS[d.id].type === 'card' || ITEMS[d.id].price >= 5000) {
       g.strokeStyle = `rgba(255,230,120,${0.5 + Math.sin(t * 6) * 0.4})`; g.lineWidth = 2;
@@ -276,9 +277,10 @@ R.render = () => {
     if (o.emote && o.emote.until > G.time) Emote.draw(g, x + 2, y - (o.speech ? 122 : 84), o.emote, t);
   }
   for (const a of G.allies) R.label(g, a.x * TILE, P(a.y * TILE) + 14, `${a.name} ${Math.ceil(a.until - G.time)}s`, '#b8e0ff');
-  if (G.hover && G.hover.kind === 'drop') {
-    const d = G.hover.ref;
-    R.label(g, d.x * TILE, P(d.y * TILE) + 20, `${ITEMS[d.id].name}${d.qty > 1 ? ' ×' + d.qty : ''}`, '#fff6c0');
+  // ชื่อของบนพื้น: ตัวที่เมาส์ชี้ + ของ rare ขึ้นไปแสดงตลอด (สีตามความหายาก)
+  for (const d of G.drops) {
+    const hov = G.hover && G.hover.kind === 'drop' && G.hover.ref === d, rare = typeof LOOT !== 'undefined' && ITEMS[d.id].type !== 'card' && LOOT.rank(d.id) >= 2;
+    if (hov || rare) R.label(g, d.x * TILE, P(d.y * TILE) + 20, `${ITEMS[d.id].name}${d.qty > 1 ? ' ×' + d.qty : ''}`, typeof LOOT !== 'undefined' ? LOOT.labelColor(d.id) : '#fff6c0', rare);
   }
   // ผู้เล่น
   {
