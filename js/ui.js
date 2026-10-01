@@ -1383,6 +1383,9 @@ const UI = {
       h('label', { class: 'opt' }, 'ความดังเพลง ',
         h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: o.musicVol != null ? o.musicVol : 0.7, oninput: e => { o.musicVol = +e.target.value; Music.setVolume(o.musicVol); body.dataset.key = this.optKey(); }, onchange: () => saveGame() })),
       chk('expMsg', 'แสดงข้อความ EXP ในแชท'),
+      h('div', { class: 'opt-lbl' }, 'ภาษา / Language'),
+      h('div', { class: 'seg' }, ...[['th', 'ไทย'], ['en', 'English']].map(([v, l]) =>
+        h('button', { type: 'button', class: LANG === v ? 'on' : '', onclick: () => setLang(v) }, l))),
       h('div', { class: 'opt-lbl' }, 'รูปแบบ HUD'),
       h('div', { class: 'seg' }, ...[['visor', 'Visor (มินิมอล)'], ['classic', 'คลาสสิก']].map(([v, l]) =>
         h('button', { type: 'button', class: (o.hud || 'visor') === v ? 'on' : '', onclick: () => { o.hud = v; applyHudStyle(); saveGame(); this.renderOptions(true); } }, l))),
