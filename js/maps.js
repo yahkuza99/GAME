@@ -9,7 +9,7 @@ const SIGHT_BLOCK = new Set([T.TREE, T.WALL, T.ROCK, T.HOUSE]);
 
 const MAP_DEFS = {
   eldheim: {
-    name: 'Neo Eldheim', thai: 'นครนีโอเอลด์ไฮม์ ฐานที่มั่นแห่งแอนดรอยด์', w: 40, h: 40, kind: 'town', seed: 101,
+    name: 'Neo Eldheim', thai: L('นครนีโอเอลด์ไฮม์ ฐานที่มั่นแห่งแอนดรอยด์', 'City of Neo Eldheim — Bastion of the Androids'), w: 40, h: 40, kind: 'town', seed: 101,
     links: { E: 'meadow', S: 'wolfwood' }, spawns: [],
     arrive: { arena: [23.5, 17.5] }, // ออกจากลานประลอง → โผล่ข้าง Bifrost Keeper (ด้านเหนือของเมืองเป็นหอคอย เดินไม่ได้)
     dummies: [[18, 28], [20, 28], [22, 28]], // หุ่นฝึกซ้อม (ทดสอบการโจมตี)
@@ -27,31 +27,31 @@ const MAP_DEFS = {
     ],
   },
   meadow: {
-    name: 'Emerald Meadow', thai: 'ทุ่งหญ้ามรกต', w: 56, h: 56, kind: 'field', seed: 202,
+    name: 'Emerald Meadow', thai: L('ทุ่งหญ้ามรกต', 'Emerald Grasslands'), w: 56, h: 56, kind: 'field', seed: 202,
     links: { W: 'eldheim', E: 'mistlake' }, level: '1-6',
     spawns: [['pudding', 14], ['leafworm', 8], ['moonbun', 8], ['ember_pudding', 6], ['buzzfly', 5]],
     grass: '#6fae4a', trees: 0.9, ponds: 2, flowers: 0.05,
   },
   mistlake: {
-    name: 'Mistlake Plains', thai: 'ที่ราบทะเลสาบหมอก', w: 56, h: 56, kind: 'field', seed: 303,
+    name: 'Mistlake Plains', thai: L('ที่ราบทะเลสาบหมอก', 'Plains of the Misty Lake'), w: 56, h: 56, kind: 'field', seed: 303,
     links: { W: 'meadow' }, level: '8-16 (MVP: Seraph Core)',
     spawns: [['fiddlehopper', 10], ['stumpling', 8], ['capshroom', 8], ['moss_pudding', 8]], mvp: 'seraph_pudding',
     grass: '#86b04a', trees: 0.8, ponds: 4, flowers: 0.08, treeHue: '#5f9a3a',
   },
   wolfwood: {
-    name: 'Wolfwood Forest', thai: 'ป่าหมาป่า', w: 56, h: 56, kind: 'field', seed: 404,
+    name: 'Wolfwood Forest', thai: L('ป่าหมาป่า', 'Forest of the Wolves'), w: 56, h: 56, kind: 'field', seed: 404,
     links: { N: 'eldheim', S: 'helcave' }, level: '18-30',
     spawns: [['ashtail', 10], ['fenrir_pup', 8], ['mossback', 6], ['tuskboar', 6]],
     grass: '#4f8a3a', trees: 1.7, ponds: 1, flowers: 0.02, pine: true,
   },
   // ลานประลอง PvP: ผู้เล่นตีกันได้ ไม่มีมอน ตายไม่เสีย EXP (ต้องออนไลน์ถึงจะเจอคู่ต่อสู้)
   arena: {
-    name: 'Valhalla Arena', thai: 'ลานประลองวัลฮัลลา (PvP)', w: 34, h: 34, kind: 'field', seed: 606, pvp: true,
+    name: 'Valhalla Arena', thai: L('ลานประลองวัลฮัลลา (PvP)', 'Valhalla Proving Grounds (PvP)'), w: 34, h: 34, kind: 'field', seed: 606, pvp: true,
     links: { S: 'eldheim' }, level: 'PvP', spawns: [], dummies: [[15, 9], [17, 9], [19, 9]],
     grass: '#8a9a5a', trees: 0.25, ponds: 0, flowers: 0.02,
   },
   helcave: {
-    name: "Hel's Hollow", thai: 'โพรงถ้ำแห่งเฮล', w: 50, h: 50, kind: 'cave', seed: 505, dark: true,
+    name: "Hel's Hollow", thai: L('โพรงถ้ำแห่งเฮล', 'Cavern of Hel'), w: 50, h: 50, kind: 'cave', seed: 505, dark: true,
     links: { N: 'wolfwood' }, level: '17-45 (MVP: Kitsura EX)',
     npcs: [{ id: 'hel', name: 'Hel', x: 25, y: 27, look: 'hel' }], // ราชินีแห่งโพรง (บทที่ 5) นั่งกลางชั้นวางประกาย
     spawns: [['draugr', 10], ['bone_warden', 8], ['hel_maiden', 7], ['hel_guard', 6]], mvp: 'kitsura',

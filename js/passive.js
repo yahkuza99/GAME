@@ -10,11 +10,11 @@
 const PSTAT = {
   str: 'STR', agi: 'AGI', vit: 'VIT', int: 'INT', dex: 'DEX', luk: 'LUK',
   atk: 'ATK', matk: 'MATK', def: 'DEF', mdef: 'MDEF', hit: 'HIT', flee: 'FLEE', crit: 'CRI',
-  hp: 'HP สูงสุด', sp: 'SP สูงสุด', hpPct: '% HP สูงสุด', spPct: '% SP สูงสุด',
-  atkPct: '% ดาเมจกายภาพ', matkPct: '% MATK', critDmgPct: '% แรงคริติคอล', aspdPct: '% ความเร็วโจมตี',
-  castPct: '% ร่ายเร็วขึ้น', speedPct: '% ความเร็วเดิน', healPct: '% ฮีลแรงขึ้น', regenPct: '% HP ฟื้นต่อรอบ',
-  leech: '% ดาเมจกายภาพดูดเป็น HP', stunRes: '% ต้านมึน', spCostPct: '% SP ที่ใช้', range: 'ระยะธนู',
-  rage: '% ATK ตาม HP ที่เสียไป', venom: '% โอกาสติดพิษเมื่อตี',
+  hp: L('HP สูงสุด', 'Max HP'), sp: L('SP สูงสุด', 'Max SP'), hpPct: L('% HP สูงสุด', '% Max HP'), spPct: L('% SP สูงสุด', '% Max SP'),
+  atkPct: L('% ดาเมจกายภาพ', '% Physical DMG'), matkPct: '% MATK', critDmgPct: L('% แรงคริติคอล', '% Crit DMG'), aspdPct: L('% ความเร็วโจมตี', '% Attack Speed'),
+  castPct: L('% ร่ายเร็วขึ้น', '% Cast Speed'), speedPct: L('% ความเร็วเดิน', '% Move Speed'), healPct: L('% ฮีลแรงขึ้น', '% Healing'), regenPct: L('% HP ฟื้นต่อรอบ', '% HP Regen per tick'),
+  leech: L('% ดาเมจกายภาพดูดเป็น HP', '% Physical Lifesteal'), stunRes: L('% ต้านมึน', '% Stun Resist'), spCostPct: L('% SP ที่ใช้', '% SP Cost'), range: L('ระยะธนู', 'Bow Range'),
+  rage: L('% ATK ตาม HP ที่เสียไป', '% ATK by Missing HP'), venom: L('% โอกาสติดพิษเมื่อตี', '% Poison Chance on Hit'),
 };
 const PSTAT_FMT = (k, v) => {
   const pct = /Pct$|^leech$|^stunRes$|^rage$|^venom$/.test(k);
@@ -74,41 +74,41 @@ const PGLYPH = {
 // Keystone แต่ละอันมีไอคอนเฉพาะตัว
 const PKS_GLYPH = { unshaken: 'anchor', overclock: 'flame', phantom: 'ghost', resolute: 'crosshair', bloodmagic: 'drop', mom: 'eye' };
 // คำอธิบายสั้นของไอคอน (ใช้ในคำอธิบายประกอบ)
-const PGLYPH_LEGEND = [['sword', 'ATK'], ['shield', 'DEF'], ['heart', 'HP'], ['battery', 'SP'], ['star', 'CRI'], ['feather', 'FLEE'], ['bolt', 'ASPD'], ['crosshair', 'HIT'], ['crystal', 'MATK'], ['plus', 'ฮีล']];
+const PGLYPH_LEGEND = [['sword', 'ATK'], ['shield', 'DEF'], ['heart', 'HP'], ['battery', 'SP'], ['star', 'CRI'], ['feather', 'FLEE'], ['bolt', 'ASPD'], ['crosshair', 'HIT'], ['crystal', 'MATK'], ['plus', L('ฮีล', 'Heal')]];
 
 // 6 แฉก (เรียงตามเข็มนาฬิกาจากด้านบน): ธีมแฉกติดกันจะเกี่ยวข้องกัน STR → AGI → DEX → INT → VIT
 // icon/tag = ภาพประกอบ (ไอคอนแฉก + คำโปรยสั้นว่าแฉกนี้ให้อะไร)
 const PSECT = [
-  { job: 'einherjar', name: 'Bulwark', th: 'ป้อมปราการ', color: '#e05a50', main: 'vit', icon: 'shield', tag: 'HP • DEF • ต้านมึน',
+  { job: 'einherjar', name: 'Bulwark', th: L('ป้อมปราการ', 'Fortress'), color: '#e05a50', main: 'vit', icon: 'shield', tag: L('HP • DEF • ต้านมึน', 'HP • DEF • Stun Resist'),
     small: [{ vit: 3 }, { def: 2 }, { hpPct: 3 }, { mdef: 2 }],
     notables: [['Iron Frame', { vit: 6, def: 5 }], ['Shield Wall', { def: 8, mdef: 6 }], ['Titan Core', { hpPct: 10, hp: 100 }],
       ['Steadfast', { stunRes: 50, vit: 4 }], ['Repair Protocol', { regenPct: 1, hpPct: 5 }]],
-    key: ['Bulwark Frame', { def: 15, mdef: 10 }, 'unshaken', 'ไม่มีวันมึน แต่ FLEE เหลือ 0 (หลบไม่ได้เลย)'] },
-  { job: 'berserker', name: 'Fury', th: 'คลั่ง', color: '#ff8a3a', main: 'str', icon: 'sword', tag: 'ATK • ASPD • ดูดเลือด',
+    key: ['Bulwark Frame', { def: 15, mdef: 10 }, 'unshaken', L('ไม่มีวันมึน แต่ FLEE เหลือ 0 (หลบไม่ได้เลย)', 'Can never be stunned, but FLEE drops to 0 (cannot dodge at all)')] },
+  { job: 'berserker', name: 'Fury', th: L('คลั่ง', 'Frenzy'), color: '#ff8a3a', main: 'str', icon: 'sword', tag: L('ATK • ASPD • ดูดเลือด', 'ATK • ASPD • Lifesteal'),
     small: [{ str: 3 }, { atkPct: 4 }, { hp: 40 }, { aspdPct: 2 }],
     notables: [['Brute Force', { str: 6, atkPct: 6 }], ['Blood Engine', { leech: 2, hp: 60 }], ['Frenzy Drive', { aspdPct: 6, atkPct: 4 }],
       ['Wound Fury', { rage: 15 }], ['Heavy Hitter', { atkPct: 10, critDmgPct: 10 }]],
-    key: ['Overclock', { atkPct: 40, hpPct: -25 }, 'overclock', 'ดาเมจกายภาพ +40% แต่ HP สูงสุด -25%'] },
-  { job: 'trickster', name: 'Shadow', th: 'เงา', color: '#b070ff', main: 'agi', icon: 'feather', tag: 'FLEE • CRI • LUK',
+    key: ['Overclock', { atkPct: 40, hpPct: -25 }, 'overclock', L('ดาเมจกายภาพ +40% แต่ HP สูงสุด -25%', 'Physical damage +40%, but Max HP -25%')] },
+  { job: 'trickster', name: 'Shadow', th: L('เงา', 'Shade'), color: '#b070ff', main: 'agi', icon: 'feather', tag: 'FLEE • CRI • LUK',
     small: [{ agi: 3 }, { flee: 4 }, { crit: 2 }, { luk: 3 }],
     notables: [['Quickstep', { agi: 6, speedPct: 5 }], ['Ghost Protocol', { flee: 15 }], ['Lucky Seven', { luk: 7, crit: 4 }],
       ['Assassin Code', { critDmgPct: 25 }], ['Toxin Coating', { venom: 10 }]],
-    key: ['Phantom Code', {}, 'phantom', 'FLEE x1.5 แต่ DEF เหลือครึ่งเดียว'] },
-  { job: 'wildhunter', name: 'Hunt', th: 'นักล่า', color: '#5ad05a', main: 'dex', icon: 'crosshair', tag: 'HIT • DEX • ระยะยิง',
+    key: ['Phantom Code', {}, 'phantom', L('FLEE x1.5 แต่ DEF เหลือครึ่งเดียว', 'FLEE x1.5, but DEF is halved')] },
+  { job: 'wildhunter', name: 'Hunt', th: L('นักล่า', 'Hunter'), color: '#5ad05a', main: 'dex', icon: 'crosshair', tag: L('HIT • DEX • ระยะยิง', 'HIT • DEX • Range'),
     small: [{ dex: 3 }, { hit: 4 }, { aspdPct: 2 }, { critDmgPct: 6 }],
     notables: [['Eagle Sight', { dex: 6, hit: 8 }], ['Long Shot', { range: 1, dex: 3 }], ['Rapid Fire', { aspdPct: 8 }],
       ['Hunter Mark', { critDmgPct: 15, crit: 3 }], ['Trail Runner', { speedPct: 8, agi: 3 }]],
-    key: ['Resolute Aim', { atkPct: 10 }, 'resolute', 'ตีโดนทุกครั้ง แต่ไม่ติดคริติคอลเลย'] },
-  { job: 'runecaster', name: 'Rune', th: 'รูน', color: '#4aa8ff', main: 'int', icon: 'crystal', tag: 'MATK • ร่ายเร็ว • SP',
+    key: ['Resolute Aim', { atkPct: 10 }, 'resolute', L('ตีโดนทุกครั้ง แต่ไม่ติดคริติคอลเลย', 'Always hits, but can never land a critical')] },
+  { job: 'runecaster', name: 'Rune', th: L('รูน', 'Runecraft'), color: '#4aa8ff', main: 'int', icon: 'crystal', tag: L('MATK • ร่ายเร็ว • SP', 'MATK • Fast Cast • SP'),
     small: [{ int: 3 }, { matkPct: 4 }, { castPct: 3 }, { sp: 20 }],
     notables: [['Rune Scholar', { int: 6, matkPct: 6 }], ['Quick Glyph', { castPct: 10 }], ['Arcane Battery', { sp: 60, spPct: 6 }],
       ['Elemental Focus', { matkPct: 12 }], ['Efficient Casting', { spCostPct: -12, int: 3 }]],
-    key: ['Blood Circuit', { hpPct: 20 }, 'bloodmagic', 'ใช้สกิลด้วย HP แทน SP (HP สูงสุด +20%)'] },
-  { job: 'volva', name: 'Seer', th: 'พยากรณ์', color: '#ffd84a', main: 'int', icon: 'eye', tag: 'ฮีล • SP • MDEF',
+    key: ['Blood Circuit', { hpPct: 20 }, 'bloodmagic', L('ใช้สกิลด้วย HP แทน SP (HP สูงสุด +20%)', 'Skills consume HP instead of SP (Max HP +20%)')] },
+  { job: 'volva', name: 'Seer', th: L('พยากรณ์', 'Prophecy'), color: '#ffd84a', main: 'int', icon: 'eye', tag: L('ฮีล • SP • MDEF', 'Healing • SP • MDEF'),
     small: [{ int: 3 }, { healPct: 6 }, { spPct: 4 }, { regenPct: 0.5 }],
     notables: [['Seer Mind', { int: 6, mdef: 5 }], ['Healing Light', { healPct: 20 }], ['Spirit Well', { spPct: 10, sp: 40 }],
       ['Sacred Ward', { mdef: 8, vit: 4 }], ['Renewal', { regenPct: 1.5 }]],
-    key: ['Mind over Matter', {}, 'mom', 'ดาเมจที่โดน 30% หักจาก SP ก่อน HP'] },
+    key: ['Mind over Matter', {}, 'mom', L('ดาเมจที่โดน 30% หักจาก SP ก่อน HP', '30% of damage taken is drained from SP before HP')] },
 ];
 
 // แบบแปลนของ 1 แฉก: [ชื่อ, รัศมี, มุมเบี่ยงจากแกนแฉก (องศา), ชนิด]  ชนิด: s0-3 จุดเล็ก, S จุดสเตตัสหลัก, N0-4 Notable, K Keystone
@@ -181,8 +181,8 @@ const Passive = {
   },
   refund(p, id) {
     const cost = this.refundCost(p);
-    if (!this.canRefund(p, id)) return 'ต้องคืนจุดที่อยู่ปลายทางก่อน (จุดที่เหลือต้องต่อถึงแกนกลาง)';
-    if (p.zeny < cost) return `เงินไม่พอ (ต้องใช้ ${U.fmt(cost)} ${CUR})`;
+    if (!this.canRefund(p, id)) return L('ต้องคืนจุดที่อยู่ปลายทางก่อน (จุดที่เหลือต้องต่อถึงแกนกลาง)', 'Refund the outer nodes first (remaining nodes must stay connected to the Core)');
+    if (p.zeny < cost) return L(`เงินไม่พอ (ต้องใช้ ${U.fmt(cost)} ${CUR})`, `Not enough funds (requires ${U.fmt(cost)} ${CUR})`);
     p.zeny -= cost; p.passives = this.list(p).filter(x => x !== id); recalc(); saveGame();
     return '';
   },
