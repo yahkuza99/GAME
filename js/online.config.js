@@ -5,7 +5,7 @@
 //  (anon key เปิดเผยได้ ข้อมูลถูกป้องกันด้วย Row Level Security ใน supabase/schema.sql)
 // ============================================================
 window.ONLINE_CONFIG = {
-  url: '',
+  url: 'https://sxfjcxesjivevgqbueyk.supabase.co',
   anonKey: '',
   // ใช้สร้างอีเมลภายในจากชื่อผู้ใช้ (ผู้เล่นไม่ต้องใช้อีเมลจริง)
   emailDomain: 'players.ragnarok-web.game',
