@@ -52,6 +52,7 @@ const MAP_DEFS = {
   helcave: {
     name: "Hel's Hollow", thai: 'โพรงถ้ำแห่งเฮล', w: 50, h: 50, kind: 'cave', seed: 505, dark: true,
     links: { N: 'wolfwood' }, level: '17-45 (MVP: Kitsura EX)',
+    npcs: [{ id: 'hel', name: 'Hel', x: 25, y: 27, look: 'hel' }], // ราชินีแห่งโพรง (บทที่ 5) นั่งกลางชั้นวางประกาย
     spawns: [['draugr', 10], ['bone_warden', 8], ['hel_maiden', 7], ['hel_guard', 6]], mvp: 'kitsura',
   },
 };

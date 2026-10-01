@@ -10,7 +10,7 @@ const G = {
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
 const SAVE_FIELDS = ['pvp', 'mvpAt', 'name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
-  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery'];
+  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery', 'story'];
 
 // ------------------------------------------------------------
 //  สร้าง / บันทึก / โหลด
@@ -530,8 +530,9 @@ function spawnMvp(id) {
   const m = spawnMob(id);
   m.isMvp = true;
   UI.announce(`⚠ ${MOBS[id].name} (MVP) ได้ปรากฏตัวขึ้นใน ${G.map.def.name}!`);
-  if (!G.fastSim) UI.splash(`mvp_${id}`, MOBS[id].name, 'MVP BOSS APPEARED');
+  if (!G.fastSim) UI.splash(`mvp_${id}`, MOBS[id].name, (typeof Story !== 'undefined' && Story.mvpSub(id)) || 'MVP BOSS APPEARED');
   UI.msg(`[MVP] ${MOBS[id].name} ปรากฏตัวแล้ว!`, 'mvp');
+  if (typeof Story !== 'undefined') Story.onMvpSpawn(id);
 }
 
 // ------------------------------------------------------------
@@ -658,6 +659,7 @@ function killMob(m) {
     (p.mvpAt || (p.mvpAt = {}))[G.map.id] = Date.now() + d.respawn;
     saveGame(true);
     Sound.play('mvp');
+    if (typeof Story !== 'undefined') Story.onMvpKill(d.id);
   } else {
     G.respawns.push({ id: d.id, at: G.time + U.rand(6, 14) });
   }

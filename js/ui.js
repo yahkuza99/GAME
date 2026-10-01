@@ -177,8 +177,9 @@ const UI = {
   announceMap(map) {
     const el = $('#map-banner');
     const art = Art.get('map_' + map.id);
-    el.innerHTML = `<div class="mb-en">${U.esc(map.def.name)}</div><div class="mb-th">${U.esc(map.def.thai)}</div>`;
-    el.classList.toggle('has-img', !!art);
+    const story = typeof Story !== 'undefined' ? Story.mapLine(map.id) : ''; // บรรทัดตำนานของแผนที่ (docs/STORY.md)
+    el.innerHTML = `<div class="mb-en">${U.esc(map.def.name)}</div><div class="mb-th">${U.esc(map.def.thai)}</div>${story ? `<div class="mb-story">${U.esc(story)}</div>` : ''}`;
+    el.classList.toggle('has-img', !!art); el.classList.toggle('story', !!story);
     el.style.backgroundImage = art ? `url("${art.src}")` : '';
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   },
@@ -1234,11 +1235,12 @@ const UI = {
     body.dataset.key = key; body.innerHTML = '';
     if (q) {
       body.append(h('div', { class: 'q-card' },
+        q.ch ? h('div', { class: 'q-chapter' }, Quest.chapterText(q)) : null,
         h('h4', {}, `📜 ${q.title}`), h('p', {}, q.desc),
         h('p', { class: 'q-obj' }, `เป้าหมาย: ${Quest.objText(q)}`),
         h('p', { class: 'q-rw' }, `รางวัล: ${Quest.rewardText(q)}`),
         h('div', { class: 'opt-btns' }, h('button', { class: 'btn', onclick: () => { Quest.go(); this.close('w-quest'); } }, '🧭 นำทางไปทำเควสต์'))));
-    } else body.append(h('div', { class: 'q-card' }, h('h4', {}, '🏆 จบเควสต์เริ่มต้นแล้ว'), h('p', {}, 'ออกผจญภัยล่ามอนสเตอร์ MVP และเก็บชิปหายากต่อได้เลย!')));
+    } else body.append(h('div', { class: 'q-card' }, h('div', { class: 'q-chapter' }, 'บทที่ 6 — รากที่ถูกแทะ'), h('h4', {}, '🏆 เร็ว ๆ นี้'), h('p', {}, 'เสียงแทะยังดังอยู่ใต้โพรง... ระหว่างรอ ออกล่า MVP และเก็บชิปหายากต่อได้เลย!')));
     body.append(h('div', { class: 'q-card' }, h('h4', {}, 'งานล่าค่าหัววันนี้'),
       bs ? bs.list.map(x => h('p', { class: x.claimed ? 'q-rw' : 'q-obj' }, `${x.claimed ? '✅' : x.got >= x.n ? '🎁 ส่งได้ —' : '•'} ${Bounty.line(x)} — ${U.fmt(x.zeny)} ${CUR}`))
         : h('p', { class: 'q-rw' }, `เปิดที่ Base Lv ${BOUNTY_MIN_LV} — รับงานที่ Guard Unit Rolf ในเมือง`),

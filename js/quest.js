@@ -1,51 +1,92 @@
 'use strict';
 // ============================================================
-//  เควสต์เริ่มต้น (สายเดียว ทำทีละเควสต์): สอนระบบพื้นฐานจนอัปเกรดคลาสแรก
+//  เควสต์เนื้อเรื่อง (สายเดียว ทำทีละเควสต์): สอนระบบพื้นฐานไปพร้อมกับเล่าเรื่อง (docs/STORY.md บทที่ 1–5)
 //  ความคืบหน้าเก็บใน p.quests = { i: เควสต์ที่กำลังทำ, n: ตัวนับ, done: [id] }
 //  เป้าหมาย: talk (คุย NPC) • kill (ล่ามอน) • hit (ตีหุ่นฝึก) • collect (เก็บของ ส่งแล้วหาย)
 //           event (เช่น บันทึกจุดเกิด) • baseLv / jobLv • job (อัปเกรดคลาส)
+//  ห้ามเปลี่ยน id / obj / reward ของเควสต์เดิม (เซฟอ้างอิงอยู่) — เปลี่ยนได้แค่ title / desc / done / ch
+//  ch = บท (ป้ายในหน้าต่างเควสต์) • done = บรรทัดเล่าเรื่องตอนเควสต์สำเร็จ (ประกาศกลางจอ + แชต)
 // ============================================================
 
+const CHAPTERS = { 1: 'ตื่น', 2: 'ร่างใหม่', 3: 'ข้อความในหมอก', 4: 'เสียงหอนในป่า', 5: 'โพรงแห่งเฮล' };
 const QUESTS = [
-  { id: 'welcome', title: 'หน่วยใหม่รายงานตัว', desc: 'ไปรายงานตัวกับ Guard Unit Rolf (หุ่นหมวกเขา) ที่ลานกลางเมือง',
+  // ---- บทที่ 1 — ตื่น (Neo Eldheim → Emerald Meadow, Lv 1–7) ----
+  { id: 'welcome', ch: 1, title: 'หน่วยใหม่รายงานตัว', desc: 'วิเซอร์ของเจ้าเพิ่งสว่างขึ้น — ไปรายงานตัวกับ Guard Unit Rolf (หุ่นหมวกเขา) ที่ลานกลางเมือง',
+    done: 'Rolf: "หน่วยใหม่สินะ วิเซอร์ยังสว่างจ้าเชียว — ไปให้ Eir ตรวจร่างก่อน"',
     obj: { type: 'talk', npc: 'guide' }, reward: { items: [['red_potion', 5]], bexp: 10, jexp: 5 } },
-  { id: 'repair', title: 'ตรวจเช็กร่างกาย', desc: 'ให้ Eir Repair Unit สแกนร่างกาย — ซ่อม HP/SP และให้บัฟฟรีทุกครั้ง',
+  { id: 'repair', ch: 1, title: 'ตรวจร่างกับ Eir', desc: 'ให้ Eir Repair Unit สแกนร่าง — เธอซ่อม HP/SP และติดตั้งบัฟให้ฟรีทุกครั้ง',
+    done: 'Eir: "แปลกจังค่ะ... ไม่มีรอยซ่อมเก่าเลยสักจุด — เอ่อ ไม่มีอะไรนะคะ"',
     obj: { type: 'talk', npc: 'nurse' }, reward: { zeny: 100, bexp: 20, jexp: 10 } },
-  { id: 'dummy', title: 'ทดสอบระบบต่อสู้', desc: 'ตีหุ่นฝึกซ้อมใต้ลานเมือง 10 ครั้ง (คลิกที่หุ่นเพื่อโจมตี)',
+  { id: 'dummy', ch: 1, title: 'ฝึกท่าแรก', desc: 'ร่างใหม่ต้องรู้จักเคลื่อนไหว — ตีหุ่นฝึกซ้อมใต้ลานเมือง 10 ครั้ง (คลิกที่หุ่นเพื่อโจมตี)',
+    done: 'Rolf: "ท่ายังแข็ง แต่ใช้ได้ — ออกประตูตะวันออกไปดูสวนของต้นไม้สิ"',
     obj: { type: 'hit', n: 10 }, reward: { items: [['apple', 5]], bexp: 20, jexp: 15 } },
-  { id: 'gel5', title: 'กำจัด Gel Unit', desc: 'ออกประตูตะวันออกไป Emerald Meadow แล้วทำลาย Gel Unit 5 ตัว',
+  { id: 'gel5', ch: 1, title: 'คนสวนที่ลืมหน้าที่', desc: 'ออกประตูตะวันออกไป Emerald Meadow — Gel Unit คือถุงน้ำเลี้ยงเดินได้ที่ลืมเส้นทางไปนานแล้ว ปล่อยพวกมันพัก 5 ตัว',
+    done: 'ถุงน้ำเลี้ยงหยุดเดินแล้ว... แสงข้างในยังสะอาดอยู่',
     obj: { type: 'kill', mob: 'pudding', n: 5 }, reward: { items: [['red_potion', 5]], bexp: 60, jexp: 40 } },
-  { id: 'jelly', title: 'เก็บตัวอย่างเจล', desc: 'เก็บ Gel Cell 3 ชิ้นจาก Gel Unit (ส่งแล้วไอเทมจะถูกใช้ไป)',
+  { id: 'jelly', ch: 1, title: 'น้ำเลี้ยงยังสะอาดไหม', desc: 'Eir อยากรู้ว่าน้ำเลี้ยงในสวนยังสะอาดอยู่ไหม — เก็บ Gel Cell 3 ชิ้นจาก Gel Unit (ส่งแล้วไอเทมจะถูกใช้ไป)',
+    done: 'Eir: "สะอาดค่ะ... สะอาดจริง ๆ" — วิเซอร์ของเธอสว่างวาบ นี่คือความหวังแรก',
     obj: { type: 'collect', item: 'jelly_drop', n: 3, mob: 'pudding' }, reward: { zeny: 300, bexp: 50, jexp: 30 } },
-  { id: 'savept', title: 'บันทึกจุดเกิด', desc: 'คุยกับ Bifrost Keeper แล้วเลือก "บันทึกจุดเกิด" — ล้มเมื่อไหร่จะกลับมาที่นี่',
+  { id: 'savept', ch: 1, title: 'ให้ Bifrost จดจำเจ้า', desc: 'คุยกับ Bifrost Keeper แล้วเลือก "บันทึกจุดเกิด" — เมื่อล้มลง ใบไม้ Yggdrasil จะพาเจ้ากลับมาที่นี่',
+    done: 'Bifrost Keeper: "ข้าจดจำเจ้าไว้แล้ว... แปลก ข้าไม่เคยจำเจ้ามาก่อน"',
     obj: { type: 'event', ev: 'save', npc: 'bifrost' }, reward: { items: [['blink_feather', 3]] } },
-  { id: 'lv5', title: 'เพิ่มพลังร่าง', desc: 'ขึ้นถึง Base Lv 5 (อย่าลืมแจก Status Point — กด A)',
+  { id: 'lv5', ch: 1, title: 'ร่างเริ่มปรับตัว', desc: 'ขึ้นถึง Base Lv 5 — ยิ่งเล่น ร่างยิ่งเข้ากับเจ้า (อย่าลืมแจก Status Point กด A)',
+    done: 'ร่างตอบสนองไวขึ้น... ราวกับมันรู้จักเจ้ามาก่อน',
     obj: { type: 'baseLv', n: 5 }, reward: { items: [['hood', 1]], zeny: 300 } },
-  { id: 'buzz', title: 'ภัยจากฝูงโดรนผึ้ง', desc: 'ทำลาย Buzz Unit 3 ตัว — พวกมันโจมตีก่อน ระวังตัว!',
+  { id: 'buzz', ch: 1, title: 'โดรนที่ดุผิดปกติ', desc: 'Buzz Unit ปกป้องทุ่งเหมือนรังของตัวเอง แต่คืนนี้พวกมันดุผิดปกติ — ทำลาย 3 ตัว (พวกมันโจมตีก่อน ระวังตัว!)',
+    done: 'Rolf: "มีอะไรบางอย่างเดินผ่านทุ่งไปทางตะวันออกเมื่อคืน... เจ้าเริ่มแกร่งแล้ว ไปหา Mimir เถอะ"',
     obj: { type: 'kill', mob: 'buzzfly', n: 3 }, reward: { items: [['orange_potion', 3]], bexp: 150, jexp: 100 } },
-  { id: 'job10', title: 'ข้อมูลการต่อสู้ครบถ้วน', desc: `ขึ้นถึง Job Lv ${JOB_CHANGE_LV} เพื่อปลดล็อกการอัปเกรดคลาส`,
+  // ---- บทที่ 2 — ร่างใหม่ (Job Lv 10, ในเมือง) ----
+  { id: 'job10', ch: 2, title: 'ข้อมูลการต่อสู้ครบถ้วน', desc: `แม่พิมพ์จะยึดร่างได้เมื่อข้อมูลการต่อสู้พอ — ขึ้นถึง Job Lv ${JOB_CHANGE_LV} แล้วไปหา Mimir AI`,
+    done: 'Mimir AI: "ข้อมูลครบแล้ว หน่วยใหม่ — มาที่แท่นของข้า"',
     obj: { type: 'jobLv', n: JOB_CHANGE_LV }, reward: { items: [['sandals', 1]] } },
-  { id: 'upgrade', title: 'อัปเกรดร่างครั้งแรก', desc: 'คุยกับ Mimir AI แล้วเลือกคลาสใหม่ 1 ใน 6 คลาส',
+  { id: 'upgrade', ch: 2, title: 'รับแม่พิมพ์ของวีรชน', desc: 'คุยกับ Mimir AI แล้วเลือกแม่พิมพ์ 1 ใน 6 — ท่าของหกหน่วยที่ยืนรักษากำแพงเอลด์ไฮม์ในคืนที่กิ่งหัก',
+    done: 'Mimir AI (เบา ๆ): "...ไม่มีร่องรอยประกายเก่าต้าน แสดงว่า... ไม่ ยังไม่ถึงเวลา"',
     obj: { type: 'job', npc: 'jobmaster' }, reward: { items: [['yellow_potion', 3]], zeny: 1000 } },
-  // ---- สายที่ 2: หลังอัปเกรดคลาส (Lv 10-30) ----
-  { id: 'skill1', title: 'ติดตั้งโมดูลสกิล', desc: 'ใช้ Skill Point ติดตั้งสกิลของคลาสใหม่อย่างน้อย 1 สกิล (กด S)',
+  { id: 'skill1', ch: 2, title: 'ติดตั้งท่าแรกของแม่พิมพ์', desc: 'ใช้ Skill Point ติดตั้งสกิลของคลาสใหม่อย่างน้อย 1 สกิล (กด S) — ท่านี้เคยเป็นของใครบางคน',
+    done: 'ท่าที่ติดตั้งขยับเองเล็กน้อย... แม่พิมพ์ยังจำเจ้าของเดิมได้',
     obj: { type: 'skill' }, reward: { items: [['orange_potion', 5]], bexp: 300, jexp: 200 } },
-  { id: 'useskill', title: 'ทดสอบสกิลในสนามจริง', desc: 'ใช้สกิลกดใช้ 10 ครั้ง (ลากสกิลไปวางที่แถบลัด แล้วกดเลขหรือแตะปุ่ม)',
+  { id: 'useskill', ch: 2, title: 'สานต่อท่าของเขา', desc: 'ใช้สกิล 10 ครั้งในสนามจริง (ลากสกิลไปวางที่แถบลัด แล้วกดเลขหรือแตะปุ่ม)',
+    done: 'Lopt (พ่อค้าเร่ที่ปากทางไป Mistlake): "ที่ราบข้างหน้ามีทูตบินวนอยู่ — อาจรอเจ้าก็ได้นะ"',
     obj: { type: 'useskill', n: 10 }, reward: { items: [['grape', 3]], bexp: 400, jexp: 300 } },
-  { id: 'mist', title: 'บุกที่ราบ Mistlake', desc: 'เดินทางไป Mistlake Plains (ต่อจาก Emerald Meadow) แล้วทำลาย Rust Sentry 10 ตัว',
+  // ---- บทที่ 3 — ข้อความในหมอก (Mistlake Plains, Lv 8–16 / MVP Lv 25) ----
+  { id: 'mist', ch: 3, title: 'สนิมยังลามอยู่', desc: 'เดินทางไป Mistlake Plains (ต่อจาก Emerald Meadow) — Rust Sentry คือหน่วยยามที่สนิมกินถึงข้อต่อ ปล่อยพวกมันพัก 10 ตัว',
+    done: 'สนิมยังลามอยู่... มันไม่ได้หายไปกับ Fenrir ในคืนนั้น',
     obj: { type: 'kill', mob: 'stumpling', n: 10 }, reward: { items: [['guard', 1]], bexp: 800, jexp: 500 } },
-  { id: 'shroom', title: 'เก็บกู้ทุ่นระเบิดเดินได้', desc: 'ทำลาย Mine Unit 8 ตัวที่ Mistlake Plains (ระวังแรงระเบิด!)',
+  { id: 'shroom', ch: 3, title: 'ทุ่นที่ไม่ควรเดิน', desc: 'Mine Unit คือทุ่นที่ผู้พิทักษ์วางกั้นสนิมในคืนนั้น ตอนนี้มันเดินได้เองและกั้นทุกคน — ทำลาย 8 ตัว (ระวังแรงระเบิด!)',
+    done: 'ลายเซ็นผู้วางคำสั่งบนทุ่น... ถูกลบออกไปแล้ว',
     obj: { type: 'kill', mob: 'capshroom', n: 8 }, reward: { items: [['yellow_potion', 3]], bexp: 1000, jexp: 700 } },
-  { id: 'refine1', title: 'ตีบวกอุปกรณ์', desc: 'ให้ Brokk Forge-Bot ตีบวกอุปกรณ์ที่สวมอยู่สำเร็จ 1 ครั้ง (+1 ถึง +4 ไม่มีวันแตก)',
+  { id: 'refine1', ch: 3, title: 'โล่ของทูตหนาเกินไป', desc: 'Brokk: "ทูตตัวนั้นโล่หนา ของธรรมดาเจาะไม่เข้า เจ้าหนู" — ให้ Brokk Forge-Bot ตีบวกอุปกรณ์ที่สวมอยู่สำเร็จ 1 ครั้ง (+1 ถึง +4 ไม่มีวันแตก)',
+    done: 'Brokk: "ฮ่าฮ่า! ทีนี้ก็เจาะเข้าแล้ว — ไปแสดงให้ทูตดูว่าเจ้าคือใคร"',
     obj: { type: 'event', ev: 'refine', npc: 'refine' }, reward: { zeny: 1500 } },
-  { id: 'lv20', title: 'ร่างระดับกลาง', desc: 'ขึ้นถึง Base Lv 20',
+  { id: 'lv20', ch: 3, title: 'ร่างที่หมอกไม่กล้าแตะ', desc: 'ขึ้นถึง Base Lv 20 — แม่พิมพ์ปรับเข้ากับเจ้ามากขึ้นทุกเลเวล',
+    done: 'Rolf: "...ข้าคงเรียกเจ้าว่าหน่วยใหม่ได้อีกไม่นานหรอก"',
     obj: { type: 'baseLv', n: 20 }, reward: { items: [['shoes', 1]], zeny: 1000 } },
-  { id: 'wolf', title: 'นักล่าแห่ง Wolfwood', desc: 'ลงใต้ไป Wolfwood Forest แล้วทำลาย Ash Stalker 10 ตัว',
+  { id: 'wolf', ch: 3, title: 'ไฟเพิ่งผ่านไป', desc: 'ก่อนสู้ทูต ลงใต้ไป Wolfwood Forest เก็บแรงก่อน — ป่าถูกเผาเมื่อไม่นานนี้ Ash Stalker ยังอุ่นอยู่ ทำลาย 10 ตัว',
+    done: 'Fenrir Unit แค่ดมเจ้าแล้วเดินหนี... เจ้าไม่มีกลิ่นสนิม — และไฟนั่นเดินลงไปทางโพรง',
     obj: { type: 'kill', mob: 'ashtail', n: 10 }, reward: { items: [['yellow_potion', 5]], bexp: 2500, jexp: 1600 } },
-  { id: 'mvp1', title: 'ล่า MVP: Seraph Core', desc: 'ปราบ MVP Seraph Core ที่ Mistlake Plains — เตรียมยาให้พร้อม เช็กเวลาเกิดได้ในข้อมูลมอนสเตอร์ (ⓘ)',
+  { id: 'mvp1', ch: 3, title: 'ข้อความในหมอก', desc: 'Seraph Core คือทูตคนสุดท้ายของ Odin ระบบยืนยันตัวตนพังจึงโจมตีทุกคน — ปราบมันที่ Mistlake Plains เพื่อปล่อยข้อความออกมา (เช็กเวลาเกิดได้ที่ ⓘ)',
+    done: 'Mimir AI: "เจ้าไม่ใช่คนเก่าที่ถูกปลุก — เจ้าคือใบใหม่ และตอนนี้พวกเขารู้แล้วว่าเจ้ามีอยู่"',
     obj: { type: 'kill', mob: 'seraph_pudding', n: 1 }, reward: { items: [['clip', 1], ['white_potion', 3]], zeny: 5000 } },
-  { id: 'lv30', title: 'ทหารผ่านศึกแห่งมิดการ์ด', desc: 'ขึ้นถึง Base Lv 30 — ถ้ำ Hel\'s Hollow กำลังรอเจ้าอยู่',
+  // ---- บทที่ 4 — เสียงหอนในป่า (Wolfwood Forest, Lv 18–30) ----
+  { id: 'lv30', ch: 4, title: 'เสียงหอนในป่า', desc: 'ทุกคืนเสียงหอนจากป่าทางใต้ดังมาถึงกำแพง — ขึ้นถึง Base Lv 30 แล้ว Eir กับ Rolf มีเรื่องจะบอกก่อนเจ้าลงโพรง',
+    done: 'Rolf ถอดหมวกเขาวางบนบอร์ดครู่หนึ่ง แล้วสวมกลับ: "ไปเถอะ แต่กลับมา"',
     obj: { type: 'baseLv', n: 30 }, reward: { items: [['white_potion', 5]], zeny: 3000 } },
+  // ---- บทที่ 5 — โพรงแห่งเฮล (Hel's Hollow, Lv 30–45) ----
+  { id: 'hollow1', ch: 5, title: 'ประกายในร่างผิด', desc: 'ลงใต้สุดป่าไป Hel\'s Hollow — Draugr Husk คือประกายที่ถูกยัดลงเศษเหล็กที่ไม่พอดี พวกมันไม่ชั่วร้าย แค่สับสนและเจ็บ ปลดพวกมัน 10 ตัว',
+    done: 'แสงวิเซอร์ของ Draugr ดับลงอย่างสงบ... ราวกับได้พักเป็นครั้งแรก',
+    obj: { type: 'kill', mob: 'draugr', n: 10 }, reward: { items: [['white_potion', 3]], bexp: 4000, jexp: 2600 } },
+  { id: 'hollow2', ch: 5, title: 'ตะเกียงบนชั้นวาง', desc: 'Hel Maiden Unit ปัดฝุ่นชั้นวางประกายที่ไม่มีใครมาเยี่ยม — เก็บ Soul Lantern 5 ดวงที่หล่นจากชั้น (ส่งแล้วไอเทมจะถูกคืนขึ้นชั้น)',
+    done: 'ตะเกียงแต่ละดวงยังอุ่น — ที่กลางโพรง มีใครบางคนนั่งอยู่ท่ามกลางแสงนั้น',
+    obj: { type: 'collect', item: 'hel_lantern', n: 5, mob: 'hel_maiden' }, reward: { zeny: 4000, bexp: 5000, jexp: 3200 } },
+  { id: 'hollow3', ch: 5, title: 'ราชินีแห่งโพรง', desc: 'กลางโพรง มีผู้หญิงครึ่งหน้ากากสว่างครึ่งดับนั่งอยู่ท่ามกลางชั้นวางประกายนับพัน — ไปคุยกับ Hel',
+    done: 'Hel ไม่ได้ขอให้เจ้าสู้เพื่อเธอ — เธอขอให้เจ้าหยุดไฟ',
+    obj: { type: 'talk', npc: 'hel' }, reward: { items: [['blue_potion', 3]], bexp: 3000, jexp: 2000 } },
+  { id: 'hollow4', ch: 5, title: 'หน้ากากของไฟ', desc: 'Kitsura EX หน่วยเผาผลาญเก้าหางกำลังเผาชั้นวางประกายทีละชั้น — หยุดมัน (MVP Lv 45 เตรียมยาให้พร้อม เช็กเวลาเกิดได้ที่ ⓘ)',
+    done: 'เก้าหัวเผาดับลงทีละหัว... ใครบางคนเพิ่งใช้กุญแจของผู้พิทักษ์ — กลับไปหา Hel',
+    obj: { type: 'kill', mob: 'kitsura', n: 1 }, reward: { items: [['white_potion', 5], ['blue_potion', 5]], zeny: 10000 } },
+  { id: 'hollow5', ch: 5, title: 'ใบแรก', desc: 'ไฟดับแล้ว — กลับไปหา Hel ที่กลางโพรง มีคนรออยู่ในเงาหลังเธอ',
+    done: 'บทที่ 6 — รากที่ถูกแทะ (เร็ว ๆ นี้)',
+    obj: { type: 'talk', npc: 'hel' }, reward: { items: [['white_potion', 5]], zeny: 5000, bexp: 8000, jexp: 5000 } },
 ];
 
 const Quest = {
@@ -55,6 +96,9 @@ const Quest = {
     return p.quests;
   },
   current() { const s = this.state(); return QUESTS[s.i] || null; },
+  isDone(id) { return this.state().done.includes(id); },
+  is(id) { const q = this.current(); return !!q && q.id === id; },
+  chapterText(q = this.current()) { return q && q.ch ? `บทที่ ${q.ch} — ${CHAPTERS[q.ch] || ''}` : 'QUEST'; },
 
   // ความคืบหน้า [ทำได้, เป้า] ของเควสต์ปัจจุบัน
   progress(q = this.current()) {
@@ -153,9 +197,10 @@ const Quest = {
     Sound.play('quest');
     if (this.current()) setTimeout(() => Sound.play('quest_new'), 900);
     UI.msg(`📜 เควสต์สำเร็จ: ${q.title} — รางวัล ${this.rewardText(q)}`, 'lvl');
+    if (q.done) { UI.msg(`📖 ${q.done}`, 'map'); setTimeout(() => { if (G.started) UI.announce(q.done); }, 1500); } // บรรทัดเล่าเรื่อง (หลัง QUEST CLEAR)
     const nx = this.current();
     if (nx) UI.msg(`📜 เควสต์ใหม่: ${nx.title} — ${nx.desc}`, 'info');
-    else UI.msg('📜 จบเควสต์เริ่มต้นทั้งหมดแล้ว! ขอให้สนุกกับการผจญภัยใน NEO MIDGARD', 'lvl');
+    else UI.msg('📜 จบเนื้อเรื่องที่มีตอนนี้แล้ว — บทที่ 6 "รากที่ถูกแทะ" เร็ว ๆ นี้ ขอให้สนุกกับการผจญภัยใน NEO MIDGARD', 'lvl');
     UI.dirty(); this.dirty = true;
     saveGame();
   },
@@ -170,6 +215,7 @@ const Quest = {
     const key = `${q.id}|${a}|${b}|${G.player.baseLv}|${G.player.jobLv}`;
     if (el.dataset.key === key) return;
     el.dataset.key = key;
+    el.dataset.ch = this.chapterText(q); // ป้ายบท (HUD แบบ Visor แสดงแทนคำว่า QUEST)
     el.innerHTML = '';
     el.append(
       h('div', { class: 'qt-title' }, h('span', { class: 'qt-ic' }, '📜'), q.title),
