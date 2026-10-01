@@ -114,15 +114,15 @@ const SKILLS = {
     passive: lv => ({ hpPct: 5 * lv, def: lv, atk: 5 * lv, hit: 2 * lv }),
     desc: 'ร่างเหล็ก MaxHP +5%, DEF +1, ATK +5 และ HIT +2 ต่อเลเวล (Einherjar: VIT ช่วยเพิ่มแรงตีด้วย)' },
   shield_slam: { name: 'Shield Slam', max: 5, type: 'active', target: 'enemy', melee: true, icon: '#c8a040', glyph: '◘',
-    sp: lv => 8 + lv, delay: 700, chain: true, fx: 'bash',
-    dmg: { type: 'phys', mult: lv => 1.7 + 0.3 * lv, status: { kind: 'stun', chance: lv => 30 + 10 * lv, dur: () => 2 } },
-    desc: 'ฟาดโล่ใส่ศัตรู 200~320% โอกาสทำให้มึน 2 วินาที' },
+    sp: lv => 6 + Math.ceil(lv / 2), delay: 700, chain: true, fx: 'bash',
+    dmg: { type: 'phys', mult: lv => 2.0 + 0.4 * lv, status: { kind: 'stun', chance: lv => 30 + 10 * lv, dur: () => 2 } },
+    desc: 'ฟาดโล่ใส่ศัตรู 240~400% โอกาสทำให้มึน 2 วินาที' },
   war_cry: { name: 'War Cry', max: 5, type: 'active', target: 'self', icon: '#d05040', glyph: '!',
     sp: () => 15, delay: 1000, aggro: 6, selfFx: 'shout',
     buff: { dur: lv => 20 + 5 * lv, stats: lv => ({ def: 4 * lv, mdef: 2 * lv }) },
     desc: 'คำรามท้าทาย ดึงมอนสเตอร์รอบตัว 6 ช่องเข้าหา และเพิ่ม DEF +4×Lv' },
   whirlwind: { name: 'Whirlwind', max: 5, type: 'active', target: 'self', icon: '#e0e0f0', glyph: '✺',
-    sp: lv => 18 + 2 * lv, delay: 1200, selfFx: 'whirl',
+    sp: lv => 14 + 2 * lv, delay: 1200, selfFx: 'whirl',
     dmg: { type: 'phys', mult: lv => 1.4 + 0.3 * lv, area: 2, at: 'self', knockback: 1 },
     desc: 'หมุนตัวฟันทุกตัวรอบกาย 2 ช่อง 170~290% และผลักถอย' },
 
@@ -462,11 +462,11 @@ function statPointsForLevel(lv) { return Math.floor(lv / 5) + 3; }
 
 // คูลดาวน์รายสกิล (วินาที) แยกจากดีเลย์รวมหลังใช้สกิล — สกิลตีเบาสั้น สกิลแรง/หมู่ปานกลาง บัฟ/สกิลพิเศษนาน
 const SKILL_CD = {
-  first_aid: 4, shield_slam: 2, war_cry: 12, whirlwind: 6,
-  fire_rune: 1.5, ice_rune: 2, thunder_rune: 8,
+  first_aid: 4, shield_slam: 2, war_cry: 12, whirlwind: 5,
+  fire_rune: 2.5, ice_rune: 2, thunder_rune: 8,
   piercing_arrow: 1.5, wolf_companion: 20, blast_trap: 4,
   light_of_freyja: 3, blessing_of_odin: 15, holy_spear: 2,
-  backstab: 4, smoke_veil: 15, venom_blade: 15,
+  backstab: 2.5, smoke_veil: 15, venom_blade: 15,
   rage_strike: 1.5, blood_frenzy: 25, howl: 10,
 };
 for (const id in SKILL_CD) if (SKILLS[id]) SKILLS[id].cd = SKILL_CD[id];
