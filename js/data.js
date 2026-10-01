@@ -267,7 +267,6 @@ const ITEMS = {
   stiletto:     { name: 'Stiletto',     type: 'weapon', slot: 'weapon', wtype: 'dagger', atk: 60, price: 7500,  slots: 2, lv: 12, jobs: J.dagger, icon: { s: 'dagger', c: '#a0c0f0' }, desc: 'มีดเรียวยาว' },
   loki_fang:    { name: "Loki's Fang",  type: 'weapon', slot: 'weapon', wtype: 'dagger', atk: 105, price: 26000, slots: 1, lv: 30, jobs: ['trickster'], icon: { s: 'dagger', c: '#7ad04a' }, b: { luk: 3 }, desc: 'เขี้ยวแห่งโลกิ LUK +3 (นักลวงเท่านั้น)' },
   sword:        { name: 'Sword',        type: 'weapon', slot: 'weapon', wtype: 'sword', atk: 25, price: 100,    slots: 3, jobs: J.sword, icon: { s: 'sword', c: '#c8c8d0' }, desc: 'ดาบมือเดียวพื้นฐาน' },
-  gladius:      { name: 'Gladius',      type: 'weapon', slot: 'weapon', wtype: 'sword', atk: 36, price: 600,    slots: 3, jobs: J.sword, icon: { s: 'sword', c: '#d8d0b8' }, desc: 'ดาบสั้นทหารราบ ATK 36' },
   falchion:     { name: 'Falchion',     type: 'weapon', slot: 'weapon', wtype: 'sword', atk: 49, price: 1500,   slots: 3, jobs: J.sword, icon: { s: 'sword', c: '#d8d8e8' }, desc: 'ดาบโค้ง' },
   broadsword:   { name: 'Broadsword',   type: 'weapon', slot: 'weapon', wtype: 'sword', atk: 62, price: 3200,   slots: 3, jobs: J.sword, icon: { s: 'sword', c: '#e8e8f8' }, desc: 'ดาบใบกว้าง' },
   valhalla_blade: { name: 'Valhalla Blade', type: 'weapon', slot: 'weapon', wtype: 'sword', atk: 130, price: 32000, slots: 1, lv: 30, jobs: ['einherjar'], icon: { s: 'sword', c: '#f0e0a0' }, b: { vit: 2 }, desc: 'ดาบแห่งวัลฮัลลา VIT +2 (นักรบวิญญาณเท่านั้น)' },
@@ -346,6 +345,7 @@ const EQUIP_SLOTS = ['head', 'weapon', 'shield', 'armor', 'garment', 'shoes', 'a
 //  มอนสเตอร์ (ออกแบบใหม่)
 //  def = hard def (%)  vit = soft def   sprite = รูปแบบการวาด
 //  zeny = [min, max] (ไม่ใส่ = คิดจากเลเวล ดู mobZeny ใน game.js)
+//  ชิป (การ์ด) ของมอน = ITEMS[<id>_card] ได้แน่นอนเมื่อล่าครบ CHIP_KILLS ตัว (MVP: ตัวแรก) ไม่ต้องฟาร์มดรอป
 //  stun = [โอกาส %, วินาที] ตีผู้เล่นแล้วมีโอกาสทำให้มึน (ล้มลงลุกไม่ได้ชั่วครู่)
 // ------------------------------------------------------------
 const MOBS = {
@@ -353,50 +353,53 @@ const MOBS = {
   training_dummy: { name: 'Training Dummy', lv: 1, hp: 3000, atk: [1, 1], def: 0, mdef: 0, vit: 1, flee: 0, hit: 200, exp: 0, jexp: 0, speed: 0, aggro: false, element: 'neutral', race: 'formless',
                sprite: 'dummy', color: '#c8a060', drops: [], dummy: true, range: 1.6, atkDelay: 1.6 },
   pudding:   { name: 'Gel Unit',       lv: 1,  hp: 50,   atk: [7, 10],   def: 0,  mdef: 5,  vit: 1,  flee: 5,   hit: 8,   exp: 18,  jexp: 12, speed: 1.4, aggro: false, element: 'water', race: 'plant',
-               sprite: 'poring', color: '#f28fb4', drops: [['jelly_drop', 0.7], ['apple', 0.15], ['red_potion', 0.04], ['knife', 0.01], ['pudding_card', 0.01]] },
+               sprite: 'poring', color: '#f28fb4', drops: [['jelly_drop', 0.7], ['apple', 0.15], ['red_potion', 0.04], ['knife', 0.01]] },
   leafworm:  { name: 'Crawler Unit',      lv: 2,  hp: 63,   atk: [8, 11],   def: 0,  mdef: 0,  vit: 2,  flee: 7,   hit: 10,  exp: 22,  jexp: 15, speed: 1.2, aggro: false, element: 'earth', race: 'insect',
-               sprite: 'fabre', color: '#8fd35a', drops: [['leaf_silk', 0.65], ['clover', 0.1], ['green_herb', 0.2], ['leafworm_card', 0.01]] },
+               sprite: 'fabre', color: '#8fd35a', drops: [['leaf_silk', 0.65], ['clover', 0.1], ['green_herb', 0.2]] },
   moonbun:   { name: 'Bunny Unit',       lv: 3,  hp: 60,   atk: [9, 12],   def: 0,  mdef: 20, vit: 3,  flee: 12,  hit: 12,  exp: 26,  jexp: 18, speed: 2.0, aggro: false, element: 'neutral', race: 'brute',
-               sprite: 'lunatic', color: '#fafafa', drops: [['moon_fur', 0.6], ['clover', 0.2], ['carrot', 0.3], ['moonbun_card', 0.01]] },
+               sprite: 'lunatic', color: '#fafafa', drops: [['moon_fur', 0.6], ['clover', 0.2], ['carrot', 0.3]] },
   ember_pudding: { name: 'Ember Unit', lv: 3, hp: 72, atk: [10, 13], def: 0,  mdef: 0,  vit: 3,  flee: 9,   hit: 12,  exp: 30,  jexp: 20, speed: 1.4, aggro: false, element: 'fire', race: 'plant',
-               sprite: 'poring', color: '#f5a442', drops: [['ember_jelly', 0.5], ['orange_potion', 0.04], ['red_herb', 0.2], ['ember_card', 0.01]] },
+               sprite: 'poring', color: '#f5a442', drops: [['ember_jelly', 0.5], ['orange_potion', 0.04], ['red_herb', 0.2]] },
   buzzfly:   { name: 'Buzz Unit',       lv: 4,  hp: 67,   atk: [10, 13],  def: 10, mdef: 0,  vit: 4,  flee: 20,  hit: 16,  exp: 35,  jexp: 24, speed: 2.4, aggro: true, element: 'wind', race: 'insect',
-               sprite: 'chonchon', color: '#3a3a3a', drops: [['buzz_wing', 0.55], ['jelly_drop', 0.3], ['blink_feather', 0.05], ['buzzfly_card', 0.01]] },
+               sprite: 'chonchon', color: '#3a3a3a', drops: [['buzz_wing', 0.55], ['jelly_drop', 0.3], ['blink_feather', 0.05]] },
 
   stumpling: { name: 'Rust Sentry',     lv: 8,  hp: 170,  atk: [18, 22],  def: 35, mdef: 5,  vit: 8,  flee: 10,  hit: 20,  exp: 80,  jexp: 55, speed: 1.0, aggro: false, element: 'earth', race: 'plant',
-               sprite: 'willow', color: '#8a6038', drops: [['living_bark', 0.6], ['leaf_silk', 0.3], ['stumpling_card', 0.01]] },
+               sprite: 'willow', color: '#8a6038', drops: [['living_bark', 0.6], ['leaf_silk', 0.3]] },
   fiddlehopper: { name: 'Hopper Unit', lv: 9, hp: 198, atk: [24, 29],  def: 5,  mdef: 10, vit: 10, flee: 22,  hit: 28,  exp: 90,  jexp: 60, speed: 1.6, aggro: false, element: 'earth', race: 'insect',
-               sprite: 'rocker', color: '#7cb342', drops: [['hopper_leg', 0.55], ['green_herb', 0.2], ['cutter', 0.005], ['hopper_card', 0.01]] },
+               sprite: 'rocker', color: '#7cb342', drops: [['hopper_leg', 0.55], ['green_herb', 0.2], ['cutter', 0.005]] },
   capshroom: { name: 'Mine Unit',     lv: 12, hp: 280,  atk: [28, 34],  def: 10, mdef: 10, vit: 12, flee: 20,  hit: 30,  exp: 130, jexp: 90, speed: 1.2, aggro: false, element: 'water', race: 'plant',
-               sprite: 'spore', color: '#d8433a', drops: [['cap_spore', 0.6], ['red_herb', 0.3], ['hat', 0.01], ['capshroom_card', 0.01]] },
+               sprite: 'spore', color: '#d8433a', drops: [['cap_spore', 0.6], ['red_herb', 0.3], ['hat', 0.01]] },
   moss_pudding: { name: 'Moss Unit', lv: 14, hp: 330, atk: [32, 40], def: 10, mdef: 10, vit: 14, flee: 24,  hit: 34,  exp: 160, jexp: 110, speed: 1.6, aggro: false, element: 'earth', race: 'plant',
-               sprite: 'poring', color: '#7fcf6f', drops: [['moss_gel', 0.5], ['green_herb', 0.3], ['grape', 0.06], ['mosspud_card', 0.01]] },
+               sprite: 'poring', color: '#7fcf6f', drops: [['moss_gel', 0.5], ['green_herb', 0.3], ['grape', 0.06]] },
   seraph_pudding: { name: 'Seraph Core', lv: 25, hp: 5500, atk: [90, 120], def: 30, mdef: 50, vit: 25, flee: 60, hit: 70, exp: 3500, jexp: 2400, speed: 1.8, aggro: true, stun: [12, 2], element: 'holy', race: 'angel',
                sprite: 'poring', color: '#fff3c4', scale: 2.0, boss: true, wings: true, respawn: 300000, bossSkill: 'heal',
-               drops: [['seraph_wings', 0.35], ['white_potion', 0.6], ['blue_potion', 0.5], ['yggdrasil_shard', 0.1], ['seraph_card', 0.15]] },
+               drops: [['seraph_wings', 0.35], ['white_potion', 0.6], ['blue_potion', 0.5], ['yggdrasil_shard', 0.1]] },
 
   ashtail:   { name: 'Ash Stalker',       lv: 18, hp: 600,  atk: [45, 58],  def: 10, mdef: 5,  vit: 18, flee: 45,  hit: 48,  exp: 300, jexp: 210, speed: 1.8, aggro: false, element: 'earth', race: 'brute',
-               sprite: 'quad', variant: 'raccoon', color: '#8a8e98', color2: '#4e525c', size: 0.8, drops: [['ash_tail', 0.5], ['moon_fur', 0.3], ['muffler', 0.01], ['ashtail_card', 0.01]] },
+               sprite: 'quad', variant: 'raccoon', color: '#8a8e98', color2: '#4e525c', size: 0.8, drops: [['ash_tail', 0.5], ['moon_fur', 0.3], ['muffler', 0.01]] },
   fenrir_pup:{ name: 'Fenrir Unit',    lv: 25, hp: 900,  atk: [60, 78],  def: 15, mdef: 0,  vit: 22, flee: 55,  hit: 60,  exp: 460, jexp: 320, speed: 2.4, aggro: true, element: 'earth', race: 'brute',
-               sprite: 'quad', variant: 'wolf', color: '#b8c0cc', color2: '#5e6674', size: 1.0, drops: [['fenrir_fang', 0.6], ['meat', 0.3], ['fenrir_card', 0.01]] },
+               sprite: 'quad', variant: 'wolf', color: '#b8c0cc', color2: '#5e6674', size: 1.0, drops: [['fenrir_fang', 0.6], ['meat', 0.3]] },
   mossback:  { name: 'Iron Brute', lv: 26, hp: 1150, atk: [65, 82],  def: 25, mdef: 5,  vit: 26, flee: 40,  hit: 55,  exp: 520, jexp: 350, speed: 1.3, aggro: false, stun: [10, 2], element: 'earth', race: 'brute',
-               sprite: 'quad', variant: 'bear', color: '#8a7456', color2: '#4e5a3a', size: 1.35, drops: [['moss_hide', 0.5], ['mead', 0.08], ['bear_card', 0.01]] },
+               sprite: 'quad', variant: 'bear', color: '#8a7456', color2: '#4e5a3a', size: 1.35, drops: [['moss_hide', 0.5], ['mead', 0.08]] },
   tuskboar:  { name: 'Tusk Trooper',      lv: 28, hp: 1400, atk: [80, 100], def: 30, mdef: 5,  vit: 28, flee: 50,  hit: 65,  exp: 640, jexp: 450, speed: 1.9, aggro: true, stun: [8, 1.5], element: 'earth', race: 'brute',
-               sprite: 'quad', variant: 'boar', color: '#6e6258', color2: '#3a342e', size: 1.15, tusk: true, drops: [['iron_tusk', 0.6], ['meat', 0.3], ['boar_card', 0.01]] },
+               sprite: 'quad', variant: 'boar', color: '#6e6258', color2: '#3a342e', size: 1.15, tusk: true, drops: [['iron_tusk', 0.6], ['meat', 0.3]] },
 
   draugr:    { name: 'Draugr Husk',        lv: 17, hp: 700,  atk: [45, 60],  def: 5,  mdef: 10, vit: 17, flee: 20,  hit: 45,  exp: 330, jexp: 220, speed: 0.9, aggro: true, element: 'undead', race: 'undead',
-               glow: '#ff4a3a', sprite: 'human', skin: '#9a8a78', face: '#b4aaa4', outfit: '#5a4a3a', hair: '#6a5a4a', viking: true, joint: '#3a2a22', drops: [['grave_dust', 0.6], ['moss_gel', 0.3], ['draugr_card', 0.01]] },
+               glow: '#ff4a3a', sprite: 'human', skin: '#9a8a78', face: '#b4aaa4', outfit: '#5a4a3a', hair: '#6a5a4a', viking: true, joint: '#3a2a22', drops: [['grave_dust', 0.6], ['moss_gel', 0.3]] },
   bone_warden: { name: 'Frame Warden', lv: 24, hp: 1000, atk: [70, 90],  def: 20, mdef: 10, vit: 20, flee: 50,  hit: 60,  exp: 520, jexp: 360, speed: 1.6, aggro: true, stun: [8, 1.5], element: 'undead', race: 'undead',
-               glow: '#ff3030', sprite: 'human', skin: '#f0ecd8', outfit: '#f0ecd8', hair: null, bones: true, weapon: 'sword', drops: [['old_bone', 0.5], ['falchion', 0.01], ['warden_card', 0.01]] },
+               glow: '#ff3030', sprite: 'human', skin: '#f0ecd8', outfit: '#f0ecd8', hair: null, bones: true, weapon: 'sword', drops: [['old_bone', 0.5], ['falchion', 0.01]] },
   hel_maiden:{ name: 'Hel Maiden Unit',    lv: 30, hp: 1500, atk: [90, 115], def: 30, mdef: 30, vit: 25, flee: 55,  hit: 75,  exp: 720, jexp: 500, speed: 1.5, aggro: true, element: 'undead', race: 'undead',
-               glow: '#60f0d0', sprite: 'human', skin: '#c8d0e0', outfit: '#3a4a6a', hair: '#e8e8f0', hood: '#2a2a3a', halfskull: true, drops: [['hel_lantern', 0.4], ['ribbon', 0.02], ['helmaiden_card', 0.01]] },
+               glow: '#60f0d0', sprite: 'human', skin: '#c8d0e0', outfit: '#3a4a6a', hair: '#e8e8f0', hood: '#2a2a3a', halfskull: true, drops: [['hel_lantern', 0.4], ['ribbon', 0.02]] },
   hel_guard: { name: 'Hel Guard Unit',     lv: 32, hp: 1700, atk: [100, 125],def: 30, mdef: 20, vit: 30, flee: 60,  hit: 80,  exp: 800, jexp: 560, speed: 1.5, aggro: true, element: 'undead', race: 'undead',
-               glow: '#ff4a3a', sprite: 'human', skin: '#b8c0d0', outfit: '#2a2a3a', hair: '#101018', viking: true, weapon: 'axe', drops: [['cursed_seal', 0.4], ['iron_helm', 0.02], ['helguard_card', 0.01]] },
+               glow: '#ff4a3a', sprite: 'human', skin: '#b8c0d0', outfit: '#2a2a3a', hair: '#101018', viking: true, weapon: 'axe', drops: [['cursed_seal', 0.4], ['iron_helm', 0.02]] },
   kitsura:   { name: 'Kitsura EX', lv: 45, hp: 22000, atk: [180, 240], def: 40, mdef: 50, vit: 40, flee: 110, hit: 130, exp: 16000, jexp: 11000, speed: 2.2, aggro: true, stun: [12, 2], element: 'fire', race: 'demon',
                glow: '#ffae40', sprite: 'human', skin: '#f6d7b8', outfit: '#e86a2a', hair: '#f0a040', fox: true, scale: 1.6, boss: true, respawn: 600000, bossSkill: 'firestorm',
-               drops: [['emberfang', 0.4], ['white_potion', 0.8], ['blue_potion', 0.6], ['yggdrasil_shard', 0.15], ['kitsura_card', 0.15]] },
+               drops: [['emberfang', 0.4], ['white_potion', 0.8], ['blue_potion', 0.6], ['yggdrasil_shard', 0.15]] },
 };
 for (const id in MOBS) MOBS[id].id = id;
+// ชิปประจำมอน (ได้เมื่อล่าครบ CHIP_KILLS ตัว)
+const MOB_CHIP = {"pudding": "pudding_card", "leafworm": "leafworm_card", "moonbun": "moonbun_card", "ember_pudding": "ember_card", "buzzfly": "buzzfly_card", "stumpling": "stumpling_card", "fiddlehopper": "hopper_card", "capshroom": "capshroom_card", "moss_pudding": "mosspud_card", "seraph_pudding": "seraph_card", "ashtail": "ashtail_card", "fenrir_pup": "fenrir_card", "mossback": "bear_card", "tuskboar": "boar_card", "draugr": "draugr_card", "bone_warden": "warden_card", "hel_maiden": "helmaiden_card", "hel_guard": "helguard_card", "kitsura": "kitsura_card"};
+const CHIP_KILLS = 50;
 
 // ------------------------------------------------------------
 //  รูปร่างมอนสเตอร์: ทุกตัวเป็นแอนดรอยด์ร่างมนุษย์ (ไม่มีมนุษย์ในโลกนี้)
@@ -431,9 +434,10 @@ for (const id in MOB_LOOKS) { if (!HUMANOID_MOBS.includes(id)) continue; MOBS[id
 // ------------------------------------------------------------
 //  ร้านค้า
 // ------------------------------------------------------------
+// ร้านขายอาวุธ: อาวุธแต่ละประเภทมี 4 ขั้นตามเลเวล (เริ่มต้น / Lv 10+ / Lv 20+ / ท้ายเกม) ซื้อด้วยเงินจากการล่า
 const SHOPS = {
   tool:   ['red_potion', 'orange_potion', 'yellow_potion', 'white_potion', 'blue_potion', 'apple', 'meat', 'grape', 'mead', 'blink_feather', 'hearth_rune'],
-  weapon: ['knife', 'cutter', 'main_gauche', 'stiletto', 'loki_fang', 'sword', 'gladius', 'falchion', 'broadsword', 'valhalla_blade', 'hand_axe', 'cleaver', 'battle_axe', 'ulfr_axe',
+  weapon: ['knife', 'cutter', 'stiletto', 'loki_fang', 'sword', 'falchion', 'broadsword', 'valhalla_blade', 'hand_axe', 'cleaver', 'battle_axe', 'ulfr_axe',
            'rod', 'arc_wand', 'rune_staff', 'seer_staff', 'bow', 'composite_bow', 'great_bow', 'ullr_bow', 'club', 'mace', 'flail', 'morning_star'],
   armor:  ['cotton_shirt', 'padded_plate', 'leather_vest', 'silk_robe', 'chain_mail', 'plate_armor', 'hat', 'ribbon', 'iron_helm', 'guard', 'round_shield', 'hood', 'thermal_cloak', 'muffler',
            'sandals', 'shoes', 'boots', 'data_band', 'clip', 'ring', 'earring', 'glove', 'rune_charm'],

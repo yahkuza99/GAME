@@ -10,7 +10,7 @@ const G = {
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
 const SAVE_FIELDS = ['name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
-  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty'];
+  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips'];
 
 // ------------------------------------------------------------
 //  สร้าง / บันทึก / โหลด
@@ -584,6 +584,7 @@ function killMob(m) {
   Quest.onKill(d.id);
   Bounty.onKill(d.id);
   p.kills = p.kills || {}; p.kills[d.id] = (p.kills[d.id] || 0) + 1; // สมุดมอนสเตอร์: จำนวนที่ล่าได้
+  grantChip(d, m);
   gainExp(d.exp, d.jexp);
   const [z0, z1] = mobZeny(d), z = U.randi(z0, z1);
   if (z > 0) { p.zeny += z; addFloater(m.x, m.y - 0.5, `+${z}z`, '#ffd34a'); UI.dirty(); }
@@ -599,6 +600,19 @@ function killMob(m) {
     G.respawns.push({ id: d.id, at: G.time + U.rand(6, 14) });
   }
   Sound.play('kill');
+}
+
+// ชิปประจำมอน: ล่าครบ CHIP_KILLS ตัว (MVP ตัวแรก) ได้แน่นอน 1 ชิ้น — ไม่ต้องฟาร์มดรอป
+function chipNeed(d) { return d.boss ? 1 : CHIP_KILLS; }
+function grantChip(d, m) {
+  const p = G.player, chip = MOB_CHIP[d.id];
+  p.chips = p.chips || [];
+  if (!chip || p.chips.includes(d.id) || (p.kills[d.id] || 0) < chipNeed(d)) return;
+  p.chips.push(d.id); addItem(chip, 1, true);
+  addFx({ type: 'beam', x: m.x, y: m.y, dur: 2.6 });
+  UI.announce(`✦ ล่า ${d.name} ครบ ${chipNeed(d)} ตัว — ได้รับ ${ITEMS[chip].name}! ✦`);
+  UI.msg(`✦ ได้รับ ${ITEMS[chip].name} — ${ITEMS[chip].desc}`, 'lvl');
+  Sound.play('refine_ok');
 }
 
 // สถานะผิดปกติของมอนสเตอร์: stun (มึน), slow (ช้า), burn (ไหม้), poison (พิษ)

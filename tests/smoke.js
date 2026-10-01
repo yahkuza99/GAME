@@ -92,6 +92,12 @@ const ok = (name, cond, info = '') => { checks.push([name, !!cond, info]); };
       return out.join(' ');
     });
     ok(`${name}: job change + skills`, !/:0/.test(jobs), jobs);
+    // chip at 50 kills (no random card drops)
+    const ch = await p.evaluate(() => { const pl = G.player, has = () => countItem('pudding_card');
+      const noDrop = Object.values(MOBS).every(m => !m.drops.some(([id]) => ITEMS[id].type === 'card'));
+      pl.kills.pudding = 48; pl.chips = []; killMob(spawnMob('pudding', { x: pl.x + 2, y: pl.y })); const before = has();
+      killMob(spawnMob('pudding', { x: pl.x + 2, y: pl.y })); return { noDrop, before, after: has() }; });
+    ok(`${name}: chip at 50 kills`, ch.noDrop && ch.after === ch.before + 1, JSON.stringify(ch));
     // daily bounty: 3 jobs, kills count, claim pays
     const bt = await p.evaluate(() => { const pl = G.player; pl.baseLv = Math.max(pl.baseLv, 12); pl.bounty = null; const s = Bounty.state(), b0 = s.list[0], z0 = pl.zeny;
       for (let i = 0; i < b0.n; i++) killMob(spawnMob(b0.mob, { x: pl.x + 2, y: pl.y })); const kz = pl.zeny - z0; Bounty.claim(b0);

@@ -67,7 +67,7 @@ python3 -m http.server 8000
 - **ต้นไม้พาสซีฟ (แบบ Path of Exile)** กด `P` — 157 จุดใน 6 แฉก (ป้อมปราการ/คลั่ง/เงา/นักล่า/รูน/พยากรณ์) ได้ 1 แต้มต่อ Base Level เปิดจุดที่ติดกันต่อจากแกนกลาง มี Notable 30 จุด และ Keystone 6 จุดที่เปลี่ยนกติกา (เช่น Overclock, Blood Circuit, Mind over Matter) • คืนแต้มฟรีถึง Lv 15 จากนั้น 10z × Lv
 - **สถานะผิดปกติ** มึน (Stun), ช้า (Slow), ไหม้ (Burn), พิษ (Poison)
 - **ธาตุ** ไฟ/น้ำ/ดิน/ลม/ศักดิ์สิทธิ์/อมตะ ฯลฯ มีผลต่อความเสียหาย
-- **ไอเทม** ชุดซ่อม (HP) เซลล์พลังงาน (SP) อาวุธพลังงาน 6 ประเภท เกราะ และ **ชิป** (ใส่ในช่อง `[ ]` ของอุปกรณ์) ตีบวก +1 ถึง +10
+- **ไอเทม** ชุดซ่อม (HP) เซลล์พลังงาน (SP) อาวุธพลังงาน 6 ประเภท เกราะ และ **ชิป** (ใส่ในช่อง `[ ]` ของอุปกรณ์ — ได้แน่นอนเมื่อล่ามอนชนิดนั้นครบ 50 ตัว, MVP ตัวแรก) ตีบวก +1 ถึง +10 (พลาดไม่แตก แค่เสียค่าบริการ)
 - **มอนสเตอร์กลไก 18 ชนิด** (Slime Drone, Buzz Drone, Fenrir Unit, Tusk Tank, Draugr Husk ฯลฯ) + MVP 2 ตัว (Seraph Core, Kitsura EX)
 - **แผนที่ 5 แห่ง**: ฐาน Neo Eldheim, Emerald Meadow, Mistlake Plains, Wolfwood Forest, Hel's Hollow (ถ้ำมืด)
 - **NPC**: Bifrost Keeper (เซฟ/เทเลพอร์ต), Mimir AI (เปลี่ยนอาชีพ/รีเซ็ต), ร้านค้า 3 ร้าน, Brokk Forge-Bot (ตีบวก), Eir Repair Unit, Guard Unit Rolf (ไกด์/เควสต์), Storage Unit Kaia (คลังของ)

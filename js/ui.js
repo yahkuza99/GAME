@@ -940,6 +940,8 @@ const UI = {
         h('div', { class: 'mb-sub' }, `Lv ${d.lv} • ธาตุ${ELEM_THAI[d.element] || d.element} • ${RACE[d.race] || d.race}`),
         h('div', { class: 'mb-sub ' + (d.aggro ? 'bad' : 'ok') }, d.aggro ? '⚠ โจมตีก่อน (Aggressive)' : 'ไม่โจมตีก่อน (Passive)'),
         h('div', { class: 'mb-sub' }, `ล่าแล้ว: ${U.fmt((G.player.kills || {})[d.id] || 0)} ตัว`),
+        MOB_CHIP[d.id] ? h('div', { class: 'mb-sub' }, (G.player.chips || []).includes(d.id) ? `✦ ได้ ${ITEMS[MOB_CHIP[d.id]].name} แล้ว`
+          : `✦ ${ITEMS[MOB_CHIP[d.id]].name}: ล่าอีก ${Math.max(0, chipNeed(d) - ((G.player.kills || {})[d.id] || 0))} ตัว`) : null,
         weak.length ? h('div', { class: 'mb-sub' }, `แพ้ธาตุ: ${weak.slice(0, 3).map(([e, m]) => `${ELEM_THAI[e]} ×${m}`).join(', ')}`) : null)),
       h('div', { class: 'mb-grid' }, row('HP', U.fmt(d.hp)), row('ATK', `${d.atk[0]}–${d.atk[1]}`), row('DEF', d.def), row('MDEF', d.mdef),
         row('HIT', d.hit), row('FLEE', d.flee), row('Base EXP', U.fmt(d.exp)), row('Job EXP', U.fmt(d.jexp)), row('Zeny', `${U.fmt(mobZeny(d)[0])}–${U.fmt(mobZeny(d)[1])}`)),

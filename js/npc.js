@@ -158,7 +158,7 @@ NPC.scripts.refine = async n => {
   const RATE = [1, 1, 1, 1, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1];
   const slots = EQUIP_SLOTS.filter(s => p.equip[s]);
   if (!slots.length) { await UI.say(nm, 'ข้าคือ Brokk Forge-Bot หุ่นช่างตีเหล็กรุ่นโบราณ!<br>สวมอุปกรณ์ที่ต้องการตีบวกก่อน แล้วค่อยมาหาข้า'); return; }
-  const i = await UI.menu(nm, 'ข้าคือ Brokk Forge-Bot หุ่นช่างตีเหล็กรุ่นโบราณ!<br>+1~+4 สำเร็จแน่นอน แต่หลังจากนั้น... <b style="color:#c03030">ถ้าล้มเหลว อุปกรณ์จะแตก!</b><br>จะตีบวกชิ้นไหน?',
+  const i = await UI.menu(nm, 'ข้าคือ Brokk Forge-Bot หุ่นช่างตีเหล็กรุ่นโบราณ!<br>+1~+4 สำเร็จแน่นอน หลังจากนั้นอาจพลาดได้ — แต่ไม่ต้องกลัว <b>ของไม่มีวันแตก</b> แค่เสียค่าบริการ<br>จะตีบวกชิ้นไหน?',
     [...slots.map(s => `${SLOT_THAI[s]}: ${itemDisplayName(p.equip[s])}`), 'ยกเลิก']);
   if (i >= slots.length) return;
   const slot = slots[i], e = p.equip[slot];
@@ -166,7 +166,7 @@ NPC.scripts.refine = async n => {
   const lvl = e.refine || 0;
   const cost = (slot === 'weapon' ? 250 : 400) * (lvl + 1);
   const rate = RATE[lvl];
-  const c = await UI.menu(nm, `ตีบวก ${B(itemDisplayName(e))} เป็น ${B('+' + (lvl + 1))}<br>ค่าบริการ: ${B(U.fmt(cost) + ' z')} • โอกาสสำเร็จ: ${B(Math.round(rate * 100) + '%')}${rate < 1 ? '<br><span style="color:#c03030">หากล้มเหลว อุปกรณ์จะหายไป!</span>' : ''}`,
+  const c = await UI.menu(nm, `ตีบวก ${B(itemDisplayName(e))} เป็น ${B('+' + (lvl + 1))}<br>ค่าบริการ: ${B(U.fmt(cost) + ' z')} • โอกาสสำเร็จ: ${B(Math.round(rate * 100) + '%')}${rate < 1 ? '<br>หากพลาด อุปกรณ์ยังอยู่ครบ เสียแค่ค่าบริการ' : ''}`,
     ['ตีเลย!', 'ยกเลิก']);
   if (c !== 0) return;
   if (p.zeny < cost) { await UI.say(nm, 'Zeny ไม่พอนะเจ้าหนู'); return; }
@@ -183,11 +183,9 @@ NPC.scripts.refine = async n => {
     Sound.play('refine_ok');
     await UI.say(nm, `ฮ่าฮ่า! สำเร็จ! ตอนนี้กลายเป็น ${B(itemDisplayName(e))} แล้ว!`);
   } else {
-    p.equip[slot] = null;
-    recalc();
-    UI.msg(`ตีบวกล้มเหลว... ${ITEMS[e.id].name} แตกสลาย`, 'err');
+    UI.msg(`ตีบวกพลาด... ${itemDisplayName(e)} ยังอยู่ครบ`, 'err');
     Sound.play('refine_fail');
-    await UI.say(nm, 'เพล้ง!!! ...ข้าขอโทษ อุปกรณ์ของเจ้าแตกสลายไปแล้ว...');
+    await UI.say(nm, 'โอ๊ะ! ค้อนพลาดไปนิด... อุปกรณ์ยังปลอดภัยดี ลองใหม่ได้เสมอ!');
   }
   saveGame();
 };
