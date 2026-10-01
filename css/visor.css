@@ -712,3 +712,128 @@ body.visor .pinv-bar { left: 22px; right: 22px; bottom: 6px; }
 body.visor .pinv-bar b { background: var(--pty); box-shadow: 0 0 6px var(--pty); }
 @media (max-width: 760px) { body.visor .pinv-btns .btn { padding: 10px 16px; } }
 @media (prefers-reduced-motion: reduce) { #party-invite { animation: none; } }
+
+/* =====================================================================
+   แลกเปลี่ยน (Trade) — js/trade.js
+   โครงสร้างใช้ได้ทั้ง HUD Visor/คลาสสิก (ผูกกับ #w-trade) • ผิวนุ่มกระจกฝ้าเฉพาะ body.visor
+   ===================================================================== */
+@media (min-width: 761px) and (min-height: 521px) { #w-trade.tr-wide { width: min(600px, calc(100vw - 24px)) !important; } }
+#w-trade button { font: inherit; }
+#w-trade .tr-list, #w-trade .tr-trade, #w-trade .tr-pick { display: flex; flex-direction: column; gap: 8px; }
+#w-trade .tr-sec { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 11.5px; color: var(--ink-dim); }
+#w-trade .tr-sec small { font: 500 10.5px var(--mono); color: var(--ink-faint); }
+#w-trade .tr-none { padding: 14px 10px; text-align: center; font-size: 12px; color: var(--ink-dim); }
+#w-trade .tr-prow { display: flex; align-items: center; gap: 10px; padding: 7px 8px 7px 7px; }
+#w-trade .tr-prow.far { opacity: 0.62; }
+#w-trade .tr-av { flex: none; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+#w-trade .tr-av.big { width: 52px; height: 52px; font-size: 22px; }
+#w-trade .tr-pn { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+#w-trade .tr-pn b, #w-trade .tr-col-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#w-trade .tr-pn small { font-size: 11px; color: var(--ink-dim); }
+#w-trade .tr-wait { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 10px 6px 2px; text-align: center; }
+#w-trade .tr-wait-t { font-size: 14px; line-height: 1.45; }
+#w-trade .tr-sub { font: 500 11.5px var(--mono); color: var(--ink-dim); }
+#w-trade .tr-ring { width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 2px; }
+#w-trade .tr-btns { display: flex; gap: 8px; justify-content: center; margin-top: 4px; }
+#w-trade .tr-btns .btn { min-width: 104px; min-height: 38px; }
+#w-trade .tr-empty { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 10px 8px; text-align: center; }
+#w-trade .tr-empty b { font-size: 15px; }
+#w-trade .tr-empty p { margin: 0; font-size: 12.5px; line-height: 1.5; color: var(--ink-dim); max-width: 280px; }
+#w-trade .tr-empty-ic { width: 68px; height: 68px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 4px; }
+#w-trade .tr-empty-ic svg { width: 34px; height: 34px; }
+#w-trade .tr-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 22px; }
+#w-trade .tr-step { flex: 1; min-width: 0; font-size: 12.5px; line-height: 1.35; color: var(--ink-dim); }
+#w-trade .tr-timer { flex: none; font: 600 11px/1.5 var(--mono); }
+#w-trade .tr-bar { height: 0; margin: -4px 0 0; border-radius: 3px; overflow: hidden; transition: height 0.2s; }
+#w-trade .tr-bar.on { height: 3px; }
+#w-trade .tr-bar i { display: block; height: 100%; width: 0; border-radius: inherit; }
+#w-trade .tr-bar.full i { width: 100%; }
+#w-trade .tr-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#w-trade .tr-col { min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+#w-trade .tr-col-h { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0; }
+#w-trade .tr-col-t { min-width: 0; font-weight: 600; }
+#w-trade .tr-st { flex: none; font: 600 10px/1.6 var(--mono); padding: 0 8px; white-space: nowrap; }
+#w-trade .tr-slots { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; }
+#w-trade .tr-slot, #w-trade .tr-icell { padding: 0; min-width: 0; color: inherit; }
+#w-trade .tr-slot img, #w-trade .tr-icell img { width: 74%; height: 74%; }
+#w-trade .tr-holes { position: absolute; left: 0; right: 0; bottom: 3px; display: flex; justify-content: center; gap: 2px; pointer-events: none; }
+#w-trade .tr-holes i { width: 4px; height: 4px; border-radius: 50%; background: rgba(255, 255, 255, 0.28); }
+#w-trade .tr-holes i.on { background: var(--cy); box-shadow: 0 0 4px var(--cy); }
+#w-trade .tr-volt { display: flex; align-items: center; gap: 6px; min-width: 0; padding: 5px 12px; }
+#w-trade .tr-vi { flex: none; display: inline-flex; }
+#w-trade .tr-vi svg { width: 13px; height: 13px; fill: var(--exp); stroke: none; }
+#w-trade .tr-volt input, #w-trade .tr-volt b { flex: 1; min-width: 0; width: 100%; font: 600 13px/1.4 var(--mono); color: var(--exp); }
+#w-trade .tr-volt small { flex: none; font: 500 10.5px var(--mono); color: var(--ink-faint); white-space: nowrap; }
+#w-trade .tr-detail { display: flex; align-items: center; gap: 10px; padding: 8px 10px; }
+#w-trade .tr-detail > img { flex: none; width: 34px; height: 34px; }
+#w-trade .tr-dt { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.35; }
+#w-trade .tr-dt small { font-size: 11px; color: var(--ink-dim); }
+#w-trade .tr-inv { display: grid; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 5px; max-height: 144px; overflow-y: auto; padding: 2px; scrollbar-width: thin; }
+#w-trade .tr-icell.used { opacity: 0.28; cursor: default; }
+#w-trade .tr-qty { display: flex; align-items: center; gap: 8px; padding: 7px 10px; }
+#w-trade .tr-qty > img { flex: none; width: 26px; height: 26px; }
+#w-trade .tr-qty-n { flex: 1 1 0; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#w-trade .tr-step-btns { display: flex; align-items: center; gap: 4px; }
+#w-trade .tr-step-btns .btn { min-width: 30px; }
+#w-trade .tr-qn { width: 62px; text-align: center; }
+#w-trade .tr-acts { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; }
+#w-trade .tr-acts .btn { min-height: 38px; }
+#w-trade .btn:disabled { cursor: default; }
+#w-trade .hint { margin-top: 2px; }
+@media (max-width: 520px) {
+  #w-trade .tr-cols { gap: 6px; }
+  #w-trade .tr-col { padding: 8px 6px; gap: 7px; }
+  #w-trade .tr-slots { gap: 3px; }
+  #w-trade .tr-st { padding: 0 6px; }
+  #w-trade .tr-volt { padding: 4px 9px; }
+  #w-trade .tr-volt small { display: none; }
+  #w-trade .tr-acts .btn { min-height: 42px; }
+  #w-trade .tr-qty { gap: 6px; padding: 6px 8px; }
+  #w-trade .tr-qn { width: 46px; }
+  #w-trade .tr-step-btns { gap: 3px; }
+  #w-trade .tr-step-btns .btn, #w-trade .tr-add { padding-left: 9px; padding-right: 9px; }
+}
+
+body.visor #w-trade .tr-prow, body.visor #w-trade .tr-col, body.visor #w-trade .tr-detail, body.visor #w-trade .tr-qty { background: var(--fill); border: 1px solid var(--edge); }
+body.visor #w-trade .tr-prow { border-radius: 14px; transition: border-color 0.15s, background 0.15s; }
+body.visor #w-trade .tr-prow:not(.far):hover { border-color: rgba(111, 243, 255, 0.35); background: rgba(111, 243, 255, 0.06); }
+body.visor #w-trade .tr-col { border-radius: 18px; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; }
+body.visor #w-trade .tr-detail, body.visor #w-trade .tr-qty { border-radius: 14px; }
+body.visor #w-trade .tr-av { color: var(--cy); font-family: var(--display); background: radial-gradient(circle at 35% 30%, rgba(111, 243, 255, 0.32), rgba(111, 243, 255, 0.06)); border: 1px solid rgba(111, 243, 255, 0.32); }
+body.visor #w-trade .tr-ring { border: 1px solid rgba(111, 243, 255, 0.28); box-shadow: 0 0 0 7px rgba(111, 243, 255, 0.05), 0 0 36px -10px rgba(111, 243, 255, 0.6); animation: tr-pulse 1.8s ease-in-out infinite; }
+body.visor #w-trade .tr-ring.in { border-color: rgba(255, 224, 138, 0.4); box-shadow: 0 0 0 7px rgba(255, 224, 138, 0.05), 0 0 36px -10px rgba(255, 224, 138, 0.6); animation-name: tr-pulse-in; }
+@keyframes tr-pulse { 50% { box-shadow: 0 0 0 13px rgba(111, 243, 255, 0), 0 0 46px -8px rgba(111, 243, 255, 0.75); } }
+@keyframes tr-pulse-in { 50% { box-shadow: 0 0 0 13px rgba(255, 224, 138, 0), 0 0 46px -8px rgba(255, 224, 138, 0.75); } }
+body.visor #w-trade .tr-empty-ic { color: var(--cy); background: rgba(111, 243, 255, 0.08); border: 1px solid rgba(111, 243, 255, 0.22); box-shadow: 0 0 36px -12px rgba(111, 243, 255, 0.6); }
+body.visor #w-trade .tr-note { padding: 8px 12px; border-radius: 14px; background: rgba(255, 107, 125, 0.1); border: 1px solid rgba(255, 107, 125, 0.3); color: #ffc2c9; font-size: 12.5px; }
+body.visor #w-trade .tr-timer { padding: 1px 9px; border-radius: 999px; color: var(--ink-dim); background: var(--fill); border: 1px solid var(--edge); }
+body.visor #w-trade .tr-timer.warn { color: #ffb3bb; border-color: rgba(255, 107, 125, 0.45); background: rgba(255, 107, 125, 0.08); }
+body.visor #w-trade .tr-wait .tr-timer { background: none; border: 0; padding: 0; }
+body.visor #w-trade .tr-count { color: var(--cy); font-weight: 600; text-shadow: 0 0 12px rgba(111, 243, 255, 0.5); }
+body.visor #w-trade .tr-bar { background: rgba(255, 255, 255, 0.07); }
+body.visor #w-trade .tr-bar i { background: linear-gradient(90deg, var(--cy), #8ff0b4); box-shadow: 0 0 10px rgba(111, 243, 255, 0.8); }
+/* สถานะของแต่ละฝั่ง: กำลังเลือก (จาง) → ล็อก (ฟ้า) → ตกลง (เขียว) */
+body.visor #w-trade .tr-st { border-radius: 999px; color: var(--ink-faint); background: rgba(255, 255, 255, 0.04); border: 1px solid var(--edge); }
+body.visor #w-trade .tr-col.lock { border-color: rgba(111, 243, 255, 0.42); background: rgba(111, 243, 255, 0.055); box-shadow: 0 0 30px -14px rgba(111, 243, 255, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.05); }
+body.visor #w-trade .tr-col.lock .tr-st { color: var(--cy); border-color: rgba(111, 243, 255, 0.45); background: rgba(111, 243, 255, 0.12); }
+body.visor #w-trade .tr-col.ok { border-color: rgba(126, 240, 170, 0.48); background: rgba(126, 240, 170, 0.055); box-shadow: 0 0 30px -14px rgba(126, 240, 170, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.05); }
+body.visor #w-trade .tr-col.ok .tr-st { color: #8ff0b4; border-color: rgba(126, 240, 170, 0.5); background: rgba(126, 240, 170, 0.12); }
+body.visor #w-trade .tr-col.their .tr-col-t { color: var(--ink-dim); }
+body.visor #w-trade .tr-slot { border-radius: 11px; }
+body.visor #w-trade .tr-slot.empty { background: rgba(255, 255, 255, 0.025); border-color: rgba(255, 255, 255, 0.05); }
+body.visor #w-trade .tr-icell.used:hover { border-color: var(--edge); background: var(--fill); }
+body.visor #w-trade .tr-volt { border-radius: 999px; background: rgba(255, 224, 138, 0.06); border: 1px solid rgba(255, 224, 138, 0.18); transition: border-color 0.15s, box-shadow 0.15s; }
+body.visor #w-trade .tr-volt.edit:hover { border-color: rgba(255, 224, 138, 0.35); }
+body.visor #w-trade .tr-volt.edit:focus-within { border-color: rgba(255, 224, 138, 0.6); box-shadow: 0 0 0 3px rgba(255, 224, 138, 0.1), 0 0 22px -8px rgba(255, 224, 138, 0.6); }
+body.visor #w-trade .tr-volt input { padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; outline: none; -moz-appearance: textfield; appearance: textfield; }
+body.visor #w-trade .tr-volt input::-webkit-inner-spin-button, body.visor #w-trade .tr-volt input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+body.visor #w-trade .tr-qn { -moz-appearance: textfield; appearance: textfield; }
+body.visor #w-trade .tr-qn::-webkit-inner-spin-button, body.visor #w-trade .tr-qn::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+body.visor #w-trade .tr-primary { color: #04121f; background: linear-gradient(180deg, #8ff6ff, #62e6f6); border-color: rgba(255, 255, 255, 0.35); box-shadow: 0 10px 24px -10px rgba(111, 243, 255, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.55); font-weight: 600; }
+body.visor #w-trade .tr-primary:hover { color: #04121f; background: linear-gradient(180deg, #a9f9ff, #78ecf9); }
+body.visor #w-trade .btn:disabled { opacity: 0.42; box-shadow: none; }
+body.visor #w-trade .btn:disabled:hover { background: var(--fill); border-color: var(--edge-2); color: var(--ink); }
+body.visor #w-trade .tr-lock.on, body.visor #w-trade .tr-lock.on:hover { opacity: 1; color: var(--cy); border-color: rgba(111, 243, 255, 0.5); background: rgba(111, 243, 255, 0.12); }
+body.visor #w-trade .tr-ok.on, body.visor #w-trade .tr-ok.on:hover { opacity: 1; color: #8ff0b4; border-color: rgba(126, 240, 170, 0.5); background: rgba(126, 240, 170, 0.12); }
+body.visor #w-trade .sealing .tr-col { border-color: rgba(126, 240, 170, 0.55); }
+@media (prefers-reduced-motion: reduce) { body.visor #w-trade .tr-ring { animation: none; } }
