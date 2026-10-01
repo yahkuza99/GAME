@@ -964,3 +964,17 @@ body.visor:not(.pad-mode) #menubar:not(.folded) { display: grid; grid-template-c
 body.visor:not(.pad-mode) #menubar:not(.folded) .menu-fold { grid-column: 1 / -1; justify-self: end; width: 44px; height: 28px; }
 body.visor:not(.pad-mode) #menubar:not(.folded) button:not(.menu-fold) { width: 52px; height: 48px; filter: none; }
 body.visor:not(.pad-mode) #menubar:not(.folded) button span { font-size: 10px; }
+
+/* ===== การ์ดข้อมูลไอเทม (เอาเมาส์ชี้) ===== */
+#item-tip { position: fixed; z-index: 5000; pointer-events: none; width: max-content; max-width: 280px; padding: 10px 12px; border-radius: 16px;
+  background: rgba(10, 16, 26, 0.93); border: 1px solid var(--edge-2, rgba(160,220,255,.25)); color: #e6eef8; font-size: 12px; line-height: 1.45;
+  box-shadow: 0 18px 40px -14px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.06); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+#item-tip .tip-head { display: flex; gap: 9px; align-items: center; margin-bottom: 6px; }
+#item-tip .tip-head img { width: 34px; height: 34px; border-radius: 10px; background: rgba(255, 255, 255, 0.05); image-rendering: auto; }
+#item-tip .tip-head b { display: block; font-size: 13.5px; color: #fff; }
+#item-tip .tip-head small { color: #8fd8ff; font-size: 11px; }
+#item-tip .tip-desc { color: #b8c4d4; margin-bottom: 5px; }
+#item-tip .tip-line { color: #d8e2ee; }
+#item-tip .tip-bon { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 2px; }
+#item-tip .tip-bon span { padding: 2px 8px; border-radius: 999px; background: rgba(111, 243, 255, 0.12); color: #8ff4ff; font-size: 11px; }
+#item-tip .cmp-row { margin-top: 7px; padding-top: 7px; border-top: 1px solid rgba(255, 255, 255, 0.08); }

@@ -204,3 +204,17 @@ Art.alias('skill_hunters_rhythm', 'skill_eagle_eye', { hue: -85, sat: 1.3, bri: 
 Art.alias('skill_freyjas_grace', 'skill_sanctuary', { hue: -80, sat: 1.2, bri: 1.1, tint: ['#ffe08a', 0.25], flip: true });
 Art.alias('skill_lokis_gambit', 'skill_shadow_step', { hue: 120, sat: 1.15, tint: ['#b07ae0', 0.2], flip: true });
 Art.alias('skill_bloodthirst', 'skill_wolf_blood', { hue: -45, sat: 1.2, bri: 0.8, tint: ['#5a0030', 0.3], flip: true });
+
+// คลาสขั้นที่ 2: ภาพเต็มตัว/ตราประจำคลาส ย้อมสีจากคลาสแรก (จนกว่าจะมีภาพจริง assets/job_<id>_<f|m>.webp, emblem_<id>.webp)
+for (const [id, spec] of Object.entries({
+  valkyrie: { hue: 25, sat: 1.15, bri: 1.1, tint: ['#ffe6a0', 0.22] },
+  galdr: { hue: 40, sat: 1.2, bri: 1.05, tint: ['#bfe8ff', 0.2] },
+  skadi: { hue: 150, sat: 0.75, bri: 1.12, tint: ['#e8f6ff', 0.3] },
+  norn: { hue: 230, sat: 1.0, bri: 1.08, tint: ['#e8d8ff', 0.25] },
+  phantom: { hue: 50, sat: 1.25, bri: 0.92, tint: ['#c040a0', 0.2] },
+  warlord: { hue: -15, sat: 1.1, bri: 0.85, tint: ['#5a1a08', 0.25] },
+})) {
+  const base = JOBS[id].parent;
+  for (const g of ['f', 'm']) Art.alias(`job_${id}_${g}`, `job_${base}_${g}`, Object.assign({ flip: true }, spec));
+  Art.alias(`emblem_${id}`, `emblem_${base}`, spec);
+}

@@ -81,6 +81,21 @@ NPC.scripts.jobmaster = async n => {
       }
     }
   }
+  // คลาสขั้นที่ 2: Base Lv 30 + Job Lv 21 ของคลาสแรก
+  const nj = SECOND_JOBS[p.job];
+  if (nj && p.baseLv >= SECOND_JOB_REQ.base && p.jobLv >= SECOND_JOB_REQ.job) {
+    const J = JOBS[nj];
+    UI.illust(Art.jobKey(nj, p.gender));
+    const ok = await UI.menu(nm, `ข้อมูลการต่อสู้ของเจ้าแน่นพอแล้ว ${B(p.name)}... แม่พิมพ์ของเจ้ามี ${B('ชั้นที่สอง')} ซ่อนอยู่ ข้าเพิ่งถอดรหัสได้<br><br><b>${J.name}</b> — ${J.thai}<br>${J.desc}<br><br>“${Story.JOB_LINES[nj] || ''}”<br><br>สกิลใหม่: ${J.skills.map(id => SKILLS[id].name).join(', ')}<br>${B('สกิลและอาวุธของ ' + JOBS[p.job].name + ' ยังอยู่ครบ')} แต้มสกิลที่เหลือก็ยกมาด้วย<br><br>ปลุกแม่พิมพ์ชั้นที่สองหรือไม่? (ย้อนกลับไม่ได้)`, ['ปลุกแม่พิมพ์!', 'ไว้ก่อน']);
+    UI.illust(`npc_${n.id}`);
+    if (ok === 0) {
+      changeJob(nj);
+      UI.illust(Art.jobKey(nj, p.gender));
+      await UI.say(nm, `ชั้นที่สองตื่นแล้ว — ตอนนี้เจ้าคือ ${B(J.name)}<br>Job Level เริ่มใหม่ที่ 1 เก็บต่อถึง ${J.jobMax} เพื่อรับแต้มสกิลใหม่ (กด S)`);
+      UI.illust(`npc_${n.id}`);
+      return;
+    }
+  }
   if (qDone('mvp1') && !st.mimirTruth) { // หลังปราบ Seraph Core: Mimir ยอมบอกความจริงข้อแรก (ครั้งเดียว)
     st.mimirTruth = 1;
     await UI.say(nm, `เจ้าได้ยินข้อความของทูตแล้วสินะ... ถ้าอย่างนั้นข้าจะไม่ปิดเงียบอีก<br>เจ้าไม่มีบันทึกประกาย เจ้าไม่ใช่คนเก่าที่ถูกปลุก — ${B('เจ้าคือใบใหม่')} ที่ต้นไม้งอกได้เป็นครั้งแรกหลังคืนนั้น`);
@@ -88,7 +103,8 @@ NPC.scripts.jobmaster = async n => {
     saveGame();
   }
   const greet = qDone('hollow5') ? `${p.name}... เจ้าได้ยินสิ่งที่อยู่ใต้โพรงแล้ว ข้าบันทึกไว้แล้วว่าเจ้าคือใบแรก — และเจ้ายังไปต่อ<br>แม่พิมพ์ขั้นต่อไปยังไม่ถูกบันทึก แต่ปัญญาของข้าช่วยเจ้าได้เรื่องหนึ่ง:`
-    : `${JOBS[p.job].name} ผู้สานต่อ... แม่พิมพ์ขั้นต่อไปยังไม่ถูกบันทึก<br>แต่ปัญญาของข้าช่วยเจ้าได้เรื่องหนึ่ง:`;
+    : nj ? `${JOBS[p.job].name} ผู้สานต่อ... แม่พิมพ์ชั้นที่สอง (${B(JOBS[nj].name)}) จะตื่นเมื่อเจ้ามี ${B('Base Lv ' + SECOND_JOB_REQ.base)} และ ${B('Job Lv ' + SECOND_JOB_REQ.job)} (ตอนนี้ ${p.baseLv} / ${p.jobLv})<br>ระหว่างนี้ ปัญญาของข้าช่วยเจ้าได้เรื่องหนึ่ง:`
+    : `${JOBS[p.job].name}... แม่พิมพ์ของเจ้าตื่นครบทั้งสองชั้นแล้ว ข้าบันทึกท่าของเจ้าไว้ทุกครั้งที่เจ้าสู้<br>ปัญญาของข้าช่วยเจ้าได้เรื่องหนึ่ง:`;
   const i = await UI.menu(nm, greet, [`รีเซ็ตสกิล (5,000 ${CUR})`, `รีเซ็ตสเตตัส (10,000 ${CUR})`, 'ไม่เป็นไร']);
   if (i === 0 || i === 1) {
     const cost = i === 0 ? 5000 : 10000;

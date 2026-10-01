@@ -72,6 +72,45 @@ const JOBS = {
     skills: ['wolf_blood', 'rage_strike', 'blood_frenzy', 'howl', 'bloodthirst'] },
 };
 const FIRST_JOBS = ['einherjar', 'runecaster', 'wildhunter', 'volva', 'trickster', 'berserker'];
+// ===== คลาสขั้นที่ 2 (ต่อยอดจากคลาสแรก: parent = คลาสแรก ใช้สกิล/อาวุธของคลาสแรกได้ต่อ) =====
+Object.assign(JOBS, {
+  valkyrie: { glow: '#ffd27a', name: 'Valkyrie Knight', thai: 'อัศวินวาลคิรี', parent: 'einherjar', tier: 2, bonus: { atkPct: 10, matkPct: 10, hit: 10, hpPct: 10 }, hp: 2.1, sp: 1.0, jobMax: 26, aspd: 1150,
+    outfit: '#d8dce8', outfit2: '#e0b040', pants: '#4a4f62', cape: '#f0e6c8', jobHat: 'viking',
+    stats: 'STR / VIT', role: 'แทงค์ศักดิ์สิทธิ์ ปกป้องและลงทัณฑ์',
+    desc: 'ผู้เลือกวิญญาณแห่งสมรภูมิ ถือโล่ทองและหอกแสง ยืนรับแทนทุกคนแล้วฟาดคืนเป็นแผ่นดินไหว',
+    skills: ['aegis_wall', 'spear_of_valhalla', 'einherjar_guard', 'judgment_quake', 'valhallas_call'] },
+  galdr: { glow: '#9ad8ff', name: 'Galdr Sage', thai: 'ปราชญ์กัลดร์', parent: 'runecaster', tier: 2, bonus: { atkPct: 10, matkPct: 10, hit: 10, hpPct: 10 }, hp: 0.95, sp: 2.4, jobMax: 26, aspd: 1450,
+    outfit: '#1e2f6a', outfit2: '#c8e8ff', pants: '#141f44', robe: true, jobHat: 'runehood',
+    stats: 'INT / DEX', role: 'เวทวงกว้าง ฝนอุกกาบาตและน้ำแข็ง',
+    desc: 'ผู้ขับขานบทกัลดร์ เสียงร้องของเขาเปลี่ยนรูนให้เป็นพายุ ทำลายทั้งฝูงในคราวเดียว',
+    skills: ['galdr_focus', 'meteor_rune', 'frost_nova', 'chain_lightning', 'rune_barrier'] },
+  skadi: { glow: '#b8f0ff', name: 'Skadi Ranger', thai: 'เรนเจอร์แห่งสกาดี', parent: 'wildhunter', tier: 2, bonus: { atkPct: 10, matkPct: 10, hit: 10, hpPct: 10 }, hp: 1.25, sp: 1.35, jobMax: 26, aspd: 1300,
+    outfit: '#e8f0f4', outfit2: '#6aa8c8', pants: '#3a4a58', cape: '#9ac8e0', jobHat: 'hood',
+    stats: 'DEX / AGI', role: 'ธนูน้ำแข็ง ห่าธนูวงกว้าง',
+    desc: 'นักล่าแห่งยอดเขาหิมะ สาวกของเทพีสกาดี ลูกธนูของเธอแช่แข็งเหยื่อก่อนจะร่วงลงมาเป็นห่าฝน',
+    skills: ['skadis_mark', 'arrow_storm', 'frost_arrow', 'focused_volley', 'winter_hunt'] },
+  norn: { glow: '#fff0a8', name: 'Norn Oracle', thai: 'นอร์นผู้ทอชะตา', parent: 'volva', tier: 2, bonus: { atkPct: 10, matkPct: 10, hit: 10, hpPct: 10 }, hp: 1.45, sp: 1.9, jobMax: 26, aspd: 1350,
+    outfit: '#fbf6ea', outfit2: '#b89ae8', pants: '#7a6a8a', robe: true, jobHat: 'circlet',
+    stats: 'INT / VIT', role: 'ฮีลใหญ่ บัฟชะตา แสงพิพากษา',
+    desc: 'ผู้ทอเส้นด้ายแห่งชะตาร่วมกับสามนอร์นใต้รากต้นไม้ เยียวยาได้แม้ร่างใกล้ดับ และตัดสินศัตรูด้วยแสง',
+    skills: ['wyrd_thread', 'great_restoration', 'fate_weave', 'ragnarok_light', 'skuld_judgment'] },
+  phantom: { glow: '#e08aff', name: "Loki's Phantom", thai: 'ภูตลวงแห่งโลกิ', parent: 'trickster', tier: 2, bonus: { atkPct: 10, matkPct: 10, hit: 10, hpPct: 10 }, hp: 1.45, sp: 1.1, jobMax: 26, aspd: 1100,
+    outfit: '#24182e', outfit2: '#d040a0', pants: '#18121e', jobHat: 'mask',
+    stats: 'AGI / LUK', role: 'คริติคอลรุนแรง ฟันเงาซ้อน',
+    desc: 'เงาที่โลกิทิ้งไว้ในโลกกลาง หายตัวกลางคมมีด ฟันซ้ำสองครั้งก่อนเหยื่อจะรู้ตัว',
+    skills: ['phantom_edge', 'mirror_strike', 'fang_of_fenrir', 'smoke_cyclone', 'trickster_haste'] },
+  warlord: { glow: '#ff6a3a', name: 'Ulfhednar Warlord', thai: 'จอมทัพอุลฟ์เฮดนาร์', parent: 'berserker', tier: 2, bonus: { atkPct: 10, matkPct: 10, hit: 10, hpPct: 10 }, hp: 1.85, sp: 0.8, jobMax: 26, aspd: 1200,
+    outfit: '#5a3a24', outfit2: '#2a1a10', pants: '#2a1e14', cape: '#6a2a1a', jobHat: 'wolfpelt',
+    stats: 'STR / AGI', role: 'ฟันวงกว้าง ยิ่งเจ็บยิ่งไม่ตาย',
+    desc: 'จ่าฝูงแห่งนักรบหนังหมาป่า เลือดของเขาเดือดจนความตายต้องถอยให้ ฟันขวานทีเดียวกวาดทั้งแนว',
+    skills: ['berserk_soul', 'fenrir_bite', 'ragnarok_cleave', 'war_howl', 'undying_rage'] },
+});
+const SECOND_JOBS = { einherjar: 'valkyrie', runecaster: 'galdr', wildhunter: 'skadi', volva: 'norn', trickster: 'phantom', berserker: 'warlord' };
+const SECOND_JOB_REQ = { base: 30, job: 21 }; // เปลี่ยนคลาสขั้นที่ 2: Base Lv 30 และ Job Lv 21 ของคลาสแรก
+// สายอาชีพ: [อาชีพปัจจุบัน, คลาสแรก] — ใช้ตรวจอาวุธ/สกิล/โบนัสประจำสาย
+function jobLine(job) { const out = []; for (let j = job; j && JOBS[j]; j = JOBS[j].parent) out.push(j); return out; }
+function jobRoot(job) { const l = jobLine(job); return l[l.length - 1]; }
+function canJobUse(jobs, job) { return jobs === 'all' || jobLine(job).some(j => jobs.includes(j)); }
 const JOB_CHANGE_LV = 10;
 
 const WEAPON_ASPD_MOD = { none: 0.85, dagger: 0.9, sword: 1.0, axe: 1.12, rod: 1.1, bow: 1.05, mace: 1.05 };
@@ -227,6 +266,133 @@ const SKILLS = {
   bloodthirst: { name: 'Bloodthirst', max: 5, type: 'passive', icon: '#a02030', glyph: 'ᛞ', req: { wolf_blood: 3 },
     passive: lv => ({ leech: 0.6 * lv, atkPct: 2 * lv }),
     desc: 'กระหายเลือด ดาเมจกายภาพดูดกลับเป็น HP 0.6%×Lv และดาเมจกายภาพ +2%×Lv' },
+
+  // ===================== คลาสขั้นที่ 2 =====================
+  // ===== Valkyrie Knight =====
+  aegis_wall: { name: 'Aegis Wall', max: 5, type: 'passive', icon: '#e8d080', glyph: '⛉',
+    passive: lv => ({ def: 3 * lv, mdef: 2 * lv, hpPct: 4 * lv }),
+    desc: 'กำแพงอีจิส DEF +3×Lv, MDEF +2×Lv และ MaxHP +4%×Lv' },
+  spear_of_valhalla: { name: 'Spear of Valhalla', max: 5, type: 'active', target: 'enemy', range: 4, icon: '#ffe08a', glyph: '↟', req: { aegis_wall: 1 },
+    sp: lv => 14 + 2 * lv, delay: 800, chain: true, fx: 'holy',
+    dmg: { type: 'phys', element: 'holy', mult: lv => 2.6 + 0.5 * lv, line: true },
+    desc: 'พุ่งหอกแสงทะลุแนวศัตรูระยะ 4 ช่อง 310~510% ธาตุศักดิ์สิทธิ์' },
+  einherjar_guard: { name: 'Einherjar Guard', max: 5, type: 'active', target: 'self', icon: '#c8b070', glyph: '⛨', req: { aegis_wall: 3 },
+    sp: () => 25, delay: 1000, aggro: 7, selfFx: 'shout',
+    buff: { dur: lv => 40 + 10 * lv, stats: lv => ({ def: 5 * lv, mdef: 3 * lv, stunRes: 10 * lv }) },
+    desc: 'ตั้งการ์ดวิญญาณนักรบ ดึงศัตรูรอบ 7 ช่อง DEF +5×Lv, MDEF +3×Lv และต้านมึน +10%×Lv' },
+  judgment_quake: { name: 'Judgment Quake', max: 5, type: 'active', target: 'self', icon: '#d0a040', glyph: '⌇', req: { spear_of_valhalla: 3 },
+    sp: lv => 24 + 3 * lv, delay: 1200, selfFx: 'whirl',
+    dmg: { type: 'phys', mult: lv => 1.7 + 0.35 * lv, area: 3, at: 'self', status: { kind: 'stun', chance: lv => 20 + 8 * lv, dur: () => 1.5 } },
+    desc: 'กระแทกโล่ลงดิน แผ่นดินไหวรอบตัว 3 ช่อง 205~345% อาจทำให้มึน' },
+  valhallas_call: { name: "Valhalla's Call", max: 5, type: 'active', target: 'self', icon: '#fff0c0', glyph: '✚', req: { einherjar_guard: 2 },
+    sp: lv => 20 + 4 * lv, delay: 1000, selfFx: 'heal',
+    heal: (lv, d, p) => Math.floor(d.maxHp * (0.08 + 0.03 * lv)),
+    desc: 'เสียงเรียกจากวัลฮัลลา ฟื้นฟู HP 11~23% ของ MaxHP' },
+
+  // ===== Galdr Sage =====
+  galdr_focus: { name: 'Galdr Focus', max: 5, type: 'passive', icon: '#8ac8ff', glyph: 'ᚷ',
+    passive: lv => ({ matkPct: 4 * lv, spPct: 4 * lv, castPct: 3 * lv }),
+    desc: 'สมาธิแห่งบทขับ MATK +4%×Lv, MaxSP +4%×Lv และร่ายเร็วขึ้น 3%×Lv' },
+  meteor_rune: { name: 'Meteor Rune', max: 5, type: 'active', target: 'enemy', range: 9, icon: '#ff7a3a', glyph: '☄', req: { galdr_focus: 1 },
+    sp: lv => 30 + 5 * lv, cast: lv => 1700 + 100 * lv, delay: 1300, fx: 'firebolt',
+    dmg: { type: 'magic', element: 'fire', mult: lv => 1.5 + 0.35 * lv, area: 2.5, at: 'target', status: { kind: 'burn', chance: () => 50, dur: () => 3 } },
+    desc: 'เรียกอุกกาบาตรูนตกใส่ รัศมี 2.5 ช่อง 185~325% ธาตุไฟ อาจติดไฟ' },
+  frost_nova: { name: 'Frost Nova', max: 5, type: 'active', target: 'self', icon: '#9ae0ff', glyph: '❄', req: { galdr_focus: 2 },
+    sp: lv => 22 + 3 * lv, cast: () => 500, delay: 1000, selfFx: 'firering',
+    dmg: { type: 'magic', element: 'water', mult: lv => 1.2 + 0.25 * lv, area: 3, at: 'self', status: { kind: 'slow', chance: () => 100, dur: () => 4 } },
+    desc: 'ระเบิดน้ำแข็งรอบตัว 3 ช่อง 145~245% และทำให้ศัตรูช้าลง' },
+  chain_lightning: { name: 'Chain Lightning', max: 5, type: 'active', target: 'enemy', range: 9, icon: '#f0f070', glyph: 'ϟ', req: { meteor_rune: 2 },
+    sp: lv => 18 + 3 * lv, cast: lv => 800 + 60 * lv, delay: 800, fx: 'lightning',
+    dmg: { type: 'magic', element: 'wind', mult: lv => 0.7 + 0.15 * lv, hits: 3 },
+    desc: 'สายฟ้าฟาดซ้ำ 3 ครั้ง ครั้งละ 85~145% ธาตุลม' },
+  rune_barrier: { name: 'Rune Barrier', max: 5, type: 'active', target: 'self', icon: '#7aa0ff', glyph: '◈', req: { galdr_focus: 3 },
+    sp: () => 30, delay: 1000, selfFx: 'buff',
+    buff: { dur: lv => 60 + 15 * lv, stats: lv => ({ mdef: 4 * lv, def: 3 * lv, hpPct: 3 * lv }) },
+    desc: 'ม่านรูนป้องกัน MDEF +4×Lv, DEF +3×Lv และ MaxHP +3%×Lv' },
+
+  // ===== Skadi Ranger =====
+  skadis_mark: { name: "Skadi's Mark", max: 5, type: 'passive', icon: '#a8e0f0', glyph: '❆',
+    passive: lv => ({ crit: 2 * lv, critDmgPct: 5 * lv, hit: 3 * lv, aspdPct: 2 * lv }),
+    desc: 'ตราแห่งสกาดี CRIT +2×Lv, แรงคริติคอล +5%×Lv, HIT +3×Lv และความเร็วโจมตี +2%×Lv' },
+  arrow_storm: { name: 'Arrow Storm', max: 5, type: 'active', target: 'enemy', bow: true, icon: '#d8c080', glyph: '⇶', req: { skadis_mark: 1 },
+    sp: lv => 18 + 3 * lv, delay: 600, chain: true, fx: 'arrow',
+    dmg: { type: 'phys', mult: lv => 1.6 + 0.3 * lv, area: 2, at: 'target' },
+    desc: 'ยิงห่าธนูลงพื้นที่ รัศมี 2 ช่อง 190~310%' },
+  frost_arrow: { name: 'Frost Arrow', max: 5, type: 'active', target: 'enemy', bow: true, icon: '#8ad8ff', glyph: '➶', req: { skadis_mark: 2 },
+    sp: lv => 12 + 2 * lv, delay: 500, chain: true, fx: 'coldbolt',
+    dmg: { type: 'phys', mult: lv => 2.2 + 0.4 * lv, status: { kind: 'slow', chance: () => 100, dur: () => 3 } },
+    desc: 'ลูกธนูน้ำแข็ง 260~420% ทำให้ช้าลง 3 วินาที' },
+  focused_volley: { name: 'Focused Volley', max: 5, type: 'active', target: 'enemy', bow: true, icon: '#f0d090', glyph: '⋙', req: { arrow_storm: 2 },
+    sp: lv => 20 + 3 * lv, delay: 700, chain: true, fx: 'arrow',
+    dmg: { type: 'phys', mult: lv => 0.85 + 0.15 * lv, hits: 3, sureHit: true },
+    desc: 'ยิงรัว 3 ดอกไม่พลาด ดอกละ 100~160%' },
+  winter_hunt: { name: 'Winter Hunt', max: 5, type: 'active', target: 'self', icon: '#c0f0ff', glyph: '❅', req: { skadis_mark: 3 },
+    sp: () => 30, delay: 1000, selfFx: 'buff',
+    buff: { dur: lv => 40 + 10 * lv, stats: lv => ({ aspdPct: 4 + 3 * lv, dex: 2 * lv }) },
+    desc: 'จังหวะล่าแห่งฤดูหนาว ความเร็วโจมตี +7~19% และ DEX +2×Lv' },
+
+  // ===== Norn Oracle =====
+  wyrd_thread: { name: 'Wyrd Thread', max: 5, type: 'passive', icon: '#d8c0ff', glyph: 'ᚹ',
+    passive: lv => ({ healPct: 5 * lv, int: 2 * lv, mdef: lv }),
+    desc: 'เส้นด้ายแห่งเวิร์ด ฮีลแรงขึ้น 5%×Lv, INT +2×Lv และ MDEF +1×Lv' },
+  great_restoration: { name: 'Great Restoration', max: 5, type: 'active', target: 'self', icon: '#a0ffc0', glyph: '✙', req: { wyrd_thread: 1 },
+    sp: lv => 25 + 6 * lv, cast: () => 600, delay: 1200, selfFx: 'heal',
+    heal: (lv, d, p) => Math.floor((6 + (p.baseLv + d.int) / 6) * (14 + 18 * lv)),
+    desc: 'ฟื้นฟูครั้งใหญ่ HP มากกว่า Light of Freyja ราว 1.5 เท่า (ขึ้นกับ INT)' },
+  fate_weave: { name: 'Fate Weave', max: 5, type: 'active', target: 'self', icon: '#ffe0a0', glyph: '☸', req: { wyrd_thread: 2 },
+    sp: lv => 30 + 4 * lv, delay: 1000, selfFx: 'buff',
+    buff: { dur: lv => 90 + 30 * lv, stats: lv => ({ agi: 2 * lv, vit: 2 * lv, luk: 2 * lv, flee: 2 * lv }) },
+    desc: 'ทอชะตาให้ตนเอง AGI, VIT, LUK +2×Lv และ FLEE +2×Lv (ซ้อนกับ Blessing of Odin ได้)' },
+  ragnarok_light: { name: 'Ragnarok Light', max: 5, type: 'active', target: 'enemy', range: 9, icon: '#fff8d0', glyph: '✺', req: { wyrd_thread: 3 },
+    sp: lv => 26 + 4 * lv, cast: () => 1400, delay: 1100, fx: 'holy',
+    dmg: { type: 'magic', element: 'holy', mult: lv => 1.3 + 0.3 * lv, area: 2, at: 'target' },
+    desc: 'แสงแห่งวันสิ้นโลกตกลงพื้นที่ รัศมี 2 ช่อง 160~280% ธาตุศักดิ์สิทธิ์' },
+  skuld_judgment: { name: "Skuld's Judgment", max: 5, type: 'active', target: 'enemy', range: 9, icon: '#ffffff', glyph: '⚖', req: { ragnarok_light: 2 },
+    sp: lv => 22 + 4 * lv, cast: () => 1600, delay: 900, fx: 'holy',
+    dmg: { type: 'magic', element: 'holy', mult: lv => 2.4 + 0.5 * lv, sureHit: true },
+    desc: 'คำพิพากษาของสคูลด์ เป้าเดียว 290~490% ธาตุศักดิ์สิทธิ์ ไม่พลาด' },
+
+  // ===== Loki's Phantom =====
+  phantom_edge: { name: 'Phantom Edge', max: 5, type: 'passive', icon: '#d07ae0', glyph: '⟡',
+    passive: lv => ({ critDmgPct: 5 * lv, agi: 2 * lv, aspdPct: 2 * lv }),
+    desc: 'คมเงา แรงคริติคอล +5%×Lv, AGI +2×Lv และความเร็วโจมตี +2%×Lv' },
+  mirror_strike: { name: 'Mirror Strike', max: 5, type: 'active', target: 'enemy', melee: true, icon: '#e090f0', glyph: '⚔', req: { phantom_edge: 1 },
+    sp: lv => 12 + 2 * lv, delay: 550, chain: true, fx: 'slash',
+    dmg: { type: 'phys', mult: lv => 1.5 + 0.3 * lv, hits: 2, sureHit: true },
+    desc: 'ร่างเงาฟันซ้อน 2 ครั้ง ครั้งละ 180~300% ไม่พลาด' },
+  fang_of_fenrir: { name: 'Fang of Fenrir', max: 5, type: 'active', target: 'enemy', melee: true, icon: '#a03070', glyph: '⟆', req: { mirror_strike: 2 },
+    sp: lv => 20 + 3 * lv, delay: 800, chain: true, fx: 'slash',
+    dmg: { type: 'phys', mult: lv => 3.0 + 0.6 * lv, status: { kind: 'poison', chance: lv => 40 + 10 * lv, dur: () => 6 } },
+    desc: 'แทงด้วยเขี้ยวเฟนเรียร์ 360~600% มีโอกาสติดพิษ' },
+  smoke_cyclone: { name: 'Smoke Cyclone', max: 5, type: 'active', target: 'self', icon: '#9080b0', glyph: '꩜', req: { phantom_edge: 2 },
+    sp: lv => 20 + 2 * lv, delay: 1000, selfFx: 'whirl',
+    dmg: { type: 'phys', mult: lv => 1.2 + 0.25 * lv, area: 2.5, at: 'self', status: { kind: 'stun', chance: lv => 15 + 5 * lv, dur: () => 1.5 } },
+    desc: 'หมุนตัวในพายุควัน รอบตัว 2.5 ช่อง 145~245% อาจทำให้มึน' },
+  trickster_haste: { name: 'Trickster Haste', max: 5, type: 'active', target: 'self', icon: '#c0f0a0', glyph: '»', req: { phantom_edge: 3 },
+    sp: () => 25, delay: 800, selfFx: 'buff',
+    buff: { dur: lv => 40 + 10 * lv, stats: lv => ({ flee: 5 * lv, speedPct: 4 * lv, crit: 2 * lv }) },
+    desc: 'ความเร็วแห่งนักลวง FLEE +5×Lv, เดินเร็วขึ้น 4%×Lv และ CRIT +2×Lv' },
+
+  // ===== Ulfhednar Warlord =====
+  berserk_soul: { name: 'Berserk Soul', max: 5, type: 'passive', icon: '#d05030', glyph: 'ᛉ',
+    passive: lv => ({ atkPct: 3 * lv, hpPct: 2 * lv, rage: 5 * lv }),
+    desc: 'วิญญาณคลั่ง ดาเมจกายภาพ +3%×Lv, MaxHP +2%×Lv และยิ่ง HP น้อยยิ่งแรงขึ้นอีก +5%×Lv' },
+  fenrir_bite: { name: 'Fenrir Bite', max: 5, type: 'active', target: 'enemy', melee: true, icon: '#e05a30', glyph: '⩔', req: { berserk_soul: 1 },
+    sp: () => 8, hpCost: () => 4, delay: 700, chain: true, fx: 'bash',
+    dmg: { type: 'phys', mult: lv => 2.4 + 0.45 * lv },
+    desc: 'กัดฉีกแบบหมาป่าเฟนเรียร์ 285~465% เสีย HP 4%' },
+  ragnarok_cleave: { name: 'Ragnarok Cleave', max: 5, type: 'active', target: 'self', icon: '#ff8040', glyph: '⟳', req: { fenrir_bite: 2 },
+    sp: () => 15, hpCost: () => 6, delay: 1100, selfFx: 'whirl',
+    dmg: { type: 'phys', mult: lv => 1.8 + 0.35 * lv, area: 2.5, at: 'self' },
+    desc: 'ฟันขวานกวาดรอบตัว 2.5 ช่อง 215~355% เสีย HP 6%' },
+  war_howl: { name: 'War Howl', max: 5, type: 'active', target: 'self', icon: '#e0b080', glyph: 'ᚺ', req: { berserk_soul: 2 },
+    sp: () => 20, delay: 1200, selfFx: 'howl',
+    buff: { dur: lv => 40 + 10 * lv, stats: lv => ({ atk: 8 * lv, aspdPct: 3 * lv, stunRes: 8 * lv }) },
+    desc: 'หอนปลุกฝูง ATK +8×Lv, ความเร็วโจมตี +3%×Lv และต้านมึน +8%×Lv' },
+  undying_rage: { name: 'Undying Rage', max: 5, type: 'active', target: 'self', icon: '#ff3030', glyph: '♥', req: { berserk_soul: 3 },
+    sp: () => 25, delay: 1000, selfFx: 'buff',
+    buff: { dur: lv => 15 + 3 * lv, stats: lv => ({ leech: 1 + lv, def: 4 * lv }) },
+    desc: 'ความแค้นที่ไม่ยอมตาย ดูดเลือด +(1+Lv)% และ DEF +4×Lv ชั่วคราว' },
 };
 
 // ------------------------------------------------------------
@@ -475,6 +641,7 @@ const MAX_BASE_LV = 99;
 function baseExpNeed(lv) { return Math.floor(5 * Math.pow(lv, 2.75)) + 40; }
 function jobExpNeed(job, jl) {
   if (job === 'novice') return Math.floor(5 * Math.pow(jl, 1.5)) + 5;
+  if (JOBS[job] && JOBS[job].tier === 2) return Math.floor(70 * jl * jl); // คลาสขั้น 2 เก็บ Job ช้ากว่า
   return Math.floor(40 * jl * jl);
 }
 function statCost(v) { return Math.floor((v - 1) / 10) + 2; }
@@ -488,5 +655,11 @@ const SKILL_CD = {
   light_of_freyja: 3, blessing_of_odin: 15, holy_spear: 2,
   backstab: 2.5, smoke_veil: 15, venom_blade: 15,
   rage_strike: 1.5, blood_frenzy: 25, howl: 10,
+  spear_of_valhalla: 2, einherjar_guard: 20, judgment_quake: 7, valhallas_call: 12,
+  meteor_rune: 6, frost_nova: 8, chain_lightning: 3, rune_barrier: 30,
+  arrow_storm: 4, frost_arrow: 2.5, focused_volley: 5, winter_hunt: 30,
+  great_restoration: 5, fate_weave: 30, ragnarok_light: 5, skuld_judgment: 4,
+  mirror_strike: 2, fang_of_fenrir: 6, smoke_cyclone: 8, trickster_haste: 30,
+  fenrir_bite: 2, ragnarok_cleave: 6, war_howl: 30, undying_rage: 45,
 };
 for (const id in SKILL_CD) if (SKILLS[id]) SKILLS[id].cd = SKILL_CD[id];

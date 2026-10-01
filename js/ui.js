@@ -29,6 +29,7 @@ const UI = {
   init() {
     this.buildHotbar();
     this.buildMenu();
+    this.initTip();
     this.initFolds();
     for (const w of $$('.win')) this.makeWindow(w);
     $('#chat-input').addEventListener('keydown', e => {
@@ -120,6 +121,8 @@ const UI = {
   toggle(id) { const w = $('#' + id); if (w.classList.contains('hidden')) this.open(id); else this.close(id); },
   open(id) {
     const w = $('#' + id);
+    // เปิดอุปกรณ์ → เปิดกระเป๋า (แท็บอุปกรณ์) คู่กันเลย (จอกว้างพอวางสองหน้าต่าง)
+    if (id === 'w-equip' && innerWidth > 760 && !this.isOpen('w-inv')) { this.invTab = 'equip'; this.selItem = null; this.pairInv = true; this.open('w-inv'); }
     w.classList.remove('hidden'); w.style.zIndex = ++this.z;
     this.dirty(); this.renderWindows(true);
     Sound.play('click');
@@ -128,6 +131,9 @@ const UI = {
     const w = $('#' + id);
     if (!w || w.classList.contains('hidden')) return false;
     w.classList.add('hidden');
+    if (id === 'w-equip' && this.pairInv) { this.pairInv = false; this.close('w-inv'); }
+    if (id === 'w-inv') this.pairInv = false;
+    this.hideTip();
     if (id === 'w-dialog' && this.dialog) { const d = this.dialog; this.dialog = null; d.reject('closed'); }
     if (id === 'w-shop') this.shop = null;
     return true;
@@ -673,6 +679,42 @@ const UI = {
     );
   },
 
+  // ---------- การ์ดข้อมูลไอเทมเมื่อเอาเมาส์ชี้ (กระเป๋า / อุปกรณ์ / ร้านค้า) ----------
+  tipFor(el, entry, worn) { el.classList.add('has-tip'); el._tip = { entry, worn }; return el; },
+  hideTip() { const t = $('#item-tip'); if (t) t.hidden = true; this._tipEl = null; },
+  tipBody(entry, worn) {
+    const it = ITEMS[entry.id], bon = {};
+    const add = o => { if (o) for (const k in o) bon[k] = (bon[k] || 0) + o[k]; };
+    add(it.b); for (const c of entry.cards || []) add(ITEMS[c].b);
+    const tag = it.type === 'weapon' ? 'อาวุธ' : it.type === 'armor' ? (SLOT_THAI[it.slot] || 'ชุด') : it.type === 'card' ? 'ชิป' : it.type === 'use' ? 'ของใช้' : 'ของสะสม';
+    return [
+      h('div', { class: 'tip-head' }, h('img', { src: itemIconUrl(entry.id), alt: '' }), h('div', {}, h('b', {}, itemDisplayName(entry)), h('small', {}, tag + (worn ? ' • สวมอยู่' : '')))),
+      it.desc ? h('div', { class: 'tip-desc' }, it.desc) : null,
+      ...this.itemTooltip(entry).map(l => h('div', { class: 'tip-line' }, l)),
+      Object.keys(bon).length ? h('div', { class: 'tip-bon' }, ...Object.entries(bon).filter(([k]) => typeof PSTAT !== 'undefined' && PSTAT[k]).map(([k, v]) => h('span', {}, PSTAT_FMT(k, v)))) : null,
+      it.heal ? h('div', { class: 'tip-line' }, `ฟื้น HP ${it.heal[0]}~${it.heal[1]}`) : null,
+      it.spHeal ? h('div', { class: 'tip-line' }, `ฟื้น SP ${it.spHeal[0]}~${it.spHeal[1]}`) : null,
+      !worn && isEquipType(it) && G.player.inventory.includes(entry) ? this.compareLine(entry, true) : null,
+    ].filter(Boolean);
+  },
+  initTip() {
+    if ($('#item-tip')) return;
+    const tip = h('div', { id: 'item-tip', role: 'tooltip' }); tip.hidden = true; document.body.append(tip);
+    const place = (x, y) => {
+      const r = tip.getBoundingClientRect(), W = innerWidth, H = innerHeight;
+      tip.style.left = Math.round(x + 18 + r.width > W - 8 ? Math.max(8, x - r.width - 14) : x + 18) + 'px';
+      tip.style.top = Math.round(Math.min(Math.max(8, y - 10), H - r.height - 8)) + 'px';
+    };
+    document.addEventListener('pointermove', ev => {
+      if (ev.pointerType !== 'mouse') return;
+      const el = ev.target.closest && ev.target.closest('.has-tip');
+      if (!el || !el._tip) { if (!tip.hidden) this.hideTip(); return; }
+      if (this._tipEl !== el) { this._tipEl = el; tip.innerHTML = ''; tip.append(...this.tipBody(el._tip.entry, el._tip.worn)); tip.hidden = false; }
+      place(ev.clientX, ev.clientY);
+    }, { passive: true });
+    document.addEventListener('pointerdown', () => this.hideTip(), { passive: true });
+  },
+
   itemTooltip(entry) {
     const it = ITEMS[entry.id];
     const lines = [];
@@ -725,6 +767,7 @@ const UI = {
         h('img', { src: itemIconUrl(e.id), alt: '' }),
         e.qty > 1 || !isEquipType(ITEMS[e.id]) ? h('span', { class: 'q' }, String(e.qty)) : null,
         e.refine ? h('span', { class: 'rf' }, '+' + e.refine) : null);
+      this.tipFor(cell, e); cell.removeAttribute('title');
       cell.addEventListener('click', () => { this.selItem = e; this.renderInv(); });
       cell.addEventListener('dblclick', () => { useItem(e); });
       cell.addEventListener('dragstart', ev => ev.dataTransfer.setData('text/plain', JSON.stringify({ t: 'item', id: e.id })));
@@ -775,10 +818,11 @@ const UI = {
     g.restore();
     const slots = EQUIP_SLOTS.map(s => {
       const e = p.equip[s];
-      return h('div', { class: 'eq-slot' + (e ? '' : ' empty'), title: e ? 'คลิกเพื่อถอด' : '', onclick: () => e && unequip(s) },
+      const el = h('div', { class: 'eq-slot' + (e ? '' : ' empty'), onclick: () => e && unequip(s) },
         h('span', { class: 'eq-n' }, SLOT_THAI[s]),
         e ? h('img', { src: itemIconUrl(e.id), alt: '' }) : h('span', { class: 'eq-ph' }),
         h('span', { class: 'eq-i' }, e ? itemDisplayName(e) + (e.cards && e.cards.length ? ` ◆${e.cards.length}` : '') : '-'));
+      return e ? this.tipFor(el, e, true) : el;
     });
     body.append(h('div', { class: 'eq-wrap' }, prev, h('div', { class: 'eq-slots' }, slots)),
       h('div', { class: 'hint' }, 'คลิกที่อุปกรณ์เพื่อถอด • สวมใส่ได้จากหน้าต่างไอเทม'));
@@ -788,7 +832,7 @@ const UI = {
     const p = G.player;
     const body = $('#w-skills .win-body');
     body.innerHTML = '';
-    const ids = [...new Set([...(p.job !== 'novice' ? JOBS.novice.skills : []), ...JOBS[p.job].skills])];
+    const ids = [...new Set([...(p.job !== 'novice' ? JOBS.novice.skills : []), ...jobLine(p.job).reverse().flatMap(j => JOBS[j].skills)])];
     body.append(h('div', { class: 'sk-head' }, `${JOBS[p.job].name} — Skill Point: `, h('b', {}, String(p.skillPoints))));
     const list = h('div', { class: 'sk-list' });
     // ความชำนาญ: แถบความคืบหน้าถึง Lv ถัดไป
@@ -826,6 +870,7 @@ const UI = {
           lv && s.type === 'active' ? h('button', { class: 'btn small', title: 'ตั้งปุ่มลัด', onclick: () => this.assignHotbar('skill', id) }, '📌') : null)));
     }
     body.append(list);
+    if (SECOND_JOBS[p.job]) body.append(h('div', { class: 'hint' }, `คลาสขั้น 2 (${JOBS[SECOND_JOBS[p.job]].name}): Base Lv ${SECOND_JOB_REQ.base} และ Job Lv ${SECOND_JOB_REQ.job} แล้วคุยกับ Mimir AI ในนีโอเอลด์ไฮม์`));
     if (p.job === 'novice') body.append(h('div', { class: 'hint' }, `เก็บ Job Lv ${JOB_CHANGE_LV} แล้วไปหา Mimir AI ในนีโอเอลด์ไฮม์ เพื่ออัปเกรดร่างเป็น 1 ใน 6 คลาส`));
   },
 
@@ -1469,11 +1514,11 @@ const UI = {
     if (s.mode === 'buy') {
       for (const id of s.list) {
         const it = ITEMS[id];
-        const usable = !isEquipType(it) || it.jobs === 'all' || it.jobs.includes(p.job);
+        const usable = !isEquipType(it) || canJobUse(it.jobs, p.job);
         const qty = h('input', { type: 'number', min: 1, max: 999, value: 1, class: 'qty' });
         if (isEquipType(it)) qty.style.visibility = 'hidden';
-        list.append(h('div', { class: 'shop-row' + (usable ? '' : ' dim'), title: it.desc },
-          h('img', { src: itemIconUrl(id), alt: '' }),
+        list.append(h('div', { class: 'shop-row' + (usable ? '' : ' dim') },
+          this.tipFor(h('img', { src: itemIconUrl(id), alt: '' }), { id, refine: 0, cards: [] }),
           h('div', { class: 'shop-n' }, h('b', {}, it.name + (it.slots ? ` [${it.slots}]` : '')), h('small', {}, it.desc + (it.lv ? ` (Lv ${it.lv}+)` : '')), isEquipType(it) && usable ? this.compareLine({ id, refine: 0, cards: [] }, true) : null),
           h('span', { class: 'shop-p' + (it.price > p.zeny ? ' poor' : '') }, U.fmt(it.price) + ' ' + CUR),
           qty,
@@ -1486,7 +1531,7 @@ const UI = {
         const it = ITEMS[e.id];
         const price = Math.floor(it.price / 2);
         list.append(h('div', { class: 'shop-row' },
-          h('img', { src: itemIconUrl(e.id), alt: '' }),
+          this.tipFor(h('img', { src: itemIconUrl(e.id), alt: '' }), e),
           h('div', { class: 'shop-n' }, h('b', {}, itemDisplayName(e)), h('small', {}, `มี ${e.qty} ชิ้น`)),
           h('span', { class: 'shop-p' }, U.fmt(price) + ' ' + CUR),
           h('button', { class: 'btn small', onclick: () => this.sell(e, 1) }, 'ขาย 1'),
