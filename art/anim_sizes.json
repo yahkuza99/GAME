@@ -373,5 +373,20 @@
    "scale_src": 0.3968,
    "median_src_h": 378.00085656079267
   }
+ },
+ "mob_rust_sap": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.52,
+   "median_src_h": 288.46153846153845
+  },
+  "_k1536": 0.60057,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.52,
+   "median_src_h": 288.46153846153845
+  }
  }
 }
