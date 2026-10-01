@@ -826,3 +826,18 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
 .bm-chk { position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700;
   border: 1px solid rgba(255,255,255,.25); color: #04121f; }
 .bm-card.on .bm-chk { background: var(--cy); border-color: transparent; }
+
+/* ---------------- ใช้สกิลแบบ RO: โหมดเล็ง + ดีเลย์วงกวาด ---------------- */
+.hb .cd { display: grid; place-items: center; font: 600 11px var(--mono, monospace); color: #fff; text-shadow: 0 1px 2px #000;
+  background: conic-gradient(rgba(6,10,18,.72) calc(var(--cd, 0) * 360deg), rgba(6,10,18,0) 0) !important; border-radius: inherit; }
+.hb.aiming { outline: 2px solid #ffe078; outline-offset: 1px; box-shadow: 0 0 16px rgba(255,224,120,.55) !important; animation: aimPulse 1s ease-in-out infinite; }
+@keyframes aimPulse { 50% { box-shadow: 0 0 6px rgba(255,224,120,.3) !important; } }
+#skill-aim { position: fixed; left: 50%; top: calc(64px + var(--st, 0px)); transform: translateX(-50%); z-index: 30; display: flex; align-items: center; gap: 10px;
+  padding: 6px 8px 6px 6px; border-radius: 999px; background: rgba(10,16,26,.78); border: 1px solid rgba(255,224,120,.55); color: var(--ink);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: 0 10px 26px -12px rgba(0,0,0,.9); max-width: calc(100vw - 24px); }
+#skill-aim[hidden] { display: none; }
+#skill-aim .sa-ic .sicon { width: 30px; height: 30px; border-radius: 50%; }
+#skill-aim .sa-t { font-size: 12.5px; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+#skill-aim .sa-t b { color: #ffe9a8; margin-right: 6px; }
+#skill-aim #sa-x { flex: none; border-radius: 999px; padding: 5px 12px; font-size: 12px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); color: var(--ink); cursor: pointer; }
+@media (max-width: 760px) { #skill-aim { top: calc(132px + var(--st, 0px)); } #skill-aim .sa-t { font-size: 11.5px; white-space: normal; } }

@@ -847,17 +847,30 @@ function useSkill(id) {
     return;
   }
   if (s.target === 'enemy') {
-    let tgt = p.target && !p.target.dead ? p.target : (G.hover && G.hover.kind === 'mob' ? G.hover.ref : null);
-    // โหมด PAD: เล็งมอนที่ใกล้ที่สุดให้อัตโนมัติ
-    if (!tgt && Pad.enabled()) tgt = Pad.nearestMob(12);
-    if (!tgt) { G.pendingSkill = id; UI.msg(`คลิกที่มอนสเตอร์เพื่อใช้ ${s.name}`, 'info'); return; }
+    const cur = p.target && !p.target.dead ? p.target : (G.hover && G.hover.kind === 'mob' ? G.hover.ref : null);
+    // แบบ RO: กดสกิล → โหมดเล็ง → คลิก/แตะมอน • กดปุ่มเดิมซ้ำ = ใช้กับเป้าปัจจุบัน (หรือตัวใกล้สุด)
+    if (p.options.skillAim !== false && G.pendingSkill !== id) {
+      if (G.time < p.skillReadyAt) { skillDelayHint(); return; }
+      G.pendingSkill = id; G.pendingAt = G.time; Sound.play('click');
+      return;
+    }
+    let tgt = cur;
+    if (!tgt && (Pad.enabled() || G.pendingSkill === id)) tgt = Pad.nearestMob(12);
+    if (!tgt) { G.pendingSkill = id; G.pendingAt = G.time; UI.msg(`คลิกที่มอนสเตอร์เพื่อใช้ ${s.name}`, 'info'); return; }
     beginSkill(id, lv, tgt);
   } else beginSkill(id, lv, null);
+}
+// กดสกิลระหว่างติดดีเลย์: เตือนเหนือหัว (ไม่สแปมแชท)
+function skillDelayHint() {
+  const p = G.player;
+  if (G.time < (p.delayHintAt || 0)) return;
+  p.delayHintAt = G.time + 0.6;
+  addFloater(p.x, p.y - 1.6, `ดีเลย์ ${Math.max(0.1, p.skillReadyAt - G.time).toFixed(1)}s`, '#9fb8d8');
 }
 function beginSkill(id, lv, tgt) {
   const p = G.player, s = SKILLS[id];
   G.pendingSkill = null;
-  if (G.time < p.skillReadyAt) { UI.msg('ยังไม่สามารถใช้สกิลได้ (ดีเลย์)', 'err'); return; }
+  if (G.time < p.skillReadyAt) { skillDelayHint(); return; }
   if (!canPaySkill(skillCost(id, lv))) { const w = p.d.bloodmagic ? 'HP' : 'SP'; UI.msg(`${w} ไม่เพียงพอ`, 'err'); addFloater(p.x, p.y - 1.3, `${w} ไม่พอ`, '#8fb0ff'); return; }
   if (tgt) {
     const dist = U.dist(p.x, p.y, tgt.x, tgt.y);
@@ -893,7 +906,7 @@ function executeSkill(id, lv, tgt) {
   }
   Quest.onSkillUse();
   const delay = typeof s.delay === 'function' ? s.delay(lv) : (s.delay || 500);
-  p.skillReadyAt = G.time + delay / 1000;
+  p.skillReadyAt = G.time + delay / 1000; p.skillDelayMs = delay; // ดีเลย์หลังใช้สกิล (After-cast Delay) ทุกสกิลรอพร้อมกัน
   shout(`${s.name}!!`);
   p.atkAnim = 1;
   p.skillPose = G.time; // ท่าใช้สกิล (1 ท่าต่ออาชีพ) — ความต่างของแต่ละสกิลอยู่ที่เอฟเฟกต์
@@ -1276,8 +1289,11 @@ function updateMob(m, dt) {
   const dist = U.dist(m.x, m.y, p.x, p.y);
   const spd = md.speed * (m.slowUntil > G.time ? 0.5 : 1);
   if (hidden && m.state === 'chase') { m.state = 'idle'; m.path = []; }
-  if (m.state !== 'chase' && md.aggro && alive && !hidden && dist < 6 && G.map.def.kind !== 'town') {
+  // มอนตีก่อน: เห็นในระยะ 4 ช่อง • ไม่สนผู้เล่นที่เลเวลสูงกว่ามันเกิน 10 (ฟาร์มแมพเก่าได้สบาย)
+  // • เจอแล้วชะงัก (!) ครู่หนึ่งก่อนตีครั้งแรก ให้ผู้เล่นมีเวลาตั้งตัว
+  if (m.state !== 'chase' && md.aggro && alive && !hidden && dist < 4 && p.baseLv < md.lv + 10 && G.map.def.kind !== 'town') {
     m.state = 'chase'; m.emoteUntil = G.time + 0.9; m.path = [];
+    m.nextAtk = Math.max(m.nextAtk || 0, G.time + 1.0);
   }
   if (md.dummy) { // หุ่นฝึก: อยู่กับที่ ตีกลับเฉพาะตอนผู้เล่นอยู่ในระยะหลังถูกตี
     m.moving = false; m.path = [];
@@ -1287,7 +1303,7 @@ function updateMob(m, dt) {
     return;
   }
   if (m.state === 'chase') {
-    if (!alive || dist > 16) { m.state = 'idle'; m.path = []; m.moving = false; return; }
+    if (!alive || dist > 11) { m.state = 'idle'; m.path = []; m.moving = false; return; } // หนีพ้นได้เมื่อห่าง 11 ช่อง
     // สกิลบอส
     if (md.boss && G.time >= m.nextBossSkill && dist < 8) {
       m.nextBossSkill = G.time + U.rand(8, 12);

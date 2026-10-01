@@ -230,15 +230,34 @@ const UI = {
     const bh = buffs.join('');
     const be = $('#buffs');
     if (be.innerHTML !== bh) be.innerHTML = bh;
-    // ฮอตบาร์ (จำนวน/คูลดาวน์)
+    // โหมดเล็งสกิล: แถบบอกด้านบน
+    const sa = $('#skill-aim');
+    if (sa) {
+      const id = G.pendingSkill;
+      if (!id) { if (!sa.hidden) sa.hidden = true; }
+      else {
+        if (sa.dataset.id !== id) {
+          sa.dataset.id = id; const ic = $('.sa-ic', sa); ic.innerHTML = ''; ic.append(this.skillIcon(id));
+          $('.sa-t', sa).innerHTML = `<b>${SKILLS[id].name}</b> ${Pad.enabled() ? 'แตะมอนเพื่อใช้ • แตะปุ่มสกิลซ้ำ = ตัวใกล้สุด' : 'คลิกมอนเพื่อใช้ • กดซ้ำ = เป้าปัจจุบัน • คลิกขวา/Esc ยกเลิก'}`;
+          $('#sa-x').onclick = () => { G.pendingSkill = null; };
+        }
+        sa.hidden = false;
+      }
+    }
+    // ฮอตบาร์ (จำนวน/ดีเลย์สกิลแบบวงกวาด)
     $$('#hotbar .hb, #potbar .hb').forEach(el => {
       const hb = p[el.dataset.bar][+el.dataset.i];
       const cd = $('.cd', el);
       if (hb && hb.t === 'skill') {
-        const left = p.skillReadyAt - G.time;
-        cd.style.height = left > 0 ? '100%' : '0';
+        const left = p.skillReadyAt - G.time, tot = (p.skillDelayMs || 500) / 1000;
+        const k = left > 0 ? U.clamp(left / tot, 0, 1) : 0;
+        cd.style.height = k > 0 ? '100%' : '0';
+        cd.style.setProperty('--cd', k.toFixed(3));
+        const txt = k > 0 ? left.toFixed(1) : '';
+        if (cd.textContent !== txt) cd.textContent = txt;
+        el.classList.toggle('aiming', G.pendingSkill === hb.id);
         el.classList.toggle('nosp', !canPaySkill(skillCost(hb.id, skillLv(hb.id))));
-      } else { cd.style.height = '0'; el.classList.remove('nosp'); }
+      } else { cd.style.height = '0'; if (cd.textContent) cd.textContent = ''; el.classList.remove('nosp', 'aiming'); }
       if (hb && hb.t === 'item') { const q = $('.q', el); const c = countItem(hb.id); if (q.textContent !== String(c)) q.textContent = c; el.classList.toggle('empty', c === 0); }
     });
     // มินิแมพ + บอท
@@ -1250,6 +1269,7 @@ const UI = {
     body.append(
       chk('autoLoot', 'เก็บไอเทมอัตโนมัติ (Auto Loot)'),
       h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.autoCounter !== false ? 'checked' : false, onchange: e => { o.autoCounter = e.target.checked; saveGame(); } }), ' โจมตีกลับอัตโนมัติเมื่อถูกโจมตี'),
+      h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.skillAim !== false ? 'checked' : false, onchange: e => { o.skillAim = e.target.checked; G.pendingSkill = null; saveGame(); } }), ' กดสกิลแล้วคลิกเลือกเป้า (แบบ RO) — ปิด = ใช้ใส่เป้าปัจจุบันทันที'),
       chk('sound', 'เสียงเอฟเฟกต์'),
       h('label', { class: 'opt' }, 'ความดังเอฟเฟกต์ ',
         h('input', { type: 'range', min: 0, max: 1, step: 0.05, value: o.sfxVol != null ? o.sfxVol : 0.8, oninput: e => { o.sfxVol = +e.target.value; Sound.setVolume(); body.dataset.key = this.optKey(); }, onchange: () => { saveGame(); Sound.play('pickup'); } })),

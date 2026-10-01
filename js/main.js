@@ -97,8 +97,14 @@ function handleClick() {
   const hv = G.hover;
   if (G.pendingSkill) {
     const id = G.pendingSkill;
+    // แตะบนมือถือนิ้วใหญ่: ถ้าไม่โดนตัวพอดี เลือกมอนที่ใกล้จุดแตะที่สุดในระยะ 1.6 ช่อง
+    let m = hv && hv.kind === 'mob' ? hv.ref : null;
+    if (!m) {
+      const wx = R.mouse.wx / TILE, wy = R.mouse.wy / TILE;
+      m = G.mobs.filter(x => !x.dead && U.dist(x.x, x.y, wx, wy) < 1.6).sort((a, b) => U.dist(a.x, a.y, wx, wy) - U.dist(b.x, b.y, wx, wy))[0] || null;
+    }
     G.pendingSkill = null;
-    if (hv && hv.kind === 'mob') beginSkill(id, skillLv(id), hv.ref);
+    if (m) { p.target = m; p.repathAt = 0; beginSkill(id, skillLv(id), m); }
     else UI.msg('ยกเลิกการใช้สกิล', 'info');
     return;
   }
@@ -139,7 +145,7 @@ function bindInput() {
   const up = e => { touches.delete(e.pointerId); if (touches.size < 2) R.pinch = null; R.mouse.down = false; };
   window.addEventListener('pointerup', up);
   window.addEventListener('pointercancel', up);
-  cv.addEventListener('contextmenu', e => e.preventDefault());
+  cv.addEventListener('contextmenu', e => { e.preventDefault(); if (G.pendingSkill) { G.pendingSkill = null; UI.msg('ยกเลิกการใช้สกิล', 'info'); } });
   cv.addEventListener('wheel', e => {
     e.preventDefault();
     R.zoom = U.clamp(R.zoom * (e.deltaY > 0 ? 0.9 : 1.1), R.ZMIN, R.ZMAX);
