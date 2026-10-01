@@ -490,7 +490,7 @@ const UI = {
       for (let i = 0; i < cfg.n; i++) {
         const el = h('div', { class: 'hb', 'data-i': i, 'data-bar': bar, title: L(`ปุ่มลัด ${cfg.keys[i]}`, `Hotkey ${cfg.keys[i]}`) },
           h('div', { class: 'ic' }), h('span', { class: 'k' }, cfg.keys[i]), h('span', { class: 'q' }), h('div', { class: 'cd' }));
-        const use = () => (bar === 'hotbar' ? useHotbar(i) : usePotbar(i));
+        const use = () => (G.player[bar][i] ? (bar === 'hotbar' ? useHotbar(i) : usePotbar(i)) : this.chooseFor(bar, i, el)); // ช่องว่าง: แตะเพื่อเลือกสกิล/ไอเทม
         const clear = () => { if (G.player[bar][i]) { G.player[bar][i] = null; this.msg(L(`ล้างปุ่มลัด ${cfg.keys[i]}`, `Cleared hotkey ${cfg.keys[i]}`), 'info'); this.dirty(); } };
         let lpTimer = null, lpFired = false;
         el.addEventListener('pointerdown', e => {
@@ -498,7 +498,7 @@ const UI = {
           if (e.pointerType === 'mouse') return;
           lpFired = false;
           el.classList.add('press');
-          lpTimer = setTimeout(() => { lpFired = true; clear(); }, 650);
+          lpTimer = setTimeout(() => { lpFired = true; this.chooseFor(bar, i, el); }, 550); // แตะค้าง: เปลี่ยน/ล้างช่องนี้
         });
         const cancelLp = () => { clearTimeout(lpTimer); el.classList.remove('press'); };
         el.addEventListener('pointerup', cancelLp); el.addEventListener('pointerleave', cancelLp); el.addEventListener('pointercancel', cancelLp);
@@ -583,6 +583,32 @@ const UI = {
     if (i < 0) return false;
     this.bindSlot(b.t, b.id, i); return true;
   },
+  // แตะช่องปุ่มลัดที่ว่าง / แตะค้างช่องที่มีของ → เลือกสกิล (หรือไอเทม) ใส่ช่องนั้นได้เลย ไม่ต้องลาก (มือถือ)
+  chooseFor(bar, i, anchor) {
+    document.getElementById('slot-pick')?.remove();
+    const p = G.player, cfg = this.BARS[bar], cur = p[bar][i];
+    const opts = cfg.t === 'skill'
+      ? Object.keys(p.skills).filter(k => SKILLS[k] && SKILLS[k].type === 'active' && skillLv(k) > 0)
+      : [...new Set(p.inventory.filter(e => ITEMS[e.id] && ITEMS[e.id].type === 'use').map(e => e.id))];
+    const close = () => { box.remove(); document.removeEventListener('pointerdown', outside, true); };
+    const outside = e => { if (!box.contains(e.target)) close(); };
+    const box = h('div', { id: 'slot-pick', class: 'slot-pick choose', role: 'dialog' },
+      h('div', { class: 'sp-h' }, cfg.t === 'skill' ? L(`เลือกสกิลใส่ปุ่ม ${cfg.keys[i]}`, `Pick a skill for slot ${cfg.keys[i]}`) : L(`เลือกไอเทมใส่ปุ่ม ${cfg.keys[i]}`, `Pick an item for slot ${cfg.keys[i]}`)),
+      opts.length ? h('div', { class: 'sp-grid' }, ...opts.map(id => {
+        const on = cur && cur.id === id;
+        const ic = cfg.t === 'skill' ? this.skillIcon(id) : h('img', { src: itemIconUrl(id), alt: '' });
+        return h('button', { type: 'button', class: 'sp-opt' + (on ? ' cur' : ''), onclick: e => { e.stopPropagation(); close(); this.bindSlot(cfg.t, id, i); } },
+          h('div', { class: 'sp-ic' }, ic), h('span', {}, cfg.t === 'skill' ? SKILLS[id].name : ITEMS[id].name));
+      })) : h('div', { class: 'sp-tip' }, cfg.t === 'skill' ? L('ยังไม่มีสกิลที่ใช้งานได้ — อัปสกิลในหน้าต่างสกิลก่อน', 'No active skills yet — learn one in the Skills window first') : L('ไม่มีไอเทมที่ใช้ได้ในกระเป๋า', 'No usable items in your bag')),
+      h('div', { class: 'sp-foot' },
+        cur ? h('button', { type: 'button', class: 'btn small', onclick: e => { e.stopPropagation(); close(); p[bar][i] = null; this.msg(L(`ล้างปุ่มลัด ${cfg.keys[i]}`, `Cleared hotkey ${cfg.keys[i]}`), 'info'); this.dirty(); } }, L('ล้างช่องนี้', 'Clear slot')) : null,
+        h('button', { type: 'button', class: 'btn small', onclick: e => { e.stopPropagation(); close(); } }, L('ปิด', 'Close'))));
+    document.body.append(box);
+    const r = anchor.getBoundingClientRect(), bw = box.offsetWidth, bh = box.offsetHeight;
+    box.style.left = Math.max(8, Math.min(innerWidth - bw - 8, r.left + r.width / 2 - bw / 2)) + 'px';
+    box.style.top = Math.max(8, Math.min(innerHeight - bh - 8, r.top - bh - 10)) + 'px';
+    setTimeout(() => document.addEventListener('pointerdown', outside, true), 0);
+  },
   // ปุ่ม 📌: เลือกช่องปุ่มลัดเอง (ใช้ได้ทั้งเมาส์และจอสัมผัส)
   pickSlot(t, id, anchor) {
     document.getElementById('slot-pick')?.remove();
@@ -595,7 +621,7 @@ const UI = {
         return h('button', { type: 'button', class: 'sp-slot' + (cur ? ' cur' : '') + (x ? '' : ' empty'), title: x ? (x.t === 'skill' ? SKILLS[x.id].name : ITEMS[x.id].name) : L('ว่าง', 'Empty'),
           onclick: e => { e.stopPropagation(); box.remove(); this.bindSlot(t, id, i); } }, h('div', { class: 'sp-ic' }, ic), h('b', {}, k));
       })),
-      h('div', { class: 'sp-tip' }, matchMedia('(pointer: coarse)').matches ? L('แตะค้างที่ปุ่มลัดเพื่อล้าง', 'Long-press a hotkey to clear it') : L(`ทางลัด: ชี้ที่${t === 'skill' ? 'สกิล' : 'ไอเทม'}แล้วกด ${keys.join(' ')} • คลิกขวาที่ปุ่มลัดเพื่อล้าง`, `Shortcut: hover the ${t === 'skill' ? 'skill' : 'item'} and press ${keys.join(' ')} • right-click a hotkey to clear it`)));
+      h('div', { class: 'sp-tip' }, matchMedia('(pointer: coarse)').matches ? L('ทางลัด: แตะช่องว่างข้างปุ่มโจมตีเพื่อเลือกสกิล • แตะค้างเพื่อเปลี่ยน/ล้าง', 'Shortcut: tap an empty slot by the attack button to pick a skill • long-press to change/clear') : L(`ทางลัด: ชี้ที่${t === 'skill' ? 'สกิล' : 'ไอเทม'}แล้วกด ${keys.join(' ')} • คลิกขวาที่ปุ่มลัดเพื่อล้าง`, `Shortcut: hover the ${t === 'skill' ? 'skill' : 'item'} and press ${keys.join(' ')} • right-click a hotkey to clear it`)));
     document.body.append(box);
     const r = anchor.getBoundingClientRect(), bw = box.offsetWidth, bh = box.offsetHeight;
     box.style.left = Math.max(8, Math.min(innerWidth - bw - 8, r.right - bw)) + 'px';
