@@ -582,6 +582,7 @@ R.fxPos = f => {
 };
 
 R.drawFx = (g, f, t) => {
+  if (f.fx2) return FX2.draw(g, f, t); // เอฟเฟกต์เฉพาะสกิล (js/fx2.js)
   const k = Math.min(1, f.t / f.dur);
   const after = f.t > f.dur ? (f.t - f.dur) / (f.linger || 1) : -1;
   const pos = R.fxPos(f);

@@ -168,6 +168,7 @@ const WTYPE_THAI = { none: L('มือเปล่า', 'Unarmed'), dagger: L('
 //  special: 'summon_wolf' | 'trap' | 'stealth'
 //  fx: เอฟเฟกต์เมื่อโดน ('firebolt','coldbolt','lightning','holy','soul','arrow','bash','slash')
 //  selfFx: เอฟเฟกต์รอบตัว ('firering','whirl','howl','buff','heal','shout')
+//  vfx: เอฟเฟกต์เฉพาะสกิล (ดู js/fx2.js — ตั้งให้อัตโนมัติจาก FX2.SKILL; ไม่มี = ใช้ fx/selfFx เดิม)
 //  chain: true = โจมตีปกติต่อหลังใช้สกิล
 // ------------------------------------------------------------
 const SKILLS = {
