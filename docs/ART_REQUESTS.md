@@ -926,15 +926,15 @@ Rows per priority: P1 = 36, P1+ = 6, P2 = 32, P2+ = 2, P3 = 72, P4 = 2, P4+ = 5,
 
 | ✓ | # | Pri | File | Final spec |
 |---|---|---|---|---|
-| ⬜ | 1 | P1 | `job_valkyrie_f.webp` | 1024×1536 · transparent |
-| ⬜ | 2 | P1 | `job_valkyrie_m.webp` | 1024×1536 · transparent |
-| ⬜ | 3 | P1 | `emblem_valkyrie.webp` | 128² · transparent |
-| ⬜ | 4 | P1 | `job_hersir_f.webp` | 1024×1536 · transparent |
-| ⬜ | 5 | P1 | `job_hersir_m.webp` | 1024×1536 · transparent |
-| ⬜ | 6 | P1 | `emblem_hersir.webp` | 128² · transparent |
-| ⬜ | 7 | P1 | `job_galdr_f.webp` | 1024×1536 · transparent |
-| ⬜ | 8 | P1 | `job_galdr_m.webp` | 1024×1536 · transparent |
-| ⬜ | 9 | P1 | `emblem_galdr.webp` | 128² · transparent |
+| ✅ | 1 | P1 | `job_valkyrie_f.webp` | 1024×1536 · transparent |
+| ✅ | 2 | P1 | `job_valkyrie_m.webp` | 1024×1536 · transparent |
+| ✅ | 3 | P1 | `emblem_valkyrie.webp` | 128² · transparent |
+| ✅ | 4 | P1 | `job_hersir_f.webp` | 1024×1536 · transparent |
+| ✅ | 5 | P1 | `job_hersir_m.webp` | 1024×1536 · transparent |
+| ✅ | 6 | P1 | `emblem_hersir.webp` | 128² · transparent |
+| ✅ | 7 | P1 | `job_galdr_f.webp` | 1024×1536 · transparent |
+| ✅ | 8 | P1 | `job_galdr_m.webp` | 1024×1536 · transparent |
+| ✅ | 9 | P1 | `emblem_galdr.webp` | 128² · transparent |
 | ⬜ | 10 | P1 | `job_seidr_f.webp` | 1024×1536 · transparent |
 | ⬜ | 11 | P1 | `job_seidr_m.webp` | 1024×1536 · transparent |
 | ⬜ | 12 | P1 | `emblem_seidr.webp` | 128² · transparent |
@@ -959,17 +959,17 @@ Rows per priority: P1 = 36, P1+ = 6, P2 = 32, P2+ = 2, P3 = 72, P4 = 2, P4+ = 5,
 | ⬜ | 31 | P1 | `job_warlord_f.webp` | 1024×1536 · transparent |
 | ⬜ | 32 | P1 | `job_warlord_m.webp` | 1024×1536 · transparent |
 | ⬜ | 33 | P1 | `emblem_warlord.webp` | 128² · transparent |
-| ⬜ | 34 | P1 | `job_jotun_f.webp` | 1024×1536 · transparent |
-| ⬜ | 35 | P1 | `job_jotun_m.webp` | 1024×1536 · transparent |
-| ⬜ | 36 | P1 | `emblem_jotun.webp` | 128² · transparent |
+| ✅ | 34 | P1 | `job_jotun_f.webp` | 1024×1536 · transparent |
+| ✅ | 35 | P1 | `job_jotun_m.webp` | 1024×1536 · transparent |
+| ✅ | 36 | P1 | `emblem_jotun.webp` | 128² · transparent |
 | ⬜ | 37 | P1+ | `sheet_heroes_5.png` → 4× `hero_*` | 1024² 2×2 sheet · transparent |
 | ⬜ | 38 | P1+ | `sheet_heroes_6.png` → 4× `hero_*` | 1024² 2×2 sheet · transparent |
 | ⬜ | 39 | P1+ | `sheet_heroes_7.png` → 4× `hero_*` | 1024² 2×2 sheet · transparent |
 | ⬜ | 40 | P1+ | `sheet_heroes_8.png` → 4× `hero_*` | 1024² 2×2 sheet · transparent |
 | ⬜ | 41 | P1+ | `sheet_heroes_9.png` → 4× `hero_*` | 1024² 2×2 sheet · transparent |
 | ⬜ | 42 | P1+ | `sheet_heroes_10.png` → 4× `hero_*` | 1024² 2×2 sheet · transparent |
-| ⬜ | 43 | P2 | `mob_rust_sap.webp` | 160² · tile |
-| ⬜ | 44 | P2 | `mobsprite_rust_sap.webp` | ≤320 · transparent |
+| ✅ | 43 | P2 | `mob_rust_sap.webp` | 160² · tile |
+| ✅ | 44 | P2 | `mobsprite_rust_sap.webp` | ≤320 · transparent |
 | ✅ | 45 | P2 | `mob_archive_warden.webp` | 160² · tile |
 | ✅ | 46 | P2 | `mobsprite_archive_warden.webp` | ≤320 · transparent |
 | ✅ | 47 | P2 | `anim_mob_archive_warden_walk.webp` + `anim_mob_archive_warden_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
