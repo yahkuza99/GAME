@@ -8,6 +8,8 @@ const BODY_COLORS = ['#e6e9ef', '#c8ccd6', '#8a94a6', '#3a404e', '#e8dcc8', '#f0
 const GLOW_COLORS = ['#7ad8ff', '#8cff7a', '#ffe27a', '#ff8a2a', '#ff5a6a', '#c07aff', '#ff7ad8', '#ffffff'];
 const HEAD_STYLES = [['long', 'ยาว'], ['twin', 'แฝด'], ['bob', 'บ็อบ'], ['short', 'สั้น'], ['spiky', 'แหลม'], ['crest', 'หงอน']];
 const VISORS = [['band', 'แถบ'], ['v', 'ทรง V'], ['slit', 'คู่']];
+// เลขเวอร์ชัน (แสดงมุมหน้าไตเติล — แจ้งเวอร์ชันนี้เวลาส่งฟีดแบ็ก)
+const GAME_VERSION = '0.9.0 (ทดสอบ)';
 const creation = { gender: 'f', hair: HAIR_COLORS[0], head: 'long', color: BODY_COLORS[0], glow: GLOW_COLORS[0], visor: 'band', dir: 2, spin: true };
 
 function toggleFullscreen() {
@@ -341,6 +343,7 @@ function bindAuth() {
 }
 
 function showTitle() {
+  $('#title-ver').textContent = 'NEO MIDGARD v' + GAME_VERSION;
   setupCreateScreen();
   setupOfflineMenu();
   if (Online.enabled) {
