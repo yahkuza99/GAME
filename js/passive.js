@@ -127,7 +127,7 @@ const Passive = {
   refund(p, id) {
     const cost = this.refundCost(p);
     if (!this.canRefund(p, id)) return 'ต้องคืนจุดที่อยู่ปลายทางก่อน (จุดที่เหลือต้องต่อถึงแกนกลาง)';
-    if (p.zeny < cost) return `เงินไม่พอ (ต้องใช้ ${U.fmt(cost)} z)`;
+    if (p.zeny < cost) return `เงินไม่พอ (ต้องใช้ ${U.fmt(cost)} ${CUR})`;
     p.zeny -= cost; p.passives = this.list(p).filter(x => x !== id); recalc(); saveGame();
     return '';
   },

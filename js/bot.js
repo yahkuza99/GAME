@@ -261,7 +261,7 @@ const Bot = {
     if (!p.inventory.some(e => e.id === 'hearth_rune') && p.zeny >= ITEMS.hearth_rune.price * 3) { p.zeny -= ITEMS.hearth_rune.price; addItem('hearth_rune', 1, true); }
     // ใส่ยาลงแถบยาถ้ายังไม่มี
     if (qty > 0 && !p.potbar.some(x => x && x.id === pot)) { const i = p.potbar.findIndex(x => !x || !countItem(x.id)); if (i >= 0) p.potbar[i] = { t: 'item', id: pot }; }
-    UI.msg(`🛒 บอท: ขายของดรอป +${U.fmt(sold)} z • ซื้อ ${ITEMS[pot].name} ×${qty}`, 'item');
+    UI.msg(`🛒 บอท: ขายของดรอป +${U.fmt(sold)} ${CUR} • ซื้อ ${ITEMS[pot].name} ×${qty}`, 'item');
     Sound.play('buy'); UI.dirty(); saveGame();
   },
   goHome(reason) {

@@ -33,15 +33,15 @@ NPC.scripts.bifrost = async n => {
   } else if (c === 1) {
     const dests = [['meadow', 300], ['mistlake', 600], ['wolfwood', 800], ['helcave', 1200]];
     const i = await UI.menu(nm, 'จะให้สายรุ้งพาเจ้าไปที่ใด?',
-      [...dests.map(([id, z]) => `${MAP_DEFS[id].name} (Lv ${MAP_DEFS[id].level.split(' ')[0]}) — ${U.fmt(z)} z`), 'ยกเลิก']);
+      [...dests.map(([id, z]) => `${MAP_DEFS[id].name} (Lv ${MAP_DEFS[id].level.split(' ')[0]}) — ${U.fmt(z)} ${CUR}`), 'ยกเลิก']);
     if (i < dests.length) {
       const [id, z] = dests[i];
-      if (p.zeny < z) { await UI.say(nm, 'Zeny ของเจ้าไม่พอสำหรับค่าผ่านทาง'); return; }
+      if (p.zeny < z) { await UI.say(nm, `${CUR} ของเจ้าไม่พอสำหรับค่าผ่านทาง`); return; }
       p.zeny -= z;
       UI.dlgClose();
       const map = getMap(id);
       changeMap(id, (map.w >> 1) + 0.5, (map.h >> 1) + 0.5);
-      UI.msg(`สะพานไบฟรอสต์พาคุณไปยัง ${MAP_DEFS[id].name} (-${U.fmt(z)} z)`, 'sys');
+      UI.msg(`สะพานไบฟรอสต์พาคุณไปยัง ${MAP_DEFS[id].name} (-${U.fmt(z)} ${CUR})`, 'sys');
     }
   }
 };
@@ -71,11 +71,11 @@ NPC.scripts.jobmaster = async n => {
     }
   }
   const i = await UI.menu(nm, `${JOBS[p.job].name} ผู้กล้า... โมดูลอัปเกรดขั้นต่อไปยังอยู่ระหว่างพัฒนา<br>แต่ปัญญาของข้าช่วยเจ้าได้เรื่องหนึ่ง:`,
-    ['รีเซ็ตสกิล (5,000 z)', 'รีเซ็ตสเตตัส (10,000 z)', 'ไม่เป็นไร']);
+    [`รีเซ็ตสกิล (5,000 ${CUR})`, `รีเซ็ตสเตตัส (10,000 ${CUR})`, 'ไม่เป็นไร']);
   if (i === 0 || i === 1) {
     const cost = i === 0 ? 5000 : 10000;
-    if (p.zeny < cost) { await UI.say(nm, 'Zeny ของเจ้าไม่พอ'); return; }
-    const c2 = await UI.menu(nm, `แน่ใจหรือ? จะเสีย ${U.fmt(cost)} z`, ['แน่ใจ', 'ยกเลิก']);
+    if (p.zeny < cost) { await UI.say(nm, `${CUR} ของเจ้าไม่พอ`); return; }
+    const c2 = await UI.menu(nm, `แน่ใจหรือ? จะเสีย ${U.fmt(cost)} ${CUR}`, ['แน่ใจ', 'ยกเลิก']);
     if (c2 !== 0) return;
     p.zeny -= cost;
     const pts = i === 0 ? resetSkills() : resetStats();
@@ -99,10 +99,10 @@ NPC.scripts.armor = n => shopNpc(n, 'armor', 'เกราะ หมวก โ�
 
 NPC.scripts.storage = async n => {
   const p = G.player, nm = `[${n.name}]`, fee = p.job === 'novice' ? 0 : 40;
-  const i = await UI.menu(nm, `หน่วยคลังเก็บของ Kaia ยินดีให้บริการ!<br>ฝากของไว้ที่นี่ได้ ${B(STORAGE_MAX + ' ช่อง')} (ตอนนี้ใช้ ${p.storage.length})<br>ค่าบริการ ${fee ? B(fee + ' z') : B('ฟรีสำหรับ Novice')}`,
+  const i = await UI.menu(nm, `หน่วยคลังเก็บของ Kaia ยินดีให้บริการ!<br>ฝากของไว้ที่นี่ได้ ${B(STORAGE_MAX + ' ช่อง')} (ตอนนี้ใช้ ${p.storage.length})<br>ค่าบริการ ${fee ? B(fee + ' ' + CUR) : B('ฟรีสำหรับ Novice')}`,
     ['เปิดคลังเก็บของ', 'ยกเลิก']);
   if (i !== 0) return;
-  if (p.zeny < fee) { await UI.say(nm, 'ขออภัย Zeny ไม่พอค่าบริการค่ะ'); return; }
+  if (p.zeny < fee) { await UI.say(nm, `ขออภัย ${CUR} ไม่พอค่าบริการค่ะ`); return; }
   p.zeny -= fee;
   UI.dlgClose();
   Sound.play('storage');
@@ -143,7 +143,7 @@ NPC.bountyBoard = async nm => {
   if (!Bounty.open()) { await UI.say(nm, `งานล่าค่าหัวสำหรับหน่วยที่ผ่านการฝึกแล้วเท่านั้น<br>กลับมาเมื่อถึง ${B('Base Lv ' + BOUNTY_MIN_LV)} นะ`); return; }
   for (;;) {
     const s = Bounty.state(), ready = Bounty.ready(), todo = s.list.filter(b => b.got < b.n);
-    const rows = s.list.map(b => `${b.claimed ? '✅' : b.got >= b.n ? '🎁' : '•'} ${Bounty.line(b)} — ${U.fmt(b.zeny)} z`).join('<br>');
+    const rows = s.list.map(b => `${b.claimed ? '✅' : b.got >= b.n ? '🎁' : '•'} ${Bounty.line(b)} — ${U.fmt(b.zeny)} ${CUR}`).join('<br>');
     const opts = [...ready.map(b => `รับรางวัล: ${MOBS[b.mob].name}`), ...(todo.length ? [`🧭 นำทางไปล่า ${MOBS[todo[0].mob].name}`] : []), 'กลับ'];
     const c = await UI.menu(nm, `งานล่าค่าหัววันนี้ (รีเซ็ตทุกวัน)<br>${rows}<br><br>ทำครบ 3 งานรับโบนัสพิเศษ${s.bonus ? ' — รับไปแล้ววันนี้ ✓' : ''}`, opts);
     if (c < ready.length) { const m = Bounty.claim(ready[c]); if (m) await UI.say(nm, `เยี่ยมมาก! ${m}`); continue; }
@@ -166,10 +166,10 @@ NPC.scripts.refine = async n => {
   const lvl = e.refine || 0;
   const cost = (slot === 'weapon' ? 250 : 400) * (lvl + 1);
   const rate = RATE[lvl];
-  const c = await UI.menu(nm, `ตีบวก ${B(itemDisplayName(e))} เป็น ${B('+' + (lvl + 1))}<br>ค่าบริการ: ${B(U.fmt(cost) + ' z')} • โอกาสสำเร็จ: ${B(Math.round(rate * 100) + '%')}${rate < 1 ? '<br>หากพลาด อุปกรณ์ยังอยู่ครบ เสียแค่ค่าบริการ' : ''}`,
+  const c = await UI.menu(nm, `ตีบวก ${B(itemDisplayName(e))} เป็น ${B('+' + (lvl + 1))}<br>ค่าบริการ: ${B(U.fmt(cost) + ' ' + CUR)} • โอกาสสำเร็จ: ${B(Math.round(rate * 100) + '%')}${rate < 1 ? '<br>หากพลาด อุปกรณ์ยังอยู่ครบ เสียแค่ค่าบริการ' : ''}`,
     ['ตีเลย!', 'ยกเลิก']);
   if (c !== 0) return;
-  if (p.zeny < cost) { await UI.say(nm, 'Zeny ไม่พอนะเจ้าหนู'); return; }
+  if (p.zeny < cost) { await UI.say(nm, `${CUR} ไม่พอนะเจ้าหนู`); return; }
   if (p.equip[slot] !== e) return;
   p.zeny -= cost;
   UI.dlgClose();

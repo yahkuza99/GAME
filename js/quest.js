@@ -93,7 +93,7 @@ const Quest = {
     const r = q.reward, out = [];
     if (r.bexp) out.push(`Base EXP ${r.bexp}`);
     if (r.jexp) out.push(`Job EXP ${r.jexp}`);
-    if (r.zeny) out.push(`${U.fmt(r.zeny)} z`);
+    if (r.zeny) out.push(`${U.fmt(r.zeny)} ${CUR}`);
     for (const [id, n] of r.items || []) out.push(`${ITEMS[id].name} ×${n}`);
     return out.join(' • ');
   },
@@ -221,10 +221,10 @@ const Bounty = {
     const p = G.player, s = this.state();
     if (!s || b.claimed || b.got < b.n) return '';
     b.claimed = true; p.zeny += b.zeny; gainExp(b.bexp, b.jexp);
-    let msg = `รับรางวัล ${U.fmt(b.zeny)} z • ${U.fmt(b.bexp)} Base EXP • ${U.fmt(b.jexp)} Job EXP`;
+    let msg = `รับรางวัล ${U.fmt(b.zeny)} ${CUR} • ${U.fmt(b.bexp)} Base EXP • ${U.fmt(b.jexp)} Job EXP`;
     if (!s.bonus && s.list.every(x => x.claimed)) { // โบนัสครบ 3 งาน
       s.bonus = true; addItem('yellow_potion', 3, true); addItem('blink_feather', 2, true); p.zeny += 500;
-      msg += '<br>🎁 โบนัสทำครบ 3 งาน: Repair Kit L ×3, Blink Chip ×2, 500 z';
+      msg += `<br>🎁 โบนัสทำครบ 3 งาน: Repair Kit L ×3, Blink Chip ×2, 500 ${CUR}`;
     }
     addFloater(p.x, p.y - 1.8, 'BOUNTY CLEAR!', '#ffd34a', true); Sound.play('quest'); UI.dirty(); saveGame();
     return msg;

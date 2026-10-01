@@ -203,7 +203,7 @@ const UI = {
     $('#bi-hp').classList.toggle('low', p.hp / d.maxHp < 0.25);
     $('#bi-hp-t').textContent = `${Math.floor(p.hp)} / ${d.maxHp}`;
     $('#bi-sp-t').textContent = `${Math.floor(p.sp)} / ${d.maxSp}`;
-    const zi = Art.get('item_zeny'), zHtml = (zi ? `<img src="${zi.src}" alt="">` : '') + U.fmt(p.zeny) + ' z';
+    const zi = Art.get('item_zeny'), zHtml = (zi ? `<img src="${zi.src}" alt="">` : '') + U.fmt(p.zeny) + ' ' + CUR;
     const ze = $('#bi-zeny');
     if (ze.innerHTML !== zHtml) { ze.innerHTML = zHtml; ze.classList.toggle('has-ic', !!zi); }
     const pts = [];
@@ -681,10 +681,10 @@ const UI = {
         h('div', { class: 'det-desc' }, it.desc || ''),
         ...this.itemTooltip(e).map(l => h('div', { class: 'det-line' }, l)),
         this.compareLine(e),
-        h('div', { class: 'det-line' }, `ราคาขาย: ${U.fmt(Math.floor(it.price / 2))} z`),
+        h('div', { class: 'det-line' }, `ราคาขาย: ${U.fmt(Math.floor(it.price / 2))} ${CUR}`),
         h('div', { class: 'det-acts' }, acts));
     } else det.append(h('div', { class: 'hint' }, 'คลิกเพื่อดูรายละเอียด • ดับเบิลคลิกเพื่อใช้/สวมใส่ • ลากไปวางที่ปุ่มลัดได้'));
-    body.append(det, h('div', { class: 'inv-foot' }, `Zeny: `, h('b', {}, U.fmt(p.zeny))));
+    body.append(det, h('div', { class: 'inv-foot' }, `${CUR}: `, h('b', {}, U.fmt(p.zeny))));
   },
   async discard(e) {
     const it = ITEMS[e.id];
@@ -843,7 +843,7 @@ const UI = {
       else if (have) {
         const cost = Passive.refundCost(p), ok = Passive.canRefund(p, id);
         info.append(h('button', { class: 'btn', type: 'button', disabled: ok ? null : 'disabled', onclick: () => { const e = Passive.refund(p, id); UI.msg(e || `คืนแต้ม ${n.name} แล้ว`, e ? 'err' : 'sys'); this.renderTree(); } },
-          `คืนแต้ม${cost ? ` (${U.fmt(cost)} z)` : ' (ฟรีถึง Lv 15)'}`), ok ? '' : h('div', { class: 'dim' }, 'คืนได้เฉพาะจุดปลายทาง'));
+          `คืนแต้ม${cost ? ` (${U.fmt(cost)} ${CUR})` : ' (ฟรีถึง Lv 15)'}`), ok ? '' : h('div', { class: 'dim' }, 'คืนได้เฉพาะจุดปลายทาง'));
       } else if (path.length) {
         const can = path.length <= free;
         info.append(h('button', { class: 'btn' + (can ? ' primary' : ''), type: 'button', disabled: can ? null : 'disabled',
@@ -954,7 +954,7 @@ const UI = {
           : `✦ ${ITEMS[MOB_CHIP[d.id]].name}: ล่าอีก ${Math.max(0, chipNeed(d) - ((G.player.kills || {})[d.id] || 0))} ตัว`) : null,
         weak.length ? h('div', { class: 'mb-sub' }, `แพ้ธาตุ: ${weak.slice(0, 3).map(([e, m]) => `${ELEM_THAI[e]} ×${m}`).join(', ')}`) : null)),
       h('div', { class: 'mb-grid' }, row('HP', U.fmt(d.hp)), row('ATK', `${d.atk[0]}–${d.atk[1]}`), row('DEF', d.def), row('MDEF', d.mdef),
-        row('HIT', d.hit), row('FLEE', d.flee), row('Base EXP', U.fmt(d.exp)), row('Job EXP', U.fmt(d.jexp)), row('Zeny', `${U.fmt(mobZeny(d)[0])}–${U.fmt(mobZeny(d)[1])}`)),
+        row('HIT', d.hit), row('FLEE', d.flee), row('Base EXP', U.fmt(d.exp)), row('Job EXP', U.fmt(d.jexp)), row(CUR, `${U.fmt(mobZeny(d)[0])}–${U.fmt(mobZeny(d)[1])}`)),
       h('div', { class: 'mb-h' }, 'ไอเทมที่ดรอป'),
       h('div', { class: 'mb-drops' }, ...(d.drops.length ? d.drops.map(([id, ch]) => h('div', { class: 'mb-drop', title: ITEMS[id].desc || '' },
         h('img', { src: itemIconUrl(id), alt: '' }), h('span', {}, ITEMS[id].name), h('em', {}, `${ch >= 0.1 ? Math.round(ch * 100) : (ch * 100).toFixed(ch < 0.01 ? 2 : 1)}%`))) : [h('span', { class: 'hint' }, 'ไม่มี')])),
@@ -1019,7 +1019,7 @@ const UI = {
         h('div', { class: 'opt-btns' }, h('button', { class: 'btn', onclick: () => { Quest.go(); this.close('w-quest'); } }, '🧭 นำทางไปทำเควสต์'))));
     } else body.append(h('div', { class: 'q-card' }, h('h4', {}, '🏆 จบเควสต์เริ่มต้นแล้ว'), h('p', {}, 'ออกผจญภัยล่ามอนสเตอร์ MVP และเก็บชิปหายากต่อได้เลย!')));
     body.append(h('div', { class: 'q-card' }, h('h4', {}, '📋 งานล่าค่าหัววันนี้'),
-      bs ? bs.list.map(x => h('p', { class: x.claimed ? 'q-rw' : 'q-obj' }, `${x.claimed ? '✅' : x.got >= x.n ? '🎁 ส่งได้ —' : '•'} ${Bounty.line(x)} — ${U.fmt(x.zeny)} z`))
+      bs ? bs.list.map(x => h('p', { class: x.claimed ? 'q-rw' : 'q-obj' }, `${x.claimed ? '✅' : x.got >= x.n ? '🎁 ส่งได้ —' : '•'} ${Bounty.line(x)} — ${U.fmt(x.zeny)} ${CUR}`))
         : h('p', { class: 'q-rw' }, `เปิดที่ Base Lv ${BOUNTY_MIN_LV} — รับงานที่ Guard Unit Rolf ในเมือง`),
       bs ? h('p', { class: 'q-rw' }, 'ส่งงานที่ Guard Unit Rolf • ทำครบ 3 งานได้โบนัส • งานใหม่ทุกวัน') : null));
     body.append(h('div', { class: 'q-done' }, h('span', {}, `สำเร็จแล้ว ${s.done.length}/${QUESTS.length}`),
@@ -1173,7 +1173,7 @@ const UI = {
         list.append(h('div', { class: 'shop-row' + (usable ? '' : ' dim'), title: it.desc },
           h('img', { src: itemIconUrl(id), alt: '' }),
           h('div', { class: 'shop-n' }, h('b', {}, it.name + (it.slots ? ` [${it.slots}]` : '')), h('small', {}, it.desc + (it.lv ? ` (Lv ${it.lv}+)` : '')), isEquipType(it) && usable ? this.compareLine({ id, refine: 0, cards: [] }) : null),
-          h('span', { class: 'shop-p' }, U.fmt(it.price) + ' z'),
+          h('span', { class: 'shop-p' }, U.fmt(it.price) + ' ' + CUR),
           qty,
           h('button', { class: 'btn small', onclick: () => this.buy(id, Math.max(1, Math.min(999, parseInt(qty.value, 10) || 1))) }, 'ซื้อ')));
       }
@@ -1186,7 +1186,7 @@ const UI = {
         list.append(h('div', { class: 'shop-row' },
           h('img', { src: itemIconUrl(e.id), alt: '' }),
           h('div', { class: 'shop-n' }, h('b', {}, itemDisplayName(e)), h('small', {}, `มี ${e.qty} ชิ้น`)),
-          h('span', { class: 'shop-p' }, U.fmt(price) + ' z'),
+          h('span', { class: 'shop-p' }, U.fmt(price) + ' ' + CUR),
           h('button', { class: 'btn small', onclick: () => this.sell(e, 1) }, 'ขาย 1'),
           e.qty > 1 ? h('button', { class: 'btn small', onclick: () => this.sell(e, e.qty) }, 'ทั้งหมด') : null));
       }
@@ -1195,15 +1195,15 @@ const UI = {
           h('button', { class: 'btn', onclick: () => { for (const e of p.inventory.filter(x => ITEMS[x.id].type === 'etc')) this.sell(e, e.qty, true); Sound.play('buy'); } }, 'ขายของดรอป (Etc) ทั้งหมด')));
       }
     }
-    body.append(list, h('div', { class: 'inv-foot' }, 'Zeny: ', h('b', {}, U.fmt(p.zeny))));
+    body.append(list, h('div', { class: 'inv-foot' }, `${CUR}: `, h('b', {}, U.fmt(p.zeny))));
   },
   buy(id, qty) {
     const p = G.player, it = ITEMS[id];
     const cost = it.price * qty;
-    if (p.zeny < cost) { this.msg('Zeny ไม่เพียงพอ', 'err'); return; }
+    if (p.zeny < cost) { this.msg(`${CUR} ไม่เพียงพอ`, 'err'); return; }
     p.zeny -= cost;
     addItem(id, qty, true);
-    this.msg(`ซื้อ ${it.name} ×${qty} (-${U.fmt(cost)} z)`, 'item');
+    this.msg(`ซื้อ ${it.name} ×${qty} (-${U.fmt(cost)} ${CUR})`, 'item');
     Sound.play('buy');
     this.dirty();
   },
@@ -1213,7 +1213,7 @@ const UI = {
     const gain = Math.floor(it.price / 2) * qty;
     removeEntry(e, qty);
     p.zeny += gain;
-    if (!quiet) { this.msg(`ขาย ${it.name} ×${qty} (+${U.fmt(gain)} z)`, 'item'); Sound.play('buy'); }
+    if (!quiet) { this.msg(`ขาย ${it.name} ×${qty} (+${U.fmt(gain)} ${CUR})`, 'item'); Sound.play('buy'); }
     this.dirty();
   },
 

@@ -587,7 +587,7 @@ function killMob(m) {
   grantChip(d, m);
   gainExp(d.exp, d.jexp);
   const [z0, z1] = mobZeny(d), z = U.randi(z0, z1);
-  if (z > 0) { p.zeny += z; addFloater(m.x, m.y - 0.5, `+${z}z`, '#ffd34a'); UI.dirty(); }
+  if (z > 0) { p.zeny += z; addFloater(m.x, m.y - 0.5, `+${z} ${CUR}`, '#ffd34a'); UI.dirty(); }
   for (const [id, ch] of d.drops) if (U.chance(ch)) dropItemOnGround(id, m.x, m.y);
   if (m.isMvp) {
     UI.announce(`🏆 ${p.name} ได้ปราบ MVP ${d.name} สำเร็จ!`);
