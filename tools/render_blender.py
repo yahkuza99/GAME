@@ -22,6 +22,7 @@ ap.add_argument('--yaw0', type=float, default=0); ap.add_argument('--tex', defau
 ap.add_argument('--loop', action='store_true'); ap.add_argument('--range', default='0,1')
 ap.add_argument('--style', default='toon', help='toon = แสงคอนทราสต์สูง + เส้นขอบ (เข้ากับภาพวาด Class อื่น) • flat = แสงนุ่มแบบเดิม')
 ap.add_argument('--frame', default='', help='กล้องคงที่ข้ามท่า: "ortho,centerZ" (ค่าที่พิมพ์ออกมาตอนเรนเดอร์ท่าเดิน) — ทุกท่าของตัวเดียวกันต้องใช้ค่าเดียวกัน ตัวจะได้ขนาดเท่ากัน')
+ap.add_argument('--pick', default='', help='เลือกเฟรมเอง (เลขเฟรมในไฟล์) เช่น 1,4,7,10,13,17 — แทนการสุ่มเท่า ๆ กัน')
 ap.add_argument('--anim', default='', help='ไฟล์ท่า Mixamo แบบ Without Skin (ใช้กับโมเดล With Skin ตัวเดียว — ไฟล์เล็ก)')
 a = ap.parse_args(argv)
 
@@ -81,6 +82,7 @@ r0, r1 = map(float, a.range.split(','))
 s0, s1 = f0 + (f1 - f0) * r0, f0 + (f1 - f0) * r1
 N = a.frames
 frames = [s0 + (s1 - s0) * i / (N if a.loop else max(1, N - 1)) for i in range(N)] if act else [f0] * 1
+if a.pick and act: frames = [float(x) for x in a.pick.split(',')]
 
 # กรอบรวมของทั้งท่า (ทุกเฟรม) → ขนาดกล้องคงที่
 def bbox_world():
