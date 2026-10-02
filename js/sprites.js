@@ -874,7 +874,9 @@ Sprites.drawPlayer = (g, p, t) => {
   const gk = typeof Anim !== 'undefined' ? Anim.playerKey(p.job, p.gender) : `${p.job}_${p.gender === 'm' ? 'm' : 'f'}`;
   if (typeof Anim !== 'undefined' && Anim.has(gk)) {
     if (Object.keys(p.buffs).length) { g.strokeStyle = `rgba(255,240,150,${0.25 + Math.sin(t * 4) * 0.15})`; g.lineWidth = 2; g.beginPath(); g.ellipse(x, y, 16, 6, 0, 0, 7); g.stroke(); }
-    const tr = Anim.track(p, t, p.atkAnim || 0, false, !!p.dead);
+    // ท่าโดนตี: เฉพาะตัวที่มีภาพท่าโดนตีจริง และไม่ได้กำลังตี (กันท่าตีกระตุกเมื่อโดนรุม)
+    const hurtOn = (p.hurtFlash || 0) > 0 && !!Art.get(`anim_${gk}_hurt`) && !(p.atkAnim > 0.05);
+    const tr = Anim.track(p, t, p.atkAnim || 0, hurtOn, !!p.dead);
     const stun = !p.dead && p.stunUntil > G.time ? { e: G.time - p.stunAt, r: p.stunUntil - G.time } : null;
     // โดนตี: ไม่ล้ม แค่สะดุ้ง (สั่นเล็กน้อย + แสงแดงจาก render) • ล้มเฉพาะตอนมึน
     const shake = (p.hurtFlash || 0) > 0 && !stun ? Math.sin(t * 90) * 1.5 : 0;
@@ -884,7 +886,7 @@ Sprites.drawPlayer = (g, p, t) => {
     Anim.draw(g, x + shake, y, bare || gk, Object.assign(PD ? PD.layers(gk, p, !!bare) : {}, {
       facing: p.facing || 1, dir: p.dir, moving: p.moving && !p.sitting, atk: tr.atk, cast: !!p.cast, sit: p.sitting, dead: p.dead, deathT: tr.deathT,
       skill: p.skillPose != null && G.time - p.skillPose < 0.5 && G.time >= p.skillPose ? 1 - (G.time - p.skillPose) / 0.5 : 0, skillKind: p.skillKind,
-      hurt: 0, stun, shoot: !!(cw ? cw.wtype === 'bow' : wItem && wItem.wtype === 'bow'),
+      hurt: tr.hurt, stun, shoot: !!(cw ? cw.wtype === 'bow' : wItem && wItem.wtype === 'bow'),
     }), t, 68);
     if (stun) Sprites.stunStars(g, x, y - (stun.e < 0.3 || stun.r < 0.3 ? 56 : 30), t);
     return;

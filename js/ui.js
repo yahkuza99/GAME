@@ -1591,6 +1591,10 @@ const UI = {
       h('div', { class: 'opt-lbl' }, 'ภาษา / Language'),
       h('div', { class: 'seg' }, ...[['th', 'ไทย'], ['en', 'English']].map(([v, l]) =>
         h('button', { type: 'button', class: LANG === v ? 'on' : '', onclick: () => setLang(v) }, l))),
+      // ทดลองภาพตัวละครจากโมเดล 3D (ตอนนี้มี Berserker หญิง)
+      h('div', { class: 'opt-lbl' }, L('ภาพตัวละคร (ทดลอง 3D: Berserker หญิง)', 'Character art (3D test: Berserker F)')),
+      h('div', { class: 'seg' }, ...[['mix', L('B: ภาพวาด + 3D', 'B: Drawn + 3D')], ['full', L('A: 3D ทั้งตัว', 'A: Full 3D')]].map(([v, l]) =>
+        h('button', { type: 'button', class: (o.art3d === 'full' ? 'full' : 'mix') === v ? 'on' : '', onclick: () => { o.art3d = v; saveGame(); this.renderOptions(true); const pc = $('#bi-portrait'); if (pc) delete pc.dataset.key; this.dirty(); } }, l))),
       h('div', { class: 'opt-lbl' }, L('คุณภาพกราฟิก', 'Graphics quality')),
       h('div', { class: 'seg' }, ...[['high', L('สวย (ค่าเริ่มต้น)', 'High (default)')], ['low', L('ประหยัด (มือถือรุ่นเก่า)', 'Low (older phones)')]].map(([v, l]) =>
         h('button', { type: 'button', class: (o.gfx || 'high') === v ? 'on' : '', onclick: () => { o.gfx = v; R.setQuality(v); saveGame(); this.renderOptions(true); } }, l))),
