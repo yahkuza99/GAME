@@ -246,7 +246,11 @@ class GameMap {
   genArena() {
     const w = this.w, h = this.h, cx = w / 2, cy = h / 2, R0 = Math.min(w, h) / 2 - 2.8;
     this.fill(T.ROCK);
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (Math.hypot(x + 0.5 - cx, y + 0.5 - cy) < R0) this.set(x, y, T.DIRT);
+    // ฝั่งใต้: กำแพง/อัฒจันทร์ในภาพ 3D มีความสูง → บังทรายประมาณ 1 ช่อง (มุมกล้องเอียง) → ขอบเดินได้ถอยเข้ามาตามนั้น ไม่ให้ยืนแล้วดูเหมือนอยู่บนอัฒจันทร์
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const dx = x + 0.5 - cx, dy = y + 0.5 - cy, d = Math.hypot(dx, dy), south = Math.max(0, dy / (d || 1));
+      if (d < R0 - 1.15 * south) this.set(x, y, T.DIRT);
+    }
     for (const p of this.portals) { this.carvePath(p.x, p.y, Math.floor(cx), Math.floor(cy), T.DIRT, 1); this.set(p.x, p.y, T.DIRT); this.set(p.ax, p.ay, T.DIRT); }
     this.arena = { cx, cy, r: R0 };
   }
@@ -488,7 +492,13 @@ class GameMap {
     const town = this.def.kind === 'town' && typeof TownArt !== 'undefined';
     if (town) { TownArt.floor(this, g); this.texClasses.add('stone'); }
     else if (this.paved.length && typeof TownArt !== 'undefined') { TownArt.pave(this, g); this.texClasses.add('stone'); } // ถนนหินอ่อนต่อจากประตูเมือง
-    if (this.arena && typeof TownArt !== 'undefined') { TownArt.arena(this, g); this.texClasses.add('dirt'); this.texClasses.add('rock'); }
+    if (this.arena) { // โคลอสเซียม: ภาพเรนเดอร์ 3D (tools/arena3d.py — มุมกล้องเดียวกับเกม) • ไม่มีภาพ = วาดด้วยโค้ด
+      const img = typeof Art !== 'undefined' && Art.get('arena_ground');
+      this.arenaImg = !!img;
+      if (img) { g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(img, 0, 0, W, H); }
+      else if (typeof TownArt !== 'undefined') TownArt.arena(this, g);
+      this.texClasses.add('dirt'); this.texClasses.add('rock');
+    }
     // 1.6) หน้ากากหญ้าความละเอียดต่ำ (4px/ช่อง เบลอแล้ว) สำหรับหญ้าพลิ้วตามลมตอนเล่น
     this.grassMask = null;
     // มี Flora: หญ้านิ่งแบบภาพวาด (หย่อมดิน/หญ้ากระจุก/เงาต้นไม้ที่อบลงพื้นจะไม่ถูกชั้นหญ้าพลิ้วทับ) — ต้นไม้/พุ่มไม้ยังไหวตามลม

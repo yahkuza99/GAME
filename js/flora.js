@@ -419,6 +419,7 @@ const Flora = {
   //  อบลงพื้น: หย่อมดิน • เงาต้นไม้/ของประดับ • หญ้ากระจุก ต้นอ่อน ดอกไม้จิ๋ว กรวด
   // ------------------------------------------------------------
   bake(m, g) {
+    if (m.arenaImg) return; // ภาพ 3D มีรายละเอียดครบแล้ว
     const d = m.def, P = this.preset(d), seed = d.seed, W = m.w, Hh = m.h, k = typeof R !== 'undefined' && R.K ? R.K : 0.76;
     const hh = (x, y, i) => U.hash2(x, y, seed * 31 + i * 4099 + 4242);
     const cls = (x, y) => m.terrainClass(m.tile(x, y));
