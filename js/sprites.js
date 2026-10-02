@@ -886,7 +886,7 @@ Sprites.drawPlayer = (g, p, t) => {
     if (stun) Sprites.stunStars(g, x, y - (stun.e < 0.3 || stun.r < 0.3 ? 56 : 30), t);
     return;
   }
-  if (typeof Rig !== 'undefined' && Rig.enabled && Rig.get(gk)) {
+  if (typeof Rig !== 'undefined' && (Rig.enabled || Rig.ON.includes(gk)) && Rig.get(gk)) { // ทดลอง Rig เฉพาะ Class ที่มีชิ้นส่วน (Rig.ON)
     if (Object.keys(p.buffs).length) { g.strokeStyle = `rgba(255,240,150,${0.25 + Math.sin(t * 4) * 0.15})`; g.lineWidth = 2; g.beginPath(); g.ellipse(x, y, 16, 6, 0, 0, 7); g.stroke(); }
     const wt = wItem ? wItem.wtype : 'none';
     const casting = !!p.cast;

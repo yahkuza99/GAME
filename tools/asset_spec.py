@@ -381,7 +381,8 @@ RIG_CELLS = lambda who: [
   (f"rig_{who}_hair_back", "BACK HAIR: only the long back part of the hair plates that hangs behind the body (if the hair is short, a small back tuft)"),
   (f"rig_{who}_weapon", "WEAPON only: the character's weapon drawn vertically, handle/grip at the BOTTOM, blade or tip pointing UP"),
 ]
-RIG_SHEETS = [("sheet_rig_novice_f.png", "rig_novice_f", "Novice Type-A (slim feminine frame): white and graphite android body, khaki utility jacket, long silver-white hair plates, cyan visor, small energy knife")]
+RIG_SHEETS = [("sheet_rig_novice_f.png", "rig_novice_f", "Novice Type-A (slim feminine frame): white and graphite android body, khaki utility jacket, long silver-white hair plates, cyan visor, small energy knife"),
+ ("sheet_rig_einherjar_m.png", "rig_einherjar_m", "Einherjar Type-B (sturdy masculine frame): bulky steel plate armor with red trim, crimson cape (draw the cape as part of the TORSO piece, hanging behind), horned Viking tech helmet that covers the head (the BACK HAIR cell is a short dark red cape tail / plume instead), red visor; WEAPON cell: a glowing red energy sword with the round shield NOT included")]
 for f, who, desc in RIG_SHEETS:
     cells = RIG_CELLS(who.replace('rig_', ''))
     SHEETS.append(dict(file=f, cols=4, rows=2, mode="alpha", style=RIG_STYLE + " CHARACTER: " + desc + ".", group="ชิ้นส่วนกระดูก (animation)", cells=cells))
