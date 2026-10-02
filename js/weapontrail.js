@@ -10,7 +10,8 @@ const WeaponTrail = {
   COLOR: { einherjar: '255,90,70', runecaster: '110,200,255', wildhunter: '140,255,120', volva: '255,215,110', trickster: '200,120,255', berserker: '255,150,50' },
   ACTS: { attack: 1 },
   MIN_MOVE: 18, // ปลายอาวุธต้องเคลื่อนเกินนี้ (px) ถึงนับว่าเป็นจังหวะเหวี่ยง
-  WIDTH: 20,    // ความหนาของแสง (px ในช่อง 240)
+  WIDTH: 20,
+  EXTEND: 0.45, // ยืดหางย้อนหลัง (สัดส่วนของมุมที่กวาดในเฟรม)    // ความหนาของแสง (px ในช่อง 240)
 
   // มือ + มุมอาวุธ + ระยะถึงปลาย ของเฟรมหนึ่ง (พิกัดช่อง 240 เทียบ CX/GROUND) — คิดแบบเดียวกับ Paperdoll.weapon
   pose(gk, it, act, row, f) {
@@ -38,7 +39,8 @@ const WeaponTrail = {
     for (let f = 1; f < n - 1; f++) {
       const p = this.pose(gk, it, act, row, f - 1), q = this.pose(gk, it, act, row, f);
       if (!p || !q || q.ty - p.ty < -6) continue;
-      const d = Math.hypot(q.tx - p.tx, q.ty - p.ty);
+      // ให้น้ำหนักการฟันลง (ปลายอาวุธลงมาก) มากกว่าการกวาดเลียดพื้นด้านข้าง
+      const d = Math.hypot(q.tx - p.tx, q.ty - p.ty) + 2 * Math.max(0, q.ty - p.ty);
       if (d > bd) { bd = d; best = f; }
     }
     return (c[key] = best);
@@ -62,7 +64,9 @@ const WeaponTrail = {
     const N = 24, col = this.COLOR[it.cls] || '255,255,255';
     this._outerSign = da >= 0 ? 1 : -1; // กวาดตามเข็ม (da>0): แกน +y ของแถบชี้เข้าหามือพอดี • ทวนเข็ม = กลับด้าน
     const at = (t, dr) => {
-      const a = p0.a + da * t, x = p0.x + (p1.x - p0.x) * t, y = p0.y + (p1.y - p0.y) * t, r = p0.r + (p1.r - p0.r) * t + dr;
+      // หางยืดย้อนไปก่อนเฟรมก่อนหน้า (EXTEND) ให้วงแสงกว้างแบบเหวี่ยงเต็มแขน
+      const u = t * (1 + this.EXTEND) - this.EXTEND, c = Math.max(0, u);
+      const a = p0.a + da * u, x = p0.x + (p1.x - p0.x) * c, y = p0.y + (p1.y - p0.y) * c, r = p0.r + (p1.r - p0.r) * c + dr;
       return [x + Math.cos(a) * r, y + Math.sin(a) * r];
     };
     const band = (w0, inset, from = 0) => { // w0 = หนาสุด, inset = ขยับเข้าจากขอบนอก
@@ -78,6 +82,7 @@ const WeaponTrail = {
     };
     const W = this.WIDTH;
     if (this.drawTexture(g, at, col, fade)) return;
+    if (this.STYLE === 'energy') { this.energy(g, at, col, fade, fr, da); return; }
     g.save();
     g.globalCompositeOperation = 'lighter';
     g.shadowColor = `rgba(${col},${0.9 * fade})`; g.shadowBlur = 8;
@@ -94,6 +99,67 @@ const WeaponTrail = {
     });
     g.restore();
   },
+};
+
+// ---------------- แบบพลังงานไหล (ค่าเริ่มต้น): แถบกว้าง สว่างขาวที่ขอบนอกใกล้อาวุธ ไล่เป็นสี Class แล้วจางเข้าใน/ไปทางหาง
+// + เส้นพลังงานไหลหลายเส้นคนละระยะ (ส่ายเล็กน้อยแบบเปลวไฟ) + ประกายดาวกระจาย • ทั้งหมดวาดแบบเรืองแสงทับกัน
+WeaponTrail.STYLE = 'energy';
+WeaponTrail.energy = function (g, at, col, fade, fr, da) {
+  const N = 30, W = this.WIDTH * 1.6, seed = (fr.row * 7 + fr.f * 13) % 97;
+  const rnd = i => { const x = Math.sin((seed + i) * 127.1) * 43758.5453; return x - Math.floor(x); };
+  const sh = (t, d) => at(t, -d); // จุดบนวง: t = 0 หาง → 1 อาวุธ, d = ลึกเข้าด้านในจากขอบนอก
+  const wid = t => W * Math.pow(t, 0.9) * (t > 0.94 ? 0.6 + (1 - t) / 0.06 * 0.4 : 1);
+  const fillBand = (d0, d1, from, style) => {
+    const out = [], inn = [];
+    for (let k = 0; k <= N; k++) { const t = from + (1 - from) * k / N, w = wid(t); out.push(sh(t, d0 * w)); inn.push(sh(t, d1 * w)); }
+    g.beginPath(); g.moveTo(out[0][0], out[0][1]);
+    for (const q of out) g.lineTo(q[0], q[1]);
+    for (let k = N; k >= 0; k--) g.lineTo(inn[k][0], inn[k][1]);
+    g.closePath(); g.fillStyle = style; g.fill();
+  };
+  const tail = sh(0, 0), head = sh(1, 0);
+  const grad = (a0, a1) => { const gr = g.createLinearGradient(tail[0], tail[1], head[0], head[1]); gr.addColorStop(0, `rgba(${col},0)`); gr.addColorStop(0.55, `rgba(${col},${a0 * fade})`); gr.addColorStop(1, `rgba(${col},${a1 * fade})`); return gr; };
+  g.save();
+  g.globalCompositeOperation = 'lighter';
+  // 1) หมอกเรืองแสงกว้าง
+  g.shadowColor = `rgba(${col},${fade})`; g.shadowBlur = 14;
+  fillBand(-0.1, 1.15, 0, grad(0.18, 0.4));
+  g.shadowBlur = 0;
+  // 2) ตัวพลังงาน (ชั้นสีเข้มขึ้นเรื่อย ๆ เข้าหาขอบนอก)
+  fillBand(0, 0.8, 0.05, grad(0.25, 0.55));
+  fillBand(0, 0.45, 0.2, grad(0.35, 0.75));
+  // 3) แกนขาวร้อนชิดขอบนอก ใกล้อาวุธ
+  const wg = g.createLinearGradient(tail[0], tail[1], head[0], head[1]);
+  wg.addColorStop(0, 'rgba(255,255,255,0)'); wg.addColorStop(0.6, `rgba(255,255,255,${0.35 * fade})`); wg.addColorStop(1, `rgba(255,255,255,${0.95 * fade})`);
+  fillBand(0, 0.16, 0.3, wg);
+  // 4) เส้นพลังงานไหล
+  g.lineCap = 'round';
+  for (let i = 0; i < 9; i++) {
+    const d = 0.08 + rnd(i) * 0.95, t0 = 0.05 + rnd(i + 20) * 0.45, t1 = Math.min(1, t0 + 0.35 + rnd(i + 40) * 0.5);
+    const amp = 1.5 + rnd(i + 60) * 2.5, ph = rnd(i + 80) * 6;
+    g.beginPath();
+    for (let k = 0; k <= 16; k++) {
+      const t = t0 + (t1 - t0) * k / 16, q = sh(t, d * wid(t) + Math.sin(t * 14 + ph) * amp);
+      k ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]);
+    }
+    const bright = d < 0.3;
+    g.strokeStyle = bright ? `rgba(255,255,255,${(0.25 + rnd(i + 5) * 0.3) * fade})` : `rgba(${col},${(0.3 + rnd(i + 5) * 0.35) * fade})`;
+    g.lineWidth = 0.8 + rnd(i + 9) * 1.8; g.stroke();
+  }
+  // 5) ประกายดาว: จุดเล็ก + ดาว 4 แฉกไม่กี่ดวง กระจายรอบวง (ด้านนอกเยอะกว่า)
+  for (let i = 0; i < 16; i++) {
+    const t = 0.15 + rnd(i + 100) * 0.85, d = (rnd(i + 120) * 1.8 - 0.5) * wid(t), q = sh(t, d);
+    const r = 0.6 + rnd(i + 140) * 1.2, a = (0.4 + rnd(i + 160) * 0.6) * fade;
+    g.fillStyle = rnd(i + 180) < 0.5 ? `rgba(255,255,255,${a})` : `rgba(${col},${a})`;
+    g.beginPath(); g.arc(q[0], q[1], r, 0, Math.PI * 2); g.fill();
+  }
+  for (let i = 0; i < 3; i++) {
+    const t = 0.6 + rnd(i + 200) * 0.4, q = sh(t, (rnd(i + 220) * 0.6 - 0.35) * wid(t)), r = 3 + rnd(i + 240) * 2.5;
+    g.fillStyle = `rgba(255,255,255,${0.85 * fade})`;
+    g.beginPath(); g.moveTo(q[0], q[1] - r); g.lineTo(q[0] + r * 0.22, q[1] - r * 0.22); g.lineTo(q[0] + r, q[1]); g.lineTo(q[0] + r * 0.22, q[1] + r * 0.22);
+    g.lineTo(q[0], q[1] + r); g.lineTo(q[0] - r * 0.22, q[1] + r * 0.22); g.lineTo(q[0] - r, q[1]); g.lineTo(q[0] - r * 0.22, q[1] - r * 0.22); g.closePath(); g.fill();
+  }
+  g.restore();
 };
 
 // ---------------- แบบวาดมือ: ภาพเส้นฟันจริง (assets/fx_trail.webp) ดัดไปตามวงอาวุธ ----------------
