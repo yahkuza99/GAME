@@ -62,6 +62,7 @@ const Feel = (() => {
   F.drawFx = (g, f) => {
     if (f.type === 'feel_orb') return F.drawOrb(g, f);
     if (f.type === 'feel_nova') return F.drawNova(g, f);
+    if (f.type === 'feel_ripple') return F.drawRipple(g, f);
   };
   F.drawOrb = (g, f) => {
     if (f.t < 0) return;
@@ -193,35 +194,110 @@ const Feel = (() => {
     const b = F.ultBtn(), v = G.player.ult || 0, k = v / ULT_MAX;
     b.style.setProperty('--k', k); b.style.setProperty('--uc', F.ultCol());
     b.querySelector('small').textContent = v >= ULT_MAX ? 'READY' : Math.floor(k * 100) + '%';
+    b.title = `${F.ULTS[F.ultKind()].name} — ${F.ULTS[F.ultKind()].desc}\n` + L('เกจไม่เต็ม: กดเพื่อเลือกไม้ตาย • เต็ม: กด T หรือปุ่มนี้', 'Not full: click to choose • Full: press T or this button');
     b.classList.toggle('ready', v >= ULT_MAX);
+  };
+  // ไม้ตาย 4 แบบ ให้ผู้เล่นเลือกเอง (กดปุ่ม ULT ตอนเกจยังไม่เต็ม = เปิดตัวเลือก) • บันทึกใน p.ultKind
+  F.ULTS = {
+    nova: { name: 'RAGNARÖK', th: L('คลื่นกระแทก', 'Shockwave'), desc: L('ระเบิดรอบตัว 5 ช่อง แรง 3 เท่าของการตีปกติ', 'Blast all foes within 5 tiles for 3x a basic hit') },
+    storm: { name: 'METEOR STORM', th: L('ฝนอุกกาบาต', 'Meteor Storm'), desc: L('อุกกาบาต 8 ลูกตกใส่มอนรอบตัว 7 ช่อง ลูกละ 1.6 เท่า', '8 meteors strike foes within 7 tiles, 1.6x each') },
+    fury: { name: 'BERSERK FURY', th: L('โหมดคลั่ง', 'Fury'), desc: L('10 วินาที: ATK/MATK +25% ตีเร็วขึ้น 30%', '10s: ATK/MATK +25%, attack speed +30%') },
+    aegis: { name: 'VALKYRIE AEGIS', th: L('โล่วาลคิรี', 'Aegis'), desc: L('ฟื้น HP/SP เต็ม + อมตะ 4 วินาที', 'Full HP/SP + invulnerable for 4s') },
+  };
+  F.ultKind = () => { const k = G.player && G.player.ultKind; return F.ULTS[k] ? k : 'nova'; };
+  F.ultPick = () => {
+    if (typeof UI === 'undefined' || !UI.menu) return;
+    const keys = Object.keys(F.ULTS);
+    UI.menu(L('เลือกไม้ตาย', 'Choose Ultimate'), L('เลือกไม้ตายที่จะใช้ตอนเกจเต็ม (เปลี่ยนได้ตลอด)', 'Pick the ultimate you will unleash when the gauge is full (change anytime)'),
+      [...keys.map(k => `${k === F.ultKind() ? '✔ ' : ''}${F.ULTS[k].name} — ${F.ULTS[k].desc}`), 'Cancel']).then(i => {
+      if (i >= 0 && i < keys.length) { G.player.ultKind = keys[i]; F.ultDraw(); if (typeof saveGame === 'function') saveGame(); }
+    }).catch(() => {});
   };
   F.ultFire = () => {
     const p = G.player;
-    if (!p || p.dead || (p.ult || 0) < ULT_MAX || !G.map || G.map.def.pvp) { if (p && (p.ult || 0) < ULT_MAX) Sound.play('miss'); return; }
+    if (!p || p.dead) return;
+    if ((p.ult || 0) < ULT_MAX) { F.ultPick(); return; } // ยังไม่เต็ม: เลือกไม้ตาย
+    if (!G.map || G.map.def.pvp) return;
     p.ult = 0; F.ultDraw();
-    const col = F.ultCol(), job = JOBS[p.job] ? JOBS[p.job].name : '';
-    p.atkAnim = 1; p.skillPose = G.time; p.skillKind = 'skill';
+    const kind = F.ultKind(), U2 = F.ULTS[kind], col = F.ultCol(), job = JOBS[p.job] ? JOBS[p.job].name : '';
+    p.atkAnim = 1; p.skillPose = G.time; p.skillKind = kind === 'fury' || kind === 'aegis' ? 'buff' : 'skill';
     if (vis()) {
-      F.banner('RAGNARÖK', job.toUpperCase(), false);
+      F.banner(U2.name, job.toUpperCase(), false);
       if (F.lvEl) F.lvEl.style.setProperty('--uc', col), F.lvEl.classList.add('ult');
-      if (typeof Juice !== 'undefined') { Juice.dilate(0.12, 0.3, true); Juice.flash('gold', 0.8); Juice.shake(8, 0.45); }
+      if (typeof Juice !== 'undefined') { Juice.dilate(0.12, 0.3, true); Juice.flash('gold', 0.8); Juice.shake(kind === 'nova' || kind === 'storm' ? 8 : 4, 0.45); }
       F.nova(col, ULT_R); setTimeout(() => F.nova('#ffffff', ULT_R * 0.7), 120); setTimeout(() => F.nova(col, ULT_R * 1.2), 240);
       [262, 330, 392, 523, 659, 784].forEach((f2, i) => chime(f2, i * 0.045, 0.05, 0.9));
-      Sound.play('crit');
+      Sound.play(kind === 'aegis' ? 'heal' : 'crit');
     }
-    // ดาเมจจริงหลังคัตอินสั้น ๆ (ให้จังหวะ ง้าง → ระเบิด)
-    setTimeout(() => {
-      if (!G.player || G.player.dead) return;
-      F.ultBusy = true;
-      try { for (const m of G.mobs.slice()) {
-        if (m.dead) continue;
-        if (Math.hypot(m.x - p.x, m.y - p.y) > ULT_R) continue;
-        const a = physHit(m, 3, { sureHit: true, skill: true }), b = magicHit(m, 3);
-        const r = (b.dmg || 0) > (a.dmg || 0) ? b : a;
-        applyHit(m, r, { sfx: '', crit: true });
-        if (typeof Juice !== 'undefined' && vis()) Juice.sparks(m, col, 10, 50);
-      } } finally { F.ultBusy = false; F.ultQuiet = performance.now() + 800; }
-    }, 260);
+    const hit = (m, mult) => {
+      const a = physHit(m, mult, { sureHit: true, skill: true }), b = magicHit(m, mult);
+      applyHit(m, (b.dmg || 0) > (a.dmg || 0) ? b : a, { sfx: '', crit: true });
+      if (typeof Juice !== 'undefined' && vis()) Juice.sparks(m, col, 10, 50);
+    };
+    const quiet = fn => { F.ultBusy = true; try { fn(); } finally { F.ultBusy = false; F.ultQuiet = performance.now() + 800; } };
+    if (kind === 'nova') setTimeout(() => { if (!p.dead) quiet(() => { for (const m of G.mobs.slice()) if (!m.dead && Math.hypot(m.x - p.x, m.y - p.y) <= ULT_R) hit(m, 3); }); }, 260);
+    else if (kind === 'storm') {
+      for (let k = 0; k < 8; k++) setTimeout(() => {
+        if (p.dead) return;
+        const near = G.mobs.filter(m => !m.dead && Math.hypot(m.x - p.x, m.y - p.y) <= 7);
+        if (!near.length) return;
+        const m = near[Math.floor(Math.random() * near.length)];
+        if (vis()) { G.fx.push({ type: 'feel_nova', feel: true, t: 0, dur: 0.35, ref: m, x: m.x, y: m.y, col: '#ff8a3a', rad: 1.6 }); if (typeof Juice !== 'undefined') Juice.shake(3, 0.1); Sound.play('hit_big'); }
+        quiet(() => { for (const o of G.mobs.slice()) if (!o.dead && Math.hypot(o.x - m.x, o.y - m.y) <= 1.6) hit(o, 1.6); });
+      }, 300 + k * 230);
+    } else if (kind === 'fury') {
+      p.ultBuffUntil = G.time + 10; recalc(); addFloater(p.x, p.y - 2, 'FURY!', col, true);
+      setTimeout(() => { if (G.player === p) { recalc(); if (typeof UI !== 'undefined') UI.dirty(); } }, 10100);
+    } else if (kind === 'aegis') {
+      p.hp = p.d.maxHp; p.sp = p.d.maxSp; p.invulnUntil = G.time + 4;
+      addFloater(p.x, p.y - 2, 'AEGIS!', '#fff1a8', true);
+    }
+  };
+  // ---------- 7) vibe เมาส์: เคอร์เซอร์ธีมนอร์ส + วงกระเพื่อมตอนคลิกพื้น ----------
+  const svgCur = (svg, hx, hy, fb) => `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}") ${hx} ${hy}, ${fb}`;
+  F.CURSOR = {
+    default: svgCur('<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><path d="M3 2 L3 22 L8.5 17 L12.5 26 L16 24.5 L12 15.8 L19.5 15.5 Z" fill="#1a1308" stroke="#ffd66a" stroke-width="1.6" stroke-linejoin="round"/><path d="M5.5 7 L5.5 17" stroke="#6ff3ff" stroke-width="1.2" opacity=".85"/></svg>', 3, 2, 'default'),
+    mob: svgCur('<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"><g stroke-linecap="round"><path d="M5 5 L22 22 M25 5 L8 22" stroke="#1a0a08" stroke-width="5"/><path d="M5 5 L22 22 M25 5 L8 22" stroke="#ff6a5a" stroke-width="2.6"/><path d="M19 25 L25 19 M11 25 L5 19" stroke="#ffd66a" stroke-width="2.4"/></g></svg>', 15, 14, 'crosshair'),
+    talk: svgCur('<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><path d="M4 5 H24 V18 H13 L7 24 V18 H4 Z" fill="#14202c" stroke="#ffd66a" stroke-width="1.6" stroke-linejoin="round"/><circle cx="10" cy="11.5" r="1.4" fill="#6ff3ff"/><circle cx="14" cy="11.5" r="1.4" fill="#6ff3ff"/><circle cx="18" cy="11.5" r="1.4" fill="#6ff3ff"/></svg>', 4, 5, 'pointer'),
+    grab: svgCur('<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><path d="M8 13 V7 a2 2 0 0 1 4 0 V12 V5 a2 2 0 0 1 4 0 V12 V6.5 a2 2 0 0 1 4 0 V13 V10 a2 2 0 0 1 4 0 V17 c0 5 -3 8 -8 8 h-2 c-3 0 -5 -2 -7 -5 l-3 -5 a2 2 0 0 1 3 -2 z" fill="#2a1f10" stroke="#ffd66a" stroke-width="1.5" stroke-linejoin="round"/></svg>', 14, 6, 'pointer'),
+    skill: svgCur('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="none" stroke="#6ff3ff" stroke-width="2"/><circle cx="16" cy="16" r="2.2" fill="#ffd66a"/><path d="M16 2 V9 M16 23 V30 M2 16 H9 M23 16 H30" stroke="#ffd66a" stroke-width="2" stroke-linecap="round"/></svg>', 16, 16, 'crosshair'),
+  };
+  F.cursorFor = () => {
+    if (G.pendingSkill) return F.CURSOR.skill;
+    const h = G.hover; if (!h) return F.CURSOR.default;
+    return h.kind === 'mob' ? F.CURSOR.mob : h.kind === 'npc' ? F.CURSOR.talk : h.kind === 'drop' ? F.CURSOR.grab : F.CURSOR.default;
+  };
+  F.ripple = (wx, wy, col) => { if (vis()) G.fx.push({ type: 'feel_ripple', feel: true, t: 0, dur: 0.45, x: wx / TILE, y: wy / TILE, col }); };
+  F.drawRipple = (g, f) => {
+    const k = Math.min(1, f.t / f.dur), X = f.x * TILE, Y = R.py(f.y * TILE);
+    g.save(); g.translate(X, Y); g.scale(1, R.K); g.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 2; i++) {
+      const kk = Math.max(0, k - i * 0.25) / (1 - i * 0.25); if (kk <= 0) continue;
+      g.globalAlpha = (1 - kk) * 0.9; g.strokeStyle = f.col; g.lineWidth = 2.4 * (1 - kk) + 0.6;
+      g.beginPath(); g.arc(0, 0, 4 + kk * 22, 0, 7); g.stroke();
+    }
+    g.globalAlpha = (1 - k); g.fillStyle = '#ffffff'; for (let i = 0; i < 4; i++) { const a = i * 1.5708 + k * 2; g.fillRect(Math.cos(a) * (6 + k * 16) - 1, Math.sin(a) * (6 + k * 16) - 1, 2, 2); }
+    g.restore();
+  };
+  F.installMouse = () => {
+    if (typeof updateHover === 'function' && !updateHover._feel) {
+      const u0 = updateHover;
+      updateHover = function () { // eslint-disable-line no-global-assign
+        const r = u0.apply(this, arguments);
+        try { if (R.cv && R.mouse.x >= 0) { const c = F.cursorFor(); if (R.cv.style.cursor !== c) R.cv.style.cursor = c; } } catch (e) { /* ใช้เคอร์เซอร์เดิม */ }
+        return r;
+      };
+      updateHover._feel = true;
+    }
+    const cv = document.getElementById('cv');
+    if (cv && !cv._feelRipple) {
+      cv._feelRipple = true;
+      cv.addEventListener('pointerdown', e => {
+        if (e.button !== 0 || typeof G === 'undefined' || !G.started || !G.player || G.player.dead) return;
+        const h = G.hover;
+        setTimeout(() => { if (R.mouse && R.mouse.wx != null) F.ripple(R.mouse.wx, R.mouse.wy, h && h.kind === 'mob' ? '#ff6a5a' : h && h.kind === 'npc' ? '#ffd66a' : '#6ff3ff'); }, 0);
+      });
+    }
   };
 
   // ---------- เกี่ยวเข้าระบบ ----------
@@ -272,8 +348,31 @@ const Feel = (() => {
       };
       applyHit._feel = true;
     }
+    if (typeof recalc === 'function' && !recalc._feel) {
+      const r0 = recalc;
+      recalc = function () { // eslint-disable-line no-global-assign
+        const res = r0.apply(this, arguments);
+        const p = G.player, d = p && p.d;
+        if (d && p.ultBuffUntil > G.time) { // โหมดคลั่ง (ไม้ตาย fury)
+          d.atkPct += 25; d.matkMin = Math.floor(d.matkMin * 1.25); d.matkMax = Math.floor(d.matkMax * 1.25);
+          d.aspdDelay = Math.max(200, Math.floor(d.aspdDelay * 0.7)); d.aspd = Math.floor(200 - d.aspdDelay / 10);
+        }
+        return res;
+      };
+      recalc._feel = true;
+    }
+    if (typeof damagePlayer === 'function' && !damagePlayer._feel) {
+      const d0 = damagePlayer;
+      damagePlayer = function () { // eslint-disable-line no-global-assign
+        const p = G.player;
+        if (p && p.invulnUntil > G.time) { if (Math.random() < 0.3) addFloater(p.x, p.y - 1.4, 'Block', '#fff1a8'); return; } // โล่วาลคิรี
+        return d0.apply(this, arguments);
+      };
+      damagePlayer._feel = true;
+    }
     setInterval(F.tickChain, 250);
     setTimeout(() => { if (G.player) F.ultDraw(); }, 0);
+    window.addEventListener('load', () => F.installMouse()); // updateHover อยู่ใน main.js (โหลดหลังไฟล์นี้)
     // เปลี่ยนแผนที่/ตาย = ล้าง CHAIN
     if (typeof changeMap === 'function' && !changeMap._feel) {
       const c0 = changeMap;
