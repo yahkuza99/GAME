@@ -17,6 +17,7 @@ C = 240
 ACTS = ['idle', 'walk', 'attack', 'shoot', 'cast', 'sit', 'hurt', 'dead']
 
 
+CENTER_ACTS = set()  # ท่าที่จุดมือ = กลางแท่ง (ธนู) เช่น --center shoot,cast
 MARKER = 'cyan'  # cyan = ใบมีดเดิมของ Novice • magenta = แท่งบอกตำแหน่งมือในภาพ Class (วาดมือเปล่า)
 
 
@@ -138,7 +139,7 @@ def process(rgba, act=''):
             bys, bxs = np.nonzero(body)
             bc = np.array([bxs.mean(), bys.mean()])
             grip, tip = (e1, e2) if np.linalg.norm(e1 - bc) < np.linalg.norm(e2 - bc) else (e2, e1)
-            if act == 'shoot':  # ท่ายิง: แท่งตั้งอยู่ในกำปั้น = กลางคันธนู
+            if act == 'shoot' or act in CENTER_ACTS:  # ท่ายิง: แท่งตั้งอยู่ในกำปั้น = กลางคันธนู
                 grip = mu
             ang = math.atan2(tip[1] - grip[1], tip[0] - grip[0])
             hand = [round(float(grip[0]), 1), round(float(grip[1]), 1), round(ang, 3)]
@@ -231,6 +232,8 @@ if __name__ == '__main__':
     dbg = None
     if '--marker' in args:
         i = args.index('--marker'); MARKER = args[i + 1]; del args[i:i + 2]
+    if '--center' in args:
+        i = args.index('--center'); CENTER_ACTS = set(args[i + 1].split(',')); del args[i:i + 2]
     if '--debug' in args:
         i = args.index('--debug'); dbg = args[i + 1]; del args[i:i + 2]
         os.makedirs(dbg, exist_ok=True)

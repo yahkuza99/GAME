@@ -32,8 +32,23 @@ const Paperdoll = {
   // อาวุธที่ยังไม่มีไอคอนเฉพาะ: ใช้ไอคอนชิ้นพื้นฐานของชนิดเดียวกัน
   BASE: { dagger: 'knife', sword: 'sword', axe: 'hand_axe', mace: 'mace', rod: 'rod', bow: 'bow' },
 
-  key(gk) {
-    return this.ON && typeof PAPERDOLL_DATA !== 'undefined' && PAPERDOLL_DATA[gk] && Anim.has(gk + '_bare') ? gk + '_bare' : null;
+  // เจ้าของเลือก (2026-10-02): ไม่เปลี่ยนอาวุธตามของที่สวม — แต่ละ Class ถืออาวุธประจำ Class ตลอด
+  // (Class 2 ใช้ของ Class 1 ต้นสาย) • ภาพอาวุธเฉพาะ Class ทีหลังได้: assets/cweapon_<class>.webp (วาดเฉียงแบบไอคอน)
+  CLASS_WEAPON: { einherjar: 'sword', runecaster: 'rune_staff', wildhunter: 'bow', volva: 'mace', trickster: 'main_gauche', berserker: 'battle_axe' },
+  CLASS_LEN: { berserker: 1.3 }, // อาวุธใหญ่กว่าปกติ (ขวานสองมือ)
+  baseJob(job) {
+    if (this.CLASS_WEAPON[job]) return job;
+    if (typeof SECOND_JOBS !== 'undefined') for (const b in SECOND_JOBS) if (SECOND_JOBS[b].includes(job)) return b;
+    return null;
+  },
+  classWeapon(job) {
+    const b = this.baseJob(job), id = b && this.CLASS_WEAPON[b];
+    if (!id || !ITEMS[id]) return null;
+    return Object.assign({ id, cls: b }, ITEMS[id]);
+  },
+  // ภาพตัวเปล่า (ลบแท่งบอกมือแล้ว) ใช้เมื่อ Class นั้นมีอาวุธประจำให้วาด • Novice ใช้ภาพเดิมที่มีมีดในภาพ
+  key(gk, job) {
+    return this.ON && typeof PAPERDOLL_DATA !== 'undefined' && PAPERDOLL_DATA[gk] && this.classWeapon(job) && Anim.has(gk + '_bare') ? gk + '_bare' : null;
   },
   // ข้อมูลเฟรม: ใช้ชื่อท่าที่ภาพจริงเล่นอยู่ (Anim.pick คืน action)
   frame(gk, p) {
@@ -115,14 +130,14 @@ const Paperdoll = {
     return (img[key] = { t0, t1, len: Math.max(1, t1 - t0), guard, out, pad });
   },
 
-  icon(it) { return it && (Art.get('item_' + it.id) || Art.get('item_' + (this.BASE[it.wtype] || ''))); },
+  icon(it) { return it && ((it.cls && Art.get('cweapon_' + it.cls)) || Art.get('item_' + it.id) || Art.get('item_' + (this.BASE[it.wtype] || ''))); },
 
   // ธนูไม่เคยฟัน: ตอนโจมตีด้วยธนู Anim ใช้ท่า shoot (ถ้ามีภาพ) ไม่มีก็ยืนถือธนูนิ่ง ๆ ให้ลูกศร (เอฟเฟกต์เกม) บินออกไป
   weapon(g, it, hand) {
     const img = this.icon(it);
     if (!img || !hand) return;
     const spec = this.W[it.wtype] || this.W.dagger;
-    const m = this.measure(img, !!spec.rev), k = spec.len / m.len;
+    const m = this.measure(img, !!spec.rev), k = spec.len * (this.CLASS_LEN[it.cls] || 1) / m.len;
     let ang = hand[2];
     if (spec.up && Math.sin(ang) > 0) ang += Math.PI;
     if (spec.stand) ang += Math.atan2(Math.sin(-Math.PI / 2 - ang), Math.cos(-Math.PI / 2 - ang)) * spec.stand;
@@ -165,9 +180,10 @@ const Paperdoll = {
   },
 
   // ส่งเข้า Anim.draw เป็น st.under / st.over (วาดในพิกัดช่องภาพ หลังตั้งตำแหน่ง/สเกลแล้ว)
-  layers(gk, p) {
-    const w = p.equip.weapon ? ITEMS[p.equip.weapon.id] : null;
-    const wid = w ? Object.assign({ id: p.equip.weapon.id }, w) : null;
+  // bare = วาดบนภาพตัวเปล่า (ใส่อาวุธประจำ Class) • ไม่ใช่ = ภาพเดิมที่มีอาวุธในภาพแล้ว (ใส่แค่หมวก)
+  layers(gk, p, bare) {
+    if (!this.ON || typeof PAPERDOLL_DATA === 'undefined' || !PAPERDOLL_DATA[gk]) return {};
+    const wid = bare ? this.classWeapon(p.job) : null;
     const hid = p.equip.head ? p.equip.head.id : null;
     return {
       under: (g, fr) => {

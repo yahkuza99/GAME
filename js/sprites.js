@@ -878,11 +878,13 @@ Sprites.drawPlayer = (g, p, t) => {
     const stun = !p.dead && p.stunUntil > G.time ? { e: G.time - p.stunAt, r: p.stunUntil - G.time } : null;
     // โดนตี: ไม่ล้ม แค่สะดุ้ง (สั่นเล็กน้อย + แสงแดงจาก render) • ล้มเฉพาะตอนมึน
     const shake = (p.hurtFlash || 0) > 0 && !stun ? Math.sin(t * 90) * 1.5 : 0;
-    const bare = typeof Paperdoll !== 'undefined' && Paperdoll.key(gk); // ทดลอง: ตัวเปล่า + วาดอาวุธ/หมวกที่สวมจริง
-    Anim.draw(g, x + shake, y, bare || gk, Object.assign(bare ? Paperdoll.layers(gk, p) : {}, {
+    const PD = typeof Paperdoll !== 'undefined' ? Paperdoll : null;
+    const bare = PD && PD.key(gk, p.job); // ตัวเปล่า + อาวุธประจำ Class (+ หมวกที่สวม)
+    const cw = PD && PD.classWeapon(p.job);
+    Anim.draw(g, x + shake, y, bare || gk, Object.assign(PD ? PD.layers(gk, p, !!bare) : {}, {
       facing: p.facing || 1, dir: p.dir, moving: p.moving && !p.sitting, atk: tr.atk, cast: !!p.cast, sit: p.sitting, dead: p.dead, deathT: tr.deathT,
       skill: p.skillPose != null && G.time - p.skillPose < 0.5 && G.time >= p.skillPose ? 1 - (G.time - p.skillPose) / 0.5 : 0,
-      hurt: 0, stun, shoot: !!(wItem && wItem.wtype === 'bow'),
+      hurt: 0, stun, shoot: !!(cw ? cw.wtype === 'bow' : wItem && wItem.wtype === 'bow'),
     }), t, 68);
     if (stun) Sprites.stunStars(g, x, y - (stun.e < 0.3 || stun.r < 0.3 ? 56 : 30), t);
     return;

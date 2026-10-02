@@ -83,17 +83,6 @@ IMAGE 1 — male: Berserker Type-B: bulky bronze and brown armor, metal wolf-hea
 IMAGE 2 — female: Berserker Type-A: bronze and brown rugged armor, metal wolf-head hood, long wild silver hair plates, orange visor.
 ```
 
-## 7. Wildhunter — ท่ายิงธนู (ทีหลังได้ ใช้ตอนทำท่าโจมตี)
+## 7. ท่าโจมตี / ท่าใช้สกิล
 
-แนบ: `template_tpl_walk.png`, `3_wildhunter_m.png`, `3_wildhunter_f.png`
-
-```
-Create 2 SEPARATE images (do not merge them). Attached: a blank sheet template and two character designs (male Type-B and female Type-A).
-2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Chibi proportions, head about 1/3 of the body height, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Use the attached character images as the exact design (same colors, armor, hair) but LEAVE OUT the bow.
-Draw a BOW SHOOTING animation into the attached template, 4 frames per direction: 1 ready stance, LEFT arm starts rising forward; 2 LEFT arm fully stretched toward the facing direction, RIGHT hand pulls back; 3 full draw: RIGHT hand at the chin, body turned sideways, steady; 4 release: RIGHT hand flies back open, small recoil. NO bow, NO arrow, NO string: instead the LEFT fist grips a short straight solid MAGENTA (#FF00FF) marker stick held VERTICALLY (where the bow grip would be), same stick in every frame. Each row is a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK). Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines.
-IMAGE 1 — male: Wildhunter Type-B: forest green hooded cloak, short gold hair plates, quiver on the back, green visor.
-IMAGE 2 — female: Wildhunter Type-A: forest green hooded cloak, gold braid hair plates, quiver on the back, green visor.
-```
-
-ติดตั้ง: `python3 tools/sprite_std.py install <png> wildhunter_<m|f> shoot --grid 4x5 --dirs S,SW,W,NW,N`
-(Trickster ใช้ธนูได้ด้วย — ทำท่ายิงแบบเดียวกันทีหลังได้ ระหว่างนี้ยืนถือธนูนิ่ง ๆ ตอนยิง)
+ย้ายไป `docs/CLASS_ATTACK.md` (รวมท่ายิงธนูของ Wildhunter)
