@@ -557,10 +557,65 @@ Sprites.fabre = (g, x, y, m, t) => {
 
 // โดรนใบพัด (Buzz Drone)
 // หุ่นฝึกซ้อม (Training Dummy): เสาเหล็ก + ลำตัวทองเหลือง + หัววิเซอร์ • โยกเมื่อโดนตี • ฟาดแขนเมื่อตีกลับ • แสดง DPS
+// หุ่นฟาง (ภาพเรนเดอร์ 3D จาก tools/dummy3d.py) • ax/ay = โคนเสาในภาพ, cut = แนวแบ่งฐานนิ่ง/ตัวหุ่นที่โยก (สัดส่วนของภาพ)
+const DUMMY_IMG = { ax: 0.5046, ay: 0.894, cut: 0.8218, h: 66 };
+Sprites.dummyImg = (g, x, y, m, img, since, sway, swing) => {
+  const D = DUMMY_IMG, H = D.h, W = H * img.width / img.height, f = m.facing || 1;
+  const iw = img.width, ih = img.height, cutY = Math.round(ih * D.cut), left = x - D.ax * W, top = y - D.ay * H;
+  Sprites.shadow(g, x + 3, y + 1, 14, 4.5, 0.26);
+  // ฐาน (เนินดิน+โคนเสา) ไม่ขยับ
+  g.drawImage(img, 0, cutY - 1, iw, ih - cutY + 1, left, top + (cutY - 1) / ih * H, W, (ih - cutY + 1) / ih * H);
+  // ตัวหุ่นโยกรอบโคนเสาที่แนวตัด • โดนตี = ยุบตัวนิด ๆ • ตีกลับ = เอนเข้าหาเป้า
+  const px = x, py = top + cutY / ih * H, sq = since < 0.35 ? Math.exp(-since * 11) : 0;
+  g.save(); g.translate(px, py); g.rotate(sway * f + swing * 0.2 * f); g.scale(1 + 0.06 * sq, 1 - 0.09 * sq);
+  g.drawImage(img, 0, 0, iw, cutY, left - px, top - py, W, cutY / ih * H);
+  g.restore();
+};
+// เศษฟางกระเด็นตอนโดนตี (เก็บไว้ที่ตัวหุ่น อัปเดตตามเวลาในเกม • ไม่ทำงานตอน G.fastSim)
+Sprites.dummyStraw = (g, x, y, m, last) => {
+  if (G.fastSim) return;
+  const ps = m._straw || (m._straw = []), dt = Math.min(0.1, Math.max(0, G.time - (m._strawT ?? G.time)));
+  m._strawT = G.time;
+  if (m._strawHit !== last) {
+    if (m._strawHit !== undefined && G.time - last < 0.2) {
+      const dir = Math.sign(m.x - G.player.x) || 1;
+      for (let i = 0; i < 7 && ps.length < 40; i++) ps.push({
+        x: (Math.random() - 0.5) * 14, y: -30 - Math.random() * 16, vx: dir * (30 + Math.random() * 70) + (Math.random() - 0.5) * 50,
+        vy: -50 - Math.random() * 70, a: Math.random() * 6.3, va: (Math.random() - 0.5) * 18, len: 3 + Math.random() * 4, life: 0.6, c: Math.random() < 0.5 ? '#e8c86a' : '#c99a3c'
+      });
+    }
+    m._strawHit = last;
+  }
+  if (!ps.length) return;
+  g.save(); g.lineWidth = 1.1; g.lineCap = 'round';
+  for (let i = ps.length - 1; i >= 0; i--) {
+    const p = ps[i];
+    p.life -= dt; if (p.life <= 0) { ps.splice(i, 1); continue; }
+    p.vy += 320 * dt; p.vx *= 1 - 1.5 * dt; p.x += p.vx * dt; p.y = Math.min(-1, p.y + p.vy * dt); p.a += p.va * dt;
+    const cx = x + p.x, cy = y + p.y, dx = Math.cos(p.a) * p.len / 2, dy = Math.sin(p.a) * p.len / 2;
+    g.globalAlpha = Math.min(1, p.life / 0.6 * 1.4); g.strokeStyle = p.c;
+    g.beginPath(); g.moveTo(cx - dx, cy - dy); g.lineTo(cx + dx, cy + dy); g.stroke();
+  }
+  g.restore();
+};
 Sprites.dummy = (g, x, y, m, t) => {
   const last = m.dmgLog && m.dmgLog.length ? m.dmgLog[m.dmgLog.length - 1][0] : -9;
   const since = G.time - last, sway = since < 1.2 ? Math.sin(since * 22) * Math.exp(-since * 4) * 0.32 : 0;
   const swing = m.atkAnim > 0 ? Math.sin((1 - m.atkAnim) * Math.PI) : 0;
+  const img = typeof Art !== 'undefined' && Art.get('prop_dummy_straw');
+  if (img) {
+    Sprites.dummyImg(g, x, y, m, img, since, sway, swing);
+    Sprites.dummyStraw(g, x, y, m, last);
+  } else Sprites.dummyCode(g, x, y, m, sway, swing);
+  // DPS (5 วินาทีล่าสุด)
+  if (m.dmgLog && m.dmgLog.length) {
+    const span = Math.max(1, Math.min(5, G.time - m.dmgLog[0][0]));
+    const tot = m.dmgLog.reduce((a, e) => a + e[1], 0);
+    R.label(g, x, y - 72, `DPS ${Math.round(tot / span)}`, '#ffe08a', true);
+  }
+};
+// แบบวาดด้วยโค้ด (สำรองเมื่อไม่มีภาพ)
+Sprites.dummyCode = (g, x, y, m, sway, swing) => {
   Sprites.shadow(g, x, y, 15, 5, 0.3);
   // ฐาน
   g.fillStyle = MG(g, '#6a6e78', -12, -4, 12, 4); g.beginPath(); g.ellipse(x, y - 1, 13, 4.5, 0, 0, 7); g.fill(); g.strokeStyle = MOL; g.lineWidth = 1; g.stroke();
@@ -580,12 +635,6 @@ Sprites.dummy = (g, x, y, m, t) => {
   g.fillStyle = MG(g, '#dfe3ea', -7, -58, 7, -45); g.beginPath(); g.arc(0, -52, 7, 0, 7); g.fill(); g.strokeStyle = MOL; g.lineWidth = 1; g.stroke();
   GLOW(g, m.state === 'chase' ? '#ff5a4a' : '#62e3ff', () => { g.beginPath(); g.roundRect ? g.roundRect(-5.5, -54, 11, 3, 1.5) : g.rect(-5.5, -54, 11, 3); g.fill(); });
   g.restore();
-  // DPS (5 วินาทีล่าสุด)
-  if (m.dmgLog && m.dmgLog.length) {
-    const span = Math.max(1, Math.min(5, G.time - m.dmgLog[0][0]));
-    const tot = m.dmgLog.reduce((a, e) => a + e[1], 0);
-    R.label(g, x, y - 72, `DPS ${Math.round(tot / span)}`, '#ffe08a', true);
-  }
 };
 
 Sprites.chonchon = (g, x, y, m, t) => {
