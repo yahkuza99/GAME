@@ -424,12 +424,13 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round
 
 /* equip */
 /* ---------- หน้าต่างอุปกรณ์ (แบบ RO): หนังเก่า/ทองหม่น/หิน + รูนนอร์สในช่องว่าง — ธีมเฉพาะหน้าต่างนี้ทั้งสองโหมด HUD ---------- */
-#w-equip { --eq-bg: #231a12; --eq-bg2: #33261a; --eq-slot: rgba(16, 11, 7, .62); --eq-line: rgba(196, 154, 92, .32); --eq-line-hi: #c99a5b;
-  --eq-gold: #d9b276; --eq-ink: #efe1c4; --eq-dim: #a8916d; --eq-faint: rgba(201, 154, 91, .28); }
-body #w-equip.win { background: linear-gradient(170deg, var(--eq-bg2), var(--eq-bg) 55%, #1a130d); border: 1px solid var(--eq-line); color: var(--eq-ink);
+/* earth tone โทนสว่าง (เจ้าของขอ): หนังสีน้ำตาลอ่อน/ทราย แทนน้ำตาลเข้มเกือบดำ */
+#w-equip { --eq-bg: #5a4430; --eq-bg2: #7d6244; --eq-slot: rgba(42, 28, 15, .42); --eq-line: rgba(232, 196, 136, .42); --eq-line-hi: #ecc98a;
+  --eq-gold: #f3d59c; --eq-ink: #fff5e2; --eq-dim: #dcc29a; --eq-faint: rgba(236, 205, 150, .4); }
+body #w-equip.win { background: linear-gradient(170deg, var(--eq-bg2), var(--eq-bg) 60%, #46331f); border: 1px solid var(--eq-line); color: var(--eq-ink);
   box-shadow: 0 26px 50px -22px rgba(0, 0, 0, .9), inset 0 0 0 1px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 226, 170, .1); -webkit-backdrop-filter: none; backdrop-filter: none; }
 body #w-equip.win::before { background: radial-gradient(110% 45% at 50% -12%, rgba(217, 178, 118, .16), rgba(217, 178, 118, 0) 62%); }
-body #w-equip .win-title { border-bottom: 1px solid var(--eq-line); background: linear-gradient(180deg, rgba(255, 226, 170, .05), rgba(0, 0, 0, .12)); }
+body #w-equip .win-title { border-bottom: 1px solid var(--eq-line); background: linear-gradient(180deg, rgba(255, 236, 200, .14), rgba(0, 0, 0, .08)); }
 body #w-equip .win-title span { color: var(--eq-gold); letter-spacing: .03em; }
 body #w-equip .win-title span::before { background: var(--eq-gold); box-shadow: 0 0 8px rgba(217, 178, 118, .6); border-radius: 0; transform: rotate(45deg); }
 body #w-equip .win-x { background: rgba(0, 0, 0, .3); color: var(--eq-dim); }
@@ -437,7 +438,7 @@ body #w-equip .win-x { background: rgba(0, 0, 0, .3); color: var(--eq-dim); }
 .eq-col { display: flex; flex-direction: column; justify-content: space-around; gap: 5px; min-width: 0; } /* 4 ช่องเรียงเต็มความสูงตัวละคร ซ้าย-ขวาตรงกัน */
 body #w-equip .eq-slot { display: grid; grid-template-columns: 26px minmax(0, 1fr); align-items: center; gap: 6px; padding: 3px 6px; min-height: 34px; cursor: pointer;
   background: var(--eq-slot); border: 1px solid var(--eq-line); border-radius: 4px; color: var(--eq-ink); box-shadow: inset 0 1px 0 rgba(255, 226, 170, .05); }
-body #w-equip .eq-slot.empty { cursor: default; background: rgba(10, 7, 4, .4); border-style: dashed; border-color: var(--eq-faint); }
+body #w-equip .eq-slot.empty { cursor: default; background: rgba(42, 28, 15, .22); border-style: dashed; border-color: var(--eq-faint); }
 body #w-equip .eq-slot:not(.empty):hover { border-color: var(--eq-line-hi); background: rgba(201, 154, 91, .12); }
 .eq-slot img, .eq-ph { width: 26px; height: 26px; image-rendering: auto; }
 .eq-slot img { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .7)); }
@@ -449,7 +450,7 @@ body #w-equip .eq-slot:not(.empty):hover { border-color: var(--eq-line-hi); back
 .eq-slot.empty .eq-i { color: var(--eq-dim); opacity: .6; font-weight: 500; }
 .eq-mid { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 body #w-equip .eq-prev { width: 132px; height: 173px; border: 1px solid var(--eq-line); border-radius: 6px;
-  background: radial-gradient(60% 18% at 50% 87%, rgba(0, 0, 0, .55), rgba(0, 0, 0, 0) 100%), radial-gradient(90% 70% at 50% 60%, #4a3826, #1c140d 75%); }
+  background: radial-gradient(60% 18% at 50% 87%, rgba(0, 0, 0, .55), rgba(0, 0, 0, 0) 100%), radial-gradient(90% 70% at 50% 60%, #8f7350, #4a3522 78%); }
 .eq-stage { position: relative; }
 .eq-stage .eq-prev { display: block; }
 .eq-turn { position: absolute; bottom: 5px; width: 26px; height: 24px; padding: 0; border: 1px solid var(--eq-line); border-radius: 4px; background: rgba(20, 14, 9, .7); color: var(--eq-gold); font-size: 15px; line-height: 1; cursor: pointer; }
