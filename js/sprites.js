@@ -1063,9 +1063,11 @@ Sprites.drawBuildingImg = (g, b, t) => {
 };
 // ซุ้มปากถ้ำ 3D (tools/ridge3d.py, RIDGE_BAKE ใน maps.js): วาด 1:1 ตามจุดยึด (ax, ay = ขอบหน้าเสากลางซุ้มบนพื้น = y ที่ใช้เรียงความลึก)
 // ผู้เล่น/เป้าหมายที่อยู่หลังซุ้ม (y น้อยกว่า) แล้วถูกเนื้อหินในภาพบัง → จางลงแบบยอดไม้ (Flora.drawObj) — เช็กจากหน้ากากความทึบของภาพ ไม่ใช่กรอบสี่เหลี่ยม
-Sprites.drawRidgeGate = (g, gt, t) => {
+// ใช้กับซุ้มประตูวาร์ปทุกประตูด้วย (tools/gate3d.py, Bake.gates): ay0 = y แมพของจุดยึดเมื่อไม่ตรงกับ y ที่ใช้เรียงความลึก (gt.y)
+Sprites.drawGateImg = Sprites.drawRidgeGate = (g, gt, t) => {
   const img = Art.get(gt.img); if (!img) return;
-  const s = gt.s, W = img.width * s, H = img.height * s, x0 = gt.x * TILE - gt.ax * s, y0 = gt.y * TILE - gt.ay * s;
+  const ya = gt.ay0 == null ? gt.y * TILE : gt.ay0 * TILE * R.K - gt.y * TILE * (R.K - 1); // จุดยึดในกรอบ upright(gt.y)
+  const s = gt.s, W = img.width * s, H = img.height * s, x0 = gt.x * TILE - gt.ax * s, y0 = ya - gt.ay * s;
   if (!img._mask) { // ความทึบความละเอียด 1/8 (คำนวณครั้งเดียวต่อภาพ)
     const mw = Math.ceil(img.width / 8), mh = Math.ceil(img.height / 8), c = document.createElement('canvas'); c.width = mw; c.height = mh;
     const cg = c.getContext('2d', { willReadFrequently: true }); cg.drawImage(img, 0, 0, mw, mh);
@@ -1090,6 +1092,36 @@ Sprites.drawRidgeGate = (g, gt, t) => {
   g.save();
   if (gt.fa < 0.995) g.globalAlpha *= gt.fa;
   g.drawImage(img, x0, y0, W, H);
+  g.restore();
+};
+// ซุ้มประตูวาร์ป 3D (Bake.gates): เงาบนพื้น — วาดใน upright(cy) ก่อนรายการเรียงความลึก (ตัวละครเดินทับเงา)
+Sprites.drawGateShadow = (g, gt) => {
+  const img = Art.get(gt.sh.img); if (!img) return;
+  const s = gt.s; g.drawImage(img, gt.cx * TILE - gt.sh.ax * s, gt.cy * TILE - gt.sh.ay * s, img.width * s, img.height * s);
+};
+// ม่านวาร์ปตัดให้อยู่ในช่องประตู (เรียงที่ vy: ซุ้มหันหน้า = ก่อนตัวซุ้ม • ซุ้มด้านข้าง = ระหว่างชิ้นหลังกับชิ้นหน้า)
+Sprites.drawGateVeil = (g, gt, vy, t) => {
+  const K = R.K, X = gt.cx * TILE, Y = gt.cy * TILE * K - vy * TILE * (K - 1);
+  g.save();
+  if (gt.open) { g.beginPath(); gt.open.forEach(([x, y], i) => (i ? g.lineTo(X + x, Y + y) : g.moveTo(X + x, Y + y))); g.closePath(); g.clip(); }
+  g.translate(0, (gt.cy - vy) * TILE * (K - 1));
+  Sprites.drawPortal(g, gt.p, t, { floor: false, label: false, flip: gt.v === 'e' || gt.v === 'w' });
+  g.restore();
+};
+// ป้ายปลายทาง: เหนือยอดซุ้ม (ประตูขอบเหนือ = บนธรณีประตูระหว่างเสาเตี้ย เพราะเหนือขอบแมพมองไม่เห็น)
+Sprites.drawGateLabel = (g, gt, ly) => {
+  const K = R.K, X = gt.cx * TILE, Y = gt.cy * TILE * K - ly * TILE * (K - 1);
+  Sprites.portalLabel(g, gt.p, X, gt.v === 'n' ? Y - 3 : Y + gt.top - 9);
+};
+Sprites.portalLabel = (g, p, x, y) => {
+  const d = MAP_DEFS[p.to] || {}; if (!d.name) return;
+  const th = Sprites.PORTAL_THEME[d.pvp ? 'pvp' : d.kind] || Sprites.PORTAL_THEME.field, c = th.a, map = G.map;
+  const ns = p.y <= 1 || p.y >= map.h - 2;
+  const label = `${ns ? (p.y <= 1 ? '⬆ ' : '⬇ ') : p.x <= 1 ? '⬅ ' : ''}${d.name}${!ns && p.x > 1 ? ' ➜' : ''}`;
+  g.save();
+  g.font = '700 11px Kanit, "Noto Sans Thai", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
+  g.lineWidth = 3.5; g.strokeStyle = 'rgba(6,10,20,0.85)'; g.strokeText(label, x, y);
+  g.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`; g.fillText(label, x, y);
   g.restore();
 };
 Sprites.drawFountainImg = (g, f, t) => {
@@ -1159,7 +1191,10 @@ Sprites.PORTAL_THEME = {
   town: { a: [255, 214, 120], b: [120, 220, 255] }, field: { a: [120, 240, 210], b: [90, 190, 255] },
   cave: { a: [190, 140, 255], b: [110, 80, 220] }, pvp: { a: [255, 120, 90], b: [255, 200, 110] },
 };
-Sprites.drawPortal = (g, p, t) => {
+// o (ซุ้ม 3D — Bake.gates): floor:false ไม่วาดแอ่งแสงบนพื้น • veil:false ไม่วาดม่าน/เสาแสง/โค้งรูน • label:false ไม่วาดป้าย
+//   flip:true ม่านด้านข้างเฉียงกลับทาง (ช่องประตูหันเข้าในแมพ ตรงกับซุ้ม e/w ของ tools/gate3d.py)
+Sprites.drawPortal = (g, p, t, o) => {
+  o = o || {};
   const T = TILE, K = typeof R !== 'undefined' && R.K ? R.K : 0.76, map = G.map;
   const d = MAP_DEFS[p.to] || {}, th = Sprites.PORTAL_THEME[d.pvp ? 'pvp' : d.kind] || Sprites.PORTAL_THEME.field;
   const ca = (al, c = th.a) => `rgba(${c[0]},${c[1]},${c[2]},${al})`, cb = al => ca(al, th.b);
@@ -1171,6 +1206,7 @@ Sprites.drawPortal = (g, p, t) => {
   g.save();
   // ---- พื้น: แอ่งแสงเต็มช่องประตู + อนุภาคถูกดูดเข้ากลาง ----
   const rx = ns ? T * 1.9 : T * 1.0, ry = (ns ? T * 0.6 : T * 1.8) * K;
+  if (o.floor !== false) {
   const pool = g.createRadialGradient(x, y, 2, x, y, Math.max(rx, ry));
   pool.addColorStop(0, ca(0.65)); pool.addColorStop(0.5, cb(0.28)); pool.addColorStop(1, cb(0));
   g.fillStyle = pool; g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, 7); g.fill();
@@ -1185,9 +1221,13 @@ Sprites.drawPortal = (g, p, t) => {
     const px = x + Math.cos(a) * rx * 1.5 * (1 - k), py = y + Math.sin(a) * ry * 1.5 * (1 - k);
     g.fillStyle = ca(0.9 * Math.sin(k * Math.PI)); g.beginPath(); g.arc(px, py, 1.6 + (1 - k) * 1.2, 0, 7); g.fill();
   }
+  }
+  g.globalCompositeOperation = 'lighter';
   // ---- ม่านแสง (หันหากล้อง • ประตูข้างเอียงเป็นผนังขนานขอบแมพ) ----
   const top = y - H, archH = T * 0.55;
-  if (side) { g.translate(x, y); g.transform(0.42, 0.62 * side * -1, 0, 1, 0, 0); g.translate(-x, -y); }
+  if (o.veil !== false) {
+  g.save();
+  if (side) { g.translate(x, y); g.transform(0.42, 0.62 * side * (o.flip ? 1 : -1), 0, 1, 0, 0); g.translate(-x, -y); }
   const veil = new Path2D();
   veil.moveTo(x - hw, y); veil.lineTo(x - hw, top + archH); veil.quadraticCurveTo(x, top - archH * 0.9, x + hw, top + archH); veil.lineTo(x + hw, y); veil.closePath();
   const vg = g.createLinearGradient(0, top, 0, y);
@@ -1244,14 +1284,11 @@ Sprites.drawPortal = (g, p, t) => {
     const k = (t * 0.4 + i / 16 + seed * 0.05) % 1, mx = x + Math.sin(i * 12.9 + t * 0.7) * hw * 0.95, my = y - k * H * 1.15;
     g.fillStyle = (i % 3 ? ca : cb)(0.9 * Math.sin(k * Math.PI)); g.beginPath(); g.arc(mx, my, 1.4 + (i % 3) * 0.6, 0, 7); g.fill();
   }
+  g.restore();
+  }
   g.globalCompositeOperation = 'source-over';
   // ---- ป้ายปลายทางเหนือโค้ง ----
-  if (d.name) {
-    const label = `${ns ? (p.y <= 1 ? '⬆ ' : '⬇ ') : p.x <= 1 ? '⬅ ' : ''}${d.name}${!ns && p.x > 1 ? ' ➜' : ''}`;
-    g.font = '700 11px Kanit, "Noto Sans Thai", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
-    g.lineWidth = 3.5; g.strokeStyle = 'rgba(6,10,20,0.85)'; g.strokeText(label, x, top - archH - 6);
-    g.fillStyle = ca(1); g.fillText(label, x, top - archH - 6);
-  }
+  if (o.label !== false) Sprites.portalLabel(g, p, x, top - archH - 6);
   g.restore();
 };
 

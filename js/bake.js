@@ -5,7 +5,8 @@
 //  • แบบ B (pieces): สไปรต์ตั้งตรงเรียงความลึกกับตัวละคร (บัลลังก์/ชั้นวาง) — กล้องเรนเดอร์ = กล้องเกม จึงวาด 1:1 ตามจุดยึด
 //    ชนตาม block • จางเหลือ ~35% เมื่อผู้เล่น/เป้าหมายอยู่หลัง • ประกายโหลกะพริบ (lighter) • แสงตัดความมืดถ้ำ (map.extraLights)
 //  ทุกอย่างกำหนดตายตัวจากข้อมูล (ไม่สุ่ม) → ทุกเครื่องเห็น/ชนเหมือนกัน
-//  ใช้: maps.js (constructor → Bake.layout, renderGround → Bake.ground / Bake.props), sprites.js drawProp → Bake.draw
+//  ใช้: maps.js (constructor → Bake.layout, renderGround → Bake.ground / Bake.props / Bake.gates), sprites.js drawProp → Bake.draw
+//  ซุ้มประตูวาร์ปทุกประตู (GATE_BAKE ใน maps.js, tools/gate3d.py): Bake.gates → map.portalGates → render.js เรียงความลึก + Sprites.drawGate*
 // ============================================================
 const Bake = {
   data(map) { return typeof BAKE_DATA !== 'undefined' ? BAKE_DATA[map.id] : null; },
@@ -62,6 +63,27 @@ const Bake = {
       if (pc.light) map.extraLights.push({ x: pc.x + pc.light.dx, y: pc.y + pc.light.dy, lr: pc.light.lr, col: pc.light.col, bake: true });
     }
     map.lightProps = null; // render.js แคชแสงครั้งแรกที่วาด → ให้สร้างใหม่รวมแสงของชิ้นเหล่านี้
+  },
+
+  // ซุ้มประตูวาร์ป 3D (GATE_BAKE ใน maps.js, tools/gate3d.py) — ทุกประตูยกเว้นซุ้มปากถ้ำ Wolfwood (มีของตัวเอง) และลานประลอง (ประตูอยู่ในอุโมงค์ของภาพ 3D)
+  // วัสดุตามชนิดแมพปัจจุบัน • แบบตามขอบ: n = เสาเตี้ย (ขอบเหนือโดนตัดหัว) s = หันหน้า e/w = ด้านข้าง 2 ชิ้น (หลัง/หน้า)
+  // ไม่แตะการชน/ระยะเข้าวาร์ป • ภาพโหลดตามแมพ (Art.need) — ยังไม่ครบ = render.js วาดวาร์ปแบบเดิม
+  gates(map) {
+    map.portalGates = [];
+    map.extraLights = (map.extraLights || []).filter(l => !l.pgate);
+    const th = typeof GATE_BAKE !== 'undefined' && !map.def.pvp && GATE_BAKE[map.def.kind];
+    if (th) for (const p of map.portals) {
+      if (map.ridgeGate && map.ridgeGate.portal === p) continue;
+      const v = p.y <= 1 ? 'n' : p.y >= map.h - 2 ? 's' : p.x <= 1 ? 'w' : 'e', d = th[v];
+      if (!d) continue;
+      const cx = p.x + 0.5, cy = p.y + 0.5, s = GATE_BAKE.s;
+      const pcs = d.pcs.map(q => ({ img: q.img, ax: q.ax, ay: q.ay, s, x: cx, y: cy + q.dy, ay0: cy, fa: 1, lt: 0 }));
+      for (const q of pcs) Art.need(q.img);
+      Art.need(d.sh.img);
+      map.portalGates.push({ p, v, cx, cy, pcs, sh: d.sh, open: d.open, top: d.top, s });
+      if (map.def.dark) map.extraLights.push({ x: cx, y: cy - 0.3, lr: 3, col: GATE_BAKE.glow[map.def.kind], pgate: true }); // แสงรูนตัดความมืด (ถ้ำ/ป่ากลางคืน)
+    }
+    map.lightProps = null;
   },
 
   // ประกายโหล: จุดเรืองนุ่ม ๆ (แคชครั้งเดียว) วาดแบบบวกแสง
