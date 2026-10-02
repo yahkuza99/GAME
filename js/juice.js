@@ -127,8 +127,84 @@ const Juice = (() => {
     }
     pushFx({ jk: 'shatter', x: m.x, y: m.y, h: 20 * s, s, dur: big ? 1.6 : 0.85, parts, glow, big });
   };
+  // รอยฟันแบบ Ragnarok บนตัวมอน: อาวุธมีค = เสี้ยวจันทร์ขาวกวาดพาดตัว (สลับทิศทุกครั้ง → ตีติดกันเป็นกากบาท)
+  // อาวุธทุบ = วงกระแทก + ดาวแตก • คริ = รอยไขว้ X สีทอง-แดง + ดาวระเบิด
+  J.slashMark = (m, opts) => {
+    if (!vis()) return;
+    const z = st(m), s = Math.min(1.8, (m.def.scale || 1) * (m.def.size || 1));
+    const smash = opts.sfx === 'smash', crit = !!opts.crit;
+    z.sflip = !z.sflip;
+    const base = (z.sflip ? -0.6 : 0.6) + rnd(-0.25, 0.25);
+    pushFx({ jk: 'roslash', x: m.x, y: m.y, h: 20 * s, s, ang: base, flip: z.sflip, crit, smash,
+      dur: crit ? 0.42 : 0.3, sparks: low() ? 3 : 6, seed: rand() });
+  };
   J.pillar = (m) => pushFx({ jk: 'pillar', x: m.x, y: m.y, s: (m.def.scale || 1), dur: 1.9, col: '#ffd66a' });
   J.dust = (x, y, s) => pushFx({ jk: 'dust', x, y, s, dur: 0.6, seed: rand() });
+
+  // วาดรอยฟัน (เรียกจาก J.drawFx) • cx,cy = กลางตัวมอน • เสี้ยวจันทร์: แกน x = แนวฟัน, โค้งนูนขึ้น, หัวหนาด้านขวา
+  const SWEEP = 0.07; // เวลาที่รอยฟันวิ่งจากหางถึงหัว (วิ)
+  const crescent = (g, cx, cy, ang, L, W, bend, pr, alpha, glow, s) => {
+    const N = 18, pt = (u, off) => { const x = (u * 2 - 1) * L, y = -bend * (1 - (u * 2 - 1) ** 2) - off; return [x, y]; };
+    const wid = u => W * Math.pow(Math.sin(Math.PI * Math.min(1, u * 1.04)), 1.3) * (0.35 + 0.65 * u);
+    const band = (scale) => {
+      g.beginPath();
+      for (let i = 0; i <= N; i++) { const u = pr * i / N, p = pt(u, wid(u) * scale * 0.5); i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); }
+      for (let i = N; i >= 0; i--) { const u = pr * i / N, p = pt(u, -wid(u) * scale * 0.5); g.lineTo(p[0], p[1]); }
+      g.closePath(); g.fill();
+    };
+    g.save(); g.translate(cx, cy); g.rotate(ang); g.globalCompositeOperation = 'lighter';
+    g.globalAlpha = alpha * 0.5; g.fillStyle = `rgb(${glow})`; band(2.4);
+    g.globalAlpha = alpha * 0.85; band(1.3);
+    g.globalCompositeOperation = 'source-over'; // แกนขาวทึบ: คมชัดแม้บนพื้นสว่าง (บวกแสงอย่างเดียวจะจางหาย)
+    g.globalAlpha = alpha; g.fillStyle = '#ffffff'; band(0.55);
+    // เส้นรองบาง ๆ ใต้รอยหลัก (เหมือนรอยดาบสองคมของ RO)
+    g.globalCompositeOperation = 'lighter'; g.globalAlpha = alpha * 0.7; g.strokeStyle = `rgb(${glow})`; g.lineWidth = Math.max(1, W * 0.18);
+    g.beginPath();
+    for (let i = 0; i <= N; i++) { const u = 0.15 + (pr - 0.15) * i / N; if (u < 0.15) break; const p = pt(u, -W * 1.1); i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); }
+    g.stroke();
+    g.restore();
+    return pt;
+  };
+  const star4 = (g, x, y, r) => {
+    g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r * 0.2, y - r * 0.2); g.lineTo(x + r, y); g.lineTo(x + r * 0.2, y + r * 0.2);
+    g.lineTo(x, y + r); g.lineTo(x - r * 0.2, y + r * 0.2); g.lineTo(x - r, y); g.lineTo(x - r * 0.2, y - r * 0.2); g.closePath(); g.fill();
+  };
+  const drawSlash = (g, cx, cy, f, t, k) => {
+    const s = f.s, fade = 1 - clamp01((t - SWEEP) / (f.dur - SWEEP)), R0 = 26 * Math.sqrt(s);
+    const hash = i => { const x = Math.sin((f.seed * 997 + i) * 12.9898) * 43758.5453; return x - Math.floor(x); };
+    g.globalCompositeOperation = 'lighter';
+    if (f.smash && !f.crit) { // ทุบ: แฟลช + วงกระแทก + รัศมีหนา
+      if (t < 0.09) { g.globalAlpha = 1 - t / 0.09; g.drawImage(glowSprite('#ffffff'), cx - R0, cy - R0, R0 * 2, R0 * 2); }
+      const e = easeOut(k), r = (6 + 24 * e) * Math.sqrt(s);
+      g.globalAlpha = 1 - k; g.strokeStyle = '#fff4d6'; g.lineWidth = 3.2 * (1 - k) + 0.6;
+      g.beginPath(); g.ellipse(cx, cy, r, r * 0.8, 0, 0, TAU); g.stroke();
+      g.lineCap = 'round'; g.strokeStyle = 'rgba(255,200,120,1)'; g.lineWidth = 4 * (1 - k) + 1;
+      g.beginPath();
+      for (let i = 0; i < 6; i++) { const a = i / 6 * TAU + f.ang, r0 = r * 0.55, r1 = r * 1.25 + 6; g.moveTo(cx + Math.cos(a) * r0, cy + Math.sin(a) * r0 * 0.8); g.lineTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1 * 0.8); }
+      g.stroke();
+      g.fillStyle = '#ffffff'; g.globalAlpha = (1 - k) * 0.9; star4(g, cx, cy, (9 + 6 * (1 - k)) * Math.sqrt(s));
+      return;
+    }
+    const L = (f.crit ? 36 : 32) * Math.sqrt(s), W = (f.crit ? 6.5 : 5) * Math.sqrt(s), bend = 13 * Math.sqrt(s);
+    const glow = f.crit ? '255,120,40' : '150,215,255';
+    // คริ: ดาวระเบิดหลังรอยฟัน
+    if (f.crit && t < 0.22) { const a = 1 - t / 0.22, b = starburst(), sc = (0.7 + 0.6 * easeOut(t / 0.22)) * Math.sqrt(s); g.globalAlpha = a * 0.85; g.drawImage(b, cx - 36 * sc, cy - 36 * sc, 72 * sc, 72 * sc); }
+    const cuts = f.crit ? [[f.ang, 0], [f.ang + (f.flip ? 1.35 : -1.35), 0.05]] : [[f.ang, 0]];
+    for (const [ang, delay] of cuts) {
+      const tt = t - delay; if (tt <= 0) continue;
+      const pr = clamp01(tt / SWEEP), al = Math.min(1, fade * 1.1);
+      const pt = crescent(g, cx, cy, ang, L, W * (0.6 + 0.4 * fade), bend, pr, al, glow, s);
+      // ประกายตามแนวรอยฟัน ปลิวออกด้านนอก
+      g.save(); g.translate(cx, cy); g.rotate(ang); g.fillStyle = f.crit ? '#ffe2a0' : '#e8f6ff';
+      for (let i = 0; i < f.sparks; i++) {
+        const u = 0.25 + hash(i) * 0.7; if (u > pr) continue;
+        const p = pt(u, 0), drift = (6 + hash(i + 9) * 10) * easeOut(k);
+        g.globalAlpha = fade * (0.6 + hash(i + 3) * 0.4);
+        star4(g, p[0] + (hash(i + 5) - 0.5) * 6, p[1] - drift, (1.6 + hash(i + 7) * 2.2) * (1 - k * 0.6));
+      }
+      g.restore();
+    }
+  };
 
   J.drawFx = (g, f) => {
     const X = f.x * TILE, Y = f.y * TILE * R.K, t = f.t, k = clamp01(t / f.dur);
@@ -171,6 +247,8 @@ const Juice = (() => {
         if (p.body) { g.lineWidth = 0.8; g.strokeStyle = 'rgba(20,20,30,.55)'; g.stroke(); }
         g.restore();
       }
+    } else if (f.jk === 'roslash') {
+      drawSlash(g, X, Y - f.h, f, t, k);
     } else if (f.jk === 'pillar') {
       // ลำแสงทองพุ่งขึ้นฟ้า (MVP / World Boss)
       const grow = easeOut(clamp01(t / 0.25)), fade = k > 0.55 ? 1 - (k - 0.55) / 0.45 : 1;
@@ -211,6 +289,8 @@ const Juice = (() => {
     const frz = (crit ? 0.06 : big ? 0.08 : 0) * rmMul();
     if (frz > 0) { z.frzUntil = now + frz; }
     if (skill && opts.element && EL_FILTER[opts.element]) { z.tintEl = opts.element; z.tintUntil = now + 0.34; }
+    // รอยฟันแบบ RO: เฉพาะตีประชิดธรรมดา (ธนู/สกิล/DoT ไม่มี) — sfx 'slash' = อาวุธมีคม, 'smash' = อาวุธทุบ
+    if (kind === 'hit' && (opts.sfx === 'slash' || opts.sfx === 'smash')) J.slashMark(m, opts);
     if (crit) { J.dilate(0.25, 0.045); J.sparks(m, '#ffd23a', 10, 46); }
     else if (big) { J.dilate(0.2, 0.06); J.sparks(m, EL_COL[opts.element] || '#bff4ff', 9, 40); J.shake(2.5, 0.12); }
   };
