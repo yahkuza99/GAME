@@ -230,42 +230,54 @@ class GameMap {
     this.floodCleanup(cx, cy, T.ROCK);
   }
 
+  // เมือง Neo Eldheim ตามภาพ assets/map_eldheim.webp: ลานหินอ่อน น้ำพุคริสตัลกลางสระกลม
+  // คลองตะวันออก/ตะวันตก/ใต้ + สะพานจริง (น้ำเดินไม่ได้ ข้ามได้เฉพาะสะพาน) กระถางต้นไม้ สวนมุมเมือง — ภาพวาดอยู่ใน js/townmap.js
   genTown() {
-    const R = this.rng, w = this.w, h = this.h, cx = w >> 1, cy = h >> 1;
+    const R = this.rng, w = this.w, h = this.h, cx = w >> 1, cy = h >> 1, C = cx + 0.5;
     this.fill(T.GRASS);
     this.border(T.TREE, 2);
-    // ถนนหลัก
-    for (let x = 2; x < w - 1; x++) for (let y = cy - 1; y <= cy + 1; y++) this.set(x, y, T.STONE);
-    for (let y = 9; y < h - 1; y++) for (let x = cx - 1; x <= cx + 1; x++) this.set(x, y, T.STONE);
-    // ลานกลางเมือง
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++)
-      if (Math.hypot(x + 0.5 - (cx + 0.5), y + 0.5 - (cy + 0.5)) < 7.2) this.set(x, y, T.STONE);
-    // น้ำพุ
-    for (let y = cy - 1; y <= cy + 1; y++) for (let x = cx - 1; x <= cx + 1; x++) this.set(x, y, T.FOUNTAIN);
-    this.fountain = { x: cx + 0.5, y: cy + 0.5 };
-    // ปราสาท
+    for (let y = 2; y < h - 2; y++) for (let x = 2; x < w - 2; x++) this.set(x, y, T.STONE);
+    // สวนมุมเมือง (หญ้า + ต้นไม้)
+    this.beds = [];
+    const bed = (x0, y0, x1, y1, trees) => {
+      for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+        const r = U.hash2(x, y, 4711);
+        this.set(x, y, r < trees ? T.TREE : r < trees + (trees ? 0.07 : 0.2) ? T.FLOWER : T.GRASS);
+      }
+      this.beds.push({ x0, y0, x1, y1 });
+    };
+    bed(2, 2, 11, 9, 0.3); bed(w - 11, 2, w - 3, 9, 0.3);                 // สวนขั้นบันไดข้างหอคอย
+    bed(2, h - 5, cx - 3, h - 3, 0); bed(cx + 3, h - 5, w - 3, h - 3, 0); // แนวสวนดอกไม้ริมคลองใต้ (ไม่มีต้นสูงบังคลอง)
+    bed(2, 17, 4, 18, 0); bed(2, 22, 4, 24, 0.2); bed(w - 4, 17, w - 3, 18, 0); bed(w - 4, 22, w - 3, 24, 0.2);
+    // สระน้ำพุกลม
+    for (let y = cy - 3; y <= cy + 3; y++) for (let x = cx - 3; x <= cx + 3; x++)
+      if (Math.hypot(x + 0.5 - C, y + 0.5 - C) <= 2.6) this.set(x, y, T.FOUNTAIN);
+    this.fountain = { x: C, y: C };
+    // คลอง: ตะวันตก/ตะวันออก (ลอดใต้ร้าน) + คลองใหญ่ฝั่งใต้
+    this.canalY = [h - 7, h - 6];
+    const water = (x0, y0, x1, y1) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) this.set(x, y, T.WATER); };
+    water(2, h - 7, w - 3, h - 6);
+    for (const x0 of [6, w - 7]) { water(x0, 17, x0 + 1, 24); water(x0, h - 9, x0 + 1, h - 8); }
+    // สะพาน (ทางเดินข้ามน้ำ) — ถนนหลักทั้ง 3 สาย
+    this.bridges = [
+      { x0: cx - 1, y0: h - 7, x1: cx + 1, y1: h - 6, dir: 'v' },
+      { x0: 6, y0: cy - 1, x1: 7, y1: cy + 1, dir: 'h' },
+      { x0: w - 7, y0: cy - 1, x1: w - 6, y1: cy + 1, dir: 'h' },
+    ];
+    for (const b of this.bridges) for (let y = b.y0; y <= b.y1; y++) for (let x = b.x0; x <= b.x1; x++) this.set(x, y, T.STONE);
+    // กระถางต้นไม้ในลาน + ริมถนน
+    this.planters = [[14, 14], [26, 14], [14, 26], [26, 26], [17, 30], [23, 30], [10, 18], [10, 22], [30, 18], [30, 22]];
+    for (const [x, y] of this.planters) this.set(x, y, T.TREE);
+    // หอคอยกลาง + ร้านค้า
     this.addBuilding(13, 2, 15, 7, 'castle', '#6a7fb0', 'CENTRAL CORE');
-    // ร้านค้า
     this.addBuilding(4, 11, 8, 6, 'house', '#ff5a7a', 'SUPPLY');
     this.addBuilding(28, 11, 8, 6, 'house', '#4ab0ff', 'ARMORY');
     this.addBuilding(4, 25, 8, 6, 'house', '#5aff9a', 'PLATING');
     this.addBuilding(28, 25, 8, 6, 'house', '#ffa040', 'FORGE');
-    // ทางเดินหน้าร้าน
-    for (const b of this.buildings) {
-      if (b.kind !== 'house') continue;
-      const dx = b.x + (b.w >> 1), dy = b.y + b.h;
-      for (let y = dy; y <= dy + 1; y++) for (let x = dx - 1; x <= dx + 1; x++) if (this.tile(x, y) !== T.HOUSE) this.set(x, y, T.STONE);
-    }
-    // ประดับดอกไม้และต้นไม้
-    for (let y = 2; y < h - 2; y++) for (let x = 2; x < w - 2; x++) {
-      if (this.tile(x, y) !== T.GRASS) continue;
-      const r = R();
-      if (r < 0.06) this.set(x, y, T.FLOWER);
-      else if (r < 0.085 && Math.abs(x - cx) > 3 && Math.abs(y - cy) > 3) this.set(x, y, T.TREE);
-    }
     for (const n of this.def.npcs) {
       for (let y = n.y - 1; y <= n.y + 1; y++) for (let x = n.x - 1; x <= n.x + 1; x++)
-        if (this.tile(x, y) === T.TREE) this.set(x, y, T.GRASS);
+        if (this.tile(x, y) === T.TREE && !this.planters.some(([px, py]) => px === x && py === y)) this.set(x, y, T.GRASS);
+      if (SOLID.has(this.tile(n.x, n.y))) this.set(n.x, n.y, T.STONE);
     }
     for (const p of this.portals) {
       this.set(p.x, p.y, T.STONE); this.set(p.ax, p.ay, T.STONE);
@@ -273,7 +285,7 @@ class GameMap {
         if (p.x === 1 || p.x === w - 2) this.set(p.x + (p.x === 1 ? -1 : 1), p.y + i, T.TREE);
       }
     }
-    this.floodCleanup(cx, cy + 3, T.TREE);
+    this.floodCleanup(cx, cy + 4, T.TREE);
   }
   addBuilding(x, y, w, h, kind, roof, label) {
     for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) this.set(xx, yy, T.HOUSE);
@@ -388,6 +400,8 @@ class GameMap {
       lg.filter = 'none';
       g.drawImage(layer, 0, 0);
     }
+    const town = this.def.kind === 'town' && typeof TownArt !== 'undefined';
+    if (town) { TownArt.floor(this, g); this.texClasses.add('stone'); }
     // 1.6) หน้ากากหญ้าความละเอียดต่ำ (4px/ช่อง เบลอแล้ว) สำหรับหญ้าพลิ้วตามลมตอนเล่น
     this.grassMask = null;
     // มี Flora: หญ้านิ่งแบบภาพวาด (หย่อมดิน/หญ้ากระจุก/เงาต้นไม้ที่อบลงพื้นจะไม่ถูกชั้นหญ้าพลิ้วทับ) — ต้นไม้/พุ่มไม้ยังไหวตามลม
@@ -410,7 +424,7 @@ class GameMap {
     // 3.2) หย่อมดิน เงาต้นไม้ หญ้ากระจุก ดอกไม้จิ๋ว กรวด (js/flora.js)
     if (typeof Flora !== 'undefined' && this.flora) Flora.bake(this, g);
     // 3.5) น้ำทรงธรรมชาติจากหน้ากากเบลอ
-    this.drawWater(g, P, depth);
+    if (town) TownArt.over(this, g); else this.drawWater(g, P, depth);
     // 4) ผนังหิน (ถ้ำ) มีมิติ
     for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) if (this.tile(x, y) === T.ROCK) this.rockTile(g, x, y);
     // 5) ของตกแต่ง — ถ้ามีภาพ (assets/prop_*) จะเป็นวัตถุตั้งตรงเรียงความลึก ไม่อบลงพื้น
@@ -523,6 +537,7 @@ class GameMap {
     const t = this.tile(x, y), cls = this.terrainClass(t), px = x * TILE, py = y * TILE, seed = this.def.seed;
     const h = (i, k = 0) => U.hash2(x * 13 + i, y * 29 + k, seed + 5);
     const sides = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+    if (this.def.kind === 'town' && typeof TownArt !== 'undefined') return; // เมือง: ขอบคมแบบงานหินอ่อน (TownArt วาดขอบกระถาง/ขอบคลองเอง)
     if (cls === 'dirt' || (cls === 'stone' && t === T.STONE)) {
       for (const [dx, dy] of sides) {
         const nc = this.terrainClass(this.tile(x + dx, y + dy));
@@ -662,9 +677,12 @@ class GameMap {
   // เมือง: เสาไฟรอบลานกลาง + ป้ายนีออนหน้าร้าน
   placeTownProps() {
     if (!propArt('prop_lamp')) return;
-    const cx = this.w >> 1, cy = this.h >> 1;
-    for (const [dx, dy] of [[-5, -5], [5, -5], [-5, 5], [5, 5]]) this.props.push({ kind: 'lamp', img: 'prop_lamp', x: cx + dx + 0.5, y: cy + dy + 0.5, s: 1, r: 0.3 });
-    for (let x = 4; x < this.w - 3; x += 6) for (const y of [cy - 2, cy + 2]) if (this.tile(x, y) === T.GRASS && Math.abs(x - cx) > 7) this.props.push({ kind: 'lamp', img: 'prop_lamp', x: x + 0.5, y: y + 0.5, s: 0.9, r: 0.5 });
+    const cx = this.w >> 1, lamp = (x, y, s = 1) => this.props.push({ kind: 'lamp', img: 'prop_lamp', x, y, s, r: 0.3 });
+    for (const b of this.bridges || []) {                     // เสาไฟหัวสะพานทั้งสองฝั่ง
+      if (b.dir === 'v') for (const x of [b.x0 - 0.15, b.x1 + 1.15]) { lamp(x, b.y0 - 0.25, 0.95); lamp(x, b.y1 + 1.6, 0.95); }
+      else for (const y of [b.y0 - 0.2, b.y1 + 1.25]) { lamp(b.x0 - 0.3, y, 0.95); lamp(b.x1 + 1.3, y, 0.95); }
+    }
+    for (const x of [cx - 1.6, cx + 2.6]) lamp(x, 11.6);       // ทางขึ้นหอคอย
     if (propArt('prop_sign')) for (const b of this.buildings) if (b.kind === 'house') {
       const sx = b.x + (b.x < cx ? b.w + 0.2 : -0.2), sy = b.y + b.h - 0.3;
       if (this.tile(Math.floor(sx), Math.floor(sy)) !== T.HOUSE) this.props.push({ kind: 'sign', img: 'prop_sign', x: sx, y: sy, s: 0.9, r: 0.2 });
