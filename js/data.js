@@ -762,7 +762,7 @@ const MOBS = {
                glow: '#ff3030', sprite: 'human', skin: '#f0ecd8', outfit: '#f0ecd8', hair: null, bones: true, weapon: 'sword', drops: [['old_bone', 0.5], ['falchion', 0.01]] },
   hel_maiden:{ name: 'Hel Maiden Unit',    lv: 30, hp: 1500, atk: [90, 115], def: 30, mdef: 30, vit: 25, flee: 55,  hit: 75,  exp: 720, jexp: 500, speed: 1.5, aggro: false, element: 'undead', race: 'undead',
                glow: '#60f0d0', sprite: 'human', skin: '#c8d0e0', outfit: '#3a4a6a', hair: '#e8e8f0', hood: '#2a2a3a', halfskull: true, drops: [['hel_lantern', 0.4], ['ribbon', 0.02]] },
-  hel_guard: { name: 'Hel Guard Unit',     lv: 32, hp: 1700, atk: [100, 125],def: 30, mdef: 20, vit: 30, flee: 60,  hit: 80,  exp: 800, jexp: 560, speed: 1.5, aggro: true, element: 'undead', race: 'undead',
+  hel_guard: { name: 'Hel Guard Unit',     lv: 32, hp: 1700, atk: [100, 125],def: 30, mdef: 20, vit: 30, flee: 60,  hit: 80,  exp: 800, jexp: 560, speed: 1.5, aggro: true, element: 'undead', race: 'undead', size: 1.3,
                glow: '#ff4a3a', sprite: 'human', skin: '#b8c0d0', outfit: '#2a2a3a', hair: '#101018', viking: true, weapon: 'axe', drops: [['cursed_seal', 0.4], ['iron_helm', 0.02]] },
   kitsura:   { name: 'Kitsura EX', lv: 45, hp: 22000, atk: [180, 240], def: 40, mdef: 50, vit: 40, flee: 110, hit: 130, exp: 16000, jexp: 11000, speed: 2.2, aggro: true, stun: [12, 2], element: 'fire', race: 'demon',
                glow: '#ffae40', sprite: 'human', skin: '#f6d7b8', outfit: '#e86a2a', hair: '#f0a040', fox: true, scale: 1.6, boss: true, respawn: 600000, bossSkill: 'firestorm',
