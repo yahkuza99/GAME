@@ -827,8 +827,9 @@ const JOB_STARTER = { einherjar: 'sword', runecaster: 'rod', wildhunter: 'bow', 
 //  ตารางประสบการณ์
 // ------------------------------------------------------------
 const MAX_BASE_LV = 99;
-// เส้น EXP: ต้นเกมขึ้นไว (Lv 1-4 ไม่กี่ตัว) แล้วค่อย ๆ หนักขึ้น — Lv 10 ≈ 18 ตัว, Lv 20 ≈ 37, Lv 30 ≈ 73 ตัวของมอนที่เหมาะ
-function baseExpNeed(lv) { return Math.floor(5 * Math.pow(lv, 2.75)) + 40; }
+// เส้น EXP: ต้นเกมขึ้นไว (Lv 1-10 เท่าเดิมโดยประมาณ) แล้วหนักขึ้นช่วงกลาง-ปลาย
+// 2026-10-02 วิเคราะห์ด้วยบอทจำลอง: เดิม 5·lv^2.75 → Lv 50 ใน ~9 ชม. (เร็วกว่า RO มาก) → 3·lv^3: Lv 30 ×1.4, Lv 50 ×1.6 (≈ 12 ชม.)
+function baseExpNeed(lv) { return Math.floor(3 * Math.pow(lv, 3)) + 40; }
 function jobExpNeed(job, jl) {
   if (job === 'novice') return Math.floor(5 * Math.pow(jl, 1.5)) + 5;
   if (JOBS[job] && JOBS[job].tier === 2) return Math.floor(70 * jl * jl); // Class ขั้น 2 เก็บ Job ช้ากว่า

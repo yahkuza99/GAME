@@ -764,7 +764,7 @@ function killMob(m) {
     Sound.play('mvp');
     if (typeof Story !== 'undefined') Story.onMvpKill(d.id);
   } else {
-    G.respawns.push({ id: d.id, at: G.time + U.rand(6, 14) });
+    G.respawns.push({ id: d.id, at: G.time + U.rand(4, 10) }); // เกิดใหม่เร็วขึ้น (เดิม 6–14 วิ)
   }
   Sound.play('kill');
 }

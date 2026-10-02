@@ -29,19 +29,19 @@ const MAP_DEFS = {
   meadow: {
     name: 'Emerald Meadow', thai: L('ทุ่งหญ้ามรกต', 'Emerald Grasslands'), w: 56, h: 56, kind: 'field', seed: 202,
     links: { W: 'eldheim', E: 'mistlake' }, level: '1-6',
-    spawns: [['pudding', 14], ['leafworm', 8], ['moonbun', 8], ['ember_pudding', 6], ['buzzfly', 5]],
+    spawns: [['pudding', 20], ['leafworm', 11], ['moonbun', 11], ['ember_pudding', 9], ['buzzfly', 7]],
     grass: '#6fae4a', trees: 0.9, ponds: 2, flowers: 0.05,
   },
   mistlake: {
     name: 'Mistlake Plains', thai: L('ที่ราบทะเลสาบหมอก', 'Plains of the Misty Lake'), w: 56, h: 56, kind: 'field', seed: 303,
     links: { W: 'meadow' }, level: '8-16 (MVP: Seraph Core)',
-    spawns: [['fiddlehopper', 10], ['stumpling', 8], ['capshroom', 8], ['moss_pudding', 8]], mvp: 'seraph_pudding',
+    spawns: [['fiddlehopper', 15], ['stumpling', 12], ['capshroom', 12], ['moss_pudding', 12]], mvp: 'seraph_pudding',
     grass: '#86b04a', trees: 0.8, ponds: 4, flowers: 0.08, treeHue: '#5f9a3a', flora: 'lake',
   },
   wolfwood: {
     name: 'Wolfwood Forest', thai: L('ป่าหมาป่า', 'Forest of the Wolves'), w: 56, h: 56, kind: 'field', seed: 404,
     links: { N: 'eldheim', S: 'helcave' }, level: '18-30',
-    spawns: [['ashtail', 10], ['fenrir_pup', 8], ['mossback', 6], ['tuskboar', 6]],
+    spawns: [['ashtail', 16], ['fenrir_pup', 14], ['mossback', 10], ['tuskboar', 9]], // tuskboar ตีก่อน: เพิ่มน้อย กันโดนรุม
     grass: '#4f8a3a', trees: 1.7, ponds: 1, flowers: 0.02, pine: true,
   },
   // ลานประลอง PvP: ผู้เล่นตีกันได้ ไม่มีมอน ตายไม่เสีย EXP (ต้องออนไลน์ถึงจะเจอคู่ต่อสู้)
