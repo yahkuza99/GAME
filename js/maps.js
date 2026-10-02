@@ -79,7 +79,7 @@ const BUILDING_ART = { SUPPLY: 'prop_bld_shop', ARMORY: 'prop_bld_house', PLATIN
 const propArt = k => !!k && typeof Art !== 'undefined' && Art.has(k);
 
 class GameMap {
-  constructor(id) {
+  constructor(id, opts) {
     const def = MAP_DEFS[id];
     this.id = id; this.def = def; this.w = def.w; this.h = def.h;
     this.tiles = new Uint8Array(this.w * this.h);
@@ -101,6 +101,7 @@ class GameMap {
       if (this.tile(x, y) === T.TREE) this.set(x, y, this.tile(p.x, p.y));
     }
     for (const n of def.npcs || []) this.block[this.idx(n.x, n.y)] = 1;
+    if (opts && opts.lite) return; // แค่ผังช่อง (ใช้วาดแผนที่โลก — ไม่ต้องวาดพื้น/วางของประดับ)
     this.collectObjects();
     this.renderGround();
     this.renderMini();

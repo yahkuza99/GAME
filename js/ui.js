@@ -595,6 +595,7 @@ const UI = {
     }
     $('#map-coord').textContent = Online.online ? `👥 ${Math.max(1, Online.count)} • ${Math.floor(p.x)}, ${Math.floor(p.y)}` : `${Math.floor(p.x)}, ${Math.floor(p.y)}`;
     if (this.isOpen('w-map')) this.drawBigMap($('#bigmap-cv'));
+    if (this.isOpen('w-world') && $('#worldmap-cv')) this.drawWorldMap($('#worldmap-cv'));
   },
   // หมุดเควสต์ (ทอง): ไม่มีมุม = อยู่ในระยะ • มีมุม = ลูกศรชี้ออกนอกเรดาร์
   drawQuestPin(g, x, y, ang) {
@@ -1247,37 +1248,64 @@ const UI = {
     for (const k in pos) pos[k] = [pos[k][0] - x0, pos[k][1] - y0];
     return (this._world = { pos, cols: Math.max(...xs) - x0 + 1, rows: Math.max(...ys) - y0 + 1 });
   },
-  // แผนที่โลกตามภูมิศาสตร์จริง (js/world.js): ขนาด/ตำแหน่งการ์ด = ขนาด/ตำแหน่งแมพบนผืนโลก แมพติดกันตรงประตู • จุดเหลือง = ตำแหน่งเราจริง
+  // แผนที่โลกภาพวาด (js/world.js WORLD.art): ทุกภูมิภาควาดจากผังจริง วางตามพิกัดโลก • แตะภูมิภาค = เดินทางไปเอง
   renderWorld() {
     const body = $('#w-world .win-body');
-    const qt = typeof Quest !== 'undefined' ? Quest.navTarget() : null;
-    const key = `${G.map.id}|${qt ? qt.map : ''}|${Nav.target ? Nav.target.map : ''}`;
-    if (body.dataset.key !== key || !body.querySelector('.wm-geo')) {
-      body.dataset.key = key; body.innerHTML = '';
-      const P = WORLD.layout(), B = WORLD.bounds(), pad = 6;
-      const ratio = (B.w + pad * 2) / (B.h + pad * 2), geo = h('div', { class: 'wm-geo', style: `aspect-ratio:${B.w + pad * 2} / ${B.h + pad * 2};width:min(100%, calc(68vh * ${ratio.toFixed(3)}))` });
-      const pc = (v, base, tot) => ((v - base + pad) / (tot + pad * 2) * 100).toFixed(3) + '%';
-      for (const [id, pos] of Object.entries(P)) {
-        const d = MAP_DEFS[id], art = Art.get('map_' + id), here = id === G.map.id;
-        const card = h('button', { class: 'wm-card wm-abs' + (here ? ' here' : ''), 'data-map': id,
-          style: `left:${pc(pos.x, B.x0, B.w)};top:${pc(pos.y, B.y0, B.h)};width:${(d.w / (B.w + pad * 2) * 100).toFixed(3)}%;height:${(d.h / (B.h + pad * 2) * 100).toFixed(3)}%` + (art ? `;background-image:linear-gradient(transparent 35%, rgba(4,8,16,.9)), url(${art.src})` : ''),
-          onclick: () => { if (!here) { Nav.goTo({ kind: 'map', map: id, name: d.name }); this.close('w-world'); } } },
-          h('b', {}, d.name), h('small', {}, d.kind === 'town' ? L('เมือง • ปลอดภัย', 'Town • Safe') : `Lv ${String(d.level || '').replace(/\s*\(.*\)/, '')}`),
-          h('span', { class: 'wm-tags' }, d.mvp ? h('i', { class: 'wm-mvp' }, 'MVP') : null, qt && qt.map === id ? h('i', { class: 'wm-q' }, L('📜 เควสต์', '📜 Quest')) : null));
-        geo.append(card);
-        // ประตูเชื่อม: จุดบนรอยต่อ
-        for (const [side, to] of Object.entries(d.links || {})) {
-          if (!P[to] || !PORTAL_SIDE[side] || id > to) continue;
-          const pp = portalPos(d, side), gx = pos.x + (side === 'E' ? d.w : side === 'W' ? 0 : pp.x + 0.5), gy = pos.y + (side === 'S' ? d.h : side === 'N' ? 0 : pp.y + 0.5);
-          geo.append(h('i', { class: 'wm-gate', style: `left:${pc(gx, B.x0, B.w)};top:${pc(gy, B.y0, B.h)}` }));
+    if (!body.querySelector('#worldmap-cv')) {
+      body.innerHTML = '';
+      const cv = h('canvas', { id: 'worldmap-cv' });
+      cv.addEventListener('pointerdown', e => {
+        e.preventDefault(); e.stopPropagation();
+        const A = WORLD.art(), r = cv.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * A.c.width, py = (e.clientY - r.top) / r.height * A.c.height;
+        for (const [id, q] of Object.entries(A.regions)) if (px >= q.x && px <= q.x + q.w && py >= q.y && py <= q.y + q.h) {
+          if (id !== G.map.id) { Nav.goTo({ kind: 'map', map: id, name: MAP_DEFS[id].name }); this.close('w-world'); }
+          return;
         }
-      }
-      geo.append(h('i', { class: 'wm-me' }));
-      body.append(geo, h('div', { class: 'hint' }, L('ขนาดและตำแหน่งตามพื้นที่จริง — แมพติดกันตรงประตู • จุดเหลือง = ตำแหน่งคุณ • แตะแมพเพื่อเดินทางไปเอง', 'True size and position — maps meet at their gates • yellow dot = you • tap a map to travel there')));
+      });
+      body.append(cv, h('div', { class: 'hint' }, L('ขนาดและตำแหน่งตามพื้นที่จริง — ภูมิภาคติดกันตรงประตู • ⬤ เหลือง = คุณ • แตะภูมิภาคเพื่อเดินทางไปเอง', 'True size and position — regions meet at their gates • yellow = you • tap a region to travel there')));
     }
-    // ตำแหน่งผู้เล่นจริงบนโลก (อัปเดตทุกครั้ง)
-    const me = body.querySelector('.wm-me'), P = WORLD.layout(), B = WORLD.bounds(), pos = P[G.map.id];
-    if (me) { me.hidden = !pos; if (pos) { const pad = 6; me.style.left = ((pos.x + G.player.x - B.x0 + pad) / (B.w + pad * 2) * 100).toFixed(3) + '%'; me.style.top = ((pos.y + G.player.y - B.y0 + pad) / (B.h + pad * 2) * 100).toFixed(3) + '%'; } }
+    this.drawWorldMap($('#worldmap-cv'));
+  },
+  drawWorldMap(cv) {
+    const A = WORLD.art(), W = A.c.width, H = A.c.height, P = A.P, t = performance.now() / 1000;
+    if (cv.width !== W) { cv.width = W; cv.height = H; cv.style.width = `min(100%, calc((100vh - 200px) * ${(W / H).toFixed(4)}))`; }
+    const g = cv.getContext('2d'), disp = cv.clientWidth ? W / cv.clientWidth : 1, fs = v => v * Math.max(0.8, disp);
+    g.drawImage(A.c, 0, 0);
+    const qt = typeof Quest !== 'undefined' ? Quest.navTarget() : null;
+    const txt = (s, x, y, col, size, weight = 700) => { g.font = `${weight} ${fs(size)}px Kanit, "Noto Sans Thai", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round'; g.lineWidth = fs(4); g.strokeStyle = 'rgba(14,9,3,0.9)'; g.strokeText(s, x, y); g.fillStyle = col; g.fillText(s, x, y); };
+    // ภูมิภาคที่อยู่: ขอบทองเรือง
+    const here = A.regions[G.map.id];
+    if (here) { g.save(); g.shadowColor = '#ffd34a'; g.shadowBlur = 16 + Math.sin(t * 3) * 6; g.strokeStyle = '#ffd34a'; g.lineWidth = 3; g.strokeRect(here.x, here.y, here.w, here.h); g.restore(); }
+    // ประตู (จุดเรืองบนรอยต่อ)
+    for (const [id, q] of Object.entries(A.regions)) for (const pt of q.portals) {
+      const x = q.x + (pt.x + 0.5) * P, y = q.y + (pt.y + 0.5) * P, pr = 7 + Math.sin(t * 3 + pt.x) * 1.5;
+      const gr = g.createRadialGradient(x, y, 1, x, y, pr * 2.2); gr.addColorStop(0, 'rgba(150,240,255,0.95)'); gr.addColorStop(1, 'rgba(150,240,255,0)');
+      g.fillStyle = gr; g.beginPath(); g.arc(x, y, pr * 2.2, 0, 7); g.fill();
+      g.fillStyle = '#eafcff'; g.beginPath(); g.arc(x, y, 3.5, 0, 7); g.fill();
+    }
+    // ป้ายชื่อภูมิภาค + เลเวล + MVP/เควสต์ — ขนาดคงที่บนจอ, เลื่อนหลบกันถ้าทับ
+    const placed = [];
+    for (const [id, q] of Object.entries(A.regions)) {
+      const d = MAP_DEFS[id], cx = q.x + q.w / 2;
+      const tags = [d.mvp ? '☠ MVP' : '', qt && qt.map === id ? L('📜 เควสต์', '📜 Quest') : ''].filter(Boolean).join('  ');
+      g.font = `800 ${fs(12.5)}px Kanit, sans-serif`;
+      const bw = Math.max(g.measureText(d.name).width, fs(60)) + fs(16), bh = fs(tags ? 44 : 32);
+      let cy = q.y + q.h / 2;
+      for (let tries = 0; tries < 8 && placed.some(r => Math.abs(r[0] - cx) < (r[2] + bw) / 2 && Math.abs(r[1] - cy) < (r[3] + bh) / 2); tries++) cy += bh * 0.6 * (tries % 2 ? -(tries + 1) : tries + 1);
+      placed.push([cx, cy, bw, bh]);
+      g.fillStyle = 'rgba(22,14,6,0.82)'; g.strokeStyle = id === G.map.id ? '#ffd34a' : 'rgba(215,178,90,0.85)'; g.lineWidth = fs(1.2);
+      g.beginPath(); if (g.roundRect) g.roundRect(cx - bw / 2, cy - bh / 2, bw, bh, fs(6)); else g.rect(cx - bw / 2, cy - bh / 2, bw, bh); g.fill(); g.stroke();
+      const top = cy - bh / 2 + fs(10);
+      txt(d.name, cx, top, id === G.map.id ? '#ffe9a0' : '#f4e2b4', 12.5, 800);
+      txt(d.kind === 'town' ? L('เมือง • ปลอดภัย', 'Town • Safe') : `Lv ${String(d.level || '').replace(/\s*\(.*\)/, '')}`, cx, top + fs(12), '#cdb98a', 9.5, 600);
+      if (tags) txt(tags, cx, top + fs(24), d.mvp ? '#ff8a7a' : '#9ae6ff', 9.5, 700);
+    }
+    // ตัวเรา: จุดเหลืองเต้น ณ ตำแหน่งจริง
+    if (here) {
+      const x = here.x + G.player.x * P, y = here.y + G.player.y * P, k = (t % 1.4) / 1.4;
+      g.strokeStyle = `rgba(255,214,90,${1 - k})`; g.lineWidth = 3; g.beginPath(); g.arc(x, y, 8 + k * 26, 0, 7); g.stroke();
+      g.save(); g.shadowColor = '#ffd34a'; g.shadowBlur = 14; g.fillStyle = '#ffd34a'; g.strokeStyle = '#2a1a04'; g.lineWidth = 2.5; g.beginPath(); g.arc(x, y, 8, 0, 7); g.fill(); g.stroke(); g.restore();
+    }
   },
   // ---------------- ต้นไม้พาสซีฟ (แบบ PoE) ----------------
   // ลากเพื่อเลื่อน • ล้อเมาส์/ปุ่ม +− ซูม • แตะจุดเพื่อดูรายละเอียด แล้วกดปุ่มเปิด (เปิดทั้งเส้นทางได้ถ้าแต้มพอ)
