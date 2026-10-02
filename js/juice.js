@@ -285,14 +285,16 @@ const Juice = (() => {
     z.hitT = now; z.rx = dx; z.ry = dy;
     z.hitA = (dot ? 0.06 : crit ? 0.3 : big ? 0.26 : skill ? 0.2 : 0.16) * (boss ? 0.5 : 1);
     z.rec = (dot ? 1.5 : crit ? 8 : big ? 7 : 4.5) * (boss ? 0.4 : 1);
-    // ค้างท่า: คริ 60ms, สกิลแรง 80ms (เวลาเกม, เฉพาะภาพ)
-    const frz = (crit ? 0.06 : big ? 0.08 : 0) * rmMul();
+    // ค้างท่า: ตีโดนทุกครั้ง 35ms (ฟันแล้วรู้สึกว่าโดนเนื้อ) • คริ 70ms • สกิลแรง 80ms (เวลาเกม, เฉพาะภาพ)
+    const melee = kind === 'hit' && (opts.sfx === 'slash' || opts.sfx === 'smash');
+    const frz = (crit ? 0.07 : big ? 0.08 : melee ? 0.035 : 0) * rmMul();
     if (frz > 0) { z.frzUntil = now + frz; }
     if (skill && opts.element && EL_FILTER[opts.element]) { z.tintEl = opts.element; z.tintUntil = now + 0.34; }
     // รอยฟันแบบ RO: เฉพาะตีประชิดธรรมดา (ธนู/สกิล/DoT ไม่มี) — sfx 'slash' = อาวุธมีคม, 'smash' = อาวุธทุบ
     if (kind === 'hit' && (opts.sfx === 'slash' || opts.sfx === 'smash')) J.slashMark(m, opts);
-    if (crit) { J.dilate(0.25, 0.045); J.sparks(m, '#ffd23a', 10, 46); }
+    if (crit) { J.dilate(0.25, 0.045); J.sparks(m, '#ffd23a', 14, 54); J.shake(3, 0.14); }
     else if (big) { J.dilate(0.2, 0.06); J.sparks(m, EL_COL[opts.element] || '#bff4ff', 9, 40); J.shake(2.5, 0.12); }
+    else if (melee && !boss) { J.sparks(m, '#fff1c8', 5, 30); J.shake(1.1, 0.06); } // ตีประชิดปกติ: ประกายเล็ก + จอกระตุกนิด
   };
   J.onKill = m => {
     if (!vis() || m.isPlayer || m.def.dummy) return;

@@ -109,6 +109,13 @@ const Anim = {
     g.drawImage(s.img, f * C + this.CX - size / 2, row * C + top - 2, size, size * h / w, 0, 0, w, h);
     return true;
   },
+  // จังหวะฟันแบบ "ง้าง → ฟาดเร็ว → ตามแรงค้าง": 35% ของเวลาแรก = 30% เฟรมแรก (ง้าง), 20% ถัดมา = 45% เฟรม (ฟาดเร็วมาก),
+  // ที่เหลือ = เฟรมท้าย (ตามแรง/คืนท่า) • ทั้งท่ายาวเท่าเดิม แต่จังหวะฟาดสั้นลงเกือบครึ่ง ดูฟันจริง
+  snap(k) {
+    if (k < 0.35) return k / 0.35 * 0.3;
+    if (k < 0.55) return 0.3 + (k - 0.35) / 0.2 * 0.45;
+    return 0.75 + (k - 0.55) / 0.45 * 0.25;
+  },
   // ภาพติดตา (motion blur) ของอาวุธตอนฟัน: ภาพเฟรมก่อนหน้า "เฉพาะส่วนที่ขยับไปแล้ว" (มีในเฟรมก่อน ไม่มีในเฟรมนี้ = อาวุธ/แขนที่เหวี่ยง)
   // เบลอเล็กน้อย วาดจางใต้ตัวละคร 2 ชั้น (เฟรม −1 ชัดกว่า −2) • แคชต่อเฟรม (ภาพ 240px ไม่กี่สิบช่อง)
   ghost(img, row, f, back) {
@@ -157,9 +164,9 @@ const Anim = {
     }
     if (st.dead) { action = 'dead'; k = Math.min(1, (st.deathT == null ? 1 : st.deathT) / 0.5); }
     else if (st.hurt > 0) { action = 'hurt'; k = 1 - st.hurt; }
-    else if (st.skill > 0) { action = st.skillKind === 'buff' ? 'buff' : st.skillKind === 'skill' ? 'skill' : 'cast'; k = 1 - st.skill; }
+    else if (st.skill > 0) { action = st.skillKind === 'buff' ? 'buff' : st.skillKind === 'skill' ? 'skill' : 'cast'; k = st.skillKind === 'skill' ? this.snap(1 - st.skill) : 1 - st.skill; }
     else if (st.atk > 0) {
-      k = 1 - st.atk; action = 'attack';
+      k = this.snap(1 - st.atk); action = 'attack';
       // ธนูมีไว้ยิง ไม่ได้ฟัน: ใช้ท่ายิงถ้ามีภาพ ไม่มีก็ยืนนิ่ง (ลูกศรเป็นเอฟเฟกต์ของเกม)
       if (st.shoot) { const sh = this.strip(key, 'shoot'); if (sh && sh.action === 'shoot') action = 'shoot'; else { action = 'idle'; k = null; } }
     }
