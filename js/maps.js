@@ -77,6 +77,9 @@ function portalPos(def, side) {
 const PROP_ART = { pylon: 'prop_pylon', crate: 'prop_crate', scrap: 'prop_scrap', bush: 'prop_bush', rock: 'prop_rock', mushroom: 'prop_mushroom', crystal: 'prop_crystal' };
 const BUILDING_ART = { SUPPLY: 'prop_bld_shop', ARMORY: 'prop_bld_house', PLATING: 'prop_bld_house', FORGE: 'prop_bld_forge' };
 const propArt = k => !!k && typeof Art !== 'undefined' && Art.has(k);
+// ภาพอบจาก Blender ของรอยต่อทุ่ง→ถ้ำ (tools/ridge3d.py): แถบสันหินแถวล่าง (แบบ A วาดลงพื้นแทน caveWalls) + ซุ้มปากถ้ำ (แบบ B ตั้งตรงเรียงความลึก)
+// hash = ผังช่องแถว y0..ล่างสุดตอนเรนเดอร์ — ผังเปลี่ยน (แก้ seed/ตัวสร้างแมพ) จะไม่ใช้ภาพ กลับไปวาดด้วยโค้ดเหมือนเดิม
+const RIDGE_BAKE = {"wolfwood":{"img":"bake_wolfwood_ridge","y0":92,"hash":843460604,"gate":{"img":"bake_wolfwood_gate","x":34.5,"y":103.0,"ax":270.0,"ay":307.0,"s":0.5,"light":[34.5,102.4,3.4,"175,120,255"],"open":[1.85,3.05,0.85,0.45]}}}; // tools/ridge3d.py --install
 
 class GameMap {
   constructor(id, opts) {
@@ -529,7 +532,14 @@ class GameMap {
     if (town) TownArt.over(this, g); else this.drawWater(g, P, depth);
     // 4) ผนังหิน (ถ้ำ) มีมิติ
     if (this.def.kind === 'cave') { this.caveWalls(g, W, H); if (this.def.caveTheme) this.caveTheme(g, W, H); }
-    else if (this.caveMouths.length) this.caveWalls(g, W, H, true); // สันหินก่อนถึงปากถ้ำ (ทุ่ง → ถ้ำ)
+    else if (this.caveMouths.length) { // สันหินก่อนถึงปากถ้ำ (ทุ่ง → ถ้ำ): ภาพอบ 3D (tools/ridge3d.py) • ยังไม่โหลด/ผังไม่ตรง = วาดด้วยโค้ด
+      const rb = this.ridgeBake(), img = rb && typeof Art !== 'undefined' && (Art.need(rb.img), Art.get(rb.img));
+      this.ridgeImg = !!img;
+      if (img) { g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(img, 0, rb.y0 * TILE, W, H - rb.y0 * TILE); g.restore(); }
+      else this.caveWalls(g, W, H, true);
+      this.ridgeGate = rb && rb.gate ? Object.assign({ fa: 1 }, rb.gate, { portal: this.caveMouths[0] }) : null;
+      if (this.ridgeGate && typeof Art !== 'undefined') Art.need(rb.gate.img);
+    }
     else if (this.arena) { /* อัฒจันทร์วาดใน TownArt.arena แล้ว */ }
     else for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) if (this.tile(x, y) === T.ROCK) this.rockTile(g, x, y);
     this.seamArt(g);
@@ -888,9 +898,23 @@ class GameMap {
     g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
     g.drawImage(aoC, 0, 0, W, H); g.drawImage(wall, 0, 0, W, H); g.restore();
   }
+  // ภาพอบสันหิน (RIDGE_BAKE) ของแมพนี้ ถ้าผังช่องตรงกับตอนเรนเดอร์ (FNV-1a ของแถว y0..ล่างสุด)
+  ridgeBake() {
+    const rb = RIDGE_BAKE[this.id];
+    if (!rb || !this.caveMouths.length) return null;
+    if (this._ridgeOk === undefined) {
+      let h = 0x811c9dc5;
+      for (let i = rb.y0 * this.w; i < this.tiles.length; i++) { h ^= this.tiles[i]; h = Math.imul(h, 0x01000193) >>> 0; }
+      this._ridgeOk = h === rb.hash;
+      if (!this._ridgeOk) console.warn(`ridge bake ${this.id}: ผังช่องเปลี่ยน (hash ${h} ≠ ${rb.hash}) — ใช้ภาพวาดด้วยโค้ดแทน (รัน tools/ridge3d.py ใหม่)`);
+    }
+    return this._ridgeOk ? rb : null;
+  }
+  usesBake(k) { const rb = this.ridgeBake(); return !!rb && rb.img === k && !this.ridgeImg; } // ภาพพื้นอบที่แมพนี้รออยู่ (art.js onLoad → วาดพื้นใหม่) • ซุ้มวาดทุกเฟรมอยู่แล้ว ไม่ต้องวาดพื้นใหม่
   // ภาพรอยต่อ: ปากถ้ำมืดลึก (ทุ่ง) • แสงแดด + มอส + ใบไม้ปลิวเข้ามาที่ปากทางถ้ำ (ถ้ำ) • เสาไฟริมถนนหินอ่อน (ทุ่ง)
   seamArt(g) {
     for (const p of this.caveMouths) {
+      if (this.ridgeImg) break; // มีภาพอบ 3D: ทางลง/ซุ้มปากถ้ำอยู่ในภาพแล้ว
       const x = (p.x + 0.5) * TILE, y = (p.y + 0.5) * TILE, r = TILE * 2.6;
       const gr = g.createRadialGradient(x, y, TILE * 0.3, x, y, r);
       gr.addColorStop(0, 'rgba(4,2,8,0.95)'); gr.addColorStop(0.45, 'rgba(10,6,14,0.7)'); gr.addColorStop(1, 'rgba(10,6,14,0)');
@@ -915,6 +939,8 @@ class GameMap {
   }
   placeSeamProps() {
     if (this.daylight.length) this.extraLights = this.daylight.map(p => ({ x: p.x + 0.5 + Math.sign(p.ax - p.x) * 2.5, y: p.y + 0.5 + Math.sign(p.ay - p.y) * 2.5, lr: 6, col: '255,236,170' }));
+    const gl = this.ridgeGate && this.ridgeGate.light; // แสงม่วงจากม่านมืดในซุ้มปากถ้ำ (ส่องให้เห็นซุ้มในความมืดกลางคืน)
+    if (gl && !(this.extraLights || []).some(q => q.gate)) (this.extraLights = this.extraLights || []).push({ x: gl[0], y: gl[1], lr: gl[2], col: gl[3], gate: true });
     if (!propArt('prop_lamp')) return;
     for (const r of this.paved) for (const i of [3, 8]) for (const k of [-2, 2]) {
       const x = r.x + r.dx * i + r.qx * k, y = r.y + r.dy * i + r.qy * k;

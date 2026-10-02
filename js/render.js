@@ -176,7 +176,9 @@ R.render = () => {
   // ---------- จบชั้นพื้น ----------
 
   // พอร์ทัล
-  for (const pt of map.portals) upright((pt.y + 0.5) * TILE, () => Sprites.drawPortal(g, pt, t));
+  // (วาร์ปในซุ้มปากถ้ำ 3D วาดในรายการเรียงความลึกต่อจากซุ้ม — ม่านแสงอยู่ "ใน" ช่องประตู ทับม่านมืด)
+  const gate = map.ridgeGate && Art.get(map.ridgeGate.img) ? map.ridgeGate : null;
+  for (const pt of map.portals) if (!gate || pt !== gate.portal) upright((pt.y + 0.5) * TILE, () => Sprites.drawPortal(g, pt, t));
   // คบเพลิงลานประลอง: เปลวไฟเคลื่อนไหวบนชามเหล็กในภาพ 3D (ยกสูงตามความสูงจริง × sin มุมกล้อง)
   if (map.arenaImg && typeof Feel !== 'undefined' && Feel.drawCrowd && R.quality !== 'low') Feel.drawCrowd(g, map, t);
   // ไอเทมบนพื้น
@@ -234,6 +236,20 @@ R.render = () => {
   else for (const o of map.objects) if (o.x > VL && o.x < Rr && o.y > Tp && o.y < B) list.push({ y: o.y + 0.3, f: () => Sprites.drawTree(g, o, t) });
   for (const o of map.props || []) if (o.x > VL && o.x < Rr && o.y > Tp && o.y < B + 2) list.push({ y: o.y, f: () => Sprites.drawProp(g, o, t) });
   for (const b of map.buildings) if (b.img) list.push({ y: b.y + b.h - 0.5, f: () => Sprites.drawBuildingImg(g, b, t) });
+  if (gate && gate.x > VL && gate.x < Rr && gate.y > Tp && gate.y < B + 6) { // ซุ้มปากถ้ำ (tools/ridge3d.py) + วาร์ปของมัน
+    list.push({ y: gate.y, f: () => Sprites.drawRidgeGate(g, gate, t) });
+    const pt = gate.portal;
+    list.push({ y: gate.y + 0.01, f: () => {
+      const o = gate.open; // ม่านวาร์ปอยู่เฉพาะในช่องประตู (ไม่ลอยทับหินซุ้ม)
+      if (o) {
+        const cx = gate.x * TILE, by = (gate.y + 0.01 - o[3]) * TILE * K - (gate.y + 0.01) * TILE * (K - 1), u = TILE * Math.sqrt(1 - K * K), hw = o[0] * TILE;
+        g.beginPath(); g.moveTo(cx - hw, by + 6); g.lineTo(cx - hw, by - o[1] * u);
+        for (let i = 1; i <= 16; i++) { const a = Math.PI - i / 16 * Math.PI; g.lineTo(cx + Math.cos(a) * hw, by - (o[1] + Math.sin(a) * o[2]) * u); }
+        g.lineTo(cx + hw, by + 6); g.closePath(); g.clip();
+      }
+      g.translate(0, (pt.y + 0.5 - gate.y - 0.01) * TILE * (K - 1)); Sprites.drawPortal(g, pt, t);
+    } });
+  }
   if (map.fountainImg) list.push({ y: map.fountain.y + 1.2, f: () => Sprites.drawFountainImg(g, map.fountain, t) });
   // คบเพลิงลานประลอง: อยู่ในรายการเรียงความลึก (ตัวละครเดินหน้า/หลังคบเพลิงได้ถูกต้อง)
   if (map.torches && map.arenaImg) for (const tc of map.torches) list.push({ y: tc.y, f: () => Sprites.drawTorch(g, tc, t) });

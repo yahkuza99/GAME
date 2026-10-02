@@ -1060,6 +1060,37 @@ Sprites.drawBuildingImg = (g, b, t) => {
     g.fillStyle = '#fff'; g.fillText(b.label, cx, ly + 1); g.restore();
   }
 };
+// ซุ้มปากถ้ำ 3D (tools/ridge3d.py, RIDGE_BAKE ใน maps.js): วาด 1:1 ตามจุดยึด (ax, ay = ขอบหน้าเสากลางซุ้มบนพื้น = y ที่ใช้เรียงความลึก)
+// ผู้เล่น/เป้าหมายที่อยู่หลังซุ้ม (y น้อยกว่า) แล้วถูกเนื้อหินในภาพบัง → จางลงแบบยอดไม้ (Flora.drawObj) — เช็กจากหน้ากากความทึบของภาพ ไม่ใช่กรอบสี่เหลี่ยม
+Sprites.drawRidgeGate = (g, gt, t) => {
+  const img = Art.get(gt.img); if (!img) return;
+  const s = gt.s, W = img.width * s, H = img.height * s, x0 = gt.x * TILE - gt.ax * s, y0 = gt.y * TILE - gt.ay * s;
+  if (!img._mask) { // ความทึบความละเอียด 1/8 (คำนวณครั้งเดียวต่อภาพ)
+    const mw = Math.ceil(img.width / 8), mh = Math.ceil(img.height / 8), c = document.createElement('canvas'); c.width = mw; c.height = mh;
+    const cg = c.getContext('2d', { willReadFrequently: true }); cg.drawImage(img, 0, 0, mw, mh);
+    const d = cg.getImageData(0, 0, mw, mh).data, m = new Uint8Array(mw * mh);
+    for (let i = 0; i < m.length; i++) m[i] = d[i * 4 + 3] > 150 ? 1 : 0;
+    img._mask = { m, mw, mh };
+  }
+  const M = img._mask, K = R.K, who = [G.player];
+  if (G.player.target && !G.player.target.dead && G.player.target.x != null) who.push(G.player.target);
+  let target = 1;
+  for (const e of who) {
+    if (!e || e.y >= gt.y) continue;
+    const ex = e.x * TILE, ey = e.y * TILE * K - gt.y * TILE * (K - 1); // ตำแหน่งเท้าในพิกัดของซุ้ม (หลัง upright)
+    for (const [ox, oy] of [[0, -6], [0, -28], [0, -52], [-12, -36], [12, -36]]) {
+      const u = Math.floor((ex + ox - x0) / W * M.mw), v = Math.floor((ey + oy - y0) / H * M.mh);
+      if (u >= 0 && v >= 0 && u < M.mw && v < M.mh && M.m[v * M.mw + u]) { target = 0.4; break; }
+    }
+    if (target < 1) break;
+  }
+  const dt = Math.min(0.2, Math.max(0, t - (gt.lt || t))); gt.lt = t;
+  gt.fa += (target - gt.fa) * Math.min(1, dt * 9);
+  g.save();
+  if (gt.fa < 0.995) g.globalAlpha *= gt.fa;
+  g.drawImage(img, x0, y0, W, H);
+  g.restore();
+};
 Sprites.drawFountainImg = (g, f, t) => {
   const img = Art.get('prop_fountain'); if (!img) return;
   const x = f.x * TILE, y = (f.y + 1.6) * TILE, W = TILE * 3.9, H = W * img.height / img.width;
