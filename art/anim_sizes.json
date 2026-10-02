@@ -624,19 +624,31 @@
   "walk": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.6383,
-   "median_src_h": 235
+   "scale_src": 0.625,
+   "median_src_h": 240
   },
-  "_k1536": 0.42553
+  "_k1536": 0.41667,
+  "attack": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.625,
+   "median_src_h": 240.0
+  }
  },
  "einherjar_f": {
   "walk": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.6048,
-   "median_src_h": 248
+   "scale_src": 0.5792,
+   "median_src_h": 259
   },
-  "_k1536": 0.40323
+  "_k1536": 0.3861,
+  "attack": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.5792,
+   "median_src_h": 258.9779005524862
+  }
  },
  "berserker_m": {
   "walk": {
