@@ -3,11 +3,14 @@
 //  ฉากที่เรนเดอร์จาก Blender แล้วอบเป็นภาพ 2D (docs/RENDER3D_PLAN.md) — ข้อมูล BAKE_DATA[map.id]:
 //    js/bake_data.js (tools/hel3d.py --install: Hel's Hollow) + js/bake_data_mistlake.js (tools/lake3d.py --install: ซากในบ่อน้ำ Mistlake)
 //    + js/bake_data_wolfwood.js (tools/tree3d.py --install: ต้นไม้ยักษ์ "ต้นหมาป่าเก่า" กลางป่า Wolfwood)
+//    + js/bake_data_archive.js (tools/archive3d.py --install: ชั้นวางตั้งอิสระ + ประกายโหลของชั้นวางสลักผนัง/ตราผนึกประตูห้องนิรภัย Archive Depths)
 //  • แบบ A (ground): วาดลงผ้าใบพื้นของแมพ (แท่น/เงา — ของเตี้ย ไม่บังใคร)
 //  • reflect: เงาสะท้อนในน้ำของชิ้น B — วาดลงผ้าใบพื้นเฉพาะส่วนน้ำลึก (หน้ากากจาก drawWater ใน maps.js) ใต้ตัวละครเสมอ
 //  • แบบ B (pieces): สไปรต์ตั้งตรงเรียงความลึกกับตัวละคร (บัลลังก์/ชั้นวาง/ซากหิน) — กล้องเรนเดอร์ = กล้องเกม จึงวาด 1:1 ตามจุดยึด
+//  • cave: ผูกกับภาพผนังถ้ำอบ (CAVE_BAKE ผังช่องทั้งแมพ) — ไม่ตรง = ไม่ใช้ทั้งชุด (Archive Depths)
 //  • hash (ถ้ามี): ผังน้ำตอนเลือกตำแหน่ง (หรือผังช่องในกรอบ hashRect) — ผังแมพเปลี่ยน = ไม่ใช้ข้อมูลชุดนี้เลย (ไม่มีซากลอยบนหญ้า/ต้นไม้ทับถนน)
 //  • clearTree: ต้นไม้ (T.TREE) ในวงรีกลายเป็นหญ้า • free: ของประดับ/พุ่ม Flora ในรัศมีถูกเอาออก (รากอบลงพื้นแทน)
+//  • ชิ้นไม่มีภาพ (img null + wall): ของที่อบอยู่ในภาพผนังถ้ำแล้ว (CAVE_BAKE) — วาดแค่ประกายกะพริบ + แสง เฉพาะตอนภาพผนังอบแสดงอยู่
 //  • ชิ้นสูงใหญ่ (ต้นไม้ยักษ์): mask = ตารางความทึบหยาบ → จางเฉพาะตอนตัวละครอยู่หลังส่วนทึบจริง • sway = ไหวลม • cull = เผื่อนอกจอ
 //    ชนตาม block • จางเหลือ ~35% เมื่อผู้เล่น/เป้าหมายอยู่หลัง • ประกายโหลกะพริบ (lighter) • แสงตัดความมืดถ้ำ (map.extraLights)
 //  ทุกอย่างกำหนดตายตัวจากข้อมูล (ไม่สุ่ม) → ทุกเครื่องเห็น/ชนเหมือนกัน
@@ -17,6 +20,10 @@
 const Bake = {
   data(map) {
     const d = typeof BAKE_DATA !== 'undefined' ? BAKE_DATA[map.id] : null;
+    if (d && d.cave) { // ผูกกับภาพผนังถ้ำอบ (CAVE_BAKE — ผังช่องทั้งแมพชุดเดียวกัน): ผังไม่ตรง = ไม่วางทั้งชุด • เตือนครั้งเดียวที่ caveBake
+      if (map._bakeOk === undefined) map._bakeOk = !!map.caveBake();
+      return map._bakeOk ? d : null;
+    }
     if (!d || d.hash == null) return d || null;
     if (map._bakeOk === undefined) { // คำนวณครั้งแรก (Bake.layout ก่อนแก้ผัง) แล้วจำไว้
       let h = 0x811c9dc5;
@@ -166,7 +173,13 @@ const Bake = {
 
   // วาดชิ้น B (เรียกใน upright() ของ render.js — พิกัดโลก x, y·TILE = จุดยึดบนพื้น)
   draw(g, o, t) {
-    const pc = o.pc; Art.need(pc.img); const img = Art.get(pc.img); if (!img) return;
+    const pc = o.pc;
+    if (!pc.img) { // ประกายโหลในช่องชั้นวางสลักผนัง/ตราผนึกประตู (ตัวงานอบอยู่ในภาพผนังแล้ว) — ภาพผนังยังไม่มา/ผังไม่ตรง = ไม่มีอะไรให้กะพริบ
+      if (pc.wall && !(typeof G !== 'undefined' && G.map && G.map.caveWallImg)) return;
+      if (R.quality !== 'low') { g.save(); this.sparks(g, o, t, pc.x * TILE, pc.y * TILE, 1); g.restore(); }
+      return;
+    }
+    Art.need(pc.img); const img = Art.get(pc.img); if (!img) return;
     const s = pc.scale, x = pc.x * TILE, y = pc.y * TILE, W = img.width * s, H = img.height * s, L = x - pc.ax * s, Tp = y - pc.ay * s;
     // ผู้เล่น/เป้าหมายอยู่หลังชิ้นนี้ (y น้อยกว่า) และตัวทับภาพ → จางลง (แบบยอดไม้ใน flora.js)
     let target = 1;
@@ -183,19 +196,22 @@ const Bake = {
     if (o.fa < 0.995) g.globalAlpha *= o.fa;
     if (pc.sway) { g.translate(x, y); g.transform(1, 0, Math.sin(t * 0.7 + o.r * 10) * pc.sway, 1, 0, 0); g.translate(-x, -y); } // ไหวลมช้า ๆ (โคนนิ่ง ยอดเอนไม่กี่ px)
     g.drawImage(img, L, Tp, W, H);
-    if (pc.jars.length && R.quality !== 'low') {
-      const gl = this.glint(pc.glint); g.globalCompositeOperation = 'lighter';
-      const a0 = g.globalAlpha;
-      for (let i = 0; i < pc.jars.length; i++) {
-        const j = pc.jars[i], h1 = U.hash2(i, 3, o.r * 97 | 0), h2 = U.hash2(i, 7, o.r * 53 | 0);
-        const tw = Math.pow(0.5 + 0.5 * Math.sin(t * (0.6 + h1 * 1.8) + h2 * 6.283), 5); // ส่วนใหญ่หรี่ บางทีวาบ
-        const a = j[2] * (0.22 + 0.78 * tw);
-        if (a < 0.06) continue;
-        const r = 3 + 4.5 * tw * j[2];
-        g.globalAlpha = a0 * Math.min(1, a);
-        g.drawImage(gl, L + j[0] * s - r, Tp + j[1] * s - r, r * 2, r * 2);
-      }
-    }
+    if (pc.jars.length && R.quality !== 'low') this.sparks(g, o, t, L, Tp, s);
     g.restore();
+  },
+  // ประกายโหลกะพริบ (บวกแสง) ที่ตำแหน่ง jars ของชิ้น — L, Tp = มุมซ้ายบนของภาพ (หรือจุดยึดของชิ้นไม่มีภาพ), s = สเกลพิกัด jars
+  sparks(g, o, t, L, Tp, s) {
+    const pc = o.pc, gl = this.glint(pc.glint), a0 = g.globalAlpha;
+    g.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < pc.jars.length; i++) {
+      const j = pc.jars[i], h1 = U.hash2(i, 3, o.r * 97 | 0), h2 = U.hash2(i, 7, o.r * 53 | 0);
+      const tw = Math.pow(0.5 + 0.5 * Math.sin(t * (0.6 + h1 * 1.8) + h2 * 6.283), 5); // ส่วนใหญ่หรี่ บางทีวาบ
+      const a = j[2] * (0.22 + 0.78 * tw);
+      if (a < 0.06) continue;
+      const r = 3 + 4.5 * tw * j[2];
+      g.globalAlpha = a0 * Math.min(1, a);
+      g.drawImage(gl, L + j[0] * s - r, Tp + j[1] * s - r, r * 2, r * 2);
+    }
+    g.globalAlpha = a0; g.globalCompositeOperation = 'source-over';
   },
 };

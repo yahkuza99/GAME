@@ -84,7 +84,7 @@ const RIDGE_BAKE = {"wolfwood":{"img":"bake_wolfwood_ridge","y0":92,"hash":84346
 const DAYLIGHT_BAKE = {"helcave":{"img":"bake_helcave_daylight","rect":[27,0,49,12],"hash":3258200064}}; // tools/daylight3d.py --install
 // ผนังถ้ำ/หน้าผาหิน 3D ทั้งแมพ (tools/cave3d.py): ภาพเต็มแมพแบบ A วาดลงผ้าใบพื้นแทน caveWalls — พื้นในภาพโปร่ง (มีแต่เงา/AO) พื้นวาดด้วยโค้ดยังเห็นต่อเนื่อง
 // hash = FNV-1a ของผังช่องทั้งแมพตอนเรนเดอร์ — ผังเปลี่ยน = กลับไปวาดผนังด้วยโค้ด • ภาพใหญ่ (3000×3000) โหลดตอนเข้าแมพ (Art.need) แล้วคืนหน่วยความจำหลังวาดลงพื้น (Art.free)
-const CAVE_BAKE = {"helcave":{"img":"bake_helcave_walls","hash":1823187180},"archive":{"img":"bake_archive_walls","hash":1171733009},"roots":{"img":"bake_roots_walls","hash":4054022947}}; // tools/cave3d.py --install
+const CAVE_BAKE = {"helcave":{"img":"bake_helcave_walls","hash":1823187180},"archive":{"img":"bake_archive_walls","hash":1171733009,"seals":1},"roots":{"img":"bake_roots_walls","hash":4054022947}}; // tools/cave3d.py --install
 // ซุ้มประตูวาร์ป 3D ทุกประตู (tools/gate3d.py, js/bake.js Bake.gates): วัสดุตามชนิดแมพที่ประตูตั้งอยู่ (town/field/cave) × แบบตามขอบ (s หันหน้า, n เสาเตี้ย, e/w ด้านข้าง)
 // pcs = ชิ้นสไปรต์ (ax, ay = กลางวาร์ปบนพื้นในภาพ px • dy = จุดเรียงความลึกเทียบกลางวาร์ป ช่อง) • sh = เงาบนพื้น • open = ช่องประตู (px 1× เทียบกลางวาร์ป) ตัดม่านวาร์ป • top = ยอดซุ้ม (px) วางป้ายปลายทาง
 const GATE_BAKE = {"town":{"s":{"pcs":[{"img":"bake_gate_town_s","ax":189.2,"ay":200.4,"dy":0.56}],"sh":{"img":"bake_gate_town_s_sh","ax":187.2,"ay":36.4},"open":[[-58.0,3.9],[-58.0,-57.2],[-56.9,-60.0],[-53.6,-62.7],[-48.2,-65.2],[-41.0,-67.3],[-32.2,-69.1],[-22.2,-70.4],[-11.3,-71.2],[0.0,-71.5],[11.3,-71.2],[22.2,-70.4],[32.2,-69.1],[41.0,-67.3],[48.2,-65.2],[53.6,-62.7],[56.9,-60.0],[58.0,-57.2],[58.0,3.9]],"top":-98.7},"n":{"pcs":[{"img":"bake_gate_town_n","ax":190.0,"ay":75.2,"dy":0.48}],"sh":{"img":"bake_gate_town_n_sh","ax":188.0,"ay":31.2},"top":-36.6},"e":{"pcs":[{"img":"bake_gate_town_e_b","ax":127.7,"ay":259.2,"dy":-0.908},{"img":"bake_gate_town_e_f","ax":15.7,"ay":151.2,"dy":2.311}],"sh":{"img":"bake_gate_town_e_sh","ax":125.7,"ay":142.2},"open":[[26.6,43.1],[26.6,-18.0],[26.1,-21.5],[24.6,-26.5],[22.1,-32.5],[18.8,-39.6],[14.8,-47.3],[10.2,-55.4],[5.2,-63.6],[0.0,-71.5],[-5.2,-78.9],[-10.1,-85.4],[-14.7,-90.8],[-18.7,-95.0],[-22.0,-97.7],[-24.5,-98.9],[-26.0,-98.4],[-26.5,-96.4],[-26.5,-35.3]],"top":-128.6},"w":{"pcs":[{"img":"bake_gate_town_w_b","ax":46.7,"ay":259.2,"dy":-0.908},{"img":"bake_gate_town_w_f","ax":127.7,"ay":151.2,"dy":2.311}],"sh":{"img":"bake_gate_town_w_sh","ax":125.7,"ay":142.2},"open":[[-26.5,43.1],[-26.5,-18.0],[-26.0,-21.5],[-24.5,-26.5],[-22.0,-32.5],[-18.7,-39.6],[-14.7,-47.3],[-10.1,-55.4],[-5.2,-63.6],[0.0,-71.5],[5.2,-78.9],[10.2,-85.4],[14.8,-90.8],[18.8,-95.0],[22.1,-97.7],[24.6,-98.9],[26.1,-98.4],[26.6,-96.4],[26.6,-35.3]],"top":-128.6}},"field":{"s":{"pcs":[{"img":"bake_gate_field_s","ax":222.1,"ay":199.0,"dy":0.564}],"sh":{"img":"bake_gate_field_s_sh","ax":216.1,"ay":52.0},"open":[[-58.0,3.9],[-58.0,-57.2],[-56.9,-60.0],[-53.6,-62.7],[-48.2,-65.2],[-41.0,-67.3],[-32.2,-69.1],[-22.2,-70.4],[-11.3,-71.2],[0.0,-71.5],[11.3,-71.2],[22.2,-70.4],[32.2,-69.1],[41.0,-67.3],[48.2,-65.2],[53.6,-62.7],[56.9,-60.0],[58.0,-57.2],[58.0,3.9]],"top":-98.5},"n":{"pcs":[{"img":"bake_gate_field_n","ax":220.6,"ay":84.2,"dy":0.487}],"sh":{"img":"bake_gate_field_n_sh","ax":215.6,"ay":44.2},"top":-41.1},"e":{"pcs":[{"img":"bake_gate_field_e_b","ax":143.6,"ay":256.8,"dy":-0.895},{"img":"bake_gate_field_e_f","ax":16.6,"ay":149.8,"dy":2.324}],"sh":{"img":"bake_gate_field_e_sh","ax":138.6,"ay":156.8},"open":[[26.5,43.1],[26.5,-18.0],[26.0,-21.6],[24.5,-26.5],[22.1,-32.6],[18.8,-39.6],[14.8,-47.3],[10.2,-55.4],[5.2,-63.6],[0.0,-71.5],[-5.2,-78.9],[-10.1,-85.4],[-14.8,-90.9],[-18.8,-95.0],[-22.1,-97.7],[-24.5,-98.9],[-26.0,-98.4],[-26.5,-96.4],[-26.5,-35.3]],"top":-127.4},"w":{"pcs":[{"img":"bake_gate_field_w_b","ax":46.3,"ay":257.1,"dy":-0.899},{"img":"bake_gate_field_w_f","ax":155.3,"ay":150.1,"dy":2.321}],"sh":{"img":"bake_gate_field_w_sh","ax":150.3,"ay":157.1},"open":[[-26.5,43.1],[-26.5,-18.0],[-26.0,-21.6],[-24.5,-26.5],[-22.1,-32.6],[-18.8,-39.6],[-14.8,-47.3],[-10.2,-55.4],[-5.2,-63.6],[0.0,-71.5],[5.2,-78.9],[10.2,-85.4],[14.8,-90.9],[18.8,-95.0],[22.1,-97.7],[24.5,-98.9],[26.0,-98.4],[26.5,-96.4],[26.5,-35.3]],"top":-127.5}},"cave":{"s":{"pcs":[{"img":"bake_gate_cave_s","ax":195.5,"ay":199.8,"dy":0.565}],"sh":{"img":"bake_gate_cave_s_sh","ax":201.5,"ay":38.8},"open":[[-58.0,3.9],[-58.0,-57.2],[-56.9,-60.0],[-53.6,-62.7],[-48.2,-65.1],[-41.0,-67.3],[-32.2,-69.1],[-22.2,-70.4],[-11.3,-71.2],[0.0,-71.5],[11.3,-71.2],[22.2,-70.4],[32.2,-69.1],[41.0,-67.3],[48.2,-65.1],[53.6,-62.7],[56.9,-60.0],[58.0,-57.2],[58.0,3.9]],"top":-98.4},"n":{"pcs":[{"img":"bake_gate_cave_n","ax":190.6,"ay":98.9,"dy":0.489}],"sh":{"img":"bake_gate_cave_n_sh","ax":196.6,"ay":31.9},"top":-48.0},"e":{"pcs":[{"img":"bake_gate_cave_e_b","ax":128.5,"ay":273.4,"dy":-0.893},{"img":"bake_gate_cave_e_f","ax":16.5,"ay":150.4,"dy":2.326}],"sh":{"img":"bake_gate_cave_e_sh","ax":134.5,"ay":142.4},"open":[[26.5,43.1],[26.5,-18.0],[26.0,-21.5],[24.5,-26.4],[22.1,-32.5],[18.8,-39.6],[14.8,-47.3],[10.2,-55.4],[5.2,-63.6],[0.0,-71.5],[-5.2,-78.9],[-10.1,-85.4],[-14.8,-90.8],[-18.8,-95.0],[-22.0,-97.7],[-24.5,-98.9],[-26.0,-98.4],[-26.5,-96.4],[-26.5,-35.3]],"top":-135.2},"w":{"pcs":[{"img":"bake_gate_cave_w_b","ax":46.9,"ay":278.0,"dy":-0.899},{"img":"bake_gate_cave_w_f","ax":128.9,"ay":150.0,"dy":2.322}],"sh":{"img":"bake_gate_cave_w_sh","ax":134.9,"ay":143.0},"open":[[-26.5,43.1],[-26.5,-18.0],[-26.0,-21.5],[-24.5,-26.5],[-22.1,-32.5],[-18.8,-39.6],[-14.7,-47.3],[-10.2,-55.4],[-5.2,-63.6],[0.0,-71.5],[5.2,-78.8],[10.2,-85.4],[14.8,-90.8],[18.8,-95.0],[22.1,-97.7],[24.5,-98.9],[26.0,-98.4],[26.5,-96.4],[26.5,-35.3]],"top":-137.5}},"s":0.5,"glow":{"town":"120,220,255","field":"130,240,210","cave":"185,130,255"}}; // tools/gate3d.py --install
@@ -554,7 +554,7 @@ class GameMap {
       const cb = this.caveBake(), img = cb && typeof Art !== 'undefined' && (Art.need(cb.img), Art.get(cb.img));
       this.caveWallImg = !!img;
       if (img) {
-        if (this.def.caveTheme) this.caveTheme(g, W, H); // ย้อมโทน/ตราผนึก/รากบนพื้นก่อน → ผนังในภาพทับขอบราก (ผนังย้อมสีมาในภาพแล้ว)
+        if (this.def.caveTheme) this.caveTheme(g, W, H, cb.seals); // ย้อมโทน/ตราผนึก/รากบนพื้นก่อน → ผนังในภาพทับขอบราก (ผนังย้อมสีมาในภาพแล้ว) • seals = ตราผนึกอบอยู่ในภาพแล้ว
         g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(img, 0, 0, W, H); g.restore();
         this.caveDepthShade(g, W, H);
         Art.free(cb.img); // ภาพถอดรหัสแล้ว ~36 MB — อยู่ในผ้าใบพื้นแล้ว ไม่ต้องเก็บ (วาดพื้นใหม่เมื่อไร need โหลดซ้ำจากแคชเบราว์เซอร์)
@@ -977,7 +977,8 @@ class GameMap {
       let h = 0x811c9dc5;
       for (let i = 0; i < this.tiles.length; i++) { h ^= this.tiles[i]; h = Math.imul(h, 0x01000193) >>> 0; }
       this._caveOk = h === cb.hash;
-      if (!this._caveOk) console.warn(`cave bake ${this.id}: ผังช่องเปลี่ยน (hash ${h} ≠ ${cb.hash}) — ใช้ผนังวาดด้วยโค้ดแทน (รัน tools/cave3d.py ใหม่)`);
+      const warned = GameMap.caveWarned || (GameMap.caveWarned = new Set()); // เตือนครั้งเดียวต่อแมพ (แมพ lite ของแผนที่โลก/Bake.data เรียกซ้ำได้)
+      if (!this._caveOk && !warned.has(this.id)) { warned.add(this.id); console.warn(`cave bake ${this.id}: ผังช่องเปลี่ยน (hash ${h} ≠ ${cb.hash}) — ใช้ผนังวาดด้วยโค้ดแทน (รัน tools/cave3d.py ใหม่)`); }
     }
     return this._caveOk ? cb : null;
   }
@@ -1022,8 +1023,21 @@ class GameMap {
     }
   }
   // เอกลักษณ์ถ้ำแต่ละชั้น (def.caveTheme): ย้อมโทนทั้งพื้น + ลายเฉพาะ — Archive = ตราผนึก/อักษรรูนทองสลักพื้น • Roots = รากไม้ชอนไชจากผนัง
-  caveTheme(g, W, H) {
-    const th = this.def.caveTheme, seed = this.def.seed, rnd = U.seeded(seed * 3 + 1);
+  // ตราผนึกวงกลมบนพื้น (Archive): ตำแหน่ง/ขนาด/ลายกำหนดตายตัวจาก seed — ใช้ทั้งวาดด้วยโค้ดและ tools/cave3d.py --extract (อบเป็นร่องสลักในภาพผนัง)
+  caveSeals() {
+    const rnd = U.seeded(this.def.seed * 3 + 1), floor = (x, y) => this.tile(x, y) === T.CAVE, out = [];
+    for (let n = 0, tries = 0; n < Math.round(this.w * this.h / 500) && tries < 400; tries++) {
+      const x = 3 + Math.floor(rnd() * (this.w - 6)), y = 3 + Math.floor(rnd() * (this.h - 6));
+      let ok = true; for (let yy = y - 2; yy <= y + 2 && ok; yy++) for (let xx = x - 2; xx <= x + 2; xx++) if (!floor(xx, yy)) { ok = false; break; }
+      if (!ok) continue; n++;
+      const R0 = 1.3 + rnd() * 0.7, k = 6 + Math.floor(rnd() * 4), bits = [];
+      for (let i = 0; i < k; i++) bits.push(rnd() < 0.5 ? 1 : 0); // อักษรรูนเล็กแต่ละซี่: ขีดเฉียงเริ่มบนสุด/กลาง
+      out.push({ x, y, r: +R0.toFixed(4), k, bits });
+    }
+    return out;
+  }
+  caveTheme(g, W, H, bakedSeals) {
+    const th = this.def.caveTheme, seed = this.def.seed;
     g.save(); g.globalCompositeOperation = 'soft-light'; g.globalAlpha = th.tintA || 0.5; g.fillStyle = th.tint; g.fillRect(0, 0, W, H);
     if (th.colorA) { g.globalCompositeOperation = 'color'; g.globalAlpha = th.colorA; g.fillRect(0, 0, W, H); } // ลดสีเส้นแร่เดิมให้เข้าโทน
     g.restore();
@@ -1032,22 +1046,18 @@ class GameMap {
     if (th.glyph) {
       const col = th.glyph;
       const glowStroke = (w, a) => { g.globalAlpha = a; g.shadowColor = col; g.shadowBlur = 8; g.strokeStyle = col; g.lineWidth = w; g.stroke(); g.shadowBlur = 0; };
-      // ตราผนึกวงกลมสลักพื้น
-      for (let n = 0, tries = 0; n < Math.round(this.w * this.h / 500) && tries < 400; tries++) {
-        const x = 3 + Math.floor(rnd() * (this.w - 6)), y = 3 + Math.floor(rnd() * (this.h - 6));
-        let ok = true; for (let yy = y - 2; yy <= y + 2 && ok; yy++) for (let xx = x - 2; xx <= x + 2; xx++) if (!floor(xx, yy)) { ok = false; break; }
-        if (!ok) continue; n++;
-        const cx = (x + 0.5) * TILE, cy = (y + 0.5) * TILE, R0 = TILE * (1.3 + rnd() * 0.7);
+      // ตราผนึกวงกลมสลักพื้น (ภาพผนังอบมีร่องสลักเรืองทองของตราชุดเดียวกันแล้ว = ไม่วาดซ้ำ — tools/archive3d.py)
+      for (const sl of bakedSeals ? [] : this.caveSeals()) {
+        const cx = (sl.x + 0.5) * TILE, cy = (sl.y + 0.5) * TILE, R0 = TILE * sl.r, k = sl.k;
         g.save(); g.translate(cx, cy); g.scale(1, 0.8);
         g.beginPath(); g.arc(0, 0, R0, 0, 7); glowStroke(1.6, 0.42);
         g.beginPath(); g.arc(0, 0, R0 * 0.72, 0, 7); glowStroke(1, 0.32);
-        const k = 6 + Math.floor(rnd() * 4);
         for (let i = 0; i < k; i++) {
           const a = i / k * Math.PI * 2;
           g.beginPath(); g.moveTo(Math.cos(a) * R0 * 0.72, Math.sin(a) * R0 * 0.72); g.lineTo(Math.cos(a) * R0, Math.sin(a) * R0); glowStroke(1, 0.35);
           // อักษรรูนเล็ก (เส้นตั้ง + ขีดเฉียง)
           const ra = a + Math.PI / k, rx = Math.cos(ra) * R0 * 0.86, ry = Math.sin(ra) * R0 * 0.86, sz = 4;
-          g.beginPath(); g.moveTo(rx, ry - sz); g.lineTo(rx, ry + sz); g.moveTo(rx, ry - sz * (rnd() < 0.5 ? 1 : 0)); g.lineTo(rx + sz * 0.8, ry - sz * 0.2); glowStroke(0.9, 0.4);
+          g.beginPath(); g.moveTo(rx, ry - sz); g.lineTo(rx, ry + sz); g.moveTo(rx, ry - sz * sl.bits[i]); g.lineTo(rx + sz * 0.8, ry - sz * 0.2); glowStroke(0.9, 0.4);
         }
         g.beginPath(); for (let i = 0; i < 3; i++) { const a = -Math.PI / 2 + i * 2.094; g[i ? 'lineTo' : 'moveTo'](Math.cos(a) * R0 * 0.4, Math.sin(a) * R0 * 0.4); } g.closePath(); glowStroke(1.2, 0.38);
         g.restore();
