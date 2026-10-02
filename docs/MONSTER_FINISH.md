@@ -99,17 +99,17 @@ Monster bust portrait for an anime sci-fi Norse RPG called NEO MIDGARD where eve
 Monster bust portrait for an anime sci-fi Norse RPG called NEO MIDGARD where every monster is a humanoid ANDROID personification of a machine (no animals, no humans). FACE RULE: the head has a smooth metal faceplate with a glowing visor strip: NO eyes, NO pupils, NO mouth. Hostile units have red or colored glowing visors. A square bust portrait (head and shoulders, facing slightly left) that fills the whole canvas with a dark moody background tinted in the monster's glow color, painterly cel-shaded anime gacha style, crisp lineart, rim light. No text, no letters, no frame. Square 1:1 image (1024x1024). Gnawed Sentry: a stocky old guard android with a faded grey-violet bark-textured helmet, a big chunk bitten out of one side, a steady pale violet slit visor, a tiny guard lantern clipped to the collar. Stubborn, dignified. Background: grey-violet dusk in the roots.
 ```
 
-### 20. Gnawed Brute — ภาพหน้า
+### ✅ 20. Gnawed Brute — ภาพหน้า
 ```
 Monster bust portrait for an anime sci-fi Norse RPG called NEO MIDGARD where every monster is a humanoid ANDROID personification of a machine (no animals, no humans). FACE RULE: the head has a smooth metal faceplate with a glowing visor strip: NO eyes, NO pupils, NO mouth. Hostile units have red or colored glowing visors. A square bust portrait (head and shoulders, facing slightly left) that fills the whole canvas with a dark moody background tinted in the monster's glow color, painterly cel-shaded anime gacha style, crisp lineart, rim light. No text, no letters, no frame. Square 1:1 image (1024x1024). Gnawed Brute: a huge bulky android with an ash-grey bear-eared heavy helmet covered in tooth marks, a dull orange slit visor, a broken root bundle strapped over one shoulder like a load. Weary but strong. Background: ash grey with rust-red undertone.
 ```
 
-### 21. Root Gnawer — ภาพหน้า
+### ✅ 21. Root Gnawer — ภาพหน้า
 ```
 Monster bust portrait for an anime sci-fi Norse RPG called NEO MIDGARD where every monster is a humanoid ANDROID personification of a machine (no animals, no humans). FACE RULE: the head has a smooth metal faceplate with a glowing visor strip: NO eyes, NO pupils, NO mouth. Hostile units have red or colored glowing visors. A square bust portrait (head and shoulders, facing slightly left) that fills the whole canvas with a dark moody background tinted in the monster's glow color, painterly cel-shaded anime gacha style, crisp lineart, rim light. No text, no letters, no frame. Square 1:1 image (1024x1024). Root Gnawer: a fierce android with a boar-snout helmet in blood-red rusted plating, two huge worn grinding tusks curving up from the jaw guard, a blazing red slit visor, root splinters caught in the plates. Background: deep crimson.
 ```
 
-### 22. Garmr (บอส) — ภาพหน้า
+### ✅ 22. Garmr (บอส) — ภาพหน้า
 ```
 Monster bust portrait for an anime sci-fi Norse RPG called NEO MIDGARD where every monster is a humanoid ANDROID personification of a machine (no animals, no humans). FACE RULE: the head has a smooth metal faceplate with a glowing visor strip: NO eyes, NO pupils, NO mouth. Hostile units have red or colored glowing visors. A square bust portrait (head and shoulders, facing slightly left) that fills the whole canvas with a dark moody background tinted in the monster's glow color, painterly cel-shaded anime gacha style, crisp lineart, rim light. No text, no letters, no frame. Square 1:1 image (1024x1024). Garmr: a menacing tall android with a black-iron wolf-hound helmet with tall pointed ears, a deep-crimson V visor, a rust-red corroded chest plate with glowing orange root-like veins, a spiked collar with a broken chain link. Background: deep crimson and ember.
 ```
