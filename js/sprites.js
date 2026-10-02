@@ -878,11 +878,12 @@ Sprites.drawPlayer = (g, p, t) => {
     const stun = !p.dead && p.stunUntil > G.time ? { e: G.time - p.stunAt, r: p.stunUntil - G.time } : null;
     // โดนตี: ไม่ล้ม แค่สะดุ้ง (สั่นเล็กน้อย + แสงแดงจาก render) • ล้มเฉพาะตอนมึน
     const shake = (p.hurtFlash || 0) > 0 && !stun ? Math.sin(t * 90) * 1.5 : 0;
-    Anim.draw(g, x + shake, y, gk, {
+    const bare = typeof Paperdoll !== 'undefined' && Paperdoll.key(gk); // ทดลอง: ตัวเปล่า + วาดอาวุธ/หมวกที่สวมจริง
+    Anim.draw(g, x + shake, y, bare || gk, Object.assign(bare ? Paperdoll.layers(gk, p) : {}, {
       facing: p.facing || 1, dir: p.dir, moving: p.moving && !p.sitting, atk: tr.atk, cast: !!p.cast, sit: p.sitting, dead: p.dead, deathT: tr.deathT,
       skill: p.skillPose != null && G.time - p.skillPose < 0.5 && G.time >= p.skillPose ? 1 - (G.time - p.skillPose) / 0.5 : 0,
       hurt: 0, stun,
-    }, t, 68);
+    }), t, 68);
     if (stun) Sprites.stunStars(g, x, y - (stun.e < 0.3 || stun.r < 0.3 ? 56 : 30), t);
     return;
   }

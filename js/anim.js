@@ -136,7 +136,7 @@ const Anim = {
       const w = this.strip(key, 'walk');
       if (w && w.dirs === 8 && s.dirs !== 8) {
         const dir = st.dir != null ? st.dir : (st.facing > 0 ? 0 : 4);
-        return { img: w.img, f: this.stillFrame(w.img, w.n, dir), row: dir, flip: false, breathe: true };
+        return { img: w.img, f: this.stillFrame(w.img, w.n, dir), row: dir, flip: false, breathe: true, action: 'walk' };
       }
     }
     const def = this.ACTIONS[s.action];
@@ -168,6 +168,7 @@ const Anim = {
     g.translate(x, y - (st.raise || 0) + sink * k);
     if (p.lift) g.translate(0, -p.lift * k);
     g.scale(p.flip ? -k : k, k * (p.breathe ? 1 + Math.sin(t * 2.4 + (st.seed || 0)) * 0.012 : 1));
+    if (st.under) st.under(g, p); // ชั้นหลังตัว (เช่นอาวุธตอนหันหลัง — Paperdoll)
     if (st.flash) g.filter = 'brightness(1.9)';
     if (st.filter) { // ใส่ filter ที่ช่องเฟรมขนาด 240px แทนแคนวาสหลัก (filter บนแคนวาสหลัก = เลเยอร์เต็มจอ ช้ามาก)
       const fc = this._fc || (this._fc = document.createElement('canvas'));
@@ -177,6 +178,7 @@ const Anim = {
       fg.drawImage(p.img, p.f * C, p.row * C, C, C, 0, 0, C, C); fg.filter = 'none';
       g.drawImage(fc, 0, 0, C, C, -this.CX, -this.GROUND, C, C);
     } else g.drawImage(p.img, p.f * C, p.row * C, C, C, -this.CX, -this.GROUND, C, C);
+    if (st.over) { g.filter = 'none'; st.over(g, p); } // ชั้นหน้าตัว (อาวุธในมือ/หมวก)
     g.restore();
     return true;
   },
