@@ -983,20 +983,20 @@ Rows per priority: P1 = 36, P1+ = 6, P2 = 32, P2+ = 2, P3 = 72, P4 = 2, P4+ = 5,
 | ✅ | 55 | P2 | `anim_mob_rust_draugr_walk.webp` + `anim_mob_rust_draugr_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
 | ✅ | 56 | P2 | `mob_root_crawler.webp` | 160² · tile |
 | ✅ | 57 | P2 | `mobsprite_root_crawler.webp` | ≤320 · transparent |
-| ⬜ | 58 | P2 | `anim_mob_root_crawler_walk.webp` + `anim_mob_root_crawler_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
+| ✅ | 58 | P2 | `anim_mob_root_crawler_walk.webp` + `anim_mob_root_crawler_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
 | ✅ | 59 | P2 | `mob_gnawed_stump.webp` | 160² · tile |
 | ✅ | 60 | P2 | `mobsprite_gnawed_stump.webp` | ≤320 · transparent |
-| ⬜ | 61 | P2 | `anim_mob_gnawed_stump_walk.webp` + `anim_mob_gnawed_stump_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
+| ✅ | 61 | P2 | `anim_mob_gnawed_stump_walk.webp` + `anim_mob_gnawed_stump_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
 | ✅ | 62 | P2 | `mob_gnawed_brute.webp` | 160² · tile |
 | ✅ | 63 | P2 | `mobsprite_gnawed_brute.webp` | ≤320 · transparent |
-| ⬜ | 64 | P2 | `anim_mob_gnawed_brute_walk.webp` + `anim_mob_gnawed_brute_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
+| ✅ | 64 | P2 | `anim_mob_gnawed_brute_walk.webp` + `anim_mob_gnawed_brute_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
 | ✅ | 65 | P2 | `mob_root_gnawer.webp` | 160² · tile |
 | ✅ | 66 | P2 | `mobsprite_root_gnawer.webp` | ≤320 · transparent |
-| ⬜ | 67 | P2 | `anim_mob_root_gnawer_walk.webp` + `anim_mob_root_gnawer_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
+| ✅ | 67 | P2 | `anim_mob_root_gnawer_walk.webp` + `anim_mob_root_gnawer_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
 | ⬜ | 68 | P2 | `mvp_garmr.webp` | 1536×1024 · full-bleed |
 | ✅ | 69 | P2 | `mob_garmr.webp` | 160² · tile |
 | ✅ | 70 | P2 | `mobsprite_garmr.webp` | ≤320 · transparent |
-| ⬜ | 71 | P2 | `anim_mob_garmr_walk.webp` + `anim_mob_garmr_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
+| ✅ | 71 | P2 | `anim_mob_garmr_walk.webp` + `anim_mob_garmr_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
 | ⬜ | 72 | P2 | `mvp_wb_seraph_pudding.webp` | 1536×1024 · full-bleed |
 | ⬜ | 73 | P2 | `mvp_wb_kitsura.webp` | 1536×1024 · full-bleed |
 | ⬜ | 74 | P2 | `mvp_wb_garmr.webp` | 1536×1024 · full-bleed |

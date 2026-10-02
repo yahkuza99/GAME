@@ -128,31 +128,31 @@ Use the attached monster as the exact design (same colors, same size, same art s
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom of the monster on the red line in every cell (even for jumps: the game adds the jump height itself). Top row = MOVE loop, 4 frames. Bottom row = ATTACK, 4 frames. Every frame clearly different. Draw the monster ONLY: no effects, no motion lines, no impact bursts. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines. This is Rust Husk. Top row = MOVE loop: heavy shambling walk dragging the axe, rust flakes falling. Bottom row = ATTACK: raise axe overhead with both hands, lurch forward, heavy CHOP, stagger back.
 ```
 
-### 25. Root Crawler — ท่าขยับ
+### ✅ 25. Root Crawler — ท่าขยับ
 ```
 (Attach mobsprite_root_crawler and art/tpl_mob.png)
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom of the monster on the red line in every cell (even for jumps: the game adds the jump height itself). Top row = MOVE loop, 4 frames. Bottom row = ATTACK, 4 frames. Every frame clearly different. Draw the monster ONLY: no effects, no motion lines, no impact bursts. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines. This is Root Crawler Unit. Top row = MOVE loop: inching crawl, segments bunching and stretching, headlamp bobbing. Bottom row = ATTACK: rear up, drill antenna spins, head-butt forward, curl back.
 ```
 
-### 26. Gnawed Sentry — ท่าขยับ
+### ✅ 26. Gnawed Sentry — ท่าขยับ
 ```
 (Attach mobsprite_gnawed_stump and art/tpl_mob.png)
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom of the monster on the red line in every cell (even for jumps: the game adds the jump height itself). Top row = MOVE loop, 4 frames. Bottom row = ATTACK, 4 frames. Every frame clearly different. Draw the monster ONLY: no effects, no motion lines, no impact bursts. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines. This is Gnawed Sentry. Top row = MOVE loop: slow heavy root-leg shuffle, lantern swinging. Bottom row = ATTACK: lean back, swing a thick root-arm, SLAM forward, settle.
 ```
 
-### 27. Gnawed Brute — ท่าขยับ
+### ✅ 27. Gnawed Brute — ท่าขยับ
 ```
 (Attach mobsprite_gnawed_brute and art/tpl_mob.png)
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom of the monster on the red line in every cell (even for jumps: the game adds the jump height itself). Top row = MOVE loop, 4 frames. Bottom row = ATTACK, 4 frames. Every frame clearly different. Draw the monster ONLY: no effects, no motion lines, no impact bursts. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines. This is Gnawed Brute. Top row = MOVE loop: heavy four-legged lumber, the root load rocking on its back. Bottom row = ATTACK: rear up on hind legs, both paws high, crash down, recover.
 ```
 
-### 28. Root Gnawer — ท่าขยับ
+### ✅ 28. Root Gnawer — ท่าขยับ
 ```
 (Attach mobsprite_root_gnawer and art/tpl_mob.png)
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom of the monster on the red line in every cell (even for jumps: the game adds the jump height itself). Top row = MOVE loop, 4 frames. Bottom row = ATTACK, 4 frames. Every frame clearly different. Draw the monster ONLY: no effects, no motion lines, no impact bursts. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines. This is Root Gnawer. Top row = MOVE loop: fast aggressive trot, head low, dust kicked up. Bottom row = ATTACK: paw the ground, lunge forward, upward tusk GORE, skid back.
 ```
 
-### 29. Garmr (บอส) — ท่าขยับ
+### ✅ 29. Garmr (บอส) — ท่าขยับ
 ```
 (Attach mobsprite_garmr and art/tpl_mob.png)
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom of the monster on the red line in every cell (even for jumps: the game adds the jump height itself). Top row = MOVE loop, 4 frames. Bottom row = ATTACK, 4 frames. Every frame clearly different. Draw the monster ONLY: no effects, no motion lines, no impact bursts. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines. This is Garmr, a boss. Top row = MOVE loop: heavy prowling stalk, head low, the broken chain swinging. Bottom row = ATTACK: crouch, lunge forward with jaws wide, BITE, pull back shaking its head.

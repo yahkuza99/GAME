@@ -448,5 +448,80 @@
    "scale_src": 0.4249,
    "median_src_h": 352.9993175346528
   }
+ },
+ "mob_gnawed_stump": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4261,
+   "median_src_h": 352
+  },
+  "_k1536": 0.42614,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4261,
+   "median_src_h": 351.99699629229826
+  }
+ },
+ "mob_root_crawler": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.5,
+   "median_src_h": 300
+  },
+  "_k1536": 0.57747,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.5,
+   "median_src_h": 300.0020563838814
+  }
+ },
+ "mob_gnawed_brute": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4076,
+   "median_src_h": 368
+  },
+  "_k1536": 0.40761,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4076,
+   "median_src_h": 367.9988224037683
+  }
+ },
+ "mob_root_gnawer": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.5495,
+   "median_src_h": 273
+  },
+  "_k1536": 0.54945,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.5494,
+   "median_src_h": 273.000273000273
+  }
+ },
+ "mob_garmr": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4732,
+   "median_src_h": 317
+  },
+  "_k1536": 0.54651,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4732,
+   "median_src_h": 316.99728733234525
+  }
  }
 }
