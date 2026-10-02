@@ -51,6 +51,8 @@ const Art = {
     (this._asked = this._asked || new Set()).add(k);
     this._probe(f);
   },
+  // คืนหน่วยความจำภาพ bake_* ที่วาดลงผ้าใบพื้นแล้ว (ภาพถอดรหัสเต็มแมพหลายสิบ MB) • need() ครั้งหน้าโหลดใหม่ได้ (จากแคชเบราว์เซอร์)
+  free(k) { delete this.imgs[k]; if (this._asked) this._asked.delete(k); },
   // ไอคอนไอเทม: ภาพเฉพาะชิ้น > ชิปการ์ดรวม > วาดด้วยโค้ด
   itemKey(id) {
     if (this.imgs['item_' + id]) return 'item_' + id;

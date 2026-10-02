@@ -565,6 +565,7 @@ function shout(text) { G.player.speech = { text, until: G.time + 1.6, shout: tru
 // ------------------------------------------------------------
 function getMap(id) {
   if (!G.mapCache[id]) G.mapCache[id] = new GameMap(id);
+  else { const m = G.mapCache[id], cb = m.caveBake && m.caveBake(); if (cb && !m.caveWallImg && typeof Art !== 'undefined' && Art.imgs[cb.img]) { m.renderGround(); m._imgs = null; } } // ภาพผนังถ้ำ 3D โหลดเสร็จตอนอยู่แมพอื่น → วาดพื้นใหม่ตอนกลับมา
   // แผนที่ใหญ่ (สูงสุด 84×84 = ภาพพื้น ~3,400px) กินหน่วยความจำ → เก็บแคชไว้แค่ 3 แผนที่ล่าสุด
   const order = G.mapOrder || (G.mapOrder = []);
   const i = order.indexOf(id); if (i >= 0) order.splice(i, 1); order.push(id);
