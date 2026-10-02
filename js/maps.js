@@ -82,6 +82,9 @@ const propArt = k => !!k && typeof Art !== 'undefined' && Art.has(k);
 // hash = ผังช่องแถว y0..ล่างสุดตอนเรนเดอร์ — ผังเปลี่ยน (แก้ seed/ตัวสร้างแมพ) จะไม่ใช้ภาพ กลับไปวาดด้วยโค้ดเหมือนเดิม
 const RIDGE_BAKE = {"wolfwood":{"img":"bake_wolfwood_ridge","y0":92,"hash":843460604,"gate":{"img":"bake_wolfwood_gate","x":34.5,"y":103.0,"ax":270.0,"ay":307.0,"s":0.5,"light":[34.5,102.4,3.4,"175,120,255"],"open":[1.85,3.05,0.85,0.45]}}}; // tools/ridge3d.py --install
 const DAYLIGHT_BAKE = {"helcave":{"img":"bake_helcave_daylight","rect":[27,0,49,12],"hash":3258200064}}; // tools/daylight3d.py --install
+// ผนังถ้ำ/หน้าผาหิน 3D ทั้งแมพ (tools/cave3d.py): ภาพเต็มแมพแบบ A วาดลงผ้าใบพื้นแทน caveWalls — พื้นในภาพโปร่ง (มีแต่เงา/AO) พื้นวาดด้วยโค้ดยังเห็นต่อเนื่อง
+// hash = FNV-1a ของผังช่องทั้งแมพตอนเรนเดอร์ — ผังเปลี่ยน = กลับไปวาดผนังด้วยโค้ด • ภาพใหญ่ (3000×3000) โหลดตอนเข้าแมพ (Art.need) แล้วคืนหน่วยความจำหลังวาดลงพื้น (Art.free)
+const CAVE_BAKE = {"helcave":{"img":"bake_helcave_walls","hash":1823187180},"archive":{"img":"bake_archive_walls","hash":1171733009},"roots":{"img":"bake_roots_walls","hash":4054022947}}; // tools/cave3d.py --install
 // ซุ้มประตูวาร์ป 3D ทุกประตู (tools/gate3d.py, js/bake.js Bake.gates): วัสดุตามชนิดแมพที่ประตูตั้งอยู่ (town/field/cave) × แบบตามขอบ (s หันหน้า, n เสาเตี้ย, e/w ด้านข้าง)
 // pcs = ชิ้นสไปรต์ (ax, ay = กลางวาร์ปบนพื้นในภาพ px • dy = จุดเรียงความลึกเทียบกลางวาร์ป ช่อง) • sh = เงาบนพื้น • open = ช่องประตู (px 1× เทียบกลางวาร์ป) ตัดม่านวาร์ป • top = ยอดซุ้ม (px) วางป้ายปลายทาง
 const GATE_BAKE = {"town":{"s":{"pcs":[{"img":"bake_gate_town_s","ax":189.2,"ay":200.4,"dy":0.56}],"sh":{"img":"bake_gate_town_s_sh","ax":187.2,"ay":36.4},"open":[[-58.0,3.9],[-58.0,-57.2],[-56.9,-60.0],[-53.6,-62.7],[-48.2,-65.2],[-41.0,-67.3],[-32.2,-69.1],[-22.2,-70.4],[-11.3,-71.2],[0.0,-71.5],[11.3,-71.2],[22.2,-70.4],[32.2,-69.1],[41.0,-67.3],[48.2,-65.2],[53.6,-62.7],[56.9,-60.0],[58.0,-57.2],[58.0,3.9]],"top":-98.7},"n":{"pcs":[{"img":"bake_gate_town_n","ax":190.0,"ay":75.2,"dy":0.48}],"sh":{"img":"bake_gate_town_n_sh","ax":188.0,"ay":31.2},"top":-36.6},"e":{"pcs":[{"img":"bake_gate_town_e_b","ax":127.7,"ay":259.2,"dy":-0.908},{"img":"bake_gate_town_e_f","ax":15.7,"ay":151.2,"dy":2.311}],"sh":{"img":"bake_gate_town_e_sh","ax":125.7,"ay":142.2},"open":[[26.6,43.1],[26.6,-18.0],[26.1,-21.5],[24.6,-26.5],[22.1,-32.5],[18.8,-39.6],[14.8,-47.3],[10.2,-55.4],[5.2,-63.6],[0.0,-71.5],[-5.2,-78.9],[-10.1,-85.4],[-14.7,-90.8],[-18.7,-95.0],[-22.0,-97.7],[-24.5,-98.9],[-26.0,-98.4],[-26.5,-96.4],[-26.5,-35.3]],"top":-128.6},"w":{"pcs":[{"img":"bake_gate_town_w_b","ax":46.7,"ay":259.2,"dy":-0.908},{"img":"bake_gate_town_w_f","ax":127.7,"ay":151.2,"dy":2.311}],"sh":{"img":"bake_gate_town_w_sh","ax":125.7,"ay":142.2},"open":[[-26.5,43.1],[-26.5,-18.0],[-26.0,-21.5],[-24.5,-26.5],[-22.0,-32.5],[-18.7,-39.6],[-14.7,-47.3],[-10.1,-55.4],[-5.2,-63.6],[0.0,-71.5],[5.2,-78.9],[10.2,-85.4],[14.8,-90.8],[18.8,-95.0],[22.1,-97.7],[24.6,-98.9],[26.1,-98.4],[26.6,-96.4],[26.6,-35.3]],"top":-128.6}},"field":{"s":{"pcs":[{"img":"bake_gate_field_s","ax":222.1,"ay":199.0,"dy":0.564}],"sh":{"img":"bake_gate_field_s_sh","ax":216.1,"ay":52.0},"open":[[-58.0,3.9],[-58.0,-57.2],[-56.9,-60.0],[-53.6,-62.7],[-48.2,-65.2],[-41.0,-67.3],[-32.2,-69.1],[-22.2,-70.4],[-11.3,-71.2],[0.0,-71.5],[11.3,-71.2],[22.2,-70.4],[32.2,-69.1],[41.0,-67.3],[48.2,-65.2],[53.6,-62.7],[56.9,-60.0],[58.0,-57.2],[58.0,3.9]],"top":-98.5},"n":{"pcs":[{"img":"bake_gate_field_n","ax":220.6,"ay":84.2,"dy":0.487}],"sh":{"img":"bake_gate_field_n_sh","ax":215.6,"ay":44.2},"top":-41.1},"e":{"pcs":[{"img":"bake_gate_field_e_b","ax":143.6,"ay":256.8,"dy":-0.895},{"img":"bake_gate_field_e_f","ax":16.6,"ay":149.8,"dy":2.324}],"sh":{"img":"bake_gate_field_e_sh","ax":138.6,"ay":156.8},"open":[[26.5,43.1],[26.5,-18.0],[26.0,-21.6],[24.5,-26.5],[22.1,-32.6],[18.8,-39.6],[14.8,-47.3],[10.2,-55.4],[5.2,-63.6],[0.0,-71.5],[-5.2,-78.9],[-10.1,-85.4],[-14.8,-90.9],[-18.8,-95.0],[-22.1,-97.7],[-24.5,-98.9],[-26.0,-98.4],[-26.5,-96.4],[-26.5,-35.3]],"top":-127.4},"w":{"pcs":[{"img":"bake_gate_field_w_b","ax":46.3,"ay":257.1,"dy":-0.899},{"img":"bake_gate_field_w_f","ax":155.3,"ay":150.1,"dy":2.321}],"sh":{"img":"bake_gate_field_w_sh","ax":150.3,"ay":157.1},"open":[[-26.5,43.1],[-26.5,-18.0],[-26.0,-21.6],[-24.5,-26.5],[-22.1,-32.6],[-18.8,-39.6],[-14.8,-47.3],[-10.2,-55.4],[-5.2,-63.6],[0.0,-71.5],[5.2,-78.9],[10.2,-85.4],[14.8,-90.9],[18.8,-95.0],[22.1,-97.7],[24.5,-98.9],[26.0,-98.4],[26.5,-96.4],[26.5,-35.3]],"top":-127.5}},"cave":{"s":{"pcs":[{"img":"bake_gate_cave_s","ax":195.5,"ay":199.8,"dy":0.565}],"sh":{"img":"bake_gate_cave_s_sh","ax":201.5,"ay":38.8},"open":[[-58.0,3.9],[-58.0,-57.2],[-56.9,-60.0],[-53.6,-62.7],[-48.2,-65.1],[-41.0,-67.3],[-32.2,-69.1],[-22.2,-70.4],[-11.3,-71.2],[0.0,-71.5],[11.3,-71.2],[22.2,-70.4],[32.2,-69.1],[41.0,-67.3],[48.2,-65.1],[53.6,-62.7],[56.9,-60.0],[58.0,-57.2],[58.0,3.9]],"top":-98.4},"n":{"pcs":[{"img":"bake_gate_cave_n","ax":190.6,"ay":98.9,"dy":0.489}],"sh":{"img":"bake_gate_cave_n_sh","ax":196.6,"ay":31.9},"top":-48.0},"e":{"pcs":[{"img":"bake_gate_cave_e_b","ax":128.5,"ay":273.4,"dy":-0.893},{"img":"bake_gate_cave_e_f","ax":16.5,"ay":150.4,"dy":2.326}],"sh":{"img":"bake_gate_cave_e_sh","ax":134.5,"ay":142.4},"open":[[26.5,43.1],[26.5,-18.0],[26.0,-21.5],[24.5,-26.4],[22.1,-32.5],[18.8,-39.6],[14.8,-47.3],[10.2,-55.4],[5.2,-63.6],[0.0,-71.5],[-5.2,-78.9],[-10.1,-85.4],[-14.8,-90.8],[-18.8,-95.0],[-22.0,-97.7],[-24.5,-98.9],[-26.0,-98.4],[-26.5,-96.4],[-26.5,-35.3]],"top":-135.2},"w":{"pcs":[{"img":"bake_gate_cave_w_b","ax":46.9,"ay":278.0,"dy":-0.899},{"img":"bake_gate_cave_w_f","ax":128.9,"ay":150.0,"dy":2.322}],"sh":{"img":"bake_gate_cave_w_sh","ax":134.9,"ay":143.0},"open":[[-26.5,43.1],[-26.5,-18.0],[-26.0,-21.5],[-24.5,-26.5],[-22.1,-32.5],[-18.8,-39.6],[-14.7,-47.3],[-10.2,-55.4],[-5.2,-63.6],[0.0,-71.5],[5.2,-78.8],[10.2,-85.4],[14.8,-90.8],[18.8,-95.0],[22.1,-97.7],[24.5,-98.9],[26.0,-98.4],[26.5,-96.4],[26.5,-35.3]],"top":-137.5}},"s":0.5,"glow":{"town":"120,220,255","field":"130,240,210","cave":"185,130,255"}}; // tools/gate3d.py --install
@@ -547,7 +550,16 @@ class GameMap {
     // 3.5) น้ำทรงธรรมชาติจากหน้ากากเบลอ
     if (town) TownArt.over(this, g); else this.drawWater(g, P, depth);
     // 4) ผนังหิน (ถ้ำ) มีมิติ
-    if (this.def.kind === 'cave') { this.caveWalls(g, W, H); if (this.def.caveTheme) this.caveTheme(g, W, H); }
+    if (this.def.kind === 'cave') { // ผนังถ้ำ: ภาพอบ 3D (tools/cave3d.py) • ยังไม่โหลด/ผังไม่ตรง = วาดด้วยโค้ด
+      const cb = this.caveBake(), img = cb && typeof Art !== 'undefined' && (Art.need(cb.img), Art.get(cb.img));
+      this.caveWallImg = !!img;
+      if (img) {
+        if (this.def.caveTheme) this.caveTheme(g, W, H); // ย้อมโทน/ตราผนึก/รากบนพื้นก่อน → ผนังในภาพทับขอบราก (ผนังย้อมสีมาในภาพแล้ว)
+        g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(img, 0, 0, W, H); g.restore();
+        this.caveDepthShade(g, W, H);
+        Art.free(cb.img); // ภาพถอดรหัสแล้ว ~36 MB — อยู่ในผ้าใบพื้นแล้ว ไม่ต้องเก็บ (วาดพื้นใหม่เมื่อไร need โหลดซ้ำจากแคชเบราว์เซอร์)
+      } else { this.caveWalls(g, W, H); if (this.def.caveTheme) this.caveTheme(g, W, H); }
+    }
     else if (this.caveMouths.length) { // สันหินก่อนถึงปากถ้ำ (ทุ่ง → ถ้ำ): ภาพอบ 3D (tools/ridge3d.py) • ยังไม่โหลด/ผังไม่ตรง = วาดด้วยโค้ด
       const rb = this.ridgeBake(), img = rb && typeof Art !== 'undefined' && (Art.need(rb.img), Art.get(rb.img));
       this.ridgeImg = !!img;
@@ -943,7 +955,33 @@ class GameMap {
     }
     return this._dayOk ? db : null;
   }
-  usesBake(k) { const rb = this.ridgeBake(), db = this.daylightBake(); return (!!rb && rb.img === k && !this.ridgeImg) || (!!db && db.img === k && !this.daylightImg) || !!(this.bakeWait && this.bakeWait.has(k)); } // ภาพพื้นอบที่แมพนี้รออยู่ (art.js onLoad → วาดพื้นใหม่) • ซุ้มวาดทุกเฟรมอยู่แล้ว ไม่ต้องวาดพื้นใหม่
+  // เงาลึกบนหลังผนังถ้ำ (ทับภาพอบ 3D): ยิ่งห่างพื้นเดินได้ยิ่งมืด → ผนังอ่านออกชัดว่าเดินไม่ได้ (เหมือนหลุมมืดของผนังโค้ดเดิม)
+  //   หน้าผา/ขอบปากผา (ห่างพื้น ≤ ~1.5 ช่อง) ไม่โดน • ระยะ chamfer 2 รอบ แล้วขยายแบบนุ่มจากผ้าใบขนาดช่อง
+  caveDepthShade(g, W, H) {
+    const w = this.w, h = this.h, D = new Float32Array(w * h), BIG = 1e3, d2 = Math.SQRT2;
+    for (let i = 0; i < w * h; i++) D[i] = this.tiles[i] === T.ROCK ? BIG : 0;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const i = y * w + x; if (!D[i]) continue; let v = D[i];
+      if (x > 0) v = Math.min(v, D[i - 1] + 1); if (y > 0) { v = Math.min(v, D[i - w] + 1); if (x > 0) v = Math.min(v, D[i - w - 1] + d2); if (x < w - 1) v = Math.min(v, D[i - w + 1] + d2); } D[i] = v; }
+    for (let y = h - 1; y >= 0; y--) for (let x = w - 1; x >= 0; x--) { const i = y * w + x; if (!D[i]) continue; let v = D[i];
+      if (x < w - 1) v = Math.min(v, D[i + 1] + 1); if (y < h - 1) { v = Math.min(v, D[i + w] + 1); if (x < w - 1) v = Math.min(v, D[i + w + 1] + d2); if (x > 0) v = Math.min(v, D[i + w - 1] + d2); } D[i] = v; }
+    const c = document.createElement('canvas'); c.width = w; c.height = h; const cx = c.getContext('2d'), im = cx.createImageData(w, h);
+    for (let i = 0; i < w * h; i++) { const a = Math.max(0, Math.min(0.78, (D[i] - 1.6) * 0.32)); im.data[i * 4] = 6; im.data[i * 4 + 1] = 3; im.data[i * 4 + 2] = 10; im.data[i * 4 + 3] = a * 255; }
+    cx.putImageData(im, 0, 0);
+    g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(c, 0, 0, W, H); g.restore();
+  }
+  // ภาพอบผนังถ้ำ (CAVE_BAKE) ถ้าผังช่องทั้งแมพตรงกับตอนเรนเดอร์ (FNV-1a — tools/cave3d.py fnv) • ไม่ตรง = เตือนครั้งเดียว ใช้ caveWalls
+  caveBake() {
+    const cb = CAVE_BAKE[this.id];
+    if (!cb) return null;
+    if (this._caveOk === undefined) {
+      let h = 0x811c9dc5;
+      for (let i = 0; i < this.tiles.length; i++) { h ^= this.tiles[i]; h = Math.imul(h, 0x01000193) >>> 0; }
+      this._caveOk = h === cb.hash;
+      if (!this._caveOk) console.warn(`cave bake ${this.id}: ผังช่องเปลี่ยน (hash ${h} ≠ ${cb.hash}) — ใช้ผนังวาดด้วยโค้ดแทน (รัน tools/cave3d.py ใหม่)`);
+    }
+    return this._caveOk ? cb : null;
+  }
+  usesBake(k) { const rb = this.ridgeBake(), db = this.daylightBake(), cb = this.caveBake(); return (!!rb && rb.img === k && !this.ridgeImg) || (!!db && db.img === k && !this.daylightImg) || (!!cb && cb.img === k && !this.caveWallImg) || !!(this.bakeWait && this.bakeWait.has(k)); } // ภาพพื้นอบที่แมพนี้รออยู่ (art.js onLoad → วาดพื้นใหม่) • ซุ้มวาดทุกเฟรมอยู่แล้ว ไม่ต้องวาดพื้นใหม่
   // ภาพรอยต่อ: ปากถ้ำมืดลึก (ทุ่ง) • แสงแดด + มอส + ใบไม้ปลิวเข้ามาที่ปากทางถ้ำ (ถ้ำ) • เสาไฟริมถนนหินอ่อน (ทุ่ง)
   seamArt(g) {
     for (const p of this.caveMouths) {
