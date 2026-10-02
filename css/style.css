@@ -423,15 +423,42 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round
 .inv-foot { margin-top: 6px; text-align: right; color: var(--exp); }
 
 /* equip */
-.eq-wrap { display: flex; gap: 10px; }
-.eq-prev { flex-shrink: 0; width: 110px; height: 140px; border: 1px solid var(--line); background: radial-gradient(circle at 50% 75%, rgba(98,227,255,.25), #0a1120 70%); }
-.eq-slots { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.eq-slot { display: grid; grid-template-columns: 58px 22px 1fr; align-items: center; gap: 4px; padding: 3px 5px; cursor: pointer; }
-.eq-slot.empty { cursor: default; background: rgba(0,0,0,.25); }
-.eq-slot:not(.empty):hover { border-color: var(--bad); }
-.eq-slot img, .eq-ph { width: 22px; height: 22px; }
-.eq-n { font-size: 10px; color: var(--ink-dim); }
-.eq-i { font-size: 11.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* ---------- หน้าต่างอุปกรณ์ (แบบ RO): หนังเก่า/ทองหม่น/หิน + รูนนอร์สในช่องว่าง — ธีมเฉพาะหน้าต่างนี้ทั้งสองโหมด HUD ---------- */
+#w-equip { --eq-bg: #231a12; --eq-bg2: #33261a; --eq-slot: rgba(16, 11, 7, .62); --eq-line: rgba(196, 154, 92, .32); --eq-line-hi: #c99a5b;
+  --eq-gold: #d9b276; --eq-ink: #efe1c4; --eq-dim: #a8916d; --eq-faint: rgba(201, 154, 91, .28); }
+body #w-equip.win { background: linear-gradient(170deg, var(--eq-bg2), var(--eq-bg) 55%, #1a130d); border: 1px solid var(--eq-line); color: var(--eq-ink);
+  box-shadow: 0 26px 50px -22px rgba(0, 0, 0, .9), inset 0 0 0 1px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 226, 170, .1); -webkit-backdrop-filter: none; backdrop-filter: none; }
+body #w-equip.win::before { background: radial-gradient(110% 45% at 50% -12%, rgba(217, 178, 118, .16), rgba(217, 178, 118, 0) 62%); }
+body #w-equip .win-title { border-bottom: 1px solid var(--eq-line); background: linear-gradient(180deg, rgba(255, 226, 170, .05), rgba(0, 0, 0, .12)); }
+body #w-equip .win-title span { color: var(--eq-gold); letter-spacing: .03em; }
+body #w-equip .win-title span::before { background: var(--eq-gold); box-shadow: 0 0 8px rgba(217, 178, 118, .6); border-radius: 0; transform: rotate(45deg); }
+body #w-equip .win-x { background: rgba(0, 0, 0, .3); color: var(--eq-dim); }
+.eq-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 132px minmax(0, 1fr); gap: 8px; align-items: start; }
+.eq-col { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+body #w-equip .eq-slot { display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: center; gap: 6px; padding: 4px 6px; min-height: 44px; cursor: pointer;
+  background: var(--eq-slot); border: 1px solid var(--eq-line); border-radius: 4px; color: var(--eq-ink); box-shadow: inset 0 1px 0 rgba(255, 226, 170, .05); }
+body #w-equip .eq-slot.empty { cursor: default; background: rgba(10, 7, 4, .4); border-style: dashed; border-color: var(--eq-faint); }
+body #w-equip .eq-slot:not(.empty):hover { border-color: var(--eq-line-hi); background: rgba(201, 154, 91, .12); }
+.eq-slot img, .eq-ph { width: 30px; height: 30px; image-rendering: auto; }
+.eq-slot img { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .7)); }
+/* ช่องว่าง: รูนประจำช่อง (หมวก ᚺ • อาวุธ ᛏ • ผ้าคลุม ᚹ • เครื่องประดับ ᛟ • เกราะ ᛒ • โล่ ᛉ • รองเท้า ᚱ) */
+.eq-ph { display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--eq-faint); color: var(--eq-faint); font: 600 16px/1 "Segoe UI Historic", "Noto Sans Runic", serif; }
+.eq-ph-head::after { content: "ᚺ"; } .eq-ph-weapon::after { content: "ᛏ"; } .eq-ph-garment::after { content: "ᚹ"; } .eq-ph-acc::after { content: "ᛟ"; }
+.eq-ph-armor::after { content: "ᛒ"; } .eq-ph-shield::after { content: "ᛉ"; } .eq-ph-shoes::after { content: "ᚱ"; }
+.eq-txt { display: flex; flex-direction: column; min-width: 0; }
+.eq-n { font-size: 9.5px; color: var(--eq-dim); letter-spacing: .04em; text-transform: uppercase; }
+.eq-i { font-size: 11.5px; font-weight: 600; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+.eq-slot.empty .eq-i { color: var(--eq-faint); }
+.eq-mid { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+body #w-equip .eq-prev { width: 132px; height: 173px; border: 1px solid var(--eq-line); border-radius: 6px;
+  background: radial-gradient(60% 18% at 50% 87%, rgba(0, 0, 0, .55), rgba(0, 0, 0, 0) 100%), radial-gradient(90% 70% at 50% 60%, #4a3826, #1c140d 75%); }
+.eq-stage { position: relative; }
+.eq-stage .eq-prev { display: block; }
+.eq-turn { position: absolute; bottom: 5px; width: 26px; height: 24px; padding: 0; border: 1px solid var(--eq-line); border-radius: 4px; background: rgba(20, 14, 9, .7); color: var(--eq-gold); font-size: 15px; line-height: 1; cursor: pointer; }
+.eq-turn:first-of-type { left: 5px; } .eq-turn:last-of-type { right: 5px; }
+.eq-turn:hover { border-color: var(--eq-line-hi); background: rgba(201, 154, 91, .15); }
+.eq-job { width: 100%; text-align: center; font: 600 11px var(--display); color: var(--eq-gold); letter-spacing: .03em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body #w-equip .hint { color: var(--eq-dim); }
 
 /* skills */
 .sk-head { margin-bottom: 8px; }
@@ -688,7 +715,8 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
   #title.creating .logo.logo-img img, #title.selecting .logo.logo-img img { width: min(220px, 60vw); }
   .inv-grid { grid-template-columns: repeat(5, 1fr); }
   .st-grid { grid-template-columns: 1fr; }
-  .eq-prev { width: 84px; height: 110px; }
+  .eq-wrap { grid-template-columns: minmax(0, 1fr) 104px minmax(0, 1fr); gap: 6px; }
+  body #w-equip .eq-prev { width: 104px; height: 136px; }
 }
 
 /* มือถือแนวนอน (จอเตี้ย) */

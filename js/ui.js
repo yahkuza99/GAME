@@ -981,25 +981,44 @@ const UI = {
     this.selItem = null;
   },
 
+  // หน้าต่างอุปกรณ์แบบ RO: ช่องสวมซ้าย/ขวา ตัวละครเคลื่อนไหวตรงกลาง (หมุนดูรอบตัวได้) • โทนหนัง/ทองหม่น
+  EQ_LEFT: ['head', 'weapon', 'garment', 'acc'],
+  EQ_RIGHT: ['armor', 'shield', 'shoes'],
+  eqDir: 2,
   renderEquip() {
     const p = G.player;
     const body = $('#w-equip .win-body');
     body.innerHTML = '';
-    const prev = h('canvas', { class: 'eq-prev', width: 120, height: 150 });
-    const g = prev.getContext('2d');
-    g.save(); g.translate(60, 125); g.scale(2, 2);
-    Sprites.drawPlayer(g, Object.assign({}, p, { x: 0, y: 0, moving: false, sitting: false, dead: false, atkAnim: 0, facing: 1 }), 0.5);
-    g.restore();
-    const slots = EQUIP_SLOTS.map(s => {
+    const slot = s => {
       const e = p.equip[s];
       const el = h('div', { class: 'eq-slot' + (e ? '' : ' empty'), onclick: () => e && unequip(s) },
-        h('span', { class: 'eq-n' }, SLOT_THAI[s]),
-        e ? h('img', { src: itemIconUrl(e.id), alt: '' }) : h('span', { class: 'eq-ph' }),
-        h('span', { class: 'eq-i ' + (e ? rarCls(e.id) : '') }, e ? itemDisplayName(e) + (e.cards && e.cards.length ? ` ◆${e.cards.length}` : '') : '-'));
+        e ? h('img', { src: itemIconUrl(e.id), alt: '' }) : h('span', { class: 'eq-ph eq-ph-' + s }),
+        h('div', { class: 'eq-txt' }, h('span', { class: 'eq-n' }, SLOT_THAI[s]),
+          h('span', { class: 'eq-i ' + (e ? rarCls(e.id) : '') }, e ? itemDisplayName(e) + (e.cards && e.cards.length ? ` ◆${e.cards.length}` : '') : '—')));
       return e ? this.tipFor(el, e, true) : el;
-    });
-    body.append(h('div', { class: 'eq-wrap' }, prev, h('div', { class: 'eq-slots' }, slots)),
+    };
+    const prev = h('canvas', { class: 'eq-prev', width: 128, height: 168 });
+    const turn = d => h('button', { type: 'button', class: 'eq-turn', 'aria-label': L('หมุนตัวละคร', 'Rotate character'), onclick: () => { this.eqDir = (this.eqDir + d + 8) % 8; } }, d < 0 ? '⟲' : '⟳');
+    const mid = h('div', { class: 'eq-mid' }, h('div', { class: 'eq-stage' }, prev, turn(-1), turn(1)), h('span', { class: 'eq-job' }, JOBS[p.job].name));
+    body.append(h('div', { class: 'eq-wrap' }, h('div', { class: 'eq-col' }, this.EQ_LEFT.map(slot)), mid, h('div', { class: 'eq-col' }, this.EQ_RIGHT.map(slot))),
       h('div', { class: 'hint' }, L('คลิกที่อุปกรณ์เพื่อถอด • สวมใส่ได้จากหน้าต่างไอเทม', 'Click a piece to unequip it • equip items from the Inventory window')));
+    this.eqAnim(prev);
+  },
+  // วาดตัวละครกลางหน้าต่างวนไปเรื่อย ๆ จนกว่าหน้าต่างจะปิด/วาดใหม่ (ใช้ canvas ใหม่ทุกครั้งที่ render)
+  eqAnim(cv) {
+    const g = cv.getContext('2d'), t0 = performance.now();
+    const step = now => {
+      if (!cv.isConnected || !this.isOpen('w-equip')) return;
+      const p = G.player;
+      if (p) {
+        g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height);
+        g.save(); g.translate(64, 156); g.scale(1.8, 1.8);
+        Sprites.drawPlayer(g, Object.assign({}, p, { x: 0, y: 0, moving: false, sitting: false, dead: false, atkAnim: 0, cast: null, skillPose: null, hurtFlash: 0, stunUntil: 0, buffs: {}, dir: this.eqDir, facing: this.eqDir >= 3 && this.eqDir <= 5 ? -1 : 1, _an: null }), (now - t0) / 1000);
+        g.restore();
+      }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
   },
 
   renderSkills() {
