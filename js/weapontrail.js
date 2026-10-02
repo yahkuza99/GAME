@@ -60,6 +60,7 @@ const WeaponTrail = {
     if (Math.abs(da) > Math.PI * 0.6 && Math.sign(Math.cos(p0.a + alt / 2)) === side && Math.sign(Math.cos(p0.a + da / 2)) !== side) da = alt;
     // แถบโค้งแบบเส้นพู่กัน: ท้ายเรียวแหลม หัว (ตรงอาวุธ) หนาสุด • 3 ชั้น = เรืองแสงสี / ตัวสี / แกนขาว + เส้นความเร็วบาง ๆ
     const N = 24, col = this.COLOR[it.cls] || '255,255,255';
+    this._outerSign = da >= 0 ? 1 : -1; // กวาดตามเข็ม (da>0): แกน +y ของแถบชี้เข้าหามือพอดี • ทวนเข็ม = กลับด้าน
     const at = (t, dr) => {
       const a = p0.a + da * t, x = p0.x + (p1.x - p0.x) * t, y = p0.y + (p1.y - p0.y) * t, r = p0.r + (p1.r - p0.r) * t + dr;
       return [x + Math.cos(a) * r, y + Math.sin(a) * r];
@@ -76,6 +77,7 @@ const WeaponTrail = {
       g.closePath();
     };
     const W = this.WIDTH;
+    if (this.drawTexture(g, at, col, fade)) return;
     g.save();
     g.globalCompositeOperation = 'lighter';
     g.shadowColor = `rgba(${col},${0.9 * fade})`; g.shadowBlur = 8;
@@ -92,6 +94,40 @@ const WeaponTrail = {
     });
     g.restore();
   },
+};
+
+// ---------------- แบบวาดมือ: ภาพเส้นฟันจริง (assets/fx_trail.webp) ดัดไปตามวงอาวุธ ----------------
+// ภาพ: แถบแนวนอนบนพื้นดำ ซ้าย = หางเรียว ขวา = หัวหนา ขอบบน = ขอบนอกของวง (วาดสีขาว/เทา เกมย้อมสีตาม Class)
+// พื้นดำหายไปเองเพราะวาดแบบ 'lighter' • ไม่มีภาพ = ใช้แบบวาดด้วยโค้ดด้านบน
+WeaponTrail.tinted = function (col) {
+  const tex = typeof Art !== 'undefined' && Art.get('fx_trail');
+  if (!tex) return null;
+  const c = this._tint || (this._tint = {});
+  if (c[col]) return c[col];
+  const cv = document.createElement('canvas'); cv.width = tex.width; cv.height = tex.height;
+  const g = cv.getContext('2d');
+  g.drawImage(tex, 0, 0);
+  g.globalCompositeOperation = 'multiply'; g.fillStyle = `rgb(${col})`; g.fillRect(0, 0, cv.width, cv.height); // ย้อมสี
+  g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.55; g.drawImage(tex, 0, 0);                       // คืนแกนขาว
+  return (c[col] = cv);
+};
+WeaponTrail.drawTexture = function (g, at, col, fade) {
+  const tex = this.tinted(col);
+  if (!tex) return false;
+  const S = 28, H = this.WIDTH * 1.35, tw = tex.width, th = tex.height;
+  g.save();
+  g.globalCompositeOperation = 'lighter'; g.globalAlpha = fade;
+  for (let k = 0; k < S; k++) {
+    const t0 = k / S, t1 = (k + 1) / S, p = at(t0, 0), q = at(t1, 0);
+    const len = Math.hypot(q[0] - p[0], q[1] - p[1]) + 0.8, ang = Math.atan2(q[1] - p[1], q[0] - p[0]);
+    g.save(); g.translate(p[0], p[1]); g.rotate(ang);
+    // แนวสัมผัสวง → ขอบบนของภาพอยู่ด้านนอก: ด้านนอกของวงคือทางซ้ายหรือขวาของทิศเดิน ขึ้นกับทางกวาด
+    if (this._outerSign < 0) g.scale(1, -1);
+    g.drawImage(tex, tw * t0, 0, tw / S + 1, th, 0, 0, len, H);
+    g.restore();
+  }
+  g.restore();
+  return true;
 };
 
 // ห่อ Paperdoll.layers: แสงฟันวาดทับตัวละครแต่อยู่ใต้อาวุธ เฉพาะภาพตัวเปล่าที่มีอาวุธประจำ Class
