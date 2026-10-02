@@ -119,7 +119,7 @@ const Flora = {
     const key = k + (art ? '|A' : '|P'), hit = this.cache[key];
     if (hit) return hit;
     let c = null;
-    const [kind, arg] = k.split(':');
+    const i0 = k.indexOf(':'), kind = i0 < 0 ? k : k.slice(0, i0), arg = i0 < 0 ? undefined : k.slice(i0 + 1); // arg อาจมี ':' (ดอกไม้ = สี:แบบ)
     if ((kind === 'bush' || kind === 'leafy') && art) c = this.recolorBush(art, kind === 'leafy' ? null : arg, kind === 'leafy' ? +arg || 0 : 0);
     if (!c) c = this.drawSprite(kind, arg);
     return (this.cache[key] = c);
@@ -186,12 +186,31 @@ const Flora = {
       }
       if (arg !== 'plain') for (let i = 0; i < 3; i++) { g.fillStyle = '#e9d27a'; g.beginPath(); g.ellipse(cx - 6 + i * 6, by - 22 - i * 2, 1.6, 3.4, 0.2, 0, 7); g.fill(); }
     } else if (kind === 'flowers') {
-      const col = arg || '#ffd23f';
-      for (let i = 0; i < 4; i++) leaf(cx + (i - 1.5) * 5, by, -Math.PI / 2 + (i - 1.5) * 0.5, 11, 3.2, '#3f8f2e', '#6cb83e');
-      const pts = [[-8, -15], [0, -20], [8, -14], [-3, -10], [5, -8]];
-      g.strokeStyle = '#2f6a2a'; g.lineWidth = 1.2;
-      for (const [x, y] of pts) { g.beginPath(); g.moveTo(cx + x * 0.4, by); g.quadraticCurveTo(cx + x * 0.8, by + y * 0.5, cx + x, by + y); g.stroke(); }
-      pts.forEach(([x, y], i) => blossom(cx + x, by + y, i % 2 ? 3.6 : 4.4, i === 4 ? '#ffffff' : col));
+      // ดอกไม้ 6 พันธุ์ × ตำแหน่งดอกสุ่มตามเลขแบบ (arg = "สี:แบบ") → กอดอกไม้ในแมพหน้าตาไม่ซ้ำกัน
+      const [col0, vs] = String(arg || '#ffd23f').split(':'), col = col0 || '#ffd23f', v = +vs || 0, sp = v % 6;
+      const rn = (i, k) => U.hash2(i, k, 31 + v * 17);
+      const MIX = ['#ffd23f', '#ff74a6', '#ffffff', '#b88cff', '#ff8c2e', '#7ac8f5'];
+      const nl = 3 + Math.floor(rn(0, 1) * 3);
+      for (let i = 0; i < nl; i++) leaf(cx + (rn(i, 2) - 0.5) * 14, by, -Math.PI / 2 + (rn(i, 3) - 0.5) * 1.6, 8 + rn(i, 4) * 6, 2.6 + rn(i, 5), '#3f8f2e', '#6cb83e');
+      const stem = (x, y) => { g.strokeStyle = '#2f6a2a'; g.lineWidth = 1.1; g.beginPath(); g.moveTo(cx + x * 0.4, by); g.quadraticCurveTo(cx + x * 0.8, by + y * 0.5, cx + x, by + y); g.stroke(); };
+      const n = sp === 3 ? 1 : sp === 4 ? 7 : 3 + Math.floor(rn(0, 6) * 3);
+      const pts = []; for (let i = 0; i < n; i++) pts.push(sp === 3 ? [(rn(i, 7) - 0.5) * 6, -14] : [(rn(i, 7) - 0.5) * 16, -(sp === 4 ? 4 + rn(i, 8) * 8 : sp === 2 ? 15 + rn(i, 8) * 3 : 7 + rn(i, 8) * 10)]); // อยู่ในกรอบ 30×26
+      pts.sort((a, b) => a[1] - b[1]);
+      pts.forEach(([x, y]) => stem(x, y));
+      pts.forEach(([x, y], i) => {
+        const X = cx + x, Y = by + y, c = sp === 5 ? MIX[Math.floor(rn(i, 9) * MIX.length)] : col;
+        if (sp === 1) { // ทิวลิป: ถ้วยกลีบปลายแหลม
+          g.fillStyle = c; g.beginPath(); g.moveTo(X - 3.4, Y - 1); g.lineTo(X - 3.6, Y - 6); g.lineTo(X - 1.6, Y - 3.6); g.lineTo(X, Y - 7); g.lineTo(X + 1.6, Y - 3.6); g.lineTo(X + 3.6, Y - 6); g.lineTo(X + 3.4, Y - 1);
+          g.quadraticCurveTo(X, Y + 2.4, X - 3.4, Y - 1); g.fill(); g.strokeStyle = 'rgba(60,20,20,0.35)'; g.lineWidth = 0.6; g.stroke();
+        } else if (sp === 2) { // ลาเวนเดอร์/ระฆัง: ช่อดอกเรียงตามก้าน
+          for (let k = 0; k < 5; k++) { g.fillStyle = k % 2 ? c : '#ffffff55'; g.beginPath(); g.ellipse(X + (k % 2 ? 1 : -1) * 1.3, Y + k * 2.2, 1.9, 1.5, 0, 0, 7); g.fill(); }
+          g.fillStyle = c; g.beginPath(); g.ellipse(X, Y - 1, 1.6, 2.2, 0, 0, 7); g.fill();
+        } else if (sp === 3) { // ดอกใหญ่ดอกเดียว + ตูม
+          blossom(X, Y, 5.2, c); blossom(X - 7, Y + 7, 2.2, c); blossom(X + 7, Y + 6, 2, '#ffffff');
+        } else if (sp === 4) { // ดอกจิ๋วกระจาย (โคลเวอร์/ดอกหญ้า)
+          blossom(X, Y, 1.8 + rn(i, 10), i % 3 ? c : '#ffffff');
+        } else blossom(X, Y, 3.2 + rn(i, 11) * 1.6, i === n - 1 && sp !== 5 ? '#ffffff' : c); // เดซี่ / กอผสมสี
+      });
     } else if (kind === 'stump') {
       const top = by - 15;
       // ราก
@@ -306,7 +325,7 @@ const Flora = {
       if (r < 0.5) return ['leafy:' + (P.hedge + 0.06).toFixed(2), 0.85 + r2 * 0.3];
       if (r < 0.64) return ['fern' + (P.hedge < 0 ? ':dark' : ''), 0.85 + r2 * 0.3];
       if (r < 0.76) return ['tallgrass', 0.9 + r2 * 0.3];
-      if (r < 0.88) return ['flowers:' + col, 0.9 + r2 * 0.25];
+      if (r < 0.88) return ['flowers:' + col + ':' + (Math.floor(r2 * 1000) % 24), 0.9 + r2 * 0.25];
       if (r < 0.95) return ['stump', 0.9 + r2 * 0.2];
       return ['log', 0.9 + r2 * 0.2];
     };
@@ -335,7 +354,7 @@ const Flora = {
     for (let y = 3; y < Hh - 3; y++) for (let x = 3; x < W - 3; x++) {
       if (!free(x, y) || hh(x, y, 14) > 0.016 * P.deco) continue;
       const r = hh(x, y, 15), col = P.warm[Math.floor(hh(x, y, 16) * P.warm.length)];
-      add(r < 0.45 ? 'flowers:' + col : r < 0.8 ? 'tallgrass' : 'sprout', x, y, 0.85 + r * 0.3, hh(x, y, 17), hh(x, y, 18));
+      add(r < 0.45 ? 'flowers:' + col + ':' + Math.floor(hh(x, y, 19) * 24) : r < 0.8 ? 'tallgrass' : 'sprout', x, y, 0.85 + r * 0.3, hh(x, y, 17), hh(x, y, 18));
     }
   },
 
