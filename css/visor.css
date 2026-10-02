@@ -1445,3 +1445,22 @@ body.visor #w-equip .eq-turn { box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5), inset 0 1
 #bi-zeny.zup { animation: zUp .45s ease-out; }
 @keyframes zUp { 0% { color: #ffe08a; text-shadow: 0 0 10px rgba(255,214,106,.9); } 100% { } }
 @media (prefers-reduced-motion: reduce) { .st-v.bump, .st-row2.chg b, #bi-zeny.zup { animation: none; } }
+
+/* คำเตือนบอสเกิด: ป้ายแคบด้านบนจอ ไม่บังกลางจอ/ตัวละคร (เจ้าของสั่ง 2026-10-02) */
+#splash.boss { inset: auto 0 auto 0; top: calc(env(safe-area-inset-top, 0px) + 64px); height: auto; background: none; padding: 0 16px; align-items: flex-start; }
+#splash.boss .sp-card { width: min(460px, 92vw); aspect-ratio: auto; height: 84px; border-radius: 14px; display: flex; align-items: center; box-shadow: 0 0 0 1px rgba(255,90,100,.6), 0 0 22px rgba(255,40,60,.35); }
+#splash.boss .sp-card img { position: relative; inset: auto; width: 128px; height: 100%; flex: none; object-fit: cover; object-position: center 25%; -webkit-mask-image: linear-gradient(90deg, #000 70%, transparent); mask-image: linear-gradient(90deg, #000 70%, transparent); }
+#splash.boss .sp-text { position: relative; flex: 1; padding: 0 16px 0 6px; text-align: left; background: none; }
+#splash.boss .sp-card { background: linear-gradient(90deg, rgba(40,4,10,.92), rgba(70,8,16,.85)); }
+#splash.boss .sp-text small { font-size: 10.5px; letter-spacing: .14em; }
+#splash.boss .sp-text b { font-size: clamp(17px, 3.4vw, 22px); }
+#splash.boss.show { animation: bossBar 3.4s ease forwards; }
+@keyframes bossBar { 0% { opacity: 0; transform: translateY(-14px); } 10% { opacity: 1; transform: none; } 82% { opacity: 1; } 100% { opacity: 0; transform: translateY(-8px); } }
+#splash.boss { top: calc(env(safe-area-inset-top, 0px) + 100px); }
+@media (max-height: 520px) {
+  #splash.boss { top: calc(env(safe-area-inset-top, 0px) + 72px); }
+  #splash.boss .sp-card { height: 50px; width: min(340px, 70vw); border-radius: 10px; }
+  #splash.boss .sp-card img { width: 78px; }
+  #splash.boss .sp-text small { font-size: 9px; }
+  #splash.boss .sp-text b { font-size: 15px; }
+}
