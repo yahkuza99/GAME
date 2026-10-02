@@ -3,12 +3,15 @@
 //  ฉากที่เรนเดอร์จาก Blender แล้วอบเป็นภาพ 2D (docs/RENDER3D_PLAN.md) — ข้อมูล BAKE_DATA[map.id]:
 //    js/bake_data.js (tools/hel3d.py --install: Hel's Hollow) + js/bake_data_mistlake.js (tools/lake3d.py --install: ซากในบ่อน้ำ Mistlake)
 //    + js/bake_data_wolfwood.js (tools/tree3d.py --install: ต้นไม้ยักษ์ "ต้นหมาป่าเก่า" กลางป่า Wolfwood)
+//    + js/bake_data_roots.js (tools/roots3d.py --install: รากยักษ์โค้งข้ามทาง + ประตูรากของ Garmr ใน Gnawed Roots — ประตูเป็นของประดับล้วน)
 //  • แบบ A (ground): วาดลงผ้าใบพื้นของแมพ (แท่น/เงา — ของเตี้ย ไม่บังใคร)
 //  • reflect: เงาสะท้อนในน้ำของชิ้น B — วาดลงผ้าใบพื้นเฉพาะส่วนน้ำลึก (หน้ากากจาก drawWater ใน maps.js) ใต้ตัวละครเสมอ
 //  • แบบ B (pieces): สไปรต์ตั้งตรงเรียงความลึกกับตัวละคร (บัลลังก์/ชั้นวาง/ซากหิน) — กล้องเรนเดอร์ = กล้องเกม จึงวาด 1:1 ตามจุดยึด
 //  • hash (ถ้ามี): ผังน้ำตอนเลือกตำแหน่ง (หรือผังช่องในกรอบ hashRect) — ผังแมพเปลี่ยน = ไม่ใช้ข้อมูลชุดนี้เลย (ไม่มีซากลอยบนหญ้า/ต้นไม้ทับถนน)
 //  • clearTree: ต้นไม้ (T.TREE) ในวงรีกลายเป็นหญ้า • free: ของประดับ/พุ่ม Flora ในรัศมีถูกเอาออก (รากอบลงพื้นแทน)
-//  • ชิ้นสูงใหญ่ (ต้นไม้ยักษ์): mask = ตารางความทึบหยาบ → จางเฉพาะตอนตัวละครอยู่หลังส่วนทึบจริง • sway = ไหวลม • cull = เผื่อนอกจอ
+//  • ชิ้นสูงใหญ่ (ต้นไม้ยักษ์/รากโค้ง): mask = ตารางความทึบหยาบ → จางเฉพาะตอนตัวละครอยู่หลังส่วนทึบจริง • sway = ไหวลม • cull = เผื่อนอกจอ
+//    fb = ช่วงลำตัวที่ใช้เช็ค [px เหนือเท้า บน, ล่าง] (รากโค้ง: รวมหัว → เดินลอดใต้รากก็จาง) • fadeBoss = จางแรงขึ้นตอนมี MVP/บอสโลกในแมพ
+//    free = รัศมี (ช่อง) รอบจุดยึดที่เอาของประดับ (ผลึก/หิน) ออก
 //    ชนตาม block • จางเหลือ ~35% เมื่อผู้เล่น/เป้าหมายอยู่หลัง • ประกายโหลกะพริบ (lighter) • แสงตัดความมืดถ้ำ (map.extraLights)
 //  ทุกอย่างกำหนดตายตัวจากข้อมูล (ไม่สุ่ม) → ทุกเครื่องเห็น/ชนเหมือนกัน
 //  ใช้: maps.js (constructor → Bake.layout, renderGround → Bake.ground / Bake.props / Bake.gates), sprites.js drawProp → Bake.draw
@@ -28,7 +31,7 @@ const Bake = {
       }
       map._bakeOk = h === d.hash;
       const warned = this._warned || (this._warned = new Set()); // เตือนครั้งเดียวต่อแมพ (แมพ lite ของแผนที่โลกสร้างซ้ำได้)
-      if (!map._bakeOk && !warned.has(map.id)) { warned.add(map.id); console.warn(`Bake: ${map.id} ผัง${r ? 'ช่อง' : 'น้ำ'}เปลี่ยน (hash ${h} ≠ ${d.hash}) — ไม่วางฉาก 3D (รัน tools/${r ? 'tree3d' : 'lake3d'}.py ใหม่)`); }
+      if (!map._bakeOk && !warned.has(map.id)) { warned.add(map.id); console.warn(`Bake: ${map.id} ผัง${r ? 'ช่อง' : 'น้ำ'}เปลี่ยน (hash ${h} ≠ ${d.hash}) — ไม่วางฉาก 3D (รัน tools/${d.tool || (r ? 'tree3d' : 'lake3d')}.py ใหม่)`); }
     }
     return map._bakeOk ? d : null;
   },
@@ -107,7 +110,8 @@ const Bake = {
   props(map) {
     const d = this.data(map); if (!d) return;
     const live = d.pieces.filter(pc => !map.bakeSkip || !map.bakeSkip.has(pc.id)), c = d.clear, fr = live.length && d.free;
-    const near = (x, y) => (c && Math.hypot(x - c.x, y - c.y) < 4) || (fr && Math.hypot(x - fr.x, y - fr.y) < fr.r) || live.some(pc => pc.block.some(([bx, by]) => Math.abs(bx + 0.5 - x) < 1.1 && Math.abs(by + 0.5 - y) < 1.1));
+    const near = (x, y) => (c && Math.hypot(x - c.x, y - c.y) < 4) || (fr && Math.hypot(x - fr.x, y - fr.y) < fr.r)
+      || live.some(pc => (pc.free && Math.hypot(x - pc.x, y - pc.y) < pc.free) || pc.block.some(([bx, by]) => Math.abs(bx + 0.5 - x) < 1.1 && Math.abs(by + 0.5 - y) < 1.1));
     map.props = map.props.filter(o => !near(o.x, o.y));
     if (fr) { // พุ่ม/เฟิร์น/ดอกไม้ของ Flora บนรากต้นยักษ์ (รากอบลงพื้นแล้ว) — ต้นไม้ในวงเคลียร์กลายเป็นหญ้าตั้งแต่ layout
       if (map.flora) map.flora = map.flora.filter(o => !near(o.x, o.y));
@@ -170,12 +174,15 @@ const Bake = {
     const s = pc.scale, x = pc.x * TILE, y = pc.y * TILE, W = img.width * s, H = img.height * s, L = x - pc.ax * s, Tp = y - pc.ay * s;
     // ผู้เล่น/เป้าหมายอยู่หลังชิ้นนี้ (y น้อยกว่า) และตัวทับภาพ → จางลง (แบบยอดไม้ใน flora.js)
     let target = 1;
-    const p = typeof G !== 'undefined' && G.player;
+    const p = typeof G !== 'undefined' && G.player, fb = pc.fb || [56, 16];
     if (p) for (const q of [p, p.target]) {
       if (!q || q.dead || q.x == null || q.y >= pc.y) continue;
       const qx = q.x * TILE, fy = q.y * TILE * R.K - pc.y * TILE * (R.K - 1); // เท้าของ q ในกรอบ upright ของชิ้นนี้
-      if (pc.mask ? this.behind(pc.mask, (qx - L) / s, (fy - 56 - Tp) / s, (fy - 16 - Tp) / s, 12 / s)
-        : qx > L + 10 && qx < L + W - 10 && fy > Tp + 14 && fy - 56 < y - 6) { target = pc.fade || 0.35; break; }
+      if (pc.mask ? this.behind(pc.mask, (qx - L) / s, (fy - fb[0] - Tp) / s, (fy - fb[1] - Tp) / s, 12 / s)
+        : qx > L + 10 && qx < L + W - 10 && fy > Tp + 14 && fy - fb[0] < y - 6) {
+        // รากโค้ง (Gnawed Roots): มี MVP/บอสโลกอยู่ในแมพ → จางแรงขึ้น (ไม่บังการต่อสู้กับบอส)
+        target = pc.fadeBoss && G.mobs && G.mobs.some(m => (m.isMvp || m.isWB) && !m.dead) ? pc.fadeBoss : pc.fade || 0.35; break;
+      }
     }
     const dt = Math.min(0.1, Math.max(0, t - o.lt)); o.lt = t;
     o.fa += (target - o.fa) * Math.min(1, dt * 8);
