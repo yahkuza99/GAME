@@ -521,6 +521,15 @@ const Flora = {
     g.fillStyle = pat || '#b98a55'; path(1); g.fill();
     if (tone !== 1) { g.fillStyle = `rgba(40,30,20,${(1 - tone) * 1.2})`; path(1); g.fill(); }
     g.fillStyle = 'rgba(255,225,160,0.16)'; path(0.62, -rx * 0.08, -ry * 0.1); g.fill();
+    // มิติ: ขอบบนเป็นตลิ่งหญ้าทอดเงาลงหลุมดิน • ขอบล่างรับแสง
+    g.save(); path(1); g.clip();
+    const sh = g.createLinearGradient(0, y - ry * 1.25, 0, y - ry * 0.35);
+    sh.addColorStop(0, 'rgba(50,30,10,0.55)'); sh.addColorStop(1, 'rgba(50,30,10,0)');
+    g.fillStyle = sh; g.fillRect(x - rx * 1.4, y - ry * 1.4, rx * 2.8, ry * 1.1);
+    const lt = g.createLinearGradient(0, y + ry * 1.2, 0, y + ry * 0.6);
+    lt.addColorStop(0, 'rgba(255,230,180,0.28)'); lt.addColorStop(1, 'rgba(255,230,180,0)');
+    g.fillStyle = lt; g.fillRect(x - rx * 1.4, y + ry * 0.55, rx * 2.8, ry * 0.9);
+    g.restore();
     g.strokeStyle = 'rgba(80,55,25,0.35)'; g.lineWidth = 1.5; path(1); g.stroke();
     g.restore();
   },
