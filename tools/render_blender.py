@@ -3,7 +3,7 @@
 ติดตั้ง bpy ในสภาพแวดล้อมแยก (bpy ต้องใช้ numpy 1.x ชนกับ opencv ของเครื่อง):
     python3 -m venv /tmp/bvenv && /tmp/bvenv/bin/pip install bpy
 ใช้:
-    /tmp/bvenv/bin/python tools/render_blender.py <model.fbx|.obj> <out.png> [--frames 8] [--dirs S,SW,W,NW,N]
+    /tmp/bvenv/bin/python tools/render_blender.py <model.fbx|.obj|.glb> <out.png> [--frames 8] [--dirs S,SW,W,NW,N]
         [--size 512] [--pitch 25] [--yaw0 0] [--tex texture.png] [--loop] [--range 0,1]
 ได้: ชีต N คอลัมน์ (เฟรม) × จำนวนทิศ (แถว) บนพื้นขาว → ติดตั้งด้วย sprite_std.py install <out.png> <key> <ท่า> --grid Nx5 --dirs S,SW,W,NW,N
   - กล้องตั้งฉาก (orthographic) มองลง pitch องศา ขนาดตัวคงที่ทุกเฟรมทุกทิศ (คิดจากกรอบรวมของทั้งท่า)
@@ -26,6 +26,7 @@ bpy.ops.wm.read_factory_settings(use_empty=True)
 ext = os.path.splitext(a.model)[1].lower()
 if ext == '.fbx': bpy.ops.import_scene.fbx(filepath=a.model)
 elif ext == '.dae': bpy.ops.wm.collada_import(filepath=a.model)
+elif ext in ('.glb', '.gltf'): bpy.ops.import_scene.gltf(filepath=a.model)
 else: bpy.ops.wm.obj_import(filepath=a.model)
 sc = bpy.context.scene
 meshes = [o for o in sc.objects if o.type == 'MESH']
