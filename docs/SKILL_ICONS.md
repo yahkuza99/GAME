@@ -4,7 +4,7 @@
 
 ภาพจะต้องเป็นตาราง 4 คอลัมน์ × 2 แถว เส้นแบ่งสีดำตรง ๆ • ถ้า ChatGPT วาดผิดจำนวนช่อง ให้สั่งใหม่ "exactly 4 columns x 2 rows, 8 icons"
 
-## ภาพ 1 — `sheet_skills_4.png`
+## ✅ ภาพ 1 — `sheet_skills_4.png`
 
 ไอคอน: Shield Throw, Earth Rune, Charge Arrow, Divine Shield, Throwing Knife, Axe Throw, Valhalla's Oath, Runic Ward
 
@@ -12,7 +12,7 @@
 Game skill icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD (android heroes). Each icon is a square painted tile that fills its whole cell edge to edge with its own dark atmospheric background and a bold, glowing, easy-to-read central symbol or action; cel-shaded, crisp lineart, strong rim light, high contrast so it reads at 40 pixels. No characters' faces, no text, no numbers, no letters, no frames or borders. Separate the tiles with thin straight black gutters so the grid is perfectly even. Layout: exactly 4 columns x 2 rows = 8 equal cells, Horizontal 3:2 image (1536x1024). Cells in reading order (left to right, top to bottom): 1) Shield Throw: a round tech shield spinning through the air with a circular red motion trail; steel and red #ff6a4a. 2) Earth Rune: a brown earth rune carved on a stone pillar erupting from the ground, rock shards flying; earth brown. 3) Charge Arrow: a glowing arrow with charged energy rings around its tip and a knockback shockwave ahead; green #8cff7a and gold. 4) Divine Shield: a bright kite shield of pale blue-white light with a golden star-cross; pale blue and gold. 5) Throwing Knife: three throwing knives fanned out in flight with motion streaks, one tip dripping green poison; silver and violet. 6) Axe Throw: a hand axe spinning through the air inside an orange circular blur; orange #ff8a2a. 7) Valhalla's Oath: a golden othala rune engraved on a raised sword hilt, oath light glowing; gold and red. 8) Runic Ward: a protective circle built around a glowing blue algiz rune, ward light shimmering; blue #7ab0ff.
 ```
 
-## ภาพ 2 — `sheet_skills_5.png`
+## ✅ ภาพ 2 — `sheet_skills_5.png`
 
 ไอคอน: Hunter's Rhythm, Freyja's Grace, Loki's Gambit, Bloodthirst, Aegis Wall, Spear of Valhalla, Einherjar Guard, Judgment Quake
 
@@ -20,7 +20,7 @@ Game skill icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD (android 
 Game skill icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD (android heroes). Each icon is a square painted tile that fills its whole cell edge to edge with its own dark atmospheric background and a bold, glowing, easy-to-read central symbol or action; cel-shaded, crisp lineart, strong rim light, high contrast so it reads at 40 pixels. No characters' faces, no text, no numbers, no letters, no frames or borders. Separate the tiles with thin straight black gutters so the grid is perfectly even. Layout: exactly 4 columns x 2 rows = 8 equal cells, Horizontal 3:2 image (1536x1024). Cells in reading order (left to right, top to bottom): 1) Hunter's Rhythm: a green sowilo rune with pulse lines like a heartbeat and a small arrow riding the pulse; green. 2) Freyja's Grace: a golden falcon-feather cloak spread like wings with soft light and a small berkano rune; soft gold #ffe8a0. 3) Loki's Gambit: a two-faced coin flipping in the air, one side a serpent and one side a mask, violet sparks; violet #b07ae0. 4) Bloodthirst: a crimson fang with a single glowing red drop of sap, dark red aura; dark crimson. 5) Aegis Wall: a wall of overlapping golden hexagonal shield panels glowing with holy light, one large round aegis in front; warm gold #ffd27a. 6) Spear of Valhalla: a radiant white-gold spear of light thrusting diagonally forward, shattering dark shards along its path; warm gold. 7) Einherjar Guard: a raised round shield with three ghostly golden warrior-spirit shields stacked behind it, taunting pulse rings; gold. 8) Judgment Quake: a golden shield slammed into cracked ground, shockwave rings and flying rock chunks, light in the cracks; gold.
 ```
 
-## ภาพ 3 — `sheet_skills_6.png`
+## ✅ ภาพ 3 — `sheet_skills_6.png`
 
 ไอคอน: Valhalla's Call, Hersir Might, Charge Strike, Spiral Pierce, Battle Aura, Ragnar's Fury, Galdr Focus, Meteor Rune
 
@@ -28,7 +28,7 @@ Game skill icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD (android 
 Game skill icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD (android heroes). Each icon is a square painted tile that fills its whole cell edge to edge with its own dark atmospheric background and a bold, glowing, easy-to-read central symbol or action; cel-shaded, crisp lineart, strong rim light, high contrast so it reads at 40 pixels. No characters' faces, no text, no numbers, no letters, no frames or borders. Separate the tiles with thin straight black gutters so the grid is perfectly even. Layout: exactly 4 columns x 2 rows = 8 equal cells, Horizontal 3:2 image (1536x1024). Cells in reading order (left to right, top to bottom): 1) Valhalla's Call: a golden war horn with small wings blowing soft rays of light, green-gold healing motes rising; gold. 2) Hersir Might: a plumed spangenhelm war helmet over two crossed longswords, crimson glow; crimson #ff8060. 3) Charge Strike: a sword point driving forward with a crimson comet trail and an impact burst ahead; crimson-orange. 4) Spiral Pierce: a blade drilling forward inside a spinning spiral vortex of crimson light; silver and crimson. 5) Battle Aura: a swallow-tailed war banner with a crimson flame aura rising from it; orange-crimson. 6) Ragnar's Fury: a ring of crimson sword slashes exploding outward from the center; deep crimson. 7) Galdr Focus: concentric rings of small blue runes orbiting a glowing tuning-fork crystal, sound waves rippling; ice blue #9ad8ff. 8) Meteor Rune: a blazing meteor carved with a glowing rune streaking diagonally down with a long fire trail; orange core, ice-blue rim.
 ```
 
-## ภาพ 4 — `sheet_skills_7.png`
+## ✅ ภาพ 4 — `sheet_skills_7.png`
 
 ไอคอน: Frost Nova, Chain Lightning, Rune Barrier, Seidr Lore, Soul Drain, Hex of Hel, Dark Nova, Void Lance
 
@@ -36,7 +36,7 @@ Game skill icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD (android 
 Game skill icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD (android heroes). Each icon is a square painted tile that fills its whole cell edge to edge with its own dark atmospheric background and a bold, glowing, easy-to-read central symbol or action; cel-shaded, crisp lineart, strong rim light, high contrast so it reads at 40 pixels. No characters' faces, no text, no numbers, no letters, no frames or borders. Separate the tiles with thin straight black gutters so the grid is perfectly even. Layout: exactly 4 columns x 2 rows = 8 equal cells, Horizontal 3:2 image (1536x1024). Cells in reading order (left to right, top to bottom): 1) Frost Nova: a ring of ice shards exploding outward from the center, frost mist and snow sparkles; ice blue. 2) Chain Lightning: a jagged lightning bolt jumping in a zigzag between three glowing nodes; yellow-white with blue glow. 3) Rune Barrier: a diamond-shaped barrier of interlocking blue rune hexagons, shimmering; ice blue. 4) Seidr Lore: an open dark rune tablet-book with violet sigils and green wisps curling off its pages; violet #c07aff. 5) Soul Drain: a violet spiral pulling small glowing sparks inward into a dark orb; violet. 6) Hex of Hel: a circular hex sigil half lit and half dark, green-violet poison mist and drops around it; toxic green and violet. 7) Dark Nova: a black-violet sphere exploding outward with dark rays and violet sparks; deep violet. 8) Void Lance: a lance of pure void (black core, violet edges) piercing through a glowing rune ring; deep indigo.
 ```
 
-## ภาพ 5 — `sheet_skills_8.png`
+## ✅ ภาพ 5 — `sheet_skills_8.png`
 
 ไอคอน: Skadi's Mark, Arrow Storm, Frost Arrow, Focused Volley, Winter Hunt, Ullr Focus, Sharp Shot, Snipe
 
