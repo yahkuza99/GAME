@@ -878,13 +878,11 @@ Sprites.drawPlayer = (g, p, t) => {
     const stun = !p.dead && p.stunUntil > G.time ? { e: G.time - p.stunAt, r: p.stunUntil - G.time } : null;
     // โดนตี: ไม่ล้ม แค่สะดุ้ง (สั่นเล็กน้อย + แสงแดงจาก render) • ล้มเฉพาะตอนมึน
     const shake = (p.hurtFlash || 0) > 0 && !stun ? Math.sin(t * 90) * 1.5 : 0;
-    if (typeof Gear !== 'undefined') Gear.cape(g, p, x + shake, y, 68, t, false); // ผ้าคลุมพลิ้ว (หลังตัว)
     Anim.draw(g, x + shake, y, gk, {
       facing: p.facing || 1, dir: p.dir, moving: p.moving && !p.sitting, atk: tr.atk, cast: !!p.cast, sit: p.sitting, dead: p.dead, deathT: tr.deathT,
       skill: p.skillPose != null && G.time - p.skillPose < 0.5 && G.time >= p.skillPose ? 1 - (G.time - p.skillPose) / 0.5 : 0,
       hurt: 0, stun,
     }, t, 68);
-    if (typeof Gear !== 'undefined') Gear.cape(g, p, x + shake, y, 68, t, true); // หันหลัง: ผ้าคลุมทับตัว
     if (stun) Sprites.stunStars(g, x, y - (stun.e < 0.3 || stun.r < 0.3 ? 56 : 30), t);
     return;
   }
@@ -902,9 +900,7 @@ Sprites.drawPlayer = (g, p, t) => {
   const img = typeof Art !== 'undefined' && Art.get(`hero_${gk}`);
   if (img) {
     if (Object.keys(p.buffs).length) { g.strokeStyle = `rgba(255,240,150,${0.25 + Math.sin(t * 4) * 0.15})`; g.lineWidth = 2; g.beginPath(); g.ellipse(x, y, 16, 6, 0, 0, 7); g.stroke(); }
-    if (typeof Gear !== 'undefined') Gear.cape(g, p, x, y, 66, t, false);
     Sprites.drawImageActor(g, x, y, { facing: p.facing || 1, moving: p.moving && !p.sitting, atkAnim: p.atkAnim, hitFlash: p.hurtFlash, seed: 0.3, sit: p.sitting, dead: p.dead, deathT: 1 }, t, img, 66, 'walk', true);
-    if (typeof Gear !== 'undefined') Gear.cape(g, p, x, y, 66, t, true);
     return;
   }
   Sprites.shadow(g, x, y, 12, 4);
