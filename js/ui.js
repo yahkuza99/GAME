@@ -820,6 +820,19 @@ const UI = {
       req ? h('div', { class: 'tip-line' + (skillReqMet(id) ? '' : ' tip-bad') }, L(`ต้องการ: ${req}`, `Requires: ${req}`)) : null,
     ].filter(Boolean);
   },
+  // ปุ่ม ⓘ ในหน้าต่างสกิล: การ์ดรายละเอียดเต็ม (ใช้ได้ทั้งมือถือ/คอม) แตะที่อื่นเพื่อปิด
+  skillDetail(id, anchor) {
+    document.getElementById('sk-detail')?.remove();
+    const box = h('div', { id: 'sk-detail', class: 'sk-detail', role: 'dialog' }, ...this.skillTipBody(id),
+      h('button', { type: 'button', class: 'btn small sk-detail-x', onclick: () => close() }, L('ปิด', 'Close')));
+    const close = () => { box.remove(); document.removeEventListener('pointerdown', out, true); };
+    const out = e => { if (!box.contains(e.target) && e.target !== anchor) close(); };
+    document.body.append(box);
+    const r = anchor.getBoundingClientRect(), bw = box.offsetWidth, bh = box.offsetHeight;
+    box.style.left = Math.max(8, Math.min(innerWidth - bw - 8, r.right + 8 + bw < innerWidth ? r.right + 8 : r.left - bw - 8)) + 'px';
+    box.style.top = Math.max(8, Math.min(innerHeight - bh - 8, r.top - 20)) + 'px';
+    setTimeout(() => document.addEventListener('pointerdown', out, true), 0);
+  },
   // ของชิ้นนี้หาได้จากมอนตัวไหน (ตารางดรอป + ชิปประจำมอน) — แสดงในการ์ดไอเทม
   dropSources(id) {
     const src = [];
@@ -1007,8 +1020,8 @@ const UI = {
     // อธิบายว่าความชำนาญทำอะไร (ผู้เล่นถามบ่อย)
     body.append(h('div', { class: 'sk-mas-help' }, h('b', {}, L('ความชำนาญ = ยิ่งใช้ยิ่งเก่ง', 'Mastery: practice makes perfect')),
       L(` สกิลที่ใช้บ่อยจะเก่งขึ้นเอง ${MASTERY_MAX} ขั้น ขั้นละ +3% ตามชนิดสกิล: สกิลโจมตี = แรงขึ้น • ฮีล = ฮีลแรงขึ้น • บัฟ = อยู่นานขึ้น • เรียกสัตว์/หายตัว = อยู่นานขึ้น • กับดัก = แรงขึ้น (สูงสุด +30%) • ตีปกติ +2% ต่อขั้น — ไม่ต้องใช้แต้ม ไม่หายตอนเปลี่ยนอาชีพ`, ` Skills you use often improve over ${MASTERY_MAX} ranks, +3% per rank by skill type: attacks hit harder • heals heal more • buffs last longer • summons/stealth last longer • traps hit harder (up to +30%) • basic attacks +2% per rank — no points needed, kept on job change`)));
-    list.append(h('div', { class: 'sk-row' }, h('div', { class: 'sk-info' },
-      h('div', { class: 'sk-name' }, L('การโจมตีปกติ', 'Basic Attack')), h('div', { class: 'sk-desc' }, L('ตีโดนทุกครั้งสะสมความชำนาญ ยิ่งตียิ่งแรง', 'Every hit builds mastery — the more you strike, the harder you hit')), mastery('attack'))));
+    list.append(h('div', { class: 'sk-row uni' }, h('div', { class: 'sk-info' },
+      h('div', { class: 'sk-name' }, L('การโจมตีปกติ', 'Basic Attack')), mastery('attack'))));
     for (const id of ids) {
       const s = SKILLS[id], lv = skillLv(id);
       const reqTxt = s.req ? Object.entries(s.req).map(([k, v]) => `${SKILLS[k].name} ${v}`).join(', ') : '';
@@ -1018,17 +1031,19 @@ const UI = {
         ic.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', JSON.stringify({ t: 'skill', id })));
         ic.title = L('ลากไปวางที่ปุ่มลัด', 'Drag onto the hotbar');
       }
-      list.append(this.skillTipFor(h('div', { class: 'sk-row' + (lv ? '' : ' locked') },
+      // แถวสกิลขนาดเท่ากันเสมอ: ชื่อ + เลเวล + แถบความชำนาญ • รายละเอียดทั้งหมดกดปุ่ม ⓘ (หรือชี้เมาส์)
+      const reqOk = !s.req || skillReqMet(id);
+      list.append(this.skillTipFor(h('div', { class: 'sk-row uni' + (lv ? '' : ' locked') },
         ic,
         h('div', { class: 'sk-info' },
-          h('div', { class: 'sk-name' }, s.name, h('span', { class: 'sk-lv' }, ` Lv ${lv}/${s.max}`), s.type === 'passive' ? h('span', { class: 'tag' }, L('ติดตัว', 'Passive')) : null),
-          h('div', { class: 'sk-desc' }, s.desc + (s.sp && lv ? ` [SP ${s.sp(lv)}]` : '') + (s.cd ? L(` [คูลดาวน์ ${+(s.cd * (1 - (p.d.cdCut || 0) / 100)).toFixed(1)} วิ]`, ` [Cooldown ${+(s.cd * (1 - (p.d.cdCut || 0) / 100)).toFixed(1)}s]`) : '')),
-          reqTxt ? h('div', { class: 'sk-req' + (skillReqMet(id) ? ' ok' : '') }, L(`ต้องการ: ${reqTxt}`, `Requires: ${reqTxt}`)) : null,
-          lv && s.type === 'active' ? mastery(id) : null),
+          h('div', { class: 'sk-name' }, s.name, h('span', { class: 'sk-lv' }, ` Lv ${lv}/${s.max}`)),
+          lv && s.type === 'active' ? mastery(id)
+            : h('div', { class: 'sk-sub' + (reqOk ? '' : ' bad') }, s.type === 'passive' ? L('ติดตัว', 'Passive') : reqOk ? L('ยังไม่ได้เรียน', 'Not learned') : L('🔒 ต้องอัปสกิลก่อนหน้า', '🔒 Needs a prior skill'))),
         h('div', { class: 'sk-acts' },
-          canLearn(id) ? h('button', { class: 'btn small', onclick: () => learnSkill(id) }, '+') : null,
+          canLearn(id) ? h('button', { class: 'btn small', title: L('อัปสกิล', 'Learn'), onclick: () => learnSkill(id) }, '+') : null,
           lv && s.type === 'active' ? h('button', { class: 'btn small', onclick: () => useSkill(id) }, L('ใช้', 'Use')) : null,
-          lv && s.type === 'active' ? h('button', { class: 'btn small sk-equip' + (p.hotbar.some(x => x && x.id === id) ? ' on' : ''), title: L('ติดตั้งลงช่องสกิล (คอม: ชี้ที่สกิลแล้วกด 1–8 ได้)', 'Equip to a skill slot (PC: hover and press 1–8)'), onclick: () => this.startEquip('skill', id) }, p.hotbar.some(x => x && x.id === id) ? L('ย้ายช่อง', 'Move') : L('ติดตั้ง', 'Equip')) : null)), id));
+          lv && s.type === 'active' ? lv && s.type === 'active' ? h('button', { class: 'btn small sk-equip' + (p.hotbar.some(x => x && x.id === id) ? ' on' : ''), title: L('ติดตั้งลงช่องสกิล (คอม: ชี้ที่สกิลแล้วกด 1–8 ได้)', 'Equip to a skill slot (PC: hover and press 1–8)'), onclick: () => this.startEquip('skill', id) }, p.hotbar.some(x => x && x.id === id) ? L('ย้ายช่อง', 'Move') : L('ติดตั้ง', 'Equip')) : null : null,
+          h('button', { class: 'btn small sk-info-btn', title: L('รายละเอียด', 'Details'), 'aria-label': L('รายละเอียด', 'Details'), onclick: e => { e.stopPropagation(); this.skillDetail(id, e.currentTarget); } }, 'ⓘ'))), id));
       if (lv && s.type === 'active') this.markBind(list.lastElementChild, 'skill', id);
     }
     body.append(list);

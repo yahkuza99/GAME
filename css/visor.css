@@ -1321,3 +1321,27 @@ body.equip-mode #hotbar .hb .k, body.equip-mode #potbar .hb .k { display: block 
 #equip-banner .eb-t b { font: 600 14px var(--font); color: #fff; }
 #equip-banner .eb-t span { font-size: 12px; color: #9fdcff; }
 .sk-equip.on { border-color: #ffd56a; color: #ffe8a8; }
+/* ===== หน้าต่างสกิล: แถวขนาดเท่ากันทุกแถว (รายละเอียดอยู่ในปุ่ม ⓘ) ===== */
+.sk-row.uni { height: 58px; box-sizing: border-box; padding: 6px 8px; overflow: hidden; }
+.sk-row.uni .sicon { width: 42px; height: 42px; flex: none; }
+.sk-row.uni .sk-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13.5px; }
+.sk-row.uni .sk-mas { margin-top: 4px; font-size: 10.5px; white-space: nowrap; }
+.sk-row.uni .sk-mas em { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.sk-row.uni .sk-sub { margin-top: 4px; font-size: 10.5px; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sk-row.uni .sk-sub.bad { color: #ff9aa4; }
+.sk-row.uni .sk-acts { flex-direction: row; align-items: center; gap: 4px; flex: none; }
+.sk-row.uni .sk-acts .btn.small { padding: 4px 8px; }
+.sk-info-btn { min-width: 30px; font-size: 14px; line-height: 1; }
+.sk-detail { position: fixed; z-index: 100000; width: min(320px, calc(100vw - 16px)); max-height: calc(100vh - 16px); overflow-y: auto; padding: 12px 14px 10px; border-radius: 14px;
+  background: rgba(10, 16, 26, 0.96); border: 1px solid rgba(111, 243, 255, 0.45); box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.85); color: #e6eef8; font-size: 12.5px; display: grid; gap: 4px; }
+.sk-detail .tip-head { display: flex; gap: 10px; align-items: center; margin-bottom: 4px; }
+.sk-detail .tip-head .sicon { width: 40px; height: 40px; flex: none; }
+.sk-detail .tip-head b { display: block; font-size: 14px; }
+.sk-detail .tip-head small { color: #9fb0c4; }
+.sk-detail .tip-desc { color: #d6e2ee; line-height: 1.45; }
+.sk-detail .tip-k { color: #8fa4bc; }
+.sk-detail .tip-bon { display: flex; flex-wrap: wrap; gap: 4px 8px; color: #9ff0ff; }
+.sk-detail .tip-mas { color: #8ff4ff; }
+.sk-detail .tip-bad { color: #ffa0a8; }
+.sk-detail-x { justify-self: end; margin-top: 4px; }
+@media (max-width: 760px) { .sk-row.uni { height: 56px; } .sk-row.uni .sk-acts .btn.small { padding: 4px 7px; } }
