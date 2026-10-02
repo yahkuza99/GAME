@@ -991,10 +991,10 @@ const UI = {
     body.innerHTML = '';
     const slot = s => {
       const e = p.equip[s];
-      const el = h('div', { class: 'eq-slot' + (e ? '' : ' empty'), onclick: () => e && unequip(s) },
+      // ช่องละบรรทัดเดียวแบบ RO: ไอคอน + ชื่อไอเทม • ช่องว่างแสดงชื่อช่อง (ชื่อช่องของชิ้นที่สวมอยู่ดูใน tooltip)
+      const el = h('div', { class: 'eq-slot' + (e ? '' : ' empty'), title: e ? null : SLOT_THAI[s], onclick: () => e && unequip(s) },
         e ? h('img', { src: itemIconUrl(e.id), alt: '' }) : h('span', { class: 'eq-ph eq-ph-' + s }),
-        h('div', { class: 'eq-txt' }, h('span', { class: 'eq-n' }, SLOT_THAI[s]),
-          h('span', { class: 'eq-i ' + (e ? rarCls(e.id) : '') }, e ? itemDisplayName(e) + (e.cards && e.cards.length ? ` ◆${e.cards.length}` : '') : '—')));
+        h('span', { class: 'eq-i ' + (e ? rarCls(e.id) : '') }, e ? itemDisplayName(e) + (e.cards && e.cards.length ? ` ◆${e.cards.length}` : '') : SLOT_THAI[s]));
       return e ? this.tipFor(el, e, true) : el;
     };
     const prev = h('canvas', { class: 'eq-prev', width: 128, height: 168 });
