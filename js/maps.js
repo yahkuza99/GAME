@@ -11,6 +11,7 @@ const MAP_DEFS = {
   eldheim: {
     name: 'Neo Eldheim', thai: L('นครนีโอเอลด์ไฮม์ ฐานที่มั่นแห่งแอนดรอยด์', 'City of Neo Eldheim — Bastion of the Androids'), w: 40, h: 40, kind: 'town', seed: 101,
     links: { E: 'meadow', S: 'wolfwood' }, spawns: [],
+    skyMargin: 7, // กล้องเลื่อนเหนือขอบบนได้ 7 ช่อง → เห็นยอดหอคอย CENTRAL CORE เต็ม (render.js) + ป่าฉากหลัง
     arrive: { arena: [23.5, 17.5] }, // ออกจากลานประลอง → โผล่ข้าง Bifrost Keeper (ด้านเหนือของเมืองเป็นหอคอย เดินไม่ได้)
     dummies: [[18, 28], [20, 28], [22, 28]], // หุ่นฝึกซ้อม (ทดสอบการโจมตี)
     grass: '#74b04c',
@@ -357,7 +358,7 @@ class GameMap {
     this.planters = [[14, 14], [26, 14], [14, 26], [26, 26], [17, 30], [23, 30], [10, 18], [10, 22], [30, 18], [30, 22]];
     for (const [x, y] of this.planters) this.set(x, y, T.TREE);
     // หอคอยกลาง + ร้านค้า
-    this.addBuilding(13, 2, 15, 7, 'castle', '#6a7fb0', 'CENTRAL CORE');
+    this.addBuilding(15, 2, 11, 7, 'castle', '#6a7fb0', 'CENTRAL CORE'); // ฐานชน 11 ช่อง = ความกว้างภาพหอคอยจริง (เดิม 15 → กำแพงล่องหนข้างละ ~1.6 ช่อง)
     this.addBuilding(4, 11, 8, 6, 'house', '#ff5a7a', 'SUPPLY');
     this.addBuilding(28, 11, 8, 6, 'house', '#4ab0ff', 'ARMORY');
     this.addBuilding(4, 25, 8, 6, 'house', '#5aff9a', 'PLATING');
@@ -382,6 +383,11 @@ class GameMap {
 
   collectObjects() {
     const d = this.def;
+    this.backdrop = [];
+    if (d.skyMargin) for (let y = -d.skyMargin + 0.5; y < 0.5; y += 0.9) for (let x = 0.3; x < this.w; x += 1.15) { // ป่าฉากหลังเหนือเมือง
+      const r = U.hash2(Math.round(x * 10), Math.round(y * 10), d.seed);
+      this.backdrop.push({ kind: 'tree', sp: r < 0.5 ? 'round' : 'bloom', x: x + (r - 0.5) * 0.6, y, size: 0.7 + r * 0.35, flip: r < 0.5, r, fa: 1 });
+    }
     if (typeof Flora !== 'undefined' && d.kind !== 'cave') { Flora.plan(this); return; } // ต้นไม้ใหญ่หลายพันธุ์ + ของประดับ (js/flora.js)
     for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) {
       if (this.tile(x, y) !== T.TREE) continue;

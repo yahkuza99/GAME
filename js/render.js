@@ -50,9 +50,15 @@ R.updateCamera = () => {
   const p = G.player, m = G.map;
   const vw = R.W / R.zoom, vh = R.H / R.zoom;
   let cx = p.x * TILE - vw / 2, cy = p.y * TILE * R.K - vh / 2 - 20;
+  // แมพที่มีของสูงริมขอบบน (เมือง: หอคอย CENTRAL CORE): เดินเข้าใกล้ขอบบน → กล้องเงยขึ้นให้เห็นยอดทั้งหมด (ตัวละครเลื่อนลงล่างจอ)
+  if (m.def.skyMargin) { // ยกไม่เกิน ~1/4 จอ (ตัวละครยังอยู่กลางค่อนล่าง)
+    const lift = Math.min(vh * 0.24, U.clamp((m.def.skyLiftFrom || 16) - p.y, 0, 8) * TILE * R.K * 0.95);
+    R._lift = (R._lift || 0) + (lift - (R._lift || 0)) * 0.08; cy -= R._lift;
+  }
   const mw = m.w * TILE, mh = m.h * TILE * R.K;
   cx = mw < vw ? (mw - vw) / 2 : U.clamp(cx, 0, mw - vw);
-  cy = mh < vh ? (mh - vh) / 2 : U.clamp(cy, 0, mh - vh);
+  const top = -(m.def.skyMargin || 0) * TILE * R.K; // ฉากหลังเหนือขอบแมพ (เมือง: ให้เห็นยอดหอคอยเต็ม)
+  cy = mh - top < vh ? (mh + top - vh) / 2 : U.clamp(cy, top, mh - vh);
   R.camX = Math.round(cx * R.zoom) / R.zoom; R.camY = Math.round(cy * R.zoom) / R.zoom;
 };
 
@@ -104,6 +110,11 @@ R.render = () => {
   g.save(); g.scale(1, K);
   const sx = Math.max(0, Math.floor(R.camX)), sy = Math.max(0, Math.floor(wTop));
   const sw = Math.min(map.ground.width - sx, Math.ceil(vw) + 2), sh = Math.min(map.ground.height - sy, Math.ceil(wH) + 2);
+  if (map.def.skyMargin && wTop < 0) { // ฉากหลังเหนือขอบแมพ: ป่าทึบไล่มืดขึ้นไป
+    const mt = map.def.skyMargin * TILE, gr = g.createLinearGradient(0, -mt, 0, 0);
+    gr.addColorStop(0, '#1a2e1c'); gr.addColorStop(0.55, '#33572e'); gr.addColorStop(1, '#4f7d3c');
+    g.fillStyle = gr; g.fillRect(0, -mt, map.ground.width, mt);
+  }
   if (sw > 0 && sh > 0) g.drawImage(map.ground, sx, sy, sw, sh, sx, sy, sw, sh);
   if (R.quality !== 'low') R.drawGrassWind(g, map, t, sx, sy, sw, sh);
   // น้ำพุมีชีวิต
@@ -231,6 +242,7 @@ R.render = () => {
   const VL = R.camX / TILE - 2, Rr = (R.camX + vw) / TILE + 2, Tp = wTop / TILE - 1, B = (wTop + wH) / TILE + 4;
   const list = [];
   if (map.flora && typeof Flora !== 'undefined') Flora.collect(list, g, map, t, VL, Rr, Tp, B); // ต้นไม้ใหญ่ + ของประดับ (js/flora.js)
+  if (map.backdrop && typeof Flora !== 'undefined') for (const o of map.backdrop) if (o.x > VL - 2 && o.x < Rr + 2 && o.y > Tp - 6) list.push({ y: o.y + 0.3, f: () => Flora.drawObj(g, o, t) }); // ป่าฉากหลังเหนือขอบแมพ (y ติดลบ = วาดก่อนทุกอย่างในแมพ)
   else for (const o of map.objects) if (o.x > VL && o.x < Rr && o.y > Tp && o.y < B) list.push({ y: o.y + 0.3, f: () => Sprites.drawTree(g, o, t) });
   for (const o of map.props || []) if (o.x > VL && o.x < Rr && o.y > Tp && o.y < B + 2) list.push({ y: o.y, f: () => Sprites.drawProp(g, o, t) });
   for (const b of map.buildings) if (b.img) list.push({ y: b.y + b.h - 0.5, f: () => Sprites.drawBuildingImg(g, b, t) });
