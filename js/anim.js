@@ -146,7 +146,7 @@ const Anim = {
     }
     const def = this.ACTIONS[s.action];
     let f;
-    if (s.action === 'walk' && action !== 'walk') f = 0; // ยืนนิ่งด้วยเฟรมแรกของท่าเดิน
+    if (s.action === 'walk' && action !== 'walk') f = this.stillFrame(s.img, s.n, st.dir != null ? st.dir : (st.facing > 0 ? 0 : 4)); // ยืนนิ่งด้วยเฟรมเท้าชิดของท่าเดิน (ยังไม่มีภาพท่าอื่น)
     else if (k != null && (!def.loop || st.skill > 0)) f = Math.min(s.n - 1, Math.floor(k * s.n)); // ท่าที่เล่นครั้งเดียว (รวมท่าใช้สกิล): ตามความคืบหน้า
     else f = Math.floor((t + (st.seed || 0)) / ((def.cycle || 1) / s.n)) % s.n;
     // แถว: ภาพ 8 ทิศเลือกตามทิศที่หัน, ภาพทิศเดียวใช้แถวแรกแล้วกลับด้านตอนหันขวา

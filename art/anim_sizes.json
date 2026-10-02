@@ -523,5 +523,41 @@
    "scale_src": 0.4732,
    "median_src_h": 316.99728733234525
   }
+ },
+ "wildhunter_f": {
+  "walk": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.5474,
+   "median_src_h": 274
+  },
+  "_k1536": 0.36496
+ },
+ "wildhunter_m": {
+  "walk": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.5435,
+   "median_src_h": 276
+  },
+  "_k1536": 0.36232
+ },
+ "runecaster_f": {
+  "walk": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.5474,
+   "median_src_h": 274
+  },
+  "_k1536": 0.36496
+ },
+ "runecaster_m": {
+  "walk": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.5535,
+   "median_src_h": 271
+  },
+  "_k1536": 0.369
  }
 }

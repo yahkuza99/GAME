@@ -147,10 +147,17 @@ def process(rgba, act=''):
     return out, hand, head, smear
 
 
-def fill_gaps(seq, smears):
+def fill_gaps(seq, smears, steady=False):
     """เฟรมที่วัดมือไม่ได้ (เช่นเฟรมเอฟเฟกต์ฟัน): ใช้ค่าเฉลี่ยของเฟรมข้างเคียง"""
     n = len(seq)
     seq = list(seq)
+    # เฟรมที่ AI วาดแท่งสลับไปอีกมือ (มือห่างจากตำแหน่งปกติของแถวนี้มาก) → ประมาณจากเฟรมข้างเคียงแทน
+    xs = sorted(h[0] for h in seq if h)
+    if steady and len(xs) >= 3:
+        med = xs[len(xs) // 2]
+        for i, h in enumerate(seq):
+            if h and abs(h[0] - med) > 38 and not smears[i]:
+                seq[i] = None
     # เฟรมหลังฟัน (ตามแรงเหวี่ยง) มักจับผิดชิ้น (อัญมณีที่เข่า/ปอยผม) — ถ้าห่างจากเฟรมถัดไปมากเกิน ให้ประมาณใหม่
     for i in range(1, n - 1):
         if smears[i - 1] and seq[i] and seq[i + 1] and math.hypot(seq[i][0] - seq[i + 1][0], seq[i][1] - seq[i + 1][1]) > 45:
@@ -190,7 +197,7 @@ def run(key, dbg=None):
                 bare[r * C:(r + 1) * C, f * C:(f + 1) * C] = out
                 hs.append(hand); ds.append(head); ms.append(sm)
             # ท่าตาย/ล้ม: มือไม่สำคัญ ไม่เติมช่องว่าง (ไม่มีอาวุธก็ได้)
-            H.append(fill_gaps(hs, ms if act == 'attack' else [False] * len(hs)) if act != 'dead' else hs); D.append(ds)
+            H.append(fill_gaps(hs, ms if act == 'attack' else [False] * len(hs), act in ('walk', 'idle', 'sit')) if act != 'dead' else hs); D.append(ds)
         Image.fromarray(bare).save(os.path.join(A, f'anim_{key}_bare_{act}.webp'), 'WEBP', quality=90, method=6)
         data[act] = {'hand': H, 'head': D}
         if dbg is not None:
