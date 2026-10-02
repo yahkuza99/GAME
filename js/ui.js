@@ -379,6 +379,133 @@ const UI = {
     }
     return map._imgs[px];
   },
+  // ---------------- แผนที่ใหญ่ (M): แผนที่ภาพวาด ----------------
+  // ชั้นนิ่ง (แคชต่อแมพ): พื้นจริง + โทนกระดาษอุ่น + ยอดไม้มีแสงเงา + ภาพอาคาร/น้ำพุ + เข็มทิศ + ขอบจาง
+  // ชั้นเคลื่อนไหว (ทุกเฟรม): ป้ายชื่อแมพ, ประตูพร้อมป้ายปลายทาง, ไอคอน NPC, มอน, เพื่อน, เส้นทาง, หมุดเควสต์, ตัวเรา
+  NPC_ICON: { tool: '🧪', weapon: '⚔️', armor: '🛡️', refine: '⚒️', nurse: '✚', guide: '★', storage: '📦', bifrost: '🌈', jobmaster: '📖', norn: '🎡', hel: '👑' },
+  bigArt(map, S) {
+    if (map._big && map._big.S === S && map._big.ground === map.ground) return map._big.c; // พื้นวาดใหม่ (ภาพโหลดเสร็จ) = สร้างใหม่
+    const W = map.w * S, H = map.h * S, c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d'); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+    g.drawImage(map.ground, 0, 0, W, H);
+    g.globalCompositeOperation = 'multiply'; g.fillStyle = 'rgba(244,228,198,0.38)'; g.fillRect(0, 0, W, H); // โทนกระดาษแผนที่
+    g.globalCompositeOperation = 'source-over';
+    // ยอดไม้: เงา + พุ่มไล่แสงจากซ้ายบน (สน = ทรงแหลม)
+    const objs = map.objects.slice().sort((a, b) => a.y - b.y);
+    for (const o of objs) {
+      const x = o.x * S, y = o.y * S, hedge = o.kind === 'hedge', pine = !hedge && (map.def.pine || String(o.sp || '').startsWith('pine'));
+      const r = S * (hedge ? 0.55 : 0.95) * Math.min(1.3, o.size || 1);
+      g.fillStyle = 'rgba(20,30,10,0.32)'; g.beginPath(); g.ellipse(x + r * 0.35, y + r * 0.45, r * 1.05, r * 0.7, 0, 0, 7); g.fill();
+      const gr = g.createRadialGradient(x - r * 0.35, y - r * 0.45, r * 0.1, x, y, r * 1.1);
+      gr.addColorStop(0, pine ? '#5f9a5a' : '#8fd06a'); gr.addColorStop(0.6, pine ? '#2f6a3a' : '#4c9a3c'); gr.addColorStop(1, pine ? '#1c4426' : '#2a6428');
+      g.fillStyle = gr; g.beginPath();
+      if (pine) { for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i / 10 * Math.PI * 2, rr = i % 2 ? r * 0.62 : r; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } g.closePath(); }
+      else { for (let i = 0; i < 7; i++) { const a = i / 7 * Math.PI * 2; g.moveTo(x + Math.cos(a) * r * 0.45 + r * 0.42, y + Math.sin(a) * r * 0.45); g.arc(x + Math.cos(a) * r * 0.45, y + Math.sin(a) * r * 0.45, r * 0.42, 0, 7); } g.arc(x, y, r * 0.6, 0, 7); }
+      g.fill();
+    }
+    // อาคาร/น้ำพุจากภาพจริง (ย่อเป็นภาพบนแผนที่)
+    for (const b of map.buildings) {
+      const img = b.img && Art.get(b.img); if (!img) continue;
+      const bw = b.w * S * 1.1, bh = bw * img.height / img.width, bx = (b.x + b.w / 2) * S - bw / 2, by = (b.y + b.h) * S - bh;
+      g.fillStyle = 'rgba(20,24,30,0.3)'; g.beginPath(); g.ellipse((b.x + b.w / 2) * S + 6, (b.y + b.h) * S - 4, bw * 0.48, S * 0.9, 0, 0, 7); g.fill();
+      g.drawImage(img, bx, by, bw, bh);
+    }
+    const fimg = map.fountainImg && Art.get('prop_fountain');
+    if (fimg) { const fw = S * 3.6, fh = fw * fimg.height / fimg.width; g.drawImage(fimg, map.fountain.x * S - fw / 2, (map.fountain.y + 1.3) * S - fh, fw, fh); }
+    // ขอบจาง (vignette) + เส้นขอบด้านใน
+    const vg = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.hypot(W, H) * 0.56);
+    vg.addColorStop(0, 'rgba(30,20,8,0)'); vg.addColorStop(1, 'rgba(30,20,8,0.55)');
+    g.fillStyle = vg; g.fillRect(0, 0, W, H);
+    // เข็มทิศ (มุมขวาล่าง)
+    const cx = W - 46, cy = H - 46, R0 = 30;
+    g.save(); g.translate(cx, cy);
+    g.fillStyle = 'rgba(20,16,8,0.55)'; g.beginPath(); g.arc(0, 0, R0 + 8, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(215,178,90,0.9)'; g.lineWidth = 1.5; g.beginPath(); g.arc(0, 0, R0 + 4, 0, 7); g.stroke();
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4 - Math.PI / 2, L0 = i % 2 ? R0 * 0.55 : R0;
+      g.fillStyle = i === 0 ? '#ff6a5a' : i % 2 ? '#bfa66a' : '#f4e2b0';
+      g.beginPath(); g.moveTo(Math.cos(a) * L0, Math.sin(a) * L0); g.lineTo(Math.cos(a + 0.35) * L0 * 0.22, Math.sin(a + 0.35) * L0 * 0.22); g.lineTo(0, 0); g.lineTo(Math.cos(a - 0.35) * L0 * 0.22, Math.sin(a - 0.35) * L0 * 0.22); g.closePath(); g.fill();
+    }
+    g.font = '800 11px Kanit, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#ffe9b0'; g.fillText('N', 0, -R0 - 13 < -cy ? -R0 + 4 : -R0 - 0.5 - 12);
+    g.restore();
+    map._big = { S, c, ground: map.ground };
+    return c;
+  },
+  drawBigMap(cv) {
+    const map = G.map, p = G.player, S = map.w * map.h > 6000 ? 8 : 10;
+    const base = this.bigArt(map, S), W = base.width, H = base.height;
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; cv.style.width = `min(100%, calc((100vh - 270px) * ${(W / H).toFixed(4)}))`; } // คงสัดส่วนจริง (คลิกตรงช่อง)
+    const g = cv.getContext('2d'), t = performance.now() / 1000;
+    g.drawImage(base, 0, 0);
+    // ตัวหนังสือย่อตามสเกลที่แสดงจริง (แมพเล็กถูกขยาย → ตัวหนังสือไม่บวม) • ป้ายไม่ทับกัน: ลองบน/ล่าง/ขวา/ซ้าย
+    const disp = cv.clientWidth ? W / cv.clientWidth : 1, placed = [];
+    const label = (txt, x, y, col = '#fff4d0', size = 13, align = 'center') => {
+      g.font = `700 ${Math.round(size * Math.max(0.7, disp))}px Kanit, "Noto Sans Thai", sans-serif`; g.textAlign = align; g.textBaseline = 'middle'; g.lineJoin = 'round';
+      g.lineWidth = 4 * Math.max(0.7, disp); g.strokeStyle = 'rgba(16,10,4,0.85)'; g.strokeText(txt, x, y); g.fillStyle = col; g.fillText(txt, x, y);
+    };
+    const place = (txt, x, y, offs, col, size) => {
+      g.font = `700 ${Math.round(size * Math.max(0.7, disp))}px Kanit, "Noto Sans Thai", sans-serif`;
+      const w = g.measureText(txt).width + 6, h = size * Math.max(0.7, disp) + 4;
+      for (const [ox, oy, al] of offs) {
+        const lx = al === 'left' ? x + ox : al === 'right' ? x + ox - w : x + ox - w / 2, r = [lx, y + oy - h / 2, w, h];
+        if (r[0] < 2 || r[0] + w > W - 2 || r[1] < 2 || r[1] + h > H - 2) continue;
+        if (placed.some(q => r[0] < q[0] + q[2] && q[0] < r[0] + w && r[1] < q[1] + q[3] && q[1] < r[1] + h)) continue;
+        placed.push(r); label(txt, x + ox, y + oy, col, size, al); return;
+      }
+    };
+    placed.push([W / 2 - 110, 4, 220, 50]); // ป้ายชื่อแมพ
+    // เส้นทางที่กำลังเดิน
+    if (p.path.length) {
+      g.strokeStyle = 'rgba(255,226,120,0.95)'; g.lineWidth = 3; g.setLineDash([6, 5]); g.lineDashOffset = -t * 20;
+      g.beginPath(); g.moveTo(p.x * S, p.y * S); for (const n of p.path) g.lineTo((n.x + 0.5) * S, (n.y + 0.5) * S); g.stroke(); g.setLineDash([]);
+      const last = p.path[p.path.length - 1]; g.fillStyle = '#ffe36a'; g.beginPath(); g.arc((last.x + 0.5) * S, (last.y + 0.5) * S, 6, 0, 7); g.fill();
+    }
+    // ประตู: ซุ้มเรืองแสง + ป้ายปลายทางพร้อมลูกศรทิศ
+    for (const pt of map.portals) {
+      const x = (pt.x + 0.5) * S, y = (pt.y + 0.5) * S, pulse = 1 + Math.sin(t * 3) * 0.12;
+      const gr = g.createRadialGradient(x, y, 2, x, y, S * 1.6 * pulse); gr.addColorStop(0, 'rgba(140,235,255,0.9)'); gr.addColorStop(1, 'rgba(140,235,255,0)');
+      g.fillStyle = gr; g.beginPath(); g.arc(x, y, S * 1.6 * pulse, 0, 7); g.fill();
+      g.fillStyle = '#e8fbff'; g.strokeStyle = '#0a3a5a'; g.lineWidth = 2; g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); g.stroke();
+      const side = typeof WORLD !== 'undefined' ? WORLD.sideOf(map, pt) : 'E', arrow = { E: '➜', W: '⬅', N: '⬆', S: '⬇' }[side];
+      const txt = `${side === 'W' || side === 'N' ? arrow + ' ' : ''}${MAP_DEFS[pt.to].name}${side === 'E' || side === 'S' ? ' ' + arrow : ''}`, al = side === 'W' ? 'left' : side === 'E' ? 'right' : 'center';
+      const d = 16 * Math.max(0.7, disp);
+      place(txt, x, y, side === 'N' ? [[0, d * 1.4, al], [d * 1.2, d * 2.4, 'left']] : side === 'S' ? [[0, -d * 1.4, al], [d * 1.2, -d * 2.4, 'left']] : [[side === 'W' ? d : -d, -d, al], [side === 'W' ? d : -d, d, al], [side === 'W' ? d : -d, -d * 2, al]], '#bff4ff', 14);
+    }
+    // NPC: วงทองพร้อมไอคอนหน้าที่
+    for (const n of G.npcs) {
+      const x = (n.x + 0.5) * S, y = (n.y + 0.5) * S;
+      g.fillStyle = 'rgba(20,14,4,0.75)'; g.strokeStyle = '#ffd56a'; g.lineWidth = 2; g.beginPath(); g.arc(x, y, 10, 0, 7); g.fill(); g.stroke();
+      g.font = '12px "Segoe UI Emoji", "Noto Color Emoji", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#ffe9a0';
+      g.fillText(this.NPC_ICON[n.id] || '●', x, y + 0.5);
+      const d = 13 * Math.max(0.7, disp) + 6;
+      place(n.name, x, y, [[0, -d, 'center'], [0, d, 'center'], [d, 0, 'left'], [-d, 0, 'right'], [0, -d * 1.9, 'center'], [0, d * 1.9, 'center']], '#fff1c0', 12.5);
+    }
+    for (const m of G.mobs) {
+      if (m.dead || m.isPlayer || m.def.dummy) continue;
+      if (m.isMvp || m.isWB) { const k = 1 + Math.sin(t * 6) * 0.2; g.fillStyle = 'rgba(255,40,40,0.35)'; g.beginPath(); g.arc(m.x * S, m.y * S, 14 * k, 0, 7); g.fill(); label('☠', m.x * S, m.y * S, '#ff6a5a', 16); }
+      else { g.fillStyle = m.state === 'chase' ? '#ff4a4a' : 'rgba(255,150,140,0.85)'; g.beginPath(); g.arc(m.x * S, m.y * S, m.state === 'chase' ? 3.5 : 2.6, 0, 7); g.fill(); }
+    }
+    for (const o of Online.others.values()) { g.fillStyle = '#7dffb0'; g.strokeStyle = '#0a3a20'; g.lineWidth = 1.5; g.beginPath(); g.arc(o.x * S, o.y * S, 5, 0, 7); g.fill(); g.stroke(); }
+    if (G.started && typeof Quest !== 'undefined') {
+      const qw = Nav.waypoint(Quest.navTarget());
+      if (qw && !qw.none) { g.save(); g.translate((qw.x + 0.5) * S, (qw.y + 0.5) * S - Math.abs(Math.sin(t * 3)) * 4); g.scale(1.9, 1.9); this.drawQuestPin(g, 0, 0, null); g.restore(); }
+    }
+    // ตัวเรา: วงคลื่น + ลูกศรทิศ
+    const k = (t % 1.4) / 1.4;
+    g.strokeStyle = `rgba(255,214,90,${1 - k})`; g.lineWidth = 2.5; g.beginPath(); g.arc(p.x * S, p.y * S, 8 + k * 22, 0, 7); g.stroke();
+    const ang = (p.dir != null ? p.dir : 2) * Math.PI / 4, pr = 11;
+    g.save(); g.translate(p.x * S, p.y * S); g.rotate(ang);
+    g.shadowColor = '#ffd34a'; g.shadowBlur = 10; g.fillStyle = '#fff6d8'; g.strokeStyle = '#b81818'; g.lineWidth = 2;
+    g.beginPath(); g.moveTo(pr, 0); g.lineTo(-pr * 0.7, pr * 0.68); g.lineTo(-pr * 0.32, 0); g.lineTo(-pr * 0.7, -pr * 0.68); g.closePath(); g.fill(); g.stroke();
+    g.restore();
+    // ป้ายชื่อแมพ (บนกลาง)
+    const title = map.def.name, sub = map.def.kind === 'town' ? L('เมือง • ปลอดภัย', 'Town • Safe') : `Lv ${String(map.def.level || '').replace(/\s*\(.*\)/, '')}`;
+    g.font = '800 18px Kanit, sans-serif'; const tw = Math.max(g.measureText(title).width, 120) + 56;
+    const tx = W / 2, ty = 26;
+    g.fillStyle = 'rgba(24,16,6,0.82)'; g.beginPath(); if (g.roundRect) g.roundRect(tx - tw / 2, ty - 18, tw, 44, 10); else g.rect(tx - tw / 2, ty - 18, tw, 44); g.fill();
+    g.strokeStyle = 'rgba(215,178,90,0.95)'; g.lineWidth = 1.5; g.stroke();
+    label(title, tx, ty - 2, '#ffe6a6', 18); label(sub, tx, ty + 16, '#d8c8a0', 11);
+  },
   drawMapTo(cv, S, big) {
     const g = cv.getContext('2d'), map = G.map, p = G.player;
     if (cv.width !== map.w * S) { cv.width = map.w * S; cv.height = map.h * S; }
@@ -467,7 +594,7 @@ const UI = {
       this.drawQuestPin(g, mx, my, out ? Math.atan2(dy, dx) : null);
     }
     $('#map-coord').textContent = Online.online ? `👥 ${Math.max(1, Online.count)} • ${Math.floor(p.x)}, ${Math.floor(p.y)}` : `${Math.floor(p.x)}, ${Math.floor(p.y)}`;
-    if (this.isOpen('w-map')) this.drawMapTo($('#bigmap-cv'), 8, true);
+    if (this.isOpen('w-map')) this.drawBigMap($('#bigmap-cv'));
   },
   // หมุดเควสต์ (ทอง): ไม่มีมุม = อยู่ในระยะ • มีมุม = ลูกศรชี้ออกนอกเรดาร์
   drawQuestPin(g, x, y, ang) {
