@@ -807,6 +807,8 @@ class GameMap {
     mg.putImageData(id, 0, 0);
     g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
     g.drawImage(m, x0 * TILE, y0 * TILE, mw * S, mh * S);
+    const bkd = typeof Bake !== 'undefined' && Bake.data(this);
+    if (bkd && bkd.reflect) this.waterMask = { x0, y0, mw, mh, S, V }; // เงาสะท้อนของซาก 3D ตัดเฉพาะน้ำลึก (js/bake.js Bake.reflect — ใช้แล้วทิ้ง)
     // ภาพผิวน้ำจริงทับเฉพาะส่วนน้ำลึก (ขอบทราย/ฟองยังเป็นแบบเดิม) โปร่งบางส่วนให้เห็นความลึก
     const wt = typeof Art !== 'undefined' && Art.get('ground_water');
     if (wt) {
