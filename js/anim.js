@@ -134,6 +134,12 @@ const Anim = {
     else if (st.cast) action = 'cast';
     else if (st.sit) action = 'sit';
     else if (st.moving) action = 'walk';
+    // Class ธนูที่ยังไม่มีท่าร่าย/ท่าฟัน: ใช้สกิลด้วยท่ายิง (ใช้สกิล = เล่นท่ายิงครั้งเดียว • ร่ายค้าง = ง้างสายค้างไว้)
+    let hold = false;
+    if (action === 'cast') {
+      const c = this.strip(key, 'cast'), sh = c && c.action !== 'cast' && c.action !== 'attack' && this.strip(key, 'shoot');
+      if (sh && sh.action === 'shoot') { action = 'shoot'; hold = k == null; }
+    }
     const s = this.strip(key, action); if (!s) return null;
     // ท่าเดินเป็น 8 ทิศแต่ท่ายืนเป็นภาพทิศเดียว (มักเป็นคนละชุดภาพ ตัวจะดูเปลี่ยนไปตอนหยุด):
     // ยืนด้วยเฟรมกลางก้าวของท่าเดินทิศนั้นแทน + หายใจเบา ๆ ตัวละครจึงเป็นแบบเดียวกันตลอด
@@ -146,7 +152,8 @@ const Anim = {
     }
     const def = this.ACTIONS[s.action];
     let f;
-    if (s.action === 'walk' && action !== 'walk') f = this.stillFrame(s.img, s.n, st.dir != null ? st.dir : (st.facing > 0 ? 0 : 4)); // ยืนนิ่งด้วยเฟรมเท้าชิดของท่าเดิน (ยังไม่มีภาพท่าอื่น)
+    if (hold) f = Math.max(0, s.n - 2); // เฟรมง้างสายสุด (ก่อนปล่อย)
+    else if (s.action === 'walk' && action !== 'walk') f = this.stillFrame(s.img, s.n, st.dir != null ? st.dir : (st.facing > 0 ? 0 : 4)); // ยืนนิ่งด้วยเฟรมเท้าชิดของท่าเดิน (ยังไม่มีภาพท่าอื่น)
     else if (k != null && (!def.loop || st.skill > 0)) f = Math.min(s.n - 1, Math.floor(k * s.n)); // ท่าที่เล่นครั้งเดียว (รวมท่าใช้สกิล): ตามความคืบหน้า
     else f = Math.floor((t + (st.seed || 0)) / ((def.cycle || 1) / s.n)) % s.n;
     // แถว: ภาพ 8 ทิศเลือกตามทิศที่หัน, ภาพทิศเดียวใช้แถวแรกแล้วกลับด้านตอนหันขวา
@@ -170,6 +177,8 @@ const Anim = {
     }
     if (sink) Sprites.shadow(g, x, y, H * 0.46, H * 0.13, 0.32); else Sprites.shadow(g, x, y, H * 0.3, H * 0.09, 0.3);
     g.save();
+    // ตายแต่ยังไม่มีภาพท่าล้มของ Class นี้: ยืนเป็นเงาสีเทาจาง ๆ ให้รู้ว่าตายแล้ว (แทนยืนปกติ) จนกว่าจะมีภาพ
+    if (st.dead && p.action !== 'dead' && p.action !== 'hurt') { g.globalAlpha *= 0.55; st = Object.assign({}, st, { filter: 'grayscale(1) brightness(0.75)' }); }
     g.translate(x, y - (st.raise || 0) + sink * k);
     if (p.lift) g.translate(0, -p.lift * k);
     g.scale(p.flip ? -k : k, k * (p.breathe ? 1 + Math.sin(t * 2.4 + (st.seed || 0)) * 0.012 : 1));
