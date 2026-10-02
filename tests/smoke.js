@@ -63,6 +63,20 @@ const ok = (name, cond, info = '') => { checks.push([name, !!cond, info]); };
     // walk to the field
     await p.evaluate(() => changeMap('meadow', 28.5, 28.5)); await p.waitForTimeout(800);
     ok(`${name}: field has monsters`, await p.evaluate(() => G.mobs.length > 20));
+    if (!mobile) { // โลกเชื่อมกันทางกายภาพ (js/world.js): แมพไม่ซ้อนกัน + ทุกประตู/ NPC เดินถึงกันได้ในทุกแมพ
+      const geo = await p.evaluate(() => {
+        const bad = WORLD.overlaps().map(o => 'overlap ' + o);
+        for (const id of Object.keys(MAP_DEFS)) {
+          const m = new GameMap(id), seen = new Uint8Array(m.w * m.h), pts = m.portals.map(q => [q.ax, q.ay]).concat((m.def.npcs || []).map(n => [n.x, n.y + 1]));
+          if (!pts.length) continue;
+          const st = [pts[0]]; seen[m.idx(...pts[0])] = 1;
+          while (st.length) { const [x, y] = st.pop(); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (m.inb(nx, ny) && !seen[m.idx(nx, ny)] && (m.walkable(nx, ny) || m.block[m.idx(nx, ny)])) { seen[m.idx(nx, ny)] = 1; st.push([nx, ny]); } } }
+          for (const q of pts) if (!seen[m.idx(...q)]) bad.push(`${id} unreachable ${q}`);
+        }
+        return bad;
+      });
+      ok(`${name}: world geography`, !geo.length, geo.join('; '));
+    }
     const moved = await p.evaluate(async () => {
       const pl = G.player, x0 = pl.x; pl.path = findPath(G.map, Math.floor(pl.x), Math.floor(pl.y), Math.floor(pl.x) + 5, Math.floor(pl.y), 2000);
       await new Promise(r => setTimeout(r, 1500)); return pl.x - x0;

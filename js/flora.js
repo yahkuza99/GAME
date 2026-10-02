@@ -349,7 +349,8 @@ const Flora = {
       const { x, y } = tl, r = hh(x, y, 2), r2 = hh(x, y, 3);
       if (!shaded(x, y) && (tl.nb === 0 || !near(x, y))) {
         anchor[y * W + x] = 1;
-        const sp = this.pick(P.trees, r);
+        const sw = m.seamWeight && m.seamWeight(x, y); // ใกล้ขอบที่ติดทุ่งอื่น: พันธุ์ไม้ของฝั่งโน้นปนเข้ามา (รอยต่อไม่ตัดฉับ)
+        const sp = this.pick(sw && hh(x, y, 4) < sw.w * 0.7 ? this.preset(sw.def).trees : P.trees, r);
         const edgeLow = !town && y >= Hh - 2; // ขอบล่างสุด: ต้นเตี้ยลงหน่อย ไม่บังพื้นที่ล่ามากเกินไป
         m.objects.push({ kind: 'tree', sp, x: x + 0.5 + (r2 - 0.5) * 0.24, y: y + 0.5, size: P.size * (0.86 + r2 * 0.3) * (edgeLow ? 0.82 : 1), flip: r < 0.5 === (r2 < 0.5), r, fa: 1 });
       } else {

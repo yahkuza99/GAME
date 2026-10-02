@@ -27,19 +27,19 @@ const MAP_DEFS = {
     ],
   },
   meadow: {
-    name: 'Emerald Meadow', thai: L('ทุ่งหญ้ามรกต', 'Emerald Grasslands'), w: 84, h: 84, kind: 'field', seed: 202, // ขยาย 1.5 เท่า (2026-10-02)
-    links: { W: 'eldheim', E: 'mistlake' }, level: '1-6',
+    name: 'Emerald Meadow', thai: L('ทุ่งหญ้ามรกต', 'Emerald Grasslands'), w: 104, h: 68, kind: 'field', seed: 202, // ทุ่งกว้างแนวตะวันออก-ตก (ทางผ่านเมือง → ทะเลสาบ) พื้นที่เท่าเดิม
+    links: { W: 'eldheim', E: 'mistlake' }, level: '1-6', gate: { W: 0.78 }, // ประตูเมืองค่อนลงใต้ → ทุ่งอยู่เหนือป่า Wolfwood ไม่ซ้อนกัน
     spawns: [['pudding', 36], ['leafworm', 20], ['moonbun', 20], ['ember_pudding', 16], ['buzzfly', 13]],
     grass: '#6fae4a', trees: 0.9, ponds: 4, flowers: 0.05,
   },
   mistlake: {
-    name: 'Mistlake Plains', thai: L('ที่ราบทะเลสาบหมอก', 'Plains of the Misty Lake'), w: 84, h: 84, kind: 'field', seed: 303,
+    name: 'Mistlake Plains', thai: L('ที่ราบทะเลสาบหมอก', 'Plains of the Misty Lake'), w: 96, h: 80, kind: 'field', seed: 303, // ที่ราบปลายทางตะวันออก (+9% พื้นที่ มอน +9%)
     links: { W: 'meadow' }, level: '8-16 (MVP: Seraph Core)',
-    spawns: [['fiddlehopper', 27], ['stumpling', 22], ['capshroom', 22], ['moss_pudding', 22]], mvp: 'seraph_pudding',
+    spawns: [['fiddlehopper', 29], ['stumpling', 24], ['capshroom', 24], ['moss_pudding', 24]], mvp: 'seraph_pudding',
     grass: '#86b04a', trees: 0.8, ponds: 8, flowers: 0.08, treeHue: '#5f9a3a', flora: 'lake',
   },
   wolfwood: {
-    name: 'Wolfwood Forest', thai: L('ป่าหมาป่า', 'Forest of the Wolves'), w: 84, h: 84, kind: 'field', seed: 404,
+    name: 'Wolfwood Forest', thai: L('ป่าหมาป่า', 'Forest of the Wolves'), w: 68, h: 104, kind: 'field', seed: 404, // ป่ายาวเหนือ-ใต้ (เมือง → ปากถ้ำ) พื้นที่เท่าเดิม
     links: { N: 'eldheim', S: 'helcave' }, level: '18-30',
     spawns: [['ashtail', 29], ['fenrir_pup', 25], ['mossback', 18], ['tuskboar', 14]], // tuskboar ตีก่อน: เพิ่มน้อย กันโดนรุม
     grass: '#4f8a3a', trees: 1.7, ponds: 2, flowers: 0.02, pine: true,
@@ -67,6 +67,12 @@ const PORTAL_SIDE = {
   S: (w, h) => ({ x: w >> 1, y: h - 2, ax: w >> 1, ay: h - 4 }),
 };
 const OPP_SIDE = { E: 'W', W: 'E', N: 'S', S: 'N' };
+// ตำแหน่งประตูของแมพ (def) ด้าน side — ปกติกลางขอบ • def.gate = { W: 0.8 } เลื่อนไปตามขอบ (สัดส่วน) ให้แมพขนาดต่างกันวางชิดกันได้ไม่ซ้อนทับ (js/world.js)
+function portalPos(def, side) {
+  const p = PORTAL_SIDE[side](def.w, def.h), f = def.gate && def.gate[side];
+  if (f != null) { if (side === 'E' || side === 'W') p.y = p.ay = Math.round((def.h - 1) * f); else p.x = p.ax = Math.round((def.w - 1) * f); }
+  return p;
+}
 // ภาพฉาก (assets/prop_*) — ไม่มีภาพจะวาดด้วยโค้ดแบบเดิม
 const PROP_ART = { pylon: 'prop_pylon', crate: 'prop_crate', scrap: 'prop_scrap', bush: 'prop_bush', rock: 'prop_rock', mushroom: 'prop_mushroom', crystal: 'prop_crystal' };
 const BUILDING_ART = { SUPPLY: 'prop_bld_shop', ARMORY: 'prop_bld_house', PLATING: 'prop_bld_house', FORGE: 'prop_bld_forge' };
@@ -79,9 +85,10 @@ class GameMap {
     this.tiles = new Uint8Array(this.w * this.h);
     this.block = new Uint8Array(this.w * this.h);
     this.portals = []; this.objects = []; this.buildings = []; this.fountain = null;
+    this.paved = []; this.caveMouths = []; this.daylight = []; this.seams = []; // รอยต่อกับแมพข้างเคียง (seamTransitions)
     this.rng = U.seeded(def.seed);
     for (const side in def.links) {
-      const p = PORTAL_SIDE[side](this.w, this.h);
+      const p = portalPos(def, side);
       this.portals.push({ x: p.x, y: p.y, ax: p.ax, ay: p.ay, to: def.links[side], toSide: OPP_SIDE[side] });
     }
     if (def.kind === 'town') this.genTown();
@@ -188,10 +195,12 @@ class GameMap {
     }
     for (let y = 2; y < h - 2; y++) for (let x = 2; x < w - 2; x++)
       if (this.tile(x, y) === T.GRASS && R() < (d.flowers || 0.04)) this.set(x, y, T.FLOWER);
+    this.seamTransitions('before');
     const cx = w >> 1, cy = h >> 1;
     for (const p of this.portals) this.carvePath(p.x, p.y, cx, cy, T.DIRT, 1);
     this.disc(cx + 0.5, cy + 0.5, 3.5, T.GRASS, 10, [T.TREE, T.WATER, T.FLOWER]);
     for (const p of this.portals) { this.set(p.x, p.y, T.DIRT); this.set(p.ax, p.ay, T.DIRT); }
+    this.seamTransitions('after');
     this.floodCleanup(cx, cy, T.TREE);
   }
 
@@ -228,6 +237,51 @@ class GameMap {
     for (const [ox, oy] of [[8, 8], [w - 9, 8], [8, h - 9], [w - 9, h - 9]]) this.carvePath(cx, cy, ox, oy, T.CAVE, 1);
     this.disc(cx + 0.5, cy + 0.5, 4, T.CAVE, 10, [T.ROCK]);
     this.floodCleanup(cx, cy, T.ROCK);
+    this.seamTransitions('after');
+  }
+
+  // รอยต่อกับแมพข้างเคียง (โลกเชื่อมกันทางกายภาพ — js/world.js):
+  // ทุ่ง→เมือง = ถนนหินอ่อนต่อจากประตูเมืองแล้วค่อยกลายเป็นทางดิน • ทุ่ง→ถ้ำ = สันหินตามขอบด้านนั้น + ปากถ้ำตรงประตู
+  // ถ้ำ→ทุ่ง = แสงแดด/มอสส่องเข้ามาที่ปากทาง (วาดตอนเรนเดอร์) • ทุ่ง↔ทุ่ง = ต้นไม้พันธุ์ของแมพข้าง ๆ ปนมากขึ้นเมื่อใกล้ขอบ (flora.js)
+  seamTransitions(phase) {
+    for (const p of this.portals) {
+      const nd = MAP_DEFS[p.to]; if (!nd) continue;
+      const side = typeof WORLD !== 'undefined' ? WORLD.sideOf(this, p) : OPP_SIDE[p.toSide];
+      const dx = Math.sign(p.ax - p.x), dy = Math.sign(p.ay - p.y), qx = -dy, qy = dx;
+      const kind = this.def.kind;
+      if (phase === 'before' && kind === 'field' && nd.kind === 'cave') {
+        const ns = side === 'N' || side === 'S', along = ns ? this.w : this.h, pa = ns ? p.x : p.y;
+        for (let a = 0; a < along; a++) {
+          const depth = 3 + Math.round(U.fbm(a / 5, side.charCodeAt(0) * 3, this.def.seed + 17, 2) * 6) + Math.max(0, 3 - Math.abs(a - pa) / 3 | 0);
+          for (let k = 0; k < 2 + depth; k++) {
+            const x = side === 'W' ? k : side === 'E' ? this.w - 1 - k : a, y = side === 'N' ? k : side === 'S' ? this.h - 1 - k : a;
+            if (!this.inb(x, y) || Math.abs(a - pa) <= 1) continue; // ช่องปากถ้ำ (ถนนจะเจาะผ่านพอดี)
+            this.set(x, y, T.ROCK);
+          }
+        }
+        this.caveMouths.push(p);
+      }
+      if (phase === 'after') {
+        if (kind === 'field' && nd.kind === 'town') {
+          for (let i = 0; i <= 11; i++) for (let k = -1; k <= 1; k++) {
+            const x = p.x + dx * i + qx * k, y = p.y + dy * i + qy * k;
+            if (this.inb(x, y) && this.tile(x, y) !== T.WATER && (i > 0 || k === 0)) this.set(x, y, T.STONE);
+          }
+          this.paved.push({ x: p.x, y: p.y, dx, dy, qx, qy, len: 11 });
+        } else if (kind === 'cave' && nd.kind !== 'cave') this.daylight.push(p);
+        else if (kind === 'field' && nd.kind === 'field') this.seams.push({ side, def: nd });
+      }
+    }
+  }
+  // น้ำหนักแมพข้างเคียงที่จุด (x, y): 1 ที่ขอบ → 0 ที่ระยะ 14 ช่อง (ใช้ผสมพันธุ์ไม้/ของประดับ)
+  seamWeight(x, y) {
+    let best = null;
+    for (const s of this.seams || []) {
+      const d = s.side === 'W' ? x : s.side === 'E' ? this.w - 1 - x : s.side === 'N' ? y : this.h - 1 - y;
+      const wgt = Math.max(0, 1 - (d - 2) / 14);
+      if (wgt > 0 && (!best || wgt > best.w)) best = { def: s.def, w: wgt };
+    }
+    return best;
   }
 
   // เมือง Neo Eldheim ตามภาพ assets/map_eldheim.webp: ลานหินอ่อน น้ำพุคริสตัลกลางสระกลม
@@ -386,7 +440,7 @@ class GameMap {
       const mg = mk.getContext('2d'), md = mg.createImageData(this.w, this.h);
       for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) {
         const tc = this.terrainClass(this.tile(x, y));
-        if (tc === cls || (cls === 'grass' && (this.tile(x, y) === T.WATER || (orgDirt && tc === 'dirt'))) || (cls === 'cave' && this.def.kind === 'cave' && tc === 'rock')) { md.data[(y * this.w + x) * 4 + 3] = 255; any = true; }
+        if (tc === cls || (cls === 'grass' && (this.tile(x, y) === T.WATER || (orgDirt && tc === 'dirt') || (this.def.kind !== 'cave' && tc === 'rock'))) || (cls === 'cave' && this.def.kind === 'cave' && tc === 'rock')) { md.data[(y * this.w + x) * 4 + 3] = 255; any = true; }
       }
       if (!any) continue;
       mg.putImageData(md, 0, 0);
@@ -408,6 +462,7 @@ class GameMap {
     if (this.def.kind !== 'town' && this.def.kind !== 'cave') this.lightVariation(g, W, H);
     const town = this.def.kind === 'town' && typeof TownArt !== 'undefined';
     if (town) { TownArt.floor(this, g); this.texClasses.add('stone'); }
+    else if (this.paved.length && typeof TownArt !== 'undefined') { TownArt.pave(this, g); this.texClasses.add('stone'); } // ถนนหินอ่อนต่อจากประตูเมือง
     // 1.6) หน้ากากหญ้าความละเอียดต่ำ (4px/ช่อง เบลอแล้ว) สำหรับหญ้าพลิ้วตามลมตอนเล่น
     this.grassMask = null;
     // มี Flora: หญ้านิ่งแบบภาพวาด (หย่อมดิน/หญ้ากระจุก/เงาต้นไม้ที่อบลงพื้นจะไม่ถูกชั้นหญ้าพลิ้วทับ) — ต้นไม้/พุ่มไม้ยังไหวตามลม
@@ -433,14 +488,16 @@ class GameMap {
     if (town) TownArt.over(this, g); else this.drawWater(g, P, depth);
     // 4) ผนังหิน (ถ้ำ) มีมิติ
     if (this.def.kind === 'cave') { this.caveWalls(g, W, H); if (this.def.caveTheme) this.caveTheme(g, W, H); }
+    else if (this.caveMouths.length) this.caveWalls(g, W, H, true); // สันหินก่อนถึงปากถ้ำ (ทุ่ง → ถ้ำ)
     else for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) if (this.tile(x, y) === T.ROCK) this.rockTile(g, x, y);
+    this.seamArt(g);
     // 5) ของตกแต่ง — ถ้ามีภาพ (assets/prop_*) จะเป็นวัตถุตั้งตรงเรียงความลึก ไม่อบลงพื้น
     this.props = [];
     this.decorate(g);
     for (const b of this.buildings) { b.img = BUILDING_ART[b.label] || (b.kind === 'castle' ? 'prop_bld_tower' : null); if (!propArt(b.img)) { b.img = null; this.drawBuilding(g, b); } }
     this.fountainImg = !!(this.fountain && propArt('prop_fountain'));
     if (this.fountain && !this.fountainImg) this.drawFountain(g);
-    if (this.def.kind === 'town') this.placeTownProps();
+    if (this.def.kind === 'town') this.placeTownProps(); else this.placeSeamProps();
     this.ground = c;
     // เก็บตำแหน่งน้ำไว้ทำคลื่นเคลื่อนไหว
     this.waterTiles = [];
@@ -545,7 +602,7 @@ class GameMap {
     const h = (i, k = 0) => U.hash2(x * 13 + i, y * 29 + k, seed + 5);
     const sides = [[0, -1], [0, 1], [-1, 0], [1, 0]];
     if (this.def.kind === 'town' && typeof TownArt !== 'undefined') return; // เมือง: ขอบคมแบบงานหินอ่อน (TownArt วาดขอบกระถาง/ขอบคลองเอง)
-    if ((cls === 'dirt' && !this.orgDirt) || (cls === 'stone' && t === T.STONE)) {
+    if ((cls === 'dirt' && !this.orgDirt) || (cls === 'stone' && t === T.STONE && !this.paved.length)) {
       for (const [dx, dy] of sides) {
         const nc = this.terrainClass(this.tile(x + dx, y + dy));
         if (nc !== 'grass') continue;
@@ -724,7 +781,7 @@ class GameMap {
 
   // ผนังถ้ำแบบหน้าผา: ขอบโค้งธรรมชาติ (ไม่เป็นเหลี่ยมตามช่อง) • ยอดหินมืดมีลาย • ขอบปากผาสว่าง
   // หน้าผาฝั่งใต้สูง ~0.6 ช่องไล่สี + ริ้วหินแนวตั้ง • เงาทอดและความมืดสะสม (AO) บนพื้นข้างผนัง
-  caveWalls(g, W, H) {
+  caveWalls(g, W, H, field = false) {
     const S = 2, ts = TILE / S, mw = this.w * ts, mh = this.h * ts, seed = this.def.seed;
     const M = new Float32Array(mw * mh);
     for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++) if (this.tile((px / ts) | 0, (py / ts) | 0) === T.ROCK) M[py * mw + px] = 1;
@@ -767,7 +824,7 @@ class GameMap {
         if (t > 0.86) L = 1.75; // ปากผารับแสง
       } else { // ยอดหิน: มืดกว่าพื้น
         const up = upW[i] <= 3 ? upW[i] : 0;
-        L = 0.2 + (n - 0.5) * 0.22 + (up ? 0.35 / up : 0);
+        L = (field ? 0.62 : 0.2) + (n - 0.5) * (field ? 0.35 : 0.22) + (up ? 0.35 / up : 0);
       }
       sd[o] = Math.min(255, 255 * L * (1 + warm)); sd[o + 1] = Math.min(255, 238 * L); sd[o + 2] = Math.min(255, 228 * L * (1 - warm)); sd[o + 3] = 255;
     }
@@ -777,10 +834,50 @@ class GameMap {
     const tex = typeof Art !== 'undefined' && Art.get('ground_cave');
     if (tex) { const pc = mk(420 / S, 420 / S); pc.getContext('2d').drawImage(tex, 0, 0, 420 / S, 420 / S); wg.fillStyle = wg.createPattern(pc, 'repeat'); } else wg.fillStyle = '#6a5a5e';
     wg.fillRect(0, 0, mw, mh);
+    if (field) { // หินกลางแจ้ง: ย้อมลายหินถ้ำเป็นเทาอมน้ำตาล + หย่อมมอสเขียว
+      wg.globalCompositeOperation = 'color'; wg.fillStyle = '#9a8e7c'; wg.fillRect(0, 0, mw, mh);
+      wg.globalCompositeOperation = 'soft-light'; wg.fillStyle = '#c8bca8'; wg.fillRect(0, 0, mw, mh);
+      wg.globalCompositeOperation = 'source-over';
+      const rr = U.seeded(seed + 77);
+      for (let i = 0; i < mw * mh / 900; i++) { wg.fillStyle = `rgba(${70 + rr() * 30 | 0},${110 + rr() * 40 | 0},${40 + rr() * 20 | 0},${0.25 + rr() * 0.3})`; wg.beginPath(); wg.ellipse(rr() * mw, rr() * mh, 3 + rr() * 9, 2 + rr() * 5, rr() * 3, 0, 7); wg.fill(); }
+    }
     wg.globalCompositeOperation = 'multiply'; wg.drawImage(shC, 0, 0);
     wg.globalCompositeOperation = 'destination-in'; wg.drawImage(alC, 0, 0);
     g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
     g.drawImage(aoC, 0, 0, W, H); g.drawImage(wall, 0, 0, W, H); g.restore();
+  }
+  // ภาพรอยต่อ: ปากถ้ำมืดลึก (ทุ่ง) • แสงแดด + มอส + ใบไม้ปลิวเข้ามาที่ปากทางถ้ำ (ถ้ำ) • เสาไฟริมถนนหินอ่อน (ทุ่ง)
+  seamArt(g) {
+    for (const p of this.caveMouths) {
+      const x = (p.x + 0.5) * TILE, y = (p.y + 0.5) * TILE, r = TILE * 2.6;
+      const gr = g.createRadialGradient(x, y, TILE * 0.3, x, y, r);
+      gr.addColorStop(0, 'rgba(4,2,8,0.95)'); gr.addColorStop(0.45, 'rgba(10,6,14,0.7)'); gr.addColorStop(1, 'rgba(10,6,14,0)');
+      g.save(); g.translate(x, y); g.scale(1, 0.7); g.translate(-x, -y); g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); g.restore();
+    }
+    for (const p of this.daylight) {
+      const x = (p.x + 0.5) * TILE, y = (p.y + 0.5) * TILE, dx = Math.sign(p.ax - p.x), dy = Math.sign(p.ay - p.y);
+      const lx = x + dx * TILE * 2.5, ly = y + dy * TILE * 2.5, r = TILE * 6;
+      // มอสและหญ้าขึ้นตรงที่แดดส่องถึง
+      const rnd = U.seeded(this.def.seed + p.x * 7 + p.y);
+      for (let i = 0; i < 70; i++) {
+        const a = rnd() * Math.PI * 2, d = Math.pow(rnd(), 0.7) * r * 0.75, mx = lx + Math.cos(a) * d, my = ly + Math.sin(a) * d * 0.8;
+        if (this.tile(Math.floor(mx / TILE), Math.floor(my / TILE)) !== T.CAVE) continue;
+        g.fillStyle = `rgba(${70 + rnd() * 40 | 0},${120 + rnd() * 50 | 0},${50 + rnd() * 30 | 0},${0.35 + rnd() * 0.3})`;
+        g.beginPath(); g.ellipse(mx, my, 4 + rnd() * 9, 3 + rnd() * 5, rnd() * 3, 0, 7); g.fill();
+      }
+      g.save(); g.globalCompositeOperation = 'screen';
+      const gr = g.createRadialGradient(lx, ly, TILE * 0.5, lx, ly, r);
+      gr.addColorStop(0, 'rgba(255,236,180,0.55)'); gr.addColorStop(0.5, 'rgba(200,220,150,0.18)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = gr; g.beginPath(); g.arc(lx, ly, r, 0, 7); g.fill(); g.restore();
+    }
+  }
+  placeSeamProps() {
+    if (this.daylight.length) this.extraLights = this.daylight.map(p => ({ x: p.x + 0.5 + Math.sign(p.ax - p.x) * 2.5, y: p.y + 0.5 + Math.sign(p.ay - p.y) * 2.5, lr: 6, col: '255,236,170' }));
+    if (!propArt('prop_lamp')) return;
+    for (const r of this.paved) for (const i of [3, 8]) for (const k of [-2, 2]) {
+      const x = r.x + r.dx * i + r.qx * k, y = r.y + r.dy * i + r.qy * k;
+      if (this.walkable(x, y)) this.props.push({ kind: 'lamp', img: 'prop_lamp', x: x + 0.5, y: y + 0.5, s: 0.9, r: 0.4 });
+    }
   }
   // เอกลักษณ์ถ้ำแต่ละชั้น (def.caveTheme): ย้อมโทนทั้งพื้น + ลายเฉพาะ — Archive = ตราผนึก/อักษรรูนทองสลักพื้น • Roots = รากไม้ชอนไชจากผนัง
   caveTheme(g, W, H) {

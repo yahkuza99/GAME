@@ -125,12 +125,12 @@
   // ประตูจาก Hel's Hollow ลงไป: ใช้ด้านที่ยังว่าง (ปกติ S เพราะ N คือ Wolfwood)
   const freeSide = (links, pref) => pref.find(s => !links[s]);
   MAP_DEFS.archive = {
-    name: 'Archive Depths', thai: L('คลังประกายชั้นล่าง ใต้โพรงแห่งเฮล', "The lower spark archive, beneath Hel's Hollow"), w: 81, h: 81, kind: 'cave', seed: 606, dark: true,
+    name: 'Archive Depths', thai: L('คลังประกายชั้นล่าง ใต้โพรงแห่งเฮล', "The lower spark archive, beneath Hel's Hollow"), w: 72, h: 92, kind: 'cave', seed: 606, dark: true,
     links: {}, level: '33-45',
     spawns: [['rust_sap', 18], ['archive_warden', 13], ['rust_mine', 14], ['archive_maiden', 13], ['rust_draugr', 11]],
   };
   MAP_DEFS.roots = {
-    name: 'Gnawed Roots', thai: L('รากที่ถูกแทะ ใต้คลังของเฮล', "Gnawed roots beneath Hel's archive"), w: 84, h: 84, kind: 'cave', seed: 707, dark: true,
+    name: 'Gnawed Roots', thai: L('รากที่ถูกแทะ ใต้คลังของเฮล', "Gnawed roots beneath Hel's archive"), w: 100, h: 72, kind: 'cave', seed: 707, dark: true,
     links: {}, level: '45-60 (MVP: Garmr)',
     spawns: [['root_crawler', 18], ['gnawed_stump', 14], ['gnawed_brute', 13], ['root_gnawer', 11]], mvp: 'garmr',
   };

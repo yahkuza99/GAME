@@ -1120,33 +1120,37 @@ const UI = {
     for (const k in pos) pos[k] = [pos[k][0] - x0, pos[k][1] - y0];
     return (this._world = { pos, cols: Math.max(...xs) - x0 + 1, rows: Math.max(...ys) - y0 + 1 });
   },
+  // แผนที่โลกตามภูมิศาสตร์จริง (js/world.js): ขนาด/ตำแหน่งการ์ด = ขนาด/ตำแหน่งแมพบนผืนโลก แมพติดกันตรงประตู • จุดเหลือง = ตำแหน่งเราจริง
   renderWorld() {
-    const body = $('#w-world .win-body'), W = this.worldLayout();
+    const body = $('#w-world .win-body');
     const qt = typeof Quest !== 'undefined' ? Quest.navTarget() : null;
     const key = `${G.map.id}|${qt ? qt.map : ''}|${Nav.target ? Nav.target.map : ''}`;
-    if (body.dataset.key === key) return;
-    body.dataset.key = key; body.innerHTML = '';
-    const grid = h('div', { class: 'wm-grid', style: `grid-template-columns:repeat(${W.cols},1fr);grid-template-rows:repeat(${W.rows},auto)` });
-    // เส้นเชื่อมประตู (SVG ใต้การ์ด ใช้พิกัดสัดส่วนของตาราง)
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('class', 'wm-links'); svg.setAttribute('viewBox', `0 0 ${W.cols * 100} ${W.rows * 100}`); svg.setAttribute('preserveAspectRatio', 'none');
-    const seen = new Set();
-    for (const [id, [x, y]] of Object.entries(W.pos)) for (const to of Object.values(MAP_DEFS[id].links || {})) {
-      const k = [id, to].sort().join('-'); if (seen.has(k) || !W.pos[to]) continue; seen.add(k);
-      const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      ln.setAttribute('x1', x * 100 + 50); ln.setAttribute('y1', y * 100 + 50); ln.setAttribute('x2', W.pos[to][0] * 100 + 50); ln.setAttribute('y2', W.pos[to][1] * 100 + 50);
-      svg.append(ln);
+    if (body.dataset.key !== key || !body.querySelector('.wm-geo')) {
+      body.dataset.key = key; body.innerHTML = '';
+      const P = WORLD.layout(), B = WORLD.bounds(), pad = 6;
+      const ratio = (B.w + pad * 2) / (B.h + pad * 2), geo = h('div', { class: 'wm-geo', style: `aspect-ratio:${B.w + pad * 2} / ${B.h + pad * 2};width:min(100%, calc(68vh * ${ratio.toFixed(3)}))` });
+      const pc = (v, base, tot) => ((v - base + pad) / (tot + pad * 2) * 100).toFixed(3) + '%';
+      for (const [id, pos] of Object.entries(P)) {
+        const d = MAP_DEFS[id], art = Art.get('map_' + id), here = id === G.map.id;
+        const card = h('button', { class: 'wm-card wm-abs' + (here ? ' here' : ''), 'data-map': id,
+          style: `left:${pc(pos.x, B.x0, B.w)};top:${pc(pos.y, B.y0, B.h)};width:${(d.w / (B.w + pad * 2) * 100).toFixed(3)}%;height:${(d.h / (B.h + pad * 2) * 100).toFixed(3)}%` + (art ? `;background-image:linear-gradient(transparent 35%, rgba(4,8,16,.9)), url(${art.src})` : ''),
+          onclick: () => { if (!here) { Nav.goTo({ kind: 'map', map: id, name: d.name }); this.close('w-world'); } } },
+          h('b', {}, d.name), h('small', {}, d.kind === 'town' ? L('เมือง • ปลอดภัย', 'Town • Safe') : `Lv ${String(d.level || '').replace(/\s*\(.*\)/, '')}`),
+          h('span', { class: 'wm-tags' }, d.mvp ? h('i', { class: 'wm-mvp' }, 'MVP') : null, qt && qt.map === id ? h('i', { class: 'wm-q' }, L('📜 เควสต์', '📜 Quest')) : null));
+        geo.append(card);
+        // ประตูเชื่อม: จุดบนรอยต่อ
+        for (const [side, to] of Object.entries(d.links || {})) {
+          if (!P[to] || !PORTAL_SIDE[side] || id > to) continue;
+          const pp = portalPos(d, side), gx = pos.x + (side === 'E' ? d.w : side === 'W' ? 0 : pp.x + 0.5), gy = pos.y + (side === 'S' ? d.h : side === 'N' ? 0 : pp.y + 0.5);
+          geo.append(h('i', { class: 'wm-gate', style: `left:${pc(gx, B.x0, B.w)};top:${pc(gy, B.y0, B.h)}` }));
+        }
+      }
+      geo.append(h('i', { class: 'wm-me' }));
+      body.append(geo, h('div', { class: 'hint' }, L('ขนาดและตำแหน่งตามพื้นที่จริง — แมพติดกันตรงประตู • จุดเหลือง = ตำแหน่งคุณ • แตะแมพเพื่อเดินทางไปเอง', 'True size and position — maps meet at their gates • yellow dot = you • tap a map to travel there')));
     }
-    grid.append(svg);
-    for (const [id, [x, y]] of Object.entries(W.pos)) {
-      const d = MAP_DEFS[id], art = Art.get('map_' + id), here = id === G.map.id;
-      const card = h('button', { class: 'wm-card' + (here ? ' here' : ''), style: `grid-column:${x + 1};grid-row:${y + 1}` + (art ? `;background-image:linear-gradient(transparent 30%, rgba(4,8,16,.92)), url(${art.src})` : ''),
-        onclick: () => { if (!here) { Nav.goTo({ kind: 'map', map: id, name: d.name }); this.close('w-world'); } } },
-        h('b', {}, d.name), h('small', {}, d.kind === 'town' ? L('เมือง • ปลอดภัย', 'Town • Safe') : `Lv ${String(d.level || '').replace(/\s*\(.*\)/, '')}`),
-        h('span', { class: 'wm-tags' }, here ? h('i', { class: 'wm-here' }, L('📍 อยู่ที่นี่', '📍 You are here')) : null, d.mvp ? h('i', { class: 'wm-mvp' }, 'MVP') : null, qt && qt.map === id ? h('i', { class: 'wm-q' }, L('📜 เควสต์', '📜 Quest')) : null));
-      grid.append(card);
-    }
-    body.append(grid, h('div', { class: 'hint' }, L('แตะแผนที่เพื่อเดินทางไปเอง (ผ่านประตูอัตโนมัติ) • เส้นคือทางเชื่อมระหว่างแผนที่', 'Tap a map to travel there automatically (through portals) • lines show map connections')));
+    // ตำแหน่งผู้เล่นจริงบนโลก (อัปเดตทุกครั้ง)
+    const me = body.querySelector('.wm-me'), P = WORLD.layout(), B = WORLD.bounds(), pos = P[G.map.id];
+    if (me) { me.hidden = !pos; if (pos) { const pad = 6; me.style.left = ((pos.x + G.player.x - B.x0 + pad) / (B.w + pad * 2) * 100).toFixed(3) + '%'; me.style.top = ((pos.y + G.player.y - B.y0 + pad) / (B.h + pad * 2) * 100).toFixed(3) + '%'; } }
   },
   // ---------------- ต้นไม้พาสซีฟ (แบบ PoE) ----------------
   // ลากเพื่อเลื่อน • ล้อเมาส์/ปุ่ม +− ซูม • แตะจุดเพื่อดูรายละเอียด แล้วกดปุ่มเปิด (เปิดทั้งเส้นทางได้ถ้าแต้มพอ)

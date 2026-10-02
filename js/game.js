@@ -1491,7 +1491,7 @@ function updatePlayer(dt) {
   if (portal) {
     const td = MAP_DEFS[portal.to], ar = td.arrive && td.arrive[G.map.id];
     if (ar) changeMap(portal.to, ar[0], ar[1]);
-    else { const a = PORTAL_SIDE[portal.toSide](td.w, td.h); changeMap(portal.to, a.ax + 0.5, a.ay + 0.5); }
+    else { const a = portalPos(td, portal.toSide); changeMap(portal.to, a.ax + 0.5, a.ay + 0.5); }
   }
 }
 

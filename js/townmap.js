@@ -77,6 +77,55 @@ const TownArt = {
     g.restore();
   },
 
+  // ---------- ถนนหินอ่อนนอกเมือง (ทุ่งที่ติดประตูเมือง): แผ่นหินอ่อนขอบทอง เส้นแสงกลางถนนจางลงเมื่อห่างเมือง ----------
+  pave(m, g) {
+    const W = m.w, H = m.h, isP = (x, y) => m.tile(x, y) === T.STONE;
+    g.save(); g.beginPath();
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (isP(x, y)) g.rect(x * TILE, y * TILE, TILE, TILE);
+    g.clip();
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (isP(x, y)) {
+      const px = x * TILE, py = y * TILE, k = this.hh(m, x, y, 1), a = 222 + k * 16 | 0;
+      g.fillStyle = `rgb(${a},${a + 2},${a + 6})`; g.fillRect(px, py, TILE, TILE);
+      g.strokeStyle = `rgba(140,150,168,${0.15 + k * 0.15})`; g.lineWidth = 0.9;
+      g.beginPath(); g.moveTo(px + this.hh(m, x, y, 3) * TILE, py); g.bezierCurveTo(px + k * TILE, py + TILE * 0.4, px + (1 - k) * TILE, py + TILE * 0.6, px + this.hh(m, x, y, 4) * TILE, py + TILE); g.stroke();
+      g.fillStyle = 'rgba(176,146,84,0.5)'; g.fillRect(px, py, TILE, 1.2); g.fillRect(px, py, 1.2, TILE);
+      // คราบดิน/หญ้าแทรกตามร่อง: ยิ่งห่างเมืองยิ่งรก
+      const wild = Math.min(1, (m.paved || []).reduce((b, r) => Math.min(b, Math.abs((x - r.x) * r.dx + (y - r.y) * r.dy)), 99) / 11);
+      // หญ้าขึ้นตามร่องแผ่นหิน: ยิ่งห่างเมืองยิ่งรก
+      if (this.hh(m, x, y, 8) < 0.15 + wild * 0.7) {
+        const n = 1 + Math.floor(wild * 4);
+        for (let i = 0; i < n; i++) {
+          const onX = this.hh(m, x, y, 9 + i) < 0.5, gx = onX ? px + this.hh(m, x, y, 20 + i) * TILE : px + 1, gy = onX ? py + 1 : py + this.hh(m, x, y, 30 + i) * TILE;
+          g.fillStyle = i % 2 ? 'rgba(78,140,52,0.85)' : 'rgba(120,180,70,0.8)';
+          g.beginPath(); g.ellipse(gx, gy, 1.6 + wild * 1.8, 1.1 + wild * 0.8, this.hh(m, x, y, 40 + i) * 3, 0, 7); g.fill();
+        }
+      }
+    }
+    for (const r of m.paved || []) { // เส้นแสงกลางถนน
+      const len = r.len + 0.5;
+      for (let i = 0; i < len; i += 0.5) {
+        const x0 = (r.x + 0.5 + r.dx * i) * TILE, y0 = (r.y + 0.5 + r.dy * i) * TILE, x1 = x0 + r.dx * TILE * 0.35, y1 = y0 + r.dy * TILE * 0.35;
+        g.globalAlpha = Math.max(0, 1 - i / len) * 0.9;
+        this.glow(g, () => { g.moveTo(x0, y0); g.lineTo(x1, y1); }, 2);
+      }
+      g.globalAlpha = 1;
+    }
+    g.restore();
+    // ขอบถนน: ขอบหินยก + เส้นทอง
+    for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) if (isP(x, y)) {
+      const px = x * TILE, py = y * TILE;
+      for (const [dx, dy] of [[0, -1], [0, 1], [-1, 0], [1, 0]]) {
+        const t = m.tile(x + dx, y + dy); if (t === T.STONE || t === T.TREE && (x + dx < 2 || y + dy < 2 || x + dx >= W - 2 || y + dy >= H - 2)) continue;
+        const hor = dy !== 0, ex = dx > 0 ? px + TILE : px, ey = dy > 0 ? py + TILE : py;
+        g.fillStyle = 'rgba(30,40,20,0.3)';
+        if (hor) g.fillRect(px, dy > 0 ? ey : ey - 4, TILE, 4); else g.fillRect(dx > 0 ? ex : ex - 4, py, 4, TILE);
+        g.fillStyle = '#eef1f5';
+        if (hor) g.fillRect(px, dy > 0 ? ey - 4 : ey, TILE, 4); else g.fillRect(dx > 0 ? ex - 4 : ex, py, 4, TILE);
+        this.gold(g, () => { if (hor) { const yy = dy > 0 ? ey - 4 : ey + 4; g.moveTo(px, yy); g.lineTo(px + TILE, yy); } else { const xx = dx > 0 ? ex - 4 : ex + 4; g.moveTo(xx, py); g.lineTo(xx, py + TILE); } }, 1.1);
+      }
+    }
+  },
+
   // ---------- 2) คลอง สะพาน น้ำพุ เส้นแสง กระถาง ----------
   over(m, g) {
     this.canals(m, g);
