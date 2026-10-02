@@ -10,7 +10,7 @@
 const PSTAT = {
   str: 'STR', agi: 'AGI', vit: 'VIT', int: 'INT', dex: 'DEX', luk: 'LUK',
   atk: 'ATK', matk: 'MATK', def: 'DEF', mdef: 'MDEF', hit: 'HIT', flee: 'FLEE', crit: 'CRI',
-  hp: L('HP สูงสุด', 'Max HP'), sp: L('SP สูงสุด', 'Max SP'), hpPct: L('% HP สูงสุด', '% Max HP'), spPct: L('% SP สูงสุด', '% Max SP'),
+  hp: 'Max HP', sp: 'Max SP', hpPct: L('% HP สูงสุด', '% Max HP'), spPct: L('% SP สูงสุด', '% Max SP'),
   atkPct: L('% ดาเมจกายภาพ', '% Physical DMG'), matkPct: '% MATK', critDmgPct: L('% แรงคริติคอล', '% Crit DMG'), aspdPct: L('% ความเร็วโจมตี', '% Attack Speed'),
   castPct: L('% ร่ายเร็วขึ้น', '% Cast Speed'), speedPct: L('% ความเร็วเดิน', '% Move Speed'), healPct: L('% ฮีลแรงขึ้น', '% Healing'), regenPct: L('% HP ฟื้นต่อรอบ', '% HP Regen per tick'),
   leech: L('% ดาเมจกายภาพดูดเป็น HP', '% Physical Lifesteal'), stunRes: L('% ต้านมึน', '% Stun Resist'), spCostPct: L('% SP ที่ใช้', '% SP Cost'), range: L('ระยะธนู', 'Bow Range'),

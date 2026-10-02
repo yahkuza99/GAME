@@ -153,8 +153,8 @@ const Party = {
     if (!mine) return;
     if (this.party) { this.reply(v, 'busy'); return; }
     if (this.invite && this.invite.partyId !== v.partyId) this.reply(this.invite, 'no'); // คำเชิญใหม่แทนอันเดิม
-    this.invite = { from: String(v.from), fromName: this.cleanName(v.fromName) || L('ผู้เล่น', 'Player'), partyId: String(v.partyId).slice(0, 40),
-      partyName: this.cleanName(v.partyName) || L('ปาร์ตี้', 'Party'), since: +v.since || 0, n: +v.n || 1, exp: Date.now() + PARTY_INVITE_SEC * 1000 };
+    this.invite = { from: String(v.from), fromName: this.cleanName(v.fromName) || 'Player', partyId: String(v.partyId).slice(0, 40),
+      partyName: this.cleanName(v.partyName) || 'Party', since: +v.since || 0, n: +v.n || 1, exp: Date.now() + PARTY_INVITE_SEC * 1000 };
     UI.msg(L(`${this.invite.fromName} เชิญคุณเข้าปาร์ตี้ "${this.invite.partyName}"`, `${this.invite.fromName} invited you to the party "${this.invite.partyName}"`), 'party');
     Sound.play('quest_new');
     this.showInvite();
@@ -182,7 +182,7 @@ const Party = {
   },
   onReply(r) {
     if (!r || r.to !== this.me()) return;
-    const n = this.cleanName(r.fromName) || L('ผู้เล่น', 'Player');
+    const n = this.cleanName(r.fromName) || 'Player';
     this.invited.delete(r.from); this.invited.delete('n:' + n.toLowerCase());
     if (r.ans === 'busy') UI.msg(L(`${n} อยู่ในปาร์ตี้อื่นอยู่แล้ว`, `${n} is already in another party.`), 'err');
     else if (r.ans === 'full') UI.msg(L(`${n} เข้าปาร์ตี้ไม่ได้ เพราะปาร์ตี้เต็ม`, `${n} couldn't join because the party is full.`), 'err');
@@ -206,8 +206,8 @@ const Party = {
       h('div', { class: 'pinv-t' }, h('small', {}, L('คำเชิญเข้าปาร์ตี้', 'Party Invite')),
         h('span', {}, h('b', {}, v.fromName), L(' ชวนคุณเข้า ', ' invites you to join '), h('b', { class: 'pinv-pn' }, v.partyName))),
       h('div', { class: 'pinv-btns' },
-        h('button', { type: 'button', class: 'btn pinv-yes', onclick: () => this.accept() }, L('รับ', 'Accept')),
-        h('button', { type: 'button', class: 'btn pinv-no', onclick: () => this.decline() }, L('ปฏิเสธ', 'Decline'))),
+        h('button', { type: 'button', class: 'btn pinv-yes', onclick: () => this.accept() }, 'Accept'),
+        h('button', { type: 'button', class: 'btn pinv-no', onclick: () => this.decline() }, 'Decline')),
       h('i', { class: 'pinv-bar' }, h('b', { style: `animation-duration:${left.toFixed(1)}s` })));
     el.hidden = false;
   },
@@ -422,7 +422,7 @@ const Party = {
     body.dataset.key = key;
     const scroll = body.scrollTop;
     body.innerHTML = '';
-    w.querySelector('.win-title span').textContent = this.party ? L(`ปาร์ตี้ — ${this.party.name}`, `Party — ${this.party.name}`) : L('ปาร์ตี้ (Party)', 'Party');
+    w.querySelector('.win-title span').textContent = this.party ? `Party — ${this.party.name}` : L('Party', 'Party');
     const icon = (k, cls) => h('span', { class: cls || 'py-ic', html: partySvg(k) });
     const avatar = (job, crown) => {
       const em = Art.get('emblem_' + job);
@@ -436,7 +436,7 @@ const Party = {
         box.append(h('div', { class: 'py-nrow' }, avatar(o.job),
           h('span', { class: 'py-mid' }, h('b', {}, o.name), h('small', {}, `${JOBS[o.job] ? JOBS[o.job].name : ''} · Lv ${o.baseLv || 1}${o.dead ? L(' · ล้มอยู่', ' · fallen') : ''}`)),
           canInvite ? h('button', { type: 'button', class: 'btn small py-inv' + (p ? ' wait' : ''), disabled: p ? 'disabled' : false,
-            onclick: () => this.sendInvite({ id: o.id, name: o.name }) }, p ? L('รอตอบ…', 'Waiting…') : L('เชิญ', 'Invite')) : null));
+            onclick: () => this.sendInvite({ id: o.id, name: o.name }) }, p ? L('รอตอบ…', 'Waiting…') : 'Invite') : null));
       }
       if (!near.length) box.append(h('div', { class: 'py-none' }, L('ยังไม่มีผู้เล่นอื่นในแผนที่นี้ • ชวนคนที่อยู่แผนที่อื่นได้ด้วย /invite ชื่อ', 'No other players on this map yet • Invite players on other maps with /invite name')));
       return box;
@@ -473,11 +473,11 @@ const Party = {
       list.append(h('div', { class: `py-row${m.me ? ' me' : ''}${off ? ' off' : ''}${m.dead ? ' dead' : ''}` },
         avatar(m.job, m.id === lead),
         h('span', { class: 'py-mid' },
-          h('span', { class: 'py-n' }, h('b', {}, m.name), m.me ? h('em', {}, L('คุณ', 'You')) : null, m.id === lead ? h('small', { class: 'py-lead' }, L('หัวหน้า', 'Leader')) : null,
+          h('span', { class: 'py-n' }, h('b', {}, m.name), m.me ? h('em', {}, L('คุณ', 'You')) : null, m.id === lead ? h('small', { class: 'py-lead' }, 'Leader') : null,
             h('small', { class: 'py-s' }, `${JOBS[m.job] ? JOBS[m.job].name : ''} · Lv ${m.lv}${m.dead ? L(' · ล้ม', ' · fallen') : ''}`)),
           off ? h('span', { class: 'py-map', html: `${partySvg('pin')}<span>${U.esc(MAP_DEFS[m.map] ? MAP_DEFS[m.map].name : m.map)}</span>` })
             : h('span', { class: 'py-bars' }, bar('hp', hk, `${Math.round(m.hp)}/${m.maxHp}`), bar('sp', sk, `${Math.round(m.sp)}/${m.maxSp}`))),
-        leader && !m.me ? h('button', { type: 'button', class: 'btn small danger py-kick', title: L(`เตะ ${m.name} ออกจากปาร์ตี้`, `Kick ${m.name} from the party`), onclick: () => this.kick(m.id) }, L('เตะ', 'Kick')) : null));
+        leader && !m.me ? h('button', { type: 'button', class: 'btn small danger py-kick', title: L(`เตะ ${m.name} ออกจากปาร์ตี้`, `Kick ${m.name} from the party`), onclick: () => this.kick(m.id) }, 'Kick') : null));
     }
     const n = elig + 1;
     body.append(

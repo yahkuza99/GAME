@@ -407,7 +407,7 @@ function csLoading(text, retry) {
   $('#charsel').classList.remove('hidden');
   $('#charsel').classList.add('loading');
   $('#cs-list').innerHTML = '';
-  $('#cs-list').append(h('div', { class: 'cs-wait' }, text, retry ? h('button', { type: 'button', class: 'linkbtn', onclick: retry }, L('ลองใหม่', 'Retry')) : null));
+  $('#cs-list').append(h('div', { class: 'cs-wait' }, text, retry ? h('button', { type: 'button', class: 'linkbtn', onclick: retry }, 'Retry') : null));
   $('#cs-info').innerHTML = ''; $('#cs-count').textContent = ''; $('.cs-stage').dataset.slot = '';
   csFakes = [];
   for (const id of ['#btn-continue', '#btn-new', '#cs-delete', '#cs-import']) $(id).classList.add('hidden');
@@ -461,10 +461,10 @@ function csRenderInfo() {
       h('div', { class: 'cs-stats' },
         h('span', {}, h('small', {}, 'Base Lv'), h('b', {}, c.baseLv || 1)),
         h('span', {}, h('small', {}, 'Job Lv'), h('b', {}, c.jobLv || 1)),
-        h('span', { class: 'wide' }, h('small', {}, L('แผนที่', 'Map')), h('b', {}, csMapName(c)))));
+        h('span', { class: 'wide' }, h('small', {}, 'Map'), h('b', {}, csMapName(c)))));
   } else info.append(h('div', { class: 'cs-empty' }, L('ยังไม่มีตัวละคร — สร้างตัวแรกของคุณ!', 'No characters yet — create your first unit!')));
   $('#btn-continue').classList.toggle('hidden', !n);
-  $('#btn-continue').innerHTML = c ? L(`เข้าเกม<small>${U.esc(c.name)}</small>`, `Play<small>${U.esc(c.name)}</small>`) : L('เข้าเกม', 'Play');
+  $('#btn-continue').innerHTML = c ? L(`เข้าเกม<small>${U.esc(c.name)}</small>`, `Play<small>${U.esc(c.name)}</small>`) : 'Play';
 }
 function csSelect(i, focus) {
   if (i === csSel) return;
@@ -516,7 +516,7 @@ function csAskDelete(i) {
     h('div', { class: 'cs-cf-text' }, h('b', {}, L(`ลบ ${c.name}?`, `Delete ${c.name}?`)),
       h('span', {}, L(`${JOBS[csJob(c)].name} Base Lv ${c.baseLv || 1} — ไอเทม เงิน และความคืบหน้าทั้งหมดจะหายไป ย้อนกลับไม่ได้ พิมพ์ชื่อตัวละครเพื่อยืนยัน`, `${JOBS[csJob(c)].name} Base Lv ${c.baseLv || 1} — all items, zeny and progress will be lost. This cannot be undone. Type the character name to confirm.`))),
     inp,
-    h('div', { class: 'cs-cf-btns' }, h('button', { type: 'button', class: 'tbtn small', onclick: () => csConfirmClose() }, L('ยกเลิก', 'Cancel')), del));
+    h('div', { class: 'cs-cf-btns' }, h('button', { type: 'button', class: 'tbtn small', onclick: () => csConfirmClose() }, 'Cancel'), del));
   box.classList.remove('hidden');
   $('#charsel').classList.add('confirming');
   inp.focus();
@@ -658,10 +658,9 @@ function drawTitlePreview(t) {
   g.restore();
 }
 
-// รูปแบบ HUD: Visor (ค่าเริ่มต้น) หรือ คลาสสิก — สลับได้ในตั้งค่า
+// รูปแบบ HUD: Visor แบบเดียว (เลิกตัวเลือกคลาสสิกแล้ว — เซฟเก่าที่ตั้ง classic ไว้ก็ใช้ Visor)
 function applyHudStyle() {
-  const o = G.player && G.player.options;
-  document.body.classList.toggle('visor', !o || o.hud !== 'classic');
+  document.body.classList.add('visor');
   UI.dirty();
 }
 function startGame(p, isNew) {

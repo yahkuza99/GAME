@@ -20,7 +20,7 @@ function newPlayer(name, gender, hair, look) {
     name, gender, hair, look: Object.assign({ head: gender === 'f' ? 'long' : 'spiky', color: '#e6e9ef', glow: '#7ad8ff', visor: 'band' }, look || {}), job: 'novice', baseLv: 1, jobLv: 1, baseExp: 0, jobExp: 0,
     stats: { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 }, statPoints: 48, skillPoints: 0,
     skills: { first_aid: 1 }, passives: [], zeny: 500, inventory: [],
-    equip: { head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null },
+    equip: { head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null, acc2: null },
     hotbar: [null, null, null, null, null, null, null, null], potbar: [null, null, null, null],
     map: HOME_MAP, x: 20.5, y: 24.5, save: { map: HOME_MAP, x: 20.5, y: 24.5 },
     hp: 1, sp: 1, options: { autoLoot: true, autoCounter: true, sound: true, music: false, musicVol: 0.7, expMsg: true }, uidSeq: 1, quests: { i: 0, n: 0, done: [] }, storage: [], kills: {},
@@ -163,7 +163,7 @@ function loadGameFrom(data) {
   const p = newPlayer(data.name, data.gender, data.hair);
   for (const k of SAVE_FIELDS) if (data[k] !== undefined) p[k] = data[k];
   // ป้องกันข้อมูลเสีย
-  p.equip = Object.assign({ head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null }, p.equip);
+  p.equip = Object.assign({ head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null, acc2: null }, p.equip);
   p.inventory = (p.inventory || []).filter(e => e && ITEMS[e.id]);
   p.storage = (Array.isArray(p.storage) ? p.storage : []).filter(e => e && ITEMS[e.id] && e.qty > 0);
   for (const s in p.equip) if (p.equip[s] && !ITEMS[p.equip[s].id]) p.equip[s] = null;
@@ -409,11 +409,11 @@ function equipItem(entry, silent) {
   const it = ITEMS[entry.id];
   if (!isEquipType(it) || !canEquip(it, !silent)) return;
   if (it.wtype === 'bow' && p.equip.shield) unequip('shield', true);
-  const pv = silent ? null : previewEquip(entry);
-  if (p.equip[it.slot]) unequip(it.slot, true);
+  const pv = silent ? null : previewEquip(entry), slot = equipSlotFor(it, p);
+  if (p.equip[slot]) unequip(slot, true);
   const i = p.inventory.indexOf(entry);
   if (i >= 0) p.inventory.splice(i, 1);
-  p.equip[it.slot] = entry;
+  p.equip[slot] = entry;
   recalc();
   if (!silent) { UI.msg(L(`สวมใส่ ${itemDisplayName(entry)}${pv && pv.diff.length ? ` (${fmtDiff(pv.diff)})` : ''}`, `Equipped ${itemDisplayName(entry)}${pv && pv.diff.length ? ` (${fmtDiff(pv.diff)})` : ''}`), 'sys'); Sound.play('equip'); }
 }
@@ -430,12 +430,13 @@ function previewEquip(entry) {
   const save = { equip: Object.assign({}, p.equip), d: p.d, hp: p.hp, sp: p.sp, dirty: UI.isDirty };
   const before = statSnap(p.d);
   if (it.wtype === 'bow') p.equip.shield = null;
-  p.equip[it.slot] = entry;
+  const slot = equipSlotFor(it, p);
+  p.equip[slot] = entry;
   let after;
   try { recalc(); after = statSnap(p.d); }
   finally { p.equip = save.equip; p.d = save.d; p.hp = save.hp; p.sp = save.sp; UI.isDirty = save.dirty; }
   const diff = CMP_STATS.map(([k]) => [k, after[k] - before[k], after[k]]).filter(([, dv]) => dv);
-  return { before, after, diff, replaced: save.equip[it.slot] };
+  return { before, after, diff, replaced: save.equip[slot] };
 }
 const fmtDiff = diff => diff.map(([k, dv]) => `${k} ${dv > 0 ? '+' : '−'}${U.fmt(Math.abs(dv))}`).join(' · ');
 function unequip(slot, silent) {

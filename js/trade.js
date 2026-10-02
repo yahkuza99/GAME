@@ -504,7 +504,7 @@ const Trade = {
     body.innerHTML = '';
     const trading = !!t && !!t.my;
     w.classList.toggle('tr-wide', trading);
-    $('.win-title span', w).textContent = trading ? L(`แลกเปลี่ยนกับ ${t.name}`, `Trade with ${t.name}`) : L('แลกเปลี่ยน (Trade)', 'Trade');
+    $('.win-title span', w).textContent = trading ? `Trade with ${t.name}` : L('Trade', 'Trade');
     if (!Online.online) body.append(this.viewOffline());
     else if (!t) body.append(this.viewList());
     else if (t.state === 'req') body.append(this.viewWaiting());
@@ -563,8 +563,8 @@ const Trade = {
       h('div', { class: 'tr-wait-t' }, h('b', {}, t.name), L(' ขอแลกเปลี่ยนไอเทมกับคุณ', ' wants to trade items with you')),
       h('div', { class: 'tr-timer tr-sub' }),
       h('div', { class: 'tr-btns' },
-        h('button', { type: 'button', class: 'btn tr-primary tr-accept', onclick: () => this.accept() }, L('ยอมรับ', 'Accept')),
-        h('button', { type: 'button', class: 'btn tr-decline', onclick: () => this.decline('decline') }, L('ปฏิเสธ', 'Decline'))));
+        h('button', { type: 'button', class: 'btn tr-primary tr-accept', onclick: () => this.accept() }, 'Accept'),
+        h('button', { type: 'button', class: 'btn tr-decline', onclick: () => this.decline('decline') }, 'Decline')));
   },
   viewTrade() {
     const t = this.t, my = t.my, th = t.their, both = my.locked && th.locked;
@@ -586,14 +586,14 @@ const Trade = {
     if (det) wrap.append(det);
     if (this.editable()) wrap.append(this.picker());
     wrap.append(h('div', { class: 'tr-acts' },
-      h('button', { type: 'button', class: 'btn tr-lock' + (my.locked ? ' on' : ''), disabled: t.state !== 'open' || my.locked, onclick: () => this.lock() }, my.locked ? L('ล็อกแล้ว', 'Locked') : L('ล็อก', 'Lock')),
-      h('button', { type: 'button', class: 'btn tr-ok' + (both && !my.confirmed && t.state === 'open' ? ' tr-primary' : '') + (my.confirmed ? ' on' : ''), disabled: !both || my.confirmed || t.state !== 'open', onclick: () => this.confirm() }, my.confirmed ? L('ตกลงแล้ว', 'Confirmed') : L('ตกลง', 'OK')),
-      h('button', { type: 'button', class: 'btn danger tr-cancel', disabled: t.state === 'commit', onclick: () => this.abort('cancel', true) }, L('ยกเลิก', 'Cancel'))));
+      h('button', { type: 'button', class: 'btn tr-lock' + (my.locked ? ' on' : ''), disabled: t.state !== 'open' || my.locked, onclick: () => this.lock() }, my.locked ? 'Locked' : 'Lock'),
+      h('button', { type: 'button', class: 'btn tr-ok' + (both && !my.confirmed && t.state === 'open' ? ' tr-primary' : '') + (my.confirmed ? ' on' : ''), disabled: !both || my.confirmed || t.state !== 'open', onclick: () => this.confirm() }, my.confirmed ? L('ตกลงแล้ว', 'Confirmed') : 'OK'),
+      h('button', { type: 'button', class: 'btn danger tr-cancel', disabled: t.state === 'commit', onclick: () => this.abort('cancel', true) }, 'Cancel')));
     return wrap;
   },
   column(side, title, s) {
     const t = this.t, mineSide = side === 'my';
-    const st = s.confirmed ? ['ok', L('ตกลงแล้ว', 'Confirmed')] : s.locked ? ['lock', L('ล็อกแล้ว', 'Locked')] : ['', L('กำลังเลือก', 'Choosing')];
+    const st = s.confirmed ? ['ok', L('ตกลงแล้ว', 'Confirmed')] : s.locked ? ['lock', 'Locked'] : ['', L('กำลังเลือก', 'Choosing')];
     const grid = h('div', { class: 'tr-slots' });
     for (let i = 0; i < TRADE_CFG.slots; i++) {
       const x = s.items[i];
@@ -629,7 +629,7 @@ const Trade = {
       h('div', { class: 'tr-dt' },
         h('b', {}, itemDisplayName(x), x.qty > 1 ? h('small', {}, ` ×${U.fmt(x.qty)}`) : null),
         h('small', {}, lines.length ? lines.join(' • ') : (it.desc || ''))),
-      this.sel.side === 'my' && this.editable() ? h('button', { type: 'button', class: 'btn small tr-rm', onclick: () => this.removeOffer(this.sel.i) }, L('นำออก', 'Remove')) : null);
+      this.sel.side === 'my' && this.editable() ? h('button', { type: 'button', class: 'btn small tr-rm', onclick: () => this.removeOffer(this.sel.i) }, 'Remove') : null);
   },
   // กระเป๋าของเรา: แตะเพื่อเสนอ (ของกองเลือกจำนวนได้) • ของที่สวมอยู่ไม่อยู่ในกระเป๋า จึงเสนอไม่ได้
   picker() {
@@ -657,7 +657,7 @@ const Trade = {
     const e = this.pick && p.inventory.includes(this.pick) ? this.pick : null;
     if (e) {
       const max = left(e);
-      const inp = h('input', { type: 'number', class: 'tr-qn', min: 1, max, step: 1, value: String(U.clamp(this.pickQty, 1, max)), 'data-focus': 'qty', inputmode: 'numeric', 'aria-label': L('จำนวน', 'Quantity') });
+      const inp = h('input', { type: 'number', class: 'tr-qn', min: 1, max, step: 1, value: String(U.clamp(this.pickQty, 1, max)), 'data-focus': 'qty', inputmode: 'numeric', 'aria-label': 'Quantity' });
       const set = v => { inp.value = String(U.clamp(Math.floor(+v) || 1, 1, max)); this.pickQty = +inp.value; };
       inp.addEventListener('input', () => { this.pickQty = Math.floor(+inp.value) || 1; });
       inp.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); set(inp.value); this.addOffer(e, +inp.value); } ev.stopPropagation(); });
@@ -668,7 +668,7 @@ const Trade = {
           h('button', { type: 'button', class: 'btn small', 'aria-label': L('ลด', 'Decrease'), onclick: () => set(+inp.value - 1) }, '−'),
           inp,
           h('button', { type: 'button', class: 'btn small', 'aria-label': L('เพิ่ม', 'Increase'), onclick: () => set(+inp.value + 1) }, '+'),
-          h('button', { type: 'button', class: 'btn small', onclick: () => set(max) }, L('ทั้งหมด', 'All'))),
+          h('button', { type: 'button', class: 'btn small', onclick: () => set(max) }, 'All')),
         h('button', { type: 'button', class: 'btn small tr-primary tr-add', onclick: () => { set(inp.value); this.addOffer(e, +inp.value); } }, L('ใส่', 'Add'))));
     }
     return wrap;

@@ -710,8 +710,14 @@ const ITEMS = {
 };
 for (const id in ITEMS) ITEMS[id].id = id;
 
-const SLOT_THAI = { weapon: L('อาวุธ', 'Weapon'), head: L('หมวก', 'Headgear'), armor: L('ชุดเกราะ', 'Armor'), shield: L('โล่', 'Shield'), garment: L('ผ้าคลุม', 'Garment'), shoes: L('รองเท้า', 'Shoes'), acc: L('เครื่องประดับ', 'Accessory') };
-const EQUIP_SLOTS = ['head', 'weapon', 'shield', 'armor', 'garment', 'shoes', 'acc'];
+// ชื่อช่องสวมใส่: ใช้คำอังกฤษทั้งสองภาษา (เจ้าของสั่ง: ป้าย UI เป็นภาษาอังกฤษ)
+const SLOT_THAI = { weapon: 'Weapon', head: 'Headgear', armor: 'Armor', shield: 'Shield', garment: 'Garment', shoes: 'Shoes', acc: 'Accessory', acc2: 'Accessory' };
+const EQUIP_SLOTS = ['head', 'weapon', 'shield', 'armor', 'garment', 'shoes', 'acc', 'acc2'];
+// ช่องที่จะสวมไอเทมนี้: เครื่องประดับใส่ช่องที่ว่างก่อน (acc → acc2) เต็มทั้งคู่ = แทนช่องแรก
+function equipSlotFor(it, p) {
+  if (it.slot !== 'acc') return it.slot;
+  return !p.equip.acc ? 'acc' : !p.equip.acc2 ? 'acc2' : 'acc';
+}
 
 // ------------------------------------------------------------
 //  มอนสเตอร์ (ออกแบบใหม่)

@@ -435,19 +435,19 @@ body #w-equip .win-title span::before { background: var(--eq-gold); box-shadow: 
 body #w-equip .win-x { background: rgba(0, 0, 0, .3); color: var(--eq-dim); }
 .eq-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 132px minmax(0, 1fr); gap: 8px; align-items: start; }
 .eq-col { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-body #w-equip .eq-slot { display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: center; gap: 6px; padding: 4px 6px; min-height: 44px; cursor: pointer;
+body #w-equip .eq-slot { display: grid; grid-template-columns: 28px minmax(0, 1fr); align-items: center; gap: 6px; padding: 3px 6px; min-height: 38px; cursor: pointer;
   background: var(--eq-slot); border: 1px solid var(--eq-line); border-radius: 4px; color: var(--eq-ink); box-shadow: inset 0 1px 0 rgba(255, 226, 170, .05); }
 body #w-equip .eq-slot.empty { cursor: default; background: rgba(10, 7, 4, .4); border-style: dashed; border-color: var(--eq-faint); }
 body #w-equip .eq-slot:not(.empty):hover { border-color: var(--eq-line-hi); background: rgba(201, 154, 91, .12); }
-.eq-slot img, .eq-ph { width: 30px; height: 30px; image-rendering: auto; }
+.eq-slot img, .eq-ph { width: 28px; height: 28px; image-rendering: auto; }
 .eq-slot img { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .7)); }
 /* ช่องว่าง: รูนประจำช่อง (หมวก ᚺ • อาวุธ ᛏ • ผ้าคลุม ᚹ • เครื่องประดับ ᛟ • เกราะ ᛒ • โล่ ᛉ • รองเท้า ᚱ) */
 .eq-ph { display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--eq-faint); color: var(--eq-faint); font: 600 16px/1 "Segoe UI Historic", "Noto Sans Runic", serif; }
 .eq-ph-head::after { content: "ᚺ"; } .eq-ph-weapon::after { content: "ᛏ"; } .eq-ph-garment::after { content: "ᚹ"; } .eq-ph-acc::after { content: "ᛟ"; }
-.eq-ph-armor::after { content: "ᛒ"; } .eq-ph-shield::after { content: "ᛉ"; } .eq-ph-shoes::after { content: "ᚱ"; }
+.eq-ph-acc2::after { content: "ᛟ"; } .eq-ph-armor::after { content: "ᛒ"; } .eq-ph-shield::after { content: "ᛉ"; } .eq-ph-shoes::after { content: "ᚱ"; }
 .eq-txt { display: flex; flex-direction: column; min-width: 0; }
 .eq-n { font-size: 9.5px; color: var(--eq-dim); letter-spacing: .04em; text-transform: uppercase; }
-.eq-i { font-size: 11.5px; font-weight: 600; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+.eq-i { font-size: 11.5px; font-weight: 600; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } /* ชื่อบรรทัดเดียว (ยาวเกินตัด …) — ชี้/แตะดูชื่อเต็มใน tooltip */
 .eq-slot.empty .eq-i { color: var(--eq-faint); }
 .eq-mid { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 body #w-equip .eq-prev { width: 132px; height: 173px; border: 1px solid var(--eq-line); border-radius: 6px;

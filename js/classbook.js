@@ -22,7 +22,7 @@ const CLASSBOOK = {
     tips: L('VIT ช่วยแรงตีด้วย (เฉพาะสายนี้) • Valhalla\'s Oath ลด SP ที่ใช้ ช่วยให้กดสกิลได้นานขึ้น', 'VIT also adds attack for this line • Valhalla\'s Oath cuts SP costs so you can keep casting.'),
   },
   runecaster: {
-    diff: 2, weapon: L('คทา', 'Rod'),
+    diff: 2, weapon: 'Rod',
     stats: [['int', 60], ['dex', 30], ['vit', 10]],
     build: [['rune_mastery', 5], ['fire_rune', 5], ['thunder_rune', 5], ['runic_ward', 5], ['ice_rune', 3], ['earth_rune', 2]],
     play: L('ยิงเวทจากระยะไกล Ice Rune ทำให้ช้าก่อนเข้าถึงตัว Fire Rune เผาต่อเนื่อง ฝูงใหญ่ใช้ Thunder Rune', 'Nuke from range: slow with Ice Rune, burn with Fire Rune, and blast groups with Thunder Rune.'),
@@ -30,7 +30,7 @@ const CLASSBOOK = {
     tips: L('DEX ลดเวลาร่าย • Runic Ward เพิ่ม HP/MDEF ช่วยให้รอดง่ายขึ้นมาก', 'DEX shortens cast time • Runic Ward adds HP/MDEF and makes survival much easier.'),
   },
   wildhunter: {
-    diff: 2, weapon: L('ธนู', 'Bow'),
+    diff: 2, weapon: 'Bow',
     stats: [['dex', 60], ['agi', 30], ['luk', 10]],
     build: [['eagle_eye', 5], ['piercing_arrow', 5], ['hunters_rhythm', 5], ['blast_trap', 4], ['wolf_companion', 3], ['charge_arrow', 3]],
     play: L('ยิงจากระยะไกล Piercing Arrow ทะลุแนว มอนเข้าใกล้ใช้ Charge Arrow ผลักออก หมาป่าช่วยรับดาเมจ', 'Shoot from range; Piercing Arrow hits the whole line. Knock close enemies away with Charge Arrow while your wolf tanks.'),
@@ -46,7 +46,7 @@ const CLASSBOOK = {
     tips: L('ไปล่าในโพรงเฮล (อมตะเยอะ) จะคุ้มที่สุด', 'Hel\'s Hollow (full of undead) is your best hunting ground.'),
   },
   trickster: {
-    diff: 3, weapon: L('มีดสั้น', 'Dagger'),
+    diff: 3, weapon: 'Dagger',
     stats: [['agi', 50], ['str', 30], ['luk', 20]],
     build: [['shadow_step', 5], ['backstab', 5], ['venom_blade', 5], ['lokis_gambit', 5], ['throwing_knife', 3], ['smoke_veil', 2]],
     play: L('หายตัวด้วย Smoke Veil แล้ว Backstab เปิดดาเมจ อาบพิษด้วย Venom Blade ตีเร็วคริบ่อย', 'Vanish with Smoke Veil, open with Backstab, and coat your blade with Venom Blade for fast, crit-heavy hits.'),
@@ -54,7 +54,7 @@ const CLASSBOOK = {
     tips: L('มีดสั้นได้แรงตีจาก AGI ด้วย • LUK เพิ่มคริติคอล', 'Daggers gain attack from AGI • LUK raises crit rate.'),
   },
   berserker: {
-    diff: 2, weapon: L('ขวาน', 'Axe'),
+    diff: 2, weapon: 'Axe',
     stats: [['str', 50], ['agi', 35], ['vit', 15]],
     build: [['wolf_blood', 5], ['rage_strike', 5], ['blood_frenzy', 5], ['bloodthirst', 5], ['axe_throw', 3], ['howl', 2]],
     play: L('ยิ่ง HP น้อยยิ่งแรง แลกเลือดด้วย Rage Strike / Blood Frenzy แล้วดูดเลือดคืนด้วย Bloodthirst', 'The lower your HP, the harder you hit. Trade HP for power with Rage Strike / Blood Frenzy and drain it back with Bloodthirst.'),
@@ -79,7 +79,7 @@ const CLASSBOOK = {
     tips: L('อัป STR มากกว่าสายแรก เพราะสกิลเน้นตี', 'Lean harder into STR than your first class — the kit is offensive.'),
   },
   galdr: {
-    diff: 2, weapon: L('คทา', 'Rod'),
+    diff: 2, weapon: 'Rod',
     stats: [['int', 60], ['dex', 30], ['vit', 10]],
     build: [['galdr_focus', 5], ['meteor_rune', 5], ['frost_nova', 5], ['rune_barrier', 5], ['chain_lightning', 5]],
     play: L('รวมมอนแล้ว Meteor Rune / Frost Nova ล้างทั้งฝูง มอนเข้าใกล้ Frost Nova ทำให้ช้าแล้วถอย', 'Gather enemies and wipe them with Meteor Rune / Frost Nova; when they close in, slow them with Frost Nova and back off.'),
@@ -87,7 +87,7 @@ const CLASSBOOK = {
     tips: L('เปิด Rune Barrier ไว้ตลอด จะรอดง่ายขึ้นมาก', 'Keep Rune Barrier up at all times — survival improves a lot.'),
   },
   seidr: {
-    diff: 3, weapon: L('คทา', 'Rod'),
+    diff: 3, weapon: 'Rod',
     stats: [['int', 60], ['dex', 25], ['vit', 15]],
     build: [['seidr_lore', 5], ['soul_drain', 5], ['hex_of_hel', 5], ['void_lance', 5], ['dark_nova', 5]],
     play: L('สาปด้วย Hex of Hel ให้ติดพิษ แล้วยิง Soul Drain รัว ๆ ปิดเป้าแข็งด้วย Void Lance', 'Curse with Hex of Hel to poison, spam Soul Drain, and finish tough targets with Void Lance.'),
@@ -95,7 +95,7 @@ const CLASSBOOK = {
     tips: L('ธาตุมืดแรงกับมอนศักดิ์สิทธิ์ (เช่น Seraph Core)', 'Shadow magic hits holy monsters (like Seraph Core) hard.'),
   },
   skadi: {
-    diff: 2, weapon: L('ธนู', 'Bow'),
+    diff: 2, weapon: 'Bow',
     stats: [['dex', 60], ['agi', 30], ['luk', 10]],
     build: [['skadis_mark', 5], ['frost_arrow', 5], ['arrow_storm', 5], ['winter_hunt', 5], ['focused_volley', 5]],
     play: L('Frost Arrow ทำให้ช้า แล้วยิงห่า Arrow Storm ใส่ฝูง เป้าเดียวใช้ Focused Volley', 'Slow with Frost Arrow, rain Arrow Storm on packs, and use Focused Volley on single targets.'),
@@ -103,7 +103,7 @@ const CLASSBOOK = {
     tips: L('Winter Hunt + ตีปกติก็แรงมากแล้ว เก็บ SP ไว้ใช้ Arrow Storm', 'Winter Hunt plus basic attacks is already strong — save SP for Arrow Storm.'),
   },
   ullr: {
-    diff: 2, weapon: L('ธนู', 'Bow'),
+    diff: 2, weapon: 'Bow',
     stats: [['dex', 60], ['luk', 25], ['agi', 15]],
     build: [['ullr_focus', 5], ['sharp_shot', 5], ['snipe', 5], ['twin_shot', 5], ['wind_walk', 5]],
     play: L('ยิงจากไกลสุดด้วย Snipe นัดเดียวจบ มอนรวมกันใช้ Sharp Shot ทะลุแนว', 'Open from max range with Snipe for one-shot kills; use Sharp Shot to pierce lined-up enemies.'),
@@ -127,7 +127,7 @@ const CLASSBOOK = {
     tips: L('รีเซ็ตสเตตัสที่ Mimir แล้วอัป STR/VIT • หาอาวุธกระบองที่แรงขึ้น', 'Reset stats at Mimir and go STR/VIT • upgrade to a stronger mace.'),
   },
   phantom: {
-    diff: 3, weapon: L('มีดสั้น', 'Dagger'),
+    diff: 3, weapon: 'Dagger',
     stats: [['agi', 50], ['str', 30], ['luk', 20]],
     build: [['phantom_edge', 5], ['mirror_strike', 5], ['fang_of_fenrir', 5], ['trickster_haste', 5], ['smoke_cyclone', 5]],
     play: L('Mirror Strike ฟันซ้อนไม่พลาด เปิด Fang of Fenrir ให้ติดพิษ หลายตัวใช้ Smoke Cyclone', 'Mirror Strike never misses; open with Fang of Fenrir for poison and use Smoke Cyclone on groups.'),
@@ -135,7 +135,7 @@ const CLASSBOOK = {
     tips: L('Trickster Haste เพิ่ม FLEE มาก — หลบได้แทบทุกตี', 'Trickster Haste adds lots of FLEE — you dodge most hits.'),
   },
   skald: {
-    diff: 2, weapon: L('มีดสั้น', 'Dagger'),
+    diff: 2, weapon: 'Dagger',
     stats: [['agi', 45], ['dex', 35], ['luk', 20]],
     build: [['skald_verse', 5], ['sonic_strike', 5], ['song_of_battle', 5], ['war_drum', 5], ['hymn_of_loki', 5]],
     play: L('เปิดบทเพลง Song of Battle + Hymn of Loki แล้วยิง Sonic Strike ระยะกลาง โดนรุมใช้ War Drum ให้มึน', 'Open with Song of Battle + Hymn of Loki, attack with mid-range Sonic Strike, and stun crowds with War Drum.'),
@@ -143,7 +143,7 @@ const CLASSBOOK = {
     tips: L('DEX ทำให้ Sonic Strike แม่น • เหมาะเล่นปาร์ตี้', 'DEX keeps Sonic Strike accurate • great in parties.'),
   },
   warlord: {
-    diff: 2, weapon: L('ขวาน', 'Axe'),
+    diff: 2, weapon: 'Axe',
     stats: [['str', 50], ['agi', 35], ['vit', 15]],
     build: [['berserk_soul', 5], ['fenrir_bite', 5], ['ragnarok_cleave', 5], ['war_howl', 5], ['undying_rage', 5]],
     play: L('ลุยกลางฝูง Ragnarok Cleave กวาดรอบตัว Fenrir Bite ปิดเป้า เลือดน้อยเปิด Undying Rage ดูดเลือดคืน', 'Dive into the pack: sweep with Ragnarok Cleave, finish with Fenrir Bite, and pop Undying Rage to drain HP when low.'),
@@ -151,7 +151,7 @@ const CLASSBOOK = {
     tips: L('ปั๊มยา HP ราว 35–40% + Undying Rage = แทบไม่ตาย', 'Auto-potion at 35–40% HP plus Undying Rage = nearly unkillable.'),
   },
   jotun: {
-    diff: 2, weapon: L('ขวาน', 'Axe'),
+    diff: 2, weapon: 'Axe',
     stats: [['str', 55], ['vit', 35], ['agi', 10]],
     build: [['jotun_blood', 5], ['titan_smash', 5], ['earth_splitter', 5], ['giants_wrath', 5], ['mountain_heart', 5]],
     play: L('เปิด Giant\'s Wrath แล้วทุบ Titan Smash ทีละตัว แนวยาวใช้ Earth Splitter เลือดน้อยใช้ Mountain Heart', 'Pop Giant\'s Wrath and crush one enemy at a time with Titan Smash; use Earth Splitter on lines and Mountain Heart when low.'),
@@ -166,7 +166,7 @@ const ClassBook = {
   init() {
     const w = document.createElement('div');
     w.id = 'w-classbook'; w.className = 'win hidden center'; w.style.width = '720px';
-    w.innerHTML = `<div class="win-title"><span>${L('คู่มือ Class', 'Class Guide')}</span></div><div class="win-body"></div>`;
+    w.innerHTML = `<div class="win-title"><span>${'Class Guide'}</span></div><div class="win-body"></div>`;
     (document.getElementById('w-help') || document.body.lastElementChild).after(w);
     const open0 = UI.open.bind(UI);
     UI.open = id => { open0(id); if (id === 'w-classbook') this.render(); };
@@ -202,7 +202,7 @@ const ClassBook = {
     const item = (id, lvl) => h('button', { type: 'button', class: `cb-ti l${lvl}` + (id === this.sel ? ' on' : '') + (id === cur ? ' me' : ''), style: `--g:${JOBS[id].glow || '#7ad8ff'}`,
       onclick: () => { this.sel = id; this.render(); } },
       h('i', {}), h('span', {}, JOBS[id].name), id === cur ? h('em', {}, L('คุณ', 'You')) : null);
-    toc.append(h('div', { class: 'cb-th' }, L('สารบัญ', 'Contents')));
+    toc.append(h('div', { class: 'cb-th' }, 'Contents'));
     toc.append(h('div', { class: 'cb-tg' }, L('เริ่มต้น', 'Starter')), item('novice', 0));
     toc.append(h('div', { class: 'cb-tg' }, L('Class แรก → Class ขั้น 2', 'First class → Second class')));
     for (const [j, kids] of this.tree().slice(1)) { toc.append(item(j, 1)); for (const k of kids) toc.append(item(k, 2)); }
@@ -219,8 +219,8 @@ const ClassBook = {
         h('div', { class: 'cb-thai' }, J.thai || ''),
         h('div', { class: 'cb-chips' },
           J.role ? h('span', {}, J.role) : null,
-          B.diff ? h('span', { title: L('ความยาก', 'Difficulty') }, `${L('ความยาก', 'Difficulty')} ${this.stars(B.diff)}`) : null,
-          B.weapon ? h('span', {}, `${L('อาวุธ', 'Weapon')}: ${B.weapon}`) : null)),
+          B.diff ? h('span', { title: 'Difficulty' }, `${'Difficulty'} ${this.stars(B.diff)}`) : null,
+          B.weapon ? h('span', {}, `${'Weapon'}: ${B.weapon}`) : null)),
     ));
     if (J.desc) det.append(h('p', { class: 'cb-desc' }, J.desc));
     // วิธีได้ Class นี้
@@ -232,7 +232,7 @@ const ClassBook = {
     if (SECOND_JOBS[id]) det.append(this.sec(L('เส้นทางต่อไป', 'Next path'), h('div', { class: 'cb-next' }, ...SECOND_JOBS[id].map(k =>
       h('button', { type: 'button', style: `--g:${JOBS[k].glow}`, onclick: () => { this.sel = k; this.render(); } }, h('b', {}, JOBS[k].name), h('small', {}, JOBS[k].role || ''))))));
     // วิธีเล่น + ข้อดีข้อเสีย
-    if (B.play) det.append(this.sec(L('วิธีเล่น', 'How to play'), h('p', {}, B.play),
+    if (B.play) det.append(this.sec('How to play', h('p', {}, B.play),
       h('div', { class: 'cb-pc' }, h('div', { class: 'pro' }, h('b', {}, L('จุดเด่น', 'Strengths')), B.pros), h('div', { class: 'con' }, h('b', {}, L('จุดอ่อน', 'Weaknesses')), B.cons))));
     // สเตตัสแนะนำ
     if (B.stats) det.append(this.sec(L('สเตตัสแนะนำ (สัดส่วนแต้ม)', 'Recommended stats (point split)'),
@@ -242,7 +242,7 @@ const ClassBook = {
       const total = B.build.reduce((a, [, n]) => a + n, 0);
       const ol = h('ol', { class: 'cb-build' }, ...B.build.map(([sid, n]) => {
         const s = SKILLS[sid]; if (!s) return null;
-        return UI.skillTipFor(h('li', {}, UI.skillIcon(sid), h('div', {}, h('b', {}, `${s.name} `, h('span', {}, `Lv ${n}${n < s.max ? '/' + s.max : ' (MAX)'}`), s.type === 'passive' ? h('em', {}, L('ติดตัว', 'Passive')) : null), h('small', {}, s.desc))), sid);
+        return UI.skillTipFor(h('li', {}, UI.skillIcon(sid), h('div', {}, h('b', {}, `${s.name} `, h('span', {}, `Lv ${n}${n < s.max ? '/' + s.max : ' (MAX)'}`), s.type === 'passive' ? h('em', {}, 'Passive') : null), h('small', {}, s.desc))), sid);
       }).filter(Boolean));
       const note = J.tier === 2 ? L(`ใช้แต้ม Class นี้ ${total} แต้ม (Job 1→${J.jobMax}) — แต้ม Class แรกที่เหลือยกมาใช้ต่อได้`, `Uses ${total} points from this class (Job 1→${J.jobMax}) — leftover first-class points carry over.`)
         : id === 'novice' ? L(`${total} แต้ม (Job 1→${J.jobMax})`, `${total} points (Job 1→${J.jobMax})`)
@@ -252,9 +252,9 @@ const ClassBook = {
     // สกิลทั้งหมดของ Class
     det.append(this.sec(L(`สกิลทั้งหมด (${J.skills.length})`, `All skills (${J.skills.length})`), h('div', { class: 'cb-all' }, ...J.skills.filter(k => SKILLS[k]).map(k => {
       const s = SKILLS[k];
-      return UI.skillTipFor(h('div', { class: 'cb-sk' }, UI.skillIcon(k), h('div', {}, h('b', {}, s.name, s.type === 'passive' ? h('em', {}, L('ติดตัว', 'Passive')) : null), h('small', {}, s.desc + (s.cd ? L(` [คูลดาวน์ ${s.cd} วิ]`, ` [Cooldown ${s.cd}s]`) : '')))), k);
+      return UI.skillTipFor(h('div', { class: 'cb-sk' }, UI.skillIcon(k), h('div', {}, h('b', {}, s.name, s.type === 'passive' ? h('em', {}, 'Passive') : null), h('small', {}, s.desc + (s.cd ? L(` [คูลดาวน์ ${s.cd} วิ]`, ` [Cooldown ${s.cd}s]`) : '')))), k);
     }))));
-    if (B.tips) det.append(this.sec(L('เคล็ดลับ', 'Tips'), h('p', { class: 'cb-tip' }, '💡 ', B.tips)));
+    if (B.tips) det.append(this.sec('Tips', h('p', { class: 'cb-tip' }, '💡 ', B.tips)));
     body.append(h('div', { class: 'cb-wrap' }, toc, det));
     det.scrollTop = 0;
   },

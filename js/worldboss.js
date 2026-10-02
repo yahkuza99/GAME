@@ -184,7 +184,7 @@ const WB = {
     if (!live) { if (el && !el.hidden) el.hidden = true; return; }
     if (!el) { el = document.createElement('div'); el.id = 'wb-top'; el.hidden = true; (document.getElementById('hud') || document.body).append(el); }
     const rows = this.top(map);
-    const html = `<div class="wbt-h">${L('ดาเมจสูงสุด', 'Top damage')}<small>${L('บอสโลก', 'World Boss')}</small></div>` +
+    const html = `<div class="wbt-h">${L('ดาเมจสูงสุด', 'Top damage')}<small>${'World Boss'}</small></div>` +
       (rows.length ? this.rowsHtml(rows, live.maxHp) : `<div class="wbt-e">${L('ยังไม่มีใครตี — เป็นคนแรกสิ!', 'No hits yet — strike first!')}</div>`);
     if (el.innerHTML !== html) el.innerHTML = html;
     if (el.hidden) el.hidden = false;
@@ -198,9 +198,9 @@ const WB = {
       el.addEventListener('click', e => { if (e.target.closest('.wbr-x')) this.closeResult(); });
     }
     const all = this.ranking(map), mine = all.find(r => r.me), rows = this.top(map);
-    el.innerHTML = `<div class="wbr-card"><button class="wbr-x" aria-label="${L('ปิด', 'Close')}">×</button>
+    el.innerHTML = `<div class="wbr-card"><button class="wbr-x" aria-label="${'Close'}">×</button>
       <div class="wbr-k">${L('ปราบบอสโลกแล้ว', 'World Boss defeated')}</div><div class="wbr-t">${U.esc(name || '')}</div>
-      ${mine ? `<div class="wbr-me"><div><small>${L('อันดับของคุณ', 'Your rank')}</small><b>#${mine.rank}<i>/${all.length}</i></b></div><div><small>${L('ดาเมจ', 'Damage')}</small><b>${U.fmt(mine.d)}</b></div><div><small>${L('สัดส่วน', 'Share')}</small><b>${(mine.d / maxHp * 100).toFixed(1)}%</b></div></div>` : ''}
+      ${mine ? `<div class="wbr-me"><div><small>${L('อันดับของคุณ', 'Your rank')}</small><b>#${mine.rank}<i>/${all.length}</i></b></div><div><small>${'Damage'}</small><b>${U.fmt(mine.d)}</b></div><div><small>${L('สัดส่วน', 'Share')}</small><b>${(mine.d / maxHp * 100).toFixed(1)}%</b></div></div>` : ''}
       <div class="wbr-list">${rows.length ? this.rowsHtml(rows, maxHp) : `<div class="wbt-e">${L('ไม่มีบันทึกดาเมจ', 'No damage recorded')}</div>`}</div></div>`;
     el.hidden = false; this.resultOpen = true;
     clearTimeout(this.resultTimer); this.resultTimer = setTimeout(() => this.closeResult(), 15000);

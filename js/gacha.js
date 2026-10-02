@@ -279,7 +279,7 @@ if (MAP_DEFS.eldheim && !MAP_DEFS.eldheim.npcs.some(n => n.id === Gacha.NPC_ID))
     const mvps = Object.values(MOBS).filter(m => m.boss && !m.worldBoss && !m.dummy && !/^wb_/.test(m.id)).sort((a, b) => a.lv - b.lv);
     const where = mid => { const k = Object.keys(MAP_DEFS).find(k => MAP_DEFS[k].mvp === mid || (MAP_DEFS[k].spawns || []).some(s => s[0] === mid)); return k ? MAP_DEFS[k].name : ''; };
     const C = Gacha.C.drop;
-    return h('div', { class: 'tip-src' }, h('b', {}, L('ได้จาก', 'Dropped by')),
+    return h('div', { class: 'tip-src' }, h('b', {}, 'Dropped by'),
       ...mvps.map(m => h('div', {}, `${m.name} (MVP) · Lv ${m.lv}`, h('small', {}, ` ${where(m.id)}${where(m.id) ? ' · ' : ''}×${C.mvp} (100%)`))),
       C.worldBoss > 0 ? h('div', {}, L('World Boss ทุกตัว', 'Every World Boss'), h('small', {}, L(` · ผู้ร่วมตี ×${C.worldBoss} (100%)`, ` · each participant ×${C.worldBoss} (100%)`))) : null);
   };
@@ -385,7 +385,7 @@ Object.assign(Gacha, {
   init() {
     const w = document.createElement('div');
     w.id = 'w-gacha'; w.className = 'win hidden center';
-    w.innerHTML = `<div class="win-title"><span>${L("วงล้อนอร์น (Norn's Wheel)", "Norn's Wheel")}</span></div><div class="win-body gc-body"></div>`;
+    w.innerHTML = `<div class="win-title"><span>${"Norn's Wheel"}</span></div><div class="win-body gc-body"></div>`;
     (document.getElementById('w-classbook') || document.getElementById('w-help') || document.body.lastElementChild).after(w);
     const open0 = UI.open.bind(UI), close0 = UI.close.bind(UI), rw0 = UI.renderWindows.bind(UI);
     UI.open = id => { open0(id); if (id === 'w-gacha') this.render(); };
@@ -404,7 +404,7 @@ Object.assign(Gacha, {
     const m = document.getElementById('menubar'); if (!m || m.querySelector('[data-win="w-gacha"]')) return;
     const b = document.createElement('button');
     b.dataset.win = 'w-gacha'; b.title = L("วงล้อนอร์น — กาชา (R)", "Norn's Wheel — Gacha (R)");
-    b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><circle cx="12" cy="13" r="2.4"/><path d="M12 5v5.6M12 15.4V21M4 13h5.6M14.4 13H20M6.4 7.4l4 4M13.6 14.6l4 4M17.6 7.4l-4 4M10.4 14.6l-4 4"/><path d="M10 2h4l-2 3z"/></svg><span>${L('กาชา', 'Gacha')}</span><small>R</small>`;
+    b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><circle cx="12" cy="13" r="2.4"/><path d="M12 5v5.6M12 15.4V21M4 13h5.6M14.4 13H20M6.4 7.4l4 4M13.6 14.6l4 4M17.6 7.4l-4 4M10.4 14.6l-4 4"/><path d="M10 2h4l-2 3z"/></svg><span>${'Gacha'}</span><small>R</small>`;
     b.addEventListener('click', () => { UI.toggle('w-gacha'); if (typeof Pad !== 'undefined' && Pad.enabled() && UI.setFold) UI.setFold(m, true); });
     const sit = [...m.querySelectorAll('button')].find(x => (x.querySelector('small') || {}).textContent === 'X');
     m.insertBefore(b, sit || null);
@@ -428,7 +428,7 @@ Object.assign(Gacha, {
     if (this.anim) return; // กำลังเล่นแอนิเมชัน: ไม่สร้างใหม่ทับ
     this.applyArt();
     body.innerHTML = '';
-    const tabs = [['wheel', L('วงล้อ', 'Wheel')], ['rates', L('อัตรารางวัล', 'Rates')], ['hist', L('ประวัติ', 'History')]];
+    const tabs = [['wheel', L('วงล้อ', 'Wheel')], ['rates', L('อัตรารางวัล', 'Rates')], ['hist', 'History']];
     body.append(h('div', { class: 'tabs gc-tabs', role: 'tablist' }, ...tabs.map(([k, t]) => h('button', { type: 'button', role: 'tab', class: 'tab' + (this.tab === k ? ' on' : ''), 'aria-selected': this.tab === k ? 'true' : 'false',
       onclick: () => { this.tab = k; Sound.play('click'); this.render(); } }, t))));
     body.append(this.tab === 'rates' ? this.ratesPane() : this.tab === 'hist' ? this.histPane() : this.wheelPane());
@@ -645,7 +645,7 @@ Object.assign(Gacha, {
       if (panel && !panel.querySelector('.gc-rfoot')) {
         panel.classList.add('gc-done');
         panel.append(h('div', { class: 'gc-rfoot' },
-          h('button', { type: 'button', class: 'btn gc-ok', onclick: () => { panel.remove(); const st = main.querySelector('.gc-stage'); if (st) { st.classList.remove('gc-landed'); this.hint(st, 0); } } }, L('ตกลง', 'OK')),
+          h('button', { type: 'button', class: 'btn gc-ok', onclick: () => { panel.remove(); const st = main.querySelector('.gc-stage'); if (st) { st.classList.remove('gc-landed'); this.hint(st, 0); } } }, 'OK'),
           this.rollBtns('gc-again')));
       }
     }

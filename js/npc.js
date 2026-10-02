@@ -30,7 +30,7 @@ NPC.scripts.bifrost = async n => {
   const greet = qDone('mvp1')
     ? L('ข้าจดจำเสียงราก... มันยืดลงไปทางใต้ ช้า ๆ ทางโพรงของเฮล ข้าไม่รู้ว่าดีหรือร้าย<br>ข้าคือผู้ควบคุม <b>ไบฟรอสต์</b> — บันทึกจุดกู้คืน และส่งเจ้าข้ามพื้นที่', 'I remember the voice of the roots... they are stretching south, slowly, toward Hel\'s Hollow. I do not know if that is good or ill.<br>I am the keeper of the <b>Bifrost</b> — I record your recovery point and send you across the lands.')
     : L('ข้าจดจำ... ทุกอย่าง จำนวนใบไม้ที่ส่งออกไป จำนวนครั้งที่เจ้ากลับมา<br>ข้าคือผู้ควบคุม <b>ไบฟรอสต์</b> เครือข่ายสายรุ้ง — บันทึกจุดกู้คืนของเจ้า และส่งเจ้าข้ามพื้นที่ได้', 'I remember... everything. How many leaves were sent out. How many times you came back.<br>I am the keeper of the <b>Bifrost</b>, the rainbow network — I record your recovery point and can send you across the lands.');
-  const c = await UI.menu(nm, greet, [L('บันทึกจุดเกิด (Save)', 'Set Save Point (Save)'), L('ข้ามสะพานสายรุ้ง (เทเลพอร์ต)', 'Cross the Rainbow Bridge (Teleport)'), L('ยกเลิก', 'Cancel')]);
+  const c = await UI.menu(nm, greet, [L('บันทึกจุดเกิด (Save)', 'Set Save Point (Save)'), L('ข้ามสะพานสายรุ้ง (เทเลพอร์ต)', 'Cross the Rainbow Bridge (Teleport)'), 'Cancel']);
   if (c === 0) {
     p.save = { map: G.map.id, x: n.x + 0.5, y: n.y + 1.5 };
     Quest.onEvent('save');
@@ -44,7 +44,7 @@ NPC.scripts.bifrost = async n => {
     const dests = [['meadow', 300], ['mistlake', 600], ['wolfwood', 800], ['helcave', 1200], ['archive', 1800, 33], ['roots', 2500, 45], ['arena', 0]].filter(([id]) => MAP_DEFS[id]);
     const i = await UI.menu(nm, L('ข้าจดจำปลายทางเหล่านี้ — จะให้สายรุ้งพาเจ้าไปที่ใด?', 'I remember these destinations — where shall the rainbow take you?'),
       [...dests.map(([id, z, lv]) => MAP_DEFS[id].pvp ? L(`${MAP_DEFS[id].name} — ลานประลอง PvP (ฟรี)`, `${MAP_DEFS[id].name} — PvP Arena (Free)`)
-        : `${MAP_DEFS[id].name} (Lv ${MAP_DEFS[id].level.split(' ')[0]}) — ${U.fmt(z)} ${CUR}${lv && p.baseLv < lv ? L(` · 🔒 ต้อง Base Lv ${lv}`, ` · 🔒 Base Lv ${lv}+`) : ''}`), L('ยกเลิก', 'Cancel')]);
+        : `${MAP_DEFS[id].name} (Lv ${MAP_DEFS[id].level.split(' ')[0]}) — ${U.fmt(z)} ${CUR}${lv && p.baseLv < lv ? L(` · 🔒 ต้อง Base Lv ${lv}`, ` · 🔒 Base Lv ${lv}+`) : ''}`), 'Cancel']);
     if (i < dests.length) {
       const [id, z, lv] = dests[i];
       if (lv && p.baseLv < lv) { await UI.say(nm, L(`สายรุ้งยังไม่ยอมพาเจ้าลงไปที่ ${B(MAP_DEFS[id].name)}... ข้าจดจำได้ทุกหน่วยที่ลงไปก่อนจะพร้อม<br>กลับมาหาข้าเมื่อเจ้ามี ${B('Base Lv ' + lv)} นะ (ตอนนี้ ${p.baseLv}) — หรือเดินลงไปเองผ่าน Hel's Hollow ถ้ามั่นใจ`, `The rainbow will not yet carry you down to ${B(MAP_DEFS[id].name)}... I remember every unit that went down before it was ready.<br>Come back to me at ${B('Base Lv ' + lv)} (you are ${p.baseLv}) — or walk down through Hel's Hollow yourself, if you are sure.`)); return; }
@@ -128,7 +128,7 @@ NPC.scripts.jobmaster = async n => {
   if (i === 0 || i === 1) {
     const cost = i === 0 ? 5000 : 10000;
     if (p.zeny < cost) { await UI.say(nm, L(`${CUR} ของเจ้าไม่พอ`, `You do not have enough ${CUR}.`)); return; }
-    const c2 = await UI.menu(nm, L(`แน่ใจหรือ? จะเสีย ${U.fmt(cost)} ${CUR}`, `Are you certain? It will cost ${U.fmt(cost)} ${CUR}.`), [L('แน่ใจ', 'I\'m sure'), L('ยกเลิก', 'Cancel')]);
+    const c2 = await UI.menu(nm, L(`แน่ใจหรือ? จะเสีย ${U.fmt(cost)} ${CUR}`, `Are you certain? It will cost ${U.fmt(cost)} ${CUR}.`), [L('แน่ใจ', 'I\'m sure'), 'Cancel']);
     if (c2 !== 0) return;
     p.zeny -= cost;
     const pts = i === 0 ? resetSkills() : resetStats();
@@ -139,7 +139,7 @@ NPC.scripts.jobmaster = async n => {
 
 async function shopNpc(n, key, greet) {
   const nm = `[${n.name}]`;
-  const i = await UI.menu(nm, greet, [L('ซื้อ', 'Buy'), L('ขาย', 'Sell'), L('ยกเลิก', 'Cancel')]);
+  const i = await UI.menu(nm, greet, ['Buy', 'Sell', 'Cancel']);
   if (i > 1) return;
   UI.dlgClose();
   UI.openShop(n.name, SHOPS[key]);
@@ -156,7 +156,7 @@ NPC.scripts.storage = async n => {
   const line = qDone('lv30') ? L('ช่องที่ 47 เป็นของคู่หู Rolf — เขาไม่เคยมาเปิด และข้าไม่เคยทิ้ง', 'Slot 47 belongs to Rolf\'s old partner — he never came to open it, and I never threw it out.')
     : L('ช่องที่ 47 ยังว่าง เจ้าของมันไม่กลับมา 30 ปีแล้ว ข้าไม่ให้ใครเช่า — ระเบียบคือระเบียบ', 'Slot 47 is still empty. Its owner hasn\'t come back in 30 years. I won\'t rent it to anyone — rules are rules.');
   const i = await UI.menu(nm, L(`หน่วยคลังเก็บของ Kaia ${line}<br>ฝากของไว้ที่นี่ได้ ${B(STORAGE_MAX + ' ช่อง')} (ตอนนี้ใช้ ${p.storage.length}) ค่าบริการ ${fee ? B(fee + ' ' + CUR) : B('ฟรีสำหรับ Novice')}`, `Storage Unit Kaia. ${line}<br>You can store up to ${B(STORAGE_MAX + ' slots')} here (in use: ${p.storage.length}). Fee: ${fee ? B(fee + ' ' + CUR) : B('free for Novices')}`),
-    [L('เปิดคลังเก็บของ', 'Open Storage'), L('ยกเลิก', 'Cancel')]);
+    [L('เปิดคลังเก็บของ', 'Open Storage'), 'Cancel']);
   if (i !== 0) return;
   if (p.zeny < fee) { await UI.say(nm, L(`ขออภัย ${CUR} ไม่พอค่าบริการค่ะ — ระเบียบคือระเบียบ`, `Apologies — you don't have enough ${CUR} for the fee. Rules are rules.`)); return; }
   p.zeny -= fee;
@@ -205,7 +205,7 @@ NPC.scripts.guide = async n => {
     : L(`${p.name} — ข้าไม่ห้ามเจ้าอีกแล้ว (เขาแตะหมวกเขาเบา ๆ) แค่กลับมา<br>มีอะไรให้ข้าช่วย?`, `${p.name} — I won't stop you anymore. (He gently touches his horned helm.) Just come back.<br>What do you need?`);
   for (;;) {
     let i = await UI.menu(nm, greet,
-      [L('งานล่าค่าหัวประจำวัน', 'Daily Bounties') + (Bounty.ready().length ? L(` (ส่งได้ ${Bounty.ready().length})`, ` (${Bounty.ready().length} ready)`) : ''), L('วิธีควบคุม', 'Controls'), L('แผนที่รอบเมือง', 'Maps Around Town'), L('ผู้คนในเมือง', 'People in Town'), L('Class อัปเกรดทั้ง 6', 'The 6 Upgrade Classes'), L('เคล็ดลับ', 'Tips'), L('ขอบคุณ', 'Thanks')]);
+      [L('งานล่าค่าหัวประจำวัน', 'Daily Bounties') + (Bounty.ready().length ? L(` (ส่งได้ ${Bounty.ready().length})`, ` (${Bounty.ready().length} ready)`) : ''), L('วิธีควบคุม', 'Controls'), L('แผนที่รอบเมือง', 'Maps Around Town'), L('ผู้คนในเมือง', 'People in Town'), L('Class อัปเกรดทั้ง 6', 'The 6 Upgrade Classes'), 'Tips', L('ขอบคุณ', 'Thanks')]);
     if (i === 0) { await NPC.bountyBoard(nm); continue; }
     i--;
     if (i === 0) await UI.say(nm, L(`• ${B('คลิกซ้าย')} ที่พื้นเพื่อเดิน / คลิกค้างเพื่อเดินตามเมาส์<br>• ${B('คลิกมอนสเตอร์')} เพื่อโจมตีอัตโนมัติ<br>• ${B('คลิกไอเทม')} บนพื้นเพื่อเก็บ<br>• ${B('1-9')} ใช้ปุ่มลัด • ${B('X')} นั่งพัก (ฟื้นฟูเร็วขึ้น)<br>• ${B('A')} สถานะ • ${B('E')} ไอเทม • ${B('Q')} อุปกรณ์ • ${B('S')} สกิล • ${B('Enter')} แชท<br>• ${B('ล้อเมาส์')} ซูมเข้า/ออก`, `• ${B('Left-click')} the ground to walk / hold to follow the mouse<br>• ${B('Click a monster')} to auto-attack<br>• ${B('Click an item')} on the ground to pick it up<br>• ${B('1-9')} hotkeys • ${B('X')} sit and rest (faster recovery)<br>• ${B('A')} status • ${B('E')} items • ${B('Q')} equipment • ${B('S')} skills • ${B('Enter')} chat<br>• ${B('Mouse wheel')} zoom in/out`));
@@ -248,7 +248,7 @@ NPC.scripts.refine = async n => {
   const oreOn = typeof LOOT !== 'undefined';
   const oreNote = oreOn ? L(`<br>ตั้งแต่ +5 ขึ้นไป ทุกครั้งที่ตีต้องใช้แร่ 1 ชิ้น: ${B(ITEMS[LOOT.ORE.weapon].name)} (อาวุธ) / ${B(ITEMS[LOOT.ORE.armor].name)} (ชุดเกราะ) — ได้จากมอนสเตอร์เลเวลกลางขึ้นไป`, `<br>From +5 upward, every strike also needs 1 ore: ${B(ITEMS[LOOT.ORE.weapon].name)} for weapons, ${B(ITEMS[LOOT.ORE.armor].name)} for armor — mid-level monsters and up drop them.`) : '';
   const i = await UI.menu(nm, L(`${intro}+1~+4 สำเร็จแน่นอน หลังจากนั้นอาจพลาดได้ — แต่ไม่ต้องกลัว <b>ของไม่มีวันแตก</b> แค่เสียค่าบริการ${oreNote}<br>จะตีบวกชิ้นไหน เจ้าหนู?`, `${intro}+1 to +4 always succeeds. After that it might miss — but fear not, <b>your gear never breaks</b>. You only lose the fee!${oreNote}<br>Which piece are we hammering, kiddo?`),
-    [...slots.map(s => `${SLOT_THAI[s]}: ${itemDisplayName(p.equip[s])}`), L('ยกเลิก', 'Cancel')]);
+    [...slots.map(s => `${SLOT_THAI[s]}: ${itemDisplayName(p.equip[s])}`), 'Cancel']);
   if (i >= slots.length) return;
   const slot = slots[i], e = p.equip[slot];
   if ((e.refine || 0) >= 10) { await UI.say(nm, L('ชิ้นนี้ถูกตีบวกถึง +10 แล้ว ไม่มีอะไรให้ข้าทำอีก — ฝีมือข้าเองนี่นา ฮ่าฮ่า!', 'This piece is already at +10. Nothing left for me to do — my own handiwork, after all! Ha-ha!')); return; }
@@ -260,7 +260,7 @@ NPC.scripts.refine = async n => {
   const oreLine = needOre(lvl) ? L(` • ใช้ ${B(oreName + ' 1 ชิ้น')} (มี ${B(countItem(ore))})`, ` • uses ${B('1 ' + oreName)} (you have ${B(countItem(ore))})`)
     : ore ? L(` • ตั้งแต่ +5 ต้องใช้ ${oreName}`, ` • from +5: needs ${oreName}`) : '';
   const c = await UI.menu(nm, L(`ตีบวก ${B(itemDisplayName(e))} (ตอนนี้ +${lvl})<br>ครั้งถัดไป +${lvl + 1}: ค่าบริการ ${B(U.fmt(costAt(lvl)) + ' ' + CUR)}${oreLine} • โอกาสสำเร็จ ${B(Math.round(rate * 100) + '%')}<br>หากพลาด อุปกรณ์ยังอยู่ครบ เสียแค่ค่าบริการ${ore ? 'และแร่' : ''} • มี ${B(U.fmt(p.zeny) + ' ' + CUR)}`, `Refine ${B(itemDisplayName(e))} (currently +${lvl})<br>Next, +${lvl + 1}: fee ${B(U.fmt(costAt(lvl)) + ' ' + CUR)}${oreLine} • success rate ${B(Math.round(rate * 100) + '%')}<br>On a miss your gear stays intact — you only lose the fee${ore ? ' and the ore' : ''} • You have ${B(U.fmt(p.zeny) + ' ' + CUR)}`),
-    [L('ตี 1 ครั้ง', 'Strike once'), L('ตีต่อเนื่องอัตโนมัติจนถึงเป้า', 'Auto-strike until target'), L('ยกเลิก', 'Cancel')]);
+    [L('ตี 1 ครั้ง', 'Strike once'), L('ตีต่อเนื่องอัตโนมัติจนถึงเป้า', 'Auto-strike until target'), 'Cancel']);
   if (c !== 0 && c !== 1) return;
   let target = lvl + 1;
   if (c === 1) {
@@ -271,7 +271,7 @@ NPC.scripts.refine = async n => {
         let sum = 0, ores = 0; for (let l = lvl; l < t; l++) { sum += costAt(l) / RATE[l]; if (needOre(l)) ores += 1 / RATE[l]; }
         const o = ores ? L(` + ${oreName} ~${Math.ceil(ores)}`, ` + ~${Math.ceil(ores)} ${oreName}`) : '';
         return L(`+${t} (เฉลี่ยราว ${U.fmt(Math.round(sum))} ${CUR}${o})`, `+${t} (avg. ~${U.fmt(Math.round(sum))} ${CUR}${o})`);
-      }), L('ยกเลิก', 'Cancel')]);
+      }), 'Cancel']);
     if (k >= tg.length) return;
     target = tg[k];
   }
@@ -318,7 +318,7 @@ NPC.scripts.refine = async n => {
   const forge = NPC.scripts.refine;
   NPC.scripts.refine = async n => {
     const nm = `[${n.name}]`;
-    const c = await UI.menu(nm, L('มาหา Brokk มีงานอะไรให้ข้าทำ?', 'Come to see Brokk, eh? What job have you got for me?'), [L('ตีบวกอุปกรณ์', 'Refine Equipment'), L('ถอดชิปออกจากอุปกรณ์ (ฟรี)', 'Remove Chips from Equipment (Free)'), L('ยกเลิก', 'Cancel')]);
+    const c = await UI.menu(nm, L('มาหา Brokk มีงานอะไรให้ข้าทำ?', 'Come to see Brokk, eh? What job have you got for me?'), [L('ตีบวกอุปกรณ์', 'Refine Equipment'), L('ถอดชิปออกจากอุปกรณ์ (ฟรี)', 'Remove Chips from Equipment (Free)'), 'Cancel']);
     if (c === 0) return forge(n);
     if (c === 1) return NPC.unsocket(nm);
   };
@@ -329,10 +329,10 @@ NPC.unsocket = async nm => {
   const list = [...EQUIP_SLOTS.map(s => p.equip[s]).filter(Boolean), ...p.inventory.filter(e => isEquipType(ITEMS[e.id]))].filter(e => e.cards && e.cards.length);
   if (!list.length) { await UI.say(nm, L('ไม่มีอุปกรณ์ชิ้นไหนติดชิปอยู่เลย<br>ติดชิปได้ที่ช่องเก็บของ แท็บ <b>ชิป</b> แล้วกด "ใส่ชิป"', 'None of your gear has any chips in it!<br>You can socket chips from the <b>Chips</b> tab of your inventory.')); return; }
   const i = await UI.menu(nm, L(`จะถอดชิปจากชิ้นไหน? ${B('ไม่คิดค่าบริการ')} ชิปจะกลับเข้ากระเป๋าครบ`, `Which piece should I pull chips from? ${B('No charge')} — every chip goes right back into your bag.`),
-    [...list.map(e => `${itemDisplayName(e)} — ${e.cards.map(c => ITEMS[c].name).join(', ')}`), L('ยกเลิก', 'Cancel')]);
+    [...list.map(e => `${itemDisplayName(e)} — ${e.cards.map(c => ITEMS[c].name).join(', ')}`), 'Cancel']);
   if (i >= list.length) return;
   const e = list[i];
-  const opts = e.cards.length > 1 ? [...e.cards.map(c => ITEMS[c].name), L('ถอดทั้งหมด', 'Remove All'), L('ยกเลิก', 'Cancel')] : [ITEMS[e.cards[0]].name, L('ยกเลิก', 'Cancel')];
+  const opts = e.cards.length > 1 ? [...e.cards.map(c => ITEMS[c].name), L('ถอดทั้งหมด', 'Remove All'), 'Cancel'] : [ITEMS[e.cards[0]].name, 'Cancel'];
   const j = await UI.menu(nm, L(`ถอดชิปชิ้นไหนออกจาก ${B(itemDisplayName(e))}?`, `Which chip comes out of ${B(itemDisplayName(e))}?`), opts);
   const all = e.cards.length > 1 && j === e.cards.length;
   if (!all && j >= e.cards.length) return;

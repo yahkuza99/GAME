@@ -296,7 +296,7 @@ const Daily = {
     const tab = (k, label, extra) => h('button', { type: 'button', class: 'tab' + ((UI.questTab || 'story') === k ? ' on' : ''), 'data-qtab': k,
       onclick: () => { UI.questTab = k; const b = document.querySelector('#w-quest .win-body'); b.dataset.key = ''; b.dataset.dk = ''; UI.renderQuest(); Sound.play('click'); } }, label, extra);
     return h('div', { class: 'tabs dl-tabs' }, tab('story', L('เนื้อเรื่อง', 'Story')),
-      tab('daily', L('ประจำวัน', 'Daily'), s && txt ? h('i', { class: 'dl-tab-badge' + (txt === '!' ? ' ready' : '') }, txt) : null));
+      tab('daily', 'Daily', s && txt ? h('i', { class: 'dl-tab-badge' + (txt === '!' ? ' ready' : '') }, txt) : null));
   },
   render(body) {
     const s = this.state(), p = G.player;
@@ -334,7 +334,7 @@ const Daily = {
         h('div', { class: 'dl-ic' }, ok ? '✓' : this.KINDS[t.t].ic),
         h('div', { class: 'dl-main' }, h('div', { class: 'dl-t' }, this.title(t)), h('div', { class: 'dl-sub' }, this.sub(t)),
           h('div', { class: 'dl-bar' }, h('i', { style: `width:${Math.round(Math.min(t.got, t.n) / t.n * 100)}%` }))),
-        nav ? h('button', { type: 'button', class: 'btn small dl-go', title: L('นำทาง', 'Navigate'), onclick: () => { Nav.goTo(nav); UI.close('w-quest'); } }, L('🧭 ไป', '🧭 Go')) : null));
+        nav ? h('button', { type: 'button', class: 'btn small dl-go', title: 'Navigate', onclick: () => { Nav.goTo(nav); UI.close('w-quest'); } }, L('🧭 ไป', '🧭 Go')) : null));
     }
     // หีบ
     const r = this.rewards(s.claimed ? s.streak : next);
@@ -373,7 +373,7 @@ const Daily = {
         h('div', { class: 'dl-rv-t' }, L(`🔥 สตรีค ${r.streak} วัน`, `🔥 ${r.streak}-day streak`)),
         h('div', { class: 'dl-rv-items' }, ...rows.map(([id, txt], i) => h('div', { class: 'dl-rv-it' + (id === 'yggdrasil_shard' ? ' rare' : ''), style: `animation-delay:${0.55 + i * 0.12}s` },
           ITEMS[id] ? h('img', { src: itemIconUrl(id), alt: '' }) : h('span', { class: 'dl-rv-dot ' + id.slice(1) }), h('span', {}, txt)))),
-        h('button', { type: 'button', class: 'btn big', onclick: close }, L('รับของ', 'Collect'))));
+        h('button', { type: 'button', class: 'btn big', onclick: close }, 'Collect')));
     document.body.append(ov);
   },
 };
