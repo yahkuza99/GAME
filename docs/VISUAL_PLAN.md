@@ -1,4 +1,4 @@
-# NEO MIDGARD — Visual Plan / แผนความสวยงาม
+# IRON VALHALLA — Visual Plan / แผนความสวยงาม
 
 > Companion to `docs/ART_REQUESTS.md` (what to generate). This file covers **how the game should look and feel**, which
 > code work goes with each art batch, and the order to do it in. Story and tone source: `docs/STORY.md`.

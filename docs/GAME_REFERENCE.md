@@ -1,4 +1,4 @@
-# NEO MIDGARD — เอกสารเกม (Game Reference)
+# IRON VALHALLA — เอกสารเกม (Game Reference)
 
 > สร้างอัตโนมัติจากข้อมูลจริงในเกมด้วย `tools/make_reference.js` • อัปเดต 2026-10-02
 > แก้ตัวเลขในไฟล์ `js/` แล้วรันสคริปต์ใหม่ เอกสารนี้จะตรงกับเกมเสมอ
@@ -660,12 +660,12 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 | Stiletto | 60 |  | 12 | 2 | 6 Class | ดี | 7,500 | Buzz Unit 0.04% |
 | Springsteel Kris | 66 |  | 12 | 1 | 6 Class | ดี | 1,350 | Hopper Unit 0.2% |
 | Mistfang | 76 |  | 16 | 2 | 6 Class | หายาก | 7,400 | Hopper Unit 0.04% |
-| Emberfang | 70 | 40 | 25 | 0 | 6 Class | มหากาพย์ | 60,000 | Kitsura EX 3.6%, Ancient Kitsura EX 2.5% |
+| Emberfang | 70 | 40 | 25 | 0 | 6 Class | Epic | 60,000 | Kitsura EX 3.6%, Ancient Kitsura EX 2.5% |
 | Fenrir Clawblade | 90 |  | 25 | 1 | 6 Class | ดี | 2,650 | Fenrir Unit 0.2% |
 | Loki's Fang | 105 |  | 30 | 1 | Loki's Trickster | หายาก | 26,000 | Hel Guard Unit 0.08% |
 | Sapdrinker Dirk | 102 |  | 33 | 1 | 6 Class | ดี | 3,450 | Rust Sap Unit 0.2% |
 | Rootfang Dagger | 130 |  | 46 | 1 | 6 Class | ดี | 4,750 | Root Crawler Unit 0.2% |
-| Hellhound's Fang | 162 |  | 55 | 1 | 6 Class | มหากาพย์ | 74,000 | Garmr 1.4%, Ancient Garmr 1% |
+| Hellhound's Fang | 162 |  | 55 | 1 | 6 Class | Epic | 74,000 | Garmr 1.4%, Ancient Garmr 1% |
 
 ### ดาบ
 
@@ -676,7 +676,7 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 | Broadsword | 62 |  | 1 | 3 | Novice, Einherjar, Loki's Trickster, Berserker | ธรรมดา | 3,200 | ร้านค้า |
 | Wirecutter Saber | 68 |  | 6 | 1 | Novice, Einherjar, Loki's Trickster, Berserker | ดี | 750 | Crawler Unit 0.2% |
 | Sentry Saber | 82 |  | 12 | 1 | Novice, Einherjar, Loki's Trickster, Berserker | ดี | 1,350 | Rust Sentry 0.2% |
-| Seraphic Edge | 115 | 20 | 22 | 1 | Novice, Einherjar, Loki's Trickster, Berserker | มหากาพย์ | 34,400 | Seraph Core 1.4%, Ancient Seraph Core 1% |
+| Seraphic Edge | 115 | 20 | 22 | 1 | Novice, Einherjar, Loki's Trickster, Berserker | Epic | 34,400 | Seraph Core 1.4%, Ancient Seraph Core 1% |
 | Wardenbone Sword | 104 |  | 24 | 1 | Novice, Einherjar, Loki's Trickster, Berserker | ดี | 2,550 | Frame Warden 0.2% |
 | Barrow-King's Blade | 126 |  | 28 | 2 | Novice, Einherjar, Loki's Trickster, Berserker | หายาก | 12,200 | Frame Warden 0.03% |
 | Valhalla Blade | 130 |  | 30 | 1 | Einherjar | หายาก | 32,000 | Rust Husk 0.06% |
@@ -700,7 +700,7 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 | Helgate Axe | 134 |  | 32 | 1 | Novice, Einherjar, Berserker | ดี | 3,350 | Hel Guard Unit 0.2% |
 | Ironheart Cleaver | 165 |  | 49 | 1 | Novice, Einherjar, Berserker | ดี | 5,050 | Gnawed Sentry 0.1% |
 | Rootsplitter Greataxe | 180 |  | 53 | 1 | Novice, Einherjar, Berserker | ดี | 5,450 | Gnawed Brute 0.2% |
-| Gnipahellir Cleaver | 208 |  | 58 | 1 | Novice, Einherjar, Berserker | มหากาพย์ | 77,600 | Garmr 1.4%, Ancient Garmr 1% |
+| Gnipahellir Cleaver | 208 |  | 58 | 1 | Novice, Einherjar, Berserker | Epic | 77,600 | Garmr 1.4%, Ancient Garmr 1% |
 
 ### คทา
 
@@ -713,7 +713,7 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 | Rune Staff | 25 | 40 | 12 | 2 | Novice, Rune Caster, Völva | ดี | 2,500 | Moss Unit 0.06% |
 | Mossglow Scepter | 28 | 50 | 14 | 1 | Novice, Rune Caster, Völva | ดี | 1,550 | Moss Unit 0.2% |
 | Tidecaller Rod | 30 | 62 | 16 | 2 | Novice, Rune Caster, Völva | หายาก | 7,400 | Mine Unit 0.05% |
-| Choir of Seraphs | 45 | 90 | 22 | 1 | Novice, Rune Caster, Völva | มหากาพย์ | 34,400 | Seraph Core 1.4%, Ancient Seraph Core 1% |
+| Choir of Seraphs | 45 | 90 | 22 | 1 | Novice, Rune Caster, Völva | Epic | 34,400 | Seraph Core 1.4%, Ancient Seraph Core 1% |
 | Seer's Staff | 60 | 80 | 24 | 1 | Rune Caster, Völva | หายาก | 14,000 | Hel Maiden Unit 0.12% |
 | Soulwick Staff | 50 | 84 | 30 | 1 | Novice, Rune Caster, Völva | ดี | 3,150 | Hel Maiden Unit 0.2% |
 | Rustbloom Staff | 55 | 92 | 34 | 1 | Novice, Rune Caster, Völva | ดี | 3,550 | Rust Sap Unit 0.12% |
@@ -734,7 +734,7 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 | Huntsman's Recurve | 92 |  | 24 | 1 | Wildhunter, Loki's Trickster | ดี | 2,550 | Tusk Trooper 0.1% |
 | Ullr's Bow | 125 |  | 30 | 1 | Wildhunter | หายาก | 34,000 | Archive Warden 0.08% |
 | Detonator Longbow | 134 |  | 38 | 2 | Wildhunter, Loki's Trickster | หายาก | 16,200 | Rust Mine Unit 0.05% |
-| Foxfire Bow | 168 |  | 42 | 1 | Wildhunter, Loki's Trickster | มหากาพย์ | 58,400 | Kitsura EX 1.4%, Ancient Kitsura EX 1% |
+| Foxfire Bow | 168 |  | 42 | 1 | Wildhunter, Loki's Trickster | Epic | 58,400 | Kitsura EX 1.4%, Ancient Kitsura EX 1% |
 | Rootstring Bow | 150 |  | 46 | 1 | Wildhunter, Loki's Trickster | ดี | 4,750 | Root Crawler Unit 0.12% |
 | Gnawroot Warbow | 174 |  | 55 | 1 | Wildhunter, Loki's Trickster | ดี | 5,650 | Root Gnawer 0.1% |
 
@@ -783,7 +783,7 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 |---|---|---|---|---|---|---|---|---|---|
 | Signal Ribbon | 1 | 3 | INT +1 | 1 | 0 | ทุก Class | ธรรมดา | 800 | ร้านค้า |
 | Sensor Cap | 2 |  |  | 1 | 0 | ทุก Class | ธรรมดา | 1,000 | ร้านค้า |
-| Seraph Wings | 3 | 5 | INT +2, LUK +2, AGI +1 | 1 | 0 | ทุก Class | มหากาพย์ | 50,000 | Seraph Core 3.6%, Ancient Seraph Core 2.5% |
+| Seraph Wings | 3 | 5 | INT +2, LUK +2, AGI +1 | 1 | 0 | ทุก Class | Epic | 50,000 | Seraph Core 3.6%, Ancient Seraph Core 2.5% |
 | Bunny-Ear Visor | 2 |  | LUK +1, CRIT +2 | 3 | 0 | ทุก Class | ดี | 450 | Bunny Unit 0.15% |
 | Iron Helm | 4 |  |  | 12 | 1 | 6 Class | ดี | 6,000 | Hel Guard Unit 0.1% |
 | Blastcap Helm | 4 |  | VIT +1 | 13 | 1 | ทุก Class | ดี | 1,450 | Mine Unit 0.12% |
@@ -793,7 +793,7 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 | Lantern Veil | 3 | 8 | INT +2, SP +30 | 30 | 0 | ทุก Class | ดี | 3,150 | Hel Maiden Unit 0.12% |
 | Aureole of Baldr | 5 | 8 | INT +3, LUK +3, AGI +2, HP% +5, ฮีล% +8 | 30 | 1 | ทุก Class | ตำนาน | 150,000 | Ancient Seraph Core 1%, Seraph Core 0.025% |
 | Archive Warden Helm | 6 |  | VIT +2 | 36 | 1 | ทุก Class | ดี | 3,750 | Archive Warden 0.12% |
-| Kitsura Faceplate | 5 | 6 | LUK +3, CRIT +5, MATK% +5 | 42 | 1 | ทุก Class | มหากาพย์ | 58,400 | Kitsura EX 1.4%, Ancient Kitsura EX 1% |
+| Kitsura Faceplate | 5 | 6 | LUK +3, CRIT +5, MATK% +5 | 42 | 1 | ทุก Class | Epic | 58,400 | Kitsura EX 1.4%, Ancient Kitsura EX 1% |
 | Crown of the Rust King | 6 | 4 | STR +2, VIT +2 | 44 | 1 | ทุก Class | หายาก | 18,600 | Rust Husk 0.05% |
 | Gnawer Hide Hood | 7 |  | AGI +2, FLEE +4 | 57 | 1 | ทุก Class | ดี | 5,850 | Root Gnawer 0.12% |
 
@@ -821,13 +821,13 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 | Mistlake Mantle | 2 | 2 | INT +1, FLEE +3 | 14 | 1 | ทุก Class | ดี | 1,550 | Rust Sentry 0.1% |
 | Ashtail Wrap | 2 |  | AGI +2, FLEE +5 | 18 | 1 | ทุก Class | ดี | 1,950 | Ash Stalker 0.2% |
 | Cindertail Cloak | 3 |  | AGI +2, FLEE +6, CRIT +3 | 20 | 1 | ทุก Class | หายาก | 9,000 | Ash Stalker 0.04% |
-| Seraph Down Mantle | 3 | 6 | LUK +2, FLEE +6, HP% +3 | 20 | 1 | ทุก Class | มหากาพย์ | 32,000 | Seraph Core 1.8%, Ancient Seraph Core 1.3% |
+| Seraph Down Mantle | 3 | 6 | LUK +2, FLEE +6, HP% +3 | 20 | 1 | ทุก Class | Epic | 32,000 | Seraph Core 1.8%, Ancient Seraph Core 1.3% |
 | Wolfpelt Cloak | 2 |  | AGI +1, FLEE +4 | 24 | 1 | ทุก Class | ดี | 2,550 | Fenrir Unit 0.12% |
 | Vaultkeeper's Cloak | 3 | 3 | INT +1, FLEE +5 | 36 | 1 | ทุก Class | ดี | 3,750 | Rust Mine Unit 0.1% |
 | Rootweave Cloak | 3 | 3 | FLEE +4 | 40 | 1 | ทุก Class | หายาก | 22,000 | Root Gnawer 0.16% |
-| Nine-Ember Tail | 4 | 4 | AGI +3, INT +3, FLEE +8, castPct +5 | 40 | 1 | ทุก Class | มหากาพย์ | 56,000 | Kitsura EX 1.4%, Ancient Kitsura EX 1% |
+| Nine-Ember Tail | 4 | 4 | AGI +3, INT +3, FLEE +8, castPct +5 | 40 | 1 | ทุก Class | Epic | 56,000 | Kitsura EX 1.4%, Ancient Kitsura EX 1% |
 | Archive Maiden's Shroud | 3 | 6 | INT +2, FLEE +3 | 41 | 1 | ทุก Class | ดี | 4,250 | Archive Maiden 0.12% |
-| Mantle of the Gatehound | 5 | 5 | VIT +3, FLEE +6, HP% +8 | 55 | 1 | ทุก Class | มหากาพย์ | 74,000 | Garmr 1.4%, Ancient Garmr 1% |
+| Mantle of the Gatehound | 5 | 5 | VIT +3, FLEE +6, HP% +8 | 55 | 1 | ทุก Class | Epic | 74,000 | Garmr 1.4%, Ancient Garmr 1% |
 
 ### รองเท้า
 
@@ -854,7 +854,7 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 | Signal Earring |  |  | INT +2 | 1 | 0 | ทุก Class | ดี | 20,000 | Hel Maiden Unit 0.04% |
 | Grip Glove |  |  | DEX +2 | 1 | 0 | ทุก Class | ดี | 20,000 | Hopper Unit 0.03% |
 | Rune Charm |  |  | LUK +2, MDEF +3 | 1 | 0 | ทุก Class | ดี | 20,000 | Archive Maiden 0.04% |
-| Garmr Collar |  |  | STR +2, AGI +2, VIT +2, HP +200 | 1 | 0 | ทุก Class | มหากาพย์ | 70,000 | Garmr 2.7%, Ancient Garmr 1.9% |
+| Garmr Collar |  |  | STR +2, AGI +2, VIT +2, HP +200 | 1 | 0 | ทุก Class | Epic | 70,000 | Garmr 2.7%, Ancient Garmr 1.9% |
 | Meadow Charm |  |  | LUK +2, HP +50, SP +10 | 1 | 1 | ทุก Class | หายาก | 1,400 | Buzz Unit 0.04% |
 | Ember Coil Ring |  |  | DEX +1, HIT +4 | 5 | 0 | ทุก Class | ดี | 650 | Ember Unit 0.15% |
 | Hearthcore Earring |  |  | INT +1, DEX +1, MATK +8 | 6 | 1 | ทุก Class | หายาก | 3,400 | Ember Unit 0.04% |
@@ -955,7 +955,7 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 | Old Frame | โครงเหล็กเก่า | 72 | Frame Warden 50% |
 | Soul Lantern | ตะเกียงวิญญาณดิจิทัล | 180 | Hel Maiden Unit 40% |
 | Cursed Chip | ชิปต้องคำสาป | 240 | Hel Guard Unit 40% |
-| Yggdrasil Core | แกนพลังงานต้นไม้โลก ล้ำค่าที่สุดในนีโอมิดการ์ด | 20,000 | Ancient Seraph Core 50%, Ancient Kitsura EX 50%, Ancient Garmr 50% |
+| Yggdrasil Core | แกนพลังงานต้นไม้โลก ล้ำค่าที่สุดในไอรอนวัลฮัลลา | 20,000 | Ancient Seraph Core 50%, Ancient Kitsura EX 50%, Ancient Garmr 50% |
 | Rust Sap | น้ำเลี้ยงที่ขึ้นสนิม ข้นและอุ่นผิดปกติ | 170 | Rust Sap Unit 55% |
 | Archive Seal | ตราประทับประจำชั้นวางในคลังประกาย | 220 | Archive Warden 50% |
 | Rust Fuse | ชนวนทุ่นกั้นสนิม — สนิมกินจนจุดเองได้ | 240 | Rust Mine Unit 50% |
@@ -1049,7 +1049,7 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 
 ## กาชา Norn's Wheel
 
-ใช้ Valhalla Sigil 1 อัน/ครั้ง • ได้จาก MVP 1 อัน, World Boss 3 อัน • หมุน 10 ครั้ง (10 อัน) การันตีหายากขึ้นไป • การันตีมหากาพย์ ทุก 50 ครั้ง • NPC อยู่ที่นีโอเอลด์ไฮม์
+ใช้ Valhalla Sigil 1 อัน/ครั้ง • ได้จาก MVP 1 อัน, World Boss 3 อัน • หมุน 10 ครั้ง (10 อัน) การันตีหายากขึ้นไป • การันตีEpic ทุก 50 ครั้ง • NPC อยู่ที่นีโอเอลด์ไฮม์
 
 | รางวัล | จำนวน | โอกาส |
 |---|---|---|

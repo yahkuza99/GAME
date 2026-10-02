@@ -364,7 +364,7 @@ function bindAuth() {
 }
 
 function showTitle() {
-  $('#title-ver').textContent = 'NEO MIDGARD v' + GAME_VERSION;
+  $('#title-ver').textContent = 'IRON VALHALLA v' + GAME_VERSION;
   setupCreateScreen();
   setupCharSel();
   bindAuth();
@@ -678,7 +678,7 @@ function startGame(p, isNew) {
   if (isNew) { p.hp = p.d.maxHp; p.sp = p.d.maxSp; }
   changeMap(p.map, p.x, p.y);
   UI.dirty(); UI.renderWindows(true); UI.updateHud();
-  UI.msg(L(`ระบบออนไลน์... ยินดีต้อนรับสู่ NEO MIDGARD, ${p.name}!`, `Systems online... Welcome to NEO MIDGARD, ${p.name}!`), 'lvl');
+  UI.msg(L(`ระบบออนไลน์... ยินดีต้อนรับสู่ IRON VALHALLA, ${p.name}!`, `Systems online... Welcome to IRON VALHALLA, ${p.name}!`), 'lvl');
   if (Online.online) { Online.joinChat(); UI.setNet('ok'); UI.msg(L(`🌐 ออนไลน์ในชื่อบัญชี ${Online.username} — กด Enter เพื่อแชทกับทุกคน`, `🌐 Online as ${Online.username} — press Enter to chat with everyone.`), 'sys'); }
   else if (Online.loggedIn) UI.msg(L(`🔑 เข้าสู่ระบบเป็น ${Online.username} — ตัวละครบันทึกแยกตามบัญชีในเครื่องนี้`, `🔑 Logged in as ${Online.username} — characters are saved per account on this device.`), 'sys');
   UI.msg(L('กด H เพื่อดูวิธีเล่น • คุยกับ Guard Unit Rolf (หุ่นหมวกเขา) เพื่อขอคำแนะนำ', 'Press H for the guide • Talk to Guard Unit Rolf (the horned-helm android) for advice.'), 'info');

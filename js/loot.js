@@ -12,7 +12,7 @@ const RARITY = {
   common:   { rank: 0, color: '#e8eef6', label: L('ธรรมดา', 'Common') },
   uncommon: { rank: 1, color: '#62e27e', label: L('ดี', 'Uncommon') },
   rare:     { rank: 2, color: '#4fa8ff', label: L('หายาก', 'Rare') },
-  epic:     { rank: 3, color: '#c27bff', label: L('มหากาพย์', 'Epic') },
+  epic:     { rank: 3, color: '#c27bff', label: L('Epic', 'Epic') },
   legend:   { rank: 4, color: '#ffb52e', label: L('ตำนาน', 'Legendary') },
 };
 

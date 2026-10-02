@@ -1,4 +1,4 @@
-<title>Midgard Codex</title>
+<title>Valhalla Codex</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
 <style>
@@ -160,8 +160,8 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-spa
 <div class="wrap">
   <header class="top">
     <div>
-      <div class="eyebrow">NEO MIDGARD · ข้อมูลเกม</div>
-      <h1>Midgard Codex</h1>
+      <div class="eyebrow">IRON VALHALLA · ข้อมูลเกม</div>
+      <h1>Valhalla Codex</h1>
     </div>
     <div class="counts" id="counts"></div>
   </header>
@@ -186,7 +186,7 @@ const num = n => (n || 0).toLocaleString('en-US');
 const pct = x => { const v = x * 100, t = v >= 1 ? v.toFixed(1) : v >= 0.1 ? v.toFixed(2) : v.toFixed(3); return (t.includes('.') ? t.replace(/0+$/, '').replace(/\.$/, '') : t) + '%'; };
 const IC = D.icons, J = D.jobs;
 const img = (k, cls) => IC[k] ? `<img src="${IC[k]}" alt="" loading="lazy"${cls ? ` class="${cls}"` : ''}>` : `<span class="ph"></span>`;
-const RAR = { common: 'ธรรมดา', uncommon: 'ดี', rare: 'หายาก', epic: 'มหากาพย์', legend: 'ตำนาน' };
+const RAR = { common: 'ธรรมดา', uncommon: 'ดี', rare: 'หายาก', epic: 'Epic', legend: 'ตำนาน' };
 const RORD = ['common', 'uncommon', 'rare', 'epic', 'legend'];
 const SLOT = { weapon: 'อาวุธ', armor: 'ชุดเกราะ', head: 'หมวก', shield: 'โล่', garment: 'ผ้าคลุม', shoes: 'รองเท้า', acc: 'เครื่องประดับ', accessory: 'เครื่องประดับ' };
 const RACE = { formless: 'ไร้รูป', plant: 'พืช', insect: 'แมลง', brute: 'สัตว์', angel: 'เทวดา', undead: 'อมตะ', demon: 'ปีศาจ' };

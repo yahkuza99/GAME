@@ -1,4 +1,4 @@
-# NEO MIDGARD — Art Requests / รายการภาพที่ต้องสร้าง
+# IRON VALHALLA — Art Requests / รายการภาพที่ต้องสร้าง
 
 > Production list for the AI image tool. Everything here is **missing real art**. The game currently shows a tinted, flipped
 > stand-in made by `Art.alias(...)` in `js/art.js` / `js/content_ch6.js`, or a code-drawn figure.
@@ -80,23 +80,23 @@
 
 #### [A] PORTRAIT: job portraits and NPC illustrations
 ```
-Anime gacha game character art, polished cel shading with soft painterly gradient lighting and rim light, crisp clean lineart, highly detailed, production-quality, sci-fi Norse mythology fusion world called NEO MIDGARD where every character is a humanoid android (there are no humans at all). FACE RULE: the head is a sleek android head with a smooth glossy metal faceplate and ONE glowing visor strip across where the eyes would be. NO eyes, NO pupils, NO irises, NO eyelashes, NO nose, NO mouth, NO human skin. The 'hair' is layered synthetic metal plates and cable strands shaped like a hairstyle, with a soft metallic sheen. Body: elegant armored android body with visible mechanical joints at the shoulders, elbows and knees, fine panel seam lines, ear-mounted headset pieces with small antenna fins, and thin glowing circuit lines; graceful and heroic, not boxy or bulky-robotic. Accents: engraved Norse knotwork and rune details, warm gold trim, soft cyan inner glow. Tasteful full-coverage outfit, confident heroic pose, not sexualized. No text, no watermark, no logo, no signature. Full body, head to toe fully visible, standing in a 3/4 view facing the viewer, centered with a little empty space around the figure. Nothing (weapon, wings, staff, banner) rises above the top of the head in the middle third of the image width; tall items go to the left or right side. Transparent background (PNG). Vertical 2:3 image (1024x1536).
+Anime gacha game character art, polished cel shading with soft painterly gradient lighting and rim light, crisp clean lineart, highly detailed, production-quality, sci-fi Norse mythology fusion world called IRON VALHALLA where every character is a humanoid android (there are no humans at all). FACE RULE: the head is a sleek android head with a smooth glossy metal faceplate and ONE glowing visor strip across where the eyes would be. NO eyes, NO pupils, NO irises, NO eyelashes, NO nose, NO mouth, NO human skin. The 'hair' is layered synthetic metal plates and cable strands shaped like a hairstyle, with a soft metallic sheen. Body: elegant armored android body with visible mechanical joints at the shoulders, elbows and knees, fine panel seam lines, ear-mounted headset pieces with small antenna fins, and thin glowing circuit lines; graceful and heroic, not boxy or bulky-robotic. Accents: engraved Norse knotwork and rune details, warm gold trim, soft cyan inner glow. Tasteful full-coverage outfit, confident heroic pose, not sexualized. No text, no watermark, no logo, no signature. Full body, head to toe fully visible, standing in a 3/4 view facing the viewer, centered with a little empty space around the figure. Nothing (weapon, wings, staff, banner) rises above the top of the head in the middle third of the image width; tall items go to the left or right side. Transparent background (PNG). Vertical 2:3 image (1024x1536).
 ```
 *Why the "nothing above the head" line:* the HUD crops the face by finding the topmost solid pixel in the centre of the image (`Art.faceRect`). A spear tip above the head would become the "face".
 
 #### [B] EMBLEM: second-class emblems
 ```
-Class emblem icon for an anime sci-fi Norse RPG called NEO MIDGARD. A single metallic badge: polished silver steel with engraved Norse knotwork, a glowing colored gem core, and, because this is an ADVANCED second-tier class, an extra outer ring of fine gold filigree with two small gold blade-wings at the sides. Painterly cel shading, crisp outline, soft rim light, readable at 48 pixels. Centered, filling about 80% of the canvas, front-facing and symmetrical. FULLY TRANSPARENT background (PNG). No text, no letters, no numbers, no frame, no drop shadow. Square 1:1 image (1024x1024).
+Class emblem icon for an anime sci-fi Norse RPG called IRON VALHALLA. A single metallic badge: polished silver steel with engraved Norse knotwork, a glowing colored gem core, and, because this is an ADVANCED second-tier class, an extra outer ring of fine gold filigree with two small gold blade-wings at the sides. Painterly cel shading, crisp outline, soft rim light, readable at 48 pixels. Centered, filling about 80% of the canvas, front-facing and symmetrical. FULLY TRANSPARENT background (PNG). No text, no letters, no numbers, no frame, no drop shadow. Square 1:1 image (1024x1024).
 ```
 
 #### [C] SKILL ICON
 ```
-Game skill icon for an anime sci-fi Norse RPG called NEO MIDGARD (android heroes). One square painted tile that fills the whole canvas edge to edge with its own dark atmospheric background and ONE bold, glowing, easy-to-read central symbol or action; painterly cel shading, crisp lineart, strong rim light, high contrast so it reads at 40 pixels. Norse rune shapes are allowed as decoration. No faces, no eyes, no text, no Latin letters, no numbers, no frame or border, no rounded corners. Square 1:1 image (1024x1024).
+Game skill icon for an anime sci-fi Norse RPG called IRON VALHALLA (android heroes). One square painted tile that fills the whole canvas edge to edge with its own dark atmospheric background and ONE bold, glowing, easy-to-read central symbol or action; painterly cel shading, crisp lineart, strong rim light, high contrast so it reads at 40 pixels. Norse rune shapes are allowed as decoration. No faces, no eyes, no text, no Latin letters, no numbers, no frame or border, no rounded corners. Square 1:1 image (1024x1024).
 ```
 
 #### [D] MOB PORTRAIT (bust)
 ```
-Monster bust portrait for an anime sci-fi Norse RPG called NEO MIDGARD where every monster is a humanoid ANDROID personification of a machine (no animals, no humans). FACE RULE: the head has a smooth metal faceplate with a glowing visor strip: NO eyes, NO pupils, NO mouth. Hostile units have red or colored glowing visors. A square bust portrait (head and shoulders, facing slightly left) that fills the whole canvas with a dark moody background tinted in the monster's glow color, painterly cel-shaded anime gacha style, crisp lineart, rim light. No text, no letters, no frame. Square 1:1 image (1024x1024).
+Monster bust portrait for an anime sci-fi Norse RPG called IRON VALHALLA where every monster is a humanoid ANDROID personification of a machine (no animals, no humans). FACE RULE: the head has a smooth metal faceplate with a glowing visor strip: NO eyes, NO pupils, NO mouth. Hostile units have red or colored glowing visors. A square bust portrait (head and shoulders, facing slightly left) that fills the whole canvas with a dark moody background tinted in the monster's glow color, painterly cel-shaded anime gacha style, crisp lineart, rim light. No text, no letters, no frame. Square 1:1 image (1024x1024).
 ```
 
 #### [E] MOB BODY SPRITE
@@ -111,17 +111,17 @@ Use the attached monster as the exact design (same colors, same size, same art s
 
 #### [G] BOSS SPLASH
 ```
-Epic boss splash art for an anime gacha game, painterly cel shading, dramatic cinematic lighting with strong rim light, highly detailed, sci-fi Norse mythology world called NEO MIDGARD where everyone is an android or a machine. FACE RULE: no organic eyes anywhere: androids have one glowing visor strip, beasts and machines have a glowing visor slit or sensor lights. Menacing but not gory. No text, no logo, no UI. COMPOSITION: the game crops this image to a wide 16:7 card, so keep the boss's head and chest inside the middle 60% of the width and between 12% and 75% of the height; nothing important in the top 10% or the bottom quarter. Full-bleed background. Horizontal 3:2 image (1536x1024).
+Epic boss splash art for an anime gacha game, painterly cel shading, dramatic cinematic lighting with strong rim light, highly detailed, sci-fi Norse mythology world called IRON VALHALLA where everyone is an android or a machine. FACE RULE: no organic eyes anywhere: androids have one glowing visor strip, beasts and machines have a glowing visor slit or sensor lights. Menacing but not gory. No text, no logo, no UI. COMPOSITION: the game crops this image to a wide 16:7 card, so keep the boss's head and chest inside the middle 60% of the width and between 12% and 75% of the height; nothing important in the top 10% or the bottom quarter. Full-bleed background. Horizontal 3:2 image (1536x1024).
 ```
 
 #### [H] MAP BANNER
 ```
-Anime game background art, painterly cel-shaded scenery, rich lighting and atmosphere, sci-fi Norse mythology world of androids called NEO MIDGARD, wide establishing shot from a slightly high angle, no characters, no text, no logo. Keep the lower-middle third calmer and darker (the game prints the map name there). Horizontal 3:2 image (1536x1024).
+Anime game background art, painterly cel-shaded scenery, rich lighting and atmosphere, sci-fi Norse mythology world of androids called IRON VALHALLA, wide establishing shot from a slightly high angle, no characters, no text, no logo. Keep the lower-middle third calmer and darker (the game prints the map name there). Horizontal 3:2 image (1536x1024).
 ```
 
 #### [I] ITEM ICON
 ```
-Game inventory item icon for an anime sci-fi Norse RPG called NEO MIDGARD (a world of androids and robots, items are tech parts). ONE single object centered with generous empty space around it, on a FULLY TRANSPARENT background (PNG), cel-shaded, crisp dark outline, soft glow accents, readable at 32 pixels, three-quarter view, consistent lighting from the top-left. No text, no numbers, no letters, no frame, no ground shadow. Square 1:1 image (1024x1024).
+Game inventory item icon for an anime sci-fi Norse RPG called IRON VALHALLA (a world of androids and robots, items are tech parts). ONE single object centered with generous empty space around it, on a FULLY TRANSPARENT background (PNG), cel-shaded, crisp dark outline, soft glow accents, readable at 32 pixels, three-quarter view, consistent lighting from the top-left. No text, no numbers, no letters, no frame, no ground shadow. Square 1:1 image (1024x1024).
 ```
 
 #### [J] HERO FIELD SPRITE SHEET (2×2, same pipeline as `sheet_heroes_1..4`)

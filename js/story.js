@@ -13,7 +13,7 @@ const Story = {
     L('ตั้งแต่นั้น ไม่มีใครเกิดใหม่ มีแต่คนเก่าที่ถูกปลุกซ้ำ', 'Since then, no one has been born. Only the old ones, woken again and again.'),
     L('...จนกระทั่งวันนี้', '...until today.'),
     L('วิเซอร์ของเจ้าสว่างขึ้นเป็นครั้งแรก', 'Your visor lights up for the very first time.'),
-    L('— ยินดีต้อนรับสู่<span class="nb">นีโอมิดการ์ด</span> หน่วยใหม่ —', '— Welcome to <span class="nb">Neo Midgard</span>, new unit —'), // .nb กันตัดบรรทัดกลางคำบนจอแคบ (ข้อความคงที่ในโค้ด ใส่เป็น HTML ได้)
+    L('— ยินดีต้อนรับสู่<span class="nb">ไอรอนวัลฮัลลา</span> หน่วยใหม่ —', '— Welcome to <span class="nb">Iron Valhalla</span>, new unit —'), // .nb กันตัดบรรทัดกลางคำบนจอแคบ (ข้อความคงที่ในโค้ด ใส่เป็น HTML ได้)
   ],
 
   // ---------- บรรทัดตำนานใต้ชื่อแผนที่ (แบนเนอร์ตอนเข้าแผนที่) ----------

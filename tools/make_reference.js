@@ -34,7 +34,7 @@ const OUT = path.join(__dirname, '..', 'docs', 'GAME_REFERENCE.md');
   const mname = id => MOBS[id] ? MOBS[id].name : id;
   const jname = id => JOBS[id] ? JOBS[id].name : id;
   const jobsTxt = j => j === 'all' || !j ? 'ทุก Class' : j.length >= 6 ? `${j.length} Class` : j.map(jname).join(', ');
-  const RAR = { common: 'ธรรมดา', uncommon: 'ดี', rare: 'หายาก', epic: 'มหากาพย์', legend: 'ตำนาน' };
+  const RAR = { common: 'ธรรมดา', uncommon: 'ดี', rare: 'หายาก', epic: 'Epic', legend: 'ตำนาน' };
   const SLOT = { weapon: 'อาวุธ', armor: 'ชุดเกราะ', head: 'หมวก', shield: 'โล่', garment: 'ผ้าคลุม', shoes: 'รองเท้า', acc: 'เครื่องประดับ', accessory: 'เครื่องประดับ' };
   const STAT = { str: 'STR', agi: 'AGI', vit: 'VIT', int: 'INT', dex: 'DEX', luk: 'LUK', atk: 'ATK', matk: 'MATK', def: 'DEF', mdef: 'MDEF', hit: 'HIT', flee: 'FLEE', crit: 'CRIT', hp: 'HP', sp: 'SP', aspd: 'ASPD',
     hpPct: 'HP%', spPct: 'SP%', atkPct: 'ATK%', matkPct: 'MATK%', speedPct: 'วิ่ง%', cdCut: 'ลดคูลดาวน์%', healPct: 'ฮีล%' };
@@ -52,7 +52,7 @@ const OUT = path.join(__dirname, '..', 'docs', 'GAME_REFERENCE.md');
   const items = t => Object.values(ITEMS).filter(i => i.type === t);
 
   // ---------------- หัวเอกสาร ----------------
-  w('# NEO MIDGARD — เอกสารเกม (Game Reference)', '',
+  w('# IRON VALHALLA — เอกสารเกม (Game Reference)', '',
     `> สร้างอัตโนมัติจากข้อมูลจริงในเกมด้วย \`tools/make_reference.js\` • อัปเดต ${new Date().toISOString().slice(0, 10)}`,
     '> แก้ตัวเลขในไฟล์ `js/` แล้วรันสคริปต์ใหม่ เอกสารนี้จะตรงกับเกมเสมอ', '',
     '## สารบัญ', '1. [ภาพรวม](#ภาพรวม)', '2. [ปรัชญาการออกแบบ Class](#ปรัชญาการออกแบบ Class)', '3. [Class](#Class)', '4. [สกิลทั้งหมด](#สกิลทั้งหมด)', '5. [แผนที่](#แผนที่)',

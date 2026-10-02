@@ -2,17 +2,17 @@
 """สเปกชีตภาพ (ไอคอนสกิล/ไอเทม/ตราคลาส/หน้ามอนสเตอร์) — ใช้ทั้งสร้าง prompt และตัดชีต
 แต่ละชีต: file, cols, rows, mode ('alpha' = พื้นโปร่งใส ครอปตามขอบวัตถุ, 'tile' = ภาพเต็มช่อง), cells = [(key, คำบรรยายภาษาอังกฤษ)]"""
 
-SKILL_STYLE = ("Game skill icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD (android heroes). "
+SKILL_STYLE = ("Game skill icon sheet for an anime sci-fi Norse RPG called IRON VALHALLA (android heroes). "
  "Each icon is a square painted tile that fills its whole cell edge to edge with its own dark atmospheric background and a bold, glowing, easy-to-read central symbol or action; "
  "cel-shaded, crisp lineart, strong rim light, high contrast so it reads at 40 pixels. No characters' faces, no text, no numbers, no letters, no frames or borders. "
  "Separate the tiles with thin straight black gutters so the grid is perfectly even.")
-ITEM_STYLE = ("Game inventory item icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD (a world of androids and robots, items are tech parts). "
+ITEM_STYLE = ("Game inventory item icon sheet for an anime sci-fi Norse RPG called IRON VALHALLA (a world of androids and robots, items are tech parts). "
  "Each item is a single object centered in its own equal cell with generous empty space around it, on a FULLY TRANSPARENT background (PNG), "
  "cel-shaded, crisp dark outline, soft glow accents, readable at 32 pixels, three-quarter view, consistent lighting from the top-left. "
  "No text, no numbers, no letters, no grid lines, no frames, no shadows on the ground, objects must not touch or overlap each other.")
-EMBLEM_STYLE = ("Class emblem icon sheet for an anime sci-fi Norse RPG called NEO MIDGARD. Each emblem is a metallic badge (silver steel with a glowing colored core and Norse rune accents), "
+EMBLEM_STYLE = ("Class emblem icon sheet for an anime sci-fi Norse RPG called IRON VALHALLA. Each emblem is a metallic badge (silver steel with a glowing colored core and Norse rune accents), "
  "centered in its own equal cell with empty space around it, on a FULLY TRANSPARENT background (PNG), same size and same style for all. No text, no letters, no grid lines.")
-MOB_STYLE = ("Monster portrait sheet for an anime sci-fi Norse RPG called NEO MIDGARD where every monster is a humanoid ANDROID robot (no animals, no humans). "
+MOB_STYLE = ("Monster portrait sheet for an anime sci-fi Norse RPG called IRON VALHALLA where every monster is a humanoid ANDROID robot (no animals, no humans). "
  "FACE RULE: every head has a smooth metal faceplate with a glowing visor strip — NO eyes, NO pupils, NO mouth. Hostile units have red or colored glowing visors. "
  "Each cell is a square bust portrait (head and shoulders, facing slightly left) that fills its whole cell with a dark moody background tinted in the monster's glow color, "
  "cel-shaded anime gacha style, crisp lineart, rim light. Separate the tiles with thin straight black gutters so the grid is perfectly even. No text, no letters, no frames.")
@@ -329,7 +329,7 @@ SHEETS = [
   ("emblem_volva", "Völva: a golden sun with a staff and wings, gold core"),
   ("emblem_trickster", "Loki's Trickster: two crossed daggers with a serpent, violet core"),
   ("emblem_berserker", "Berserker: a wolf head over a two-handed axe, orange core"),
-  ("emblem_neo", "NEO MIDGARD crest: a stylized Yggdrasil tree inside a circuit ring, cyan core"),
+  ("emblem_neo", "IRON VALHALLA crest: a stylized Yggdrasil tree inside a circuit ring, cyan core"),
  ]),
  dict(file="sheet_mobs_1.png", cols=4, rows=3, mode="tile", style=MOB_STYLE, group="หน้ามอนสเตอร์ (กรอบเป้าหมาย)", cells=[
   ("mob_pudding", "Gel Unit: tiny cute pink android with a pink bob of hair plates and a pink band visor"),

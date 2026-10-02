@@ -193,7 +193,7 @@ function applyTitleArt() {
   }
   if (Art.has('logo')) {
     const l = document.querySelector('.logo');
-    if (l && !l.querySelector('img')) { l.textContent = ''; l.append(Object.assign(new Image(), { src: Art.get('logo').src, alt: 'NEO MIDGARD' })); l.classList.add('logo-img'); }
+    if (l && !l.querySelector('img')) { l.textContent = ''; l.append(Object.assign(new Image(), { src: Art.get('logo').src, alt: 'IRON VALHALLA' })); l.classList.add('logo-img'); }
   }
 }
 

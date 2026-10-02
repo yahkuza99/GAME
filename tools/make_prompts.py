@@ -3,7 +3,7 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from asset_spec import SHEETS, MAPS
 STYLE = ("Anime gacha game character art, polished cel shading with soft gradient lighting and rim light, crisp clean lineart, highly detailed, production-quality, "
- "sci-fi Norse mythology fusion world called NEO MIDGARD where every character is a humanoid android robot (there are no humans at all). "
+ "sci-fi Norse mythology fusion world called IRON VALHALLA where every character is a humanoid android robot (there are no humans at all). "
  "FACE RULE: the head is a sleek robot head with a smooth glossy metal faceplate and ONE glowing visor strip across where the eyes would be. "
  "NO eyes, NO pupils, NO irises, NO eyelashes, NO nose, NO mouth, NO human skin. "
  "The 'hair' is made of layered synthetic metal plates and cable strands shaped like a hairstyle, with a soft metallic sheen. "
@@ -29,7 +29,7 @@ items.append(dict(group="ภาพหน้าปก", file="keyart.png", size="
  "looking over a futuristic city with metal buildings, neon lights and a giant glowing cyan energy core tower; a shimmering rainbow light bridge (Bifrost) arcs across the sky; aurora and stars. "
  "Epic cinematic composition, leave clear empty sky in the upper center for a title logo. Horizontal 3:2 image (1536x1024)."))
 items.append(dict(group="ภาพหน้าปก", file="logo.png", size="แนวนอน 3:2 (1536x1024)", bg="โปร่งใส",
- prompt="Game title logo that reads exactly \"NEO MIDGARD\" in bold futuristic letters, chrome steel metal with a glowing cyan neon edge, small Norse rune accents and a subtle circuit-line pattern, "
+ prompt="Game title logo that reads exactly \"IRON VALHALLA\" in bold futuristic letters, chrome steel metal with a glowing cyan neon edge, small Norse rune accents and a subtle circuit-line pattern, "
  "a thin horizontal energy line under the text. Centered, transparent background (PNG), no other text. Horizontal 3:2 image (1536x1024)."))
 for (j, role, gear, glow, hair_f, hair_m) in jobs:
     items.append(dict(group="คลาสอัปเกรด — Frame Type-A (เพรียว)", file=f"job_{j}_f.png", size="แนวตั้ง 2:3 (1024x1536)", bg="โปร่งใส",
@@ -100,7 +100,7 @@ for sh in SHEETS:
       keys=[k for k, _ in sh['cells'] if not k.endswith('_blank') and '_blank' not in k],
       prompt=f"{sh['style']} Layout: exactly {sh['cols']} columns x {sh['rows']} rows = {n} equal cells, {en}. "
              f"Cells in reading order (left to right, top to bottom): {order}"))
-MAP_STYLE = ("Anime game background art, painterly cel-shaded scenery, rich lighting and atmosphere, sci-fi Norse mythology world of androids called NEO MIDGARD, "
+MAP_STYLE = ("Anime game background art, painterly cel-shaded scenery, rich lighting and atmosphere, sci-fi Norse mythology world of androids called IRON VALHALLA, "
  "wide establishing shot from a slightly high angle, no characters, no text, no logo. Horizontal 3:2 image (1536x1024).")
 for k, d in MAPS:
     items.append(dict(group="ภาพแผนที่ (แบนเนอร์ตอนเข้าแมพ)", file=f"{k}.png", size="แนวนอน 3:2 (1536x1024)", bg="มีฉากหลัง", prompt=f"{MAP_STYLE} Location: {d}."))
@@ -121,7 +121,7 @@ for it in items:
 if len(sys.argv) > 1: json.dump(items, open(sys.argv[1], 'w'), ensure_ascii=False, indent=1)
 
 # Markdown
-md = ["# NEO MIDGARD — ชุด prompt สำหรับสร้างภาพด้วย ChatGPT", "",
+md = ["# IRON VALHALLA — ชุด prompt สำหรับสร้างภาพด้วย ChatGPT", "",
  "วิธีใช้:", "1. เปิดแชทใหม่ใน ChatGPT แล้ววาง prompt ทีละอัน (แชทเดียวกันทั้งหมด ภาพจะออกมาสไตล์เดียวกัน)",
  "2. ถ้าภาพไหนไม่ถูกใจ พิมพ์ต่อว่า \"same style, regenerate\" หรือบอกสิ่งที่อยากแก้",
  "3. ดาวน์โหลดภาพเป็น PNG แล้ว **ตั้งชื่อไฟล์ตามที่ระบุ** ใส่ในโฟลเดอร์ `assets/` (หรือส่งภาพมาในแชทให้ Claude ใส่ให้)",

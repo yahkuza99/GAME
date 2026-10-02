@@ -1,6 +1,6 @@
 'use strict';
 // ============================================================
-//  ข้อมูลเกม NEO MIDGARD: Class สกิล ไอเทม มอนสเตอร์ ธาตุ
+//  ข้อมูลเกม IRON VALHALLA: Class สกิล ไอเทม มอนสเตอร์ ธาตุ
 //  ต้องการปรับสมดุล / เพิ่มสกิล / เพิ่มไอเทม แก้ที่ไฟล์นี้ได้เลย
 // ============================================================
 
@@ -630,7 +630,7 @@ const ITEMS = {
   old_bone:        { name: 'Old Frame',        type: 'etc', price: 72,   icon: { s: 'bone', c: '#f0ecd8' }, desc: L('โครงเหล็กเก่า', 'An old steel frame.') },
   hel_lantern:     { name: 'Soul Lantern',     type: 'etc', price: 180,  icon: { s: 'jar', c: '#60c0a0' }, desc: L('ตะเกียงวิญญาณดิจิทัล', 'A digital soul lantern.') },
   cursed_seal:     { name: 'Cursed Chip',     type: 'etc', price: 240,  icon: { s: 'ring', c: '#a040c0' }, desc: L('ชิปต้องคำสาป', 'A cursed chip.') },
-  yggdrasil_shard: { name: 'Yggdrasil Core', type: 'etc', price: 20000, icon: { s: 'gem', c: '#60f0a0' }, desc: L('แกนพลังงานต้นไม้โลก ล้ำค่าที่สุดในนีโอมิดการ์ด', 'An energy core of the World Tree — the most precious thing in Neo Midgard.') },
+  yggdrasil_shard: { name: 'Yggdrasil Core', type: 'etc', price: 20000, icon: { s: 'gem', c: '#60f0a0' }, desc: L('แกนพลังงานต้นไม้โลก ล้ำค่าที่สุดในไอรอนวัลฮัลลา', 'An energy core of the World Tree — the most precious thing in Iron Valhalla.') },
 
   // --- อาวุธ ---
   knife:        { name: 'Knife',        type: 'weapon', slot: 'weapon', wtype: 'dagger', atk: 17, price: 50,    slots: 3, jobs: J.dagger, icon: { s: 'dagger', c: '#c8c8d0' }, desc: L('มีดสั้นธรรมดา', 'An ordinary dagger.') },
