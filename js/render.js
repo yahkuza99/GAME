@@ -327,7 +327,7 @@ R.render = () => {
     }
     g.fillStyle = R.haze.grad; g.fillRect(0, 0, R.W, R.H * 0.42);
   }
-  if (R.quality !== 'low') R.drawAtmosphere(g, map, t);
+  if (R.quality !== 'low') { R.drawSky(g, map, t); if (!map.def.dark) R.drawAtmosphere(g, map, t); }
   // ความมืดในถ้ำ
   if (map.def.dark) {
     const dc = R.dark, dg = dc.getContext('2d');
@@ -347,6 +347,7 @@ R.render = () => {
       dg.fillStyle = grd; dg.beginPath(); dg.arc(x, y, r, 0, 7); dg.fill();
     }
     g.drawImage(dc, 0, 0, R.W, R.H);
+    if (R.quality !== 'low') R.drawAtmosphere(g, map, t); // ถ้ำมืด: อนุภาคเรืองแสงอยู่เหนือความมืด (มองเห็นในที่มืด)
   }
   // HP ต่ำ: ขอบจอแดง
   if (!p.dead && p.hp / p.d.maxHp < 0.25) {
@@ -369,13 +370,43 @@ const ATMOS = {
   mistlake: { kind: 'firefly', n: 22, fog: true, grade: 'rgba(200,225,255,0.07)' },
   wolfwood: { kind: 'leaf', n: 26, rays: true, grade: 'rgba(40,70,30,0.10)' },
   helcave:  { kind: 'dust', n: 36, grade: 'rgba(70,40,110,0.10)' },
+  // vibe เพิ่ม (2026-10-02): เงาเมฆลอยผ่าน + แสงแดดเฉียงในแมพกลางแจ้ง • แมพลึกมีอนุภาคของตัวเอง
+  arena:    { kind: 'ember', n: 24, grade: 'rgba(120,50,20,0.06)' },  // ประกายไฟลอย
+};
+// แมพกลางแจ้ง: เงาเมฆ (ทึบเท่าไร) + แสงแดดจากมุมซ้ายบน
+const SKY = { meadow: { cloud: 0.2, sun: 0.12 }, eldheim: { cloud: 0.15, sun: 0.1 }, mistlake: { cloud: 0.11, sun: 0.06 }, wolfwood: { cloud: 0.15, sun: 0.07 } };
+R.drawSky = (g, map, t) => {
+  const S = SKY[map.id]; if (!S) return;
+  const z = R.zoom, P = 900; // เมฆวนซ้ำทุก P px ของโลก (ยึดกับโลก: เดินแล้วเงาเลื่อนตามพื้น)
+  g.save();
+  for (let k = 0; k < 4; k++) {
+    const wx0 = ((k * 613 + t * (9 + k * 2)) % P + P) % P, wy0 = (k * 347) % P;
+    for (let ox = -P; ox <= P; ox += P) for (let oy = -P; oy <= P; oy += P) {
+      const sx = (wx0 + ox + Math.floor(R.camX / P) * P - R.camX) * z, sy = (wy0 + oy + Math.floor(R.camY / P) * P - R.camY) * z;
+      const r = (150 + (k % 3) * 50) * z;
+      if (sx < -r * 1.6 || sx > R.W + r * 1.6 || sy < -r || sy > R.H + r) continue;
+      for (let b = 0; b < 3; b++) { // เมฆ 1 ก้อน = วงรีนุ่ม 3 วงซ้อนกัน
+        const bx = sx + (b - 1) * r * 0.55, by = sy + Math.sin(k + b) * r * 0.18, rr = r * (b === 1 ? 1 : 0.7);
+        const gr = g.createRadialGradient(bx, by, rr * 0.2, bx, by, rr);
+        gr.addColorStop(0, `rgba(12,22,18,${S.cloud})`); gr.addColorStop(1, 'rgba(12,22,18,0)');
+        g.fillStyle = gr; g.beginPath(); g.ellipse(bx, by, rr * 1.3, rr * 0.75, 0, 0, 7); g.fill();
+      }
+    }
+  }
+  // แสงแดดอุ่นจากมุมซ้ายบน (ค่อย ๆ หายใจ)
+  const a = S.sun * (0.85 + Math.sin(t * 0.25) * 0.15);
+  const sg = g.createRadialGradient(-R.W * 0.1, -R.H * 0.2, 0, -R.W * 0.1, -R.H * 0.2, Math.hypot(R.W, R.H) * 0.9);
+  sg.addColorStop(0, `rgba(255,226,160,${a * 1.6})`); sg.addColorStop(0.5, `rgba(255,226,160,${a * 0.5})`); sg.addColorStop(1, 'rgba(255,226,160,0)');
+  g.globalCompositeOperation = 'lighter'; g.fillStyle = sg; g.fillRect(0, 0, R.W, R.H);
+  g.restore();
 };
 R.spawnPart = (kind, anywhere) => {
   const p = { kind, x: Math.random() * R.W, y: anywhere ? Math.random() * R.H : -10, s: 0.6 + Math.random() * 0.8, ph: Math.random() * 6.28, life: 0 };
   if (kind === 'petal' || kind === 'leaf') { p.vx = 18 + Math.random() * 22; p.vy = 22 + Math.random() * 18; p.x -= R.W * 0.3; }
   else if (kind === 'firefly') { p.y = Math.random() * R.H; p.vx = 0; p.vy = 0; }
   else { p.y = anywhere ? Math.random() * R.H : R.H + 10; p.vx = (Math.random() - 0.5) * 6; p.vy = -6 - Math.random() * 8; }
-  p.col = kind === 'petal' ? U.pick(['#ffd6e6', '#ffffff', '#ffe9a8', '#f7b6cf']) : kind === 'leaf' ? U.pick(['#d98a2b', '#b8c23c', '#8fb03a', '#c0552a']) : '#fff';
+  p.col = kind === 'petal' ? U.pick(['#ffd6e6', '#ffffff', '#ffe9a8', '#f7b6cf']) : kind === 'leaf' ? U.pick(['#d98a2b', '#b8c23c', '#8fb03a', '#c0552a'])
+    : kind === 'data' ? '255,214,130' : kind === 'spore' ? '255,140,95' : kind === 'ember' ? '255,150,60' : '210,190,255';
   return p;
 };
 R.drawAtmosphere = (g, map, t) => {
@@ -399,9 +430,11 @@ R.drawAtmosphere = (g, map, t) => {
   if (A.fog) {
     for (let i = 0; i < 4; i++) {
       const fx = ((t * (8 + i * 4) + i * 400) % (R.W + 800)) - 400, fy = R.H * (0.2 + i * 0.22);
-      const fg = g.createRadialGradient(fx, fy, 10, fx, fy, 320);
+      // ไล่สีเป็นวงรีจริง (บีบแกนตั้ง) → ขอบหมอกนุ่ม ไม่เป็นแถบขอบแข็ง
+      g.save(); g.translate(fx, fy); g.scale(1, 0.3);
+      const fg = g.createRadialGradient(0, 0, 10, 0, 0, 420);
       fg.addColorStop(0, 'rgba(235,245,255,0.16)'); fg.addColorStop(1, 'rgba(235,245,255,0)');
-      g.fillStyle = fg; g.beginPath(); g.ellipse(fx, fy, 420, 120, 0, 0, 7); g.fill();
+      g.fillStyle = fg; g.beginPath(); g.arc(0, 0, 420, 0, 7); g.fill(); g.restore();
     }
   }
   for (let i = 0; i < R.parts.length; i++) {
@@ -420,9 +453,15 @@ R.drawAtmosphere = (g, map, t) => {
       const fg = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, 8 * p.s);
       fg.addColorStop(0, `rgba(230,255,140,${0.9 * a})`); fg.addColorStop(1, 'rgba(230,255,140,0)');
       g.fillStyle = fg; g.beginPath(); g.arc(p.x, p.y, 8 * p.s, 0, 7); g.fill();
-    } else {
-      g.fillStyle = `rgba(210,190,255,${0.25 + 0.25 * Math.sin(p.ph * 2)})`;
+    } else if (p.kind === 'dust') {
+      g.fillStyle = `rgba(${p.col},${0.25 + 0.25 * Math.sin(p.ph * 2)})`;
       g.beginPath(); g.arc(p.x, p.y, 1.3 * p.s, 0, 7); g.fill();
+    } else { // data / spore / ember: จุดเรืองแสงลอยขึ้น
+      const a = 0.45 + 0.4 * Math.sin(p.ph * 2.2), r = (p.kind === 'data' ? 2.6 : 3.4) * p.s;
+      const fg = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, r * 2.2);
+      fg.addColorStop(0, `rgba(${p.col},${a})`); fg.addColorStop(1, `rgba(${p.col},0)`);
+      g.fillStyle = fg; g.beginPath(); g.arc(p.x, p.y, r * 2.2, 0, 7); g.fill();
+      if (p.kind === 'data') { g.fillStyle = `rgba(${p.col},${a})`; g.fillRect(p.x - 0.8, p.y - 2.5 * p.s, 1.6, 5 * p.s); }
     }
   }
   if (A.grade) { g.fillStyle = A.grade; g.fillRect(0, 0, R.W, R.H); }

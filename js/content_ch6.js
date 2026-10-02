@@ -142,8 +142,8 @@
   link('helcave', 'archive', ['S', 'E', 'W']);
   link('archive', 'roots', ['E', 'S', 'W']);
   // บรรยากาศ (อนุภาค + สีทับจอ) และภาพแบนเนอร์/แผนที่โลก ย้อมจากภาพ Hel's Hollow
-  ATMOS.archive = { kind: 'dust', n: 30, grade: 'rgba(150,120,40,0.10)' };
-  ATMOS.roots = { kind: 'dust', n: 40, grade: 'rgba(130,45,20,0.14)' };
+  ATMOS.archive = { kind: 'data', n: 34, grade: 'rgba(150,120,40,0.10)' };          // ประกายข้อมูลสีทองลอยขึ้น (render.js)
+  ATMOS.roots = { kind: 'spore', n: 40, fog: true, grade: 'rgba(130,45,20,0.14)' }; // สปอร์ส้มแดงเรือง + หมอก
   Art.alias('map_archive', 'map_helcave', { hue: -135, sat: 0.9, flip: true, w: 960 });
   Art.alias('map_roots', 'map_helcave', { hue: 150, sat: 0.8, bri: 0.85, tint: ['#5a1a08', 0.3], w: 960 });
   // ฉากเปิดตัว MVP: ยังไม่มีภาพของ Garmr ใช้ฉากรากโทนแดงเข้มแทน (มีภาพจริงเมื่อไหร่ ใส่ assets/mvp_garmr.webp ได้เลย)
