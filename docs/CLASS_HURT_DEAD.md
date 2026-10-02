@@ -116,3 +116,20 @@ IMAGE 1 — male HURT: Berserker Type-B: bulky bronze and brown armor, metal wol
 IMAGE 2 — female HURT: Berserker Type-A: bronze and brown rugged armor, metal wolf-head hood, long wild silver hair plates, orange visor.
 IMAGE 3 — DEATH, top row male: Berserker Type-B: bulky bronze and brown armor, metal wolf-head hood, short spiky silver hair plates, orange visor. Bottom row female: Berserker Type-A: bronze and brown rugged armor, metal wolf-head hood, long wild silver hair plates, orange visor.
 ```
+
+---
+
+## ท่าตายรวมทุก Class — 1 prompt (เจ้าของ 2026-10-02)
+ใช้แทน IMAGE 3 ของแต่ละแชตด้านบน (ถ้าใช้ชุดนี้ แต่ละแชตด้านบนเจนแค่ IMAGE 1–2 ท่าโดนตี)
+แนบ 2 ไฟล์: `art/death_ref_12.png` (ตัวละคร 12 ตัวพร้อมอาวุธ) + `art/anim_template_4x6.png` (แม่แบบ 4 เฟรม × 6 แถว)
+ได้ 2 ภาพ: 1 ผู้ชาย 6 Class, 2 ผู้หญิง 6 Class • ไม่ครบ พิมพ์ `now draw IMAGE 2`
+
+```
+Create 2 SEPARATE images (do not merge them). Attached: a CHARACTER REFERENCE sheet with 12 characters (6 classes, male row on top, female row below, numbered 1-6, each holding its own weapon) and a blank 4x6 sheet template.
+PURPOSE: frame-by-frame DEATH animation sprite sheets for a 2D action RPG game; the game plays the 4 frames of each row once, left to right, and the last frame stays on screen.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Chibi proportions, head about 1/3 of the body height, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Copy each character EXACTLY from the reference (same colors, armor, hair, cape and the SAME weapon, same size).
+LAYOUT: draw into the attached 4x6 template — row 1 = character 1, row 2 = character 2 … row 6 = character 6 (same order as the reference). 4 frames per row. ALL frames are seen from the SIDE, the character facing LEFT. Same character size in every frame; standing feet and the lying body rest on the red ground line; keep everything inside its own cell. Flat white background, do NOT draw the cell numbers, grid or lines. NO effects, NO blood, NO particles.
+DEATH (one direction only): 1 hit hard — staggers backward, knees buckle; 2 falls to the knees, the weapon slipping from the hand; 3 collapses backward toward the ground; 4 lying flat and still on the back/side with the head to the RIGHT, the visor light dim, the weapon lying on the ground beside the body.
+IMAGE 1 — the 6 MALE characters (top row of the reference): 1 Einherjar, 2 Rune Caster, 3 Wildhunter, 4 Völva, 5 Trickster, 6 Berserker.
+IMAGE 2 — the 6 FEMALE characters (bottom row of the reference): 1 Einherjar, 2 Rune Caster, 3 Wildhunter, 4 Völva, 5 Trickster, 6 Berserker.
+```
