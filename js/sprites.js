@@ -997,6 +997,7 @@ Sprites.drawTrap = (g, tr, t) => {
 // ต้นไม้/ของประดับจากภาพ: ตั้งตรง มีเงา ต้นไม้ไหวตามลม เสาพลังงาน/เห็ด/คริสตัลเรืองแสงเป็นจังหวะ
 const PROP_H = { tree: 104, pine: 118, pylon: 50, crate: 34, scrap: 26, bush: 30, rock: 30, mushroom: 34, crystal: 38, lamp: 76, sign: 70 };
 Sprites.drawProp = (g, o, t) => {
+  if (o.kind === 'bake') { Bake.draw(g, o, t); return; } // ฉากอบจาก 3D (js/bake.js)
   const img = Art.get(o.img); if (!img) return;
   const x = o.x * TILE, y = o.y * TILE, H = (PROP_H[o.kind] || 40) * (o.s || 1), W = H * img.width / img.height;
   const sh = { tree: 0.42, pine: 0.34, lamp: 0.18, sign: 0.2 }[o.kind] || 0.4;

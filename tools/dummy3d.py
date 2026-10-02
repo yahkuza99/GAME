@@ -449,7 +449,7 @@ def build(samples, out):
     # ---------- แสง ----------
     sun = bpy.data.lights.new('sun', 'SUN'); sun.energy = 4.2; sun.angle = math.radians(6); sun.color = (1.0, 0.93, 0.80)
     so = bpy.data.objects.new('sun', sun); sc.collection.objects.link(so)
-    so.rotation_euler = (math.radians(42), 0, math.radians(135))   # แสงจากซ้ายบน เหมือนทั้งเกม
+    so.rotation_euler = (math.radians(42), 0, math.radians(-135))   # แสงจากซ้ายบน เหมือนทั้งเกม
     rim = bpy.data.lights.new('rim', 'SUN'); rim.energy = 1.2; rim.angle = math.radians(10); rim.color = (1.0, 0.82, 0.6)
     ro = bpy.data.objects.new('rim', rim); sc.collection.objects.link(ro)
     ro.rotation_euler = (math.radians(70), 0, math.radians(-40))    # ขอบแสงด้านหลังขวา (ให้ตัวหุ่นลอยออกจากพื้น)
