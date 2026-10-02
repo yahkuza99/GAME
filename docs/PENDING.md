@@ -38,3 +38,4 @@
   - ตัวกลางใช้ภาพเคลื่อนไหวจริง + อาวุธ/หมวกที่สวม (Paperdoll) • โค้ดเดิม: `UI.renderEquip()` ใน js/ui.js
 
 - แสงฟันอาวุธ (WeaponTrail) ใช้ได้กับภาพ Class ถืออาวุธในภาพแล้ว — วงเหวี่ยงจาก tools/armed_trail.py → js/armed_trail.js (install_armed.py รันให้เองเมื่อติดตั้งท่า attack)
+- Class 2 ที่ยังไม่มีภาพ ใช้ภาพ Class ต้นสาย (Anim.playerKey) แทนตัววาดด้วยโค้ดแบบเก่า — มีภาพ Class 2 เมื่อไหร่จะใช้ของตัวเองอัตโนมัติ

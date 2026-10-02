@@ -494,7 +494,7 @@ const Pose = (() => {
   // ---------------- ห่อ Sprites.drawPlayer ----------------
   function mode(p) {
     if (!Pose.on || (typeof G !== 'undefined' && G.fastSim) || !p || !JOBS[p.job]) return 'base';
-    const gk = `${p.job}_${p.gender === 'm' ? 'm' : 'f'}`;
+    const gk = typeof Anim !== 'undefined' ? Anim.playerKey(p.job, p.gender) : `${p.job}_${p.gender === 'm' ? 'm' : 'f'}`;
     if (typeof Anim !== 'undefined' && Anim.has(gk)) return 'base';
     if (typeof Rig !== 'undefined' && Rig.enabled && Rig.get(gk)) return 'base';
     const img = typeof Art !== 'undefined' && Art.get(`hero_${gk}`);

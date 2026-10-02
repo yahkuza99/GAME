@@ -556,7 +556,7 @@ function drawSelectPreview(t) {
   csFaceAt = t;
   $$('#cs-list .cs-slot[data-i]').forEach(row => {
     const f = csFakes[+row.dataset.i], cv = $('canvas', row); if (!f || !cv) return;
-    const fg = cv.getContext('2d'), W = cv.width, H = cv.height, gk = `${f.job}_${f.gender === 'm' ? 'm' : 'f'}`;
+    const fg = cv.getContext('2d'), W = cv.width, H = cv.height, gk = Anim.playerKey(f.job, f.gender);
     fg.setTransform(1, 0, 0, 1, 0, 0); fg.clearRect(0, 0, W, H);
     const bg = fg.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#1c3450'); bg.addColorStop(1, '#070b14');
     fg.fillStyle = bg; fg.fillRect(0, 0, W, H);

@@ -871,7 +871,7 @@ Sprites.drawPlayer = (g, p, t) => {
   const head = p.equip.head ? p.equip.head.id : null;
   const hatMap = { hat: 'hat', iron_helm: 'cap', ribbon: 'ribbon', seraph_wings: 'angel_wing' };
   const garment = p.equip.garment ? ITEMS[p.equip.garment.id].icon.c : job.cape || null;
-  const gk = `${p.job}_${p.gender === 'm' ? 'm' : 'f'}`;
+  const gk = typeof Anim !== 'undefined' ? Anim.playerKey(p.job, p.gender) : `${p.job}_${p.gender === 'm' ? 'm' : 'f'}`;
   if (typeof Anim !== 'undefined' && Anim.has(gk)) {
     if (Object.keys(p.buffs).length) { g.strokeStyle = `rgba(255,240,150,${0.25 + Math.sin(t * 4) * 0.15})`; g.lineWidth = 2; g.beginPath(); g.ellipse(x, y, 16, 6, 0, 0, 7); g.stroke(); }
     const tr = Anim.track(p, t, p.atkAnim || 0, false, !!p.dead);

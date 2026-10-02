@@ -108,6 +108,13 @@ const Anim = {
     return true;
   },
   has(key) { return !!Art.get(`anim_${key}_idle`) || !!Art.get(`anim_${key}_walk`); },
+  // ชุดภาพของตัวละครผู้เล่น: ของ Class ตัวเอง • Class 2 ที่ยังไม่มีภาพ → ใช้ภาพ Class ต้นสาย (ไม่ใช่ตัววาดด้วยโค้ดแบบเก่า)
+  playerKey(job, gender) {
+    const g = gender === 'm' ? 'm' : 'f', own = `${job}_${g}`;
+    if (this.has(own)) return own;
+    const par = typeof JOBS !== 'undefined' && JOBS[job] && JOBS[job].parent;
+    return par && this.has(`${par}_${g}`) ? `${par}_${g}` : own;
+  },
 
   // เลือกท่าและเฟรมจากสถานะตัวละคร
   // st: { moving, atk (1→0), cast, hurt (0..1), sit, dead, deathT }
