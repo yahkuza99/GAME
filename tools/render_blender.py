@@ -21,6 +21,7 @@ ap.add_argument('--size', type=int, default=512); ap.add_argument('--pitch', typ
 ap.add_argument('--yaw0', type=float, default=0); ap.add_argument('--tex', default='')
 ap.add_argument('--loop', action='store_true'); ap.add_argument('--range', default='0,1')
 ap.add_argument('--style', default='toon', help='toon = แสงคอนทราสต์สูง + เส้นขอบ (เข้ากับภาพวาด Class อื่น) • flat = แสงนุ่มแบบเดิม')
+ap.add_argument('--frame', default='', help='กล้องคงที่ข้ามท่า: "ortho,centerZ" (ค่าที่พิมพ์ออกมาตอนเรนเดอร์ท่าเดิน) — ทุกท่าของตัวเดียวกันต้องใช้ค่าเดียวกัน ตัวจะได้ขนาดเท่ากัน')
 ap.add_argument('--anim', default='', help='ไฟล์ท่า Mixamo แบบ Without Skin (ใช้กับโมเดล With Skin ตัวเดียว — ไฟล์เล็ก)')
 a = ap.parse_args(argv)
 
@@ -102,11 +103,14 @@ if arm:
 center = mathutils.Vector(((LO.x + HI.x) / 2, (LO.y + HI.y) / 2, LO.z))
 
 # กล้อง orthographic + แสง
-cam_d = bpy.data.cameras.new('cam'); cam_d.type = 'ORTHO'; cam_d.ortho_scale = max(H, W) * 1.25
+ortho, cz = max(H, W) * 1.25, center.z + H * 0.45
+if a.frame: ortho, cz = map(float, a.frame.split(','))
+print(f'FRAME {ortho:.4f},{cz:.4f}  (ใช้ --frame นี้กับท่าอื่นของตัวเดียวกัน)')
+cam_d = bpy.data.cameras.new('cam'); cam_d.type = 'ORTHO'; cam_d.ortho_scale = ortho
 cam = bpy.data.objects.new('cam', cam_d); sc.collection.objects.link(cam); sc.camera = cam
-pivot = bpy.data.objects.new('pivot', None); sc.collection.objects.link(pivot); pivot.location = center + mathutils.Vector((0, 0, H * 0.45))
+pivot = bpy.data.objects.new('pivot', None); sc.collection.objects.link(pivot); pivot.location = mathutils.Vector((center.x, center.y, cz))
 cam.parent = pivot
-p = math.radians(a.pitch); dist = max(H, W) * 6
+p = math.radians(a.pitch); dist = ortho * 5
 cam.location = (0, -dist * math.cos(p), dist * math.sin(p)); cam.rotation_euler = (math.pi / 2 - p, 0, 0)
 sun = bpy.data.objects.new('sun', bpy.data.lights.new('sun', 'SUN')); sun.data.energy = 2.2
 sun.rotation_euler = (math.radians(40), math.radians(-25), math.radians(-30)); sc.collection.objects.link(sun); sun.parent = pivot
