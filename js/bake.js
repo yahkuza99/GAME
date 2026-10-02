@@ -5,6 +5,7 @@
 //    + js/bake_data_wolfwood.js (tools/tree3d.py --install: ต้นไม้ยักษ์ "ต้นหมาป่าเก่า" กลางป่า Wolfwood)
 //    + js/bake_data_roots.js (tools/roots3d.py --install: รากยักษ์โค้งข้ามทาง + ประตูรากของ Garmr ใน Gnawed Roots — ประตูเป็นของประดับล้วน)
 //    + js/bake_data_archive.js (tools/archive3d.py --install: ชั้นวางตั้งอิสระ + ประกายโหลของชั้นวางสลักผนัง/ตราผนึกประตูห้องนิรภัย Archive Depths)
+//    + js/bake_data_eldheim.js (tools/fountain3d.py --install: น้ำพุคริสตัลกลางเมือง Neo Eldheim — ขอบสระ A + แกนน้ำพุ 12 เฟรม + เสาคริสตัล 4 ทิศ)
 //    + js/bake_data_eldheim_bifrost.js (tools/bifrost3d.py --install: แท่น Bifrost + เสาคริสตัลสายรุ้ง + เงา Norn's Wheel — ภาพวงล้อวาดใน gacha.js)
 //  • แบบ A (ground): วาดลงผ้าใบพื้นของแมพ (แท่น/เงา — ของเตี้ย ไม่บังใคร)
 //  • reflect: เงาสะท้อนในน้ำของชิ้น B — วาดลงผ้าใบพื้นเฉพาะส่วนน้ำลึก (หน้ากากจาก drawWater ใน maps.js) ใต้ตัวละครเสมอ
@@ -13,6 +14,8 @@
 //  • hash+hashRect ต่อชิ้น (ground/pieces): หลายชุดในแมพเดียว (เมือง: แท่น Bifrost / Norn's Wheel / น้ำพุ) — ผังในกรอบของชิ้นไม่ตรง = ไม่วางชิ้นนั้น (Bake.rectOk)
 //  • hash (ถ้ามี): ผังน้ำตอนเลือกตำแหน่ง (หรือผังช่องในกรอบ hashRect) — ผังแมพเปลี่ยน = ไม่ใช้ข้อมูลชุดนี้เลย (ไม่มีซากลอยบนหญ้า/ต้นไม้ทับถนน)
 //  • clearTree: ต้นไม้ (T.TREE) ในวงรีกลายเป็นหญ้า • free: ของประดับ/พุ่ม Flora ในรัศมีถูกเอาออก (รากอบลงพื้นแทน)
+//  • fountain (ต่อชิ้น): ชุดน้ำพุ (แทนสระโค้ด TownArt.basin + ภาพวาด prop_fountain) — ใช้เมื่อผังตรง + ภาพครบทุกไฟล์เท่านั้น (Bake.fountain)
+//    ปิดทั้งชุด = FOUNTAIN_3D ใน js/townmap.js • frames/cols/fw/fh/fps = ชีตเฟรม (ชิ้นเคลื่อนไหว: วาดเฟรมตามเวลา 1 drawImage/เฟรมเกม)
 //  • ชิ้นไม่มีภาพ (img null + wall): ของที่อบอยู่ในภาพผนังถ้ำแล้ว (CAVE_BAKE) — วาดแค่ประกายกะพริบ + แสง เฉพาะตอนภาพผนังอบแสดงอยู่
 //  • ชิ้นสูงใหญ่ (ต้นไม้ยักษ์/รากโค้ง): mask = ตารางความทึบหยาบ → จางเฉพาะตอนตัวละครอยู่หลังส่วนทึบจริง • sway = ไหวลม • cull = เผื่อนอกจอ
 //    fb = ช่วงลำตัวที่ใช้เช็ค [px เหนือเท้า บน, ล่าง] (รากโค้ง: รวมหัว → เดินลอดใต้รากก็จาง) • fadeBoss = จางแรงขึ้นตอนมี MVP/บอสโลกในแมพ
@@ -94,14 +97,31 @@ const Bake = {
     return pts.every(([x, y]) => seen[map.idx(x, y)]);
   },
 
+  // น้ำพุคริสตัล 3D (Neo Eldheim): ผังตรง + ภาพครบทุกไฟล์ → true • ยังไม่ครบ = เริ่มโหลด (Art.need) แล้วใช้สระโค้ด + ภาพวาดเดิมไปก่อน
+  //   (Bake.ground จดภาพที่รอไว้ใน map.bakeWait → art.js onLoad วาดพื้นใหม่ → สลับเป็น 3D ทั้งชุดพร้อมกัน ไม่มีช่วงสระว่าง)
+  //   ปิดทั้งชุด (FOUNTAIN_3D = false ใน js/townmap.js) หรือผังรอบสระเปลี่ยน (Bake.rectOk) = ภาพวาดเดิม • ชุดอื่นในเมือง (Bifrost) ไม่เกี่ยว
+  fountain(map) {
+    const es = this.fountainSet(map);
+    if (!es.length || (typeof FOUNTAIN_3D !== 'undefined' && !FOUNTAIN_3D) || !es.every(e => this.rectOk(map, e))) return false;
+    let ok = true;
+    for (const k of this.imgs(es)) { Art.need(k); if (!Art.get(k)) ok = false; }
+    return ok;
+  },
+  fountainSet(map) { const d = map.fountain && this.data(map); return d ? (d.ground || []).concat(d.pieces || []).filter(e => e.fountain) : []; },
+  imgs(es) { return [...new Set(es.map(e => e.img).filter(Boolean))]; },
+
   // แบบ A: วาดลงผ้าใบพื้น (เรียกหลัง decorate — กรวดที่อบลงพื้นจะไม่โผล่บนแท่น)
   ground(map, g) {
     const wm = map.waterMask; map.waterMask = null; // หน้ากากน้ำจาก drawWater (ใช้ครั้งเดียว — ไม่เก็บค้างในหน่วยความจำ)
     const d = this.data(map); if (!d) return;
     map.bakeWait = new Set();
+    if (!map.fountain3d && (typeof FOUNTAIN_3D === 'undefined' || FOUNTAIN_3D)) { // น้ำพุ 3D รอภาพ (สระโค้ดวาดไปแล้ว) → จดไว้ วาดพื้นใหม่ตอนครบ
+      const es = this.fountainSet(map);
+      if (es.length && es.every(e => this.rectOk(map, e))) for (const k of this.imgs(es)) if (!Art.get(k)) map.bakeWait.add(k);
+    }
     g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
     for (const e of d.ground || []) {
-      if (!this.rectOk(map, e)) continue; // ชิ้นที่ผังในกรอบของมันเปลี่ยน (Bake.rectOk)
+      if (!this.rectOk(map, e) || (e.fountain && !map.fountain3d)) continue; // ชิ้นที่ผังในกรอบของมันเปลี่ยน (Bake.rectOk) • น้ำพุ 3D ยังไม่ใช้
       Art.need(e.img); const img = Art.get(e.img); if (img) g.drawImage(img, e.x * TILE, e.y * TILE, e.w * TILE, e.h * TILE); else map.bakeWait.add(e.img);
     } // bake_* โหลดตามแมพ (art.js need) — ยังไม่มา = จำไว้ วาดพื้นใหม่ตอนโหลดเสร็จ
     if (d.reflect && wm) this.reflect(map, g, d.reflect, wm);
@@ -136,7 +156,7 @@ const Bake = {
   // แบบ B: เพิ่มเป็น prop ชนิด 'bake' (เรียงความลึกใน render.js ด้วย y = จุดยึด) + เอาของประดับที่ทับแท่น/ชิ้นออก + แสง
   props(map) {
     const d = this.data(map); if (!d) return;
-    const live = d.pieces.filter(pc => !map.bakeSkip || !map.bakeSkip.has(pc.id)), c = d.clear, fr = live.length && d.free;
+    const live = d.pieces.filter(pc => (!map.bakeSkip || !map.bakeSkip.has(pc.id)) && (!pc.fountain || map.fountain3d)), c = d.clear, fr = live.length && d.free; // น้ำพุ 3D: ภาพครบเท่านั้น
     const near = (x, y) => (c && Math.hypot(x - c.x, y - c.y) < 4) || (fr && Math.hypot(x - fr.x, y - fr.y) < fr.r)
       || live.some(pc => (pc.free && Math.hypot(x - pc.x, y - pc.y) < pc.free) || pc.block.some(([bx, by]) => Math.abs(bx + 0.5 - x) < 1.1 && Math.abs(by + 0.5 - y) < 1.1));
     map.props = map.props.filter(o => !near(o.x, o.y));
@@ -204,7 +224,8 @@ const Bake = {
       return;
     }
     Art.need(pc.img); const img = Art.get(pc.img); if (!img) return;
-    const s = pc.scale, x = pc.x * TILE, y = pc.y * TILE, W = img.width * s, H = img.height * s, L = x - pc.ax * s, Tp = y - pc.ay * s;
+    const fw = pc.fw || img.width, fh = pc.fh || img.height; // ชีตเฟรม (น้ำพุ): ขนาดเฟรมเดียว
+    const s = pc.scale, x = pc.x * TILE, y = pc.y * TILE, W = fw * s, H = fh * s, L = x - pc.ax * s, Tp = y - pc.ay * s;
     // ผู้เล่น/เป้าหมายอยู่หลังชิ้นนี้ (y น้อยกว่า) และตัวทับภาพ → จางลง (แบบยอดไม้ใน flora.js)
     let target = 1;
     const p = typeof G !== 'undefined' && G.player, fb = pc.fb || [56, 16];
@@ -222,7 +243,10 @@ const Bake = {
     g.save();
     if (o.fa < 0.995) g.globalAlpha *= o.fa;
     if (pc.sway) { g.translate(x, y); g.transform(1, 0, Math.sin(t * 0.7 + o.r * 10) * pc.sway, 1, 0, 0); g.translate(-x, -y); } // ไหวลมช้า ๆ (โคนนิ่ง ยอดเอนไม่กี่ px)
-    g.drawImage(img, L, Tp, W, H);
+    if (pc.frames) { // น้ำไหลวนเป็นลูป: เฟรมตามเวลา (ทุกเครื่องเห็นจังหวะเดียวกันโดยไม่ต้องซิงก์ — ของประดับล้วน)
+      const fi = Math.floor(t * pc.fps) % pc.frames;
+      g.drawImage(img, (fi % pc.cols) * fw, Math.floor(fi / pc.cols) * fh, fw, fh, L, Tp, W, H);
+    } else g.drawImage(img, L, Tp, W, H);
     if (pc.jars.length && R.quality !== 'low') this.sparks(g, o, t, L, Tp, s);
     g.restore();
   },

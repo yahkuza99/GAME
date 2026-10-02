@@ -119,7 +119,7 @@ R.render = () => {
   if (R.quality !== 'low') R.drawGrassWind(g, map, t, sx, sy, sw, sh);
   // น้ำพุมีชีวิต
   g.restore();
-  if (map.fountain && !map.fountainImg) upright(map.fountain.y * TILE, () => {
+  if (map.fountain && !map.fountainImg && !map.fountain3d) upright(map.fountain.y * TILE, () => { // แท่นพลังงานแบบโค้ด (ไม่มีภาพวาด/ภาพ 3D)
     const fx = map.fountain.x * TILE, fy = map.fountain.y * TILE;
     for (let i = 0; i < 10; i++) {
       const a = i / 10 * Math.PI * 2, k = (t * 1.2 + i * 0.13) % 1;

@@ -5,6 +5,10 @@
 //  คลองขอบหินอ่อน + สะพานราวทอง • กระถางต้นไม้ • ขอบสวน
 //  (ผังเมือง/การชนอยู่ใน GameMap.genTown — ที่นี่วาดอย่างเดียว)
 // ============================================================
+// น้ำพุคริสตัลกลางเมืองแบบ 3D มีเฟรมน้ำไหล (tools/fountain3d.py → js/bake_data_eldheim.js, docs/RENDER3D_PLAN.md #11)
+//   false = กลับไปใช้สระวาดโค้ด (TownArt.basin) + ภาพวาด prop_fountain เดิม — แก้บรรทัดเดียวนี้ ไม่ต้องลบไฟล์ใด
+const FOUNTAIN_3D = true;
+
 const TownArt = {
   GLOW: '#5fd4ff', GOLD: '#d7b25a', GOLD_D: '#8a6a2a',
 
@@ -296,9 +300,9 @@ const TownArt = {
     }
   },
 
-  // สระน้ำพุกลม 3 ชั้น (ภาพน้ำพุคริสตัลตั้งอยู่กลางสระ — วาดใน render)
+  // สระน้ำพุกลม 3 ชั้น (ภาพน้ำพุคริสตัลตั้งอยู่กลางสระ — วาดใน render) • มีน้ำพุ 3D แล้ว (m.fountain3d) = สระอยู่ในภาพอบ (Bake.ground) ไม่วาดซ้อน
   basin(m, g) {
-    const f = m.fountain; if (!f) return;
+    const f = m.fountain; if (!f || m.fountain3d) return;
     const x = f.x * TILE, y = f.y * TILE, R = 2.85 * TILE;
     g.save();
     g.fillStyle = 'rgba(30,50,80,0.25)'; g.beginPath(); g.ellipse(x + 4, y + 7, R + 6, R + 4, 0, 0, 7); g.fill();

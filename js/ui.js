@@ -376,7 +376,7 @@ const UI = {
       g.fillStyle = map.def.pine ? 'rgba(30,70,35,0.9)' : 'rgba(40,95,40,0.9)';
       for (const o of map.objects) { g.beginPath(); g.arc(o.x * px, o.y * px, px * 0.62, 0, 7); g.fill(); }
       for (const b of map.buildings) if (b.img) { g.fillStyle = '#4a5468'; g.fillRect(b.x * px, b.y * px, b.w * px, b.h * px); g.fillStyle = b.roof || '#6ad8ff'; g.fillRect(b.x * px, b.y * px, b.w * px, Math.max(1, px * 0.6)); }
-      if (map.fountainImg) { g.fillStyle = '#5ad0f0'; g.beginPath(); g.arc(map.fountain.x * px, map.fountain.y * px, px * 1.3, 0, 7); g.fill(); }
+      if (map.fountainImg || map.fountain3d) { g.fillStyle = '#5ad0f0'; g.beginPath(); g.arc(map.fountain.x * px, map.fountain.y * px, px * 1.3, 0, 7); g.fill(); }
       map._imgs[px] = c;
     }
     return map._imgs[px];
@@ -414,6 +414,11 @@ const UI = {
     }
     const fimg = map.fountainImg && Art.get('prop_fountain');
     if (fimg) { const fw = S * 3.6, fh = fw * fimg.height / fimg.width; g.drawImage(fimg, map.fountain.x * S - fw / 2, (map.fountain.y + 1.3) * S - fh, fw, fh); }
+    else if (map.fountain3d) for (const o of map.props) { // น้ำพุ 3D (js/bake.js): เฟรมแรกของแกนน้ำพุ + เสาคริสตัล (ขอบสระอยู่ในพื้นแล้ว)
+      const pc = o.kind === 'bake' && o.pc, img = pc && pc.id.startsWith('fountain') && Art.get(pc.img); if (!img) continue;
+      const k = S / TILE * pc.scale, fw = pc.fw || img.width, fh = pc.fh || img.height;
+      g.drawImage(img, 0, 0, fw, fh, pc.x * S - pc.ax * k, pc.y * S - pc.ay * k, fw * k, fh * k);
+    }
     // ขอบจาง (vignette) + เส้นขอบด้านใน
     const vg = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.hypot(W, H) * 0.56);
     vg.addColorStop(0, 'rgba(30,20,8,0)'); vg.addColorStop(1, 'rgba(30,20,8,0.55)');

@@ -548,6 +548,7 @@ class GameMap {
     // 3.2) หย่อมดิน เงาต้นไม้ หญ้ากระจุก ดอกไม้จิ๋ว กรวด (js/flora.js)
     if (typeof Flora !== 'undefined' && this.flora) Flora.bake(this, g);
     // 3.5) น้ำทรงธรรมชาติจากหน้ากากเบลอ
+    this.fountain3d = !!this.fountain && typeof Bake !== 'undefined' && Bake.fountain(this); // น้ำพุคริสตัล 3D (tools/fountain3d.py) — ภาพยังไม่ครบ/ผังไม่ตรง = สระโค้ด + ภาพวาดเดิม
     if (town) TownArt.over(this, g); else this.drawWater(g, P, depth);
     // 4) ผนังหิน (ถ้ำ) มีมิติ
     if (this.def.kind === 'cave') { // ผนังถ้ำ: ภาพอบ 3D (tools/cave3d.py) • ยังไม่โหลด/ผังไม่ตรง = วาดด้วยโค้ด
@@ -576,8 +577,8 @@ class GameMap {
     this.decorate(g);
     if (typeof Bake !== 'undefined') Bake.ground(this, g); // แท่นหิน + เงาจากภาพเรนเดอร์ 3D (ทับกรวดที่ decorate วาด)
     for (const b of this.buildings) { b.img = BUILDING_ART[b.label] || (b.kind === 'castle' ? 'prop_bld_tower' : null); if (!propArt(b.img)) { b.img = null; this.drawBuilding(g, b); } }
-    this.fountainImg = !!(this.fountain && propArt('prop_fountain'));
-    if (this.fountain && !this.fountainImg) this.drawFountain(g);
+    this.fountainImg = !!(this.fountain && !this.fountain3d && propArt('prop_fountain')); // ภาพวาดน้ำพุเดิม = ทางสำรองของน้ำพุ 3D
+    if (this.fountain && !this.fountainImg && !this.fountain3d) this.drawFountain(g);
     if (this.def.kind === 'town') this.placeTownProps(); else this.placeSeamProps();
     if (typeof Bake !== 'undefined') Bake.props(this); // บัลลังก์/ชั้นวาง (สไปรต์ตั้งตรง) + แสงโหลประกาย → extraLights
     if (typeof Bake !== 'undefined') Bake.gates(this); // ซุ้มประตูวาร์ป 3D (สไปรต์ตั้งตรงเรียงความลึก) + แสงในแมพมืด
