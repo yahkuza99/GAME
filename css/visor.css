@@ -221,10 +221,10 @@ body.visor .win::before { content: ""; position: absolute; inset: 0; left: 0; to
   background: radial-gradient(120% 40% at 50% -10%, rgba(111, 243, 255, 0.14), rgba(111, 243, 255, 0) 60%); }
 body.visor .win::after { content: none; }
 body.visor .win > * { position: relative; z-index: 1; }
-body.visor .win-title { background: none; border-bottom: 1px solid var(--edge); padding: 10px 10px 9px 16px; }
-body.visor .win-title span { font: 600 15px var(--display); display: flex; align-items: center; }
+body.visor .win-title { background: none; border-bottom: 1px solid var(--edge); padding: 4px 6px 4px 14px; min-height: 34px; } /* หัวหน้าต่างบาง */
+body.visor .win-title span { font: 600 13.5px var(--display); display: flex; align-items: center; }
 body.visor .win-title span::before { width: 6px; height: 6px; transform: none; border-radius: 50%; box-shadow: 0 0 10px var(--cy); }
-body.visor .win-x { border: 1px solid transparent; background: var(--fill); border-radius: 50%; color: var(--ink-dim); line-height: 24px; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+body.visor .win-x { width: 24px; height: 24px; margin-right: 2px; font-size: 16px; border: 1px solid transparent; background: var(--fill); border-radius: 50%; color: var(--ink-dim); line-height: 22px; transition: background 0.15s, color 0.15s, border-color 0.15s; }
 body.visor .win-x:hover { background: rgba(255, 107, 125, 0.22); border-color: rgba(255, 107, 125, 0.5); color: #fff; }
 body.visor .win-body { padding: 12px 14px 14px; }
 body.visor .win.dialog { border-radius: 22px; }

@@ -640,7 +640,7 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
    ===================================================================== */
 /* จอสัมผัส: ปุ่มใหญ่ขึ้น */
 @media (pointer: coarse) {
-  .win-x { width: 34px; height: 34px; font-size: 22px; line-height: 30px; }
+  .win-x, body.visor .win-x { width: 28px; height: 28px; font-size: 18px; line-height: 26px; } /* จอสัมผัส: ปุ่มปิดใหญ่พอแตะ แต่ไม่ทำให้หัวหน้าต่างหนา */
   .btn.small { padding: 6px 11px; font-size: 12.5px; }
   .st-up { padding: 6px 0; font-size: 12px; }
   .dlg-opt { padding: 11px 12px; font-size: 14px; }
