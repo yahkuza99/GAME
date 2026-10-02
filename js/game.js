@@ -1487,6 +1487,20 @@ function updatePlayer(dt) {
   }
   // วาร์ปพอร์ทัล
   // เข้าวาร์ปได้เมื่อตัวละครอยู่ในรัศมี PORTAL_REACH ช่องจากกลางวาร์ป (จุดเกิดอยู่ห่าง 2 ช่อง จึงไม่เด้งกลับ)
+  // ขอบเปิด: เดินพ้นขอบตรงไหนก็ได้ → แมพข้างเคียง ณ ตำแหน่งเดียวกันบนผืนโลก (ไม่มีจอใหญ่ขึ้นชื่อแมพ)
+  // ข้ามเฉพาะตอนเดินเอง: บอทออโต้/ไล่ตีมอนไม่หลุดข้ามแมพโดยไม่ตั้งใจ
+  if (G.map.openEdges.length && !p.dead && !p.target && !(typeof Bot !== 'undefined' && Bot.on)) {
+    const m = G.map, e = m.openEdges.find(o => o.side === 'W' ? p.x < 0.62 : o.side === 'E' ? p.x > m.w - 0.62 : o.side === 'N' ? p.y < 0.62 : p.y > m.h - 0.62);
+    const along = e && (e.side === 'W' || e.side === 'E' ? p.y : p.x);
+    if (e && along >= e.a0 && along <= e.a1 + 1) {
+      const L0 = WORLD.layout(), A = L0[m.id], B = L0[e.to], bd = MAP_DEFS[e.to];
+      let lx = A.x + p.x - B.x, ly = A.y + p.y - B.y;
+      if (e.side === 'E') lx = 1.6; else if (e.side === 'W') lx = bd.w - 1.6; else if (e.side === 'S') ly = 1.6; else ly = bd.h - 1.6;
+      G.edgeCross = true;
+      try { changeMap(e.to, lx, ly, { quiet: true }); } finally { G.edgeCross = false; }
+      return;
+    }
+  }
   const portal = G.map.portals.find(q => U.dist(q.x + 0.5, q.y + 0.5, p.x, p.y) <= PORTAL_REACH);
   if (portal) {
     const td = MAP_DEFS[portal.to], ar = td.arrive && td.arrive[G.map.id];

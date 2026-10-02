@@ -1125,3 +1125,5 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
 /* แผนที่ใหญ่ (M): กรอบแผนที่ภาพวาด */
 #bigmap-cv { display: block; width: 100%; height: auto; margin: 0 auto; border-radius: 10px; border: 2px solid rgba(215,178,90,.85); box-shadow: 0 0 0 3px rgba(20,14,4,.85), 0 0 0 4px rgba(215,178,90,.35), 0 10px 30px rgba(0,0,0,.5); background: #1a140a; cursor: crosshair; }
 #worldmap-cv { display: block; width: 100%; height: auto; margin: 0 auto; border-radius: 10px; border: 2px solid rgba(215,178,90,.85); box-shadow: 0 0 0 3px rgba(20,14,4,.85), 0 10px 30px rgba(0,0,0,.5); background: #16120a; cursor: pointer; }
+/* เดินข้ามขอบแมพ (ขอบเปิด): ป้ายชื่อเล็กมุมบน ไม่บังจอ */
+#map-banner.mini { top: 14%; transform: translateX(-50%) scale(.62); }

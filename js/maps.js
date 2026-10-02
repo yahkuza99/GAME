@@ -85,7 +85,7 @@ class GameMap {
     this.tiles = new Uint8Array(this.w * this.h);
     this.block = new Uint8Array(this.w * this.h);
     this.portals = []; this.objects = []; this.buildings = []; this.fountain = null;
-    this.paved = []; this.caveMouths = []; this.daylight = []; this.seams = []; // รอยต่อกับแมพข้างเคียง (seamTransitions)
+    this.paved = []; this.caveMouths = []; this.daylight = []; this.seams = []; this.openEdges = []; // รอยต่อกับแมพข้างเคียง (seamTransitions)
     this.rng = U.seeded(def.seed);
     for (const side in def.links) {
       const p = portalPos(def, side);
@@ -270,9 +270,23 @@ class GameMap {
           }
           this.paved.push({ x: p.x, y: p.y, dx, dy, qx, qy, len: 11 });
         } else if (kind === 'cave' && nd.kind !== 'cave') this.daylight.push(p);
-        else if (kind === 'field' && nd.kind === 'field') this.seams.push({ side, def: nd });
+        else if (kind === 'field' && nd.kind === 'field') { this.seams.push({ side, def: nd }); this.openEdge(side, p.to); }
       }
     }
+  }
+  // ขอบเปิด (ทุ่ง↔ทุ่ง): เอาแนวต้นไม้ขอบออกตลอดช่วงที่สองแมพติดกันบนผืนโลก → เดินข้ามตรงไหนก็ได้ ไปโผล่ตำแหน่งเดียวกันของอีกฝั่ง (game.js edgeCross)
+  openEdge(side, to) {
+    if (typeof WORLD === 'undefined') return;
+    const L0 = WORLD.layout(), a = L0[this.id], b = L0[to], B = MAP_DEFS[to]; if (!a || !b) return;
+    const ns = side === 'N' || side === 'S';
+    const lo = Math.max(ns ? a.x : a.y, ns ? b.x : b.y) - (ns ? a.x : a.y), hi = Math.min(ns ? a.x + this.w : a.y + this.h, ns ? b.x + B.w : b.y + B.h) - (ns ? a.x : a.y);
+    const a0 = Math.max(3, lo + 3), a1 = Math.min((ns ? this.w : this.h) - 4, hi - 4);
+    if (a1 <= a0) return;
+    for (let t = a0; t <= a1; t++) for (let k = 0; k < 3; k++) {
+      const x = side === 'W' ? k : side === 'E' ? this.w - 1 - k : t, y = side === 'N' ? k : side === 'S' ? this.h - 1 - k : t;
+      if (this.tile(x, y) === T.TREE || this.tile(x, y) === T.WATER) this.set(x, y, T.GRASS);
+    }
+    (this.openEdges || (this.openEdges = [])).push({ side, to, a0, a1 });
   }
   // น้ำหนักแมพข้างเคียงที่จุด (x, y): 1 ที่ขอบ → 0 ที่ระยะ 14 ช่อง (ใช้ผสมพันธุ์ไม้/ของประดับ)
   seamWeight(x, y) {

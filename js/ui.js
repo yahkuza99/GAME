@@ -197,8 +197,9 @@ const UI = {
     const art = Art.get('map_' + map.id);
     const story = typeof Story !== 'undefined' ? Story.mapLine(map.id) : ''; // บรรทัดตำนานของแผนที่ (docs/STORY.md)
     el.innerHTML = `<div class="mb-en">${U.esc(map.def.name)}</div><div class="mb-th">${U.esc(map.def.thai)}</div>${story ? `<div class="mb-story">${U.esc(story)}</div>` : ''}`;
-    el.classList.toggle('has-img', !!art); el.classList.toggle('story', !!story);
-    el.style.backgroundImage = art ? `url("${art.src}")` : '';
+    el.classList.toggle('has-img', !!art && !G.edgeCross); el.classList.toggle('story', !!story && !G.edgeCross);
+    el.classList.toggle('mini', !!G.edgeCross); // เดินข้ามขอบ = ป้ายชื่อเล็ก ไม่บังจอ
+    el.style.backgroundImage = art && !G.edgeCross ? `url("${art.src}")` : '';
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   },
   updateHud() {
