@@ -160,10 +160,12 @@ const Paperdoll = {
 
   icon(it) { return it && ((it.cls && Art.get('cweapon_' + it.cls)) || Art.get('item_' + it.id) || Art.get('item_' + (this.BASE[it.wtype] || ''))); },
 
-  // ธนูไม่เคยฟัน: ตอนโจมตีด้วยธนู Anim ใช้ท่า shoot (ถ้ามีภาพ) ไม่มีก็ยืนถือธนูนิ่ง ๆ ให้ลูกศร (เอฟเฟกต์เกม) บินออกไป
-  weapon(g, it, hand, act, fix) {
+  // ท่าถืออาวุธของเฟรม (ไม่วาด): จุดมือ/มุมสุดท้าย/ระยะถึงปลาย หลังรวม flip/rot/fix/up/stand และ floor แล้ว
+  // คืน { x, y (พิกัดช่อง เทียบ CX/GROUND), ang (เรเดียน ด้าม→ปลาย), reach (px จากมือถึงปลายอาวุธ) } + ค่าภายในให้ weapon()
+  // ใช้ร่วมกันระหว่าง weapon() กับเอฟเฟกต์อื่น (js/weapontrail.js) ให้มุม/ระยะตรงกันเสมอ • null = ไม่มีไอคอน/จุดมือ
+  pose(it, hand, act, fix) {
     const img = this.icon(it);
-    if (!img || !hand) return;
+    if (!img || !hand) return null;
     let spec = this.spec(it, act);
     const rev = !!spec.rev && !(it.cls && img === Art.get('cweapon_' + it.cls)); // ภาพอาวุธ Class วาดด้ามซ้ายล่างทุกชิ้น
     const m = this.measure(img, rev), k = spec.len / m.len;
@@ -172,22 +174,30 @@ const Paperdoll = {
     if (spec.stand) ang += Math.atan2(Math.sin(-Math.PI / 2 - ang), Math.cos(-Math.PI / 2 - ang)) * spec.stand;
     // จุดที่ต้องอยู่ตรงมือ (ระยะตามแนวทแยงจากมุมด้ามของภาพ, หน่วย px ของไอคอน)
     const at = spec.guard && m.guard != null ? m.guard - 2 : m.t0 + (m.t1 - m.t0) * spec.grip;
+    const x = hand[0] - Anim.CX + (fix ? fix[0] : 0), y = hand[1] - Anim.GROUND + (fix ? fix[1] : 0);
     // พื้น: ปลายอาวุธ (ระยะจากมือถึงปลายหัว) ห้ามต่ำกว่า floor → หมุนขึ้นเข้าหาแนวนอนเท่าที่จำเป็น
     // (ขวานใหญ่เดินถือต่ำ / กระบองทุบลงพื้น จะไม่ลากพื้นหรือตกขอบช่อง)
-    const reach = spec.len * (1 - (at - m.t0) / m.len), hy = hand[1] + (fix ? fix[1] : 0), fl = spec.floor || this.FLOOR;
+    const reach = spec.len * (1 - (at - m.t0) / m.len), hy = y + Anim.GROUND, fl = spec.floor || this.FLOOR;
     if (reach > 0 && hy + Math.sin(ang) * reach > fl) {
       const s = Math.asin(Math.max(-1, Math.min(1, (fl - hy) / reach)));
       ang = Math.cos(ang) >= 0 ? s : Math.PI - s;
     }
-    spec = Object.assign({}, spec, { rev });
+    return { x, y, ang, reach, img, m, k, at, rev };
+  },
+
+  // ธนูไม่เคยฟัน: ตอนโจมตีด้วยธนู Anim ใช้ท่า shoot (ถ้ามีภาพ) ไม่มีก็ยืนถือธนูนิ่ง ๆ ให้ลูกศร (เอฟเฟกต์เกม) บินออกไป
+  weapon(g, it, hand, act, fix) {
+    const p = this.pose(it, hand, act, fix);
+    if (!p) return;
+    const { m, k, at, rev, img } = p;
     g.save();
-    g.translate(hand[0] - Anim.CX + (fix ? fix[0] : 0), hand[1] - Anim.GROUND + (fix ? fix[1] : 0));
+    g.translate(p.x, p.y);
     // ไอคอนวาดเฉียง 45° → หมุนให้แนวด้าม→ปลายตรงกับมุมในเฟรม
-    g.rotate(ang - (spec.rev ? Math.PI * 3 / 4 : -Math.PI / 4));
+    g.rotate(p.ang - (rev ? Math.PI * 3 / 4 : -Math.PI / 4));
     g.scale(k, k);
     const u = at / Math.SQRT2, pad = m.pad, sz = img.width;
     // มุมด้ามของภาพ: rev = ขวาบน (sz, 0), ปกติ = ซ้ายล่าง (0, sz)
-    const px = spec.rev ? sz - u : u, py = spec.rev ? u : sz - u;
+    const px = rev ? sz - u : u, py = rev ? u : sz - u;
     g.drawImage(m.out, -px - pad, -py - pad);
     g.restore();
   },
