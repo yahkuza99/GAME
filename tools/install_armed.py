@@ -4,6 +4,7 @@
 ทำให้:
   1) ติดตั้งด้วย sprite_std (เดิน = วัดสเกลเอง • ท่าอื่น = ใช้สเกลของท่าเดินตัวเดียวกัน ไม่ปรับขนาดเฟรมย่อตัว,
      ชีตที่ขนาดไม่ใช่ 1024x1536 ปรับสเกลตามความสูงภาพ)
+     --ref-frames 1,4: ชีตที่ขนาดภาพไม่เท่าท่าเดิน (เช่น 1536x1024) ใช้ความสูงของเฟรมยืนตรงตั้งสเกลแทน
   2) --flip-rows: กลับด้านแถวที่ AI วาดหันผิด (นับแถวในภาพต้นฉบับ 0-4 = หน้า, หน้าซ้าย, ซ้าย, หลังซ้าย, หลัง)
      --order: สลับลำดับเฟรม (เช่น 0,3,2,1 เมื่อเดินถอยหลัง)
   3) ถ้าเป็นท่าเดิน: ปิด paperdoll ของตัวนั้น (ลบ anim_<gk>_bare_* + ข้อมูลใน paperdoll_data/depth)
@@ -24,6 +25,59 @@ SECOND = {'valkyrie': 'einherjar', 'hersir': 'einherjar', 'galdr': 'runecaster',
           'norn': 'volva', 'gythja': 'volva', 'phantom': 'trickster', 'skald': 'trickster', 'warlord': 'berserker', 'jotun': 'berserker'}
 
 
+def regrid(im, cols=4, rows=5, win=0.18):
+    """แถว/คอลัมน์ที่ AI วาดไม่เท่ากัน: หาเส้นแบ่งจริง (แนวที่มีเนื้อภาพน้อยสุด ใกล้เส้นแบ่งปกติ)
+    แล้วจัดลงตารางเท่ากันใหม่ (ชิดล่าง/กลาง) — ตัวละครที่ล้นเส้นแบ่งปกติจะไม่ถูกตัด"""
+    a = np.array(im); fg = a.min(-1) < 235
+    def cuts(prof, n):
+        L = len(prof); out = [0]
+        for i in range(1, n):
+            c = L * i / n; lo, hi = int(c - L / n * win), int(c + L / n * win)
+            out.append(lo + int(np.argmin(prof[lo:hi])))
+        return out + [L]
+    ys = cuts(fg.sum(1), rows); xs = cuts(fg.sum(0), cols)
+    ch = max(ys[i + 1] - ys[i] for i in range(rows)); cw = max(xs[i + 1] - xs[i] for i in range(cols))
+    out = Image.new('RGB', (cw * cols, ch * rows), (255, 255, 255))
+    for r in range(rows):
+        for c in range(cols):
+            cell = im.crop((xs[c], ys[r], xs[c + 1], ys[r + 1]))
+            out.paste(cell, (c * cw + (cw - cell.width) // 2, r * ch + ch - cell.height))
+    uni = [round(im.height * i / rows) for i in range(rows + 1)]
+    if max(abs(y - u) for y, u in zip(ys, uni)) > 3: print('  จัดแถวใหม่ตามเส้นแบ่งจริง:', ys)
+    return out
+
+
+def clean_cells(im, cols=4, rows=5):
+    """ชีตที่ตัวละครชิดกันจนเกินเส้นแบ่งช่อง (ผม/ฮู้ดของแถวล่างโผล่เข้าช่องบน): ทาสีขาวทับชิ้นส่วนที่เป็นของช่องอื่น
+    ชิ้นส่วน = กลุ่มพิกเซลที่ติดกัน → ยกให้ช่องที่มีชิ้นนั้นมากที่สุด"""
+    a = np.array(im)
+    W, H = im.size; cw, ch = W / cols, H / rows
+    fg = (a.min(-1) < 235).astype(np.uint8)
+    n, lab = cv2.connectedComponents(cv2.dilate(fg, np.ones((3, 3), np.uint8)), connectivity=8)
+    lab = lab * fg
+    owner = {}
+    for r in range(rows):
+        for c in range(cols):
+            y0, y1, x0, x1 = int(r * ch), int((r + 1) * ch), int(c * cw), int((c + 1) * cw)
+            ids, cnt = np.unique(lab[y0:y1, x0:x1], return_counts=True)
+            for i, k in zip(ids, cnt):
+                if i and (i not in owner or k > owner[i][0]): owner[i] = (k, r, c)
+    totals = dict(zip(*np.unique(lab, return_counts=True)))
+    out = a.copy(); moved = 0
+    for r in range(rows):
+        for c in range(cols):
+            y0, y1, x0, x1 = int(r * ch), int((r + 1) * ch), int(c * cw), int((c + 1) * cw)
+            sub = lab[y0:y1, x0:x1]
+            ids, cnt = np.unique(sub, return_counts=True)
+            big = max((k for i, k in zip(ids, cnt) if i), default=0)
+            for i, k in zip(ids, cnt):
+                # ลบเฉพาะเศษที่ส่วนใหญ่เป็นของช่องอื่น และไม่ใช่ตัวหลักของช่องนี้ (ตัวที่ล้นเส้นช่องเล็กน้อยยังอยู่ครบ)
+                if i and owner[i][1:] != (r, c) and k < big * 0.5 and k < totals[i] * 0.3:
+                    m = sub == i; out[y0:y1, x0:x1][m] = 255; moved += int(m.sum())
+    if moved: print(f'  ตัดชิ้นส่วนที่ล้นมาจากช่องข้างเคียง: {moved} px')
+    return Image.fromarray(out)
+
+
 def sizes():
     p = os.path.join(ROOT, 'art', 'anim_sizes.json')
     return json.load(open(p)) if os.path.exists(p) else {}
@@ -34,6 +88,7 @@ def main():
     ap.add_argument('src'); ap.add_argument('gk'); ap.add_argument('action')
     ap.add_argument('--flip-rows', default=''); ap.add_argument('--order', default='')
     ap.add_argument('--gif', default=''); ap.add_argument('--scale', type=float, default=0)
+    ap.add_argument('--ref-frames', default='', help='คอลัมน์ที่ยืนตรง (เช่น 1,4) → ตั้งสเกลจากความสูงเฟรมพวกนี้ (ใช้เมื่อชีตขนาด/สัดส่วนต่างจากท่าเดิน)')
     a = ap.parse_args()
     src = a.src
     im = Image.open(src).convert('RGB')
@@ -43,10 +98,13 @@ def main():
         for r in map(int, a.flip_rows.split(',')):
             for c in range(4):
                 box = (c * cw, r * ch, (c + 1) * cw, (r + 1) * ch); im.paste(ImageOps.mirror(im.crop(box)), box[:2])
+    im = regrid(im)
+    im = clean_cells(im)
     tmp = os.path.join('/tmp', f'install_armed_{a.gk}_{a.action}.png'); im.save(tmp)
     cmd = ['python3', os.path.join(ROOT, 'tools', 'sprite_std.py'), 'install', tmp, a.gk, a.action, '--grid', '4x5', '--dirs', 'S,SW,W,NW,N']
     scale = a.scale
-    if not scale and a.action != 'walk':
+    if a.ref_frames: cmd += ['--ref-frames', a.ref_frames]
+    if not scale and a.action != 'walk' and not a.ref_frames:
         w = sizes().get(a.gk, {}).get('walk')
         if w: scale = w['scale_src'] * 1536 / H
     if scale: cmd += ['--scale', str(round(scale, 4))]
