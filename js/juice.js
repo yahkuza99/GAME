@@ -667,6 +667,14 @@ const Juice = (() => {
       m._over = Math.max(0, (dmg - hp0) / Math.max(1, m.maxHp));
       try { dm0(m, dmg, opts); } finally { J.ctx = prev; }
       J.onMobHit(m, dmg, opts, kind);
+      // บอส: ข้ามเส้น HP 50% / 25% → วงแดง + ป้ายบอกความคืบหน้า (ไม่เปลี่ยนพฤติกรรมบอส) — GAME_FEEL ข้อ 9
+      if (isBoss(m) && !m.dead && vis()) {
+        const k0 = hp0 / m.maxHp, k1 = m.hp / m.maxHp;
+        for (const [ms, txt] of [[0.5, 'HALF!'], [0.25, L('ใกล้แล้ว!', 'ALMOST!')]]) if (k0 > ms && k1 <= ms) {
+          addFloater(m.x, m.y - 2.2, txt, '#ff8a6a', true); J.shake(4, 0.2); J.dilate(0.3, 0.1);
+          G.fx.push({ type: 'feel_nova', feel: true, t: 0, dur: 0.6, ref: m, x: m.x, y: m.y, col: '#ff5a4a', rad: 3.5 * Math.sqrt(m.def.scale || 1) });
+        }
+      }
     };
     // มอนเกิดใหม่ระหว่างเล่น (ไม่ใช่ตอนโหลดแมพ): ฝุ่นฟุ้ง + ผุดขึ้น (วาดใน J.drawMob)
     if (typeof spawnMob === 'function' && typeof changeMap === 'function') {
@@ -678,6 +686,14 @@ const Juice = (() => {
         return m;
       };
     }
+    // บอสปรากฏ: เสียงคำรามต่ำ + จอสั่น + ขอบจอแดงจาง ๆ (GAME_FEEL ข้อ 9)
+    J.bossIntro = () => {
+      if (!vis()) return;
+      J.shake(6, 0.5); J.flash('hurt', 0.35);
+      const p = G.player;
+      if (typeof Sound !== 'undefined' && Sound.ctx && p && p.options && p.options.sound) { Sound.tone(58, 1.2, 'sawtooth', 0.05, -18); Sound.tone(87, 0.9, 'triangle', 0.04, -25, 0.05); Sound.noise(0.9, 0.035, 180); }
+    };
+    if (typeof spawnMvp === 'function') { const sp0 = spawnMvp; spawnMvp = function () { const r = sp0.apply(this, arguments); J.bossIntro(); return r; }; }
     const km0 = killMob;
     killMob = function (m) { const was = m && m.dead; km0(m); if (m && !was && m.dead) J.onKill(m); };
     const dp0 = damagePlayer;
@@ -706,6 +722,7 @@ const Juice = (() => {
   const late = () => {
     if (J.lateDone || typeof R === 'undefined') return;
     J.lateDone = true;
+    if (typeof WB !== 'undefined' && WB.spawn && !WB.spawn._j) { const ws0 = WB.spawn; WB.spawn = function () { const r = ws0.apply(this, arguments); J.bossIntro(); return r; }; WB.spawn._j = true; }
     const kick0 = R.kick;
     R.kick = (amp, dur) => { if (J.muteKick) return; const k = J.shakeMul(); if (k > 0) kick0(amp * k, dur); };
     const df0 = R.drawFloater;
