@@ -11,7 +11,7 @@ const RIG_PARTS = ['hair_back', 'arm_back', 'leg_back', 'leg_front', 'torso', 'h
 
 const Rig = {
   enabled: false, // ปิดไว้: ใช้แอนิเมชันแบบวาดทีละเฟรม (anim.js) แทน
-  ON: ['einherjar_m'], // ทดลอง Rig กับ Class นี้ (ทำงานเมื่อมีไฟล์ rig_<key>_*.webp ครบ)
+  ON: [], // เจ้าของตัดสินใจไม่ใช้ Rig (เคลื่อนไหวไม่เป็นธรรมชาติ) — ใช้แอนิเมชันวาดทีละเฟรมแทน
   cache: {},
   // โหลดชิ้นส่วนของตัวละคร key (เช่น novice_f) คืน null ถ้ายังไม่ครบชิ้นหลัก
   get(key) {
