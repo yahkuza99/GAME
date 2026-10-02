@@ -9,9 +9,10 @@
 const Paperdoll = {
   ON: true,
   // อาวุธแต่ละชนิด: ยาว (px ในช่อง 240), grip = ตำแหน่งที่มือจับ (สัดส่วนจากปลายด้ามถึงปลายอาวุธ)
+  // rev = ไอคอนวาดด้ามไว้ขวาบน ปลายคมซ้ายล่าง (มีด/ดาบทุกชิ้น) — ต้องจับฝั่งด้าม ไม่ใช่ฝั่งคม
   W: {
-    dagger: { len: 46, grip: 0.2 },
-    sword: { len: 74, grip: 0.16 },
+    dagger: { len: 46, grip: 0.12, rev: 1 },
+    sword: { len: 74, grip: 0.1, rev: 1 },
     axe: { len: 64, grip: 0.14 },
     mace: { len: 64, grip: 0.14 },
     rod: { len: 86, grip: 0.36, up: 1, stand: 0.8 },
@@ -26,8 +27,10 @@ const Paperdoll = {
   },
   // ผมแต่ละตัวสูงไม่เท่ากัน (ผมชี้ฟู = ยอดผมสูงกว่าหัวจริง) → เลื่อนหมวกลงเพิ่มต่อตัวละคร
   HEAD_DY: { novice_m: 10 },
-  // ไอคอนในเกมวาดเฉียง: ด้ามอยู่ซ้ายล่าง ปลายอยู่ขวาบน (ราว 12%..88% ของภาพ)
-  ICON_A: 0.12, ICON_B: 0.88,
+  // ไอคอนในเกมวาดเฉียงตามแนวทแยง (ราว 8%..92% ของภาพ): ขวาน/กระบอง/คทา ด้ามซ้ายล่าง • มีด/ดาบ ด้ามขวาบน (rev)
+  ICON_A: 0.08, ICON_B: 0.92,
+  // อาวุธที่ยังไม่มีไอคอนเฉพาะ: ใช้ไอคอนชิ้นพื้นฐานของชนิดเดียวกัน
+  BASE: { dagger: 'knife', sword: 'sword', axe: 'hand_axe', mace: 'mace', rod: 'rod', bow: 'bow' },
 
   key(gk) {
     return this.ON && typeof PAPERDOLL_DATA !== 'undefined' && PAPERDOLL_DATA[gk] && Anim.has(gk + '_bare') ? gk + '_bare' : null;
@@ -41,21 +44,26 @@ const Paperdoll = {
   // หันหลัง (แถว 5,6,7 = ซ้ายบน/บน/ขวาบน): อาวุธอยู่หลังตัว
   isBack(row) { return row >= 5 && row <= 7; },
 
+  icon(it) { return it && (Art.get('item_' + it.id) || Art.get('item_' + (this.BASE[it.wtype] || ''))); },
+
+  // ธนูไม่เคยฟัน: ตอนโจมตีด้วยธนู Anim ใช้ท่า shoot (ถ้ามีภาพ) ไม่มีก็ยืนถือธนูนิ่ง ๆ ให้ลูกศร (เอฟเฟกต์เกม) บินออกไป
   weapon(g, it, hand) {
-    const img = it && Art.get('item_' + it.id);
+    const img = this.icon(it);
     if (!img || !hand) return;
     const spec = this.W[it.wtype] || this.W.dagger;
     const s = img.width, a0 = this.ICON_A * s, b0 = this.ICON_B * s;
     const diag = (b0 - a0) * Math.SQRT2, k = spec.len / diag;
+    const hx = hand[0], hy = hand[1];
     let ang = hand[2];
     if (spec.up && Math.sin(ang) > 0) ang += Math.PI;
     if (spec.stand) ang += Math.atan2(Math.sin(-Math.PI / 2 - ang), Math.cos(-Math.PI / 2 - ang)) * spec.stand;
     g.save();
-    g.translate(hand[0] - Anim.CX, hand[1] - Anim.GROUND);
-    g.rotate(ang + Math.PI / 4); // ไอคอนชี้ขึ้นขวา (-45°) → หมุนให้ตรงกับมุมด้าม→ปลายในเฟรม
+    g.translate(hx - Anim.CX, hy - Anim.GROUND);
+    // ไอคอนวาดเฉียง 45° → หมุนให้แนวด้าม→ปลายตรงกับมุมในเฟรม และให้จุดจับ (ห่างจากปลายด้าม grip) อยู่ที่มือ
+    let gx, gy;
+    if (spec.rev) { g.rotate(ang - Math.PI * 3 / 4); gx = b0 - (b0 - a0) * spec.grip; gy = a0 + (b0 - a0) * spec.grip; }
+    else { g.rotate(ang + Math.PI / 4); gx = a0 + (b0 - a0) * spec.grip; gy = b0 - (b0 - a0) * spec.grip; }
     g.scale(k, k);
-    // จุดจับอยู่บนเส้นทแยงจากปลายด้าม (a0, b0) ไปปลายอาวุธ (b0, a0)
-    const gx = a0 + (b0 - a0) * spec.grip, gy = b0 - (b0 - a0) * spec.grip;
     g.drawImage(img, -gx, -gy);
     g.restore();
   },

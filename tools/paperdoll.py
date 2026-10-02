@@ -13,7 +13,7 @@ from PIL import Image
 ROOT = os.path.join(os.path.dirname(__file__), '..')
 A = os.path.join(ROOT, 'assets')
 C = 240
-ACTS = ['idle', 'walk', 'attack', 'cast', 'sit', 'hurt', 'dead']
+ACTS = ['idle', 'walk', 'attack', 'shoot', 'cast', 'sit', 'hurt', 'dead']
 
 
 def cyan_mask(rgba):

@@ -882,7 +882,7 @@ Sprites.drawPlayer = (g, p, t) => {
     Anim.draw(g, x + shake, y, bare || gk, Object.assign(bare ? Paperdoll.layers(gk, p) : {}, {
       facing: p.facing || 1, dir: p.dir, moving: p.moving && !p.sitting, atk: tr.atk, cast: !!p.cast, sit: p.sitting, dead: p.dead, deathT: tr.deathT,
       skill: p.skillPose != null && G.time - p.skillPose < 0.5 && G.time >= p.skillPose ? 1 - (G.time - p.skillPose) / 0.5 : 0,
-      hurt: 0, stun,
+      hurt: 0, stun, shoot: !!(wItem && wItem.wtype === 'bow'),
     }), t, 68);
     if (stun) Sprites.stunStars(g, x, y - (stun.e < 0.3 || stun.r < 0.3 ? 56 : 30), t);
     return;

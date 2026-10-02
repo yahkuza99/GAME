@@ -16,6 +16,7 @@ const Anim = {
     idle: { cycle: 1.0, loop: true, alt: 'walk' },
     walk: { cycle: 0.72, loop: true, alt: 'idle' },
     attack: { loop: false, alt: 'idle' },
+    shoot: { loop: false, alt: 'idle' }, // ยิงธนู (ท่าแยกของ Class ที่ใช้ธนู) — ยังไม่มีภาพ: ยืนถือธนูนิ่ง ไม่เล่นท่าฟัน
     cast: { cycle: 0.56, loop: true, alt: 'attack' },
     hurt: { loop: false, alt: 'idle' },
     sit: { cycle: 1.2, loop: true, alt: 'idle' },
@@ -125,7 +126,11 @@ const Anim = {
     if (st.dead) { action = 'dead'; k = Math.min(1, (st.deathT == null ? 1 : st.deathT) / 0.5); }
     else if (st.hurt > 0) { action = 'hurt'; k = 1 - st.hurt; }
     else if (st.skill > 0) { action = 'cast'; k = 1 - st.skill; }
-    else if (st.atk > 0) { action = 'attack'; k = 1 - st.atk; }
+    else if (st.atk > 0) {
+      k = 1 - st.atk; action = 'attack';
+      // ธนูมีไว้ยิง ไม่ได้ฟัน: ใช้ท่ายิงถ้ามีภาพ ไม่มีก็ยืนนิ่ง (ลูกศรเป็นเอฟเฟกต์ของเกม)
+      if (st.shoot) { const sh = this.strip(key, 'shoot'); if (sh && sh.action === 'shoot') action = 'shoot'; else { action = 'idle'; k = null; } }
+    }
     else if (st.cast) action = 'cast';
     else if (st.sit) action = 'sit';
     else if (st.moving) action = 'walk';
