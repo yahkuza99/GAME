@@ -1,0 +1,216 @@
+'use strict';
+// ============================================================
+//  ความสะใจ (docs/GAME_FEEL.md • Top 5) — ไฟล์แยก เกี่ยวเข้าระบบด้วยการห่อฟังก์ชันเดิม ไม่เปลี่ยนตัวเลขเกม
+//  1) CHAIN: ฆ่าต่อเนื่องภายใน 3 วิ นับเลขเด้งมุมขวา + เสียงไต่ระดับ • หลัก 5/10/25/50/100 = ฉลอง
+//  2) ลูกแสงรางวัล: ฆ่าแล้วลูกแสง EXP เด้งออกจากศพบินเข้าตัว • ของที่เก็บอัตโนมัติบินเข้าตัวตามสีความหายาก
+//  3) เลเวลอัป: โลกหยุดหนึ่งจังหวะ + วงแหวนทองกวาดพื้น + เลข LV ใหญ่กลางจอ + ป้ายเลเวลเด้ง
+//  4) ลำดับความหายากของดรอป: uncommon ก็มีเสียง/วง • Epic แยกจาก Legendary ชัด (เสียง/แฟลช/สโลว์)
+//  5) ตีบวก: ค้อน 3 จังหวะ → เงียบ → ผล (Feel.forge ใช้ใน npc.js)
+//  ภาพทั้งหมดไม่ทำงานตอน G.fastSim (เทสต์/บอทจำลอง) • คุณภาพ 'low' = อนุภาคน้อยลง
+// ============================================================
+const Feel = (() => {
+  const F = { chain: 0, chainT: -9, el: null, lvEl: null, orbN: 0 };
+  const vis = () => typeof G !== 'undefined' && !G.fastSim && typeof document !== 'undefined';
+  const low = () => typeof R !== 'undefined' && R.quality === 'low';
+  const semi = n => Math.pow(2, n / 12);
+  const chime = (f, at, vol, dur) => { if (typeof Sound !== 'undefined' && Sound.ctx && G.player && G.player.options.sound) Sound.chime(f, at, vol, dur); };
+  const RANK_COL = ['#ffffff', '#7dff9a', '#6cc8ff', '#c98aff', '#ffcf4a'];
+
+  // ---------- 1) CHAIN ----------
+  F.chainEl = () => {
+    if (F.el) return F.el;
+    const el = document.createElement('div'); el.id = 'chain';
+    el.innerHTML = '<b></b><small>CHAIN</small><i><s></s></i>';
+    (document.getElementById('hud') || document.body).appendChild(el);
+    return (F.el = el);
+  };
+  F.onKill = m => {
+    if (!vis() || !m || !m.def || m.def.dummy) return;
+    F.chain = G.time - F.chainT < 3 ? F.chain + 1 : 1; F.chainT = G.time;
+    const n = F.chain;
+    if (n >= 2) {
+      const el = F.chainEl();
+      el.querySelector('b').textContent = '×' + n;
+      el.classList.toggle('hot', n >= 10);
+      el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop', 'on');
+      const s = el.querySelector('s'); s.style.animation = 'none'; void s.offsetWidth; s.style.animation = '';
+      chime(660 * semi(Math.min(12, n - 1)), 0, 0.022, 0.22); // เสียงไต่ขึ้นทีละครึ่งเสียง
+    }
+    if ([5, 10, 25, 50, 100].includes(n)) {
+      const p = G.player;
+      addFloater(p.x, p.y - 2.3, `×${n} CHAIN!`, n >= 25 ? '#ff9a3a' : '#ffd23a', true);
+      if (typeof Juice !== 'undefined') { Juice.flash('gold', n >= 25 ? 0.5 : 0.28); if (n >= 25) Juice.shake(3, 0.15); }
+      [0, 4, 7, 12].forEach((s2, i) => chime(880 * semi(s2 + Math.min(12, n / 5)), i * 0.05, 0.035, 0.5));
+    }
+  };
+  F.tickChain = () => {
+    if (F.el && F.el.classList.contains('on') && (typeof G === 'undefined' || G.time - F.chainT > 3 || G.time < F.chainT)) { F.el.classList.remove('on'); F.chain = 0; }
+  };
+
+  // ---------- 2) ลูกแสงรางวัล (เอฟเฟกต์ในโลก วาดผ่าน R.drawFx) ----------
+  // เด้งโค้งขึ้นจากจุดเกิด 0.3 วิ → ค้าง 0.08 → พุ่งเข้าตัวผู้เล่น (ease-in) 0.32 วิ • ถึงตัว = เสียงกริ๊งตามความหายาก
+  F.orbs = (x, y, n, col, rank = 0, icon = null) => {
+    if (!vis() || !G.player) return;
+    const cap = low() ? 5 : 14;
+    for (let i = 0; i < n && F.orbN < cap; i++) {
+      F.orbN++;
+      const a = Math.random() * Math.PI * 2, r = 0.35 + Math.random() * 0.45;
+      G.fx.push({ type: 'feel_orb', feel: true, t: -i * 0.035, dur: 0.72, x, y, ox: Math.cos(a) * r, oy: Math.sin(a) * r * 0.6, col, rank, icon, done: false });
+    }
+  };
+  F.drawFx = (g, f) => {
+    if (f.type === 'feel_orb') return F.drawOrb(g, f);
+    if (f.type === 'feel_nova') return F.drawNova(g, f);
+  };
+  F.drawOrb = (g, f) => {
+    if (f.t < 0) return;
+    const p = G.player, P = R.py;
+    let x, y, h;
+    if (f.t < 0.3) { const k = f.t / 0.3, e = 1 - (1 - k) * (1 - k); x = f.x + f.ox * e; y = f.y + f.oy * e; h = 26 * Math.sin(k * Math.PI) + 14 * k; }
+    else if (f.t < 0.38) { x = f.x + f.ox; y = f.y + f.oy; h = 14; }
+    else {
+      const k = Math.min(1, (f.t - 0.38) / 0.32), e = k * k * k;
+      x = f.x + f.ox + (p.x - f.x - f.ox) * e; y = f.y + f.oy + (p.y - f.y - f.oy) * e; h = 14 + 16 * e;
+      if (k >= 1 && !f.done) { f.done = true; F.orbN = Math.max(0, F.orbN - 1); chime([1568, 1976, 2349, 3136, 3520][f.rank] || 1568, 0, 0.018, 0.18); F.gain(); }
+    }
+    if (f.done) return;
+    const X = x * TILE, Y = P(y * TILE) - h;
+    g.save(); g.globalCompositeOperation = 'lighter';
+    const r = f.icon ? 9 : 5;
+    const gr = g.createRadialGradient(X, Y, 0, X, Y, r * 2.4);
+    gr.addColorStop(0, f.col); gr.addColorStop(0.35, f.col + 'aa'); gr.addColorStop(1, f.col + '00');
+    g.fillStyle = gr; g.beginPath(); g.arc(X, Y, r * 2.4, 0, 7); g.fill();
+    g.restore();
+    if (f.icon) { const im = f.icon; g.drawImage(im, X - 8, Y - 8, 16, 16); }
+    else { g.fillStyle = '#ffffff'; g.beginPath(); g.arc(X, Y, 2, 0, 7); g.fill(); }
+  };
+  // แถบ EXP สว่างวาบเมื่อลูกแสงถึงตัว (CSS)
+  F.gain = () => {
+    for (const id of ['bi-bexp', 'exp-line-fill']) {
+      const el = document.getElementById(id); if (!el) continue;
+      el.classList.remove('gain'); void el.offsetWidth; el.classList.add('gain');
+    }
+  };
+
+  // ---------- 3) เลเวลอัป ----------
+  F.nova = (col, rad) => { if (vis()) G.fx.push({ type: 'feel_nova', feel: true, t: 0, dur: 0.6, ref: G.player, x: G.player.x, y: G.player.y, col, rad }); };
+  F.drawNova = (g, f) => {
+    const k = Math.min(1, f.t / f.dur), P = R.py, X = f.ref.x * TILE, Y = P(f.ref.y * TILE);
+    const r = (1 - (1 - k) * (1 - k)) * f.rad * TILE;
+    g.save(); g.globalCompositeOperation = 'lighter';
+    g.translate(X, Y); g.scale(1, R.K);
+    g.strokeStyle = f.col; g.globalAlpha = 1 - k; g.lineWidth = 10 * (1 - k) + 2;
+    g.beginPath(); g.arc(0, 0, r, 0, 7); g.stroke();
+    g.lineWidth = 3; g.globalAlpha = (1 - k) * 0.6; g.beginPath(); g.arc(0, 0, r * 0.7, 0, 7); g.stroke();
+    g.restore();
+  };
+  F.banner = (text, sub, job) => {
+    if (!vis()) return;
+    let el = F.lvEl;
+    if (!el) { el = document.createElement('div'); el.id = 'lv-banner'; (document.getElementById('hud') || document.body).appendChild(el); F.lvEl = el; }
+    el.className = job ? 'job' : '';
+    el.innerHTML = `<b>${text}</b><small>${sub}</small>`;
+    void el.offsetWidth; el.classList.add('show');
+    clearTimeout(F.lvT); F.lvT = setTimeout(() => el.classList.remove('show'), 1700);
+  };
+  F.levelUp = (base, job) => {
+    if (!vis()) return;
+    const p = G.player;
+    if (base) {
+      if (typeof Juice !== 'undefined') { Juice.dilate(0.25, 0.18, true); Juice.flash('gold', 0.55); Juice.shake(2.5, 0.16); }
+      F.nova('#ffd66a', 6);
+      F.banner(`LV ${p.baseLv}`, 'BASE LEVEL UP', false);
+      const b = document.getElementById('bi-lvbadge'); if (b) { b.classList.remove('lvpop'); void b.offsetWidth; b.classList.add('lvpop'); }
+      [523, 659, 784, 1047, 1319].forEach((f2, i) => chime(f2, 0.05 + i * 0.07, 0.04, 0.8));
+    } else if (job) {
+      F.nova('#8fd8ff', 4);
+      F.banner(`JOB ${p.jobLv}`, 'JOB LEVEL UP', true);
+    }
+  };
+
+  // ---------- 4) ลำดับความหายากของดรอป ----------
+  F.lootCue = (rank, x, y, looted, id) => {
+    if (!vis()) return;
+    const col = RANK_COL[rank] || '#ffffff';
+    if (looted) F.orbs(x, y, 1, col, rank, typeof itemIconCanvas === 'function' ? itemIconCanvas(id) : null);
+    if (rank === 1) { chime(1568, 0, 0.02, 0.3); return; }
+    if (rank >= 3 && typeof Juice !== 'undefined') {
+      Juice.dilate(rank >= 4 ? 0.15 : 0.4, rank >= 4 ? 0.3 : 0.12, rank >= 4);
+      Juice.shake(rank >= 4 ? 4 : 2, 0.15);
+      Juice.flash('gold', rank >= 4 ? 0.6 : 0.3);
+    }
+  };
+
+  // ---------- 5) ตีบวก: ค้อน 3 จังหวะ (quick = โหมดตีอัตโนมัติ: 1 จังหวะ เวลาเท่าเดิม) ----------
+  F.forge = async quick => {
+    const p = G.player, beats = quick ? 1 : 3;
+    for (let i = 0; i < beats; i++) {
+      if (typeof Sound !== 'undefined') Sound.play('hit');
+      chime(392 * semi(i * 2), 0, 0.03, 0.25);
+      if (vis() && typeof Juice !== 'undefined') { Juice.shake(1.2 + i * 0.6, 0.08); Juice.sparks({ x: p.x, y: p.y, def: {} }, '#ffd27a', 6 + i * 3, 34); }
+      await new Promise(r => setTimeout(r, quick ? 380 : 120));
+    }
+    if (!quick) await new Promise(r => setTimeout(r, 220)); // เงียบลุ้น
+  };
+  F.forgeResult = (ok, lv) => {
+    if (!vis() || typeof Juice === 'undefined') return;
+    const p = G.player;
+    if (ok) {
+      Juice.flash('gold', lv >= 7 ? 0.7 : 0.35); Juice.dilate(0.3, 0.12, true);
+      if (lv >= 7) { F.nova('#ffd66a', 4); Juice.shake(3, 0.2); }
+      if (lv >= 10) F.banner(`+${lv}`, 'LEGENDARY REFINE', false);
+    } else {
+      Juice.sparks({ x: p.x, y: p.y, def: {} }, '#9aa0aa', 12, 40); Juice.shake(1.5, 0.1);
+      addFloater(p.x, p.y - 1.9, 'CRACK…', '#b8bec8');
+    }
+  };
+
+  // ---------- เกี่ยวเข้าระบบ ----------
+  F.install = () => {
+    if (typeof R !== 'undefined' && R.drawFx && !R.drawFx._feel) {
+      const d0 = R.drawFx; R.drawFx = (g, f, t) => (f.feel ? F.drawFx(g, f, t) : d0(g, f, t)); R.drawFx._feel = true;
+    }
+    if (typeof killMob === 'function' && !killMob._feel) {
+      const k0 = killMob;
+      killMob = function (m) { // eslint-disable-line no-global-assign
+        const r = k0.apply(this, arguments);
+        try {
+          F.onKill(m);
+          const boss = m.def && (m.def.boss || m.isMvp || m.isWB);
+          if (m.def && !m.def.dummy) F.orbs(m.x, m.y, boss ? 10 : 2 + (Math.random() < 0.5 ? 1 : 0), '#7fd4ff');
+        } catch (e) { /* ภาพล้วน ไม่ให้กระทบเกม */ }
+        return r;
+      };
+      killMob._feel = true;
+    }
+    if (typeof gainExp === 'function' && !gainExp._feel) {
+      const g0 = gainExp;
+      gainExp = function () { // eslint-disable-line no-global-assign
+        const p = G.player, b0 = p.baseLv, j0 = p.jobLv;
+        const r = g0.apply(this, arguments);
+        try { if (p.baseLv > b0 || p.jobLv > j0) F.levelUp(p.baseLv > b0, p.jobLv > j0); } catch (e) { /* ภาพล้วน */ }
+        return r;
+      };
+      gainExp._feel = true;
+    }
+    if (typeof dropItemOnGround === 'function' && !dropItemOnGround._feel) {
+      const d0 = dropItemOnGround;
+      dropItemOnGround = function (id, x, y) { // eslint-disable-line no-global-assign
+        const it = ITEMS[id], rank = it && it.type !== 'card' && typeof LOOT !== 'undefined' ? LOOT.rank(id) : 0, n0 = G.drops.length;
+        const r = d0.apply(this, arguments);
+        try { if (rank >= 1 || G.drops.length === n0) F.lootCue(rank, x, y, G.drops.length === n0, id); } catch (e) { /* ภาพล้วน */ }
+        return r;
+      };
+      dropItemOnGround._feel = true;
+    }
+    setInterval(F.tickChain, 250);
+    // เปลี่ยนแผนที่/ตาย = ล้าง CHAIN
+    if (typeof changeMap === 'function' && !changeMap._feel) {
+      const c0 = changeMap;
+      changeMap = function () { F.chain = 0; F.chainT = -9; F.orbN = 0; if (F.el) F.el.classList.remove('on'); return c0.apply(this, arguments); }; // eslint-disable-line no-global-assign
+      changeMap._feel = true;
+    }
+  };
+  return F;
+})();
+Feel.install();

@@ -285,7 +285,8 @@ NPC.scripts.refine = async n => {
     if (p.zeny < cost || p.equip[slot] !== e || p.dead) break;
     if (needOre(l)) { const oe = p.inventory.find(x => x.id === ore); if (!oe) break; removeEntry(oe, 1); oreUsed++; }
     p.zeny -= cost; spent += cost; tries++;
-    await new Promise(r => setTimeout(r, c === 1 ? 380 : 400));
+    if (typeof Feel !== 'undefined') await Feel.forge(c === 1); // ค้อน 3 จังหวะ → เงียบลุ้น (ตีอัตโนมัติ = 1 จังหวะ)
+    else await new Promise(r => setTimeout(r, c === 1 ? 380 : 400));
     if (U.chance(RATE[l])) {
       e.refine = l + 1;
       Quest.onEvent('refine');
@@ -294,11 +295,13 @@ NPC.scripts.refine = async n => {
       addFloater(p.x, p.y - 1.5, `+${e.refine}!`, '#ffe36a', true);
       UI.msg(L(`ตีบวกสำเร็จ! ${itemDisplayName(e)}`, `Refine success! ${itemDisplayName(e)}`), 'lvl');
       Sound.play('refine_ok');
+      if (typeof Feel !== 'undefined') Feel.forgeResult(true, e.refine);
     } else {
       fails++;
       addFloater(p.x, p.y - 1.5, L('พลาด', 'Miss'), '#ff9aa8');
       UI.msg(L(`ตีบวก +${l + 1} พลาด... ${itemDisplayName(e)} ยังอยู่ครบ`, `Refine +${l + 1} missed... ${itemDisplayName(e)} is still intact`), 'err');
       Sound.play('refine_fail');
+      if (typeof Feel !== 'undefined') Feel.forgeResult(false, l + 1);
     }
     UI.dirty();
     if (c === 0) break;

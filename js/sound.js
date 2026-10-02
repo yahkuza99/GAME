@@ -136,6 +136,10 @@ const Sound = {
       case 'swing': // มีดฟันอากาศ: ลมวูบ
         this.hiss({ f: 900 * j, to: 3200, q: 2.5, dur: 0.16, vol: 0.12, a: 0.03 });
         break;
+      case 'drop_epic': // ดรอป Epic: ระฆัง FM 3 ตัวไต่ขึ้น สั้นกว่าแตร MVP
+        [1319, 1760, 2637].forEach((f, k) => this.chime(f * j, k * 0.06, 0.05, 0.6));
+        this.osc({ type: 'sine', f: 220, to: 440, dur: 0.25, vol: 0.12 });
+        break;
       case 'hit': // ฟันโดน: ตุ้บ + กรุบ
         this.osc({ type: 'sine', f: 150 * j, to: 55, dur: 0.12, vol: 0.32 });
         this.hiss({ f: 2200 * j, to: 700, q: 0.9, dur: 0.07, vol: 0.2 });

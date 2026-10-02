@@ -446,7 +446,7 @@ LOOT.announce = id => {
     if (r < 2) return;
     const looted = G.drops.length === n0; // Auto Loot เก็บเข้ากระเป๋าทันที
     if (looted) addFx({ type: 'beam', x, y, dur: 2.2 });
-    Sound.play(r >= 3 ? 'mvp' : 'refine_ok');
+    Sound.play(r >= 4 ? 'mvp' : r === 3 ? 'drop_epic' : 'refine_ok'); // Epic = ระฆังสั้นของตัวเอง • Legendary = แตรเต็ม
     if (r >= 3) { if (looted) LOOT.announce(id); else UI.msg(L(`✦ ${it.name} (${LOOT.label(id)}) ดรอปลงพื้น!`, `✦ ${it.name} (${LOOT.label(id)}) dropped!`), 'mvp'); }
     else UI.msg(L(`✦ ของหายากดรอป: ${it.name}`, `✦ Rare drop: ${it.name}`), 'lvl');
   };
