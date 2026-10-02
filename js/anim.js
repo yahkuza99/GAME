@@ -18,6 +18,8 @@ const Anim = {
     attack: { loop: false, alt: 'idle' },
     shoot: { loop: false, alt: 'idle' }, // ยิงธนู (ท่าแยกของ Class ที่ใช้ธนู) — ยังไม่มีภาพ: ยืนถือธนูนิ่ง ไม่เล่นท่าฟัน
     cast: { cycle: 0.56, loop: true, alt: 'attack' },
+    buff: { loop: false, alt: 'cast' },  // ใช้สกิลบัฟ/ฮีล/กับตัวเอง (ยังไม่มีภาพ = ใช้ท่าร่าย)
+    skill: { loop: false, alt: 'cast' }, // ใช้สกิลโจมตีใส่ศัตรู (ยังไม่มีภาพ = ใช้ท่าร่าย)
     hurt: { loop: false, alt: 'idle' },
     sit: { cycle: 1.2, loop: true, alt: 'idle' },
     dead: { loop: false, alt: 'hurt' },
@@ -132,7 +134,7 @@ const Anim = {
     }
     if (st.dead) { action = 'dead'; k = Math.min(1, (st.deathT == null ? 1 : st.deathT) / 0.5); }
     else if (st.hurt > 0) { action = 'hurt'; k = 1 - st.hurt; }
-    else if (st.skill > 0) { action = 'cast'; k = 1 - st.skill; }
+    else if (st.skill > 0) { action = st.skillKind === 'buff' ? 'buff' : st.skillKind === 'skill' ? 'skill' : 'cast'; k = 1 - st.skill; }
     else if (st.atk > 0) {
       k = 1 - st.atk; action = 'attack';
       // ธนูมีไว้ยิง ไม่ได้ฟัน: ใช้ท่ายิงถ้ามีภาพ ไม่มีก็ยืนนิ่ง (ลูกศรเป็นเอฟเฟกต์ของเกม)
@@ -142,7 +144,11 @@ const Anim = {
     else if (st.sit) action = 'sit';
     else if (st.moving) action = 'walk';
     // Class ธนู: ใช้สกิล/ร่าย = ท่ายิงเดียวกับท่าโจมตี (ไม่มีท่าร่ายแยก)
-    if (action === 'cast' && st.shoot) { const sh = this.strip(key, 'shoot'); if (sh && sh.action === 'shoot') action = 'shoot'; }
+    // (ท่าบัฟ/ท่าสกิลโจมตีของตัวเอง ถ้ามีภาพแยกก็ใช้ภาพนั้น)
+    if ((action === 'cast' || action === 'buff' || action === 'skill') && st.shoot) {
+      const own = this.strip(key, action), sh = this.strip(key, 'shoot');
+      if ((action === 'cast' || !own || own.action !== action) && sh && sh.action === 'shoot') action = 'shoot';
+    }
     const s = this.strip(key, action); if (!s) return null;
     // ท่าเดินเป็น 8 ทิศแต่ท่ายืนเป็นภาพทิศเดียว (มักเป็นคนละชุดภาพ ตัวจะดูเปลี่ยนไปตอนหยุด):
     // ยืนด้วยเฟรมกลางก้าวของท่าเดินทิศนั้นแทน + หายใจเบา ๆ ตัวละครจึงเป็นแบบเดียวกันตลอด

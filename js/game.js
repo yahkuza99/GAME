@@ -1075,7 +1075,8 @@ function executeSkill(id, lv, tgt) {
   if (s.cd) { const cd = s.cd * (1 - p.d.cdCut / 100); (p.cds || (p.cds = {}))[id] = G.time + cd; (p.cdTot || (p.cdTot = {}))[id] = cd; } // ดีเลย์หลังใช้สกิล (After-cast Delay) ทุกสกิลรอพร้อมกัน
   shout(`${s.name}!!`);
   p.atkAnim = 1;
-  p.skillPose = G.time; // ท่าใช้สกิล (1 ท่าต่อ Class) — ความต่างของแต่ละสกิลอยู่ที่เอฟเฟกต์
+  p.skillPose = G.time; // ท่าใช้สกิล — ความต่างของแต่ละสกิลอยู่ที่เอฟเฟกต์
+  p.skillKind = s.target === 'enemy' ? 'skill' : 'buff'; // ท่าสกิลโจมตี / ท่าบัฟ (ถ้ามีภาพแยก — ไม่มีก็ใช้ท่าร่าย)
   if (tgt) faceTo(p, tgt.x, tgt.y);
   Sound.play(skillRange(s) > 3 ? 'skill_range' : 'skill');
 

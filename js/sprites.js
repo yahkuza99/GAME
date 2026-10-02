@@ -883,7 +883,7 @@ Sprites.drawPlayer = (g, p, t) => {
     const cw = PD && PD.classWeapon(p.job);
     Anim.draw(g, x + shake, y, bare || gk, Object.assign(PD ? PD.layers(gk, p, !!bare) : {}, {
       facing: p.facing || 1, dir: p.dir, moving: p.moving && !p.sitting, atk: tr.atk, cast: !!p.cast, sit: p.sitting, dead: p.dead, deathT: tr.deathT,
-      skill: p.skillPose != null && G.time - p.skillPose < 0.5 && G.time >= p.skillPose ? 1 - (G.time - p.skillPose) / 0.5 : 0,
+      skill: p.skillPose != null && G.time - p.skillPose < 0.5 && G.time >= p.skillPose ? 1 - (G.time - p.skillPose) / 0.5 : 0, skillKind: p.skillKind,
       hurt: 0, stun, shoot: !!(cw ? cw.wtype === 'bow' : wItem && wItem.wtype === 'bow'),
     }), t, 68);
     if (stun) Sprites.stunStars(g, x, y - (stun.e < 0.3 || stun.r < 0.3 ? 56 : 30), t);
