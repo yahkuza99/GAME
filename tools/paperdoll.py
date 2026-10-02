@@ -96,6 +96,11 @@ def process(rgba, act=''):
         out[..., :3][inside] = cv2.cvtColor(fix, cv2.COLOR_BGR2RGB)[inside]
         out[..., 3][inside] = 255
     out[..., 3][remove & ~sil] = 0
+    # เศษเรืองแสงเล็ก ๆ ที่หลุดจากใบมีด (ไม่ติดตัว) → ลบทิ้ง
+    n2, lab2, st2, _ = cv2.connectedComponentsWithStats((out[..., 3] > 20).astype(np.uint8), connectivity=8)
+    for i in range(1, n2):
+        if st2[i, cv2.CC_STAT_AREA] < 40 and remove[lab2 == i].any() or st2[i, cv2.CC_STAT_AREA] < 12:
+            out[..., 3][lab2 == i] = 0
     # จุดมือ + มุม จากชิ้นใบมีดที่ใหญ่ที่สุด (ถ้ายาวเรียว = ใบมีด, ถ้าเป็นวงโค้ง = เอฟเฟกต์ฟัน → ไม่วัด)
     hand = None
     if parts:
