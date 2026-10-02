@@ -109,6 +109,29 @@ const Anim = {
     g.drawImage(s.img, f * C + this.CX - size / 2, row * C + top - 2, size, size * h / w, 0, 0, w, h);
     return true;
   },
+  // ภาพติดตา (motion blur) ของอาวุธตอนฟัน: ภาพเฟรมก่อนหน้า "เฉพาะส่วนที่ขยับไปแล้ว" (มีในเฟรมก่อน ไม่มีในเฟรมนี้ = อาวุธ/แขนที่เหวี่ยง)
+  // เบลอเล็กน้อย วาดจางใต้ตัวละคร 2 ชั้น (เฟรม −1 ชัดกว่า −2) • แคชต่อเฟรม (ภาพ 240px ไม่กี่สิบช่อง)
+  ghost(img, row, f, back) {
+    const C = this.CELL, key = row * 64 * 4 + f * 4 + back, c = img._ghost || (img._ghost = {});
+    if (c[key] !== undefined) return c[key];
+    const cv = document.createElement('canvas'); cv.width = C; cv.height = C;
+    const g = cv.getContext('2d');
+    try {
+      g.filter = 'blur(2.2px)';
+      g.drawImage(img, (f - back) * C, row * C, C, C, 0, 0, C, C);
+      g.filter = 'none'; g.globalCompositeOperation = 'destination-out';
+      g.drawImage(img, f * C, row * C, C, C, 0, 0, C, C); // ลบส่วนที่ยังอยู่ที่เดิม (ลำตัว) ออก
+    } catch (e) { return (c[key] = null); }
+    return (c[key] = cv);
+  },
+  motionBlur(g, p) {
+    const C = this.CELL;
+    for (const [back, a] of [[2, 0.3], [1, 0.6]]) {
+      if (p.f - back < 0) continue;
+      const gh = this.ghost(p.img, p.row, p.f, back); if (!gh) continue;
+      g.save(); g.globalAlpha *= a; g.drawImage(gh, -this.CX, -this.GROUND, C, C); g.restore();
+    }
+  },
   has(key) { return !!Art.get(`anim_${key}_idle`) || !!Art.get(`anim_${key}_walk`); },
   // ชุดภาพของตัวละครผู้เล่น: ของ Class ตัวเอง • Class 2 ที่ยังไม่มีภาพ → ใช้ภาพ Class ต้นสาย (ไม่ใช่ตัววาดด้วยโค้ดแบบเก่า)
   playerKey(job, gender) {
@@ -191,6 +214,7 @@ const Anim = {
     if (p.lift) g.translate(0, -p.lift * k);
     g.scale(p.flip ? -k : k, k * (p.breathe ? 1 + Math.sin(t * 2.4 + (st.seed || 0)) * 0.012 : 1));
     if (st.under) st.under(g, p); // ชั้นหลังตัว (เช่นอาวุธตอนหันหลัง — Paperdoll)
+    if (st.blur && (p.action === 'attack' || p.action === 'skill') && p.f > 0) this.motionBlur(g, p);
     if (st.flash) g.filter = 'brightness(1.9)';
     if (st.filter) { // ใส่ filter ที่ช่องเฟรมขนาด 240px แทนแคนวาสหลัก (filter บนแคนวาสหลัก = เลเยอร์เต็มจอ ช้ามาก)
       const fc = this._fc || (this._fc = document.createElement('canvas'));
