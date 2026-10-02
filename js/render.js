@@ -251,8 +251,8 @@ R.render = () => {
   const VL = R.camX / TILE - 2, Rr = (R.camX + vw) / TILE + 2, Tp = wTop / TILE - 1, B = (wTop + wH) / TILE + 4;
   const list = [];
   if (map.flora && typeof Flora !== 'undefined') Flora.collect(list, g, map, t, VL, Rr, Tp, B); // ต้นไม้ใหญ่ + ของประดับ (js/flora.js)
-  if (map.backdrop && typeof Flora !== 'undefined') for (const o of map.backdrop) if (o.x > VL - 2 && o.x < Rr + 2 && o.y > Tp - 6) list.push({ y: o.y + 0.3, f: () => Flora.drawObj(g, o, t) }); // ป่าฉากหลังเหนือขอบแมพ (y ติดลบ = วาดก่อนทุกอย่างในแมพ)
   else for (const o of map.objects) if (o.x > VL && o.x < Rr && o.y > Tp && o.y < B) list.push({ y: o.y + 0.3, f: () => Sprites.drawTree(g, o, t) });
+  if (map.backdrop && typeof Flora !== 'undefined') for (const o of map.backdrop) if (o.x > VL - 2 && o.x < Rr + 2 && o.y > Tp - 6) list.push({ y: o.y + 0.3, f: () => Flora.drawObj(g, o, t) }); // ป่าฉากหลังเหนือขอบแมพ (y ติดลบ = วาดก่อนทุกอย่างในแมพ)
   for (const o of map.props || []) { const cm = o.cull || 0; if (o.x > VL - cm && o.x < Rr + cm && o.y > Tp && o.y < B + 2 + cm) list.push({ y: o.y, f: () => Sprites.drawProp(g, o, t) }); } // cull = ของใหญ่ (ต้นไม้ยักษ์ js/bake.js) เผื่อขอบจอ
   for (const b of map.buildings) if (b.img) list.push({ y: b.y + b.h - 0.5, f: () => Sprites.drawBuildingImg(g, b, t) });
   if (gate && gate.x > VL && gate.x < Rr && gate.y > Tp && gate.y < B + 6) { // ซุ้มปากถ้ำ (tools/ridge3d.py) + วาร์ปของมัน
