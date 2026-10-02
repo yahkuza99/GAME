@@ -403,5 +403,20 @@
    "scale_src": 0.4425,
    "median_src_h": 338.99927109423913
   }
+ },
+ "mob_rust_mine": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4644,
+   "median_src_h": 323
+  },
+  "_k1536": 0.53635,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4644,
+   "median_src_h": 323.00212081663096
+  }
  }
 }

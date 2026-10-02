@@ -22,7 +22,7 @@ Bottom row = ATTACK, 4 frames: rear back, stretch tall, slam down splashing rust
 Every frame clearly different. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines.
 ```
 
-### 7. Rust Mine — แนบ `7_Rust_Mine.png`
+### ✅ 7. Rust Mine — แนบ `7_Rust_Mine.png`
 ```
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Rust Mine.
 Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom on the red line in every cell (even for jumps: the game adds the jump height itself).
