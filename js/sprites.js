@@ -1203,6 +1203,7 @@ Sprites.drawPortal = (g, p, t, o) => {
   // ประตูเหนือ/ใต้ = ม่านหันหน้าเต็มกว้าง 3 ช่อง • ตะวันออก/ตก = ม่านด้านข้าง (เฉียงตามมุมกล้อง) ยาวตามขอบ 3 ช่อง
   const Wv = ns ? T * 3.2 : T * 3.2, hw = Wv / 2, side = !ns ? (p.x <= 1 ? -1 : 1) : 0;
   const seed = (p.x * 7 + p.y * 13) % 10;
+  const add = map.def.kind === 'town' ? 'source-over' : 'lighter'; // พื้นหินอ่อนขาว: บวกแสงแล้วขาวจั๊วะเป็นแผ่น → ทับสีธรรมดาให้ยังเห็นสีม่าน
   g.save();
   // ---- พื้น: แอ่งแสงเต็มช่องประตู + อนุภาคถูกดูดเข้ากลาง ----
   const rx = ns ? T * 1.9 : T * 1.0, ry = (ns ? T * 0.6 : T * 1.8) * K;
@@ -1210,7 +1211,7 @@ Sprites.drawPortal = (g, p, t, o) => {
   const pool = g.createRadialGradient(x, y, 2, x, y, Math.max(rx, ry));
   pool.addColorStop(0, ca(0.65)); pool.addColorStop(0.5, cb(0.28)); pool.addColorStop(1, cb(0));
   g.fillStyle = pool; g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, 7); g.fill();
-  g.globalCompositeOperation = 'lighter';
+  g.globalCompositeOperation = add;
   for (let i = 0; i < 3; i++) { // วงหมุนบนพื้น
     const k = (t * 0.6 + i / 3) % 1;
     g.strokeStyle = ca(0.55 * (1 - k)); g.lineWidth = 2.2;
@@ -1222,7 +1223,7 @@ Sprites.drawPortal = (g, p, t, o) => {
     g.fillStyle = ca(0.9 * Math.sin(k * Math.PI)); g.beginPath(); g.arc(px, py, 1.6 + (1 - k) * 1.2, 0, 7); g.fill();
   }
   }
-  g.globalCompositeOperation = 'lighter';
+  g.globalCompositeOperation = add;
   // ---- ม่านแสง (หันหากล้อง • ประตูข้างเอียงเป็นผนังขนานขอบแมพ) ----
   const top = y - H, archH = T * 0.55;
   if (o.veil !== false) {
@@ -1231,7 +1232,8 @@ Sprites.drawPortal = (g, p, t, o) => {
   const veil = new Path2D();
   veil.moveTo(x - hw, y); veil.lineTo(x - hw, top + archH); veil.quadraticCurveTo(x, top - archH * 0.9, x + hw, top + archH); veil.lineTo(x + hw, y); veil.closePath();
   const vg = g.createLinearGradient(0, top, 0, y);
-  vg.addColorStop(0, cb(0)); vg.addColorStop(0.35, cb(0.22)); vg.addColorStop(1, ca(0.42));
+  const va = add === 'lighter' ? 1 : 0.8; // ทับสีธรรมดา (เมือง) = ม่านโปร่งลงหน่อยให้เห็นพื้นทะลุ
+  vg.addColorStop(0, cb(0)); vg.addColorStop(0.35, cb(0.22 * va)); vg.addColorStop(1, ca(0.42 * va));
   g.fillStyle = vg; g.fill(veil);
   g.save(); g.clip(veil);
   // วังวนลึก (วงรีหมุนหดเข้าไป = มีมิติเข้าไปข้างใน)

@@ -381,6 +381,11 @@ class GameMap {
       for (let i = -1; i <= 1; i++) {
         if (p.x === 1 || p.x === w - 2) this.set(p.x + (p.x === 1 ? -1 : 1), p.y + i, T.TREE);
       }
+      // ประตูข้าง (ตะวันออก/ตก): ต้นไม้ใต้ซุ้ม 2–4 ช่องยอดสูงบังซุ้มวาร์ป 3D (tools/gate3d.py) → เปิดเป็นสนามหญ้า
+      if (p.x === 1 || p.x === w - 2) for (let yy = p.y + 2; yy <= p.y + 4; yy++) for (let k = 0; k < 4; k++) {
+        const xx = p.x === 1 ? k : w - 1 - k;
+        if (this.tile(xx, yy) === T.TREE && !this.planters.some(([px, py]) => px === xx && py === yy)) this.set(xx, yy, T.GRASS);
+      }
     }
     this.floodCleanup(cx, cy + 4, T.TREE);
   }
