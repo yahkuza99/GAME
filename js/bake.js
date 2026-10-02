@@ -44,8 +44,9 @@ const Bake = {
   // แบบ A: วาดลงผ้าใบพื้น (เรียกหลัง decorate — กรวดที่อบลงพื้นจะไม่โผล่บนแท่น)
   ground(map, g) {
     const d = this.data(map); if (!d) return;
+    map.bakeWait = new Set();
     g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
-    for (const e of d.ground) { const img = Art.get(e.img); if (img) g.drawImage(img, e.x * TILE, e.y * TILE, e.w * TILE, e.h * TILE); }
+    for (const e of d.ground) { Art.need(e.img); const img = Art.get(e.img); if (img) g.drawImage(img, e.x * TILE, e.y * TILE, e.w * TILE, e.h * TILE); else map.bakeWait.add(e.img); } // bake_* โหลดตามแมพ (art.js need) — ยังไม่มา = จำไว้ วาดพื้นใหม่ตอนโหลดเสร็จ
     g.restore();
   },
 
@@ -75,7 +76,7 @@ const Bake = {
 
   // วาดชิ้น B (เรียกใน upright() ของ render.js — พิกัดโลก x, y·TILE = จุดยึดบนพื้น)
   draw(g, o, t) {
-    const pc = o.pc, img = Art.get(pc.img); if (!img) return;
+    const pc = o.pc; Art.need(pc.img); const img = Art.get(pc.img); if (!img) return;
     const s = pc.scale, x = pc.x * TILE, y = pc.y * TILE, W = img.width * s, H = img.height * s, L = x - pc.ax * s, Tp = y - pc.ay * s;
     // ผู้เล่น/เป้าหมายอยู่หลังชิ้นนี้ (y น้อยกว่า) และตัวทับภาพ → จางลง (แบบยอดไม้ใน flora.js)
     let target = 1;

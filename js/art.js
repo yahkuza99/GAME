@@ -33,10 +33,23 @@ const Art = {
     fetch('assets/manifest.json', { cache: 'no-store' }).then(r => (r.ok ? r.json() : Promise.reject()))
       .then(m => {
         const list = Array.isArray(m) ? m : m.files; ver = (m && m.v) || {};
-        list.filter(f => !/\.(ogg|mp3|wav)$/.test(f)).forEach(probe);
+        // bake_*: ภาพอบ 3D ขนาดใหญ่ของแมพเดียว — ไม่โหลดตอนเปิดเกม รอ Art.need() ตอนเข้าแมพนั้น
+        list.filter(f => !/\.(ogg|mp3|wav)$/.test(f)).forEach(f => (f.startsWith('bake_') ? this.lazy.set(f.replace(/\.(webp|png)$/, ''), f) : probe(f)));
+        this._probe = probe;
+        for (const k of this.wanted) this.need(k);
         if (typeof Sound !== 'undefined') Sound.register(list, ver); // ไฟล์เสียงจริง (sfx_*, bgm_*)
       })
       .catch(() => ART_KEYS.forEach(probe));
+  },
+  // โหลดภาพตามต้องการ (bake_* — js/maps.js renderGround) • เรียกก่อน manifest มาถึงได้ (จำไว้แล้วโหลดทีหลัง) • โหลดเสร็จ → onLoad วาดพื้นใหม่
+  lazy: new Map(), wanted: new Set(),
+  need(k) {
+    if (this.imgs[k] || this.wanted.has(k) && this._asked && this._asked.has(k)) return;
+    this.wanted.add(k);
+    const f = this.lazy.get(k);
+    if (!f || !this._probe) return;
+    (this._asked = this._asked || new Set()).add(k);
+    this._probe(f);
   },
   // ไอคอนไอเทม: ภาพเฉพาะชิ้น > ชิปการ์ดรวม > วาดด้วยโค้ด
   itemKey(id) {
@@ -133,7 +146,7 @@ const Art = {
   },
   onLoad(k) {
     if (k === 'keyart' || k === 'logo' || k.startsWith('job_')) applyTitleArt();
-    if ((k.startsWith('ground_') || k.startsWith('prop_') || k.startsWith('bake_') || k === 'arena_ground') && typeof G !== 'undefined' && G.map) { // ภาพพื้น/ของประดับโหลดเสร็จช้า → วาดพื้นใหม่
+    if ((k.startsWith('ground_') || k.startsWith('prop_') || k === 'arena_ground' || (k.startsWith('bake_') && typeof G !== 'undefined' && G.map && G.map.usesBake && G.map.usesBake(k))) && typeof G !== 'undefined' && G.map) { // ภาพพื้น/ของประดับโหลดเสร็จช้า → วาดพื้นใหม่
       clearTimeout(this._regen);
       this._regen = setTimeout(() => {
         for (const id in G.mapCache || {}) if (G.mapCache[id] !== G.map) delete G.mapCache[id];
