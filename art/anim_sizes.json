@@ -606,21 +606,21 @@
   "attack": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.6173,
-   "median_src_h": 242.99368216426373
+   "scale_src": 0.5814,
+   "median_src_h": 257.99793601651186
   },
   "cast": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.6173,
-   "median_src_h": 243
+   "scale_src": 0.5814,
+   "median_src_h": 257.99793601651186
   },
-  "_k1536": 0.39683,
+  "_k1536": 0.3876,
   "walk": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.5952,
-   "median_src_h": 252
+   "scale_src": 0.5814,
+   "median_src_h": 258
   }
  },
  "volva_f": {
@@ -678,18 +678,42 @@
   "walk": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.5639,
-   "median_src_h": 266
+   "scale_src": 0.5597,
+   "median_src_h": 268
   },
-  "_k1536": 0.37594
+  "_k1536": 0.37313,
+  "attack": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.5597,
+   "median_src_h": 268.00071466857247
+  },
+  "cast": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.5597,
+   "median_src_h": 268.00071466857247
+  }
  },
  "berserker_f": {
   "walk": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.6122,
-   "median_src_h": 245
+   "scale_src": 0.5576,
+   "median_src_h": 269
   },
-  "_k1536": 0.40816
+  "_k1536": 0.37175,
+  "attack": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.5576,
+   "median_src_h": 269.0100430416069
+  },
+  "cast": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.5576,
+   "median_src_h": 269.0100430416069
+  }
  }
 }
