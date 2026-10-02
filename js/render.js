@@ -189,7 +189,14 @@ R.render = () => {
   // พอร์ทัล
   // (วาร์ปในซุ้มปากถ้ำ 3D วาดในรายการเรียงความลึกต่อจากซุ้ม — ม่านแสงอยู่ "ใน" ช่องประตู ทับม่านมืด)
   const gate = map.ridgeGate && Art.get(map.ridgeGate.img) ? map.ridgeGate : null;
-  for (const pt of map.portals) if (!gate || pt !== gate.portal) upright((pt.y + 0.5) * TILE, () => Sprites.drawPortal(g, pt, t));
+  // ซุ้มประตูวาร์ป 3D (Bake.gates, tools/gate3d.py): ภาพครบแล้ว → พื้นนี้วาดแค่เงาซุ้ม + แอ่งแสง ม่าน/ซุ้ม/ป้ายไปอยู่ในรายการเรียงความลึก
+  const pgates = new Map();
+  for (const gt of map.portalGates || []) if (gt.pcs.every(q => Art.get(q.img))) pgates.set(gt.p, gt);
+  for (const pt of map.portals) if (!gate || pt !== gate.portal) {
+    const gt = pgates.get(pt);
+    if (gt) upright(gt.cy * TILE, () => { Sprites.drawGateShadow(g, gt); Sprites.drawPortal(g, pt, t, { veil: false, label: false }); });
+    else upright((pt.y + 0.5) * TILE, () => Sprites.drawPortal(g, pt, t));
+  }
   // คบเพลิงลานประลอง: เปลวไฟเคลื่อนไหวบนชามเหล็กในภาพ 3D (ยกสูงตามความสูงจริง × sin มุมกล้อง)
   if (map.arenaImg && typeof Feel !== 'undefined' && Feel.drawCrowd && R.quality !== 'low') Feel.drawCrowd(g, map, t);
   // ไอเทมบนพื้น
@@ -259,8 +266,16 @@ R.render = () => {
         for (let i = 1; i <= 16; i++) { const a = Math.PI - i / 16 * Math.PI; g.lineTo(cx + Math.cos(a) * hw, by - (o[1] + Math.sin(a) * o[2]) * u); }
         g.lineTo(cx + hw, by + 6); g.closePath(); g.clip();
       }
-      g.translate(0, (pt.y + 0.5 - gate.y - 0.01) * TILE * (K - 1)); Sprites.drawPortal(g, pt, t);
+      g.translate(0, (pt.y + 0.5 - gate.y - 0.01) * TILE * (K - 1)); Sprites.drawPortal(g, pt, t, { label: false });
     } });
+    list.push({ y: gate.y + 0.02, f: () => Sprites.portalLabel(g, pt, gate.x * TILE, gate.y * TILE - gate.ay * gate.s + 4) }); // ป้ายปลายทางเหนือซุ้ม (ไม่โดนตัดไปกับม่าน)
+  }
+  for (const gt of pgates.values()) { // ซุ้มวาร์ป: ชิ้นซุ้ม (จางเมื่อผู้เล่นอยู่หลัง) + ม่านวาร์ปในช่องประตู + ป้ายปลายทางเหนือยอด
+    if (gt.cx < VL - 3 || gt.cx > Rr + 3 || gt.cy < Tp - 3 || gt.cy > B + 6) continue;
+    const side = gt.v === 'e' || gt.v === 'w', vy = side ? gt.cy : gt.pcs[0].y - 0.01, ly = Math.max(...gt.pcs.map(q => q.y)) + 0.002;
+    for (const pc of gt.pcs) list.push({ y: pc.y, f: () => Sprites.drawGateImg(g, pc, t) });
+    list.push({ y: vy, f: () => Sprites.drawGateVeil(g, gt, vy, t) });
+    list.push({ y: ly, f: () => Sprites.drawGateLabel(g, gt, ly) });
   }
   if (map.fountainImg) list.push({ y: map.fountain.y + 1.2, f: () => Sprites.drawFountainImg(g, map.fountain, t) });
   // คบเพลิงลานประลอง: อยู่ในรายการเรียงความลึก (ตัวละครเดินหน้า/หลังคบเพลิงได้ถูกต้อง)
