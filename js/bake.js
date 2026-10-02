@@ -5,10 +5,12 @@
 //    + js/bake_data_wolfwood.js (tools/tree3d.py --install: ต้นไม้ยักษ์ "ต้นหมาป่าเก่า" กลางป่า Wolfwood)
 //    + js/bake_data_roots.js (tools/roots3d.py --install: รากยักษ์โค้งข้ามทาง + ประตูรากของ Garmr ใน Gnawed Roots — ประตูเป็นของประดับล้วน)
 //    + js/bake_data_archive.js (tools/archive3d.py --install: ชั้นวางตั้งอิสระ + ประกายโหลของชั้นวางสลักผนัง/ตราผนึกประตูห้องนิรภัย Archive Depths)
+//    + js/bake_data_eldheim_bifrost.js (tools/bifrost3d.py --install: แท่น Bifrost + เสาคริสตัลสายรุ้ง + เงา Norn's Wheel — ภาพวงล้อวาดใน gacha.js)
 //  • แบบ A (ground): วาดลงผ้าใบพื้นของแมพ (แท่น/เงา — ของเตี้ย ไม่บังใคร)
 //  • reflect: เงาสะท้อนในน้ำของชิ้น B — วาดลงผ้าใบพื้นเฉพาะส่วนน้ำลึก (หน้ากากจาก drawWater ใน maps.js) ใต้ตัวละครเสมอ
 //  • แบบ B (pieces): สไปรต์ตั้งตรงเรียงความลึกกับตัวละคร (บัลลังก์/ชั้นวาง/ซากหิน) — กล้องเรนเดอร์ = กล้องเกม จึงวาด 1:1 ตามจุดยึด
 //  • cave: ผูกกับภาพผนังถ้ำอบ (CAVE_BAKE ผังช่องทั้งแมพ) — ไม่ตรง = ไม่ใช้ทั้งชุด (Archive Depths)
+//  • hash+hashRect ต่อชิ้น (ground/pieces): หลายชุดในแมพเดียว (เมือง: แท่น Bifrost / Norn's Wheel / น้ำพุ) — ผังในกรอบของชิ้นไม่ตรง = ไม่วางชิ้นนั้น (Bake.rectOk)
 //  • hash (ถ้ามี): ผังน้ำตอนเลือกตำแหน่ง (หรือผังช่องในกรอบ hashRect) — ผังแมพเปลี่ยน = ไม่ใช้ข้อมูลชุดนี้เลย (ไม่มีซากลอยบนหญ้า/ต้นไม้ทับถนน)
 //  • clearTree: ต้นไม้ (T.TREE) ในวงรีกลายเป็นหญ้า • free: ของประดับ/พุ่ม Flora ในรัศมีถูกเอาออก (รากอบลงพื้นแทน)
 //  • ชิ้นไม่มีภาพ (img null + wall): ของที่อบอยู่ในภาพผนังถ้ำแล้ว (CAVE_BAKE) — วาดแค่ประกายกะพริบ + แสง เฉพาะตอนภาพผนังอบแสดงอยู่
@@ -42,6 +44,20 @@ const Bake = {
     }
     return map._bakeOk ? d : null;
   },
+  // hash ของชิ้นเดียว (e.hash + e.hashRect [x0, y0, x1, y1)) — FNV-1a ชนิดช่องในกรอบ ตรงกับ tools/bifrost3d.py fnv_rect
+  //   คำนวณครั้งแรกต่อกรอบแล้วจำไว้ในแมพ (Bake.layout เรียกก่อนแก้ผัง) • ไม่ตรง = เตือนครั้งเดียวต่อแมพ
+  rectOk(map, e) {
+    if (!e || e.hash == null || !e.hashRect) return true;
+    const memo = map._bakeRect || (map._bakeRect = {}), r = e.hashRect, k = r.join(',');
+    if (memo[k] === undefined) {
+      let h = 0x811c9dc5;
+      for (let y = r[1]; y < r[3]; y++) for (let x = r[0]; x < r[2]; x++) { h ^= map.tile(x, y); h = Math.imul(h, 0x01000193) >>> 0; }
+      memo[k] = h === e.hash;
+      const warned = this._warned || (this._warned = new Set()), wk = map.id + ':rect';
+      if (!memo[k] && !warned.has(wk)) { warned.add(wk); console.warn(`Bake: ${map.id} ผังช่องในกรอบ [${k}] เปลี่ยน (hash ${h} ≠ ${e.hash}) — ไม่วางฉาก 3D ชุดนี้ (รัน tools/${e.tool || 'bifrost3d'}.py ใหม่)`); }
+    }
+    return memo[k];
+  },
 
   // ผังช่อง: เคลียร์หินก้อนเล็กใต้แท่น (ช่องหิน → พื้นถ้ำ) + ช่องชนของชิ้น B
   // เรียกทั้งแมพเต็มและแบบ lite (แผนที่โลก) → การชนตรงกันทุกที่ • ชิ้นที่ทำให้ประตู/NPC เดินไปไม่ถึง = ไม่วาง (บันทึกใน map.bakeSkip)
@@ -55,6 +71,7 @@ const Bake = {
       if (((x + 0.5 - ct.x) / ct.rx) ** 2 + ((y + 0.5 - ct.y) / ct.ry) ** 2 <= 1 && map.tile(x, y) === T.TREE && x > 1 && y > 1 && x < map.w - 2 && y < map.h - 2) map.set(x, y, T.GRASS);
     const need = map.portals.map(p => [p.ax, p.ay]).concat((map.def.npcs || []).map(n => [n.x, n.y + 1]));
     for (const pc of d.pieces || []) {
+      if (!this.rectOk(map, pc)) { map.bakeSkip.add(pc.id); continue; }
       const cells = pc.block.filter(([x, y]) => map.inb(x, y) && !map.block[map.idx(x, y)]);
       for (const [x, y] of cells) map.block[map.idx(x, y)] = 1;
       if (!this.reach(map, need)) { // กันพลาด: ชิ้นนี้ปิดทาง → เอาออก (ผังถ้ำเปลี่ยนในอนาคต)
@@ -83,7 +100,10 @@ const Bake = {
     const d = this.data(map); if (!d) return;
     map.bakeWait = new Set();
     g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
-    for (const e of d.ground || []) { Art.need(e.img); const img = Art.get(e.img); if (img) g.drawImage(img, e.x * TILE, e.y * TILE, e.w * TILE, e.h * TILE); else map.bakeWait.add(e.img); } // bake_* โหลดตามแมพ (art.js need) — ยังไม่มา = จำไว้ วาดพื้นใหม่ตอนโหลดเสร็จ
+    for (const e of d.ground || []) {
+      if (!this.rectOk(map, e)) continue; // ชิ้นที่ผังในกรอบของมันเปลี่ยน (Bake.rectOk)
+      Art.need(e.img); const img = Art.get(e.img); if (img) g.drawImage(img, e.x * TILE, e.y * TILE, e.w * TILE, e.h * TILE); else map.bakeWait.add(e.img);
+    } // bake_* โหลดตามแมพ (art.js need) — ยังไม่มา = จำไว้ วาดพื้นใหม่ตอนโหลดเสร็จ
     if (d.reflect && wm) this.reflect(map, g, d.reflect, wm);
     g.restore();
   },

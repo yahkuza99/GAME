@@ -313,9 +313,47 @@ NPC.scripts[Gacha.NPC_ID] = async n => {
 };
 
 // ============================================================================================
-//  ภาพเครื่องวงล้อในเมือง (วาดด้วยโค้ด)
+//  ภาพเครื่องวงล้อในเมือง: ภาพอบจาก Blender (tools/bifrost3d.py → NORN_BAKE ใน js/bake_data_eldheim_bifrost.js)
+//  ไม่มีภาพ/ยังโหลดไม่เสร็จ/ผังช่องรอบเครื่องเปลี่ยน (hash) → วาดด้วยโค้ดแบบเดิม (drawMachineCode)
 // ============================================================================================
-Gacha.drawMachine = (g, n, t) => {
+Gacha.drawMachine = (g, n, t) => { if (!Gacha.drawMachine3D(g, n, t)) Gacha.drawMachineCode(g, n, t); };
+// วงล้อ 3D: ชีต 24 เฟรม/รอบ (เฟรมละ 15° ตามเข็มนาฬิกา) + หมุนส่วนที่เหลือระหว่างเฟรมด้วย 2D
+//   (หน้าวงล้อเป็นระนาบ กล้องออร์โธ → หมุนในระนาบ = บีบแนวตั้ง c แล้วหมุนแล้วคลายคืน ตรงพอดี) — เฟรมเปลี่ยนแค่แสง/ไฮไลต์ทอง
+//   ปกติหมุนช้า ๆ • ตอนหน้าต่างกาชากำลังหมุน (Gacha.anim.spinAnim) เร่งเร็วขึ้นแบบนุ่ม ๆ แล้วค่อย ๆ ช้าลง
+//   วาดวงล้อก่อน แล้ววาดฐานทับ (ส่วนของฐานที่อยู่หลังวงล้อถูกเจาะโปร่งตอนอบ — เข็มชี้ที่อยู่หน้าวงล้อจึงทับวงล้อถูกต้อง)
+Gacha.drawMachine3D = (g, n, t) => {
+  const nb = typeof NORN_BAKE !== 'undefined' && NORN_BAKE, map = typeof G !== 'undefined' && G.map;
+  if (!nb || !map || map.id !== 'eldheim' || typeof Bake === 'undefined' || !Bake.rectOk(map, nb)) return false;
+  const W = nb.wheel, B = nb.base;
+  Art.need(W.img); Art.need(B.img); // โหลดตอนเข้าเมือง (bake_* ไม่โหลดตอนบูต)
+  const wi = Art.get(W.img), bi = Art.get(B.img);
+  if (!wi || !bi) return false;
+  const st = n._wheel || (n._wheel = { a: 0, v: 24, lt: t });
+  const dt = Math.min(0.1, Math.max(0, t - st.lt)); st.lt = t;
+  const A = Gacha.anim, fast = !!(A && !A.dead && A.spinAnim && A.spinAnim.playState === 'running');
+  st.v += ((fast ? 620 : 24) - st.v) * Math.min(1, dt * (fast ? 3 : 1.2)); // องศา/วินาที
+  st.a = (st.a + st.v * dt) % 360;
+  const step = 360 / W.n, f = Math.floor(st.a / step) % W.n, res = (st.a - f * step) * Math.PI / 180;
+  const s = nb.scale, x = nb.x * TILE, y = nb.y * TILE, cx = x + W.dx, cy = y + W.dy;
+  // ผู้เล่นยืนหลังเครื่อง (เหนือ) แล้วโดนวงล้อบัง → จางลง (แบบชิ้นอบอื่นใน js/bake.js)
+  const p = G.player, behind = p && !p.dead && p.y < nb.y && p.y > nb.y - 3.2 && Math.abs(p.x - nb.x) < 1.3;
+  st.fa = (st.fa == null ? 1 : st.fa) + ((behind ? 0.45 : 1) - (st.fa == null ? 1 : st.fa)) * Math.min(1, dt * 8);
+  g.save();
+  g.imageSmoothingEnabled = true;
+  if (st.fa < 0.995) g.globalAlpha *= st.fa;
+  g.save(); g.translate(cx, cy); g.scale(1, W.c); g.rotate(res); g.scale(1, 1 / W.c);
+  g.drawImage(wi, (f % W.cols) * W.fw, Math.floor(f / W.cols) * W.fh, W.fw, W.fh, -W.cx * s, -W.cy * s, W.fw * s, W.fh * s);
+  g.restore();
+  g.drawImage(bi, x - B.ax * s, y - B.ay * s, bi.width * s, bi.height * s);
+  if (R.quality !== 'low') { // ลูกแก้วกลางดุมเรือง (แรงขึ้นตอนหมุนเร็ว)
+    const k = Math.min(1, st.v / 620), pulse = 0.5 + 0.5 * Math.sin(t * 2.2), gl = Bake.glint('150,220,255'), r = 9 + 5 * pulse + 10 * k;
+    g.globalCompositeOperation = 'lighter'; g.globalAlpha = st.fa * (0.35 + 0.2 * pulse + 0.4 * k);
+    g.drawImage(gl, cx - r, cy - r * 0.95, r * 2, r * 2);
+  }
+  g.restore();
+  return true;
+};
+Gacha.drawMachineCode = (g, n, t) => {
   const bx = n.x * TILE + TILE / 2, by = n.y * TILE + TILE / 2 + 10, S = 1.3;
   const COL = ['#e8eef6', '#62e27e', '#4fa8ff', '#c27bff', '#ffb52e'];
   Sprites.shadow(g, bx, by, 36, 11, 0.34);
