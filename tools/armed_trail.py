@@ -12,6 +12,7 @@ from PIL import Image, ImageDraw
 ROOT = os.path.join(os.path.dirname(__file__), '..'); A = os.path.join(ROOT, 'assets')
 C, CX, GROUND = 240, 120, 220
 K = np.ones((3, 3), np.uint8)
+NO_SWING = {'trickster_f'}  # ท่าโจมตีเป็นการพุ่งแทงตรง ไม่ได้เหวี่ยง → ไม่มีแสงโค้ง
 
 
 def far(mask, px, py, foot, min_area=25):
@@ -57,7 +58,7 @@ def main():
     for fn in sorted(os.listdir(A)):
         if not (fn.startswith('anim_') and fn.endswith('_attack.webp')) or '_bare_' in fn: continue
         gk = fn[5:-len('_attack.webp')]
-        if gk.startswith(('mob_', 'novice_')): continue  # มอนสเตอร์/Novice ไม่มีอาวุธประจำ Class
+        if gk.startswith(('mob_', 'novice_')) or gk in NO_SWING: continue  # มอนสเตอร์/Novice ไม่มีอาวุธประจำ Class
         img = Image.open(os.path.join(A, fn)).convert('RGBA'); arr = np.array(img)
         rows = [row_trail([arr[r * C:(r + 1) * C, f * C:(f + 1) * C] for f in range(arr.shape[1] // C)]) for r in range(arr.shape[0] // C)]
         out[gk] = rows
