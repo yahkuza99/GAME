@@ -232,7 +232,15 @@ const UI = {
     $('#bi-lvbadge').classList.toggle('near', near && bk >= 0.97);
     $('#bi-hp-t').textContent = `${Math.floor(p.hp)} / ${d.maxHp}`;
     $('#bi-sp-t').textContent = `${Math.floor(p.sp)} / ${d.maxSp}`;
-    const zi = Art.get('item_zeny'), zHtml = (zi ? `<img src="${zi.src}" alt="">` : '') + U.fmt(p.zeny) + ' ' + CUR;
+    // เงินนับขึ้นแบบไหล (0.4 วิ) + วาบเหลืองตอนได้เพิ่ม (GAME_FEEL ข้อ 14)
+    const zt = this._zt || (this._zt = { show: p.zeny, from: p.zeny, to: p.zeny, t0: 0 }), nowZ = performance.now();
+    if (zt.to !== p.zeny) {
+      if (p.zeny > zt.to && zt.to !== undefined) { const ze0 = $('#bi-zeny'); ze0.classList.remove('zup'); void ze0.offsetWidth; ze0.classList.add('zup'); }
+      zt.from = zt.show; zt.to = p.zeny; zt.t0 = nowZ;
+      if (Math.abs(zt.to - zt.from) > 1e7 || matchMedia('(prefers-reduced-motion: reduce)').matches) zt.from = zt.to;
+    }
+    const zk = Math.min(1, (nowZ - zt.t0) / 400); zt.show = Math.round(zt.from + (zt.to - zt.from) * (1 - (1 - zk) * (1 - zk)));
+    const zi = Art.get('item_zeny'), zHtml = (zi ? `<img src="${zi.src}" alt="">` : '') + U.fmt(zt.show) + ' ' + CUR;
     const ze = $('#bi-zeny');
     if (ze.innerHTML !== zHtml) { ze.innerHTML = zHtml; ze.classList.toggle('has-ic', !!zi); }
     const pts = [];
@@ -776,14 +784,16 @@ const UI = {
       const can = p.statPoints >= cost && p.stats[s] < 99;
       return h('div', { class: 'st-row', title: desc[s] },
         h('span', { class: 'st-n' }, s.toUpperCase()),
-        h('span', { class: 'st-v' }, String(p.stats[s]), d[s + 'Bonus'] ? h('em', {}, ` +${d[s + 'Bonus']}`) : ''),
+        h('span', { class: 'st-v' + (G.statBump === s ? ' bump' : '') }, String(p.stats[s]), d[s + 'Bonus'] ? h('em', {}, ` +${d[s + 'Bonus']}`) : ''),
         h('button', { class: 'st-up', disabled: !can, onclick: () => raiseStat(s) }, '▲'),
         h('span', { class: 'st-c' }, String(cost)));
     });
     const right = [
       ['ATK', d.atkDisplay], ['MATK', `${d.matkMin} ~ ${d.matkMax}`], ['HIT', d.hit], ['CRIT', d.crit],
       ['DEF', `${d.def} + ${d.softDef}`], ['MDEF', `${d.mdef} + ${d.softMdef}`], ['FLEE', `${d.flee} + ${d.pdodge}`], ['ASPD', d.aspd],
-    ].map(([k, v]) => h('div', { class: 'st-row2' }, h('span', {}, k), h('b', {}, String(v))));
+    ].map(([k, v]) => { const pv = (this._st2 || {})[k], ch = G.statBump && pv !== undefined && String(pv) !== String(v); return h('div', { class: 'st-row2' + (ch ? ' chg' : '') }, h('span', {}, k), h('b', {}, String(v))); });
+    this._st2 = Object.fromEntries([['ATK', d.atkDisplay], ['MATK', `${d.matkMin} ~ ${d.matkMax}`], ['HIT', d.hit], ['CRIT', d.crit], ['DEF', `${d.def} + ${d.softDef}`], ['MDEF', `${d.mdef} + ${d.softMdef}`], ['FLEE', `${d.flee} + ${d.pdodge}`], ['ASPD', d.aspd]]);
+    G.statBump = null;
     // ค่าพิเศษ (จากต้นไม้พาสซีฟ/สกิล/บัฟ) — แสดงเฉพาะที่มีผล
     const castCut = Math.round((1 - d.castMul * Math.max(0, 1 - d.dex / 150)) * 100);
     const extra = [

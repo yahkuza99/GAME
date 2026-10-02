@@ -1437,3 +1437,11 @@ body.visor #w-equip .eq-turn { box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5), inset 0 1
 #bi-lvbadge.near { animation: lvNear .9s ease-in-out infinite; }
 @keyframes lvNear { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.14); box-shadow: 0 0 12px 2px rgba(255,214,106,.75); } }
 @media (prefers-reduced-motion: reduce) { .hb.ready, #bi-bexp.near, #exp-line-fill.near, #bi-lvbadge.near { animation: none; } }
+/* ---- GAME_FEEL 14: เด้งเลข stat / ค่ารองที่เปลี่ยนวาบเขียว / เงินวาบเหลือง ---- */
+.st-v.bump { display: inline-block; animation: stBump .2s ease-out; }
+@keyframes stBump { 0% { transform: scale(1); } 50% { transform: scale(1.4); color: #ffe08a; } 100% { transform: scale(1); } }
+.st-row2.chg b { animation: stChg .5s ease-out; }
+@keyframes stChg { 0% { color: #8dffb0; text-shadow: 0 0 8px rgba(141,255,176,.8); } 100% { } }
+#bi-zeny.zup { animation: zUp .45s ease-out; }
+@keyframes zUp { 0% { color: #ffe08a; text-shadow: 0 0 10px rgba(255,214,106,.9); } 100% { } }
+@media (prefers-reduced-motion: reduce) { .st-v.bump, .st-row2.chg b, #bi-zeny.zup { animation: none; } }

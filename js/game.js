@@ -320,7 +320,10 @@ function raiseStat(s) {
   p.statPoints -= cost;
   p.stats[s]++;
   recalc();
-  Sound.play('click');
+  // เด้งเลข stat + เสียงไต่ระดับเมื่อกดติดกัน (GAME_FEEL ข้อ 14)
+  const now = performance.now(); G.statRun = now - (G.statAt || 0) < 1000 ? (G.statRun || 0) + 1 : 0; G.statAt = now;
+  if (typeof Sound !== 'undefined' && Sound.chime && p.options && p.options.sound) Sound.chime(660 * Math.pow(2, Math.min(12, G.statRun) / 12), 0, 0.045, 0.25); else Sound.play('click');
+  G.statBump = s;
 }
 
 // ------------------------------------------------------------
