@@ -20,6 +20,8 @@
   /tmp/bvenv/bin/python tools/cave3d.py --map helcave [--samples 16] [--ss 1.25] [--preview] [--crop x0,y0,x1,y1] [--clay] [--out /tmp/cave.png]
      (ค่าที่ใช้จริง: --samples 16 --ss 1.25 ≈ 13 นาที/แมพ บน CPU 4 คอร์ • --crop เรนเดอร์ทดสอบเฉพาะกรอบช่อง • --clay ดูรูปทรงด้วยวัสดุเทา)
   python3 tools/cave3d.py --install /tmp/cave.png --map helcave       (ยืด ×1/0.76, บันทึก webp, manifest, เขียน CAVE_BAKE ใน js/maps.js)
+  archive: ชั้นวางสลักผนัง + ประตูห้องนิรภัย (tools/archive3d.py, แผน #9) รวมอยู่ในฉากนี้ • แก้แค่ส่วนนั้น → --patch <ภาพเต็มเดิม.png>
+     เรนเดอร์เฉพาะกรอบของงานนั้นแล้วแปะทับภาพเดิม (ต้องใช้ --samples/--ss เดียวกับภาพเดิม: 16 / 1.25) • --patch-only niche,door,seal = เฉพาะชนิด
 """
 import math, os, sys, json, random, re
 
@@ -72,7 +74,8 @@ def extract(m):
       if (m.tile(x, y) !== T.CAVE || m.portals.some(q => Math.abs(q.x - x) + Math.abs(q.y - y) < 3)) continue;
       const r = U.hash2(x, y, seed + 99); if (r >= 0.035) continue;
       cr.push([+(x + (8 + U.hash2(x, y, seed + 7) * 24) / TILE).toFixed(3), +(y + (10 + U.hash2(y, x, seed + 8) * 22) / TILE).toFixed(3)]); }
-    return { w: m.w, h: m.h, tiles: Array.from(m.tiles), portals: m.portals, crystals: cr }; }, process.argv[3]);
+    const th = m.def.caveTheme, seals = th && th.glyph ? m.caveSeals() : [];   // ตราผนึกบนพื้น (Archive) → อบเป็นร่องสลัก (tools/archive3d.py)
+    return { w: m.w, h: m.h, tiles: Array.from(m.tiles), portals: m.portals, crystals: cr, seals }; }, process.argv[3]);
   console.log(JSON.stringify(r)); await b.close(); })();"""
     f = os.path.join(tempfile.gettempdir(), 'cave3d_extract.js'); open(f, 'w').write(js)
     env = dict(os.environ); env.setdefault('NODE_PATH', subprocess.check_output(['npm', 'root', '-g'], text=True).strip())
@@ -82,6 +85,7 @@ def extract(m):
     data = {'map': m, 'w': w, 'h': h, 'hash': fnv(r['tiles']),
             'rows': [''.join('0123456789AB'[v] for v in r['tiles'][y * w:(y + 1) * w]) for y in range(h)],
             'portals': r['portals'], 'crystals': r['crystals']}
+    if r['seals']: data['seals'] = r['seals']
     json.dump(data, open(tiles_path(m), 'w'), indent=0)
     print('ผังช่อง →', tiles_path(m), f'{w}×{h}', 'hash', data['hash'], 'ผลึกบนพื้น', len(r['crystals']))
 
@@ -202,6 +206,12 @@ def heightfield(m):
     Hh = np.where(mesh, Hh, 0.0)
     Hh = side_min(Hh, 2.6, 1.4)                         # ผนังข้าง (ตะวันออก/ตก): ลาดชัน ~69° แทนผนังดิ่งที่หันข้าง (เห็นเป็นเส้นริ้ว)
     Hh = np.where(mesh, np.maximum(Hh, 0.0), 0.0)
+    out = dict(W=W, H=H, xs=xs, ys=ys, MX=MX, MY=MY, H_=Hh, cap=cap, mesh=mesh, rockT=rockT, rockS=rockS, fS=fS, tile=tile, T=T, d=d, cid=cid)
+    if m == 'archive':   # ชั้นวางสลักผนัง + ประตูห้องนิรภัย (tools/archive3d.py, แผน #9): เลือกตำแหน่งจากผังเดิม แล้วเกลาหน้าผา
+        import archive3d  # ผลึกงอกจากผนังยังเลือกจากผังก่อนเกลา (H0/mesh0) → ส่วนอื่นของภาพเหมือนเดิม
+        out['H0'], out['mesh0'] = Hh.copy(), mesh.copy()
+        out['arc'] = archive3d.plan(out)
+        archive3d.carve(out, out['arc'])
     # ระยะถึงพื้นที่ใกล้ที่สุด (ประมาณจากหน้ากากเบลอ): ยอดหินกลางก้อนใหญ่มืดลง (เพดานถ้ำ) ขอบปากผาสว่าง
     inner = blur(mesh.astype(float), 1.3 * RES)
     # ขอบปากผา: จุดบนยอดที่ห่างไม่ถึง ~0.35 ม. มีพื้นต่ำลงไปมาก (หน้าผา) — ไม่นับด้านเหนือที่ลาดตามเส้นสายตา
@@ -210,7 +220,10 @@ def heightfield(m):
         for ox in range(-2, 3):
             if ox * ox + oy * oy <= 5: Hmin = np.minimum(Hmin, Hp[2 + oy:2 + oy + ny, 2 + ox:2 + ox + nx])
     lip = smooth(0.55, 1.3, Hh - Hmin)
-    return dict(W=W, H=H, xs=xs, ys=ys, MX=MX, MY=MY, H_=Hh, cap=cap, mesh=mesh, rockT=rockT, rockS=rockS, fS=fS, tile=tile, T=T, d=d, inner=inner, lip=lip, cid=cid)
+    for f in out.get('arc', ()):
+        if '_blk' in f: lip[f.pop('_blk')] = 0
+    out.update(inner=inner, lip=lip)
+    return out
 
 
 def check(hf, extra=(), quiet=False):
@@ -245,7 +258,7 @@ def preview_png(hf, out):
 def wall_crystals(hf, rnd):
     """จุดวางกอผลึก: โคนหน้าผาด้านใต้ (เอนออกหากล้อง) + บนขอบปากผา • ห่างกัน ≥ 2.6 ม. • คืน [(x, y, z0, lean_dir, size, kind)] พิกัดแมพ"""
     import numpy as np
-    MX, MY, Hh, mesh = hf['MX'], hf['MY'], hf['H_'], hf['mesh']
+    MX, MY, Hh, mesh = hf['MX'], hf['MY'], hf.get('H0', hf['H_']), hf.get('mesh0', hf['mesh'])   # H0/mesh0 = ผังก่อนเกลา (archive3d)
     W, H = hf['W'], hf['H']
     Hn = Hh.copy()
     for k in range(1, 5): Hn[k:] = np.maximum(Hn[k:], Hh[:-k])   # สูงสุดในระยะ ~0.7 ม. ทางเหนือ (ขอบนุ่มที่โคนผนังเตี้ย)
@@ -446,7 +459,7 @@ def camera(sc, ortho, rx, ry):
     return co
 
 
-def build(m, samples, out, preview=False, ss=1.0, crop=None):
+def build(m, samples, out, preview=False, ss=1.0, crop=None, patch=None, kinds=None):
     import bpy, numpy as np
     th = THEMES[m]
     hf = heightfield(m); W, H = hf['W'], hf['H']; d = hf['d']
@@ -507,6 +520,9 @@ def build(m, samples, out, preview=False, ss=1.0, crop=None):
         light(x, y, 0.45, cc, 26); nlit += 1
     for (x, y, z, col, energy, _n) in th['lights']:
         light(x, y, z, col, energy, 0.6)
+    if hf.get('arc'):   # ชั้นวางสลักผนัง + ประตูห้องนิรภัย (tools/archive3d.py) — คาน/เสา/ชั้น/โหล/บานประตู + แสงทอง
+        import archive3d
+        extra += archive3d.geometry(sc, ink, hf['arc'], bm, light)
     print('ผลึกบนผนัง', nlit - len(d['crystals']), 'แสงผลึกบนพื้น', len(d['crystals']))
     bad = check(hf, extra)
     # ---------- พื้น = shadow catcher (โปร่ง เหลือแต่เงา/AO โคนผนัง) ----------
@@ -520,6 +536,28 @@ def build(m, samples, out, preview=False, ss=1.0, crop=None):
     if crop:                                                # เรนเดอร์ทดสอบเฉพาะกรอบ (ช่อง x0,y0,x1,y1) ที่ความละเอียดจริง
         x0, y0, x1, y1 = crop; r = sc.render; r.use_border = True; r.use_crop_to_border = True
         r.border_min_x, r.border_max_x = x0 / W, x1 / W; r.border_min_y, r.border_max_y = 1 - y1 / H, 1 - y0 / H
+    if patch:   # เรนเดอร์เฉพาะกรอบของงาน archive3d แล้วแปะทับภาพเต็มเดิม (ส่วนอื่นเหมือนเดิมทุกพิกเซล) — ขอบกรอบไล่จาง 24 px
+        import archive3d
+        from PIL import Image
+        import numpy as np
+        base = Image.open(patch).convert('RGBA'); RX, RY = sc.render.resolution_x, sc.render.resolution_y
+        assert base.size == (RX, RY), f'ภาพเดิม {base.size} ≠ ความละเอียดเรนเดอร์ {(RX, RY)} (ใช้ --ss เดียวกับตอนเรนเดอร์เต็ม)'
+        acc = np.asarray(base).astype(np.float32); r = sc.render; r.use_border = True; r.use_crop_to_border = True
+        sc.render.use_persistent_data = True
+        for i, (x0, y0, x1, y1) in enumerate(archive3d.rects(hf['arc'], W, H, kinds)):
+            r.border_min_x, r.border_max_x = x0 / W, x1 / W; r.border_min_y, r.border_max_y = 1 - y1 / H, 1 - y0 / H
+            tmp = out + f'.part{i}.png'; sc.render.filepath = tmp
+            bpy.ops.render.render(write_still=True)
+            px0, py0 = round(x0 / W * RX), round(y0 / H * RY)
+            part = np.asarray(Image.open(tmp).convert('RGBA')).astype(np.float32); ph, pw = part.shape[:2]
+            fx = np.minimum(np.arange(pw), np.arange(pw)[::-1]); fy = np.minimum(np.arange(ph), np.arange(ph)[::-1])
+            fx = np.where((px0 == 0) & (np.arange(pw) < 24), 24, fx); fx = np.where((px0 + pw >= RX) & (np.arange(pw) >= pw - 24), 24, fx)
+            fy = np.where((py0 == 0) & (np.arange(ph) < 24), 24, fy); fy = np.where((py0 + ph >= RY) & (np.arange(ph) >= ph - 24), 24, fy)
+            w = np.clip(np.minimum(fy[:, None], fx[None, :]) / 24.0, 0, 1)[..., None]
+            acc[py0:py0 + ph, px0:px0 + pw] = acc[py0:py0 + ph, px0:px0 + pw] * (1 - w) + part * w
+            os.remove(tmp); print('แปะกรอบ', (x0, y0, x1, y1), '→ px', (px0, py0, pw, ph))
+        Image.fromarray(np.clip(acc + 0.5, 0, 255).astype(np.uint8), 'RGBA').save(out)
+        print('เรนเดอร์ (แปะทับ) →', out, 'บังทาง', len(bad)); return
     sc.render.filepath = out
     bpy.ops.render.render(write_still=True)
     print('เรนเดอร์ →', out, 'บังทาง', len(bad))
@@ -541,6 +579,7 @@ def install(m, src):
     mt = re.search(r'^const CAVE_BAKE = (\{.*\}); // tools/cave3d\.py --install$', s, flags=re.M)
     meta = json.loads(mt.group(1)) if mt else {}
     meta[m] = {'img': key, 'hash': d['hash']}
+    if d.get('seals'): meta[m]['seals'] = 1     # ตราผนึกบนพื้นอบอยู่ในภาพแล้ว (maps.js caveTheme ไม่วาดซ้ำ)
     line = 'const CAVE_BAKE = ' + json.dumps(meta, separators=(',', ':')) + '; // tools/cave3d.py --install'
     s2, n = re.subn(r'^const CAVE_BAKE = .*$', lambda _: line, s, flags=re.M)
     if n: open(js, 'w', encoding='utf-8').write(s2); print('อัปเดต js/maps.js CAVE_BAKE')
@@ -556,4 +595,5 @@ if __name__ == '__main__':
         hf = heightfield(M); check(hf); preview_png(hf, arg('--out', f'/tmp/cave3d_{M}_hf.png'))
     elif '--install' in a: install(M, a[a.index('--install') + 1])
     else: build(M, int(arg('--samples', 20)), arg('--out', f'/tmp/cave3d_{M}.png'), '--preview' in a, float(arg('--ss', 1.0)),
-               [float(v) for v in arg('--crop', '').split(',')] if '--crop' in a else None)
+               [float(v) for v in arg('--crop', '').split(',')] if '--crop' in a else None, arg('--patch', None),
+               arg('--patch-only', '').split(',') if '--patch-only' in a else None)
