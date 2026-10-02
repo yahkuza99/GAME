@@ -11,14 +11,16 @@ const Paperdoll = {
   // อาวุธแต่ละชนิด: ยาว (px ในช่อง 240), grip = ตำแหน่งที่มือจับ (สัดส่วนจากปลายด้ามถึงปลายอาวุธ)
   // rev = ไอคอนวาดด้ามไว้ขวาบน ปลายคมซ้ายล่าง (มีด/ดาบทุกชิ้น) — ต้องจับฝั่งด้าม ไม่ใช่ฝั่งคม
   // guard = หาการ์ดจากภาพเอง แล้วให้ขอบหน้ากำปั้นชนการ์ดพอดี (ไม่มีด้ามโผล่ระหว่างมือกับการ์ด)
+  // floor = ปลายอาวุธห้ามต่ำกว่า y นี้ (px ช่อง, พื้น = 220) — หัวขวาน/กระบองกว้าง ต้องเผื่อมากกว่าปลายดาบ
   W: {
-    dagger: { len: 46, grip: 0.18, rev: 1, guard: 1 },
-    sword: { len: 74, grip: 0.14, rev: 1, guard: 1 },
-    axe: { len: 64, grip: 0.14 },
-    mace: { len: 64, grip: 0.14 },
+    dagger: { len: 46, grip: 0.18, rev: 1, guard: 1, floor: 216 },
+    sword: { len: 74, grip: 0.14, rev: 1, guard: 1, floor: 216 },
+    axe: { len: 64, grip: 0.14, floor: 196 },
+    mace: { len: 64, grip: 0.14, floor: 204 },
     rod: { len: 86, grip: 0.36, up: 1, stand: 0.8 },
     bow: { len: 80, grip: 0.5, up: 1, stand: 0.6 },
   },
+  FLOOR: 214,
   // up = ชี้ขึ้นเสมอ (คทา/ธนู ถือหัวขึ้น ไม่ชี้ตามใบมีดที่ห้อยลง), stand = ดึงเข้าหาแนวตั้งมากน้อยแค่ไหน
   // หมวก: w = กว้าง (px ในช่อง 240), dy = เลื่อนลงจากยอดผม, dx = เลื่อนไปทางหน้า, back = ซ่อนตอนหันหลัง
   HAT: {
@@ -42,13 +44,19 @@ const Paperdoll = {
   //   rot  = หมุนเพิ่ม (องศา)                  flip = กลับหัว (หัวชี้ไปทางตรงข้ามแท่งในภาพ)
   // ท่าที่ไม่ได้ระบุ ใช้ '*' • แก้รายเฟรมได้ใน js/paperdoll_fix.js (หน้า tools/grip_tuner.html)
   GRIP: {
-    einherjar: { '*': {} },
-    runecaster: { '*': {} },
-    wildhunter: { '*': {} },
-    // คทาทองของ Völva: เดิน/ยืน/ร่าย ถือตั้งหัวขึ้นแบบไม้เท้า • ตอนตี หัวคทาไปตามแท่ง (ทุบ)
-    volva: { '*': { len: 78, grip: 0.3, up: 1, stand: 0.75 }, attack: { len: 70, grip: 0.12, up: 0, stand: 0 } },
-    trickster: { '*': {} },
-    berserker: { '*': { len: 92, grip: 0.18 } }, // ขวานสองมือ ใหญ่
+    // ดาบ: เดินถือปลายชี้ลงหน้า การ์ดชนหน้ากำปั้น (ตาม W.sword)
+    einherjar: { '*': { len: 76 } },
+    // ไม้เท้ารูน: ถือตั้งแบบไม้เท้าเดิน ปลายล่างเกือบถึงพื้น ลูกแก้วอยู่ระดับไหล่/คาง
+    runecaster: { '*': { len: 116, grip: 0.4, up: 1, stand: 0.85 } },
+    // ธนู: ถือตั้งจับกลางคัน ใหญ่พอให้เห็นเป็นธนู
+    wildhunter: { '*': { len: 92, grip: 0.5, up: 1, stand: 0.75 } },
+    // คทาทองของ Völva: เดิน/ยืน/ร่าย ถือตั้งหัวขึ้นแบบไม้เท้า • ตอนตี มือเลื่อนลงไปจับปลายด้าม หัวคทาไปตามแท่ง (ทุบ)
+    // ความยาวเท่ากันทุกท่า ไม่ให้คทาเปลี่ยนขนาดตอนสลับท่า • เฟรมทุบลงพื้นถูก floor ยกขึ้นให้ไม่ตกขอบช่อง
+    volva: { '*': { len: 72, grip: 0.3, up: 1, stand: 0.75 }, attack: { grip: 0.12, up: 0, stand: 0 } },
+    // มีดสั้นมือซ้าย: ยาวราวแขนท่อนล่าง การ์ดวงชนหน้ากำปั้น
+    trickster: { '*': { len: 58 } },
+    // ขวานสองมือใหญ่: ถือต่ำหัวขวานไปข้างหน้าตามแท่ง แต่ floor (W.axe) ยกให้เอียงลงแค่ ~20° ไม่ลากพื้น
+    berserker: { '*': { len: 80, grip: 0.15 } },
   },
   spec(it, act) {
     const base = this.W[it.wtype] || this.W.dagger, g = (it.cls && this.GRIP[it.cls]) || {};
@@ -164,6 +172,13 @@ const Paperdoll = {
     if (spec.stand) ang += Math.atan2(Math.sin(-Math.PI / 2 - ang), Math.cos(-Math.PI / 2 - ang)) * spec.stand;
     // จุดที่ต้องอยู่ตรงมือ (ระยะตามแนวทแยงจากมุมด้ามของภาพ, หน่วย px ของไอคอน)
     const at = spec.guard && m.guard != null ? m.guard - 2 : m.t0 + (m.t1 - m.t0) * spec.grip;
+    // พื้น: ปลายอาวุธ (ระยะจากมือถึงปลายหัว) ห้ามต่ำกว่า floor → หมุนขึ้นเข้าหาแนวนอนเท่าที่จำเป็น
+    // (ขวานใหญ่เดินถือต่ำ / กระบองทุบลงพื้น จะไม่ลากพื้นหรือตกขอบช่อง)
+    const reach = spec.len * (1 - (at - m.t0) / m.len), hy = hand[1] + (fix ? fix[1] : 0), fl = spec.floor || this.FLOOR;
+    if (reach > 0 && hy + Math.sin(ang) * reach > fl) {
+      const s = Math.asin(Math.max(-1, Math.min(1, (fl - hy) / reach)));
+      ang = Math.cos(ang) >= 0 ? s : Math.PI - s;
+    }
     spec = Object.assign({}, spec, { rev });
     g.save();
     g.translate(hand[0] - Anim.CX + (fix ? fix[0] : 0), hand[1] - Anim.GROUND + (fix ? fix[1] : 0));
