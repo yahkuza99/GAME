@@ -295,7 +295,7 @@ const Daily = {
     const s = this.state(), txt = this.badgeText();
     const tab = (k, label, extra) => h('button', { type: 'button', class: 'tab' + ((UI.questTab || 'story') === k ? ' on' : ''), 'data-qtab': k,
       onclick: () => { UI.questTab = k; const b = document.querySelector('#w-quest .win-body'); b.dataset.key = ''; b.dataset.dk = ''; UI.renderQuest(); Sound.play('click'); } }, label, extra);
-    return h('div', { class: 'tabs dl-tabs' }, tab('story', L('เนื้อเรื่อง', 'Story')),
+    return h('div', { class: 'tabs dl-tabs' }, tab('story', 'Story'),
       tab('daily', 'Daily', s && txt ? h('i', { class: 'dl-tab-badge' + (txt === '!' ? ' ready' : '') }, txt) : null));
   },
   render(body) {

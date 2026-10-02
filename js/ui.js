@@ -1066,7 +1066,7 @@ const UI = {
         h('div', { class: 'sk-info' },
           h('div', { class: 'sk-name' }, s.name, h('span', { class: 'sk-lv' }, ` Lv ${lv}/${s.max}`)),
           lv && s.type === 'active' ? mastery(id)
-            : h('div', { class: 'sk-sub' + (reqOk ? '' : ' bad') }, s.type === 'passive' ? 'Passive' : reqOk ? L('ยังไม่ได้เรียน', 'Not learned') : L('🔒 ต้องอัปสกิลก่อนหน้า', '🔒 Needs a prior skill'))),
+            : h('div', { class: 'sk-sub' + (reqOk ? '' : ' bad') }, s.type === 'passive' ? 'Passive' : reqOk ? 'Not learned' : L('🔒 ต้องอัปสกิลก่อนหน้า', '🔒 Needs a prior skill'))),
         h('div', { class: 'sk-acts' },
           canLearn(id) ? h('button', { class: 'btn small', title: 'Learn', onclick: () => learnSkill(id) }, '+') : null,
           lv && s.type === 'active' ? h('button', { class: 'btn small', onclick: () => useSkill(id) }, 'Use') : null,
@@ -1513,7 +1513,7 @@ const UI = {
     const key = this.navTab + '|' + G.map.id + '|' + G.player.baseLv + (this.navTab === 'mob' ? '|' + Math.floor(G.time / 5) : '');
     if (body.dataset.key === key) return;
     body.dataset.key = key; body.innerHTML = '';
-    const tabs = [['mob', L('ล่าเก็บเลเวล', 'Leveling')], ['here', L('แผนที่นี้', 'This Map')], ['place', 'Places'], ['map', 'Maps']];
+    const tabs = [['mob', 'Leveling'], ['here', 'This Map'], ['place', 'Places'], ['map', 'Maps']];
     body.append(h('div', { class: 'tabs' }, ...tabs.map(([k, l]) => h('button', { class: 'tab' + (this.navTab === k ? ' on' : ''), onclick: () => { this.navTab = k; body.dataset.key = ''; this.renderNav(); } }, l))));
     const list = h('div', { class: 'nav-list' });
     const row = (t, sub, extra) => h('button', { class: 'nav-row' + (t.map === G.map.id ? ' here' : ''), onclick: () => Nav.goTo(t) },
@@ -1805,7 +1805,7 @@ const UI = {
     if (!force && body.dataset.key === key) { this.updateBotStats(); return; }
     body.dataset.key = key;
     body.innerHTML = '';
-    body.append(h('button', { class: 'btn big bot-toggle' + (Bot.on ? ' on' : ''), onclick: () => Bot.toggle() }, Bot.on ? L('■ หยุดบอท', '■ Stop Bot') : L('▶ เริ่มบอท', '▶ Start Bot')));
+    body.append(h('button', { class: 'btn big bot-toggle' + (Bot.on ? ' on' : ''), onclick: () => Bot.toggle() }, Bot.on ? '■ Stop Bot' : '▶ Start Bot'));
     body.append(h('div', { id: 'bot-stats', class: 'bot-stats' }));
     this.updateBotStats();
     const slider = (key, label, min, max, unit = '%') => {
