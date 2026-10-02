@@ -178,7 +178,6 @@ R.render = () => {
   // พอร์ทัล
   for (const pt of map.portals) upright((pt.y + 0.5) * TILE, () => Sprites.drawPortal(g, pt, t));
   // คบเพลิงลานประลอง: เปลวไฟเคลื่อนไหวบนชามเหล็กในภาพ 3D (ยกสูงตามความสูงจริง × sin มุมกล้อง)
-  if (map.torches && map.arenaImg) for (const tc of map.torches) upright(tc.y * TILE, () => Sprites.drawTorch(g, tc, t));
   if (map.arenaImg && typeof Feel !== 'undefined' && Feel.drawCrowd && R.quality !== 'low') Feel.drawCrowd(g, map, t);
   // ไอเทมบนพื้น
   for (const d of G.drops) upright(d.y * TILE, () => {
@@ -236,6 +235,8 @@ R.render = () => {
   for (const o of map.props || []) if (o.x > VL && o.x < Rr && o.y > Tp && o.y < B + 2) list.push({ y: o.y, f: () => Sprites.drawProp(g, o, t) });
   for (const b of map.buildings) if (b.img) list.push({ y: b.y + b.h - 0.5, f: () => Sprites.drawBuildingImg(g, b, t) });
   if (map.fountainImg) list.push({ y: map.fountain.y + 1.2, f: () => Sprites.drawFountainImg(g, map.fountain, t) });
+  // คบเพลิงลานประลอง: อยู่ในรายการเรียงความลึก (ตัวละครเดินหน้า/หลังคบเพลิงได้ถูกต้อง)
+  if (map.torches && map.arenaImg) for (const tc of map.torches) list.push({ y: tc.y, f: () => Sprites.drawTorch(g, tc, t) });
   for (const n of G.npcs) list.push({ y: n.y + 0.5, f: () => Sprites.drawNpc(g, n, t) });
   for (const m of G.mobs) if (!m.isPlayer && m.x > VL && m.x < Rr && m.y > Tp && m.y < B) list.push({ y: m.y, f: () => Sprites.drawMob(g, m, t) });
   for (const a of G.allies) list.push({ y: a.y, f: () => Sprites.drawAlly(g, a, t) });

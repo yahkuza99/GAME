@@ -188,7 +188,7 @@ def build(samples, out):
     # ---------- แสง ----------
     sun = bpy.data.lights.new('sun', 'SUN'); sun.energy = 3.0; sun.angle = math.radians(3); sun.color = (1.0, 0.95, 0.86)
     so = bpy.data.objects.new('sun', sun); sc.collection.objects.link(so)
-    so.rotation_euler = (math.radians(42), 0, math.radians(135))   # แสงจากซ้ายบน (ตะวันตกเฉียงเหนือ) เหมือนทั้งเกม
+    so.rotation_euler = (math.radians(42), 0, math.radians(-135))  # แสงจากซ้ายบน (ตะวันตกเฉียงเหนือ) เหมือนทั้งเกม — เงาตกขวาล่าง
     w = bpy.data.worlds.new('w'); sc.world = w; w.use_nodes = True
     w.node_tree.nodes['Background'].inputs['Color'].default_value = (0.55, 0.62, 0.75, 1); w.node_tree.nodes['Background'].inputs['Strength'].default_value = 0.4
 
