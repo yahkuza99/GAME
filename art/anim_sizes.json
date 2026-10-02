@@ -528,30 +528,30 @@
   "walk": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.5474,
-   "median_src_h": 274
+   "scale_src": 0.5415,
+   "median_src_h": 277
   },
-  "_k1536": 0.36496,
+  "_k1536": 0.36383,
   "shoot": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.5474,
-   "median_src_h": 274.0226525392766
+   "scale_src": 0.5415,
+   "median_src_h": 277.0083102493075
   }
  },
  "wildhunter_m": {
   "walk": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.5435,
-   "median_src_h": 276
+   "scale_src": 0.5495,
+   "median_src_h": 273
   },
-  "_k1536": 0.36232,
+  "_k1536": 0.36916,
   "shoot": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.5435,
-   "median_src_h": 275.9889604415823
+   "scale_src": 0.5495,
+   "median_src_h": 272.975432211101
   }
  },
  "runecaster_f": {
