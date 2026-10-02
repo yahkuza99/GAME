@@ -418,5 +418,20 @@
    "scale_src": 0.4644,
    "median_src_h": 323.00212081663096
   }
+ },
+ "mob_hel_guard": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4167,
+   "median_src_h": 360
+  },
+  "_k1536": 0.48123,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4167,
+   "median_src_h": 359.9987272198325
+  }
  }
 }

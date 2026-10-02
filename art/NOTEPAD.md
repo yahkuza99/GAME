@@ -1037,7 +1037,7 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 
 ✅ **Hel Maiden Unit** (Hel's Hollow) — แนบ `mobsprite_hel_maiden.webp` + `tpl_mob.png`
 
-⬜ **Hel Guard Unit** (Hel's Hollow) — แนบ `mobsprite_hel_guard.webp` + `tpl_mob.png`
+✅ **Hel Guard Unit** (Hel's Hollow) — แนบ `mobsprite_hel_guard.webp` + `tpl_mob.png`
 
 ```
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). This is Hel Guard Unit.
