@@ -421,53 +421,22 @@ const Flora = {
   bake(m, g) {
     if (m.arenaImg) return; // ภาพ 3D มีรายละเอียดครบแล้ว
     const d = m.def, P = this.preset(d), seed = d.seed, W = m.w, Hh = m.h, k = typeof R !== 'undefined' && R.K ? R.K : 0.76;
+    const GS = m.gstyle; // ลายพื้นตามภูมิภาค (js/maps.js GROUND_STYLE) — ไม่มี = แบบเดิม (เมือง/ลานประลอง)
     const hh = (x, y, i) => U.hash2(x, y, seed * 31 + i * 4099 + 4242);
     const cls = (x, y) => m.terrainClass(m.tile(x, y));
-    // ---- หย่อมดินขอบหยัก ----
-    if (P.patches > 0 && d.kind !== 'cave') {
-      const tex = typeof Art !== 'undefined' && Art.get('ground_dirt');
-      let pat = null;
-      if (tex) { const pc = this.canvas(288, 288); pc.getContext('2d').drawImage(tex, 0, 0, 288, 288); pat = g.createPattern(pc, 'repeat'); }
-      const n = Math.round(W * Hh / 110 * P.patches);
-      const rnd = U.seeded(seed * 7 + 3), placed = [];
-      for (let i = 0, tries = 0; i < n && tries < n * 8; tries++) {
-        const tx = 3 + Math.floor(rnd() * (W - 6)), ty = 3 + Math.floor(rnd() * (Hh - 6)), R0 = 0.9 + rnd() * 1.5;
-        let ok = true;
-        for (let yy = Math.floor(ty - R0 - 1); yy <= ty + R0 + 1 && ok; yy++) for (let xx = Math.floor(tx - R0 - 1); xx <= tx + R0 + 1; xx++) {
-          const c = cls(xx, yy); if (c === 'water' || c === 'stone' || c === 'dirt' || m.tile(xx, yy) === T.HOUSE) { ok = false; break; }
-        }
-        if (!ok || m.portals.some(p => Math.hypot(p.x - tx, p.y - ty) < 2.5) || placed.some(q => Math.hypot(q[0] - tx, q[1] - ty) < q[2] + R0 + 1.2)) continue;
-        i++; placed.push([tx, ty, R0]);
-        this.patch(g, (tx + 0.5) * TILE, (ty + 0.5) * TILE, R0 * TILE, R0 * TILE * (0.8 + rnd() * 0.5) / k * 0.76, rnd, pat, P.dirt || 1);
-      }
-    }
-    // ---- เงาใต้ต้นไม้/ของประดับ (คงที่ → อบลงพื้น) ----
-    for (const o of m.objects) {
-      const big = o.kind === 'tree', img = big && this.treeImg(o.sp), pine = img ? img.pine : (o.sp || '').startsWith('pine');
-      const Ht = big ? (pine ? this.TREE_H.pine : this.TREE_H.round) * o.size : 40 * o.size;
-      const rx = big ? Ht * (pine ? 0.25 : 0.4) * (img ? img.wide : 1) : 22 * o.size, ry = rx * 0.42 / k * 0.76;
-      const x = o.x * TILE + (big ? 10 : 3), y = (o.y + 0.32) * TILE;
-      const gr = g.createRadialGradient(x, y, 1, x, y, rx);
-      gr.addColorStop(0, `rgba(20,40,10,${big ? 0.42 : 0.3})`); gr.addColorStop(0.65, `rgba(20,40,10,${big ? 0.22 : 0.14})`); gr.addColorStop(1, 'rgba(20,40,10,0)');
-      g.save(); g.translate(x, y); g.scale(1, ry / rx); g.translate(-x, -y);
-      g.fillStyle = gr; g.beginPath(); g.arc(x, y, rx, 0, 7); g.fill(); g.restore();
-    }
-    for (const o of m.flora || []) {
-      const [w] = this.SIZE[o.k.split(':')[0]] || [40], rx = w * 0.42 * o.s, x = o.x * TILE + 2, y = o.y * TILE;
-      g.fillStyle = 'rgba(20,40,10,0.24)'; g.beginPath(); g.ellipse(x, y, rx, rx * 0.36, 0, 0, 7); g.fill();
-    }
-    // ---- รายละเอียดพื้นจิ๋ว (หนาแน่นแต่เบา) ----
+    // ---- ตัววาดของจิ๋วบนพื้น ----
     const grassBase = d.grass || '#6fae4a';
-    const dk = U.shade(grassBase, -0.22), lt = U.shade(grassBase, 0.3), lt2 = U.shade(grassBase, 0.5);
+    const dk = GS ? GS.tuft[0] : U.shade(grassBase, -0.22), lt = GS ? GS.tuft[1] : U.shade(grassBase, 0.3), lt2 = GS ? U.mix(GS.tuft[1], '#e8f0b0', 0.3) : U.shade(grassBase, 0.5);
     const tiny = P.warm.concat(['#ffffff', '#ffffff']);
-    const tuft = (x, y, s) => {
+    // หญ้ากระจุก: lean = เอนตามลม (ทุ่งตามภูมิภาคเอนต่างกันเป็นหย่อม)
+    const tuft = (x, y, s, lean = 0) => {
       g.fillStyle = dk;
       g.beginPath();
-      for (let i = -2; i <= 2; i++) { const hgt = (6 + (2 - Math.abs(i)) * 2.4) * s / k, bx = x + i * 2 * s; g.moveTo(bx - 1.3 * s, y); g.quadraticCurveTo(bx + i * 0.8 * s, y - hgt * 0.6, bx + i * 1.8 * s, y - hgt); g.quadraticCurveTo(bx + i * 0.4 * s + 0.6, y - hgt * 0.4, bx + 1.3 * s, y); }
+      for (let i = -2; i <= 2; i++) { const hgt = (6 + (2 - Math.abs(i)) * 2.4) * s / k, bx = x + i * 2 * s, tx = bx + i * 1.8 * s + lean * hgt; g.moveTo(bx - 1.3 * s, y); g.quadraticCurveTo(bx + i * 0.8 * s + lean * hgt * 0.4, y - hgt * 0.6, tx, y - hgt); g.quadraticCurveTo(bx + i * 0.4 * s + 0.6 + lean * hgt * 0.3, y - hgt * 0.4, bx + 1.3 * s, y); }
       g.fill();
       g.fillStyle = lt;
       g.beginPath();
-      for (let i = -1; i <= 1; i++) { const hgt = (5 + (1 - Math.abs(i)) * 2) * s / k, bx = x + i * 2 * s + 0.6; g.moveTo(bx - 0.8 * s, y - 0.5); g.quadraticCurveTo(bx + i * 0.6 * s, y - hgt * 0.6, bx + i * 1.4 * s, y - hgt); g.quadraticCurveTo(bx + 0.3, y - hgt * 0.4, bx + 0.8 * s, y - 0.5); }
+      for (let i = -1; i <= 1; i++) { const hgt = (5 + (1 - Math.abs(i)) * 2) * s / k, bx = x + i * 2 * s + 0.6, tx = bx + i * 1.4 * s + lean * hgt; g.moveTo(bx - 0.8 * s, y - 0.5); g.quadraticCurveTo(bx + i * 0.6 * s + lean * hgt * 0.4, y - hgt * 0.6, tx, y - hgt); g.quadraticCurveTo(bx + 0.3 + lean * hgt * 0.3, y - hgt * 0.4, bx + 0.8 * s, y - 0.5); }
       g.fill();
     };
     const sprout = (x, y, s) => {
@@ -484,25 +453,174 @@ const Flora = {
       g.fillStyle = '#a9a294'; g.beginPath(); g.ellipse(x, y, 3 * s, 2 * s / k * 0.76, 0, 0, 7); g.fill();
       g.fillStyle = 'rgba(255,255,255,0.45)'; g.beginPath(); g.ellipse(x - 0.8 * s, y - 0.7 * s, 1.3 * s, 0.7 * s, 0, 0, 7); g.fill();
     };
+    // ---- หย่อมดินขอบหยัก ----
+    if (P.patches > 0 && d.kind !== 'cave') {
+      const tex = typeof Art !== 'undefined' && Art.get('ground_dirt');
+      let pat = null, pc = null;
+      if (tex) { pc = this.canvas(288, 288); pc.getContext('2d').drawImage(tex, 0, 0, 288, 288); pat = g.createPattern(pc, 'repeat'); }
+      const n = Math.round(W * Hh / 110 * (GS ? GS.patches : P.patches));
+      const rnd = U.seeded(seed * 7 + 3), placed = [];
+      for (let i = 0, tries = 0; i < n && tries < n * 8; tries++) {
+        const tx = 3 + Math.floor(rnd() * (W - 6)), ty = 3 + Math.floor(rnd() * (Hh - 6)), R0 = (GS ? 0.7 + rnd() * 1.1 : 0.9 + rnd() * 1.5);
+        let ok = true;
+        for (let yy = Math.floor(ty - R0 - 1); yy <= ty + R0 + 1 && ok; yy++) for (let xx = Math.floor(tx - R0 - 1); xx <= tx + R0 + 1; xx++) {
+          const c = cls(xx, yy); if (c === 'water' || c === 'stone' || c === 'dirt' || m.tile(xx, yy) === T.HOUSE) { ok = false; break; }
+        }
+        if (!ok || m.portals.some(p => Math.hypot(p.x - tx, p.y - ty) < 2.5) || placed.some(q => Math.hypot(q[0] - tx, q[1] - ty) < q[2] + R0 + 1.2)) continue;
+        i++; placed.push([tx, ty, R0]);
+        const px = (tx + 0.5) * TILE, py = (ty + 0.5) * TILE, rx = R0 * TILE, ry = R0 * TILE * (0.8 + rnd() * 0.5) / k * 0.76;
+        if (GS) { this.softPatch(g, px, py, rx, ry, rnd, pc, GS); for (let j = 0; j < 9; j++) { const a = rnd() * 6.283, e = 0.82 + rnd() * 0.3; tuft(px + Math.cos(a) * rx * e, py + Math.sin(a) * ry * e + 3, 0.75 + rnd() * 0.4, (rnd() - 0.5) * 0.5); } if (GS.leaves) this.litter(g, px - rx * 0.6, py - ry * 0.6, (a, b, c) => rnd(), 0, 0, 6 + Math.round(R0 * 4), k); }
+        else this.patch(g, px, py, rx, ry, rnd, pat, P.dirt || 1);
+      }
+    }
+    // ---- เงาใต้ต้นไม้/ของประดับ (คงที่ → อบลงพื้น) ----
+    const shC = GS && GS.roots ? '10,24,26' : '20,40,10'; // ป่า: เงาอมฟ้าเย็น
+    for (const o of m.objects) {
+      const big = o.kind === 'tree', img = big && this.treeImg(o.sp), pine = img ? img.pine : (o.sp || '').startsWith('pine');
+      const Ht = big ? (pine ? this.TREE_H.pine : this.TREE_H.round) * o.size : 40 * o.size;
+      const rx = big ? Ht * (pine ? 0.25 : 0.4) * (img ? img.wide : 1) : 22 * o.size, ry = rx * 0.42 / k * 0.76;
+      const x = o.x * TILE + (big ? 10 : 3), y = (o.y + 0.32) * TILE;
+      const gr = g.createRadialGradient(x, y, 1, x, y, rx);
+      gr.addColorStop(0, `rgba(${shC},${big ? 0.42 : 0.3})`); gr.addColorStop(0.65, `rgba(${shC},${big ? 0.22 : 0.14})`); gr.addColorStop(1, `rgba(${shC},0)`);
+      g.save(); g.translate(x, y); g.scale(1, ry / rx); g.translate(-x, -y);
+      g.fillStyle = gr; g.beginPath(); g.arc(x, y, rx, 0, 7); g.fill(); g.restore();
+      if (GS && big) { // AO ชิดโคนต้น (เงาสัมผัสพื้น)
+        const cx = o.x * TILE + 2, cy = (o.y + 0.36) * TILE, ar = (pine ? 20 : 28) * o.size, ag = g.createRadialGradient(cx, cy, 1, cx, cy, ar);
+        ag.addColorStop(0, `rgba(${shC},0.38)`); ag.addColorStop(1, `rgba(${shC},0)`);
+        g.save(); g.translate(cx, cy); g.scale(1, 0.45); g.translate(-cx, -cy); g.fillStyle = ag; g.beginPath(); g.arc(cx, cy, ar, 0, 7); g.fill(); g.restore();
+      }
+      if (GS && GS.roots && big && pine) this.roots(g, o, hh); // รากสนแผ่บนพื้นป่า
+    }
+    for (const o of m.flora || []) {
+      const [w] = this.SIZE[o.k.split(':')[0]] || [40], rx = w * 0.42 * o.s, x = o.x * TILE + 2, y = o.y * TILE;
+      g.fillStyle = `rgba(${shC},0.24)`; g.beginPath(); g.ellipse(x, y, rx, rx * 0.36, 0, 0, 7); g.fill();
+    }
+    // ---- รายละเอียดพื้นจิ๋ว (หนาแน่นแต่เบา) ----
     if (d.kind === 'cave') return;
     // ดอกไม้จิ๋วขึ้นเป็นดง (ทุ่งดอกไม้เป็นหย่อม) แทนการโรยเท่ากันทั้งแมพ
     const fz = (x, y) => { const n = U.fbm(x / 6, y / 6, seed + 505, 2); return Math.min(1, Math.max(0, (n - 0.52) * 5)); };
+    const fl = GS ? GS.flowers : 1;
+    // ทุ่งตามภูมิภาค: ทิศหญ้าเอนเป็นหย่อม • ดงโคลเวอร์ • น้ำค้าง • ใบไม้ร่วง/ใบสน (ป่า หนาขึ้นใกล้ต้นไม้)
+    const leanAt = (x, y) => (U.fbm(x / 9, y / 9, seed + 606, 2) - 0.5) * 1.6;
+    let treeN = null;
+    if (GS && GS.leaves) { const Mt = new Float32Array(W * Hh); for (let i = 0; i < W * Hh; i++) Mt[i] = m.tiles[i] === T.TREE ? 1 : 0; treeN = U.boxBlur(Mt, W, Hh, 2, 1); }
     for (let y = 0; y < Hh; y++) for (let x = 0; x < W; x++) {
       const t = m.tile(x, y), c = cls(x, y), px = x * TILE, py = y * TILE;
       if (t === T.HOUSE || c === 'water' || c === 'stone' || c === 'rock') continue;
-      if (c === 'dirt') { if (hh(x, y, 1) < 0.22) pebble(px + hh(x, y, 2) * TILE, py + hh(x, y, 3) * TILE, 0.7 + hh(x, y, 4) * 0.6); continue; }
+      if (c === 'dirt') { if (hh(x, y, 1) < 0.22) pebble(px + hh(x, y, 2) * TILE, py + hh(x, y, 3) * TILE, 0.7 + hh(x, y, 4) * 0.6); if (GS && GS.leaves && hh(x, y, 5) < 0.5) this.litter(g, px, py, hh, x, y, 2, k); continue; }
       const n = d.kind === 'town' ? 1 : 2 + (t === T.FLOWER ? 1 : 0);
       // พื้นเมืองอบ 3D (m.townImg): กระถางเป็นกล่องสูงในภาพ → ไม่โรยหญ้าบนกระถาง • ขอบสวนฝั่งใต้/ข้างยกสูงในภาพ → ไม่วาดหญ้าทับขอบ
       const tb = m.townImg && d.kind === 'town', st = (dx, dy) => { const q = m.tile(x + dx, y + dy); return q === T.STONE || q === T.FOUNTAIN; };
       if (tb && (m.planters || []).some(([qx, qy]) => qx === x && qy === y)) continue;
+      const lean = GS ? leanAt(x, y) : 0;
       for (let i = 0; i < n; i++) {
         const r = hh(x, y, 10 + i), ox = px + 4 + hh(x, y, 20 + i) * (TILE - 8), oy = py + 6 + hh(x, y, 30 + i) * (TILE - 8), s = 0.8 + hh(x, y, 40 + i) * 0.5;
         if (tb && ((oy > py + 24 && st(0, 1)) || (ox < px + 9 && st(-1, 0)) || (ox > px + TILE - 9 && st(1, 0)))) continue;
-        if (r < 0.24) tuft(ox, oy, s);
+        if (r < 0.24) tuft(ox, oy, s, GS ? lean + (hh(x, y, 60 + i) - 0.5) * 0.3 : 0);
         else if (r < 0.24 + 0.16 * fz(x + 40, y + 40)) sprout(ox, oy, s);
-        else if (r < 0.4 + 0.015 + 0.17 * fz(x, y) || t === T.FLOWER && r < 0.75) { const col = tiny[Math.floor(hh(x, y, 50 + i) * tiny.length)]; flower(ox, oy, col, s); if (r < 0.44) flower(ox + 5, oy + 2, col, s * 0.85); }
+        else if (r < 0.4 + (0.015 + 0.17 * fz(x, y)) * fl || t === T.FLOWER && r < 0.4 + 0.35 * fl) { const col = tiny[Math.floor(hh(x, y, 50 + i) * tiny.length)]; flower(ox, oy, col, s); if (r < 0.44) flower(ox + 5, oy + 2, col, s * 0.85); }
         else if (r < 0.515) pebble(ox, oy, s * 0.8);
       }
+      if (!GS) continue;
+      if (GS.clover) { const cz = fz(x + 90, y - 30); if (cz > 0 && hh(x, y, 70) < 0.25 + cz * 0.6) this.clover(g, px + 6 + hh(x, y, 71) * (TILE - 12), py + 8 + hh(x, y, 72) * (TILE - 14), 2 + Math.floor(cz * 4), hh, x, y, k); }
+      if (GS.dew) { const dz = fz(x - 70, y + 20); if (dz > 0.2) { g.fillStyle = 'rgba(232,246,255,0.5)'; for (let j = 0; j < 3 + dz * 5; j++) { g.beginPath(); g.arc(px + hh(x, y, 80 + j) * TILE, py + hh(x, y, 90 + j) * TILE, 0.7 + hh(x, y, 100 + j) * 0.5, 0, 7); g.fill(); } } }
+      if (GS.leaves) { const tn = Math.min(1, treeN[y * W + x] * 3), ln = U.fbm(x / 4, y / 4, seed + 707, 2); const cnt = Math.round((ln - 0.35) * 6 + tn * 4); if (cnt > 0) this.litter(g, px, py, hh, x, y, cnt, k); }
+    }
+  },
+  // หย่อมดินขอบนุ่ม (ทุ่งตามภูมิภาค): ทรงหยักเบลอขอบ → ผิวดินจากภาพ (ตรงตำแหน่งโลก) → ย้อมตามภูมิภาค → ตลิ่งบนทอดเงา/ขอบล่างรับแสง (ไม่มีเส้นขอบแข็ง)
+  softPatch(g, x, y, rx, ry, rnd, pc, S) {
+    const N = 30, ph = [rnd() * 6, rnd() * 6, rnd() * 6], pts = [];
+    for (let i = 0; i < N; i++) {
+      const a = i / N * Math.PI * 2;
+      const kk = 1 + 0.16 * Math.sin(a * 2 + ph[0]) + 0.1 * Math.sin(a * 3 + ph[1]) + 0.07 * Math.sin(a * 5 + ph[2]) + (rnd() - 0.5) * 0.12;
+      pts.push([Math.cos(a) * rx * kk, Math.sin(a) * ry * kk]);
+    }
+    const pad = 8, cw = Math.ceil(rx * 2.8 + pad * 2), chh = Math.ceil(ry * 2.8 + pad * 2), c = this.canvas(cw, chh), q = c.getContext('2d'), cx = cw / 2, cy = chh / 2;
+    const path = (s, oy = 0) => {
+      q.beginPath();
+      for (let i = 0; i <= N; i++) {
+        const p = pts[i % N], r = pts[(i + 1) % N], mx = (p[0] + r[0]) / 2, my = (p[1] + r[1]) / 2;
+        if (!i) q.moveTo(cx + mx * s, cy + oy + my * s); else q.quadraticCurveTo(cx + p[0] * s, cy + oy + p[1] * s, cx + mx * s, cy + oy + my * s);
+      }
+      q.closePath();
+    };
+    if (pc) { const pt = q.createPattern(pc, 'repeat'); if (pt.setTransform && typeof DOMMatrix !== 'undefined') pt.setTransform(new DOMMatrix().translate(-(x - cx), -(y - cy))); q.fillStyle = pt; } else q.fillStyle = '#9a7a52';
+    q.fillRect(0, 0, cw, chh);
+    q.globalCompositeOperation = 'multiply'; q.fillStyle = S.dirt; q.fillRect(0, 0, cw, chh);
+    q.globalCompositeOperation = 'saturation'; q.globalAlpha = S.dirtSat; q.fillStyle = '#808080'; q.fillRect(0, 0, cw, chh); q.globalAlpha = 1;
+    q.globalCompositeOperation = 'source-over'; q.fillStyle = S.patchTone; q.fillRect(0, 0, cw, chh);
+    const sh = q.createLinearGradient(0, cy - ry * 1.2, 0, cy - ry * 0.3); sh.addColorStop(0, 'rgba(50,30,10,0.45)'); sh.addColorStop(1, 'rgba(50,30,10,0)');
+    q.fillStyle = sh; q.fillRect(0, 0, cw, chh);
+    const lt = q.createLinearGradient(0, cy + ry * 1.15, 0, cy + ry * 0.55); lt.addColorStop(0, 'rgba(255,230,180,0.2)'); lt.addColorStop(1, 'rgba(255,230,180,0)');
+    q.fillStyle = lt; q.fillRect(0, 0, cw, chh);
+    q.globalCompositeOperation = 'destination-in'; q.filter = 'blur(2px)'; q.fillStyle = '#fff'; path(0.97); q.fill(); q.filter = 'none';
+    g.globalAlpha = S.patchA || 0.95; g.drawImage(c, x - cx, y - cy); g.globalAlpha = 1;
+  },
+  // ดงโคลเวอร์ (ใบสามแฉก) + ดอกขาวบ้าง
+  clover(g, x, y, n, hh, tx, ty, k) {
+    for (let j = 0; j < n; j++) {
+      const cx = x + (hh(tx, ty, 110 + j) - 0.5) * 16, cy = y + (hh(tx, ty, 120 + j) - 0.5) * 10, s = 0.8 + hh(tx, ty, 130 + j) * 0.5, rot = hh(tx, ty, 140 + j) * 6.28;
+      g.fillStyle = 'rgba(30,60,25,0.25)'; g.beginPath(); g.ellipse(cx + 0.8, cy + 1.2, 3.6 * s, 1.8 * s, 0, 0, 7); g.fill();
+      g.fillStyle = hh(tx, ty, 150 + j) < 0.5 ? '#6c9a4a' : '#83ad58';
+      for (let p = 0; p < 3; p++) { const a = rot + p * 2.094; g.beginPath(); g.arc(cx + Math.cos(a) * 1.6 * s, cy + Math.sin(a) * 1.6 * s / k * 0.76, 1.5 * s, 0, 7); g.fill(); }
+      g.fillStyle = 'rgba(230,240,200,0.35)'; g.beginPath(); g.arc(cx - 0.6 * s, cy - 0.8 * s, 0.8 * s, 0, 7); g.fill();
+      if (hh(tx, ty, 160 + j) < 0.18) { g.fillStyle = 'rgba(250,246,236,0.95)'; for (let p = 0; p < 5; p++) { g.beginPath(); g.arc(cx + 3 * s + Math.cos(p * 1.26) * 1.1, cy - 3 * s + Math.sin(p * 1.26) * 1.1, 0.9, 0, 7); g.fill(); } g.fillStyle = 'rgba(240,190,200,0.8)'; g.beginPath(); g.arc(cx + 3 * s, cy - 3 * s, 0.8, 0, 7); g.fill(); }
+    }
+  },
+  // ใบไม้ร่วง + ใบสน + กิ่งไม้เล็ก (พื้นป่า)
+  LEAF: ['#8a6a34', '#a0732e', '#7b4f2a', '#727040', '#b08a44', '#5f4a2c', '#94512a'],
+  litter(g, px, py, hh, x, y, n, k) {
+    for (let j = 0; j < n; j++) {
+      const lx = px + hh(x, y, 200 + j) * TILE, ly = py + hh(x, y, 210 + j) * TILE, a = hh(x, y, 220 + j) * 6.28, r = hh(x, y, 230 + j), s = 0.8 + hh(x, y, 240 + j) * 0.6;
+      if (r < 0.62) { // ใบไม้
+        g.fillStyle = 'rgba(20,14,8,0.25)'; g.beginPath(); g.ellipse(lx + 0.8, ly + 1, 3 * s, 1.5 * s, a, 0, 7); g.fill();
+        g.fillStyle = this.LEAF[Math.floor(hh(x, y, 250 + j) * this.LEAF.length)]; g.beginPath(); g.ellipse(lx, ly, 3 * s, 1.5 * s * k / 0.76, a, 0, 7); g.fill();
+        g.strokeStyle = 'rgba(50,30,12,0.45)'; g.lineWidth = 0.6; g.beginPath(); g.moveTo(lx - Math.cos(a) * 2.6 * s, ly - Math.sin(a) * 2.6 * s); g.lineTo(lx + Math.cos(a) * 2.6 * s, ly + Math.sin(a) * 2.6 * s); g.stroke();
+      } else if (r < 0.92) { // ใบสนเป็นกระจุก
+        g.strokeStyle = 'rgba(160,126,74,0.6)'; g.lineWidth = 0.8; g.beginPath();
+        for (let q = 0; q < 5; q++) { const b = a + (q - 2) * 0.5, L = 3 + hh(x, y, 260 + j * 5 + q) * 3; g.moveTo(lx, ly); g.lineTo(lx + Math.cos(b) * L, ly + Math.sin(b) * L * 0.6); }
+        g.stroke();
+      } else { // กิ่งไม้เล็ก
+        g.strokeStyle = 'rgba(70,48,28,0.8)'; g.lineWidth = 1.3; g.lineCap = 'round'; g.beginPath();
+        const ex = lx + Math.cos(a) * 11, ey = ly + Math.sin(a) * 5; g.moveTo(lx, ly); g.quadraticCurveTo((lx + ex) / 2 + 1.5, (ly + ey) / 2 - 1.5, ex, ey);
+        g.moveTo((lx + ex) / 2, (ly + ey) / 2); g.lineTo((lx + ex) / 2 + Math.cos(a + 0.7) * 4, (ly + ey) / 2 + Math.sin(a + 0.7) * 2); g.stroke(); g.lineCap = 'butt';
+      }
+    }
+  },
+  // รากสนแผ่ออกจากโคนต้นบนพื้น (ลำต้นในภาพทับโคนราก) — เส้นเข้ม → เนื้อราก → ไฮไลต์บน
+  roots(g, o, hh) {
+    const bx = o.x * TILE, by = (o.y + 0.35) * TILE - 3, n = 4 + Math.floor(hh(o.x * 10 | 0, o.y * 10 | 0, 300) * 3);
+    g.save(); g.lineCap = 'round';
+    for (let j = 0; j < n; j++) {
+      const a = (j + 0.5) / n * Math.PI + (hh(o.x * 10 | 0, o.y * 10 | 0, 310 + j) - 0.5) * 0.5, L = (16 + hh(o.x * 10 | 0, o.y * 10 | 0, 320 + j) * 22) * o.size;
+      const sx = bx + Math.cos(a) * 7, sy = by + Math.sin(a) * 2, ex = bx + Math.cos(a) * L, ey = by + Math.sin(a) * L * 0.42 + 2, mx = bx + Math.cos(a) * L * 0.55, my = by + Math.sin(a) * L * 0.2 + 3;
+      for (const [col, lw, dy] of [['rgba(28,20,12,0.55)', 5.5, 1], ['#5c4630', 3.6, 0], ['rgba(170,140,100,0.35)', 1.2, -1]]) {
+        g.strokeStyle = col; g.lineWidth = lw * o.size; g.beginPath(); g.moveTo(sx, sy + dy); g.quadraticCurveTo(mx, my + dy, ex, ey + dy); g.stroke();
+      }
+    }
+    g.restore();
+  },
+  // พืชริมน้ำ (วาดหลังน้ำ — js/maps.js renderGround): กกเป็นกอบนตลิ่ง บางกอมีดอกธูปฤาษี
+  shore(m, g) {
+    const S = m.gstyle; if (!S || !S.reeds) return;
+    const seed = m.def.seed, k = typeof R !== 'undefined' && R.K ? R.K : 0.76, hh = (x, y, i) => U.hash2(x, y, seed * 17 + i * 911 + 31);
+    const COL = ['#4a5a2c', '#6f8240', '#8e9a52', '#a7ab64'];
+    for (let y = 1; y < m.h - 1; y++) for (let x = 1; x < m.w - 1; x++) {
+      const t = m.tile(x, y); if (t !== T.GRASS && t !== T.FLOWER) continue;
+      let wx = 0, wy = 0, nw = 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (m.tile(x + dx, y + dy) === T.WATER) { wx += dx; wy += dy; nw++; }
+      if (!nw || hh(x, y, 1) > 0.55 * S.reeds) continue;
+      const L = Math.hypot(wx, wy) || 1, cx = (x + 0.5 + wx / L * 0.3) * TILE + (hh(x, y, 2) - 0.5) * 14, cy = (y + 0.5 + wy / L * 0.3) * TILE + (hh(x, y, 3) - 0.5) * 10;
+      const n = 6 + Math.floor(hh(x, y, 4) * 6);
+      g.fillStyle = 'rgba(30,40,24,0.28)'; g.beginPath(); g.ellipse(cx, cy + 1, 11, 4, 0, 0, 7); g.fill();
+      g.lineCap = 'round';
+      for (let j = 0; j < n; j++) {
+        const bx = cx + (hh(x, y, 10 + j) - 0.5) * 16, by = cy + (hh(x, y, 20 + j) - 0.5) * 5, ht = (12 + hh(x, y, 30 + j) * 12) / k, ln = (hh(x, y, 40 + j) - 0.5) * 9 + (bx - cx) * 0.25;
+        g.strokeStyle = COL[Math.floor(hh(x, y, 50 + j) * COL.length)]; g.lineWidth = 1.3 + hh(x, y, 60 + j) * 0.8;
+        g.beginPath(); g.moveTo(bx, by); g.quadraticCurveTo(bx + ln * 0.2, by - ht * 0.6, bx + ln, by - ht); g.stroke();
+        if (hh(x, y, 70 + j) < 0.16) { g.fillStyle = '#6a4528'; g.beginPath(); g.ellipse(bx + ln * 0.85, by - ht * 0.84, 1.6, 4, ln * 0.03, 0, 7); g.fill(); }
+      }
+      g.lineCap = 'butt';
     }
   },
   // หย่อมดินทรงหยัก ขอบนุ่ม: วงแหวนเข้มบาง ๆ → ผิวดิน → ไฮไลต์ด้านใน → หญ้าแซมขอบ
