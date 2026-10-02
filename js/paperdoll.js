@@ -35,7 +35,25 @@ const Paperdoll = {
   // เจ้าของเลือก (2026-10-02): ไม่เปลี่ยนอาวุธตามของที่สวม — แต่ละ Class ถืออาวุธประจำ Class ตลอด
   // (Class 2 ใช้ของ Class 1 ต้นสาย) • ภาพอาวุธเฉพาะ Class: assets/cweapon_<class>.webp (ด้ามซ้ายล่าง ปลายขวาบน — prompt: docs/CLASS_WEAPONS.md)
   CLASS_WEAPON: { einherjar: 'sword', runecaster: 'rune_staff', wildhunter: 'bow', volva: 'mace', trickster: 'main_gauche', berserker: 'battle_axe' },
-  CLASS_LEN: { berserker: 1.3 }, // อาวุธใหญ่กว่าปกติ (ขวานสองมือ)
+  // ---------------- โครงการถืออาวุธ (grip skeleton) ต่อ Class ต่อท่า ----------------
+  // ค่าพื้นฐานมาจาก W[ชนิดอาวุธ] แล้วทับด้วย GRIP[Class]['*'] และ GRIP[Class][ท่า]
+  //   len  = ความยาวอาวุธ (px ในช่อง 240)     grip = มือจับตรงไหน (0 = ปลายด้าม, 1 = ปลายหัว)
+  //   up   = หัวอาวุธชี้ขึ้นเสมอ (ถือตั้ง)      stand = ดึงเข้าหาแนวตั้ง 0..1
+  //   rot  = หมุนเพิ่ม (องศา)                  flip = กลับหัว (หัวชี้ไปทางตรงข้ามแท่งในภาพ)
+  // ท่าที่ไม่ได้ระบุ ใช้ '*' • แก้รายเฟรมได้ใน js/paperdoll_fix.js (หน้า tools/grip_tuner.html)
+  GRIP: {
+    einherjar: { '*': {} },
+    runecaster: { '*': {} },
+    wildhunter: { '*': {} },
+    // คทาทองของ Völva: เดิน/ยืน/ร่าย ถือตั้งหัวขึ้นแบบไม้เท้า • ตอนตี หัวคทาไปตามแท่ง (ทุบ)
+    volva: { '*': { len: 78, grip: 0.3, up: 1, stand: 0.75 }, attack: { len: 70, grip: 0.12, up: 0, stand: 0 } },
+    trickster: { '*': {} },
+    berserker: { '*': { len: 92, grip: 0.18 } }, // ขวานสองมือ ใหญ่
+  },
+  spec(it, act) {
+    const base = this.W[it.wtype] || this.W.dagger, g = (it.cls && this.GRIP[it.cls]) || {};
+    return Object.assign({}, base, g['*'] || {}, g[act] || {});
+  },
   baseJob(job) {
     if (this.CLASS_WEAPON[job]) return job;
     if (typeof SECOND_JOBS !== 'undefined') for (const b in SECOND_JOBS) if (SECOND_JOBS[b].includes(job)) return b;
@@ -54,7 +72,9 @@ const Paperdoll = {
   frame(gk, p) {
     const d = PAPERDOLL_DATA[gk], a = d && d[p.action || 'walk'];
     if (!a) return null;
-    return { hand: a.hand[p.row] && a.hand[p.row][p.f], head: a.head[p.row] && a.head[p.row][p.f] };
+    const F = typeof PAPERDOLL_FIX !== 'undefined' && PAPERDOLL_FIX[gk] && PAPERDOLL_FIX[gk][p.action || 'walk'];
+    const fix = F && F[p.row * 64 + p.f];
+    return { hand: a.hand[p.row] && a.hand[p.row][p.f], head: a.head[p.row] && a.head[p.row][p.f], fix };
   },
   // หันหลัง (แถว 5,6,7 = ซ้ายบน/บน/ขวาบน): อาวุธอยู่หลังตัว
   isBack(row) { return row >= 5 && row <= 7; },
@@ -133,20 +153,20 @@ const Paperdoll = {
   icon(it) { return it && ((it.cls && Art.get('cweapon_' + it.cls)) || Art.get('item_' + it.id) || Art.get('item_' + (this.BASE[it.wtype] || ''))); },
 
   // ธนูไม่เคยฟัน: ตอนโจมตีด้วยธนู Anim ใช้ท่า shoot (ถ้ามีภาพ) ไม่มีก็ยืนถือธนูนิ่ง ๆ ให้ลูกศร (เอฟเฟกต์เกม) บินออกไป
-  weapon(g, it, hand) {
+  weapon(g, it, hand, act, fix) {
     const img = this.icon(it);
     if (!img || !hand) return;
-    let spec = this.W[it.wtype] || this.W.dagger;
+    let spec = this.spec(it, act);
     const rev = !!spec.rev && !(it.cls && img === Art.get('cweapon_' + it.cls)); // ภาพอาวุธ Class วาดด้ามซ้ายล่างทุกชิ้น
-    const m = this.measure(img, rev), k = spec.len * (this.CLASS_LEN[it.cls] || 1) / m.len;
-    let ang = hand[2];
+    const m = this.measure(img, rev), k = spec.len / m.len;
+    let ang = hand[2] + (spec.flip ? Math.PI : 0) + (spec.rot || 0) * Math.PI / 180 + (fix ? fix[2] * Math.PI / 180 : 0);
     if (spec.up && Math.sin(ang) > 0) ang += Math.PI;
     if (spec.stand) ang += Math.atan2(Math.sin(-Math.PI / 2 - ang), Math.cos(-Math.PI / 2 - ang)) * spec.stand;
     // จุดที่ต้องอยู่ตรงมือ (ระยะตามแนวทแยงจากมุมด้ามของภาพ, หน่วย px ของไอคอน)
     const at = spec.guard && m.guard != null ? m.guard - 2 : m.t0 + (m.t1 - m.t0) * spec.grip;
     spec = Object.assign({}, spec, { rev });
     g.save();
-    g.translate(hand[0] - Anim.CX, hand[1] - Anim.GROUND);
+    g.translate(hand[0] - Anim.CX + (fix ? fix[0] : 0), hand[1] - Anim.GROUND + (fix ? fix[1] : 0));
     // ไอคอนวาดเฉียง 45° → หมุนให้แนวด้าม→ปลายตรงกับมุมในเฟรม
     g.rotate(ang - (spec.rev ? Math.PI * 3 / 4 : -Math.PI / 4));
     g.scale(k, k);
@@ -159,8 +179,8 @@ const Paperdoll = {
 
   // วาดมือ (จากภาพตัวเปล่า) ทับด้ามอีกรอบ ให้ดูเหมือนนิ้วกำด้ามไว้ ไม่ใช่อาวุธแปะทับมือ
   FIST_R: 8, FIST_BACK: 5,
-  fist(g, fr, hand) {
-    const C = Anim.CELL, cx = hand[0] - Math.cos(hand[2]) * this.FIST_BACK - Anim.CX, cy = hand[1] - Math.sin(hand[2]) * this.FIST_BACK - Anim.GROUND;
+  fist(g, fr, hand, fix) {
+    const C = Anim.CELL, cx = hand[0] - Math.cos(hand[2]) * this.FIST_BACK - Anim.CX + (fix ? fix[0] : 0), cy = hand[1] - Math.sin(hand[2]) * this.FIST_BACK - Anim.GROUND + (fix ? fix[1] : 0);
     g.save();
     g.beginPath(); g.arc(cx, cy, this.FIST_R, 0, Math.PI * 2); g.clip();
     g.drawImage(fr.img, fr.f * C, fr.row * C, C, C, -Anim.CX, -Anim.GROUND, C, C);
@@ -190,13 +210,13 @@ const Paperdoll = {
     return {
       under: (g, fr) => {
         const d = this.frame(gk, fr); if (!d) return;
-        if (this.isBack(fr.row)) this.weapon(g, wid, d.hand);
+        if (this.isBack(fr.row)) this.weapon(g, wid, d.hand, fr.action, d.fix);
       },
       over: (g, fr) => {
         const d = this.frame(gk, fr); if (!d) return;
         if (!this.isBack(fr.row) && wid && d.hand) {
-          this.weapon(g, wid, d.hand);
-          this.fist(g, fr, d.hand);
+          this.weapon(g, wid, d.hand, fr.action, d.fix);
+          this.fist(g, fr, d.hand, d.fix);
         }
         if (hid && fr.action !== 'dead') this.hat(g, hid, d.head, fr.row, gk);
       },

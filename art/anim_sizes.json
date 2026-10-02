@@ -637,5 +637,23 @@
    "median_src_h": 248
   },
   "_k1536": 0.40323
+ },
+ "berserker_m": {
+  "walk": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.5639,
+   "median_src_h": 266
+  },
+  "_k1536": 0.37594
+ },
+ "berserker_f": {
+  "walk": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.6122,
+   "median_src_h": 245
+  },
+  "_k1536": 0.40816
  }
 }

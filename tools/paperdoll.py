@@ -135,10 +135,18 @@ def process(rgba, act=''):
         L = proj.max() - proj.min()
         if ratio > 1.6 and L < 75 and not smear:
             e1, e2 = mu + axis * proj.min(), mu + axis * proj.max()
-            # ด้ามอยู่ฝั่งที่ใกล้กลางลำตัว
+            # ด้าม = ปลายที่กำปั้นกำอยู่: ปลายที่มีเนื้อตัวละคร (มือ) ล้อมรอบมากกว่า • เท่ากันใช้ปลายที่ใกล้กลางตัว
             bys, bxs = np.nonzero(body)
             bc = np.array([bxs.mean(), bys.mean()])
-            grip, tip = (e1, e2) if np.linalg.norm(e1 - bc) < np.linalg.norm(e2 - bc) else (e2, e1)
+            def touch(e):
+                x0, y0 = int(round(e[0])), int(round(e[1]))
+                win = body[max(0, y0 - 7):y0 + 8, max(0, x0 - 7):x0 + 8]
+                return int(win.sum())
+            t1, t2 = touch(e1), touch(e2)
+            if abs(t1 - t2) > 12:
+                grip, tip = (e1, e2) if t1 > t2 else (e2, e1)
+            else:
+                grip, tip = (e1, e2) if np.linalg.norm(e1 - bc) < np.linalg.norm(e2 - bc) else (e2, e1)
             if act == 'shoot' or act in CENTER_ACTS:  # ท่ายิง: แท่งตั้งอยู่ในกำปั้น = กลางคันธนู
                 grip = mu
             ang = math.atan2(tip[1] - grip[1], tip[0] - grip[0])
