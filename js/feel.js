@@ -326,6 +326,7 @@ const Feel = (() => {
       applyHit = function (m, r) { // eslint-disable-line no-global-assign
         const res = a0.apply(this, arguments);
         try { if (m && !m.isPlayer && r && !r.miss && G.player && !G.player.dead) F.ultGain(2); } catch (e) { /* ภาพล้วน */ }
+        try { if (G.map && G.map.arena && r && !r.miss) F.cheer(r.crit ? 0.6 : m && m.isPlayer ? 0.3 : 0.12); } catch (e) { /* ภาพล้วน */ }
         return res;
       };
       applyHit._feel = true;
@@ -348,6 +349,7 @@ const Feel = (() => {
       damagePlayer = function () { // eslint-disable-line no-global-assign
         const p = G.player;
         if (p && p.invulnUntil > G.time) { if (Math.random() < 0.3) addFloater(p.x, p.y - 1.4, 'Block', '#fff1a8'); return; } // โล่วาลคิรี
+        if (G.map && G.map.arena && G.map.def.pvp) F.cheer(0.3); // โดนตีในลานประลอง = ผู้ชมฮือ
         return d0.apply(this, arguments);
       };
       damagePlayer._feel = true;
@@ -396,6 +398,49 @@ const Feel = (() => {
       if (best < 4.5) { const v = 0.022 * (1 - best / 4.5); chime(110, 0, v, 1.3); chime(165, 0.02, v * 0.6, 1.2); }
     };
     setInterval(F.warpHum, 1100);
+    // ---------- ผู้ชมโคลอสเซียม: ตื่นเต้นตามการต่อสู้ในลาน → คลื่นเชียร์รอบอัฒจันทร์ + กระดาษสีปลิว + เสียงฮือ ----------
+    F.crowd = { e: 0, wave: -9, conf: [], last: 0 };
+    F.cheer = amt => {
+      const C = F.crowd, now = performance.now() / 1000;
+      const before = C.e; C.e = Math.min(1.5, C.e + amt);
+      if (C.e >= 1 && before < 1 && now - C.wave > 4) { // ระเบิดเชียร์: คลื่นคนลุกรอบลาน + เสียงฮือดัง
+        C.wave = now;
+        if (typeof Sound !== 'undefined' && Sound.ctx && G.player.options.sound) { Sound.hiss({ ft: 'bandpass', f: 900, to: 600, q: 0.6, dur: 1.6, vol: 0.05 }); Sound.hiss({ ft: 'lowpass', f: 500, dur: 1.8, vol: 0.05 }); }
+      }
+    };
+    F.drawCrowd = (g, map, t) => {
+      const C = F.crowd, A = map.arena; if (!A) return;
+      const dt = Math.min(0.1, t - (C.last || t)); C.last = t;
+      C.e = Math.max(0, C.e - dt * 0.18);
+      const K = R.K, cx = A.cx * TILE, cy = A.cy * TILE;
+      // ฮือเบา ๆ ตามความตื่นเต้น (ทุก ~0.6 วิ)
+      if (C.e > 0.2 && Math.random() < dt * 1.6 && typeof Sound !== 'undefined' && Sound.ctx && G.player.options.sound) Sound.hiss({ ft: 'bandpass', f: 700 + Math.random() * 300, q: 0.5, dur: 0.5, vol: 0.012 * C.e });
+      // กระดาษสีปลิวจากอัฒจันทร์
+      if (C.e > 0.25 && C.conf.length < 260 * C.e) for (let i = 0; i < 6; i++) {
+        const a = Math.random() * Math.PI * 2, r = (A.r + 0.6 + Math.random() * 5) * TILE;
+        C.conf.push({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r, z: 30 + Math.random() * 40, vz: 60 + Math.random() * 50, vx: (Math.random() - 0.5) * 30, s: Math.random() * 6, c: ['#ffd34a', '#ff6a5a', '#ffffff', '#6ff3ff', '#c98aff'][(Math.random() * 5) | 0] });
+      }
+      g.save();
+      C.conf = C.conf.filter(q => q.z > -2);
+      for (const q of C.conf) {
+        q.vz -= 120 * dt; q.z += q.vz * dt; q.x += (q.vx + Math.sin(t * 3 + q.s) * 18) * dt;
+        const sx = q.x, sy = q.y * K - q.z;
+        g.fillStyle = q.c; g.globalAlpha = Math.min(1, q.z / 20 + 0.2);
+        g.save(); g.translate(sx, sy); g.rotate(t * 6 + q.s); g.fillRect(-5, -2.5, 10, 5 * Math.abs(Math.sin(t * 9 + q.s)) + 0.8); g.restore();
+      }
+      // คลื่นเชียร์: แถบแสงกวาดรอบอัฒจันทร์ 1.4 วิ (คนลุกขึ้นทีละโซน)
+      const wk = (performance.now() / 1000 - C.wave) / 1.4;
+      if (wk >= 0 && wk < 1) {
+        const a0 = -Math.PI / 2 + wk * Math.PI * 2;
+        g.globalAlpha = 0.5 * Math.sin(wk * Math.PI); g.globalCompositeOperation = 'lighter';
+        g.translate(cx, cy * K); g.scale(1, K);
+        const gr = g.createConicGradient ? g.createConicGradient(a0 - 0.45, 0, 0) : null;
+        if (gr) { gr.addColorStop(0, 'rgba(255,230,160,0)'); gr.addColorStop(0.06, 'rgba(255,230,160,0.55)'); gr.addColorStop(0.14, 'rgba(255,230,160,0)'); gr.addColorStop(1, 'rgba(255,230,160,0)'); g.fillStyle = gr; }
+        else g.fillStyle = 'rgba(255,230,160,0.2)';
+        g.beginPath(); g.arc(0, 0, (A.r + 10) * TILE, 0, 7); g.arc(0, 0, (A.r + 0.8) * TILE, 0, 7, true); g.fill();
+      }
+      g.restore();
+    };
     setInterval(F.tickChain, 250);
     setTimeout(() => { if (G.player) F.ultDraw(); }, 0);
     window.addEventListener('load', () => F.installMouse()); // updateHover อยู่ใน main.js (โหลดหลังไฟล์นี้)

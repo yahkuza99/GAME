@@ -14,6 +14,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAPW = 34
 K = 0.76
 R0 = MAPW / 2 - 2.8          # รัศมีลานทราย (ตรงกับ maps.js genArena)
+# คบเพลิง 10 ต้น: ทุก 30° เว้นช่วงประตูใต้ (ตรงกับ maps.js genArena → this.torches)
+TORCH_ANGLES = [math.radians(d) for d in range(0, 360, 30) if abs(((d - 270 + 180) % 360) - 180) > 20]
+TORCH_TOP = 0.7 + 1.3 + 0.22   # ความสูงปากชาม (เมตร)
 PX = 40                      # พิกเซลต่อช่อง (TILE)
 
 
@@ -163,6 +166,14 @@ def build(samples, out):
         vs = [bmf.verts.new(v) for v in [(x, y, 3.6), (x + tx * 1.1, y + ty * 1.1, 3.45), (x + tx * 1.1, y + ty * 1.1, 2.7), (x, y, 2.55)]]
         bmf.faces.new(vs)
     obj('poles', bm, M_GOLD); obj('flags', bmf, M_RED)
+
+    # ---------- คบเพลิง (ตัวเสา+ชามเหล็ก — เปลวไฟวาดเคลื่อนไหวในเกม: maps.js arenaTorches) ----------
+    bm = bmesh.new(); bmb = bmesh.new()
+    for a in TORCH_ANGLES:
+        x, y = (R0 + 0.28) * math.cos(a), (R0 + 0.28) * math.sin(a)
+        bmesh.ops.create_cone(bm, cap_ends=True, segments=8, radius1=0.09, radius2=0.06, depth=1.3, matrix=__import__('mathutils').Matrix.Translation((x, y, 0.7 + 0.65)))
+        bmesh.ops.create_cone(bmb, cap_ends=True, segments=10, radius1=0.08, radius2=0.26, depth=0.22, matrix=__import__('mathutils').Matrix.Translation((x, y, 0.7 + 1.3 + 0.11)))
+    obj('torch_poles', bm, M_STONE2); obj('torch_bowls', bmb, M_GOLD)
 
     # ---------- ตราวาลค์นัตบนพื้น ----------
     bm = bmesh.new(); s = 1.6

@@ -253,6 +253,11 @@ class GameMap {
     }
     for (const p of this.portals) { this.carvePath(p.x, p.y, Math.floor(cx), Math.floor(cy), T.DIRT, 1); this.set(p.x, p.y, T.DIRT); this.set(p.ax, p.ay, T.DIRT); }
     this.arena = { cx, cy, r: R0 };
+    // คบเพลิง (ตรงกับ tools/arena3d.py TORCH_ANGLES/TORCH_TOP): ทุก 30° เว้นช่วงประตูใต้ • พิกัดแมพ: y ของ Blender ชี้เหนือ = ลบ
+    this.torches = [];
+    for (let d = 0; d < 360; d += 30) if (Math.abs(((d - 270 + 540) % 360) - 180) > 20) {
+      const a = d * Math.PI / 180; this.torches.push({ x: cx + (R0 + 0.28) * Math.cos(a), y: cy - (R0 + 0.28) * Math.sin(a), h: 2.22, ph: d });
+    }
   }
 
   // รอยต่อกับแมพข้างเคียง (โลกเชื่อมกันทางกายภาพ — js/world.js):

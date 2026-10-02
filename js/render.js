@@ -177,6 +177,9 @@ R.render = () => {
 
   // พอร์ทัล
   for (const pt of map.portals) upright((pt.y + 0.5) * TILE, () => Sprites.drawPortal(g, pt, t));
+  // คบเพลิงลานประลอง: เปลวไฟเคลื่อนไหวบนชามเหล็กในภาพ 3D (ยกสูงตามความสูงจริง × sin มุมกล้อง)
+  if (map.torches && map.arenaImg) for (const tc of map.torches) upright(tc.y * TILE, () => Sprites.drawTorch(g, tc, t));
+  if (map.arenaImg && typeof Feel !== 'undefined' && Feel.drawCrowd && R.quality !== 'low') Feel.drawCrowd(g, map, t);
   // ไอเทมบนพื้น
   for (const d of G.drops) upright(d.y * TILE, () => {
     const x = d.x * TILE, y = d.y * TILE;

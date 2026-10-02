@@ -1174,6 +1174,29 @@ Sprites.drawPortal = (g, p, t) => {
   g.restore();
 };
 
+// เปลวคบเพลิง: แกนขาวเหลือง → ส้ม → แดง ลิ้นไฟสั่นไหว + ประกายลอย + แสงส่องรอบ (lighter)
+Sprites.drawTorch = (g, tc, t) => {
+  const K = typeof R !== 'undefined' && R.K ? R.K : 0.76, lift = tc.h * Math.sqrt(1 - K * K) * TILE;
+  const x = tc.x * TILE, y = tc.y * TILE - lift, f = 0.85 + 0.15 * Math.sin(t * 11 + tc.ph) * Math.sin(t * 7.3 + tc.ph * 2);
+  g.save(); g.globalCompositeOperation = 'lighter';
+  const glow = g.createRadialGradient(x, y - 6, 2, x, y - 6, 70 * f);
+  glow.addColorStop(0, 'rgba(255,170,70,0.42)'); glow.addColorStop(0.4, 'rgba(255,110,30,0.14)'); glow.addColorStop(1, 'rgba(255,90,20,0)');
+  g.fillStyle = glow; g.beginPath(); g.arc(x, y - 6, 70 * f, 0, 7); g.fill();
+  for (let k = 0; k < 3; k++) { // ลิ้นไฟ 3 ชั้น
+    const w = (11 - k * 3) * f, h = (26 - k * 6) * f * (1 + 0.12 * Math.sin(t * 13 + k + tc.ph));
+    const sway = Math.sin(t * 5 + tc.ph + k) * 3;
+    const col = ['rgba(255,80,20,0.75)', 'rgba(255,160,40,0.85)', 'rgba(255,240,190,0.95)'][k];
+    g.fillStyle = col; g.beginPath();
+    g.moveTo(x - w, y); g.quadraticCurveTo(x - w * 0.9, y - h * 0.55, x + sway, y - h); g.quadraticCurveTo(x + w * 0.9, y - h * 0.55, x + w, y); g.quadraticCurveTo(x, y + 4, x - w, y); g.fill();
+  }
+  for (let i = 0; i < 5; i++) { // ประกายไฟลอย
+    const k = (t * 0.9 + i / 5 + tc.ph * 0.01) % 1;
+    g.fillStyle = `rgba(255,${180 - k * 100 | 0},60,${1 - k})`;
+    g.beginPath(); g.arc(x + Math.sin(i * 7 + t * 2) * 6 * k, y - 20 - k * 40, 1.6 * (1 - k) + 0.5, 0, 7); g.fill();
+  }
+  g.restore();
+};
+
 // ------------------------------------------------------------
 //  ไอคอนไอเทม (แคชเป็น dataURL สำหรับ UI และเป็น canvas สำหรับพื้น)
 // ------------------------------------------------------------
