@@ -88,6 +88,7 @@ def main():
     ap.add_argument('src'); ap.add_argument('gk'); ap.add_argument('action')
     ap.add_argument('--flip-rows', default=''); ap.add_argument('--order', default='')
     ap.add_argument('--gif', default=''); ap.add_argument('--scale', type=float, default=0)
+    ap.add_argument('--holes', default='', help='pixel = ลบพื้นขาวที่ถูกล้อมแคบ ๆ (เช่น ระหว่างคันธนูกับสาย)')
     ap.add_argument('--ref-frames', default='', help='คอลัมน์ที่ยืนตรง (เช่น 1,4) → ตั้งสเกลจากความสูงเฟรมพวกนี้ (ใช้เมื่อชีตขนาด/สัดส่วนต่างจากท่าเดิน)')
     a = ap.parse_args()
     src = a.src
@@ -104,6 +105,7 @@ def main():
     cmd = ['python3', os.path.join(ROOT, 'tools', 'sprite_std.py'), 'install', tmp, a.gk, a.action, '--grid', '4x5', '--dirs', 'S,SW,W,NW,N']
     scale = a.scale
     if a.ref_frames: cmd += ['--ref-frames', a.ref_frames]
+    if a.holes: cmd += ['--holes', a.holes]
     if not scale and a.action != 'walk' and not a.ref_frames:
         w = sizes().get(a.gk, {}).get('walk')
         if w: scale = w['scale_src'] * 1536 / H
