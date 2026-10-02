@@ -595,15 +595,20 @@ class GameMap {
     const rk = document.createElement('canvas'); rk.width = mw; rk.height = mh;
     const md = mk.getContext('2d').createImageData(mw, mh), rd = rk.getContext('2d').createImageData(mw, mh);
     const ss = (a, b, v) => { const t = Math.min(1, Math.max(0, (v - a) / (b - a))); return t * t * (3 - 2 * t); };
+    const nO = U.noiseGrid(mw, mh, 3, (x, y) => U.fbm(x * S / 70, y * S / 70, seed + 11, 3));
     for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++) {
       const i = py * mw + px, v0 = A[i];
       let a, v = v0;
       if (v0 < 0.03) a = 0; else if (v0 > 0.97) a = 1;
-      else { v = v0 + (U.fbm(px * S / 70, py * S / 70, seed + 11, 3) - 0.5) * 0.6; a = ss(0.4, 0.5, v); }
+      else { v = v0 + (nO(px, py) - 0.5) * 0.6; a = ss(0.4, 0.5, v); }
       const o = i * 4;
       md.data[o] = md.data[o + 1] = md.data[o + 2] = 255; md.data[o + 3] = a * 255;
-      const rim = a * (1 - ss(0.5, 0.66, v)) * 0.5;
-      rd.data[o] = 74; rd.data[o + 1] = 50; rd.data[o + 2] = 28; rd.data[o + 3] = rim * 255;
+      // ขอบทาง: ด้านบนมีเงาตลิ่งหญ้าทอดลงมา (มีมิติ) ด้านล่างสว่างเล็กน้อย + ขอบดินชื้นรอบ ๆ
+      const up = py >= 4 ? A[i - 4 * mw] : 0, dn = py < mh - 4 ? A[i + 4 * mw] : 0;
+      const top = Math.max(0, Math.min(1, (v0 - up) * 3)), bot = Math.max(0, Math.min(1, (v0 - dn) * 3));
+      const rim = a * (1 - ss(0.5, 0.66, v)) * 0.4, shd = a * top * 0.55, hl = a * bot * (1 - top) * 0.3;
+      if (hl > shd + rim) { rd.data[o] = 255; rd.data[o + 1] = 232; rd.data[o + 2] = 190; rd.data[o + 3] = hl * 255; }
+      else { rd.data[o] = 58; rd.data[o + 1] = 38; rd.data[o + 2] = 20; rd.data[o + 3] = Math.min(0.7, rim + shd) * 255; }
     }
     mk.getContext('2d').putImageData(md, 0, 0); rk.getContext('2d').putImageData(rd, 0, 0);
     return { mask: mk, rim: rk };
@@ -623,7 +628,7 @@ class GameMap {
     g.drawImage(c, 0, 0, W, H); g.restore();
   }
   drawWater(g, P, depth) {
-    const S = 4, ts = TILE / S;
+    const S = 2, ts = TILE / S; // หน้ากากน้ำละเอียด 2px → ขอบเนียน
     let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
     for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) if (this.tile(x, y) === T.WATER) {
       x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
@@ -655,18 +660,29 @@ class GameMap {
       }
       return A;
     };
-    const A = blur(M, 5, 3), Dp = blur(M, 12, 2);
+    const A = blur(M, 10, 3), Dp = blur(M, 24, 2);
     const id = mg.createImageData(mw, mh), d = id.data;
-    const WS = P.waterS, WD = P.waterD;
+    const WS = P.waterS, WD = P.waterD, seed = this.def.seed;
+    // ขอบน้ำธรรมชาติ: นอยส์เลื่อนเส้นขอบ (ไม่เป็นมุมตามช่อง) • ไล่ alpha นุ่ม • ตื้นอมเขียว → ลึกน้ำเงินเข้ม
+    const ss = (lo, hi, v) => { const t = Math.min(1, Math.max(0, (v - lo) / (hi - lo))); return t * t * (3 - 2 * t); };
+    const V = new Float32Array(mw * mh), nW = U.noiseGrid(mw, mh, 4, (x, y) => U.fbm((x0 * TILE + x * S) / 60, (y0 * TILE + y * S) / 60, seed + 61, 3));
+    for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++) {
+      const j = py * mw + px, a0 = A[j];
+      V[j] = a0 < 0.05 || a0 > 0.95 ? a0 : a0 + (nW(px, py) - 0.5) * 0.32;
+    }
+    const SH = [Math.min(255, WS[0] * 0.75 + 40), Math.min(255, WS[1] * 0.9 + 20), Math.min(255, WS[2] * 0.8)];
     for (let py = 0; py < mh; py++) {
       for (let px = 0; px < mw; px++) {
-        const i = (py * mw + px) * 4, a = A[py * mw + px];
-        if (a < 0.3) continue;
-        if (a >= 0.56) {
-          const k = Math.min(1, Math.max(0, (Dp[py * mw + px] - 0.45) * 2 + (((px * 7 + py * 13) % 11) / 11 - 0.5) * 0.05));
-          d[i] = WS[0] + (WD[0] - WS[0]) * k; d[i + 1] = WS[1] + (WD[1] - WS[1]) * k; d[i + 2] = WS[2] + (WD[2] - WS[2]) * k; d[i + 3] = 255;
-        } else if (a >= 0.5) { d[i] = 236; d[i + 1] = 248; d[i + 2] = 252; d[i + 3] = 215; }
-        else { d[i] = 214; d[i + 1] = 196; d[i + 2] = 146; d[i + 3] = Math.min(1, (a - 0.3) / 0.2) * 230; }
+        const j = py * mw + px, i = j * 4, v = V[j];
+        if (v < 0.32) continue;
+        const aw = ss(0.5, 0.56, v);
+        const k = Math.min(1, Math.max(0, (Dp[j] - 0.45) * 2.2));
+        const wr = SH[0] + (WD[0] * 0.8 - SH[0]) * k, wg = SH[1] + (WD[1] * 0.85 - SH[1]) * k, wb = SH[2] + (WD[2] * 0.95 - SH[2]) * k;
+        const fz = (v - 0.535) / 0.012, foam = Math.exp(-fz * fz) * 0.75;
+        const sand = ss(0.32, 0.46, v) * (1 - aw);
+        let r = 120 * sand + wr * aw, gg = 104 * sand + wg * aw, bb = 70 * sand + wb * aw;  // ดินชื้นริมน้ำ
+        r += (238 - r) * foam; gg += (248 - gg) * foam; bb += (250 - bb) * foam;
+        d[i] = r; d[i + 1] = gg; d[i + 2] = bb; d[i + 3] = Math.max(aw, sand * 0.8, foam) * 255;
       }
     }
     mg.putImageData(id, 0, 0);
@@ -677,7 +693,7 @@ class GameMap {
     if (wt) {
       const wmk = document.createElement('canvas'); wmk.width = mw; wmk.height = mh;
       const wg = wmk.getContext('2d'), wd = wg.createImageData(mw, mh);
-      for (let i = 0; i < mw * mh; i++) if (A[i] >= 0.6) wd.data[i * 4 + 3] = 255;
+      for (let i = 0; i < mw * mh; i++) wd.data[i * 4 + 3] = ss(0.56, 0.68, V[i]) * 255;
       wg.putImageData(wd, 0, 0);
       const RW = mw * S, RH = mh * S;
       const layer = document.createElement('canvas'); layer.width = RW; layer.height = RH;
@@ -688,8 +704,22 @@ class GameMap {
       lg.translate(-x0 * TILE, -y0 * TILE); lg.fillRect(x0 * TILE, y0 * TILE, RW, RH); lg.setTransform(1, 0, 0, 1, 0, 0);
       lg.globalCompositeOperation = 'destination-in';
       lg.filter = 'blur(2px)'; lg.drawImage(wmk, 0, 0, RW, RH); lg.filter = 'none';
-      g.save(); g.globalAlpha = 0.78; g.drawImage(layer, x0 * TILE, y0 * TILE); g.restore();
+      g.save(); g.globalAlpha = 0.5; g.globalCompositeOperation = 'overlay'; g.drawImage(layer, x0 * TILE, y0 * TILE); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 0.22; g.drawImage(layer, x0 * TILE, y0 * TILE); g.restore();
     }
+    // มิติของบ่อ: ตลิ่งด้านบนทอดเงาลงน้ำ • ขอบล่างสะท้อนแสงฝั่งตรงข้าม
+    const bk = document.createElement('canvas'); bk.width = mw; bk.height = mh;
+    const bkg = bk.getContext('2d'), bd = bkg.createImageData(mw, mh);
+    for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++) {
+      const i = py * mw + px; if (V[i] < 0.58) continue;
+      let up = 0, dn = 0;
+      for (let k = 1; k <= 10; k++) if (py - k < 0 || V[i - k * mw] < 0.53) { up = k; break; }
+      for (let k = 1; k <= 6; k++) if (py + k >= mh || V[i + k * mw] < 0.53) { dn = k; break; }
+      const o = i * 4;
+      if (up) { bd.data[o] = 6; bd.data[o + 1] = 34; bd.data[o + 2] = 62; bd.data[o + 3] = (1 - (up - 1) / 10) * 150; }
+      else if (dn) { bd.data[o] = 215; bd.data[o + 1] = 245; bd.data[o + 2] = 255; bd.data[o + 3] = (1 - (dn - 1) / 6) * 70; }
+    }
+    bkg.putImageData(bd, 0, 0);
+    g.drawImage(bk, x0 * TILE, y0 * TILE, mw * S, mh * S);
   }
 
   // ผนังถ้ำแบบหน้าผา: ขอบโค้งธรรมชาติ (ไม่เป็นเหลี่ยมตามช่อง) • ยอดหินมืดมีลาย • ขอบปากผาสว่าง
@@ -701,9 +731,18 @@ class GameMap {
     const A = U.boxBlur(M, mw, mh, 7, 2), B = U.boxBlur(M, mw, mh, 16, 2);
     const ss = (a, b, v) => { const t = Math.min(1, Math.max(0, (v - a) / (b - a))); return t * t * (3 - 2 * t); };
     const al = new Float32Array(mw * mh);
+    const nE = U.noiseGrid(mw, mh, 3, (x, y) => U.fbm(x * S / 60, y * S / 60, seed + 21, 3)), nT = U.noiseGrid(mw, mh, 8, (x, y) => U.fbm(x * S / 90, y * S / 90, seed + 33, 3));
     for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++) {
       const i = py * mw + px, v0 = A[i];
-      al[i] = v0 < 0.02 ? 0 : v0 > 0.98 ? 1 : ss(0.42, 0.54, v0 + (U.fbm(px * S / 60, py * S / 60, seed + 21, 3) - 0.5) * 0.55);
+      al[i] = v0 < 0.02 ? 0 : v0 > 0.98 ? 1 : ss(0.42, 0.54, v0 + (nE(px, py) - 0.5) * 0.55);
+    }
+    // ระยะต่อเนื่องตามแนวตั้ง (คำนวณครั้งเดียว): dn = ระยะถึงพื้นด้านล่าง, upW = ระยะถึงพื้นด้านบน, wa = ระยะถึงผนังด้านบน (ของพื้น)
+    const dn = new Uint16Array(mw * mh), upW = new Uint16Array(mw * mh), wa = new Uint16Array(mw * mh);
+    for (let py = mh - 1; py >= 0; py--) for (let px = 0; px < mw; px++) { const i = py * mw + px; dn[i] = al[i] < 0.5 ? 0 : py + 1 < mh ? dn[i + mw] + 1 : 1; }
+    for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++) {
+      const i = py * mw + px;
+      upW[i] = al[i] < 0.5 ? 0 : py > 0 ? upW[i - mw] + 1 : 1;
+      wa[i] = al[i] > 0.5 ? 0 : py > 0 ? Math.min(999, wa[i - mw] + 1) : 999;
     }
     const FH = Math.round(TILE * 0.78 / S); // ความสูงหน้าผา (พิกเซลที่ความละเอียดนี้)
     const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
@@ -713,35 +752,35 @@ class GameMap {
     for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++) {
       const i = py * mw + px, a = al[i], o = i * 4;
       if (a < 0.98) { // พื้น: AO ใกล้ผนัง + เงาทอดใต้หน้าผา
-        let sh = B[i] * 0.55;
-        for (let k = 1; k <= 10; k++) if (py - k >= 0 && al[i - k * mw] > 0.5) { sh = Math.max(sh, 0.7 * (1 - k / 11)); break; }
+        let sh = B[i] * 0.55; const k = wa[i];
+        if (k >= 1 && k <= 10) sh = Math.max(sh, 0.7 * (1 - k / 11));
         ad[o] = 8; ad[o + 1] = 5; ad[o + 2] = 12; ad[o + 3] = Math.min(0.78, sh) * 255;
       }
       if (a < 0.01) continue;
       ld[o] = ld[o + 1] = ld[o + 2] = 255; ld[o + 3] = a * 255;
-      let down = FH + 1; for (let k = 1; k <= FH; k++) { if (py + k >= mh || al[i + k * mw] < 0.5) { down = k; break; } }
-      const n = U.fbm(px * S / 90, py * S / 90, seed + 33, 3);
+      const down = dn[i] >= 1 && dn[i] <= FH ? dn[i] : FH + 1;
+      const n = nT(px, py);
       let L, warm = 0;
       if (down <= FH) { // หน้าผา (คูณกับลายหิน): บนสว่าง ล่างมืด + ริ้วแนวตั้งนุ่ม
         const t = 1 - down / FH, str = Math.sin(px * 0.42 + n * 7) * 0.5 + 0.5;
         L = 0.38 + t * t * 1.05 + (str - 0.5) * 0.26; warm = 0.22;
         if (t > 0.86) L = 1.75; // ปากผารับแสง
       } else { // ยอดหิน: มืดกว่าพื้น
-        let up = 0; for (let k = 1; k <= 3; k++) if (py - k < 0 || al[i - k * mw] < 0.5) { up = k; break; }
+        const up = upW[i] <= 3 ? upW[i] : 0;
         L = 0.2 + (n - 0.5) * 0.22 + (up ? 0.35 / up : 0);
       }
       sd[o] = Math.min(255, 255 * L * (1 + warm)); sd[o + 1] = Math.min(255, 238 * L); sd[o + 2] = Math.min(255, 228 * L * (1 - warm)); sd[o + 3] = 255;
     }
     shC.getContext('2d').putImageData(shD, 0, 0); aoC.getContext('2d').putImageData(aoD, 0, 0); alC.getContext('2d').putImageData(alD, 0, 0);
-    const wall = mk(W, H), wg = wall.getContext('2d');
-    wg.imageSmoothingEnabled = true; wg.imageSmoothingQuality = 'high';
+    // ประกอบที่ความละเอียดครึ่งหนึ่ง แล้วขยายครั้งเดียว (เร็วกว่าประกอบเต็มขนาดหลายเท่า)
+    const wall = mk(mw, mh), wg = wall.getContext('2d');
     const tex = typeof Art !== 'undefined' && Art.get('ground_cave');
-    if (tex) { const pc = mk(420, 420); pc.getContext('2d').drawImage(tex, 0, 0, 420, 420); wg.fillStyle = wg.createPattern(pc, 'repeat'); } else wg.fillStyle = '#6a5a5e';
-    wg.fillRect(0, 0, W, H);
-    wg.globalCompositeOperation = 'multiply'; wg.drawImage(shC, 0, 0, W, H);
-    wg.globalCompositeOperation = 'destination-in'; wg.drawImage(alC, 0, 0, W, H);
+    if (tex) { const pc = mk(420 / S, 420 / S); pc.getContext('2d').drawImage(tex, 0, 0, 420 / S, 420 / S); wg.fillStyle = wg.createPattern(pc, 'repeat'); } else wg.fillStyle = '#6a5a5e';
+    wg.fillRect(0, 0, mw, mh);
+    wg.globalCompositeOperation = 'multiply'; wg.drawImage(shC, 0, 0);
+    wg.globalCompositeOperation = 'destination-in'; wg.drawImage(alC, 0, 0);
     g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
-    g.drawImage(aoC, 0, 0, W, H); g.drawImage(wall, 0, 0); g.restore();
+    g.drawImage(aoC, 0, 0, W, H); g.drawImage(wall, 0, 0, W, H); g.restore();
   }
   rockTile(g, x, y) {
     const px = x * TILE, py = y * TILE, h = i => U.hash2(x * 7 + i, y * 11, this.def.seed);

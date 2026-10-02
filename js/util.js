@@ -63,6 +63,16 @@ const U = {
     }
     return A;
   },
+  // ตารางนอยส์หยาบ (คำนวณ fbm ทุก cell พิกเซล แล้วประมาณค่าแบบ bilinear) — เร็วกว่าเรียก fbm ทุกพิกเซลมาก
+  noiseGrid(w, h, cell, fn) {
+    const gw = Math.ceil(w / cell) + 2, gh = Math.ceil(h / cell) + 2, Gd = new Float32Array(gw * gh);
+    for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) Gd[y * gw + x] = fn(x * cell, y * cell);
+    return (px, py) => {
+      const fx = px / cell, fy = py / cell, x0 = fx | 0, y0 = fy | 0, tx = fx - x0, ty = fy - y0, i = y0 * gw + x0;
+      const a = Gd[i] + (Gd[i + 1] - Gd[i]) * tx, b = Gd[i + gw] + (Gd[i + gw + 1] - Gd[i + gw]) * tx;
+      return a + (b - a) * ty;
+    };
+  },
   fbm(x, y, seed = 0, oct = 3) {
     let v = 0, amp = 0.5, f = 1, norm = 0;
     for (let i = 0; i < oct; i++) { v += U.vnoise(x * f, y * f, seed + i * 17) * amp; norm += amp; amp *= 0.5; f *= 2.03; }
