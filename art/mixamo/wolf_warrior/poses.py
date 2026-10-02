@@ -52,9 +52,10 @@ def spine(lean=0, twist=0, side=0):
         rot_about(P(nm), Rx(lean * k) @ Rz(twist * k) @ Ry(side * k))
 
 
-def right_axe(chop=0, lift=0):
+def right_axe(chop=0, lift=0, upright=0.0):
     rot_about(P('RightArm'), Ry(lift))
     rot_about(P('RightArm'), Rx(chop))
+    if upright: rot_about(P('RightHand'), Ry(-lift * upright) @ Rx(-chop * upright))  # หมุนข้อมือกลับ → ด้ามขวานตั้งตรง
 
 
 FEET = ['LeftFoot', 'RightFoot', 'LeftToeBase', 'RightToeBase']
@@ -160,6 +161,41 @@ for f, lean, twist, chop, lift, drop, step, larm in A2:
     right_axe(chop, lift)
     left_arm(larm)
     ground_mesh(); key(f)
+
+# ---------------- BUFF: 20 เฟรม ตั้งหลัก → ชูขวานขึ้นฟ้า + กำหมัดซ้าย เงยหน้าคำราม → ค้าง f9–f13 → คืนท่า ----------------
+acts['buff'] = new_action('Buff')
+BUFF = [  # f, ย่อ(0..1), เอน, เงยหัว, ฟัน, ยกแขน, แขนซ้าย, งอศอกซ้าย, ยืดตัว
+    (1, 0, 0, 0, 0, 0, 5, 55, 0.0), (4, 1, 10, 8, -10, -5, 40, 110, 0.0), (6, 0.6, 4, 0, -15, 20, 70, 90, 0.0),
+    (9, 0, -14, -26, -25, 80, 150, 20, 0.02), (11, 0, -16, -28, -27, 82, 155, 15, 0.025), (13, 0, -14, -26, -25, 80, 150, 20, 0.02),
+    (17, 0.3, -4, -8, -10, 30, 60, 50, 0.0), (20, 0, 0, 0, 0, 0, 5, 55, 0.0)]
+for f, crouch, lean, head, chop, lift, larm, lbend, rise in BUFF:
+    reset()
+    spine(lean=lean)
+    rot_about(P('Head'), Rx(head))
+    leg('Left', -10 * crouch, 30 * crouch); leg('Right', 6 * crouch, 30 * crouch)
+    right_axe(chop, lift, upright=0.9 if lift > 40 else 0.0)
+    left_arm(larm, bend=lbend, out=0.45)
+    ground_mesh()
+    if rise: move_hips(V((0, 0, rise)))   # เขย่งยืดตัวตอนคำราม
+    key(f)
+# ---------------- SKILL: 22 เฟรม ย่อ → กระโดดง้างขวานเหนือหัว → ทุบลงพื้นด้านหน้า → ค้างแรงกระแทก → คืนท่า ----------------
+acts['skill'] = new_action('Skill')
+SK = [  # f, สูงจากพื้น(ม.), ย่อ(0..1), ขาพับกลางอากาศ(0..1), เอน, ฟัน, ยกแขน, ก้าวหน้า, แขนซ้าย
+    (1, 0, 0, 0, 0, 0, 0, 0.0, 5), (4, 0, 1, 0, 8, -35, 35, 0.0, -20),
+    (7, 0.30, 0, 1, -10, -70, 75, -0.04, 60), (10, 0.42, 0, 1, -14, -80, 80, -0.07, 70),
+    (12, 0.20, 0, 0.6, 10, 40, 30, -0.10, 20), (13, 0, 1.2, 0, 32, 160, -35, -0.12, -35),
+    (17, 0, 1.0, 0, 30, 158, -33, -0.12, -30), (22, 0, 0, 0, 0, 0, 0, 0.0, 5)]
+for f, air, crouch, tuck, lean, chop, lift, step, larm in SK:
+    reset()
+    move_hips(V((0, step, 0)))
+    spine(lean=lean, twist=-10 if chop > 100 else 0)
+    if tuck: leg('Left', -45 * tuck, 75 * tuck); leg('Right', -25 * tuck, 85 * tuck)
+    else: leg('Left', -30 * crouch, 55 * crouch); leg('Right', 15 * crouch, 45 * crouch)
+    right_axe(chop, lift)
+    left_arm(larm)
+    ground_mesh()
+    if air: move_hips(V((0, 0, air)))
+    key(f)
 
 for name, act in acts.items():
     arm.animation_data.action = act
