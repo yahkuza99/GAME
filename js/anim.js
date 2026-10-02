@@ -134,12 +134,8 @@ const Anim = {
     else if (st.cast) action = 'cast';
     else if (st.sit) action = 'sit';
     else if (st.moving) action = 'walk';
-    // Class ธนูที่ยังไม่มีท่าร่าย/ท่าฟัน: ใช้สกิลด้วยท่ายิง (ใช้สกิล = เล่นท่ายิงครั้งเดียว • ร่ายค้าง = ง้างสายค้างไว้)
-    let hold = false;
-    if (action === 'cast') {
-      const c = this.strip(key, 'cast'), sh = c && c.action !== 'cast' && c.action !== 'attack' && this.strip(key, 'shoot');
-      if (sh && sh.action === 'shoot') { action = 'shoot'; hold = k == null; }
-    }
+    // Class ธนู: ใช้สกิล/ร่าย = ท่ายิงเดียวกับท่าโจมตี (ไม่มีท่าร่ายแยก)
+    if (action === 'cast' && st.shoot) { const sh = this.strip(key, 'shoot'); if (sh && sh.action === 'shoot') action = 'shoot'; }
     const s = this.strip(key, action); if (!s) return null;
     // ท่าเดินเป็น 8 ทิศแต่ท่ายืนเป็นภาพทิศเดียว (มักเป็นคนละชุดภาพ ตัวจะดูเปลี่ยนไปตอนหยุด):
     // ยืนด้วยเฟรมกลางก้าวของท่าเดินทิศนั้นแทน + หายใจเบา ๆ ตัวละครจึงเป็นแบบเดียวกันตลอด
@@ -152,8 +148,7 @@ const Anim = {
     }
     const def = this.ACTIONS[s.action];
     let f;
-    if (hold) f = Math.max(0, s.n - 2); // เฟรมง้างสายสุด (ก่อนปล่อย)
-    else if (s.action === 'walk' && action !== 'walk') f = this.stillFrame(s.img, s.n, st.dir != null ? st.dir : (st.facing > 0 ? 0 : 4)); // ยืนนิ่งด้วยเฟรมเท้าชิดของท่าเดิน (ยังไม่มีภาพท่าอื่น)
+    if (s.action === 'walk' && action !== 'walk') f = this.stillFrame(s.img, s.n, st.dir != null ? st.dir : (st.facing > 0 ? 0 : 4)); // ยืนนิ่งด้วยเฟรมเท้าชิดของท่าเดิน (ยังไม่มีภาพท่าอื่น)
     else if (k != null && (!def.loop || st.skill > 0)) f = Math.min(s.n - 1, Math.floor(k * s.n)); // ท่าที่เล่นครั้งเดียว (รวมท่าใช้สกิล): ตามความคืบหน้า
     else f = Math.floor((t + (st.seed || 0)) / ((def.cycle || 1) / s.n)) % s.n;
     // แถว: ภาพ 8 ทิศเลือกตามทิศที่หัน, ภาพทิศเดียวใช้แถวแรกแล้วกลับด้านตอนหันขวา
