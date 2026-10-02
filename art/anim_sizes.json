@@ -627,21 +627,21 @@
   "cast": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.6073,
-   "median_src_h": 247
+   "scale_src": 0.5556,
+   "median_src_h": 269.97840172786175
   },
-  "_k1536": 0.3876,
+  "_k1536": 0.37037,
   "attack": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.6073,
-   "median_src_h": 246.99896260435708
+   "scale_src": 0.5556,
+   "median_src_h": 269.97840172786175
   },
   "walk": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.5814,
-   "median_src_h": 258
+   "scale_src": 0.5556,
+   "median_src_h": 270
   }
  },
  "einherjar_m": {
