@@ -1072,35 +1072,106 @@ Sprites.drawTree = (g, o, t) => {
   }
 };
 
+// วาร์ปเต็มประตู: เสาแสงสองข้าง + ม่านแสงโค้งรูน + วังวนลึกตรงกลาง + ประกายลอยขึ้น/ถูกดูดเข้า + ป้ายปลายทาง
+// สีตามปลายทาง: เมือง = ทอง • ทุ่ง = ฟ้าอมเขียว • ถ้ำ = ม่วง • ลานประลอง = แดงทอง
+Sprites.PORTAL_THEME = {
+  town: { a: [255, 214, 120], b: [120, 220, 255] }, field: { a: [120, 240, 210], b: [90, 190, 255] },
+  cave: { a: [190, 140, 255], b: [110, 80, 220] }, pvp: { a: [255, 120, 90], b: [255, 200, 110] },
+};
 Sprites.drawPortal = (g, p, t) => {
-  // วาร์ปใหญ่ขึ้น (~1.6 เท่า) มองเห็นง่าย และเข้าได้ภายในรัศมี 1 ช่อง (ดู PORTAL_REACH)
-  const x = p.x * TILE + TILE / 2, y = p.y * TILE + TILE / 2;
-  const glow = g.createRadialGradient(x, y, 4, x, y, 40);
-  glow.addColorStop(0, 'rgba(170,230,255,0.55)'); glow.addColorStop(1, 'rgba(120,200,255,0)');
-  g.fillStyle = glow; g.beginPath(); g.ellipse(x, y, 40, 18, 0, 0, 7); g.fill();
-  g.save(); g.shadowColor = 'rgba(80,200,255,0.9)'; g.shadowBlur = 10;
-  for (let i = 0; i < 5; i++) {
-    const k = ((t * 0.8 + i / 5) % 1);
-    g.strokeStyle = `rgba(${70 + i * 30},${190 + i * 12},255,${1 - k * 0.85})`;
-    g.lineWidth = 3.5;
-    g.beginPath(); g.ellipse(x, y, 8 + k * 30, (8 + k * 30) * 0.45, 0, 0, 7); g.stroke();
+  const T = TILE, K = typeof R !== 'undefined' && R.K ? R.K : 0.76, map = G.map;
+  const d = MAP_DEFS[p.to] || {}, th = Sprites.PORTAL_THEME[d.pvp ? 'pvp' : d.kind] || Sprites.PORTAL_THEME.field;
+  const ca = (al, c = th.a) => `rgba(${c[0]},${c[1]},${c[2]},${al})`, cb = al => ca(al, th.b);
+  const x = p.x * T + T / 2, y = p.y * T + T / 2;
+  const ns = p.y <= 1 || p.y >= map.h - 2, H = T * 2.6;
+  // ประตูเหนือ/ใต้ = ม่านหันหน้าเต็มกว้าง 3 ช่อง • ตะวันออก/ตก = ม่านด้านข้าง (เฉียงตามมุมกล้อง) ยาวตามขอบ 3 ช่อง
+  const Wv = ns ? T * 3.2 : T * 3.2, hw = Wv / 2, side = !ns ? (p.x <= 1 ? -1 : 1) : 0;
+  const seed = (p.x * 7 + p.y * 13) % 10;
+  g.save();
+  // ---- พื้น: แอ่งแสงเต็มช่องประตู + อนุภาคถูกดูดเข้ากลาง ----
+  const rx = ns ? T * 1.9 : T * 1.0, ry = (ns ? T * 0.6 : T * 1.8) * K;
+  const pool = g.createRadialGradient(x, y, 2, x, y, Math.max(rx, ry));
+  pool.addColorStop(0, ca(0.65)); pool.addColorStop(0.5, cb(0.28)); pool.addColorStop(1, cb(0));
+  g.fillStyle = pool; g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, 7); g.fill();
+  g.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 3; i++) { // วงหมุนบนพื้น
+    const k = (t * 0.6 + i / 3) % 1;
+    g.strokeStyle = ca(0.55 * (1 - k)); g.lineWidth = 2.2;
+    g.beginPath(); g.ellipse(x, y, rx * (1 - k * 0.85), ry * (1 - k * 0.85), 0, 0, 7); g.stroke();
+  }
+  for (let i = 0; i < 14; i++) { // ประกายถูกดูดเข้าหาประตู
+    const k = (t * 0.55 + i / 14 + seed * 0.07) % 1, a = i * 2.39 + seed;
+    const px = x + Math.cos(a) * rx * 1.5 * (1 - k), py = y + Math.sin(a) * ry * 1.5 * (1 - k);
+    g.fillStyle = ca(0.9 * Math.sin(k * Math.PI)); g.beginPath(); g.arc(px, py, 1.6 + (1 - k) * 1.2, 0, 7); g.fill();
+  }
+  // ---- ม่านแสง (หันหากล้อง • ประตูข้างเอียงเป็นผนังขนานขอบแมพ) ----
+  const top = y - H, archH = T * 0.55;
+  if (side) { g.translate(x, y); g.transform(0.42, 0.62 * side * -1, 0, 1, 0, 0); g.translate(-x, -y); }
+  const veil = new Path2D();
+  veil.moveTo(x - hw, y); veil.lineTo(x - hw, top + archH); veil.quadraticCurveTo(x, top - archH * 0.9, x + hw, top + archH); veil.lineTo(x + hw, y); veil.closePath();
+  const vg = g.createLinearGradient(0, top, 0, y);
+  vg.addColorStop(0, cb(0)); vg.addColorStop(0.35, cb(0.22)); vg.addColorStop(1, ca(0.42));
+  g.fillStyle = vg; g.fill(veil);
+  g.save(); g.clip(veil);
+  // วังวนลึก (วงรีหมุนหดเข้าไป = มีมิติเข้าไปข้างใน)
+  const vx = x, vy = y - H * 0.45;
+  for (let i = 0; i < 6; i++) {
+    const k = (t * 0.45 + i / 6) % 1, r = (1 - k) * hw * 0.95;
+    g.strokeStyle = (i % 2 ? cb : ca)(0.45 * k + 0.1); g.lineWidth = 2 + (1 - k) * 2;
+    g.setLineDash([r * 0.9, r * 0.5]); g.lineDashOffset = -t * 60 * (i % 2 ? 1 : -1);
+    g.beginPath(); g.ellipse(vx, vy, r, r * (ns ? 0.9 : 1.2), t * 0.8 + i, 0, 7); g.stroke();
+  }
+  g.setLineDash([]);
+  const core = g.createRadialGradient(vx, vy, 1, vx, vy, hw * 0.55);
+  core.addColorStop(0, 'rgba(255,255,255,0.75)'); core.addColorStop(0.4, ca(0.35)); core.addColorStop(1, ca(0));
+  g.fillStyle = core; g.beginPath(); g.arc(vx, vy, hw * 0.55, 0, 7); g.fill();
+  // เส้นแสงไหลขึ้น
+  for (let i = 0; i < 9; i++) {
+    const lx = x - hw + (i + 0.5) / 9 * Wv, ph = (t * 1.3 + i * 0.37) % 1, len = H * 0.35;
+    const ly = y - ph * (H + len);
+    const lg = g.createLinearGradient(0, ly, 0, ly + len); lg.addColorStop(0, ca(0)); lg.addColorStop(0.5, ca(0.55)); lg.addColorStop(1, ca(0));
+    g.fillStyle = lg; g.fillRect(lx - 1, ly, 2, len);
   }
   g.restore();
-  g.fillStyle = 'rgba(90,190,255,0.45)';
-  g.beginPath(); g.ellipse(x, y, 32, 14, 0, 0, 7); g.fill();
-  g.fillStyle = 'rgba(235,250,255,0.55)';
-  g.beginPath(); g.ellipse(x, y, 14, 6, 0, 0, 7); g.fill();
-  // ลำแสงตั้งขึ้นจากวาร์ป (เห็นได้แม้มีต้นไม้/มอนบังบางส่วน)
-  const pulse = 0.75 + 0.25 * Math.sin(t * 3);
-  const beam = g.createLinearGradient(0, y - 96, 0, y);
-  beam.addColorStop(0, 'rgba(110,205,255,0)'); beam.addColorStop(1, `rgba(120,215,255,${0.5 * pulse})`);
-  g.fillStyle = beam;
-  g.beginPath(); g.moveTo(x - 26, y); g.lineTo(x - 14, y - 96); g.lineTo(x + 14, y - 96); g.lineTo(x + 26, y); g.closePath(); g.fill();
-  for (let i = 0; i < 10; i++) {
-    const a = t * 2 + i * 0.63, h = (t * 34 + i * 11) % 60, r = 12 + (i % 3) * 6;
-    g.fillStyle = `rgba(200,240,255,${1 - h / 60})`;
-    g.fillRect(x + Math.cos(a) * r - 1, y + Math.sin(a) * r * 0.4 - h, 2, 5);
+  // ---- เสาแสงสองข้าง ----
+  for (const sx of [-1, 1]) {
+    const px = x + sx * hw, flick = 0.8 + 0.2 * Math.sin(t * 7 + sx + seed);
+    const pg = g.createLinearGradient(px - 9, 0, px + 9, 0);
+    pg.addColorStop(0, ca(0)); pg.addColorStop(0.5, ca(0.75 * flick)); pg.addColorStop(1, ca(0));
+    g.fillStyle = pg; g.fillRect(px - 9, top + archH * 0.4, 18, y - top - archH * 0.4);
+    g.fillStyle = `rgba(255,255,255,${0.85 * flick})`; g.fillRect(px - 1.2, top + archH * 0.6, 2.4, y - top - archH * 0.6);
+    const cap = g.createRadialGradient(px, top + archH * 0.5, 1, px, top + archH * 0.5, 16);
+    cap.addColorStop(0, 'rgba(255,255,255,0.95)'); cap.addColorStop(1, ca(0)); g.fillStyle = cap; g.beginPath(); g.arc(px, top + archH * 0.5, 16, 0, 7); g.fill();
   }
+  // ---- โค้งรูน (เรืองเป็นลำดับ) ----
+  g.strokeStyle = ca(0.8); g.lineWidth = 2.2; g.beginPath(); g.moveTo(x - hw, top + archH); g.quadraticCurveTo(x, top - archH * 0.9, x + hw, top + archH); g.stroke();
+  const runes = 7;
+  for (let i = 0; i < runes; i++) {
+    const u = (i + 1) / (runes + 1), bx = (1 - u) * (1 - u) * (x - hw) + 2 * (1 - u) * u * x + u * u * (x + hw);
+    const by = (1 - u) * (1 - u) * (top + archH) + 2 * (1 - u) * u * (top - archH * 0.9) + u * u * (top + archH) - 8;
+    const on = 0.35 + 0.65 * Math.max(0, Math.sin(t * 3 - i * 0.7));
+    g.strokeStyle = `rgba(255,255,255,${on})`; g.lineWidth = 1.6; g.beginPath();
+    const r0 = 4; // อักษรรูนแบบง่าย: เส้นตั้ง + ขีดเฉียงตามลำดับ
+    g.moveTo(bx, by - r0); g.lineTo(bx, by + r0);
+    if (i % 3 === 0) { g.moveTo(bx, by - r0); g.lineTo(bx + r0 * 0.8, by - r0 * 0.2); }
+    else if (i % 3 === 1) { g.moveTo(bx - r0 * 0.7, by - r0 * 0.4); g.lineTo(bx + r0 * 0.7, by + r0 * 0.4); }
+    else { g.moveTo(bx, by); g.lineTo(bx + r0 * 0.8, by - r0 * 0.6); g.moveTo(bx, by); g.lineTo(bx - r0 * 0.8, by - r0 * 0.6); }
+    g.stroke();
+  }
+  // ---- ประกายลอยขึ้นทั่วประตู ----
+  for (let i = 0; i < 16; i++) {
+    const k = (t * 0.4 + i / 16 + seed * 0.05) % 1, mx = x + Math.sin(i * 12.9 + t * 0.7) * hw * 0.95, my = y - k * H * 1.15;
+    g.fillStyle = (i % 3 ? ca : cb)(0.9 * Math.sin(k * Math.PI)); g.beginPath(); g.arc(mx, my, 1.4 + (i % 3) * 0.6, 0, 7); g.fill();
+  }
+  g.globalCompositeOperation = 'source-over';
+  // ---- ป้ายปลายทางเหนือโค้ง ----
+  if (d.name) {
+    const label = `${ns ? (p.y <= 1 ? '⬆ ' : '⬇ ') : p.x <= 1 ? '⬅ ' : ''}${d.name}${!ns && p.x > 1 ? ' ➜' : ''}`;
+    g.font = '700 11px Kanit, "Noto Sans Thai", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
+    g.lineWidth = 3.5; g.strokeStyle = 'rgba(6,10,20,0.85)'; g.strokeText(label, x, top - archH - 6);
+    g.fillStyle = ca(1); g.fillText(label, x, top - archH - 6);
+  }
+  g.restore();
 };
 
 // ------------------------------------------------------------
