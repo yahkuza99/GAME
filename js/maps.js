@@ -43,6 +43,7 @@ const MAP_DEFS = {
     links: { N: 'eldheim', S: 'helcave' }, level: '18-30',
     spawns: [['ashtail', 16], ['fenrir_pup', 14], ['mossback', 10], ['tuskboar', 9]], // tuskboar ตีก่อน: เพิ่มน้อย กันโดนรุม
     grass: '#4f8a3a', trees: 1.7, ponds: 1, flowers: 0.02, pine: true,
+    dark: 'rgba(6,14,38,0.62)', nightLight: 5, // กลางคืนแสงจันทร์ (ตามภาพประกอบแผนที่) — เห็ดเรืองแสงเป็นแหล่งแสง
   },
   // ลานประลอง PvP: ผู้เล่นตีกันได้ ไม่มีมอน ตายไม่เสีย EXP (ต้องออนไลน์ถึงจะเจอคู่ต่อสู้)
   arena: {

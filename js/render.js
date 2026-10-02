@@ -333,9 +333,12 @@ R.render = () => {
     const dc = R.dark, dg = dc.getContext('2d');
     dg.globalCompositeOperation = 'source-over';
     dg.clearRect(0, 0, dc.width, dc.height);
-    dg.fillStyle = 'rgba(5,3,10,0.72)'; dg.fillRect(0, 0, dc.width, dc.height);
+    dg.fillStyle = typeof map.def.dark === 'string' ? map.def.dark : 'rgba(5,3,10,0.72)'; dg.fillRect(0, 0, dc.width, dc.height); // dark = สี → กลางคืน (เช่น Wolfwood แสงจันทร์)
     dg.globalCompositeOperation = 'destination-out';
-    const lights = [[p.x, p.y, 7]];
+    const lights = [[p.x, p.y, map.def.nightLight || 7]];
+    if (!map.lightProps) map.lightProps = (map.props || []).filter(q => q.kind === 'mushroom' || q.kind === 'lamp' || q.kind === 'crystal')
+      .map(q => ({ x: q.x, y: q.y, lr: q.kind === 'lamp' ? 3 : 1.8, col: q.kind === 'mushroom' ? '140,255,170' : q.kind === 'crystal' ? '200,140,255' : '255,210,140' }));
+    for (const q of map.lightProps) if (Math.abs(q.x - p.x) < 22 && Math.abs(q.y - p.y) < 16) lights.push([q.x, q.y, q.lr]); // เห็ดเรืองแสง/ตะเกียง/คริสตัล ส่องในที่มืด
     for (const f of G.fx) if (['firebolt', 'firering', 'lightning', 'holy', 'levelup'].includes(f.type)) {
       const pos = R.fxPos(f); lights.push([pos.x, pos.y, 3]);
     }
@@ -347,6 +350,17 @@ R.render = () => {
       dg.fillStyle = grd; dg.beginPath(); dg.arc(x, y, r, 0, 7); dg.fill();
     }
     g.drawImage(dc, 0, 0, R.W, R.H);
+    // แสงเรืองสีของแหล่งแสง (เห็ดเขียว/คริสตัลม่วง/ตะเกียงส้ม) ทับความมืดแบบบวกแสง
+    if (R.quality !== 'low') {
+      g.save(); g.globalCompositeOperation = 'lighter';
+      for (const q of map.lightProps) {
+        if (Math.abs(q.x - p.x) > 22 || Math.abs(q.y - p.y) > 16) continue;
+        const x = (q.x * TILE - R.camX) * R.zoom, y = (q.y * TILE * R.K - 10 - R.camY) * R.zoom, r = q.lr * TILE * R.zoom * 0.7 * (1 + Math.sin(t * 2 + q.x) * 0.06);
+        const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(${q.col},0.22)`); gr.addColorStop(1, `rgba(${q.col},0)`);
+        g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+      }
+      g.restore();
+    }
     if (R.quality !== 'low') R.drawAtmosphere(g, map, t); // ถ้ำมืด: อนุภาคเรืองแสงอยู่เหนือความมืด (มองเห็นในที่มืด)
   }
   // HP ต่ำ: ขอบจอแดง
@@ -367,19 +381,21 @@ R.parts = []; R.lastT = 0; R.partMap = null;
 const ATMOS = {
   meadow:   { kind: 'petal', n: 26, grade: 'rgba(255,236,170,0.07)' },
   eldheim:  { kind: 'petal', n: 14, grade: 'rgba(255,236,190,0.06)' },
-  mistlake: { kind: 'firefly', n: 22, fog: true, grade: 'rgba(200,225,255,0.07)' },
-  wolfwood: { kind: 'leaf', n: 26, rays: true, grade: 'rgba(40,70,30,0.10)' },
+  mistlake: { kind: 'firefly', n: 26, fog: true, grade: 'rgba(240,130,170,0.13)' },   // ยามเย็น ชมพูอมม่วง
+  wolfwood: { kind: 'firefly', n: 40, fog: true, grade: 'rgba(20,40,70,0.06)' },     // กลางคืน หิ่งห้อย + หมอก (อยู่เหนือความมืด)
   helcave:  { kind: 'dust', n: 36, grade: 'rgba(70,40,110,0.10)' },
   // vibe เพิ่ม (2026-10-02): เงาเมฆลอยผ่าน + แสงแดดเฉียงในแมพกลางแจ้ง • แมพลึกมีอนุภาคของตัวเอง
   arena:    { kind: 'ember', n: 24, grade: 'rgba(120,50,20,0.06)' },  // ประกายไฟลอย
 };
 // แมพกลางแจ้ง: เงาเมฆ (ทึบเท่าไร) + แสงแดดจากมุมซ้ายบน
-const SKY = { meadow: { cloud: 0.2, sun: 0.12 }, eldheim: { cloud: 0.15, sun: 0.1 }, mistlake: { cloud: 0.11, sun: 0.06 }, wolfwood: { cloud: 0.15, sun: 0.07 } };
+// ให้บรรยากาศใกล้ภาพประกอบแผนที่ (assets/map_*.webp): ทุ่งหญ้าแดดจ้า • ทะเลสาบหมอก = ยามเย็นแสงชมพูส้มจากขวา • ป่าหมาป่า = กลางคืนแสงจันทร์ฟ้า
+const SKY = { meadow: { cloud: 0.2, sun: 0.12 }, eldheim: { cloud: 0.15, sun: 0.1 },
+  mistlake: { cloud: 0.08, sun: 0.24, col: '255,140,130', from: 'right' }, wolfwood: { cloud: 0, sun: 0.12, col: '150,190,255', from: 'right' } };
 R.drawSky = (g, map, t) => {
   const S = SKY[map.id]; if (!S) return;
   const z = R.zoom, P = 900; // เมฆวนซ้ำทุก P px ของโลก (ยึดกับโลก: เดินแล้วเงาเลื่อนตามพื้น)
   g.save();
-  for (let k = 0; k < 4; k++) {
+  for (let k = 0; k < (S.cloud ? 4 : 0); k++) {
     const wx0 = ((k * 613 + t * (9 + k * 2)) % P + P) % P, wy0 = (k * 347) % P;
     for (let ox = -P; ox <= P; ox += P) for (let oy = -P; oy <= P; oy += P) {
       const sx = (wx0 + ox + Math.floor(R.camX / P) * P - R.camX) * z, sy = (wy0 + oy + Math.floor(R.camY / P) * P - R.camY) * z;
@@ -395,8 +411,9 @@ R.drawSky = (g, map, t) => {
   }
   // แสงแดดอุ่นจากมุมซ้ายบน (ค่อย ๆ หายใจ)
   const a = S.sun * (0.85 + Math.sin(t * 0.25) * 0.15);
-  const sg = g.createRadialGradient(-R.W * 0.1, -R.H * 0.2, 0, -R.W * 0.1, -R.H * 0.2, Math.hypot(R.W, R.H) * 0.9);
-  sg.addColorStop(0, `rgba(255,226,160,${a * 1.6})`); sg.addColorStop(0.5, `rgba(255,226,160,${a * 0.5})`); sg.addColorStop(1, 'rgba(255,226,160,0)');
+  const col = S.col || '255,226,160', sx = S.from === 'right' ? R.W * 1.1 : -R.W * 0.1;
+  const sg = g.createRadialGradient(sx, -R.H * 0.2, 0, sx, -R.H * 0.2, Math.hypot(R.W, R.H) * 0.9);
+  sg.addColorStop(0, `rgba(${col},${a * 1.6})`); sg.addColorStop(0.5, `rgba(${col},${a * 0.5})`); sg.addColorStop(1, `rgba(${col},0)`);
   g.globalCompositeOperation = 'lighter'; g.fillStyle = sg; g.fillRect(0, 0, R.W, R.H);
   g.restore();
 };
