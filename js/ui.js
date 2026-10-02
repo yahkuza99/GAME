@@ -201,6 +201,7 @@ const UI = {
     el.classList.toggle('mini', !!G.edgeCross); // เดินข้ามขอบ = ป้ายชื่อเล็ก ไม่บังจอ
     el.style.backgroundImage = art && !G.edgeCross ? `url("${art.src}")` : '';
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+    this._bannerUntil = performance.now() + (story && !G.edgeCross ? 4400 : 3300);
   },
   updateHud() {
     const p = G.player, d = p.d;
@@ -1875,6 +1876,9 @@ const UI = {
   },
   // ฉากเปิดตัวบอส
   splash(key, title, sub, cls) {
+    // ป้ายชื่อแมพยังแสดงอยู่ → คำเตือนบอสรอให้จบก่อน (ใช้ช่องบนจอเดียวกัน ไม่ทับกัน)
+    const wait = cls !== 'upgrade' ? (this._bannerUntil || 0) - performance.now() : 0;
+    if (wait > 0) { clearTimeout(this._splashT); this._splashT = setTimeout(() => this.splash(key, title, sub, cls), wait); return; }
     const img = Art.get(key);
     const el = $('#splash');
     el.innerHTML = '';
