@@ -89,12 +89,12 @@ Monster bust portrait for an anime sci-fi Norse RPG called NEO MIDGARD where eve
 Monster bust portrait for an anime sci-fi Norse RPG called NEO MIDGARD where every monster is a humanoid ANDROID personification of a machine (no animals, no humans). FACE RULE: the head has a smooth metal faceplate with a glowing visor strip: NO eyes, NO pupils, NO mouth. Hostile units have red or colored glowing visors. A square bust portrait (head and shoulders, facing slightly left) that fills the whole canvas with a dark moody background tinted in the monster's glow color, painterly cel-shaded anime gacha style, crisp lineart, rim light. No text, no letters, no frame. Square 1:1 image (1024x1024). Rust Husk: a battered android in a dented horned viking helmet, almost entirely corroded orange-brown, rust cracks glowing hot orange from inside, a single red visor slit, torn cloth over the shoulders. Angry, hunched. Background: burnt orange haze.
 ```
 
-### 18. Root Crawler — ภาพหน้า
+### ✅ 18. Root Crawler — ภาพหน้า
 ```
 Monster bust portrait for an anime sci-fi Norse RPG called NEO MIDGARD where every monster is a humanoid ANDROID personification of a machine (no animals, no humans). FACE RULE: the head has a smooth metal faceplate with a glowing visor strip: NO eyes, NO pupils, NO mouth. Hostile units have red or colored glowing visors. A square bust portrait (head and shoulders, facing slightly left) that fills the whole canvas with a dark moody background tinted in the monster's glow color, painterly cel-shaded anime gacha style, crisp lineart, rim light. No text, no letters, no frame. Square 1:1 image (1024x1024). Root Crawler Unit: a small android with short dark-bronze segmented hair plates, a dim amber slit visor, a tiny drill-tipped antenna, tangled root fibers caught around the neck, a cracked inspection lamp on the shoulder. Background: dark bronze roots in red-brown gloom.
 ```
 
-### 19. Gnawed Sentry — ภาพหน้า
+### ✅ 19. Gnawed Sentry — ภาพหน้า
 ```
 Monster bust portrait for an anime sci-fi Norse RPG called NEO MIDGARD where every monster is a humanoid ANDROID personification of a machine (no animals, no humans). FACE RULE: the head has a smooth metal faceplate with a glowing visor strip: NO eyes, NO pupils, NO mouth. Hostile units have red or colored glowing visors. A square bust portrait (head and shoulders, facing slightly left) that fills the whole canvas with a dark moody background tinted in the monster's glow color, painterly cel-shaded anime gacha style, crisp lineart, rim light. No text, no letters, no frame. Square 1:1 image (1024x1024). Gnawed Sentry: a stocky old guard android with a faded grey-violet bark-textured helmet, a big chunk bitten out of one side, a steady pale violet slit visor, a tiny guard lantern clipped to the collar. Stubborn, dignified. Background: grey-violet dusk in the roots.
 ```

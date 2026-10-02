@@ -981,10 +981,10 @@ Rows per priority: P1 = 36, P1+ = 6, P2 = 32, P2+ = 2, P3 = 72, P4 = 2, P4+ = 5,
 | ✅ | 53 | P2 | `mob_rust_draugr.webp` | 160² · tile |
 | ✅ | 54 | P2 | `mobsprite_rust_draugr.webp` | ≤320 · transparent |
 | ✅ | 55 | P2 | `anim_mob_rust_draugr_walk.webp` + `anim_mob_rust_draugr_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
-| ⬜ | 56 | P2 | `mob_root_crawler.webp` | 160² · tile |
+| ✅ | 56 | P2 | `mob_root_crawler.webp` | 160² · tile |
 | ✅ | 57 | P2 | `mobsprite_root_crawler.webp` | ≤320 · transparent |
 | ⬜ | 58 | P2 | `anim_mob_root_crawler_walk.webp` + `anim_mob_root_crawler_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
-| ⬜ | 59 | P2 | `mob_gnawed_stump.webp` | 160² · tile |
+| ✅ | 59 | P2 | `mob_gnawed_stump.webp` | 160² · tile |
 | ✅ | 60 | P2 | `mobsprite_gnawed_stump.webp` | ≤320 · transparent |
 | ⬜ | 61 | P2 | `anim_mob_gnawed_stump_walk.webp` + `anim_mob_gnawed_stump_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
 | ⬜ | 62 | P2 | `mob_gnawed_brute.webp` | 160² · tile |
