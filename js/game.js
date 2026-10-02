@@ -562,6 +562,10 @@ function shout(text) { G.player.speech = { text, until: G.time + 1.6, shout: tru
 // ------------------------------------------------------------
 function getMap(id) {
   if (!G.mapCache[id]) G.mapCache[id] = new GameMap(id);
+  // แผนที่ใหญ่ (สูงสุด 84×84 = ภาพพื้น ~3,400px) กินหน่วยความจำ → เก็บแคชไว้แค่ 3 แผนที่ล่าสุด
+  const order = G.mapOrder || (G.mapOrder = []);
+  const i = order.indexOf(id); if (i >= 0) order.splice(i, 1); order.push(id);
+  while (order.length > 3) { const old = order.shift(); if (G.mapCache[old] !== G.map) delete G.mapCache[old]; }
   return G.mapCache[id];
 }
 function changeMap(id, x, y, opts = {}) {

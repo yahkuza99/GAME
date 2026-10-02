@@ -27,22 +27,22 @@ const MAP_DEFS = {
     ],
   },
   meadow: {
-    name: 'Emerald Meadow', thai: L('ทุ่งหญ้ามรกต', 'Emerald Grasslands'), w: 56, h: 56, kind: 'field', seed: 202,
+    name: 'Emerald Meadow', thai: L('ทุ่งหญ้ามรกต', 'Emerald Grasslands'), w: 84, h: 84, // ขยาย 1.5 เท่า (2026-10-02) kind: 'field', seed: 202,
     links: { W: 'eldheim', E: 'mistlake' }, level: '1-6',
-    spawns: [['pudding', 20], ['leafworm', 11], ['moonbun', 11], ['ember_pudding', 9], ['buzzfly', 7]],
-    grass: '#6fae4a', trees: 0.9, ponds: 2, flowers: 0.05,
+    spawns: [['pudding', 36], ['leafworm', 20], ['moonbun', 20], ['ember_pudding', 16], ['buzzfly', 13]],
+    grass: '#6fae4a', trees: 0.9, ponds: 4, flowers: 0.05,
   },
   mistlake: {
-    name: 'Mistlake Plains', thai: L('ที่ราบทะเลสาบหมอก', 'Plains of the Misty Lake'), w: 56, h: 56, kind: 'field', seed: 303,
+    name: 'Mistlake Plains', thai: L('ที่ราบทะเลสาบหมอก', 'Plains of the Misty Lake'), w: 84, h: 84, kind: 'field', seed: 303,
     links: { W: 'meadow' }, level: '8-16 (MVP: Seraph Core)',
-    spawns: [['fiddlehopper', 15], ['stumpling', 12], ['capshroom', 12], ['moss_pudding', 12]], mvp: 'seraph_pudding',
-    grass: '#86b04a', trees: 0.8, ponds: 4, flowers: 0.08, treeHue: '#5f9a3a', flora: 'lake',
+    spawns: [['fiddlehopper', 27], ['stumpling', 22], ['capshroom', 22], ['moss_pudding', 22]], mvp: 'seraph_pudding',
+    grass: '#86b04a', trees: 0.8, ponds: 8, flowers: 0.08, treeHue: '#5f9a3a', flora: 'lake',
   },
   wolfwood: {
-    name: 'Wolfwood Forest', thai: L('ป่าหมาป่า', 'Forest of the Wolves'), w: 56, h: 56, kind: 'field', seed: 404,
+    name: 'Wolfwood Forest', thai: L('ป่าหมาป่า', 'Forest of the Wolves'), w: 84, h: 84, kind: 'field', seed: 404,
     links: { N: 'eldheim', S: 'helcave' }, level: '18-30',
-    spawns: [['ashtail', 16], ['fenrir_pup', 14], ['mossback', 10], ['tuskboar', 9]], // tuskboar ตีก่อน: เพิ่มน้อย กันโดนรุม
-    grass: '#4f8a3a', trees: 1.7, ponds: 1, flowers: 0.02, pine: true,
+    spawns: [['ashtail', 29], ['fenrir_pup', 25], ['mossback', 18], ['tuskboar', 14]], // tuskboar ตีก่อน: เพิ่มน้อย กันโดนรุม
+    grass: '#4f8a3a', trees: 1.7, ponds: 2, flowers: 0.02, pine: true,
     dark: 'rgba(6,14,38,0.62)', nightLight: 5, // กลางคืนแสงจันทร์ (ตามภาพประกอบแผนที่) — เห็ดเรืองแสงเป็นแหล่งแสง
   },
   // ลานประลอง PvP: ผู้เล่นตีกันได้ ไม่มีมอน ตายไม่เสีย EXP (ต้องออนไลน์ถึงจะเจอคู่ต่อสู้)
@@ -52,10 +52,10 @@ const MAP_DEFS = {
     grass: '#8a9a5a', trees: 0.25, ponds: 0, flowers: 0.02, flora: 'arena',
   },
   helcave: {
-    name: "Hel's Hollow", thai: L('โพรงถ้ำแห่งเฮล', 'Cavern of Hel'), w: 50, h: 50, kind: 'cave', seed: 505, dark: true,
+    name: "Hel's Hollow", thai: L('โพรงถ้ำแห่งเฮล', 'Cavern of Hel'), w: 75, h: 75, kind: 'cave', seed: 505, dark: true,
     links: { N: 'wolfwood' }, level: '17-45 (MVP: Kitsura EX)',
-    npcs: [{ id: 'hel', name: 'Hel', x: 25, y: 27, look: 'hel' }], // ราชินีแห่งโพรง (บทที่ 5) นั่งกลางชั้นวางประกาย
-    spawns: [['draugr', 10], ['bone_warden', 8], ['hel_maiden', 7], ['hel_guard', 6]], mvp: 'kitsura',
+    npcs: [{ id: 'hel', name: 'Hel', x: 37, y: 40, look: 'hel' }], // ราชินีแห่งโพรง (บทที่ 5) นั่งกลางชั้นวางประกาย
+    spawns: [['draugr', 18], ['bone_warden', 14], ['hel_maiden', 13], ['hel_guard', 11]], mvp: 'kitsura',
   },
 };
 const HOME_MAP = 'eldheim';
