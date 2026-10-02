@@ -116,14 +116,15 @@ const Juice = (() => {
     for (let i = 0; i < n; i++) parts.push({ a: rnd(0, TAU), v: rnd(0.6, 1) * spd, l: rnd(3, 9) });
     pushFx({ jk: 'sparks', x: m.x, y: m.y, h: 18 * s, dur: 0.22, col, parts });
   };
-  J.shatter = (m, big) => {
+  // dir = ทิศที่ถูกตี (เศษ 60% พุ่งตามทิศนั้น = รู้สึก "ตีกระเด็น") • over = ตายด้วยดาเมจเกิน MaxHP → เศษพุ่งแรงขึ้น
+  J.shatter = (m, big, dir, over) => {
     const s = (m.def.scale || 1) * (m.def.size || 1), lo = low();
-    const n = Math.round((big ? 48 : 22) * (lo ? 0.5 : 1));
+    const n = Math.round((big ? 48 : 22) * (lo ? 0.5 : 1) * (over ? 1.3 : 1));
     const glow = mobGlow(m), col = mobCol(m), parts = [];
     for (let i = 0; i < n; i++) {
-      const a = rnd(0, TAU), body = i % 3 === 2;
+      const a = dir != null && rand() < 0.6 ? dir + rnd(-0.9, 0.9) : rnd(0, TAU), body = i % 3 === 2;
       parts.push({
-        a, v: rnd(30, 95) * (big ? 1.9 : 1) * Math.sqrt(s), rise: rnd(10, 46) * (big ? 1.5 : 1), sz: rnd(2.6, 5.4) * (big ? 1.5 : 1) * Math.min(1.6, Math.sqrt(s)),
+        a, v: rnd(30, 95) * (big ? 1.9 : 1) * (over ? 1.5 : 1) * Math.sqrt(s), rise: rnd(10, 46) * (big ? 1.5 : 1), sz: rnd(2.6, 5.4) * (big ? 1.5 : 1) * Math.min(1.6, Math.sqrt(s)),
         rot: rnd(0, TAU), w: rnd(-9, 9), life: rnd(0.45, 1), c: body ? col : i % 3 === 0 ? '#ffffff' : glow, sq: rand() < 0.35, body, halo: !body && i % 2 === 0,
       });
     }
@@ -302,7 +303,22 @@ const Juice = (() => {
     if (!vis() || m.isPlayer || m.def.dummy) return;
     const big = isBoss(m), z = st(m);
     z.deadAt = G.time;
-    J.shatter(m, big);
+    const recent = G.time - z.hitT < 0.5, over = !big && (m._over || 0) >= 1;
+    J.shatter(m, big, recent ? Math.atan2(z.ry, z.rx) : null, over);
+    if (!big && (m._over || 0) >= 2 && rand() < 0.5) addFloater(m.x, m.y - 1.2, 'OVERKILL', '#ffb46a', false);
+    // Multi-kill: ฆ่า ≥3 ตัวภายใน 0.25 วิ → วงช็อกเวฟกลางกลุ่ม + TRIPLE!/MULTI! (ครั้งเดียวต่อชุด)
+    const nowR = performance.now();
+    J.mk = (J.mk || []).filter(k => nowR - k.t < 250); J.mk.push({ t: nowR, x: m.x, y: m.y });
+    if (J.mk.length >= 3 && !(J.mkShown > nowR - 400 && J.mkN >= J.mk.length)) {
+      const firstOfBurst = !(J.mkShown > nowR - 400);
+      J.mkShown = nowR; J.mkN = J.mk.length;
+      const cx = J.mk.reduce((a, k) => a + k.x, 0) / J.mk.length, cy = J.mk.reduce((a, k) => a + k.y, 0) / J.mk.length;
+      if (firstOfBurst || J.mk.length === 5) {
+        G.fx.push({ type: 'feel_nova', feel: true, t: 0, dur: 0.5, ref: { x: cx, y: cy }, x: cx, y: cy, col: '#ffe08a', rad: 3 });
+        addFloater(cx, cy - 1.6, J.mk.length >= 5 ? 'MULTI KILL!' : 'TRIPLE!', '#ffe08a', true);
+        J.shake(4, 0.2);
+      }
+    }
     if (big) {
       // MVP / World Boss: ค้าง 150ms → สโลว์ 0.35x อีก 0.4 วิ + ลำแสง + แฟลชทอง + จอสั่นแรง
       J.dilate(0.05, 0.15, true);
@@ -639,6 +655,8 @@ const Juice = (() => {
       const kind = 'element' in opts ? 'skill' : (!('sfx' in opts) && opts.color) ? 'dot' : 'hit';
       const prev = J.ctx;
       J.ctx = { kind: 'mob', crit: !!opts.crit, skill: kind === 'skill', dot: kind === 'dot', el: opts.element || 'neutral', boss: isBoss(m) };
+      const hp0 = m.hp;
+      m._over = Math.max(0, (dmg - hp0) / Math.max(1, m.maxHp));
       try { dm0(m, dmg, opts); } finally { J.ctx = prev; }
       J.onMobHit(m, dmg, opts, kind);
     };
