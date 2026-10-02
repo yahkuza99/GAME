@@ -295,7 +295,10 @@ const Juice = (() => {
     if (skill && opts.element && EL_FILTER[opts.element]) { z.tintEl = opts.element; z.tintUntil = now + 0.34; }
     // รอยฟันแบบ RO: เฉพาะตีประชิดธรรมดา (ธนู/สกิล/DoT ไม่มี) — sfx 'slash' = อาวุธมีคม, 'smash' = อาวุธทุบ
     if (kind === 'hit' && (opts.sfx === 'slash' || opts.sfx === 'smash')) J.slashMark(m, opts);
-    if (crit) { J.dilate(0.25, 0.045); J.sparks(m, '#ffd23a', 14, 54); J.shake(3, 0.14); }
+    if (crit) {
+      J.dilate(0.25, 0.045); J.sparks(m, '#ffd23a', 14, 54); J.shake(3, 0.14);
+      if (performance.now() - (J.critFl || 0) > 350) { J.critFl = performance.now(); J.flash('crit', 0.14); } // วาบขาวทองสั้น ๆ (GAME_FEEL ข้อ 10)
+    }
     else if (big) { J.dilate(0.2, 0.06); J.sparks(m, EL_COL[opts.element] || '#bff4ff', 9, 40); J.shake(2.5, 0.12); }
     else if (melee && !boss) { J.sparks(m, '#fff1c8', 5, 30); J.shake(1.1, 0.06); } // ตีประชิดปกติ: ประกายเล็ก + จอกระตุกนิด
   };
