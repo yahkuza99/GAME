@@ -91,8 +91,14 @@ def process(rgba, act=''):
     if remove.any():
         near = cv2.dilate(remove.astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool)
         rgb = rgba[..., :3].astype(np.int32)
-        bluish = (rgb[..., 2] > rgb[..., 0] + 25) & (alpha > 20)
-        remove |= near & bluish
+        if MARKER == 'magenta':  # แท่งเรืองแสง: ขอบชมพูอ่อน + แกนกลางสีขาว
+            mx, mn = rgb.max(-1), rgb.min(-1)
+            glow = (((rgb[..., 0] > rgb[..., 1] + 25) & (rgb[..., 2] > rgb[..., 1] + 25)) | ((mn > 200) & (mx - mn < 70))) & (alpha > 20)
+            core = cv2.morphologyEx(remove.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8)).astype(bool)
+            remove |= (near & glow) | (core & (alpha > 20))
+        else:
+            bluish = (rgb[..., 2] > rgb[..., 0] + 25) & (alpha > 20)
+            remove |= near & bluish
     # ตัวเปล่า: ส่วนที่ลบซึ่งอยู่ "บนตัว" เติมสีจากรอบข้าง ส่วนที่อยู่นอกตัวทำให้โปร่ง
     body = ((alpha > 90) & ~remove).astype(np.uint8)
     sil = cv2.morphologyEx(body, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11)))
