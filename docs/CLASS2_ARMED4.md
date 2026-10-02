@@ -1,0 +1,340 @@
+# ภาพ Class 2 แบบถืออาวุธในภาพ — แชตละ 4 ภาพ
+
+
+รวม 18 แชต
+
+
+**แชตละ 4 ภาพ (เจ้าของเลือก):** ชุด A = Class เดียว เดิน+ตี (ชาย/หญิง) • ชุด B = สกิลของ 2 Class (ชาย/หญิง × 2)
+ถ้าได้ไม่ครบ พิมพ์ `now draw IMAGE 2` (3, 4) • ส่งภาพกลับมาตอนที่ Claude ตอบเสร็จแล้ว ทีละ 2–4 ภาพ
+ท่าเดินเพี้ยน/ก้าวถอยหลัง: `Redraw the WALK image frame by frame copying the mannequin in walk_rig.png (blue = LEFT leg, orange = RIGHT leg), walking forward in every row`
+อาวุธเพี้ยน: `Redraw: the weapon must look exactly like the attached reference, same size, in every frame`
+
+## 1. Valkyrie Knight (สาย einherjar) — ชุด A: เดิน + ตี
+
+แนบ: `template_tpl_walk.png`, `walk_rig.png`, `7_valkyrie_m.png`, `7_valkyrie_f.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and two character designs (male and female) of the Valkyrie Knight class.
+PURPOSE: this is a frame-by-frame animation sprite sheet for a 2D action RPG game. The game plays the 4 frames of each row in order from left to right (WALK loops 1-2-3-4-1-2... so frame 4 must flow smoothly back into frame 1; ATTACK plays once 1-2-3-4). Every frame must be a clearly different pose, consistent with the frames before and after it, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+WEAPON: a golden longsword in the RIGHT hand and a round golden sun shield on the LEFT arm (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+WALK (copy the leg positions of the attached walk_rig.png mannequin frame by frame: BLUE = the character's LEFT leg, ORANGE = RIGHT leg), legs named from the CHARACTER's own left/right: FRAME 1 = LEFT foot far FORWARD with the heel down, RIGHT foot far BACK on its toes, RIGHT arm swings forward, LEFT arm back; FRAME 2 = RIGHT leg swinging FORWARD past the body with the knee lifted, LEFT leg straight under the body carrying the weight, arms at the sides; FRAME 3 = RIGHT foot far FORWARD with the heel down, LEFT foot far BACK on its toes, LEFT arm swings forward, RIGHT arm back; FRAME 4 = LEFT leg swinging FORWARD past the body with the knee lifted, RIGHT leg straight under the body, arms at the sides. Same leg order in EVERY direction row. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level and the body the same height in all frames. The hand holding the weapon keeps it in every frame (the weapon arm still swings naturally); sword carried low at the side, shield held in front of the body.
+ATTACK (plays once, frame by frame): sword slash with shield guard: 1 shield forward, sword pulled back; 2 diagonal slash forward and down; 3 follow-through; 4 recover behind the shield.
+IMAGE 1 — male WALK: Valkyrie Knight (male): white and gold winged armor, winged helmet, gold visor.
+IMAGE 2 — female WALK: Valkyrie Knight (female): white and gold winged armor, long blonde hair plates, winged helmet, gold visor.
+IMAGE 3 — male ATTACK: Valkyrie Knight (male): white and gold winged armor, winged helmet, gold visor.
+IMAGE 4 — female ATTACK: Valkyrie Knight (female): white and gold winged armor, long blonde hair plates, winged helmet, gold visor.
+```
+
+## 2. Hersir Vanguard (สาย einherjar) — ชุด A: เดิน + ตี
+
+แนบ: `template_tpl_walk.png`, `walk_rig.png`, `8_hersir_m.png`, `8_hersir_f.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and two character designs (male and female) of the Hersir Vanguard class.
+PURPOSE: this is a frame-by-frame animation sprite sheet for a 2D action RPG game. The game plays the 4 frames of each row in order from left to right (WALK loops 1-2-3-4-1-2... so frame 4 must flow smoothly back into frame 1; ATTACK plays once 1-2-3-4). Every frame must be a clearly different pose, consistent with the frames before and after it, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+WEAPON: a huge red glowing two-handed greatsword held with BOTH hands (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+WALK (copy the leg positions of the attached walk_rig.png mannequin frame by frame: BLUE = the character's LEFT leg, ORANGE = RIGHT leg), legs named from the CHARACTER's own left/right: FRAME 1 = LEFT foot far FORWARD with the heel down, RIGHT foot far BACK on its toes, RIGHT arm swings forward, LEFT arm back; FRAME 2 = RIGHT leg swinging FORWARD past the body with the knee lifted, LEFT leg straight under the body carrying the weight, arms at the sides; FRAME 3 = RIGHT foot far FORWARD with the heel down, LEFT foot far BACK on its toes, LEFT arm swings forward, RIGHT arm back; FRAME 4 = LEFT leg swinging FORWARD past the body with the knee lifted, RIGHT leg straight under the body, arms at the sides. Same leg order in EVERY direction row. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level and the body the same height in all frames. The hand holding the weapon keeps it in every frame (the weapon arm still swings naturally); greatsword resting on the shoulder, blade behind the head.
+ATTACK (plays once, frame by frame): heavy two-handed greatsword cleave: 1 sword raised high over the head; 2 huge downward cleave in front; 3 sword low near the ground; 4 heave back to stance.
+IMAGE 1 — male WALK: Hersir Vanguard (male): dark red heavy armor, torn crimson cape, red visor.
+IMAGE 2 — female WALK: Hersir Vanguard (female): dark red heavy armor, crimson ponytail, torn crimson cape, red visor.
+IMAGE 3 — male ATTACK: Hersir Vanguard (male): dark red heavy armor, torn crimson cape, red visor.
+IMAGE 4 — female ATTACK: Hersir Vanguard (female): dark red heavy armor, crimson ponytail, torn crimson cape, red visor.
+```
+
+## 3. Galdr Sage (สาย runecaster) — ชุด A: เดิน + ตี
+
+แนบ: `template_tpl_walk.png`, `walk_rig.png`, `9_galdr_m.png`, `9_galdr_f.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and two character designs (male and female) of the Galdr Sage class.
+PURPOSE: this is a frame-by-frame animation sprite sheet for a 2D action RPG game. The game plays the 4 frames of each row in order from left to right (WALK loops 1-2-3-4-1-2... so frame 4 must flow smoothly back into frame 1; ATTACK plays once 1-2-3-4). Every frame must be a clearly different pose, consistent with the frames before and after it, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+WEAPON: a tall ice-crystal staff in the RIGHT hand (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+WALK (copy the leg positions of the attached walk_rig.png mannequin frame by frame: BLUE = the character's LEFT leg, ORANGE = RIGHT leg), legs named from the CHARACTER's own left/right: FRAME 1 = LEFT foot far FORWARD with the heel down, RIGHT foot far BACK on its toes, RIGHT arm swings forward, LEFT arm back; FRAME 2 = RIGHT leg swinging FORWARD past the body with the knee lifted, LEFT leg straight under the body carrying the weight, arms at the sides; FRAME 3 = RIGHT foot far FORWARD with the heel down, LEFT foot far BACK on its toes, LEFT arm swings forward, RIGHT arm back; FRAME 4 = LEFT leg swinging FORWARD past the body with the knee lifted, RIGHT leg straight under the body, arms at the sides. Same leg order in EVERY direction row. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level and the body the same height in all frames. The hand holding the weapon keeps it in every frame (the weapon arm still swings naturally); staff carried upright like a walking stick.
+ATTACK (plays once, frame by frame): staff strike: 1 staff drawn back; 2 quick forward thrust of the crystal head; 3 arm extended; 4 recover.
+IMAGE 1 — male WALK: Galdr Sage (male): light-blue and white rune robes, blue hair plates, blue visor.
+IMAGE 2 — female WALK: Galdr Sage (female): light-blue and white rune robes, long blue hair plates, blue visor.
+IMAGE 3 — male ATTACK: Galdr Sage (male): light-blue and white rune robes, blue hair plates, blue visor.
+IMAGE 4 — female ATTACK: Galdr Sage (female): light-blue and white rune robes, long blue hair plates, blue visor.
+```
+
+## 4. Seidr Witch (สาย runecaster) — ชุด A: เดิน + ตี
+
+แนบ: `template_tpl_walk.png`, `walk_rig.png`, `10_seidr_m.png`, `10_seidr_f.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and two character designs (male and female) of the Seidr Witch class.
+PURPOSE: this is a frame-by-frame animation sprite sheet for a 2D action RPG game. The game plays the 4 frames of each row in order from left to right (WALK loops 1-2-3-4-1-2... so frame 4 must flow smoothly back into frame 1; ATTACK plays once 1-2-3-4). Every frame must be a clearly different pose, consistent with the frames before and after it, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+WEAPON: a dark staff with a glowing purple ring orb in the RIGHT hand (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+WALK (copy the leg positions of the attached walk_rig.png mannequin frame by frame: BLUE = the character's LEFT leg, ORANGE = RIGHT leg), legs named from the CHARACTER's own left/right: FRAME 1 = LEFT foot far FORWARD with the heel down, RIGHT foot far BACK on its toes, RIGHT arm swings forward, LEFT arm back; FRAME 2 = RIGHT leg swinging FORWARD past the body with the knee lifted, LEFT leg straight under the body carrying the weight, arms at the sides; FRAME 3 = RIGHT foot far FORWARD with the heel down, LEFT foot far BACK on its toes, LEFT arm swings forward, RIGHT arm back; FRAME 4 = LEFT leg swinging FORWARD past the body with the knee lifted, RIGHT leg straight under the body, arms at the sides. Same leg order in EVERY direction row. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level and the body the same height in all frames. The hand holding the weapon keeps it in every frame (the weapon arm still swings naturally); staff carried upright like a walking stick.
+ATTACK (plays once, frame by frame): staff strike: 1 staff drawn back; 2 quick forward thrust of the orb; 3 arm extended; 4 recover.
+IMAGE 1 — male WALK: Seidr Witch (male): hooded dark purple witch robes, purple visor.
+IMAGE 2 — female WALK: Seidr Witch (female): hooded dark purple witch robes, long dark hair plates, purple visor.
+IMAGE 3 — male ATTACK: Seidr Witch (male): hooded dark purple witch robes, purple visor.
+IMAGE 4 — female ATTACK: Seidr Witch (female): hooded dark purple witch robes, long dark hair plates, purple visor.
+```
+
+## 5. Skadi Ranger (สาย wildhunter) — ชุด A: เดิน + ยิง
+
+แนบ: `template_tpl_walk.png`, `walk_rig.png`, `11_skadi_m.png`, `11_skadi_f.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `shoot`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and two character designs (male and female) of the Skadi Ranger class.
+PURPOSE: this is a frame-by-frame animation sprite sheet for a 2D action RPG game. The game plays the 4 frames of each row in order from left to right (WALK loops 1-2-3-4-1-2... so frame 4 must flow smoothly back into frame 1; ATTACK plays once 1-2-3-4). Every frame must be a clearly different pose, consistent with the frames before and after it, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+WEAPON: an icy white-blue crystal bow held by the middle in the LEFT hand, quiver on the back (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+WALK (copy the leg positions of the attached walk_rig.png mannequin frame by frame: BLUE = the character's LEFT leg, ORANGE = RIGHT leg), legs named from the CHARACTER's own left/right: FRAME 1 = LEFT foot far FORWARD with the heel down, RIGHT foot far BACK on its toes, RIGHT arm swings forward, LEFT arm back; FRAME 2 = RIGHT leg swinging FORWARD past the body with the knee lifted, LEFT leg straight under the body carrying the weight, arms at the sides; FRAME 3 = RIGHT foot far FORWARD with the heel down, LEFT foot far BACK on its toes, LEFT arm swings forward, RIGHT arm back; FRAME 4 = LEFT leg swinging FORWARD past the body with the knee lifted, RIGHT leg straight under the body, arms at the sides. Same leg order in EVERY direction row. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level and the body the same height in all frames. The hand holding the weapon keeps it in every frame (the weapon arm still swings naturally); bow carried vertically at the side in the left hand.
+ATTACK (plays once, frame by frame): BOW SHOT: 1 ready, bow arm rising; 2 bow arm stretched toward the facing direction, right hand nocks and pulls; 3 full draw at the chin; 4 release, right hand flies back open, arrow gone.
+IMAGE 1 — male WALK: Skadi Ranger (male): white and ice-blue hooded ranger armor, ice-blue visor.
+IMAGE 2 — female WALK: Skadi Ranger (female): white and ice-blue hooded ranger armor, long white hair plates, ice-blue visor.
+IMAGE 3 — male ATTACK: Skadi Ranger (male): white and ice-blue hooded ranger armor, ice-blue visor.
+IMAGE 4 — female ATTACK: Skadi Ranger (female): white and ice-blue hooded ranger armor, long white hair plates, ice-blue visor.
+```
+
+## 6. Ullr Sniper (สาย wildhunter) — ชุด A: เดิน + ยิง
+
+แนบ: `template_tpl_walk.png`, `walk_rig.png`, `12_ullr_m.png`, `12_ullr_f.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `shoot`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and two character designs (male and female) of the Ullr Sniper class.
+PURPOSE: this is a frame-by-frame animation sprite sheet for a 2D action RPG game. The game plays the 4 frames of each row in order from left to right (WALK loops 1-2-3-4-1-2... so frame 4 must flow smoothly back into frame 1; ATTACK plays once 1-2-3-4). Every frame must be a clearly different pose, consistent with the frames before and after it, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+WEAPON: a tall wooden longbow held by the middle in the LEFT hand, quiver on the back (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+WALK (copy the leg positions of the attached walk_rig.png mannequin frame by frame: BLUE = the character's LEFT leg, ORANGE = RIGHT leg), legs named from the CHARACTER's own left/right: FRAME 1 = LEFT foot far FORWARD with the heel down, RIGHT foot far BACK on its toes, RIGHT arm swings forward, LEFT arm back; FRAME 2 = RIGHT leg swinging FORWARD past the body with the knee lifted, LEFT leg straight under the body carrying the weight, arms at the sides; FRAME 3 = RIGHT foot far FORWARD with the heel down, LEFT foot far BACK on its toes, LEFT arm swings forward, RIGHT arm back; FRAME 4 = LEFT leg swinging FORWARD past the body with the knee lifted, RIGHT leg straight under the body, arms at the sides. Same leg order in EVERY direction row. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level and the body the same height in all frames. The hand holding the weapon keeps it in every frame (the weapon arm still swings naturally); longbow carried vertically at the side in the left hand.
+ATTACK (plays once, frame by frame): BOW SHOT: 1 ready, bow arm rising; 2 bow arm stretched toward the facing direction, right hand nocks and pulls; 3 full draw at the chin; 4 release, right hand flies back open, arrow gone.
+IMAGE 1 — male WALK: Ullr Sniper (male): green leafy ghillie cloak over light armor, green visor.
+IMAGE 2 — female WALK: Ullr Sniper (female): green leafy ghillie cloak over light armor, green visor.
+IMAGE 3 — male ATTACK: Ullr Sniper (male): green leafy ghillie cloak over light armor, green visor.
+IMAGE 4 — female ATTACK: Ullr Sniper (female): green leafy ghillie cloak over light armor, green visor.
+```
+
+## 7. Norn Oracle (สาย volva) — ชุด A: เดิน + ตี
+
+แนบ: `template_tpl_walk.png`, `walk_rig.png`, `13_norn_m.png`, `13_norn_f.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and two character designs (male and female) of the Norn Oracle class.
+PURPOSE: this is a frame-by-frame animation sprite sheet for a 2D action RPG game. The game plays the 4 frames of each row in order from left to right (WALK loops 1-2-3-4-1-2... so frame 4 must flow smoothly back into frame 1; ATTACK plays once 1-2-3-4). Every frame must be a clearly different pose, consistent with the frames before and after it, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+WEAPON: a tall golden scepter-staff in the RIGHT hand (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+WALK (copy the leg positions of the attached walk_rig.png mannequin frame by frame: BLUE = the character's LEFT leg, ORANGE = RIGHT leg), legs named from the CHARACTER's own left/right: FRAME 1 = LEFT foot far FORWARD with the heel down, RIGHT foot far BACK on its toes, RIGHT arm swings forward, LEFT arm back; FRAME 2 = RIGHT leg swinging FORWARD past the body with the knee lifted, LEFT leg straight under the body carrying the weight, arms at the sides; FRAME 3 = RIGHT foot far FORWARD with the heel down, LEFT foot far BACK on its toes, LEFT arm swings forward, RIGHT arm back; FRAME 4 = LEFT leg swinging FORWARD past the body with the knee lifted, RIGHT leg straight under the body, arms at the sides. Same leg order in EVERY direction row. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level and the body the same height in all frames. The hand holding the weapon keeps it in every frame (the weapon arm still swings naturally); staff carried upright like a walking stick.
+ATTACK (plays once, frame by frame): staff smash: 1 staff raised beside the head; 2 downward smash in front; 3 follow-through low; 4 recover.
+IMAGE 1 — male WALK: Norn Oracle (male): flowing white and lilac oracle robes, gold accents, gold visor.
+IMAGE 2 — female WALK: Norn Oracle (female): flowing white and lilac oracle robes, very long silver hair plates, gold visor.
+IMAGE 3 — male ATTACK: Norn Oracle (male): flowing white and lilac oracle robes, gold accents, gold visor.
+IMAGE 4 — female ATTACK: Norn Oracle (female): flowing white and lilac oracle robes, very long silver hair plates, gold visor.
+```
+
+## 8. Gythja Monk (สาย volva) — ชุด A: เดิน + ตี
+
+แนบ: `template_tpl_walk.png`, `walk_rig.png`, `14_gythja_m.png`, `14_gythja_f.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and two character designs (male and female) of the Gythja Monk class.
+PURPOSE: this is a frame-by-frame animation sprite sheet for a 2D action RPG game. The game plays the 4 frames of each row in order from left to right (WALK loops 1-2-3-4-1-2... so frame 4 must flow smoothly back into frame 1; ATTACK plays once 1-2-3-4). Every frame must be a clearly different pose, consistent with the frames before and after it, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+WEAPON: big golden glowing gauntlet fists on BOTH hands (no held weapon, from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+WALK (copy the leg positions of the attached walk_rig.png mannequin frame by frame: BLUE = the character's LEFT leg, ORANGE = RIGHT leg), legs named from the CHARACTER's own left/right: FRAME 1 = LEFT foot far FORWARD with the heel down, RIGHT foot far BACK on its toes, RIGHT arm swings forward, LEFT arm back; FRAME 2 = RIGHT leg swinging FORWARD past the body with the knee lifted, LEFT leg straight under the body carrying the weight, arms at the sides; FRAME 3 = RIGHT foot far FORWARD with the heel down, LEFT foot far BACK on its toes, LEFT arm swings forward, RIGHT arm back; FRAME 4 = LEFT leg swinging FORWARD past the body with the knee lifted, RIGHT leg straight under the body, arms at the sides. Same leg order in EVERY direction row. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level and the body the same height in all frames. The hand holding the weapon keeps it in every frame (the weapon arm still swings naturally); fists clenched, arms swinging.
+ATTACK (plays once, frame by frame): one-two punch combo: 1 fighting stance, fists up; 2 fast right straight punch toward the facing direction; 3 left hook; 4 back to stance.
+IMAGE 1 — male WALK: Gythja Monk (male): golden monk robes with sash, gold visor.
+IMAGE 2 — female WALK: Gythja Monk (female): golden monk robes with sash, long brown braid hair plates, gold visor.
+IMAGE 3 — male ATTACK: Gythja Monk (male): golden monk robes with sash, gold visor.
+IMAGE 4 — female ATTACK: Gythja Monk (female): golden monk robes with sash, long brown braid hair plates, gold visor.
+```
+
+## 9. Loki's Phantom (สาย trickster) — ชุด A: เดิน + ตี
+
+แนบ: `template_tpl_walk.png`, `walk_rig.png`, `15_phantom_m.png`, `15_phantom_f.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and two character designs (male and female) of the Loki's Phantom class.
+PURPOSE: this is a frame-by-frame animation sprite sheet for a 2D action RPG game. The game plays the 4 frames of each row in order from left to right (WALK loops 1-2-3-4-1-2... so frame 4 must flow smoothly back into frame 1; ATTACK plays once 1-2-3-4). Every frame must be a clearly different pose, consistent with the frames before and after it, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+WEAPON: twin glowing magenta claw-blades, one in EACH hand (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+WALK (copy the leg positions of the attached walk_rig.png mannequin frame by frame: BLUE = the character's LEFT leg, ORANGE = RIGHT leg), legs named from the CHARACTER's own left/right: FRAME 1 = LEFT foot far FORWARD with the heel down, RIGHT foot far BACK on its toes, RIGHT arm swings forward, LEFT arm back; FRAME 2 = RIGHT leg swinging FORWARD past the body with the knee lifted, LEFT leg straight under the body carrying the weight, arms at the sides; FRAME 3 = RIGHT foot far FORWARD with the heel down, LEFT foot far BACK on its toes, LEFT arm swings forward, RIGHT arm back; FRAME 4 = LEFT leg swinging FORWARD past the body with the knee lifted, RIGHT leg straight under the body, arms at the sides. Same leg order in EVERY direction row. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level and the body the same height in all frames. The hand holding the weapon keeps it in every frame (the weapon arm still swings naturally); blades held low in both hands, ready to strike.
+ATTACK (plays once, frame by frame): twin blade flurry: 1 crouch, blades crossed; 2 right blade slash forward; 3 left blade slash forward; 4 hop back.
+IMAGE 1 — male WALK: Loki's Phantom (male): dark crimson-purple stealth armor with flowing purple scarf, magenta visor.
+IMAGE 2 — female WALK: Loki's Phantom (female): dark crimson-purple stealth armor, long crimson ponytail, magenta visor.
+IMAGE 3 — male ATTACK: Loki's Phantom (male): dark crimson-purple stealth armor with flowing purple scarf, magenta visor.
+IMAGE 4 — female ATTACK: Loki's Phantom (female): dark crimson-purple stealth armor, long crimson ponytail, magenta visor.
+```
+
+## 10. Skald Bard (สาย trickster) — ชุด A: เดิน + ตี
+
+แนบ: `template_tpl_walk.png`, `walk_rig.png`, `16_skald_m.png`, `16_skald_f.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and two character designs (male and female) of the Skald Bard class.
+PURPOSE: this is a frame-by-frame animation sprite sheet for a 2D action RPG game. The game plays the 4 frames of each row in order from left to right (WALK loops 1-2-3-4-1-2... so frame 4 must flow smoothly back into frame 1; ATTACK plays once 1-2-3-4). Every frame must be a clearly different pose, consistent with the frames before and after it, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+WEAPON: a blue-gold harp / lyre in the LEFT hand (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+WALK (copy the leg positions of the attached walk_rig.png mannequin frame by frame: BLUE = the character's LEFT leg, ORANGE = RIGHT leg), legs named from the CHARACTER's own left/right: FRAME 1 = LEFT foot far FORWARD with the heel down, RIGHT foot far BACK on its toes, RIGHT arm swings forward, LEFT arm back; FRAME 2 = RIGHT leg swinging FORWARD past the body with the knee lifted, LEFT leg straight under the body carrying the weight, arms at the sides; FRAME 3 = RIGHT foot far FORWARD with the heel down, LEFT foot far BACK on its toes, LEFT arm swings forward, RIGHT arm back; FRAME 4 = LEFT leg swinging FORWARD past the body with the knee lifted, RIGHT leg straight under the body, arms at the sides. Same leg order in EVERY direction row. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level and the body the same height in all frames. The hand holding the weapon keeps it in every frame (the weapon arm still swings naturally); harp held at the side, right hand free.
+ATTACK (plays once, frame by frame): harp bash: 1 harp swung back; 2 quick swing of the harp toward the facing direction; 3 follow-through; 4 recover.
+IMAGE 1 — male WALK: Skald Bard (male): blue and silver bard armor, blue visor.
+IMAGE 2 — female WALK: Skald Bard (female): blue and silver bard armor, long blue hair plates, blue visor.
+IMAGE 3 — male ATTACK: Skald Bard (male): blue and silver bard armor, blue visor.
+IMAGE 4 — female ATTACK: Skald Bard (female): blue and silver bard armor, long blue hair plates, blue visor.
+```
+
+## 11. Ulfhednar Warlord (สาย berserker) — ชุด A: เดิน + ตี
+
+แนบ: `template_tpl_walk.png`, `walk_rig.png`, `17_warlord_m.png`, `17_warlord_f.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and two character designs (male and female) of the Ulfhednar Warlord class.
+PURPOSE: this is a frame-by-frame animation sprite sheet for a 2D action RPG game. The game plays the 4 frames of each row in order from left to right (WALK loops 1-2-3-4-1-2... so frame 4 must flow smoothly back into frame 1; ATTACK plays once 1-2-3-4). Every frame must be a clearly different pose, consistent with the frames before and after it, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+WEAPON: a huge two-handed fire axe held with BOTH hands on the long handle (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+WALK (copy the leg positions of the attached walk_rig.png mannequin frame by frame: BLUE = the character's LEFT leg, ORANGE = RIGHT leg), legs named from the CHARACTER's own left/right: FRAME 1 = LEFT foot far FORWARD with the heel down, RIGHT foot far BACK on its toes, RIGHT arm swings forward, LEFT arm back; FRAME 2 = RIGHT leg swinging FORWARD past the body with the knee lifted, LEFT leg straight under the body carrying the weight, arms at the sides; FRAME 3 = RIGHT foot far FORWARD with the heel down, LEFT foot far BACK on its toes, LEFT arm swings forward, RIGHT arm back; FRAME 4 = LEFT leg swinging FORWARD past the body with the knee lifted, RIGHT leg straight under the body, arms at the sides. Same leg order in EVERY direction row. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level and the body the same height in all frames. The hand holding the weapon keeps it in every frame (the weapon arm still swings naturally); axe resting on the shoulder, blade behind the head, never dragging.
+ATTACK (plays once, frame by frame): heavy two-handed chop: 1 axe raised high over the head; 2 huge downward chop in front; 3 axe low near the ground; 4 heave back up.
+IMAGE 1 — male WALK: Ulfhednar Warlord (male): red-orange fur-trimmed wolf warlord armor, wolf hood, orange visor.
+IMAGE 2 — female WALK: Ulfhednar Warlord (female): red-orange fur-trimmed wolf warlord armor, wolf hood, wild long hair plates, orange visor.
+IMAGE 3 — male ATTACK: Ulfhednar Warlord (male): red-orange fur-trimmed wolf warlord armor, wolf hood, orange visor.
+IMAGE 4 — female ATTACK: Ulfhednar Warlord (female): red-orange fur-trimmed wolf warlord armor, wolf hood, wild long hair plates, orange visor.
+```
+
+## 12. Jotun Breaker (สาย berserker) — ชุด A: เดิน + ตี
+
+แนบ: `template_tpl_walk.png`, `walk_rig.png`, `18_jotun_m.png`, `18_jotun_f.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and two character designs (male and female) of the Jotun Breaker class.
+PURPOSE: this is a frame-by-frame animation sprite sheet for a 2D action RPG game. The game plays the 4 frames of each row in order from left to right (WALK loops 1-2-3-4-1-2... so frame 4 must flow smoothly back into frame 1; ATTACK plays once 1-2-3-4). Every frame must be a clearly different pose, consistent with the frames before and after it, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+WEAPON: a huge ice-grey war hammer held with BOTH hands, big gauntlets (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+WALK (copy the leg positions of the attached walk_rig.png mannequin frame by frame: BLUE = the character's LEFT leg, ORANGE = RIGHT leg), legs named from the CHARACTER's own left/right: FRAME 1 = LEFT foot far FORWARD with the heel down, RIGHT foot far BACK on its toes, RIGHT arm swings forward, LEFT arm back; FRAME 2 = RIGHT leg swinging FORWARD past the body with the knee lifted, LEFT leg straight under the body carrying the weight, arms at the sides; FRAME 3 = RIGHT foot far FORWARD with the heel down, LEFT foot far BACK on its toes, LEFT arm swings forward, RIGHT arm back; FRAME 4 = LEFT leg swinging FORWARD past the body with the knee lifted, RIGHT leg straight under the body, arms at the sides. Same leg order in EVERY direction row. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level and the body the same height in all frames. The hand holding the weapon keeps it in every frame (the weapon arm still swings naturally); hammer resting on the shoulder, head behind the shoulder, never dragging.
+ATTACK (plays once, frame by frame): giant hammer smash: 1 hammer raised high over the head; 2 huge downward smash into the ground in front; 3 hammer head on the ground, body bent; 4 heave back up.
+IMAGE 1 — male WALK: Jotun Breaker (male): massive grey stone-and-steel giant armor, frost accents, ice-blue visor.
+IMAGE 2 — female WALK: Jotun Breaker (female): massive grey stone-and-steel giant armor, frost accents, ice-blue visor.
+IMAGE 3 — male ATTACK: Jotun Breaker (male): massive grey stone-and-steel giant armor, frost accents, ice-blue visor.
+IMAGE 4 — female ATTACK: Jotun Breaker (female): massive grey stone-and-steel giant armor, frost accents, ice-blue visor.
+```
+
+## 13. ชุด B: สกิล Valkyrie Knight + Hersir Vanguard
+
+แนบ: `template_tpl_walk.png`, `7_valkyrie_m.png`, `7_valkyrie_f.png`, `8_hersir_m.png`, `8_hersir_f.png` • ติดตั้ง: ภาพ 1-2 = `valkyrie` `cast`, ภาพ 3-4 = `hersir` `cast`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and, for each class below, its male and female character designs.
+PURPOSE: frame-by-frame SKILL animation sprite sheets for a 2D action RPG game. The game plays the 4 frames of each row once, left to right (1-2-3-4). Every frame must be a clearly different pose, flowing from the frame before, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+CLASS VALKYRIE KNIGHT — WEAPON: a golden longsword in the RIGHT hand and a round golden sun shield on the LEFT arm (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+CLASS VALKYRIE KNIGHT — SKILL (plays once, frame by frame): holy lance strike: 1 shield raised, sword pointed up to the sky; 2 step in; 3 powerful forward thrust; 4 recover.
+CLASS HERSIR VANGUARD — WEAPON: a huge red glowing two-handed greatsword held with BOTH hands (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+CLASS HERSIR VANGUARD — SKILL (plays once, frame by frame): vanguard charge: 1 crouch with sword held back low; 2 dash forward; 3 wide horizontal sweep; 4 recover.
+IMAGE 1 — male SKILL: Valkyrie Knight (male): white and gold winged armor, winged helmet, gold visor.
+IMAGE 2 — female SKILL: Valkyrie Knight (female): white and gold winged armor, long blonde hair plates, winged helmet, gold visor.
+IMAGE 3 — male SKILL: Hersir Vanguard (male): dark red heavy armor, torn crimson cape, red visor.
+IMAGE 4 — female SKILL: Hersir Vanguard (female): dark red heavy armor, crimson ponytail, torn crimson cape, red visor.
+```
+
+## 14. ชุด B: สกิล Galdr Sage + Seidr Witch
+
+แนบ: `template_tpl_walk.png`, `9_galdr_m.png`, `9_galdr_f.png`, `10_seidr_m.png`, `10_seidr_f.png` • ติดตั้ง: ภาพ 1-2 = `galdr` `cast`, ภาพ 3-4 = `seidr` `cast`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and, for each class below, its male and female character designs.
+PURPOSE: frame-by-frame SKILL animation sprite sheets for a 2D action RPG game. The game plays the 4 frames of each row once, left to right (1-2-3-4). Every frame must be a clearly different pose, flowing from the frame before, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+CLASS GALDR SAGE — WEAPON: a tall ice-crystal staff in the RIGHT hand (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+CLASS GALDR SAGE — SKILL (plays once, frame by frame): rune chanting: 1 staff upright in front, free hand drawing a rune; 2 staff raised high; 3 both arms pushed forward; 4 recover.
+CLASS SEIDR WITCH — WEAPON: a dark staff with a glowing purple ring orb in the RIGHT hand (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+CLASS SEIDR WITCH — SKILL (plays once, frame by frame): dark spell: 1 staff upright, free hand cupped at the chest; 2 staff raised high, body leaning back; 3 free hand thrust forward; 4 recover.
+IMAGE 1 — male SKILL: Galdr Sage (male): light-blue and white rune robes, blue hair plates, blue visor.
+IMAGE 2 — female SKILL: Galdr Sage (female): light-blue and white rune robes, long blue hair plates, blue visor.
+IMAGE 3 — male SKILL: Seidr Witch (male): hooded dark purple witch robes, purple visor.
+IMAGE 4 — female SKILL: Seidr Witch (female): hooded dark purple witch robes, long dark hair plates, purple visor.
+```
+
+## 15. ชุด B: สกิล Skadi Ranger + Ullr Sniper
+
+แนบ: `template_tpl_walk.png`, `11_skadi_m.png`, `11_skadi_f.png`, `12_ullr_m.png`, `12_ullr_f.png` • ติดตั้ง: ภาพ 1-2 = `skadi` `cast`, ภาพ 3-4 = `ullr` `cast`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and, for each class below, its male and female character designs.
+PURPOSE: frame-by-frame SKILL animation sprite sheets for a 2D action RPG game. The game plays the 4 frames of each row once, left to right (1-2-3-4). Every frame must be a clearly different pose, flowing from the frame before, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+CLASS SKADI RANGER — WEAPON: an icy white-blue crystal bow held by the middle in the LEFT hand, quiver on the back (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+CLASS SKADI RANGER — SKILL (plays once, frame by frame): frost volley: 1 low crouch, bow forward; 2 bow aimed up high, full draw; 3 release upward; 4 recover.
+CLASS ULLR SNIPER — WEAPON: a tall wooden longbow held by the middle in the LEFT hand, quiver on the back (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+CLASS ULLR SNIPER — SKILL (plays once, frame by frame): sniper shot: 1 kneel on one knee; 2 slow full draw, steady aim; 3 release; 4 stand up.
+IMAGE 1 — male SKILL: Skadi Ranger (male): white and ice-blue hooded ranger armor, ice-blue visor.
+IMAGE 2 — female SKILL: Skadi Ranger (female): white and ice-blue hooded ranger armor, long white hair plates, ice-blue visor.
+IMAGE 3 — male SKILL: Ullr Sniper (male): green leafy ghillie cloak over light armor, green visor.
+IMAGE 4 — female SKILL: Ullr Sniper (female): green leafy ghillie cloak over light armor, green visor.
+```
+
+## 16. ชุด B: สกิล Norn Oracle + Gythja Monk
+
+แนบ: `template_tpl_walk.png`, `13_norn_m.png`, `13_norn_f.png`, `14_gythja_m.png`, `14_gythja_f.png` • ติดตั้ง: ภาพ 1-2 = `norn` `cast`, ภาพ 3-4 = `gythja` `cast`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and, for each class below, its male and female character designs.
+PURPOSE: frame-by-frame SKILL animation sprite sheets for a 2D action RPG game. The game plays the 4 frames of each row once, left to right (1-2-3-4). Every frame must be a clearly different pose, flowing from the frame before, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+CLASS NORN ORACLE — WEAPON: a tall golden scepter-staff in the RIGHT hand (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+CLASS NORN ORACLE — SKILL (plays once, frame by frame): fate weaving: 1 staff upright, free hand weaving in the air; 2 staff raised high; 3 arms spread open; 4 recover.
+CLASS GYTHJA MONK — WEAPON: big golden glowing gauntlet fists on BOTH hands (no held weapon, from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+CLASS GYTHJA MONK — SKILL (plays once, frame by frame): holy palm strike: 1 deep stance, both fists pulled to the hip; 2 step forward; 3 both palms thrust forward together; 4 recover.
+IMAGE 1 — male SKILL: Norn Oracle (male): flowing white and lilac oracle robes, gold accents, gold visor.
+IMAGE 2 — female SKILL: Norn Oracle (female): flowing white and lilac oracle robes, very long silver hair plates, gold visor.
+IMAGE 3 — male SKILL: Gythja Monk (male): golden monk robes with sash, gold visor.
+IMAGE 4 — female SKILL: Gythja Monk (female): golden monk robes with sash, long brown braid hair plates, gold visor.
+```
+
+## 17. ชุด B: สกิล Loki's Phantom + Skald Bard
+
+แนบ: `template_tpl_walk.png`, `15_phantom_m.png`, `15_phantom_f.png`, `16_skald_m.png`, `16_skald_f.png` • ติดตั้ง: ภาพ 1-2 = `phantom` `cast`, ภาพ 3-4 = `skald` `cast`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and, for each class below, its male and female character designs.
+PURPOSE: frame-by-frame SKILL animation sprite sheets for a 2D action RPG game. The game plays the 4 frames of each row once, left to right (1-2-3-4). Every frame must be a clearly different pose, flowing from the frame before, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+CLASS LOKI'S PHANTOM — WEAPON: twin glowing magenta claw-blades, one in EACH hand (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+CLASS LOKI'S PHANTOM — SKILL (plays once, frame by frame): shadow strike: 1 low crouch; 2 lunge far forward; 3 X-cross slash with both blades; 4 recover.
+CLASS SKALD BARD — WEAPON: a blue-gold harp / lyre in the LEFT hand (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+CLASS SKALD BARD — SKILL (plays once, frame by frame): war song: 1 harp held up in front, right hand on the strings; 2 strumming, body swaying; 3 harp raised high, chest lifted; 4 recover.
+IMAGE 1 — male SKILL: Loki's Phantom (male): dark crimson-purple stealth armor with flowing purple scarf, magenta visor.
+IMAGE 2 — female SKILL: Loki's Phantom (female): dark crimson-purple stealth armor, long crimson ponytail, magenta visor.
+IMAGE 3 — male SKILL: Skald Bard (male): blue and silver bard armor, blue visor.
+IMAGE 4 — female SKILL: Skald Bard (female): blue and silver bard armor, long blue hair plates, blue visor.
+```
+
+## 18. ชุด B: สกิล Ulfhednar Warlord + Jotun Breaker
+
+แนบ: `template_tpl_walk.png`, `17_warlord_m.png`, `17_warlord_f.png`, `18_jotun_m.png`, `18_jotun_f.png` • ติดตั้ง: ภาพ 1-2 = `warlord` `cast`, ภาพ 3-4 = `jotun` `cast`
+
+```
+Create 4 SEPARATE images (do not merge them). Attached: a blank sheet template and, for each class below, its male and female character designs.
+PURPOSE: frame-by-frame SKILL animation sprite sheets for a 2D action RPG game. The game plays the 4 frames of each row once, left to right (1-2-3-4). Every frame must be a clearly different pose, flowing from the frame before, like a professional game animation.
+2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Convert the attached tall character designs into CHIBI proportions: head about 1/3 of the body height, short limbs, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Keep the exact colors, armor, hair and accessories of the attached designs.
+Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
+CLASS ULFHEDNAR WARLORD — WEAPON: a huge two-handed fire axe held with BOTH hands on the long handle (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+CLASS ULFHEDNAR WARLORD — SKILL (plays once, frame by frame): war cry whirlwind: 1 wide stance, axe held back; 2 big horizontal swing; 3 swing continues around; 4 recover.
+CLASS JOTUN BREAKER — WEAPON: a huge ice-grey war hammer held with BOTH hands, big gauntlets (from the attached image). Keep the weapon the SAME size and design in every frame of every image. The hand grips it firmly; the weapon is correctly in front of or behind the body depending on the pose and direction.
+CLASS JOTUN BREAKER — SKILL (plays once, frame by frame): ground quake: 1 hammer held high with both hands, wide stance; 2 jump slightly; 3 slam the hammer down; 4 recover.
+IMAGE 1 — male SKILL: Ulfhednar Warlord (male): red-orange fur-trimmed wolf warlord armor, wolf hood, orange visor.
+IMAGE 2 — female SKILL: Ulfhednar Warlord (female): red-orange fur-trimmed wolf warlord armor, wolf hood, wild long hair plates, orange visor.
+IMAGE 3 — male SKILL: Jotun Breaker (male): massive grey stone-and-steel giant armor, frost accents, ice-blue visor.
+IMAGE 4 — female SKILL: Jotun Breaker (female): massive grey stone-and-steel giant armor, frost accents, ice-blue visor.
+```
