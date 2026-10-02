@@ -56,7 +56,7 @@ const Paperdoll = {
     // มีดสั้นมือซ้าย: ยาวราวแขนท่อนล่าง การ์ดวงชนหน้ากำปั้น
     trickster: { '*': { len: 58 } },
     // ขวานสองมือใหญ่: ถือต่ำหัวขวานไปข้างหน้าตามแท่ง แต่ floor (W.axe) ยกให้เอียงลงแค่ ~20° ไม่ลากพื้น
-    berserker: { '*': { len: 80, grip: 0.15 } },
+    berserker: { '*': { len: 76, grip: 0.15 } },
   },
   spec(it, act) {
     const base = this.W[it.wtype] || this.W.dagger, g = (it.cls && this.GRIP[it.cls]) || {};
