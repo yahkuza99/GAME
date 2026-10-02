@@ -149,7 +149,7 @@ Sprites.human = (g, x, y, o) => {
   }
   // ผ้าคลุม / ครีบหลัง
   const drawCape = (walk = P ? P.cape : o.moving && !o.hover ? Math.sin(t * 14) : 0) => {
-    if (!o.cape) return;
+    return; // เจ้าของสั่งเอาผ้าคลุมออกทั้งหมด (ตัวละคร/NPC/มอนที่วาดด้วยโค้ด)
     g.fillStyle = back ? o.cape : U.shade(o.cape, -0.15);
     g.beginPath();
     if (back) { g.moveTo(-9, -29); g.lineTo(-12 - walk, -4); g.quadraticCurveTo(0, -1, 12 + walk, -4); g.lineTo(9, -29); }
