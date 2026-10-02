@@ -1006,8 +1006,17 @@ const UI = {
     const p = G.player;
     const body = $('#w-skills .win-body');
     body.innerHTML = '';
-    const ids = [...new Set([...(p.job !== 'novice' ? JOBS.novice.skills : []), ...jobLine(p.job).reverse().flatMap(j => JOBS[j].skills)])];
+    // แท็บตามคลาส: Novice | คลาสแรก | คลาส 2 (เริ่มที่คลาสปัจจุบัน) • แต้มสกิลใช้ร่วมกัน
+    const tabs = p.job === 'novice' ? ['novice'] : ['novice', ...jobLine(p.job).reverse()];
+    if (!tabs.includes(this.skTab)) this.skTab = p.job;
+    const tab = this.skTab;
+    const ids = JOBS[tab].skills;
     body.append(h('div', { class: 'sk-head' }, `${JOBS[p.job].name} — Skill Point: `, h('b', {}, String(p.skillPoints))));
+    if (tabs.length > 1) body.append(h('div', { class: 'tabs sk-tabs' }, ...tabs.map((j, i) => {
+      const left = JOBS[j].skills.filter(k => canLearn(k)).length;
+      return h('button', { type: 'button', class: 'tab' + (j === tab ? ' on' : ''), onclick: () => { this.skTab = j; this.renderSkills(); } },
+        h('small', {}, i === 0 ? 'NOVICE' : i === 1 ? L('คลาส 1', 'CLASS 1') : L('คลาส 2', 'CLASS 2')), h('b', {}, i === 0 ? L('พื้นฐาน', 'Basic') : JOBS[j].name), left ? h('i', { class: 'sk-tab-dot' }) : null);
+    })));
     const list = h('div', { class: 'sk-list' });
     // ความชำนาญ: แถบความคืบหน้าถึง Lv ถัดไป
     const mastery = id => {
@@ -1018,9 +1027,9 @@ const UI = {
         h('em', {}, id === 'attack' ? L(`ตีแรงขึ้น +${masteryPct(id)}%`, `Attack power +${masteryPct(id)}%`) : masteryEffect(id)));
     };
     // อธิบายว่าความชำนาญทำอะไร (ผู้เล่นถามบ่อย)
-    body.append(h('div', { class: 'sk-mas-help' }, h('b', {}, L('ความชำนาญ = ยิ่งใช้ยิ่งเก่ง', 'Mastery: practice makes perfect')),
+    body.append(h('details', { class: 'sk-mas-help' }, h('summary', {}, h('b', {}, L('ความชำนาญ = ยิ่งใช้ยิ่งเก่ง', 'Mastery: practice makes perfect')), h('span', { class: 'sk-mh-more' }, L(' (แตะเพื่ออ่าน)', ' (tap to read)'))),
       L(` สกิลที่ใช้บ่อยจะเก่งขึ้นเอง ${MASTERY_MAX} ขั้น ขั้นละ +3% ตามชนิดสกิล: สกิลโจมตี = แรงขึ้น • ฮีล = ฮีลแรงขึ้น • บัฟ = อยู่นานขึ้น • เรียกสัตว์/หายตัว = อยู่นานขึ้น • กับดัก = แรงขึ้น (สูงสุด +30%) • ตีปกติ +2% ต่อขั้น — ไม่ต้องใช้แต้ม ไม่หายตอนเปลี่ยนอาชีพ`, ` Skills you use often improve over ${MASTERY_MAX} ranks, +3% per rank by skill type: attacks hit harder • heals heal more • buffs last longer • summons/stealth last longer • traps hit harder (up to +30%) • basic attacks +2% per rank — no points needed, kept on job change`)));
-    list.append(h('div', { class: 'sk-row uni' }, h('div', { class: 'sk-info' },
+    if (tab === 'novice' || tabs.length === 1) list.append(h('div', { class: 'sk-row uni' }, h('div', { class: 'sk-info' },
       h('div', { class: 'sk-name' }, L('การโจมตีปกติ', 'Basic Attack')), mastery('attack'))));
     for (const id of ids) {
       const s = SKILLS[id], lv = skillLv(id);
@@ -1047,7 +1056,7 @@ const UI = {
       if (lv && s.type === 'active') this.markBind(list.lastElementChild, 'skill', id);
     }
     body.append(list);
-    if (SECOND_JOBS[p.job]) body.append(h('div', { class: 'hint' }, L(`คลาสขั้น 2 (เลือก 1 สาย: ${SECOND_JOBS[p.job].map(j => JOBS[j].name).join(' / ')}): Base Lv ${SECOND_JOB_REQ.base} และ Job Lv ${SECOND_JOB_REQ.job} แล้วคุยกับ Mimir AI ในนีโอเอลด์ไฮม์`, `2nd class (choose one: ${SECOND_JOBS[p.job].map(j => JOBS[j].name).join(' / ')}): reach Base Lv ${SECOND_JOB_REQ.base} and Job Lv ${SECOND_JOB_REQ.job}, then talk to Mimir AI in Neo Eldheim`)));
+    if (SECOND_JOBS[p.job] && tab === p.job) body.append(h('div', { class: 'hint' }, L(`คลาสขั้น 2 (เลือก 1 สาย: ${SECOND_JOBS[p.job].map(j => JOBS[j].name).join(' / ')}): Base Lv ${SECOND_JOB_REQ.base} และ Job Lv ${SECOND_JOB_REQ.job} แล้วคุยกับ Mimir AI ในนีโอเอลด์ไฮม์`, `2nd class (choose one: ${SECOND_JOBS[p.job].map(j => JOBS[j].name).join(' / ')}): reach Base Lv ${SECOND_JOB_REQ.base} and Job Lv ${SECOND_JOB_REQ.job}, then talk to Mimir AI in Neo Eldheim`)));
     if (p.job === 'novice') body.append(h('div', { class: 'hint' }, L(`เก็บ Job Lv ${JOB_CHANGE_LV} แล้วไปหา Mimir AI ในนีโอเอลด์ไฮม์ เพื่ออัปเกรดร่างเป็น 1 ใน 6 คลาส`, `Reach Job Lv ${JOB_CHANGE_LV}, then visit Mimir AI in Neo Eldheim to upgrade your frame into one of 6 classes`)));
   },
 

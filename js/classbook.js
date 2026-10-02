@@ -225,8 +225,8 @@ const ClassBook = {
     if (J.desc) det.append(h('p', { class: 'cb-desc' }, J.desc));
     // วิธีได้อาชีพนี้
     const how = id === 'novice' ? L('ตัวละครใหม่ทุกตัวเริ่มที่นี่', 'Every new character starts here.')
-      : J.tier === 2 ? L(`เป็น ${JOBS[J.parent].name} แล้วมี Base Lv ${SECOND_JOB_REQ.base} + Job Lv ${SECOND_JOB_REQ.job} (แนะนำ Job ${JOBS[J.parent].jobMax} เพื่อได้แต้มครบ) แล้วคุยกับ Mimir AI ในนีโอเอลด์ไฮม์ — เลือกได้ 1 จาก 2 สาย`,
-        `As a ${JOBS[J.parent].name}, reach Base Lv ${SECOND_JOB_REQ.base} + Job Lv ${SECOND_JOB_REQ.job} (Job ${JOBS[J.parent].jobMax} recommended for every point), then talk to Mimir AI in Neo Eldheim — pick 1 of 2 branches.`)
+      : J.tier === 2 ? L(`เป็น ${JOBS[J.parent].name} แล้วมี Base Lv ${SECOND_JOB_REQ.base} + Job Lv ${SECOND_JOB_REQ.job} (อัป Job ของคลาสแรกให้เต็มก่อน) แล้วคุยกับ Mimir AI ในนีโอเอลด์ไฮม์ — เลือกได้ 1 จาก 2 สาย`,
+        `As a ${JOBS[J.parent].name}, reach Base Lv ${SECOND_JOB_REQ.base} + Job Lv ${SECOND_JOB_REQ.job} (first class must be at max Job), then talk to Mimir AI in Neo Eldheim — pick 1 of 2 branches.`)
         : L(`Novice ที่มี Job Lv ${JOB_CHANGE_LV} คุยกับ Mimir AI ในนีโอเอลด์ไฮม์`, `As a Novice with Job Lv ${JOB_CHANGE_LV}, talk to Mimir AI in Neo Eldheim.`);
     det.append(this.sec(L('วิธีได้อาชีพนี้', 'How to unlock'), h('p', {}, how)));
     if (SECOND_JOBS[id]) det.append(this.sec(L('เส้นทางต่อไป', 'Next path'), h('div', { class: 'cb-next' }, ...SECOND_JOBS[id].map(k =>

@@ -95,7 +95,7 @@ NPC.scripts.jobmaster = async n => {
       }
     }
   }
-  // คลาสขั้นที่ 2 (แยก 2 สาย): Base Lv 30 + Job Lv 21 ของคลาสแรก
+  // คลาสขั้นที่ 2 (แยก 2 สาย): Base Lv 30 + Job ของคลาสแรกเต็ม (SECOND_JOB_REQ)
   const nj = SECOND_JOBS[p.job];
   if (nj && p.baseLv >= SECOND_JOB_REQ.base && p.jobLv >= SECOND_JOB_REQ.job) {
     for (;;) {

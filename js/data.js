@@ -137,7 +137,7 @@ Object.assign(JOBS, {
     skills: ['jotun_blood', 'titan_smash', 'earth_splitter', 'giants_wrath', 'mountain_heart'] },
 });
 const SECOND_JOBS = { einherjar: ['valkyrie', 'hersir'], runecaster: ['galdr', 'seidr'], wildhunter: ['skadi', 'ullr'], volva: ['norn', 'gythja'], trickster: ['phantom', 'skald'], berserker: ['warlord', 'jotun'] };
-const SECOND_JOB_REQ = { base: 30, job: 21 }; // เปลี่ยนคลาสขั้นที่ 2: Base Lv 30 และ Job Lv 21 ของคลาสแรก
+const SECOND_JOB_REQ = { base: 30, job: 26 }; // เปลี่ยนคลาสขั้นที่ 2: Base Lv 30 และต้องอัป Job ของคลาสแรกให้เต็ม (26) ก่อน
 // สายอาชีพ: [อาชีพปัจจุบัน, คลาสแรก] — ใช้ตรวจอาวุธ/สกิล/โบนัสประจำสาย
 function jobLine(job) { const out = []; for (let j = job; j && JOBS[j]; j = JOBS[j].parent) out.push(j); return out; }
 function jobRoot(job) { const l = jobLine(job); return l[l.length - 1]; }
