@@ -20,6 +20,7 @@ ap.add_argument('--frames', type=int, default=8); ap.add_argument('--dirs', defa
 ap.add_argument('--size', type=int, default=512); ap.add_argument('--pitch', type=float, default=25)
 ap.add_argument('--yaw0', type=float, default=0); ap.add_argument('--tex', default='')
 ap.add_argument('--loop', action='store_true'); ap.add_argument('--range', default='0,1')
+ap.add_argument('--style', default='toon', help='toon = แสงคอนทราสต์สูง + เส้นขอบ (เข้ากับภาพวาด Class อื่น) • flat = แสงนุ่มแบบเดิม')
 ap.add_argument('--anim', default='', help='ไฟล์ท่า Mixamo แบบ Without Skin (ใช้กับโมเดล With Skin ตัวเดียว — ไฟล์เล็ก)')
 a = ap.parse_args(argv)
 
@@ -119,6 +120,15 @@ sc.render.resolution_x = sc.render.resolution_y = a.size
 sc.render.image_settings.file_format = 'PNG'; sc.render.image_settings.color_mode = 'RGBA'
 try: sc.view_settings.view_transform = 'Standard'
 except Exception: pass
+if a.style == 'toon':  # ให้ดูเป็นภาพวาดมากขึ้น: แสงหลักแรง เงาเข้ม + เส้นขอบดำบาง (Freestyle)
+    sun.data.energy = 3.6; world.node_tree.nodes['Background'].inputs[1].default_value = 0.45
+    try: sc.view_settings.look = 'Medium High Contrast'
+    except Exception: pass
+    sc.render.use_freestyle = True; sc.render.line_thickness_mode = 'ABSOLUTE'; sc.render.line_thickness = max(1.0, a.size / 320)
+    ls = bpy.context.view_layer.freestyle_settings.linesets[0] if bpy.context.view_layer.freestyle_settings.linesets else bpy.context.view_layer.freestyle_settings.linesets.new('L')
+    ls.select_by_visibility = True; ls.select_silhouette = True; ls.select_border = True; ls.select_crease = False
+    if ls.linestyle is None: ls.linestyle = bpy.data.linestyles.new('line')
+    ls.linestyle.color = (0.08, 0.05, 0.04); ls.linestyle.thickness = max(1.0, a.size / 320)
 
 dirs = a.dirs.split(',')
 tmp = os.path.splitext(a.out)[0] + '_frames'; os.makedirs(tmp, exist_ok=True)
