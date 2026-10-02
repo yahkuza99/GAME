@@ -37,3 +37,4 @@
   - ไม่เหมือน RO 100% — สไตล์ **Earth tone ขลัง ๆ** (น้ำตาล/ทองหม่น/หนัง/หิน/รูนนอร์ส) เข้ากับ IRON VALHALLA
   - ตัวกลางใช้ภาพเคลื่อนไหวจริง + อาวุธ/หมวกที่สวม (Paperdoll) • โค้ดเดิม: `UI.renderEquip()` ใน js/ui.js
 
+- แสงฟันอาวุธ (WeaponTrail) ใช้ได้กับภาพ Class ถืออาวุธในภาพแล้ว — วงเหวี่ยงจาก tools/armed_trail.py → js/armed_trail.js (install_armed.py รันให้เองเมื่อติดตั้งท่า attack)

@@ -54,18 +54,38 @@ const WeaponTrail = {
     if (sf < 0 || (fr.f !== sf && fr.f !== sf + 1)) return;
     const p0 = this.pose(gk, it, fr.action, fr.row, sf - 1), p1 = this.pose(gk, it, fr.action, fr.row, sf);
     if (!p0 || !p1) return;
-    const fade = fr.f === sf ? 1 : 0.4; // เฟรมถัดจากจังหวะฟัน: แสงจางลง
+    this.arc(g, p0, p1, it.cls, fr.f === sf ? 1 : 0.4, fr); // เฟรมถัดจากจังหวะฟัน: แสงจางลง
+  },
+
+  // ภาพถืออาวุธในภาพ (ไม่มี paperdoll): ใช้วงเหวี่ยงที่ tools/armed_trail.py หาไว้ (ไหล่ + ปลายอาวุธก่อน/ตอนฟัน)
+  drawArmed(g, gk, cls, fr) {
+    if (!this.ON || !this.ACTS[fr.action] || typeof ARMED_TRAIL === 'undefined') return;
+    const v = ARMED_TRAIL[gk] && ARMED_TRAIL[gk][fr.row];
+    if (!v || (fr.f !== v.f && fr.f !== v.f + 1)) return;
+    const P = q => { const dx = q[0] - v.p[0], dy = q[1] - v.p[1]; return { x: v.p[0], y: v.p[1], a: Math.atan2(dy, dx), r: Math.hypot(dx, dy) }; };
+    const p0 = P(v.a), p1 = P(v.b), da = Math.atan2(Math.sin(p1.a - p0.a), Math.cos(p1.a - p0.a));
+    // วงกว้างที่ข้ามเหนือหัว (แทงคทาจากข้างหนึ่งไปอีกข้าง) ไม่ใช่การเหวี่ยง → ไม่วาด
+    if (Math.abs(da) > Math.PI * 0.7 && Math.sin(p0.a + da / 2) < -0.7) return;
+    this.arc(g, p0, p1, cls, fr.f === v.f ? 1 : 0.4, fr, { front: 0, extend: 0.15 }); // ทางสั้นเสมอ
+  },
+
+  // วาดแสงโค้งรอบจุดหมุน จากมุม/ระยะของ p0 (ก่อนฟัน) → p1 (ตอนฟัน)
+  // o.front = ด้านหน้าตัว (+1 ขวา / -1 ซ้าย / 0 ไม่รู้): บังคับให้วงผ่านด้านหน้า • o.extend = หางยืดย้อน (แทน EXTEND)
+  arc(g, p0, p1, cls, fade, fr, o = {}) {
     // กวาดมุมจากเฟรมก่อน → เฟรมฟัน (ทางที่สั้นกว่า) รอบมือ ได้แสงเป็นเสี้ยวโค้งตามวงอาวุธจริง
     // ทางกวาด: จาก 2 ทาง (ตามเข็ม/ทวนเข็ม) เลือกทางที่ผ่านฝั่งเดียวกับที่อาวุธฟันลงไป (ฟันผ่านด้านหน้า ไม่อ้อมหลังหัว)
     let da = p1.a - p0.a; da = Math.atan2(Math.sin(da), Math.cos(da));
     const alt = da - Math.sign(da) * Math.PI * 2, side = Math.sign(Math.cos(p1.a)) || 1;
-    if (Math.abs(da) > Math.PI * 0.6 && Math.sign(Math.cos(p0.a + alt / 2)) === side && Math.sign(Math.cos(p0.a + da / 2)) !== side) da = alt;
+    if (o.front === 0) { /* ทางสั้น */ }
+    else if (o.front) { if (Math.sign(Math.cos(p0.a + da / 2)) !== o.front && Math.sign(Math.cos(p0.a + alt / 2)) === o.front) da = alt; }
+    else if (Math.abs(da) > Math.PI * 0.6 && Math.sign(Math.cos(p0.a + alt / 2)) === side && Math.sign(Math.cos(p0.a + da / 2)) !== side) da = alt;
+    const EXT = o.extend != null ? o.extend : this.EXTEND;
     // แถบโค้งแบบเส้นพู่กัน: ท้ายเรียวแหลม หัว (ตรงอาวุธ) หนาสุด • 3 ชั้น = เรืองแสงสี / ตัวสี / แกนขาว + เส้นความเร็วบาง ๆ
-    const N = 24, col = this.COLOR[it.cls] || '255,255,255';
+    const N = 24, col = this.COLOR[cls] || '255,255,255';
     this._outerSign = da >= 0 ? 1 : -1; // กวาดตามเข็ม (da>0): แกน +y ของแถบชี้เข้าหามือพอดี • ทวนเข็ม = กลับด้าน
     const at = (t, dr) => {
       // หางยืดย้อนไปก่อนเฟรมก่อนหน้า (EXTEND) ให้วงแสงกว้างแบบเหวี่ยงเต็มแขน
-      const u = t * (1 + this.EXTEND) - this.EXTEND, c = Math.max(0, u);
+      const u = t * (1 + EXT) - EXT, c = Math.max(0, u);
       const a = p0.a + da * u, x = p0.x + (p1.x - p0.x) * c, y = p0.y + (p1.y - p0.y) * c, r = p0.r + (p1.r - p0.r) * c + dr;
       return [x + Math.cos(a) * r, y + Math.sin(a) * r];
     };
@@ -206,4 +226,15 @@ if (typeof Paperdoll !== 'undefined' && !Paperdoll._trail) {
     return Object.assign({}, L, { over: (g, fr) => { WeaponTrail.draw(g, gk, it, fr); over(g, fr); } });
   };
   Paperdoll._trail = true;
+}
+// ภาพ Class ที่วาดอาวุธในภาพแล้ว: เพิ่มแสงฟันทับตัว (ตามวงเหวี่ยงในภาพ)
+if (typeof Paperdoll !== 'undefined' && !Paperdoll._trailArmed) {
+  const base = Paperdoll.layers.bind(Paperdoll);
+  Paperdoll.layers = (gk, p, bare) => {
+    const L = base(gk, p, bare);
+    if (bare || typeof ARMED_TRAIL === 'undefined' || !ARMED_TRAIL[gk]) return L;
+    const b = Paperdoll.baseJob(p.job), over = L.over;
+    return Object.assign({}, L, { over: (g, fr) => { WeaponTrail.drawArmed(g, gk, b, fr); if (over) over(g, fr); } });
+  };
+  Paperdoll._trailArmed = true;
 }

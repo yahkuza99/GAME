@@ -157,6 +157,8 @@ def main():
         fr[0].save(a.gif, save_all=True, append_images=fr[1:], duration=180 if a.action == 'walk' else 200, loop=0, disposal=2)
         print('gif', a.gif)
     subprocess.run(['python3', '-c', "import sys; sys.path.insert(0,'tools'); import slice_sheet; slice_sheet.manifest()"], cwd=ROOT)
+    if a.action == 'attack':  # วงเหวี่ยงสำหรับแสงฟัน (WeaponTrail)
+        subprocess.run(['python3', os.path.join('tools', 'armed_trail.py')], cwd=ROOT)
     for f in os.listdir(os.path.join(ROOT, 'art', 'check')) if os.path.isdir(os.path.join(ROOT, 'art', 'check')) else []:
         pass
 
