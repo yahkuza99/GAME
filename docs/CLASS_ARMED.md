@@ -3,24 +3,26 @@
 **เจ้าของเลือก (2026-10-02):** ให้ AI วาดอาวุธประจำ Class ติดมือมาในภาพเลย (ไม่ใช้แท่งชมพู/การวาดอาวุธทับ)
 → มือกำด้ามจริง ลำดับชั้นหน้า/หลังถูกต้องตามที่ AI วาด
 
-แต่ละแชต แนบ 4 ไฟล์: `template_tpl_walk.png`, `<n>_<class>_m.png`, `<n>_<class>_f.png`, `<n>_<class>_weapon.png` แล้ววาง prompt
+แต่ละแชต แนบ 5 ไฟล์: `template_tpl_walk.png`, `walk_reference.png`, `<n>_<class>_m.png`, `<n>_<class>_f.png`, `<n>_<class>_weapon.png` แล้ววาง prompt
 ได้ 6 ภาพ: 1 ชาย-เดิน, 2 หญิง-เดิน, 3 ชาย-ตี, 4 หญิง-ตี, 5 ชาย-สกิล, 6 หญิง-สกิล
 ถ้าได้ไม่ครบ พิมพ์ `now draw IMAGE 2` (3, 4, 5, 6) • ถ้าอาวุธเปลี่ยนหน้าตา/ขนาดระหว่างเฟรม ตอบว่า
 `Redraw: the weapon must look exactly like the attached weapon image, same size, in every frame`
+
+ถ้าท่าเดินดูก้าวถอยหลัง/ไม่เป็นธรรมชาติ: `Redraw the WALK image copying the leg poses of walk_reference.png exactly, frame by frame, walking forward`
 
 ติดตั้ง (ผมทำ): `sprite_std.py install <png> <class>_<m|f> walk|attack|cast --grid 4x5 --dirs S,SW,W,NW,N`
 แล้วลบภาพ `_bare_` + ข้อมูล paperdoll ของตัวนั้น (เกมใช้ภาพที่มีอาวุธแทน) • แสงฟันจะหาปลายอาวุธจากสีเรืองแสงของอาวุธเอง
 
 ## 1. Einherjar
 
-แนบ: `template_tpl_walk.png`, `1_einherjar_m.png`, `1_einherjar_f.png`, `1_einherjar_weapon.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`, 5-6 = `cast`
+แนบ: `template_tpl_walk.png`, `walk_reference.png`, `1_einherjar_m.png`, `1_einherjar_f.png`, `1_einherjar_weapon.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`, 5-6 = `cast`
 
 ```
-Create 6 SEPARATE images (do not merge them). Attached: a blank sheet template, two character designs (male Type-B and female Type-A) and the character's signature WEAPON.
+Create 6 SEPARATE images (do not merge them). Attached: a blank sheet template, a WALK REFERENCE sheet (walk_reference.png, copy its leg motion), two character designs (male Type-B and female Type-A) and the character's signature WEAPON.
 2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Chibi proportions, head about 1/3 of the body height, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Use the attached character images as the exact design (same colors, armor, hair).
 WEAPON: the red energy longsword with gold crossguard from the attached weapon image, held in the RIGHT hand; NO shield. Copy the weapon EXACTLY from the attached weapon image (same shape, colors and glow) and keep it the SAME size and design in every frame of every image. The fist wraps the handle firmly; the weapon is correctly in front of or behind the body depending on the pose and direction (hidden behind the body/cape where it would be).
 Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
-WALK: 1 LEFT leg far forward, RIGHT leg back (wide stride); 2 legs together, RIGHT knee lifted; 3 RIGHT leg far forward, LEFT leg back; 4 legs together, LEFT knee lifted. Free arm swings opposite to the legs; carry the sword low at the side, blade pointing down and slightly forward.
+WALK (copy the leg motion of the attached walk_reference.png exactly, same 4 poses in the same order): 1 CONTACT: the leg on the facing side is far FORWARD with the heel down, the other leg far BACK on its toes; 2 PASSING: the BACK leg from frame 1 swings FORWARD past the standing leg with its knee lifted, the standing leg straight under the body; 3 CONTACT: mirror of frame 1 (the other leg now far forward); 4 PASSING: the other leg swings forward with its knee lifted. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level. Free arm swings opposite to the legs; carry the sword low at the side, blade pointing down and slightly forward.
 ATTACK: one-handed sword slash: 1 wind-up, sword pulled back over the shoulder; 2 big diagonal slash forward and down, body leaning in; 3 follow-through, sword low across the body; 4 recover to guard stance.
 SKILL: power strike: 1 crouch and gather, sword raised behind; 2 sword held high overhead with both hands; 3 heavy downward smash, wide stance; 4 recover.
 IMAGE 1 — male WALK: Einherjar Type-B: bulkier steel plate armor with red trim, crimson cape, horned helmet, red visor.
@@ -33,14 +35,14 @@ IMAGE 6 — female SKILL: Einherjar Type-A: heavy steel plate armor with red tri
 
 ## 2. Runecaster
 
-แนบ: `template_tpl_walk.png`, `2_runecaster_m.png`, `2_runecaster_f.png`, `2_runecaster_weapon.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`, 5-6 = `cast`
+แนบ: `template_tpl_walk.png`, `walk_reference.png`, `2_runecaster_m.png`, `2_runecaster_f.png`, `2_runecaster_weapon.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`, 5-6 = `cast`
 
 ```
-Create 6 SEPARATE images (do not merge them). Attached: a blank sheet template, two character designs (male Type-B and female Type-A) and the character's signature WEAPON.
+Create 6 SEPARATE images (do not merge them). Attached: a blank sheet template, a WALK REFERENCE sheet (walk_reference.png, copy its leg motion), two character designs (male Type-B and female Type-A) and the character's signature WEAPON.
 2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Chibi proportions, head about 1/3 of the body height, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Use the attached character images as the exact design (same colors, armor, hair).
 WEAPON: the rune staff with the large glowing blue orb from the attached weapon image, held in the RIGHT hand. Copy the weapon EXACTLY from the attached weapon image (same shape, colors and glow) and keep it the SAME size and design in every frame of every image. The fist wraps the handle firmly; the weapon is correctly in front of or behind the body depending on the pose and direction (hidden behind the body/cape where it would be).
 Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
-WALK: 1 LEFT leg far forward, RIGHT leg back (wide stride); 2 legs together, RIGHT knee lifted; 3 RIGHT leg far forward, LEFT leg back; 4 legs together, LEFT knee lifted. Free arm swings opposite to the legs; carry the staff upright like a walking stick, orb at shoulder height, lower end near the ground.
+WALK (copy the leg motion of the attached walk_reference.png exactly, same 4 poses in the same order): 1 CONTACT: the leg on the facing side is far FORWARD with the heel down, the other leg far BACK on its toes; 2 PASSING: the BACK leg from frame 1 swings FORWARD past the standing leg with its knee lifted, the standing leg straight under the body; 3 CONTACT: mirror of frame 1 (the other leg now far forward); 4 PASSING: the other leg swings forward with its knee lifted. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level. Free arm swings opposite to the legs; carry the staff upright like a walking stick, orb at shoulder height, lower end near the ground.
 ATTACK: staff strike: 1 staff drawn back; 2 quick forward thrust of the orb toward the facing direction; 3 arm extended, body leaning forward; 4 recover.
 SKILL: spell casting: 1 staff held upright in front, free hand at the chest; 2 staff raised high, free hand open toward the facing direction; 3 both arms pushed forward releasing the spell; 4 recover.
 IMAGE 1 — male WALK: Rune Caster Type-B: navy hooded coat with glowing runes, short blue hair plates, light-blue visor.
@@ -53,14 +55,14 @@ IMAGE 6 — female SKILL: Rune Caster Type-A: navy hooded coat with glowing blue
 
 ## 3. Wildhunter
 
-แนบ: `template_tpl_walk.png`, `3_wildhunter_m.png`, `3_wildhunter_f.png`, `3_wildhunter_weapon.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `shoot`, 5-6 = `cast`
+แนบ: `template_tpl_walk.png`, `walk_reference.png`, `3_wildhunter_m.png`, `3_wildhunter_f.png`, `3_wildhunter_weapon.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `shoot`, 5-6 = `cast`
 
 ```
-Create 6 SEPARATE images (do not merge them). Attached: a blank sheet template, two character designs (male Type-B and female Type-A) and the character's signature WEAPON.
+Create 6 SEPARATE images (do not merge them). Attached: a blank sheet template, a WALK REFERENCE sheet (walk_reference.png, copy its leg motion), two character designs (male Type-B and female Type-A) and the character's signature WEAPON.
 2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Chibi proportions, head about 1/3 of the body height, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Use the attached character images as the exact design (same colors, armor, hair).
 WEAPON: the green-crystal recurve bow from the attached weapon image, held by the middle of the grip in the LEFT hand, string visible; quiver on the back. Copy the weapon EXACTLY from the attached weapon image (same shape, colors and glow) and keep it the SAME size and design in every frame of every image. The fist wraps the handle firmly; the weapon is correctly in front of or behind the body depending on the pose and direction (hidden behind the body/cape where it would be).
 Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
-WALK: 1 LEFT leg far forward, RIGHT leg back (wide stride); 2 legs together, RIGHT knee lifted; 3 RIGHT leg far forward, LEFT leg back; 4 legs together, LEFT knee lifted. Free arm swings opposite to the legs; carry the bow vertically at the side in the left hand.
+WALK (copy the leg motion of the attached walk_reference.png exactly, same 4 poses in the same order): 1 CONTACT: the leg on the facing side is far FORWARD with the heel down, the other leg far BACK on its toes; 2 PASSING: the BACK leg from frame 1 swings FORWARD past the standing leg with its knee lifted, the standing leg straight under the body; 3 CONTACT: mirror of frame 1 (the other leg now far forward); 4 PASSING: the other leg swings forward with its knee lifted. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level. Free arm swings opposite to the legs; carry the bow vertically at the side in the left hand.
 ATTACK: BOW SHOT: 1 ready stance, bow arm starts rising; 2 bow arm fully stretched toward the facing direction, right hand nocks an arrow and pulls; 3 full draw, right hand at the chin, string pulled back; 4 release, right hand flies back open, arrow gone, small recoil.
 SKILL: POWER SHOT: 1 low crouch, bow forward; 2 deep full draw, body leaning back, glowing arrow on the string; 3 release with a strong step forward; 4 recover.
 IMAGE 1 — male WALK: Wildhunter Type-B: forest green hooded cloak, short gold hair plates, quiver on the back, green visor.
@@ -73,14 +75,14 @@ IMAGE 6 — female SKILL: Wildhunter Type-A: forest green hooded cloak, gold bra
 
 ## 4. Völva
 
-แนบ: `template_tpl_walk.png`, `4_volva_m.png`, `4_volva_f.png`, `4_volva_weapon.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`, 5-6 = `cast`
+แนบ: `template_tpl_walk.png`, `walk_reference.png`, `4_volva_m.png`, `4_volva_f.png`, `4_volva_weapon.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`, 5-6 = `cast`
 
 ```
-Create 6 SEPARATE images (do not merge them). Attached: a blank sheet template, two character designs (male Type-B and female Type-A) and the character's signature WEAPON.
+Create 6 SEPARATE images (do not merge them). Attached: a blank sheet template, a WALK REFERENCE sheet (walk_reference.png, copy its leg motion), two character designs (male Type-B and female Type-A) and the character's signature WEAPON.
 2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Chibi proportions, head about 1/3 of the body height, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Use the attached character images as the exact design (same colors, armor, hair).
 WEAPON: the golden scepter with the large blue gem head from the attached weapon image, held in the RIGHT hand. Copy the weapon EXACTLY from the attached weapon image (same shape, colors and glow) and keep it the SAME size and design in every frame of every image. The fist wraps the handle firmly; the weapon is correctly in front of or behind the body depending on the pose and direction (hidden behind the body/cape where it would be).
 Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
-WALK: 1 LEFT leg far forward, RIGHT leg back (wide stride); 2 legs together, RIGHT knee lifted; 3 RIGHT leg far forward, LEFT leg back; 4 legs together, LEFT knee lifted. Free arm swings opposite to the legs; carry the scepter upright like a walking stick, gem head at shoulder height.
+WALK (copy the leg motion of the attached walk_reference.png exactly, same 4 poses in the same order): 1 CONTACT: the leg on the facing side is far FORWARD with the heel down, the other leg far BACK on its toes; 2 PASSING: the BACK leg from frame 1 swings FORWARD past the standing leg with its knee lifted, the standing leg straight under the body; 3 CONTACT: mirror of frame 1 (the other leg now far forward); 4 PASSING: the other leg swings forward with its knee lifted. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level. Free arm swings opposite to the legs; carry the scepter upright like a walking stick, gem head at shoulder height.
 ATTACK: scepter smash: 1 scepter raised up beside the head; 2 strong downward smash in front; 3 follow-through low; 4 recover.
 SKILL: holy prayer: 1 scepter held upright in front of the chest; 2 scepter raised high above the head, free hand on the chest; 3 both arms spread open, chest lifted; 4 recover.
 IMAGE 1 — male WALK: Völva Type-B: white and gold robe with gold armor pieces, shoulder-length black hair plates, gold circlet, gold visor.
@@ -93,14 +95,14 @@ IMAGE 6 — female SKILL: Völva Type-A: white and gold flowing robe, very long 
 
 ## 5. Trickster
 
-แนบ: `template_tpl_walk.png`, `5_trickster_m.png`, `5_trickster_f.png`, `5_trickster_weapon.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`, 5-6 = `cast`
+แนบ: `template_tpl_walk.png`, `walk_reference.png`, `5_trickster_m.png`, `5_trickster_f.png`, `5_trickster_weapon.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`, 5-6 = `cast`
 
 ```
-Create 6 SEPARATE images (do not merge them). Attached: a blank sheet template, two character designs (male Type-B and female Type-A) and the character's signature WEAPON.
+Create 6 SEPARATE images (do not merge them). Attached: a blank sheet template, a WALK REFERENCE sheet (walk_reference.png, copy its leg motion), two character designs (male Type-B and female Type-A) and the character's signature WEAPON.
 2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Chibi proportions, head about 1/3 of the body height, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Use the attached character images as the exact design (same colors, armor, hair).
 WEAPON: the violet crystal dagger from the attached weapon image, held in the RIGHT hand (forearm length). Copy the weapon EXACTLY from the attached weapon image (same shape, colors and glow) and keep it the SAME size and design in every frame of every image. The fist wraps the handle firmly; the weapon is correctly in front of or behind the body depending on the pose and direction (hidden behind the body/cape where it would be).
 Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
-WALK: 1 LEFT leg far forward, RIGHT leg back (wide stride); 2 legs together, RIGHT knee lifted; 3 RIGHT leg far forward, LEFT leg back; 4 legs together, LEFT knee lifted. Free arm swings opposite to the legs; carry the dagger low, blade pointing down and forward, ready to strike.
+WALK (copy the leg motion of the attached walk_reference.png exactly, same 4 poses in the same order): 1 CONTACT: the leg on the facing side is far FORWARD with the heel down, the other leg far BACK on its toes; 2 PASSING: the BACK leg from frame 1 swings FORWARD past the standing leg with its knee lifted, the standing leg straight under the body; 3 CONTACT: mirror of frame 1 (the other leg now far forward); 4 PASSING: the other leg swings forward with its knee lifted. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level. Free arm swings opposite to the legs; carry the dagger low, blade pointing down and forward, ready to strike.
 ATTACK: quick dagger stab: 1 low crouch, dagger pulled back at the hip; 2 fast forward stab toward the facing direction; 3 arm fully extended, body low and leaning in; 4 hop back to stance.
 SKILL: spinning slash: 1 crouch and twist; 2 spin halfway, dagger swung wide; 3 finish the spin with the dagger slashing forward; 4 recover.
 IMAGE 1 — male WALK: Loki's Trickster Type-B: dark purple stealth armor, short spiky crimson hair plates, violet visor.
@@ -113,14 +115,14 @@ IMAGE 6 — female SKILL: Loki's Trickster Type-A: sleek dark purple stealth arm
 
 ## 6. Berserker
 
-แนบ: `template_tpl_walk.png`, `6_berserker_m.png`, `6_berserker_f.png`, `6_berserker_weapon.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`, 5-6 = `cast`
+แนบ: `template_tpl_walk.png`, `walk_reference.png`, `6_berserker_m.png`, `6_berserker_f.png`, `6_berserker_weapon.png` • ติดตั้ง: ภาพ 1-2 = `walk`, 3-4 = `attack`, 5-6 = `cast`
 
 ```
-Create 6 SEPARATE images (do not merge them). Attached: a blank sheet template, two character designs (male Type-B and female Type-A) and the character's signature WEAPON.
+Create 6 SEPARATE images (do not merge them). Attached: a blank sheet template, a WALK REFERENCE sheet (walk_reference.png, copy its leg motion), two character designs (male Type-B and female Type-A) and the character's signature WEAPON.
 2D MMORPG sprite in a cute, clean anime chibi style like Ragnarok Online, readable at 70 px tall. Chibi proportions, head about 1/3 of the body height, thick dark outline, 2-tone cel shading. Android characters: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Use the attached character images as the exact design (same colors, armor, hair).
 WEAPON: the huge orange energy battle axe from the attached weapon image, held with BOTH hands on the long handle. Copy the weapon EXACTLY from the attached weapon image (same shape, colors and glow) and keep it the SAME size and design in every frame of every image. The fist wraps the handle firmly; the weapon is correctly in front of or behind the body depending on the pose and direction (hidden behind the body/cape where it would be).
 Each image is drawn into the attached template: 4 frames per direction, each row a direction as labelled (FRONT, FRONT-LEFT, LEFT, BACK-LEFT, BACK), the action aimed toward the facing direction of that row. Same character size in every frame, feet on the guide line. Flat white background, do NOT draw the labels, grid or guide lines. NO magic effects, NO slash trails, NO particles, NO motion lines (the game adds effects).
-WALK: 1 LEFT leg far forward, RIGHT leg back (wide stride); 2 legs together, RIGHT knee lifted; 3 RIGHT leg far forward, LEFT leg back; 4 legs together, LEFT knee lifted. Free arm swings opposite to the legs; carry the axe resting on the shoulder, blade behind the head, never dragging on the ground.
+WALK (copy the leg motion of the attached walk_reference.png exactly, same 4 poses in the same order): 1 CONTACT: the leg on the facing side is far FORWARD with the heel down, the other leg far BACK on its toes; 2 PASSING: the BACK leg from frame 1 swings FORWARD past the standing leg with its knee lifted, the standing leg straight under the body; 3 CONTACT: mirror of frame 1 (the other leg now far forward); 4 PASSING: the other leg swings forward with its knee lifted. The character always walks FORWARD toward the facing direction of the row, never backward; the head stays level. Free arm swings opposite to the legs; carry the axe resting on the shoulder, blade behind the head, never dragging on the ground.
 ATTACK: heavy two-handed chop: 1 axe raised high over the head with both hands; 2 huge downward chop in front; 3 axe low near the ground, body bent forward; 4 heave back up to stance.
 SKILL: rage whirlwind: 1 wide stance, axe held back with both hands; 2 big horizontal swing; 3 swing continues around, body twisting; 4 recover.
 IMAGE 1 — male WALK: Berserker Type-B: bulky bronze and brown armor, metal wolf-head hood, short spiky silver hair plates, orange visor.
