@@ -1,12 +1,39 @@
-# คีย์ท่าเพิ่มให้ Wolf Warrior (= Berserker F): walk / hurt / dead / sit / attack2
-# ฐาน: wolf_fixed_anim.blend (rig แก้แล้ว + ขวานติดมือขวา) • ตัวละครหันหน้า -Y • โลก = พิกัดเกราะ (matrix_world = identity)
-# หมุนทุกท่าในพิกัดโลกรอบข้อต่อ (rot_about) แล้วให้ Blender คิดกลับเป็น local เอง
-import bpy, sys, math
+# -*- coding: utf-8 -*-
+"""คีย์ 7 ท่าให้ตัวละคร 3D (rig ชื่อกระดูก mixamorig:*) → FBX ต่อท่า สำหรับ tools/render_blender.py
+ใช้ (Blender 4.4+/5.x):
+  blender -b --factory-startup -P tools/char3d/poses.py -- <rig.blend|rig.fbx> <outdir> [--hand Right] [--pin x<-0.52]
+      [--actions walk,attack,skill,buff,hurt,dead,sit] [--save out.blend]
+  - rig ต้องถูกแล้ว (ดู README: inspect_rig.py → fix_rig.py ถ้ากระดูกเพี้ยน)
+  - --hand   มือที่ถืออาวุธ (Right/Left) — อีกมือเป็นมือว่าง (แกว่งแขน/กำหมัด) • ท่าทั้งหมดกลับด้านให้เองถ้าเป็น Left
+  - --pin    บังคับจุดที่ตรงเงื่อนไข (พิกัดโลกท่าตั้งต้น เช่น x<-0.52 หรือ x>0.6) ให้ติดมือถืออาวุธ 100% (อาวุธจะไม่ยืด/งอตามขา)
+  - ตัวละครต้องหันหน้า -Y (มาตรฐาน FBX จาก Meshy/Mixamo หลัง import) • เลขเฟรม/มุมทั้งหมดอยู่ในตารางของแต่ละท่า ปรับตามตัวได้
+  - ทุกเฟรมยกสะโพกให้จุดต่ำสุดของเนื้อโมเดล (ไม่นับอาวุธ) แตะพื้นพอดี — ยกเว้นช่วงกระโดดของ skill
+ที่มา: Wolf Warrior = Berserker F (2026-10-02) • ตัวเลขทั้งหมดจูนจากตัวนั้น (chibi ~1.9 ม.)"""
+import bpy, sys, os, math, argparse
 from mathutils import Vector as V, Matrix as M
-blend, outdir = sys.argv[-2], sys.argv[-1]
-bpy.ops.wm.open_mainfile(filepath=blend)
+argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
+ap = argparse.ArgumentParser()
+ap.add_argument('src'); ap.add_argument('outdir')
+ap.add_argument('--hand', default='Right', choices=['Right', 'Left'])
+ap.add_argument('--pin', default='', help='เช่น x<-0.52 — จุดที่ตรงเงื่อนไขติดมือถืออาวุธ 100%%')
+ap.add_argument('--actions', default='walk,attack,skill,buff,hurt,dead,sit')
+ap.add_argument('--save', default='')
+a = ap.parse_args(argv)
+if a.src.lower().endswith('.blend'):
+    bpy.ops.wm.open_mainfile(filepath=a.src)
+else:
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.ops.import_scene.fbx(filepath=a.src)
 sc = bpy.context.scene
 arm = next(o for o in sc.objects if o.type == 'ARMATURE')
+for o in list(sc.objects):  # Meshy แถม Icosphere (ไม่มี vertex group) มาด้วย
+    if o.type == 'MESH' and not o.vertex_groups: bpy.data.objects.remove(o)
+mesh = next(o for o in sc.objects if o.type == 'MESH')
+if not arm.animation_data: arm.animation_data_create()
+arm.animation_data.action = None
+W = a.hand; FR = 'Left' if W == 'Right' else 'Right'
+WS = 1 if W == 'Right' else -1          # กลับทิศการหมุนเมื่อถืออาวุธมือซ้าย
+FS = 1 if FR == 'Left' else -1          # มือว่างอยู่ฝั่ง +x (ซ้ายตัวละคร) หรือ -x
 P = lambda n: arm.pose.bones['mixamorig:' + n]
 up = lambda: bpy.context.view_layer.update()
 Rx = lambda a: M.Rotation(math.radians(a), 3, 'X')
@@ -41,21 +68,21 @@ def leg(side, thigh, knee, foot_flat=True, toe=0.0):
     if foot_flat: rot_about(P(side + 'Foot'), Rx(-(thigh + knee) + toe))
 
 
-def left_arm(swing, bend=55, out=0.35):
-    aim(P('LeftArm'), Rx(-swing) @ V((out, 0, -1)))
-    aim(P('LeftForeArm'), Rx(-(swing + bend)) @ V((0.2, 0, -1)))
-    aim(P('LeftHand'), Rx(-(swing + bend + 5)) @ V((0.2, 0, -1)))
+def left_arm(swing, bend=55, out=0.35):  # มือว่าง (ชื่อเดิม left_arm): swing + = แกว่งไปหน้า
+    aim(P(FR + 'Arm'), Rx(-swing) @ V((out * FS, 0, -1)))
+    aim(P(FR + 'ForeArm'), Rx(-(swing + bend)) @ V((0.2 * FS, 0, -1)))
+    aim(P(FR + 'Hand'), Rx(-(swing + bend + 5)) @ V((0.2 * FS, 0, -1)))
 
 
-def spine(lean=0, twist=0, side=0):
+def spine(lean=0, twist=0, side=0):  # twist กลับด้านตามมือถืออาวุธ
     for nm, k in (('Spine', 0.4), ('Spine1', 0.3), ('Spine2', 0.3)):
-        rot_about(P(nm), Rx(lean * k) @ Rz(twist * k) @ Ry(side * k))
+        rot_about(P(nm), Rx(lean * k) @ Rz(twist * k * WS) @ Ry(side * k * WS))
 
 
-def right_axe(chop=0, lift=0, upright=0.0):
-    rot_about(P('RightArm'), Ry(lift))
-    rot_about(P('RightArm'), Rx(chop))
-    if upright: rot_about(P('RightHand'), Ry(-lift * upright) @ Rx(-chop * upright))  # หมุนข้อมือกลับ → ด้ามขวานตั้งตรง
+def right_axe(chop=0, lift=0, upright=0.0):  # มือถืออาวุธ (ชื่อเดิม right_axe): chop + = ฟันไปหน้า, lift + = ยกแขนขึ้น
+    rot_about(P(W + 'Arm'), Ry(lift * WS))
+    rot_about(P(W + 'Arm'), Rx(chop))
+    if upright: rot_about(P(W + 'Hand'), Ry(-lift * upright * WS) @ Rx(-chop * upright))  # หมุนข้อมือกลับ → ด้ามตั้งตรง
 
 
 FEET = ['LeftFoot', 'RightFoot', 'LeftToeBase', 'RightToeBase']
@@ -68,10 +95,20 @@ def ground():  # เท้าข้างที่ต่ำสุดแตะพ
     move_hips(V((0, 0, REST_MIN - z)))
 
 
-mesh = next(o for o in sc.objects if o.type == 'MESH')
-_rh = mesh.vertex_groups['mixamorig:RightHand'].index
-AXE = {v.index for v in mesh.data.vertices if (mesh.matrix_world @ v.co).x < -0.52 and any(g.group == _rh and g.weight > 0.99 for g in v.groups)}
-BODY = [i for i in range(len(mesh.data.vertices)) if i not in AXE]
+HAND_G = mesh.vertex_groups['mixamorig:' + W + 'Hand']
+if a.pin:  # ปักอาวุธติดมือ
+    ax, op, val = a.pin[0], a.pin[1], float(a.pin[2:])
+    k = 'xyz'.index(ax); n = 0
+    for v in mesh.data.vertices:
+        c = (mesh.matrix_world @ v.co)[k]
+        if (c < val) if op == '<' else (c > val):
+            for g in mesh.vertex_groups:
+                try: g.remove([v.index])
+                except RuntimeError: pass
+            HAND_G.add([v.index], 1.0, 'REPLACE'); n += 1
+    print('PIN', n, 'verts ->', HAND_G.name)
+WEAPON = {v.index for v in mesh.data.vertices if any(g.group == HAND_G.index and g.weight > 0.99 for g in v.groups)}
+BODY = [i for i in range(len(mesh.data.vertices)) if i not in WEAPON]
 
 
 def ground_mesh(with_axe=False):  # วัดจากเนื้อโมเดลจริง: จุดต่ำสุด (ตัว หรือรวมขวาน) แตะพื้นพอดี
@@ -97,7 +134,7 @@ for f in range(1, 26):
     ph = 2 * math.pi * (f - 1) / 24
     reset()
     spine(lean=4, twist=5 * math.sin(ph))
-    for side, p in (('Left', ph), ('Right', ph + math.pi)):
+    for side, p in ((FR, ph), (W, ph + math.pi)):
         th = -24 * math.sin(p)                              # ลบ = ขาไปหน้า
         kn = 6 + 34 * max(0.0, math.cos(p)) ** 1.5          # งอเข่าตอนเหวี่ยงขาไปหน้า
         leg(side, th, kn, toe=-10 * max(0.0, -math.cos(p)))
@@ -114,7 +151,7 @@ for f, lean, head, back, larm, k in HURT:
     move_hips(V((0, back, -0.03 * k)))
     spine(lean=lean, twist=-6 * k)
     rot_about(P('Head'), Rx(head))
-    leg('Left', 8 * k, 18 * k); leg('Right', -6 * k, 22 * k)
+    leg(FR, 8 * k, 18 * k); leg(W, -6 * k, 22 * k)
     left_arm(larm, bend=30 + 30 * k, out=0.6)
     right_axe(chop=-15 * k, lift=10 * k)
     ground_mesh(); key(f)
@@ -127,7 +164,7 @@ DEAD = [  # f, ล้ม(องศา หงายไปหลัง), เอน
 for f, fall, lean, drop, knee, larm in DEAD:
     reset()
     spine(lean=lean, twist=-8 if f < 12 else 0)
-    leg('Left', -knee * 0.6, knee); leg('Right', -knee * 0.4, knee * 0.8)
+    leg(FR, -knee * 0.6, knee); leg(W, -knee * 0.4, knee * 0.8)
     left_arm(larm, bend=20, out=0.9)
     right_axe(chop=-30 * min(1, fall / 90), lift=40 * min(1, fall / 90))
     move_hips(V((0, 0, drop)))
@@ -140,14 +177,14 @@ for f in range(1, 26):
     ph = 2 * math.pi * (f - 1) / 24
     reset()
     move_hips(V((0, 0.05, -0.36)))
-    leg('Left', -80, 95, foot_flat=True); leg('Right', -70, 100, foot_flat=True)
+    leg(FR, -80, 95, foot_flat=True); leg(W, -70, 100, foot_flat=True)
     spine(lean=10 + 2.5 * math.sin(ph))
     rot_about(P('Head'), Rx(-6 + 2 * math.sin(ph + 0.6)))
     left_arm(40, bend=60, out=0.5)           # มือซ้ายวางบนเข่า
     right_axe(chop=25, lift=-35)             # ขวานพิงพื้นข้างตัว
     ground_mesh(with_axe=True); key(f)
 # ---------------- ATTACK2: 22 เฟรม ง้างเร็ว → ฟาดเฉียงลงหน้า 3 เฟรม → ตามแรง → คืนท่า ----------------
-acts['attack2'] = new_action('Attack2')
+acts['attack'] = new_action('Attack')
 A2 = [  # f, เอน, บิด, ฟัน, ยกแขน, ย่อ, ก้าวหน้า, แขนซ้าย
     (1, 0, 0, 0, 0, 0.0, 0.00, 5), (4, -12, 24, -55, 65, 0.0, 0.00, 30), (6, -14, 28, -62, 72, 0.01, 0.00, 35),
     (8, 8, -6, 60, 25, -0.03, -0.03, 0), (9, 24, -28, 150, -28, -0.08, -0.07, -30),
@@ -157,7 +194,7 @@ for f, lean, twist, chop, lift, drop, step, larm in A2:
     k = min(1.0, abs(step) / 0.07)
     move_hips(V((0, step, drop)))
     spine(lean=lean, twist=twist)
-    leg('Left', -28 * k, 30 * k); leg('Right', 18 * k, 12 * k)
+    leg(FR, -28 * k, 30 * k); leg(W, 18 * k, 12 * k)
     right_axe(chop, lift)
     left_arm(larm)
     ground_mesh(); key(f)
@@ -172,7 +209,7 @@ for f, crouch, lean, head, chop, lift, larm, lbend, rise in BUFF:
     reset()
     spine(lean=lean)
     rot_about(P('Head'), Rx(head))
-    leg('Left', -10 * crouch, 30 * crouch); leg('Right', 6 * crouch, 30 * crouch)
+    leg(FR, -10 * crouch, 30 * crouch); leg(W, 6 * crouch, 30 * crouch)
     right_axe(chop, lift, upright=0.9 if lift > 40 else 0.0)
     left_arm(larm, bend=lbend, out=0.45)
     ground_mesh()
@@ -189,20 +226,22 @@ for f, air, crouch, tuck, lean, chop, lift, step, larm in SK:
     reset()
     move_hips(V((0, step, 0)))
     spine(lean=lean, twist=-10 if chop > 100 else 0)
-    if tuck: leg('Left', -45 * tuck, 75 * tuck); leg('Right', -25 * tuck, 85 * tuck)
-    else: leg('Left', -30 * crouch, 55 * crouch); leg('Right', 15 * crouch, 45 * crouch)
+    if tuck: leg(FR, -45 * tuck, 75 * tuck); leg(W, -25 * tuck, 85 * tuck)
+    else: leg(FR, -30 * crouch, 55 * crouch); leg(W, 15 * crouch, 45 * crouch)
     right_axe(chop, lift)
     left_arm(larm)
     ground_mesh()
     if air: move_hips(V((0, 0, air)))
     key(f)
 
+want = a.actions.split(','); os.makedirs(a.outdir, exist_ok=True)
 for name, act in acts.items():
+    if name not in want: continue
     arm.animation_data.action = act
-    a, b = act.frame_range; sc.frame_start, sc.frame_end = int(a), int(b)
+    fa, fb = act.frame_range; sc.frame_start, sc.frame_end = int(fa), int(fb)
     bpy.ops.object.select_all(action='SELECT')
-    bpy.ops.export_scene.fbx(filepath=f'{outdir}/{name}.fbx', use_selection=True, object_types={'ARMATURE', 'MESH'},
+    bpy.ops.export_scene.fbx(filepath=f'{a.outdir}/{name}.fbx', use_selection=True, object_types={'ARMATURE', 'MESH'},
         add_leaf_bones=False, bake_anim=True, bake_anim_use_all_actions=False, bake_anim_use_nla_strips=False,
         path_mode='STRIP', embed_textures=False)
-    print('EXPORT', name, int(a), int(b))
-bpy.ops.wm.save_as_mainfile(filepath=blend.replace('.blend', '_poses.blend'))
+    print('EXPORT', name, int(fa), int(fb))
+if a.save: bpy.ops.wm.save_as_mainfile(filepath=a.save)

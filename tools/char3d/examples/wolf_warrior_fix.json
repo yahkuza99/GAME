@@ -1,0 +1,12 @@
+{
+  "_note": "Wolf Warrior (Meshy) 2026-10-02: โซ่แขนซ้ายเดิมอยู่ในแผงผม → ย้ายเข้าแขนจริง (วัดเส้นกลางแขนจากเนื้อ y<0, z 0.8–1.1)",
+  "bones": {
+    "mixamorig:LeftShoulder":        [[0.06, 0.03, 1.10], [0.20, -0.12, 1.00]],
+    "mixamorig:LeftArm":             [[0.20, -0.12, 1.00], [0.46, -0.22, 0.92]],
+    "mixamorig:LeftForeArm":         [[0.46, -0.22, 0.92], [0.70, -0.29, 0.90]],
+    "mixamorig:LeftHand":            [[0.70, -0.29, 0.90], [0.82, -0.31, 0.90]],
+    "mixamorig:LeftHandMiddle4":     [[0.82, -0.31, 0.90], [0.92, -0.31, 0.91]],
+    "mixamorig:LeftHandMiddle4_end": [[0.92, -0.31, 0.91], [0.97, -0.31, 0.91]]
+  },
+  "hair_behind_y": 0.12, "hair_min_z": 0.55, "hair_max_abs_x": 0.75
+}
