@@ -81,6 +81,7 @@ const propArt = k => !!k && typeof Art !== 'undefined' && Art.has(k);
 // ภาพอบจาก Blender ของรอยต่อทุ่ง→ถ้ำ (tools/ridge3d.py): แถบสันหินแถวล่าง (แบบ A วาดลงพื้นแทน caveWalls) + ซุ้มปากถ้ำ (แบบ B ตั้งตรงเรียงความลึก)
 // hash = ผังช่องแถว y0..ล่างสุดตอนเรนเดอร์ — ผังเปลี่ยน (แก้ seed/ตัวสร้างแมพ) จะไม่ใช้ภาพ กลับไปวาดด้วยโค้ดเหมือนเดิม
 const RIDGE_BAKE = {"wolfwood":{"img":"bake_wolfwood_ridge","y0":92,"hash":843460604,"gate":{"img":"bake_wolfwood_gate","x":34.5,"y":103.0,"ax":270.0,"ay":307.0,"s":0.5,"light":[34.5,102.4,3.4,"175,120,255"],"open":[1.85,3.05,0.85,0.45]}}}; // tools/ridge3d.py --install
+const DAYLIGHT_BAKE = {"helcave":{"img":"bake_helcave_daylight","rect":[27,0,49,12],"hash":3258200064}}; // tools/daylight3d.py --install
 
 class GameMap {
   constructor(id, opts) {
@@ -919,7 +920,19 @@ class GameMap {
     }
     return this._ridgeOk ? rb : null;
   }
-  usesBake(k) { const rb = this.ridgeBake(); return (!!rb && rb.img === k && !this.ridgeImg) || !!(this.bakeWait && this.bakeWait.has(k)); } // ภาพพื้นอบที่แมพนี้รออยู่ (art.js onLoad → วาดพื้นใหม่) • ซุ้มวาดทุกเฟรมอยู่แล้ว ไม่ต้องวาดพื้นใหม่
+  // ภาพอบปากทางแสงแดด (DAYLIGHT_BAKE) ถ้าผังช่องในกรอบตรงกับตอนเรนเดอร์
+  daylightBake() {
+    const db = DAYLIGHT_BAKE[this.id];
+    if (!db || !this.daylight.length) return null;
+    if (this._dayOk === undefined) {
+      const [x0, y0, x1, y1] = db.rect; let h = 0x811c9dc5;
+      for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) { h ^= this.tiles[y * this.w + x]; h = Math.imul(h, 0x01000193) >>> 0; }
+      this._dayOk = h === db.hash;
+      if (!this._dayOk) console.warn(`daylight bake ${this.id}: ผังช่องเปลี่ยน (hash ${h} ≠ ${db.hash}) — ใช้มอสวาดด้วยโค้ดแทน (รัน tools/daylight3d.py ใหม่)`);
+    }
+    return this._dayOk ? db : null;
+  }
+  usesBake(k) { const rb = this.ridgeBake(), db = this.daylightBake(); return (!!rb && rb.img === k && !this.ridgeImg) || (!!db && db.img === k && !this.daylightImg) || !!(this.bakeWait && this.bakeWait.has(k)); } // ภาพพื้นอบที่แมพนี้รออยู่ (art.js onLoad → วาดพื้นใหม่) • ซุ้มวาดทุกเฟรมอยู่แล้ว ไม่ต้องวาดพื้นใหม่
   // ภาพรอยต่อ: ปากถ้ำมืดลึก (ทุ่ง) • แสงแดด + มอส + ใบไม้ปลิวเข้ามาที่ปากทางถ้ำ (ถ้ำ) • เสาไฟริมถนนหินอ่อน (ทุ่ง)
   seamArt(g) {
     for (const p of this.caveMouths) {
@@ -932,9 +945,12 @@ class GameMap {
     for (const p of this.daylight) {
       const x = (p.x + 0.5) * TILE, y = (p.y + 0.5) * TILE, dx = Math.sign(p.ax - p.x), dy = Math.sign(p.ay - p.y);
       const lx = x + dx * TILE * 2.5, ly = y + dy * TILE * 2.5, r = TILE * 6;
-      // มอสและหญ้าขึ้นตรงที่แดดส่องถึง
+      // มอสและหญ้าขึ้นตรงที่แดดส่องถึง — ภาพอบ 3D (tools/daylight3d.py: บันไดหินแตก มอส หญ้า ใบไม้ปลิว ราก) • ยังไม่โหลด/ผังไม่ตรง = จุดมอสวาดด้วยโค้ด
+      const db = this.daylightBake(), dimg = db && typeof Art !== 'undefined' && (Art.need(db.img), Art.get(db.img));
+      this.daylightImg = !!dimg;
+      if (dimg) { const [x0, y0, x1, y1] = db.rect; g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(dimg, x0 * TILE, y0 * TILE, (x1 - x0) * TILE, (y1 - y0) * TILE); g.restore(); }
       const rnd = U.seeded(this.def.seed + p.x * 7 + p.y);
-      for (let i = 0; i < 70; i++) {
+      for (let i = 0; i < (dimg ? 0 : 70); i++) {
         const a = rnd() * Math.PI * 2, d = Math.pow(rnd(), 0.7) * r * 0.75, mx = lx + Math.cos(a) * d, my = ly + Math.sin(a) * d * 0.8;
         if (this.tile(Math.floor(mx / TILE), Math.floor(my / TILE)) !== T.CAVE) continue;
         g.fillStyle = `rgba(${70 + rnd() * 40 | 0},${120 + rnd() * 50 | 0},${50 + rnd() * 30 | 0},${0.35 + rnd() * 0.3})`;
