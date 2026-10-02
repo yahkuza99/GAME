@@ -377,13 +377,38 @@ const Feel = (() => {
       };
       healPlayer._feel = true;
     }
+    // ---------- วาร์ป world-class: ม่านหมุนดูดแสง + แฟลช ตอนเข้า • วงแสงกระจายฝั่งปลายทาง • เสียงฮัมใกล้ประตู ----------
+    const WARP_COL = { town: [255, 214, 120], field: [120, 240, 210], cave: [190, 140, 255], pvp: [255, 120, 90] };
+    F.warpFx = kind => {
+      const c = WARP_COL[kind] || WARP_COL.field, rgb = c.join(',');
+      let el = document.getElementById('warp-ov');
+      if (!el) { el = document.createElement('div'); el.id = 'warp-ov'; document.body.appendChild(el); }
+      el.style.setProperty('--wc', rgb);
+      el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
+      const p = G.player;
+      [0, 140, 300].forEach((d, i) => setTimeout(() => { if (G.player === p) G.fx.push({ type: 'feel_nova', feel: true, t: 0, dur: 0.7, ref: p, x: p.x, y: p.y, col: `rgb(${rgb})`, rad: 1.6 + i * 1.1 }); }, d));
+      if (typeof Juice !== 'undefined') Juice.sparks({ x: p.x, y: p.y, def: {} }, `rgb(${rgb})`, 18, 60);
+      [523, 784, 1047].forEach((f, i) => chime(f, i * 0.06, 0.035, 0.7));
+    };
+    F.warpHum = () => {
+      const p = G.player; if (!p || !G.started || G.fastSim || document.hidden || !G.map) return;
+      let best = 99; for (const q of G.map.portals) best = Math.min(best, Math.hypot(q.x + 0.5 - p.x, q.y + 0.5 - p.y));
+      if (best < 4.5) { const v = 0.022 * (1 - best / 4.5); chime(110, 0, v, 1.3); chime(165, 0.02, v * 0.6, 1.2); }
+    };
+    setInterval(F.warpHum, 1100);
     setInterval(F.tickChain, 250);
     setTimeout(() => { if (G.player) F.ultDraw(); }, 0);
     window.addEventListener('load', () => F.installMouse()); // updateHover อยู่ใน main.js (โหลดหลังไฟล์นี้)
     // เปลี่ยนแผนที่/ตาย = ล้าง CHAIN
     if (typeof changeMap === 'function' && !changeMap._feel) {
       const c0 = changeMap;
-      changeMap = function () { F.chain = 0; F.chainT = -9; F.orbN = 0; if (F.el) F.el.classList.remove('on'); return c0.apply(this, arguments); }; // eslint-disable-line no-global-assign
+      changeMap = function () { // eslint-disable-line no-global-assign
+        F.chain = 0; F.chainT = -9; F.orbN = 0; if (F.el) F.el.classList.remove('on');
+        const via = G.viaPortal; G.viaPortal = null;
+        const r = c0.apply(this, arguments);
+        if (via && vis()) F.warpFx(via);
+        return r;
+      };
       changeMap._feel = true;
     }
   };

@@ -1504,6 +1504,7 @@ function updatePlayer(dt) {
   const portal = G.map.portals.find(q => U.dist(q.x + 0.5, q.y + 0.5, p.x, p.y) <= PORTAL_REACH);
   if (portal) {
     const td = MAP_DEFS[portal.to], ar = td.arrive && td.arrive[G.map.id];
+    G.viaPortal = td.pvp ? 'pvp' : td.kind; // ให้ feel.js เล่นฉากวาร์ป (ดูด → แฟลช → วงแสงฝั่งปลายทาง)
     if (ar) changeMap(portal.to, ar[0], ar[1]);
     else { const a = portalPos(td, portal.toSide); changeMap(portal.to, a.ax + 0.5, a.ay + 0.5); }
   }

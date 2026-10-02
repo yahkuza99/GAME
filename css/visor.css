@@ -1464,3 +1464,10 @@ body.visor #w-equip .eq-turn { box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5), inset 0 1
   #splash.boss .sp-text small { font-size: 9px; }
   #splash.boss .sp-text b { font-size: 15px; }
 }
+/* วาร์ป: ม่านหมุนดูดแสงเข้ากลาง → แฟลช → จาง (feel.js warpFx) */
+#warp-ov { position: fixed; inset: 0; z-index: 3990; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.95) 0%, rgba(var(--wc),.75) 12%, rgba(var(--wc),.25) 34%, transparent 60%),
+              conic-gradient(from 0deg at 50% 50%, transparent, rgba(var(--wc),.35), transparent 25%, rgba(var(--wc),.35), transparent 50%, rgba(var(--wc),.35), transparent 75%, rgba(var(--wc),.35), transparent); }
+#warp-ov.go { animation: warpGo .75s ease-out forwards; }
+@keyframes warpGo { 0% { opacity: .9; transform: scale(1.6) rotate(0deg); } 30% { opacity: 1; transform: scale(.9) rotate(140deg); } 100% { opacity: 0; transform: scale(2.4) rotate(220deg); } }
+@media (prefers-reduced-motion: reduce) { #warp-ov.go { animation: warpGoRm .4s ease-out forwards; } @keyframes warpGoRm { 0% { opacity: .6; } 100% { opacity: 0; } } }
