@@ -111,14 +111,11 @@ const Anim = {
   },
   has(key) { return !!Art.get(`anim_${key}_idle`) || !!Art.get(`anim_${key}_walk`); },
   // ชุดภาพของตัวละครผู้เล่น: ของ Class ตัวเอง • Class 2 ที่ยังไม่มีภาพ → ใช้ภาพ Class ต้นสาย (ไม่ใช่ตัววาดด้วยโค้ดแบบเก่า)
-  // ทดลอง (เจ้าของสั่งลองเล่น): ชุดภาพจากโมเดล 3D ทั้งตัว `<key>3d` — เลือกได้ใน Settings (art3d: 'full' = 3D ทั้งตัว / อื่น ๆ = ภาพวาด + 3D เฉพาะท่าที่ภาพวาดไม่มี)
-  art3d() { return typeof G !== 'undefined' && G.player && G.player.options && G.player.options.art3d === 'full'; },
   playerKey(job, gender) {
-    const g = gender === 'm' ? 'm' : 'f';
-    const base = (j) => { const k = `${j}_${g}`; if (this.art3d() && this.has(`${j}3d_${g}`)) return `${j}3d_${g}`; return this.has(k) ? k : null; };
-    const own = base(job); if (own) return own;
+    const g = gender === 'm' ? 'm' : 'f', own = `${job}_${g}`;
+    if (this.has(own)) return own;
     const par = typeof JOBS !== 'undefined' && JOBS[job] && JOBS[job].parent;
-    return (par && base(par)) || `${job}_${g}`;
+    return par && this.has(`${par}_${g}`) ? `${par}_${g}` : own;
   },
 
   // เลือกท่าและเฟรมจากสถานะตัวละคร

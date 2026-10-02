@@ -745,57 +745,6 @@
  },
  "berserker_f": {
   "walk": {
-   "frames": 4,
-   "dirs": 8,
-   "scale_src": 0.5576,
-   "median_src_h": 269
-  },
-  "_k1536": 0.37175,
-  "attack": {
-   "frames": 4,
-   "dirs": 8,
-   "scale_src": 0.5576,
-   "median_src_h": 269.0100430416069
-  },
-  "cast": {
-   "frames": 4,
-   "dirs": 8,
-   "scale_src": 0.5576,
-   "median_src_h": 269.0100430416069
-  },
-  "buff": {
-   "frames": 6,
-   "dirs": 8,
-   "scale_src": 0.6073,
-   "median_src_h": 246.99489543882763
-  },
-  "skill": {
-   "frames": 6,
-   "dirs": 8,
-   "scale_src": 0.6073,
-   "median_src_h": 246.99489543882763
-  },
-  "hurt": {
-   "frames": 4,
-   "dirs": 8,
-   "scale_src": 0.6073,
-   "median_src_h": 246.99489543882763
-  },
-  "dead": {
-   "frames": 6,
-   "dirs": 8,
-   "scale_src": 0.6073,
-   "median_src_h": 246.99489543882763
-  },
-  "sit": {
-   "frames": 4,
-   "dirs": 8,
-   "scale_src": 0.6073,
-   "median_src_h": 246.99489543882763
-  }
- },
- "berserker3d_f": {
-  "walk": {
    "frames": 8,
    "dirs": 8,
    "scale_src": 0.6073,
@@ -834,6 +783,12 @@
   },
   "sit": {
    "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.6073,
+   "median_src_h": 246.99489543882763
+  },
+  "cast": {
+   "frames": 6,
    "dirs": 8,
    "scale_src": 0.6073,
    "median_src_h": 246.99489543882763
