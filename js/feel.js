@@ -44,6 +44,7 @@ const Feel = (() => {
     }
   };
   F.tickChain = () => {
+    if (!F.ub && typeof G !== 'undefined' && G.started && G.player) F.ultDraw();
     if (F.el && F.el.classList.contains('on') && (typeof G === 'undefined' || G.time - F.chainT > 3 || G.time < F.chainT)) { F.el.classList.remove('on'); F.chain = 0; }
   };
 
@@ -165,6 +166,64 @@ const Feel = (() => {
     }
   };
 
+  // ---------- 6) ไม้ตาย RAGNARÖK (เกจ) ----------
+  // ตีโดน +2 • ฆ่า +5 (CHAIN 5 ขึ้นไป +2 เพิ่ม) → เต็ม 100 กดปุ่ม/คีย์ T: คัตอินชื่อ Class + สโลว์ + คลื่นกระแทกรัศมี 5 ช่อง
+  // ดาเมจ = ตีแรง 3 เท่าของการตีปกติ (เลือกกายภาพหรือเวท ที่แรงกว่า) ใส่มอนทุกตัวในวง • ไม่ใช้ในลานประลอง/ตอนตาย • บอทไม่กดให้
+  const ULT_MAX = 100, ULT_R = 5;
+  const ULT_COL = { einherjar: '#ff6a5a', runecaster: '#6ec8ff', wildhunter: '#8cff7a', volva: '#ffd76e', trickster: '#c88aff', berserker: '#ff9a3a', novice: '#bff4ff' };
+  F.ultCol = () => { const p = G.player, b = (JOBS[p.job] && JOBS[p.job].parent) || p.job; return ULT_COL[b] || '#ffd76e'; };
+  F.ultGain = n => {
+    const p = G.player; if (!p || p.dead || F.ultBusy || performance.now() < (F.ultQuiet || 0)) return; // ไม้ตายเอง (และศพที่ตายตามมา) ไม่เติมเกจ
+    const was = p.ult || 0; p.ult = Math.min(ULT_MAX, was + n);
+    if (was < ULT_MAX && p.ult >= ULT_MAX && vis()) { chime(1047, 0, 0.04, 0.5); chime(1568, 0.08, 0.04, 0.6); if (typeof UI !== 'undefined') UI.msg(L('⚡ เกจไม้ตายเต็ม! กด T หรือปุ่ม ULT', '⚡ Ultimate ready! Press T or the ULT button'), 'lvl'); }
+    F.ultDraw();
+  };
+  F.ultBtn = () => {
+    if (F.ub) return F.ub;
+    const b = document.createElement('button'); b.id = 'ult-btn'; b.type = 'button';
+    b.title = L('ไม้ตาย (T) — ตีและฆ่ามอนเพื่อเติมเกจ', 'Ultimate (T) — hit and kill monsters to charge');
+    b.innerHTML = '<i></i><b>ULT</b><small>0%</small>';
+    b.onclick = () => F.ultFire();
+    const dock = document.getElementById('dock'), auto = document.getElementById('auto-btn');
+    if (dock && auto) auto.after(b); else document.body.appendChild(b);
+    return (F.ub = b);
+  };
+  F.ultDraw = () => {
+    if (typeof document === 'undefined' || !G.player) return;
+    const b = F.ultBtn(), v = G.player.ult || 0, k = v / ULT_MAX;
+    b.style.setProperty('--k', k); b.style.setProperty('--uc', F.ultCol());
+    b.querySelector('small').textContent = v >= ULT_MAX ? 'READY' : Math.floor(k * 100) + '%';
+    b.classList.toggle('ready', v >= ULT_MAX);
+  };
+  F.ultFire = () => {
+    const p = G.player;
+    if (!p || p.dead || (p.ult || 0) < ULT_MAX || !G.map || G.map.def.pvp) { if (p && (p.ult || 0) < ULT_MAX) Sound.play('miss'); return; }
+    p.ult = 0; F.ultDraw();
+    const col = F.ultCol(), job = JOBS[p.job] ? JOBS[p.job].name : '';
+    p.atkAnim = 1; p.skillPose = G.time; p.skillKind = 'skill';
+    if (vis()) {
+      F.banner('RAGNARÖK', job.toUpperCase(), false);
+      if (F.lvEl) F.lvEl.style.setProperty('--uc', col), F.lvEl.classList.add('ult');
+      if (typeof Juice !== 'undefined') { Juice.dilate(0.12, 0.3, true); Juice.flash('gold', 0.8); Juice.shake(8, 0.45); }
+      F.nova(col, ULT_R); setTimeout(() => F.nova('#ffffff', ULT_R * 0.7), 120); setTimeout(() => F.nova(col, ULT_R * 1.2), 240);
+      [262, 330, 392, 523, 659, 784].forEach((f2, i) => chime(f2, i * 0.045, 0.05, 0.9));
+      Sound.play('crit');
+    }
+    // ดาเมจจริงหลังคัตอินสั้น ๆ (ให้จังหวะ ง้าง → ระเบิด)
+    setTimeout(() => {
+      if (!G.player || G.player.dead) return;
+      F.ultBusy = true;
+      try { for (const m of G.mobs.slice()) {
+        if (m.dead) continue;
+        if (Math.hypot(m.x - p.x, m.y - p.y) > ULT_R) continue;
+        const a = physHit(m, 3, { sureHit: true, skill: true }), b = magicHit(m, 3);
+        const r = (b.dmg || 0) > (a.dmg || 0) ? b : a;
+        applyHit(m, r, { sfx: '', crit: true });
+        if (typeof Juice !== 'undefined' && vis()) Juice.sparks(m, col, 10, 50);
+      } } finally { F.ultBusy = false; F.ultQuiet = performance.now() + 800; }
+    }, 260);
+  };
+
   // ---------- เกี่ยวเข้าระบบ ----------
   F.install = () => {
     if (typeof R !== 'undefined' && R.drawFx && !R.drawFx._feel) {
@@ -176,6 +235,7 @@ const Feel = (() => {
         const r = k0.apply(this, arguments);
         try {
           F.onKill(m);
+          if (m.def && !m.def.dummy) F.ultGain(5 + (F.chain >= 5 ? 2 : 0));
           const boss = m.def && (m.def.boss || m.isMvp || m.isWB);
           if (m.def && !m.def.dummy) F.orbs(m.x, m.y, boss ? 10 : 2 + (Math.random() < 0.5 ? 1 : 0), '#7fd4ff');
         } catch (e) { /* ภาพล้วน ไม่ให้กระทบเกม */ }
@@ -203,7 +263,17 @@ const Feel = (() => {
       };
       dropItemOnGround._feel = true;
     }
+    if (typeof applyHit === 'function' && !applyHit._feel) {
+      const a0 = applyHit;
+      applyHit = function (m, r) { // eslint-disable-line no-global-assign
+        const res = a0.apply(this, arguments);
+        try { if (m && !m.isPlayer && r && !r.miss && G.player && !G.player.dead) F.ultGain(2); } catch (e) { /* ภาพล้วน */ }
+        return res;
+      };
+      applyHit._feel = true;
+    }
     setInterval(F.tickChain, 250);
+    setTimeout(() => { if (G.player) F.ultDraw(); }, 0);
     // เปลี่ยนแผนที่/ตาย = ล้าง CHAIN
     if (typeof changeMap === 'function' && !changeMap._feel) {
       const c0 = changeMap;

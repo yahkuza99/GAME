@@ -190,6 +190,7 @@ function bindInput() {
       case '-': R.zoom = U.clamp(R.zoom * 0.9, R.ZMIN, R.ZMAX); break;
       case '=': case '+': R.zoom = U.clamp(R.zoom * 1.1, R.ZMIN, R.ZMAX); break;
       case 'x': case 'insert': toggleSit(); break;
+      case 't': if (typeof Feel !== 'undefined') Feel.ultFire(); break; // ไม้ตาย (เกจเต็ม)
       case ' ': e.preventDefault(); Pad.interact(); break;
       case 'tab': e.preventDefault(); UI.toggleMenu(); break;
       case 'enter': e.preventDefault(); $('#chat-input').focus(); break;
