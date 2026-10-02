@@ -42,7 +42,7 @@ Every frame clearly different. Leave clear space between cells. Flat white backg
 
 ## รอบ B — ตัวมอน 7 ตัว (ไม่ต้องแนบอะไร • ต้องพื้นโปร่งใส)
 
-### 9. Archive Maiden — ตัวเต็ม
+### ✅ 9. Archive Maiden — ตัวเต็ม
 ```
 In-game monster sprite for a cute classic 2000s Korean MMORPG style game (chibi, round, readable silhouette, like classic isometric MMO field monsters), but the monster is a ROBOT / mechanical version of the creature: painted metal shell, visible bolts and panel lines, small glowing core lights, antennas. Machines have sensor lights or a visor slit, never organic eyes. ONE single full-body creature, 3/4 view FACING LEFT, standing on the ground, centered with generous empty space around it, on a FULLY TRANSPARENT background (PNG). Cel-shaded anime game art, crisp dark outline, soft glossy highlights, readable at 64 pixels tall. No text, no frame, no ground shadow, no effects. Square 1:1 image (1024x1024). A floating GHOST-like keeper robot: a hooded moss-green and teal cloak with no legs and a frayed hem, a pale metal face mask with a soft green-teal visor light, holding a lantern stuffed with many tiny rust-orange glowing sparks, a dust cloth draped over one arm. Gentle, not scary.
 ```
@@ -79,7 +79,7 @@ In-game monster sprite for a cute classic 2000s Korean MMORPG style game (chibi,
 
 ## รอบ C — ภาพหน้า 7 ตัว (ไม่ต้องแนบอะไร)
 
-### 16. Archive Maiden — ภาพหน้า
+### ✅ 16. Archive Maiden — ภาพหน้า
 ```
 Monster bust portrait for an anime sci-fi Norse RPG called NEO MIDGARD where every monster is a humanoid ANDROID personification of a machine (no animals, no humans). FACE RULE: the head has a smooth metal faceplate with a glowing visor strip: NO eyes, NO pupils, NO mouth. Hostile units have red or colored glowing visors. A square bust portrait (head and shoulders, facing slightly left) that fills the whole canvas with a dark moody background tinted in the monster's glow color, painterly cel-shaded anime gacha style, crisp lineart, rim light. No text, no letters, no frame. Square 1:1 image (1024x1024). Archive Maiden: a gentle hooded android with a pale porcelain faceplate and a soft green-teal visor, a deep moss-green and teal hood with frayed edges, holding up a lantern crowded with many small warm rust-orange sparks, a dusting cloth over one arm. Sad, tender mood. Background: dim teal and amber.
 ```
@@ -116,7 +116,7 @@ Monster bust portrait for an anime sci-fi Norse RPG called NEO MIDGARD where eve
 
 ## รอบ D — ท่าขยับ 7 ตัว (ทำหลังรอบ B: แนบ `template_tpl_mob.png` + ภาพตัวเต็มที่ได้จากรอบ B ของตัวนั้น)
 
-### 23. Archive Maiden — ท่าขยับ
+### ✅ 23. Archive Maiden — ท่าขยับ
 ```
 (Attach mobsprite_archive_maiden and art/tpl_mob.png)
 Use the attached monster as the exact design (same colors, same size, same art style: cute chibi robot for a 2000s Korean MMORPG). Draw it into the attached 4x2 template, facing LEFT (3/4 view), bottom of the monster on the red line in every cell (even for jumps: the game adds the jump height itself). Top row = MOVE loop, 4 frames. Bottom row = ATTACK, 4 frames. Every frame clearly different. Draw the monster ONLY: no effects, no motion lines, no impact bursts. Leave clear space between cells. Flat white background, do NOT draw the labels, grid or guide lines. This is Archive Maiden. Top row = MOVE loop: drifting float, cloak hem swaying, lantern swinging gently. Bottom row = ATTACK: pull lantern back, sparks flare, swing lantern forward, settle.

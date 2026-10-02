@@ -975,9 +975,9 @@ Rows per priority: P1 = 36, P1+ = 6, P2 = 32, P2+ = 2, P3 = 72, P4 = 2, P4+ = 5,
 | ✅ | 47 | P2 | `anim_mob_archive_warden_walk.webp` + `anim_mob_archive_warden_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
 | ✅ | 48 | P2 | `mob_rust_mine.webp` | 160² · tile |
 | ✅ | 49 | P2 | `mobsprite_rust_mine.webp` | ≤320 · transparent |
-| ⬜ | 50 | P2 | `mob_archive_maiden.webp` | 160² · tile |
-| ⬜ | 51 | P2 | `mobsprite_archive_maiden.webp` | ≤320 · transparent |
-| ⬜ | 52 | P2 | `anim_mob_archive_maiden_walk.webp` + `anim_mob_archive_maiden_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
+| ✅ | 50 | P2 | `mob_archive_maiden.webp` | 160² · tile |
+| ✅ | 51 | P2 | `mobsprite_archive_maiden.webp` | ≤320 · transparent |
+| ✅ | 52 | P2 | `anim_mob_archive_maiden_walk.webp` + `anim_mob_archive_maiden_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |
 | ✅ | 53 | P2 | `mob_rust_draugr.webp` | 160² · tile |
 | ✅ | 54 | P2 | `mobsprite_rust_draugr.webp` | ≤320 · transparent |
 | ✅ | 55 | P2 | `anim_mob_rust_draugr_walk.webp` + `anim_mob_rust_draugr_attack.webp` (1 sheet) | 1536×1024 sheet → 2× 960×240 |

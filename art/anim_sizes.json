@@ -433,5 +433,20 @@
    "scale_src": 0.4167,
    "median_src_h": 359.9987272198325
   }
+ },
+ "mob_archive_maiden": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4249,
+   "median_src_h": 353
+  },
+  "_k1536": 0.42493,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4249,
+   "median_src_h": 352.9993175346528
+  }
  }
 }

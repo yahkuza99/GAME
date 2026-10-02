@@ -1,5 +1,7 @@
 {
 "files": [
+"anim_mob_archive_maiden_attack.webp",
+"anim_mob_archive_maiden_walk.webp",
 "anim_mob_archive_warden_attack.webp",
 "anim_mob_archive_warden_walk.webp",
 "anim_mob_ashtail_attack.webp",
@@ -243,6 +245,7 @@
 "map_meadow.webp",
 "map_mistlake.webp",
 "map_wolfwood.webp",
+"mob_archive_maiden.webp",
 "mob_archive_warden.webp",
 "mob_ashtail.webp",
 "mob_bone_warden.webp",
@@ -266,6 +269,7 @@
 "mob_seraph_pudding.webp",
 "mob_stumpling.webp",
 "mob_tuskboar.webp",
+"mobsprite_archive_maiden.webp",
 "mobsprite_archive_warden.webp",
 "mobsprite_ashtail.webp",
 "mobsprite_bone_warden.webp",
@@ -372,6 +376,8 @@
 "skill_wolf_companion.webp"
 ],
 "v": {
+"anim_mob_archive_maiden_attack.webp": "b701e907",
+"anim_mob_archive_maiden_walk.webp": "c84aa05a",
 "anim_mob_archive_warden_attack.webp": "4a14a6f2",
 "anim_mob_archive_warden_walk.webp": "cddf6854",
 "anim_mob_ashtail_attack.webp": "5cf13eef",
@@ -615,6 +621,7 @@
 "map_meadow.webp": "a3106124",
 "map_mistlake.webp": "8bb98a21",
 "map_wolfwood.webp": "93874f82",
+"mob_archive_maiden.webp": "33d2a860",
 "mob_archive_warden.webp": "c8508f22",
 "mob_ashtail.webp": "0436ca35",
 "mob_bone_warden.webp": "2bd49db3",
@@ -638,6 +645,7 @@
 "mob_seraph_pudding.webp": "dee39bbd",
 "mob_stumpling.webp": "168f8c1e",
 "mob_tuskboar.webp": "b4679378",
+"mobsprite_archive_maiden.webp": "3a60f6a8",
 "mobsprite_archive_warden.webp": "6ac0f833",
 "mobsprite_ashtail.webp": "c41bce28",
 "mobsprite_bone_warden.webp": "b69b7942",
