@@ -467,6 +467,11 @@ const Flora = {
           const c = cls(xx, yy); if (c === 'water' || c === 'stone' || c === 'dirt' || m.tile(xx, yy) === T.HOUSE) { ok = false; break; }
         }
         if (!ok || m.portals.some(p => Math.hypot(p.x - tx, p.y - ty) < 2.5) || placed.some(q => Math.hypot(q[0] - tx, q[1] - ty) < q[2] + R0 + 1.2)) continue;
+        if (GS) { // ทุ่งตามภูมิภาค: ดินโล่งเฉพาะใกล้ต้นไม้/ทางดิน (กลางทุ่งโล่งเป็นหญ้า)
+          let nearT = false; const rr = Math.ceil(R0 + 2.5);
+          for (let yy = ty - rr; yy <= ty + rr && !nearT; yy++) for (let xx = tx - rr; xx <= tx + rr; xx++) { const q = m.tile(xx, yy); if ((q === T.TREE && xx > 1 && yy > 1 && xx < W - 2 && yy < Hh - 2) || q === T.DIRT) { nearT = true; break; } }
+          if (!nearT) continue;
+        }
         i++; placed.push([tx, ty, R0]);
         const px = (tx + 0.5) * TILE, py = (ty + 0.5) * TILE, rx = R0 * TILE, ry = R0 * TILE * (0.8 + rnd() * 0.5) / k * 0.76;
         if (GS) { this.softPatch(g, px, py, rx, ry, rnd, pc, GS); for (let j = 0; j < 9; j++) { const a = rnd() * 6.283, e = 0.82 + rnd() * 0.3; tuft(px + Math.cos(a) * rx * e, py + Math.sin(a) * ry * e + 3, 0.75 + rnd() * 0.4, (rnd() - 0.5) * 0.5); } if (GS.leaves) this.litter(g, px - rx * 0.6, py - ry * 0.6, (a, b, c) => rnd(), 0, 0, 6 + Math.round(R0 * 4), k); }
