@@ -15,6 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Kanit:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=202610022259">
   <link rel="stylesheet" href="css/visor.css?v=202610022259">
+  <link rel="stylesheet" href="css/ui_art.css?v=202610022259">
 </head>
 <body class="visor">
   <canvas id="cv"></canvas>
@@ -23,7 +24,7 @@
   <div id="hud" class="hidden">
     <!-- การ์ดยูนิต (มุมซ้ายบน) -->
     <div id="basic-info" class="foldable" data-fold="info">
-      <div class="bi-face"><canvas id="bi-portrait" width="112" height="112"></canvas><svg id="bi-rings" viewBox="0 0 88 88" aria-hidden="true"><circle class="rb" cx="44" cy="44" r="41" stroke-width="4"/><circle id="ring-hp" cx="44" cy="44" r="41" transform="rotate(-90 44 44)"/><circle class="rb" cx="44" cy="44" r="35" stroke-width="3"/><circle id="ring-sp" cx="44" cy="44" r="35" transform="rotate(-90 44 44)"/></svg><em id="bi-lvbadge"></em></div>
+      <div class="bi-face"><canvas id="bi-portrait" width="112" height="112"></canvas><svg id="bi-rings" viewBox="0 0 88 88" aria-hidden="true"><circle class="rb" cx="44" cy="44" r="37" stroke-width="3.5"/><circle id="ring-hp" cx="44" cy="44" r="37" transform="rotate(-90 44 44)"/><circle class="rb" cx="44" cy="44" r="33" stroke-width="2.5"/><circle id="ring-sp" cx="44" cy="44" r="33" transform="rotate(-90 44 44)"/></svg><em id="bi-lvbadge"></em></div>
       <div class="bi-main">
         <div class="bi-id"><b id="bi-name"></b><span id="bi-job"></span><button class="fold-btn" title="ย่อ/ขยาย" aria-label="ย่อหรือขยายแผงสถานะ" data-en-title="Collapse/expand" data-en-aria-label="Collapse or expand the status panel"></button></div>
         <div class="gauge hp"><div id="bi-hp" class="fill"></div><i>HP</i><span id="bi-hp-t"></span></div>
@@ -131,7 +132,7 @@
     </div>
     <div id="w-map" class="win hidden center" style="width:min(760px, calc(100vw - 24px))">
       <div class="win-title"><span data-en="Map">Map</span></div>
-      <div class="win-body"><canvas id="bigmap-cv"></canvas><div class="hint" data-en="Tap/click the map to walk there • ➜ marks a portal to the next map">แตะ/คลิกบนแผนที่เพื่อเดินไปยังจุดนั้น • ➜ คือประตูไปแผนที่ถัดไป</div><div class="opt-btns"><button class="btn" type="button" data-open="w-world" data-en="🌐 World Map (W)">🌐 World Map (W)</button></div></div>
+      <div class="win-body"><canvas id="bigmap-cv"></canvas><div class="hint" data-en="Tap/click the map to walk there • ➜ marks a portal to the next map">แตะ/คลิกบนแผนที่เพื่อเดินไปยังจุดนั้น • ➜ คือประตูไปแผนที่ถัดไป</div><div class="opt-btns"><button class="btn" type="button" data-open="w-world" data-en="World Map (W)">World Map (W)</button></div></div>
     </div>
     <div id="w-world" class="win hidden center" style="width:min(760px, calc(100vw - 24px))">
       <div class="win-title"><span data-en="World Map — Midgard">World Map — Midgard</span></div><div class="win-body"></div>

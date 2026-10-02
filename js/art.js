@@ -34,12 +34,17 @@ const Art = {
       .then(m => {
         const list = Array.isArray(m) ? m : m.files; ver = (m && m.v) || {};
         // bake_*: ภาพอบ 3D ขนาดใหญ่ของแมพเดียว — ไม่โหลดตอนเปิดเกม รอ Art.need() ตอนเข้าแมพนั้น
-        list.filter(f => !/\.(ogg|mp3|wav)$/.test(f)).forEach(f => (f.startsWith('bake_') ? this.lazy.set(f.replace(/\.(webp|png)$/, ''), f) : probe(f)));
+        // ui_*: ภาพ UI (tools/ui_slice.py) ใช้ผ่าน CSS เท่านั้น → ตั้งตัวแปร --ui-<ชื่อ> พร้อมรหัสเวอร์ชัน (css/ui_art.css มีค่าสำรองไม่มีรหัส)
+        list.filter(f => !/\.(ogg|mp3|wav)$/.test(f)).forEach(f => (f.startsWith('bake_') ? this.lazy.set(f.replace(/\.(webp|png)$/, ''), f) : f.startsWith('ui_') ? this.uiVar(f, ver[f]) : probe(f)));
         this._probe = probe;
         for (const k of this.wanted) this.need(k);
         if (typeof Sound !== 'undefined') Sound.register(list, ver); // ไฟล์เสียงจริง (sfx_*, bgm_*)
       })
       .catch(() => ART_KEYS.forEach(probe));
+  },
+  uiVar(f, v) {
+    const k = '--' + f.replace(/\.(webp|png)$/, '').replace(/_/g, '-');
+    document.documentElement.style.setProperty(k, `url("assets/${f}${v ? '?v=' + v : ''}")`);
   },
   // โหลดภาพตามต้องการ (bake_* — js/maps.js renderGround) • เรียกก่อน manifest มาถึงได้ (จำไว้แล้วโหลดทีหลัง) • โหลดเสร็จ → onLoad วาดพื้นใหม่
   lazy: new Map(), wanted: new Set(),
