@@ -1055,6 +1055,13 @@ class GameMap {
       g.fillStyle = col[this.tile(x, y)] || '#000';
       g.fillRect(x * S, y * S, S, S);
     }
+    // มินิแมพจากภาพพื้นจริง (ย่อ) + ยอดไม้เป็นจุดเขียวเข้ม → ตรงกับที่เห็นในเกม
+    if (this.ground) {
+      g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+      g.drawImage(this.ground, 0, 0, c.width, c.height);
+      g.fillStyle = 'rgba(30,70,32,0.9)';
+      for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) if (this.tile(x, y) === T.TREE) { g.beginPath(); g.arc((x + 0.5) * S, (y + 0.5) * S, S * 0.75, 0, 7); g.fill(); }
+    }
     this.mini = c; this.miniScale = S;
   }
 
