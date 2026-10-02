@@ -571,6 +571,13 @@ const Juice = (() => {
       else if (c.dot) { f.js = 'dot'; f.dur = 0.85; }
       else { f.js = 'normal'; f.dur = 0.95; f.color = color || '#ffffff'; }
       if (c.boss && f.js !== 'dot') f.bossHit = true;
+      // เทียบกับ "ปกติของฉัน" (มัธยฐาน 20 ฮิตล่าสุด): แรงกว่า 2 เท่า = ใหญ่ขึ้น+เรือง, 4 เท่า = ใหญ่กว่าอีก+สั่น (GAME_FEEL ข้อ 11)
+      const v = +String(txt).replace(/[^0-9]/g, '');
+      if (v > 0 && f.js !== 'dot') {
+        const hist = J.hist || (J.hist = []);
+        if (hist.length >= 8) { const sorted = hist.slice().sort((a, b) => a - b), med = sorted[sorted.length >> 1]; f.rel = v >= med * 4 ? 2 : v >= med * 2 ? 1 : 0; }
+        hist.push(v); if (hist.length > 20) hist.shift();
+      }
     } else { f.js = color === '#c080ff' || !big ? 'dot' : 'normal'; f.dur = 0.9; }
     // กระจายไม่ให้ทับ: สุ่มซ้ายขวา + ซ้อนขึ้นถ้าตัวก่อนหน้ายังอยู่ใกล้ ๆ
     f.ox = rnd(-12, 12); f.vx = rnd(-14, 14);
@@ -624,6 +631,7 @@ const Juice = (() => {
       size = 14; lw = 3; y -= 20 * k; a = fadeFrom(0.5);
     }
     if (a <= 0) return;
+    if (f.rel) { size *= f.rel === 2 ? 1.4 : 1.2; if (f.rel === 2 && t < 0.2) { x += (rand() - 0.5) * 6; y += (rand() - 0.5) * 3; } }
     g.save();
     g.globalAlpha = a;
     g.translate(x, y); g.scale(sc, sc);
@@ -633,7 +641,7 @@ const Juice = (() => {
     }
     g.font = `${font} ${size}px ${FONT}`;
     g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
-    if ((s === 'skill' || s === 'heal') && !low()) { g.lineWidth = lw + 5; g.strokeStyle = f.glow; g.strokeText(f.text, 0, 0); }
+    if ((s === 'skill' || s === 'heal' || f.rel) && !low()) { g.lineWidth = lw + 5; g.strokeStyle = f.rel ? 'rgba(255,214,106,.55)' : f.glow; g.strokeText(f.text, 0, 0); }
     if (f.bossHit && s !== 'crit') { g.lineWidth = lw + 3; g.strokeStyle = 'rgba(255,200,80,.55)'; g.strokeText(f.text, 0, 0); }
     g.lineWidth = lw; g.strokeStyle = stroke; g.strokeText(f.text, 0, 0);
     g.fillStyle = fill; g.fillText(f.text, 0, 0);

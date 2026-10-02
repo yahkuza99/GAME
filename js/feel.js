@@ -352,6 +352,31 @@ const Feel = (() => {
       };
       damagePlayer._feel = true;
     }
+    // HP ต่ำ → หัวใจเต้น + ขอบจอแดงเป็นจังหวะ • ฮีลทันจากขอบเหว → SAVED! (GAME_FEEL ข้อ 16)
+    F.lowHpTick = () => {
+      const p = G.player;
+      if (!p || !p.d || p.dead || !G.started || G.fastSim || document.hidden) return;
+      const k = p.hp / p.d.maxHp;
+      if (k < 0.25) F.lowHp = true; else if (k > 0.35) F.lowHp = false;
+      if (!F.lowHp) return;
+      chime(70, 0, 0.09, 0.12); chime(62, 0.17, 0.07, 0.12);
+      if (typeof Juice !== 'undefined') Juice.flash('hurt', 0.22);
+    };
+    setInterval(F.lowHpTick, 900);
+    if (typeof healPlayer === 'function' && !healPlayer._feel) {
+      const h0 = healPlayer;
+      healPlayer = function () { // eslint-disable-line no-global-assign
+        const p = G.player, k0 = p && p.d ? p.hp / p.d.maxHp : 1;
+        const r = h0.apply(this, arguments);
+        if (p && p.d && vis() && k0 < 0.25 && p.hp / p.d.maxHp > 0.4 && performance.now() - (F.savedAt || 0) > 5000) {
+          F.savedAt = performance.now();
+          addFloater(p.x, p.y - 2, 'SAVED!', '#8dffb0', true);
+          [523, 659, 784].forEach((f, i) => chime(f, i * 0.05, 0.05, 0.5));
+        }
+        return r;
+      };
+      healPlayer._feel = true;
+    }
     setInterval(F.tickChain, 250);
     setTimeout(() => { if (G.player) F.ultDraw(); }, 0);
     window.addEventListener('load', () => F.installMouse()); // updateHover อยู่ใน main.js (โหลดหลังไฟล์นี้)
