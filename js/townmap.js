@@ -8,6 +8,8 @@
 // น้ำพุคริสตัลกลางเมืองแบบ 3D มีเฟรมน้ำไหล (tools/fountain3d.py → js/bake_data_eldheim.js, docs/RENDER3D_PLAN.md #11)
 //   false = กลับไปใช้สระวาดโค้ด (TownArt.basin) + ภาพวาด prop_fountain เดิม — แก้บรรทัดเดียวนี้ ไม่ต้องลบไฟล์ใด
 const FOUNTAIN_3D = true;
+// พื้นเมืองทั้งแมพแบบ 3D (tools/town3d.py → assets/bake_eldheim_ground.webp, TOWN_BAKE ใน js/maps.js, docs/RENDER3D_PLAN.md #12)
+//   มีภาพ + ผังตรง (map.townImg) = ไม่วาด floor/over ด้านล่าง (ยกเว้นสระน้ำพุโค้ดตอนน้ำพุ 3D ยังไม่พร้อม) • ไม่มี = วาดด้วยโค้ดแบบเดิมทุกอย่าง
 
 const TownArt = {
   GLOW: '#5fd4ff', GOLD: '#d7b25a', GOLD_D: '#8a6a2a',
@@ -198,6 +200,9 @@ const TownArt = {
 
   // ---------- 2) คลอง สะพาน น้ำพุ เส้นแสง กระถาง ----------
   over(m, g) {
+    // พื้นเมืองอบ 3D (m.townImg — tools/town3d.py, TOWN_BAKE ใน js/maps.js): คลอง/ขอบสวน/เส้นแสง/สะพาน/กระถางอยู่ในภาพแล้ว
+    //   เหลือแค่สระน้ำพุโค้ด (ตอนน้ำพุ 3D ยังโหลดไม่ครบ/ปิด FOUNTAIN_3D — ใต้สระในภาพอบเป็นหินอ่อนเรียบ)
+    if (m.townImg) { this.basin(m, g); return; }
     this.canals(m, g);
     this.bedCurbs(m, g);
     this.lines(m, g);

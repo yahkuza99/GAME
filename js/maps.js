@@ -85,6 +85,9 @@ const DAYLIGHT_BAKE = {"helcave":{"img":"bake_helcave_daylight","rect":[27,0,49,
 // ผนังถ้ำ/หน้าผาหิน 3D ทั้งแมพ (tools/cave3d.py): ภาพเต็มแมพแบบ A วาดลงผ้าใบพื้นแทน caveWalls — พื้นในภาพโปร่ง (มีแต่เงา/AO) พื้นวาดด้วยโค้ดยังเห็นต่อเนื่อง
 // hash = FNV-1a ของผังช่องทั้งแมพตอนเรนเดอร์ — ผังเปลี่ยน = กลับไปวาดผนังด้วยโค้ด • ภาพใหญ่ (3000×3000) โหลดตอนเข้าแมพ (Art.need) แล้วคืนหน่วยความจำหลังวาดลงพื้น (Art.free)
 const CAVE_BAKE = {"helcave":{"img":"bake_helcave_walls","hash":1823187180},"archive":{"img":"bake_archive_walls","hash":1171733009,"seals":1},"roots":{"img":"bake_roots_walls","hash":4054022947}}; // tools/cave3d.py --install
+// พื้นเมือง 3D ทั้งแมพ (tools/town3d.py, docs/RENDER3D_PLAN.md #12): ลานหินอ่อน คลองลึก สะพานโค้ง ขอบสวน กระถาง เส้นแสง — แทน TownArt.floor/over
+// hash = FNV-1a ของผังช่องทั้งแมพ (เหมือน CAVE_BAKE) — genTown เปลี่ยน = กลับไปวาดด้วยโค้ด (TownArt) + เตือนครั้งเดียว • โหลดตอนเข้าเมือง (Art.need)
+const TOWN_BAKE = {"eldheim":{"img":"bake_eldheim_ground","hash":3247684423}}; // tools/town3d.py --install
 // ซุ้มประตูวาร์ป 3D ทุกประตู (tools/gate3d.py, js/bake.js Bake.gates): วัสดุตามชนิดแมพที่ประตูตั้งอยู่ (town/field/cave) × แบบตามขอบ (s หันหน้า, n เสาเตี้ย, e/w ด้านข้าง)
 // pcs = ชิ้นสไปรต์ (ax, ay = กลางวาร์ปบนพื้นในภาพ px • dy = จุดเรียงความลึกเทียบกลางวาร์ป ช่อง) • sh = เงาบนพื้น • open = ช่องประตู (px 1× เทียบกลางวาร์ป) ตัดม่านวาร์ป • top = ยอดซุ้ม (px) วางป้ายปลายทาง
 const GATE_BAKE = {"town":{"s":{"pcs":[{"img":"bake_gate_town_s","ax":189.2,"ay":200.4,"dy":0.56}],"sh":{"img":"bake_gate_town_s_sh","ax":187.2,"ay":36.4},"open":[[-58.0,3.9],[-58.0,-57.2],[-56.9,-60.0],[-53.6,-62.7],[-48.2,-65.2],[-41.0,-67.3],[-32.2,-69.1],[-22.2,-70.4],[-11.3,-71.2],[0.0,-71.5],[11.3,-71.2],[22.2,-70.4],[32.2,-69.1],[41.0,-67.3],[48.2,-65.2],[53.6,-62.7],[56.9,-60.0],[58.0,-57.2],[58.0,3.9]],"top":-98.7},"n":{"pcs":[{"img":"bake_gate_town_n","ax":190.0,"ay":75.2,"dy":0.48}],"sh":{"img":"bake_gate_town_n_sh","ax":188.0,"ay":31.2},"top":-36.6},"e":{"pcs":[{"img":"bake_gate_town_e_b","ax":127.7,"ay":259.2,"dy":-0.908},{"img":"bake_gate_town_e_f","ax":15.7,"ay":151.2,"dy":2.311}],"sh":{"img":"bake_gate_town_e_sh","ax":125.7,"ay":142.2},"open":[[26.6,43.1],[26.6,-18.0],[26.1,-21.5],[24.6,-26.5],[22.1,-32.5],[18.8,-39.6],[14.8,-47.3],[10.2,-55.4],[5.2,-63.6],[0.0,-71.5],[-5.2,-78.9],[-10.1,-85.4],[-14.7,-90.8],[-18.7,-95.0],[-22.0,-97.7],[-24.5,-98.9],[-26.0,-98.4],[-26.5,-96.4],[-26.5,-35.3]],"top":-128.6},"w":{"pcs":[{"img":"bake_gate_town_w_b","ax":46.7,"ay":259.2,"dy":-0.908},{"img":"bake_gate_town_w_f","ax":127.7,"ay":151.2,"dy":2.311}],"sh":{"img":"bake_gate_town_w_sh","ax":125.7,"ay":142.2},"open":[[-26.5,43.1],[-26.5,-18.0],[-26.0,-21.5],[-24.5,-26.5],[-22.0,-32.5],[-18.7,-39.6],[-14.7,-47.3],[-10.1,-55.4],[-5.2,-63.6],[0.0,-71.5],[5.2,-78.9],[10.2,-85.4],[14.8,-90.8],[18.8,-95.0],[22.1,-97.7],[24.6,-98.9],[26.1,-98.4],[26.6,-96.4],[26.6,-35.3]],"top":-128.6}},"field":{"s":{"pcs":[{"img":"bake_gate_field_s","ax":222.1,"ay":199.0,"dy":0.564}],"sh":{"img":"bake_gate_field_s_sh","ax":216.1,"ay":52.0},"open":[[-58.0,3.9],[-58.0,-57.2],[-56.9,-60.0],[-53.6,-62.7],[-48.2,-65.2],[-41.0,-67.3],[-32.2,-69.1],[-22.2,-70.4],[-11.3,-71.2],[0.0,-71.5],[11.3,-71.2],[22.2,-70.4],[32.2,-69.1],[41.0,-67.3],[48.2,-65.2],[53.6,-62.7],[56.9,-60.0],[58.0,-57.2],[58.0,3.9]],"top":-98.5},"n":{"pcs":[{"img":"bake_gate_field_n","ax":220.6,"ay":84.2,"dy":0.487}],"sh":{"img":"bake_gate_field_n_sh","ax":215.6,"ay":44.2},"top":-41.1},"e":{"pcs":[{"img":"bake_gate_field_e_b","ax":143.6,"ay":256.8,"dy":-0.895},{"img":"bake_gate_field_e_f","ax":16.6,"ay":149.8,"dy":2.324}],"sh":{"img":"bake_gate_field_e_sh","ax":138.6,"ay":156.8},"open":[[26.5,43.1],[26.5,-18.0],[26.0,-21.6],[24.5,-26.5],[22.1,-32.6],[18.8,-39.6],[14.8,-47.3],[10.2,-55.4],[5.2,-63.6],[0.0,-71.5],[-5.2,-78.9],[-10.1,-85.4],[-14.8,-90.9],[-18.8,-95.0],[-22.1,-97.7],[-24.5,-98.9],[-26.0,-98.4],[-26.5,-96.4],[-26.5,-35.3]],"top":-127.4},"w":{"pcs":[{"img":"bake_gate_field_w_b","ax":46.3,"ay":257.1,"dy":-0.899},{"img":"bake_gate_field_w_f","ax":155.3,"ay":150.1,"dy":2.321}],"sh":{"img":"bake_gate_field_w_sh","ax":150.3,"ay":157.1},"open":[[-26.5,43.1],[-26.5,-18.0],[-26.0,-21.6],[-24.5,-26.5],[-22.1,-32.6],[-18.8,-39.6],[-14.8,-47.3],[-10.2,-55.4],[-5.2,-63.6],[0.0,-71.5],[5.2,-78.9],[10.2,-85.4],[14.8,-90.9],[18.8,-95.0],[22.1,-97.7],[24.5,-98.9],[26.0,-98.4],[26.5,-96.4],[26.5,-35.3]],"top":-127.5}},"cave":{"s":{"pcs":[{"img":"bake_gate_cave_s","ax":195.5,"ay":199.8,"dy":0.565}],"sh":{"img":"bake_gate_cave_s_sh","ax":201.5,"ay":38.8},"open":[[-58.0,3.9],[-58.0,-57.2],[-56.9,-60.0],[-53.6,-62.7],[-48.2,-65.1],[-41.0,-67.3],[-32.2,-69.1],[-22.2,-70.4],[-11.3,-71.2],[0.0,-71.5],[11.3,-71.2],[22.2,-70.4],[32.2,-69.1],[41.0,-67.3],[48.2,-65.1],[53.6,-62.7],[56.9,-60.0],[58.0,-57.2],[58.0,3.9]],"top":-98.4},"n":{"pcs":[{"img":"bake_gate_cave_n","ax":190.6,"ay":98.9,"dy":0.489}],"sh":{"img":"bake_gate_cave_n_sh","ax":196.6,"ay":31.9},"top":-48.0},"e":{"pcs":[{"img":"bake_gate_cave_e_b","ax":128.5,"ay":273.4,"dy":-0.893},{"img":"bake_gate_cave_e_f","ax":16.5,"ay":150.4,"dy":2.326}],"sh":{"img":"bake_gate_cave_e_sh","ax":134.5,"ay":142.4},"open":[[26.5,43.1],[26.5,-18.0],[26.0,-21.5],[24.5,-26.4],[22.1,-32.5],[18.8,-39.6],[14.8,-47.3],[10.2,-55.4],[5.2,-63.6],[0.0,-71.5],[-5.2,-78.9],[-10.1,-85.4],[-14.8,-90.8],[-18.8,-95.0],[-22.0,-97.7],[-24.5,-98.9],[-26.0,-98.4],[-26.5,-96.4],[-26.5,-35.3]],"top":-135.2},"w":{"pcs":[{"img":"bake_gate_cave_w_b","ax":46.9,"ay":278.0,"dy":-0.899},{"img":"bake_gate_cave_w_f","ax":128.9,"ay":150.0,"dy":2.322}],"sh":{"img":"bake_gate_cave_w_sh","ax":134.9,"ay":143.0},"open":[[-26.5,43.1],[-26.5,-18.0],[-26.0,-21.5],[-24.5,-26.5],[-22.1,-32.5],[-18.8,-39.6],[-14.7,-47.3],[-10.2,-55.4],[-5.2,-63.6],[0.0,-71.5],[5.2,-78.8],[10.2,-85.4],[14.8,-90.8],[18.8,-95.0],[22.1,-97.7],[24.5,-98.9],[26.0,-98.4],[26.5,-96.4],[26.5,-35.3]],"top":-137.5}},"s":0.5,"glow":{"town":"120,220,255","field":"130,240,210","cave":"185,130,255"}}; // tools/gate3d.py --install
@@ -517,7 +520,13 @@ class GameMap {
     }
     if (this.def.kind !== 'town' && this.def.kind !== 'cave') this.lightVariation(g, W, H);
     const town = this.def.kind === 'town' && typeof TownArt !== 'undefined';
-    if (town) { TownArt.floor(this, g); this.texClasses.add('stone'); }
+    if (town) { // พื้นเมืองอบ 3D (TOWN_BAKE) วาดแทนลานหินอ่อนโค้ด — ก่อน Flora.bake (เงาต้นไม้/หญ้ากระจุกทับได้เหมือนเดิม) • ยังไม่โหลด/ผังไม่ตรง = TownArt.floor
+      const tb = this.townBake(), img = tb && typeof Art !== 'undefined' && (Art.need(tb.img), Art.get(tb.img));
+      this.townImg = !!img;
+      if (img) { g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(img, 0, 0, W, H); g.restore(); }
+      else TownArt.floor(this, g);
+      this.texClasses.add('stone');
+    }
     else if (this.paved.length && typeof TownArt !== 'undefined') { TownArt.pave(this, g); this.texClasses.add('stone'); } // ถนนหินอ่อนต่อจากประตูเมือง
     if (this.arena) { // โคลอสเซียม: ภาพเรนเดอร์ 3D (tools/arena3d.py — มุมกล้องเดียวกับเกม) • ไม่มีภาพ = วาดด้วยโค้ด
       const img = typeof Art !== 'undefined' && Art.get('arena_ground');
@@ -582,13 +591,15 @@ class GameMap {
     if (this.def.kind === 'town') this.placeTownProps(); else this.placeSeamProps();
     if (typeof Bake !== 'undefined') Bake.props(this); // บัลลังก์/ชั้นวาง (สไปรต์ตั้งตรง) + แสงโหลประกาย → extraLights
     if (typeof Bake !== 'undefined') Bake.gates(this); // ซุ้มประตูวาร์ป 3D (สไปรต์ตั้งตรงเรียงความลึก) + แสงในแมพมืด
+    // พื้นเมืองอบ (1600² ถอดรหัสแล้ว ~10 MB) อยู่ในผ้าใบพื้นแล้ว → คืนหน่วยความจำ • ยังมีภาพอบอื่นรอโหลด (วาดพื้นใหม่อีกรอบแน่) = เก็บไว้ก่อน ไม่ต้องโหลดซ้ำ
+    if (this.townImg && !(this.bakeWait && this.bakeWait.size)) Art.free(TOWN_BAKE[this.id].img);
     this.ground = c;
     // เก็บตำแหน่งน้ำไว้ทำคลื่นเคลื่อนไหว
     this.waterTiles = [];
     for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) {
       if (this.tile(x, y) !== T.WATER) continue;
       let n = 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (this.tile(x + dx, y + dy) === T.WATER) n++;
-      if (n >= 3) this.waterTiles.push(x, y);
+      if (n >= 3 && !(this.townImg && this.tile(x, y - 1) !== T.WATER)) this.waterTiles.push(x, y); // พื้นเมืองอบ: แถวบนสุดของคลองคือผนังคลอง (ผิวน้ำต่ำกว่าพื้น) — ไม่วาดประกายน้ำทับผนัง
     }
   }
 
@@ -983,7 +994,20 @@ class GameMap {
     }
     return this._caveOk ? cb : null;
   }
-  usesBake(k) { const rb = this.ridgeBake(), db = this.daylightBake(), cb = this.caveBake(); return (!!rb && rb.img === k && !this.ridgeImg) || (!!db && db.img === k && !this.daylightImg) || (!!cb && cb.img === k && !this.caveWallImg) || !!(this.bakeWait && this.bakeWait.has(k)); } // ภาพพื้นอบที่แมพนี้รออยู่ (art.js onLoad → วาดพื้นใหม่) • ซุ้มวาดทุกเฟรมอยู่แล้ว ไม่ต้องวาดพื้นใหม่
+  // พื้นเมืองอบ 3D (TOWN_BAKE — tools/town3d.py) ถ้าผังช่องทั้งแมพตรงกับตอนเรนเดอร์ (FNV-1a แบบ caveBake) • ไม่ตรง = เตือนครั้งเดียว ใช้ TownArt วาดด้วยโค้ด
+  townBake() {
+    const tb = typeof TOWN_BAKE !== 'undefined' && TOWN_BAKE[this.id];
+    if (!tb) return null;
+    if (this._townOk === undefined) {
+      let h = 0x811c9dc5;
+      for (let i = 0; i < this.tiles.length; i++) { h ^= this.tiles[i]; h = Math.imul(h, 0x01000193) >>> 0; }
+      this._townOk = h === tb.hash;
+      const warned = GameMap.caveWarned || (GameMap.caveWarned = new Set());
+      if (!this._townOk && !warned.has('town:' + this.id)) { warned.add('town:' + this.id); console.warn(`town bake ${this.id}: ผังช่องเปลี่ยน (hash ${h} ≠ ${tb.hash}) — ใช้พื้นเมืองวาดด้วยโค้ดแทน (รัน tools/town3d.py ใหม่)`); }
+    }
+    return this._townOk ? tb : null;
+  }
+  usesBake(k) { const rb = this.ridgeBake(), db = this.daylightBake(), cb = this.caveBake(), tb = this.def.kind === 'town' && this.townBake(); return (!!rb && rb.img === k && !this.ridgeImg) || (!!db && db.img === k && !this.daylightImg) || (!!cb && cb.img === k && !this.caveWallImg) || (!!tb && tb.img === k && !this.townImg) || !!(this.bakeWait && this.bakeWait.has(k)); } // ภาพพื้นอบที่แมพนี้รออยู่ (art.js onLoad → วาดพื้นใหม่) • ซุ้มวาดทุกเฟรมอยู่แล้ว ไม่ต้องวาดพื้นใหม่
   // ภาพรอยต่อ: ปากถ้ำมืดลึก (ทุ่ง) • แสงแดด + มอส + ใบไม้ปลิวเข้ามาที่ปากทางถ้ำ (ถ้ำ) • เสาไฟริมถนนหินอ่อน (ทุ่ง)
   seamArt(g) {
     for (const p of this.caveMouths) {

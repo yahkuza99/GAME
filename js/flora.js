@@ -492,8 +492,12 @@ const Flora = {
       if (t === T.HOUSE || c === 'water' || c === 'stone' || c === 'rock') continue;
       if (c === 'dirt') { if (hh(x, y, 1) < 0.22) pebble(px + hh(x, y, 2) * TILE, py + hh(x, y, 3) * TILE, 0.7 + hh(x, y, 4) * 0.6); continue; }
       const n = d.kind === 'town' ? 1 : 2 + (t === T.FLOWER ? 1 : 0);
+      // พื้นเมืองอบ 3D (m.townImg): กระถางเป็นกล่องสูงในภาพ → ไม่โรยหญ้าบนกระถาง • ขอบสวนฝั่งใต้/ข้างยกสูงในภาพ → ไม่วาดหญ้าทับขอบ
+      const tb = m.townImg && d.kind === 'town', st = (dx, dy) => { const q = m.tile(x + dx, y + dy); return q === T.STONE || q === T.FOUNTAIN; };
+      if (tb && (m.planters || []).some(([qx, qy]) => qx === x && qy === y)) continue;
       for (let i = 0; i < n; i++) {
         const r = hh(x, y, 10 + i), ox = px + 4 + hh(x, y, 20 + i) * (TILE - 8), oy = py + 6 + hh(x, y, 30 + i) * (TILE - 8), s = 0.8 + hh(x, y, 40 + i) * 0.5;
+        if (tb && ((oy > py + 24 && st(0, 1)) || (ox < px + 9 && st(-1, 0)) || (ox > px + TILE - 9 && st(1, 0)))) continue;
         if (r < 0.24) tuft(ox, oy, s);
         else if (r < 0.24 + 0.16 * fz(x + 40, y + 40)) sprout(ox, oy, s);
         else if (r < 0.4 + 0.015 + 0.17 * fz(x, y) || t === T.FLOWER && r < 0.75) { const col = tiny[Math.floor(hh(x, y, 50 + i) * tiny.length)]; flower(ox, oy, col, s); if (r < 0.44) flower(ox + 5, oy + 2, col, s * 0.85); }
