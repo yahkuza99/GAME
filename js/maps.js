@@ -432,7 +432,7 @@ class GameMap {
     // 3.5) น้ำทรงธรรมชาติจากหน้ากากเบลอ
     if (town) TownArt.over(this, g); else this.drawWater(g, P, depth);
     // 4) ผนังหิน (ถ้ำ) มีมิติ
-    if (this.def.kind === 'cave') this.caveWalls(g, W, H);
+    if (this.def.kind === 'cave') { this.caveWalls(g, W, H); if (this.def.caveTheme) this.caveTheme(g, W, H); }
     else for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) if (this.tile(x, y) === T.ROCK) this.rockTile(g, x, y);
     // 5) ของตกแต่ง — ถ้ามีภาพ (assets/prop_*) จะเป็นวัตถุตั้งตรงเรียงความลึก ไม่อบลงพื้น
     this.props = [];
@@ -782,6 +782,70 @@ class GameMap {
     g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
     g.drawImage(aoC, 0, 0, W, H); g.drawImage(wall, 0, 0, W, H); g.restore();
   }
+  // เอกลักษณ์ถ้ำแต่ละชั้น (def.caveTheme): ย้อมโทนทั้งพื้น + ลายเฉพาะ — Archive = ตราผนึก/อักษรรูนทองสลักพื้น • Roots = รากไม้ชอนไชจากผนัง
+  caveTheme(g, W, H) {
+    const th = this.def.caveTheme, seed = this.def.seed, rnd = U.seeded(seed * 3 + 1);
+    g.save(); g.globalCompositeOperation = 'soft-light'; g.globalAlpha = th.tintA || 0.5; g.fillStyle = th.tint; g.fillRect(0, 0, W, H);
+    if (th.colorA) { g.globalCompositeOperation = 'color'; g.globalAlpha = th.colorA; g.fillRect(0, 0, W, H); } // ลดสีเส้นแร่เดิมให้เข้าโทน
+    g.restore();
+    const floor = (x, y) => this.tile(x, y) === T.CAVE;
+    const nearWall = (x, y) => [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => this.tile(x + dx, y + dy) === T.ROCK);
+    if (th.glyph) {
+      const col = th.glyph;
+      const glowStroke = (w, a) => { g.globalAlpha = a; g.shadowColor = col; g.shadowBlur = 8; g.strokeStyle = col; g.lineWidth = w; g.stroke(); g.shadowBlur = 0; };
+      // ตราผนึกวงกลมสลักพื้น
+      for (let n = 0, tries = 0; n < Math.round(this.w * this.h / 500) && tries < 400; tries++) {
+        const x = 3 + Math.floor(rnd() * (this.w - 6)), y = 3 + Math.floor(rnd() * (this.h - 6));
+        let ok = true; for (let yy = y - 2; yy <= y + 2 && ok; yy++) for (let xx = x - 2; xx <= x + 2; xx++) if (!floor(xx, yy)) { ok = false; break; }
+        if (!ok) continue; n++;
+        const cx = (x + 0.5) * TILE, cy = (y + 0.5) * TILE, R0 = TILE * (1.3 + rnd() * 0.7);
+        g.save(); g.translate(cx, cy); g.scale(1, 0.8);
+        g.beginPath(); g.arc(0, 0, R0, 0, 7); glowStroke(1.6, 0.42);
+        g.beginPath(); g.arc(0, 0, R0 * 0.72, 0, 7); glowStroke(1, 0.32);
+        const k = 6 + Math.floor(rnd() * 4);
+        for (let i = 0; i < k; i++) {
+          const a = i / k * Math.PI * 2;
+          g.beginPath(); g.moveTo(Math.cos(a) * R0 * 0.72, Math.sin(a) * R0 * 0.72); g.lineTo(Math.cos(a) * R0, Math.sin(a) * R0); glowStroke(1, 0.35);
+          // อักษรรูนเล็ก (เส้นตั้ง + ขีดเฉียง)
+          const ra = a + Math.PI / k, rx = Math.cos(ra) * R0 * 0.86, ry = Math.sin(ra) * R0 * 0.86, sz = 4;
+          g.beginPath(); g.moveTo(rx, ry - sz); g.lineTo(rx, ry + sz); g.moveTo(rx, ry - sz * (rnd() < 0.5 ? 1 : 0)); g.lineTo(rx + sz * 0.8, ry - sz * 0.2); glowStroke(0.9, 0.4);
+        }
+        g.beginPath(); for (let i = 0; i < 3; i++) { const a = -Math.PI / 2 + i * 2.094; g[i ? 'lineTo' : 'moveTo'](Math.cos(a) * R0 * 0.4, Math.sin(a) * R0 * 0.4); } g.closePath(); glowStroke(1.2, 0.38);
+        g.restore();
+      }
+      // เส้นวงจรข้อมูลจาง ๆ ตามพื้น
+      for (let y = 2; y < this.h - 2; y++) for (let x = 2; x < this.w - 2; x++) {
+        if (!floor(x, y) || U.hash2(x, y, seed + 808) > 0.05) continue;
+        const px = x * TILE + 6, py = y * TILE + 10 + U.hash2(y, x, seed) * 20, len = 14 + U.hash2(x, y, seed + 3) * 18;
+        g.save(); g.beginPath(); g.moveTo(px, py); g.lineTo(px + len * 0.5, py); g.lineTo(px + len * 0.5 + 6, py + 6); g.lineTo(px + len, py + 6); glowStroke(1, 0.28);
+        g.fillStyle = col; g.globalAlpha = 0.6; g.beginPath(); g.arc(px + len, py + 6, 1.6, 0, 7); g.fill(); g.restore();
+      }
+    }
+    if (th.roots) {
+      // รากชอนไช: เริ่มที่พื้นติดผนัง เลื้อยออกเป็นเส้นโค้ง หนา→บาง มีเงาใต้ราก + ไฮไลต์ด้านบน
+      const starts = [];
+      for (let y = 2; y < this.h - 2; y++) for (let x = 2; x < this.w - 2; x++) if (floor(x, y) && nearWall(x, y) && U.hash2(x, y, seed + 909) < 0.16) starts.push([x, y]);
+      for (const [x, y] of starts) {
+        let px = (x + 0.5) * TILE, py = (y + 0.5) * TILE;
+        // ทิศออกจากผนัง
+        let ang = 0, c = 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (this.tile(x + dx, y + dy) === T.ROCK) { ang += Math.atan2(-dy, -dx); c++; }
+        ang = ang / c + (U.hash2(x, y, seed + 5) - 0.5) * 1.2;
+        const segs = 4 + Math.floor(U.hash2(x, y, seed + 6) * 5), w0 = 9 + U.hash2(x, y, seed + 7) * 7;
+        const pts = [[px - Math.cos(ang) * 14, py - Math.sin(ang) * 14]];
+        for (let i = 0; i <= segs; i++) { pts.push([px, py]); ang += (U.hash2(x + i, y, seed + 11) - 0.5) * 1.1; px += Math.cos(ang) * 20; py += Math.sin(ang) * 20; }
+        for (let pass = 0; pass < 3; pass++) {
+          for (let i = 1; i < pts.length; i++) {
+            const t = i / pts.length, w = Math.max(0.8, w0 * (1 - t * 0.85));
+            const [ax, ay] = pts[i - 1], [bx, by] = pts[i];
+            g.beginPath(); g.moveTo(ax + (pass === 0 ? 2 : 0), ay + (pass === 0 ? 3 : pass === 2 ? -w * 0.25 : 0)); g.lineTo(bx + (pass === 0 ? 2 : 0), by + (pass === 0 ? 3 : pass === 2 ? -w * 0.25 : 0));
+            g.lineCap = 'round'; g.lineWidth = pass === 2 ? w * 0.3 : w;
+            g.strokeStyle = pass === 0 ? 'rgba(10,4,2,0.45)' : pass === 1 ? th.roots : 'rgba(200,130,80,0.45)';
+            g.stroke();
+          }
+        }
+      }
+    }
+  }
   rockTile(g, x, y) {
     const px = x * TILE, py = y * TILE, h = i => U.hash2(x * 7 + i, y * 11, this.def.seed);
     const below = this.tile(x, y + 1) !== T.ROCK, above = this.tile(x, y - 1) !== T.ROCK;
@@ -806,7 +870,8 @@ class GameMap {
   // เพิ่มวัตถุภาพ (ต้นไม้/ของประดับ) ถ้ามีภาพ คืนค่า true = ไม่ต้องวาดแบบเดิม
   addProp(kind, x, y, s = 1) {
     if (!propArt(PROP_ART[kind])) return false;
-    this.props.push({ kind, img: PROP_ART[kind], x: x / TILE, y: y / TILE, s, r: U.hash2(x | 0, y | 0, this.def.seed) });
+    const img = (kind === 'crystal' && this.def.crystalImg && propArt(this.def.crystalImg)) ? this.def.crystalImg : PROP_ART[kind];
+    this.props.push({ kind, img, x: x / TILE, y: y / TILE, s, r: U.hash2(x | 0, y | 0, this.def.seed) });
     return true;
   }
   // เมือง: เสาไฟรอบลานกลาง + ป้ายนีออนหน้าร้าน

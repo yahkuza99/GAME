@@ -960,7 +960,7 @@ Sprites.drawProp = (g, o, t) => {
   if (o.kind === 'pylon' || o.kind === 'crystal' || o.kind === 'mushroom' || o.kind === 'lamp') {
     const pulse = 0.5 + 0.5 * Math.sin(t * 2 + o.r * 9);
     if (Sprites.glowBlit(g, img, o.kind, pulse, W, H)) { g.restore(); return; }
-    g.shadowColor = o.kind === 'crystal' ? `rgba(190,120,255,${0.6 * pulse})` : o.kind === 'mushroom' ? `rgba(120,255,160,${0.5 * pulse})` : `rgba(110,220,255,${0.6 * pulse})`;
+    g.shadowColor = o.kind === 'crystal' ? `rgba(${Sprites.crystalRGB()},${0.6 * pulse})` : o.kind === 'mushroom' ? `rgba(120,255,160,${0.5 * pulse})` : `rgba(110,220,255,${0.6 * pulse})`;
     g.shadowBlur = 10 + pulse * 8;
   }
   g.drawImage(img, -W / 2, -H, W, H);
@@ -968,6 +968,7 @@ Sprites.drawProp = (g, o, t) => {
 };
 // แสงเรืองของเสาพลังงาน/เห็ด/คริสตัล/โคมไฟ: shadowBlur ทุกเฟรมแพงมาก (เบลอทีละชิ้น) → แคชภาพที่เรืองแล้ว
 // ที่ความละเอียดจริงของจอ แยกตามระดับจังหวะเรือง 16 ขั้น แล้ววางแบบ 1:1 (ใช้เฉพาะสเกลเท่ากันสองแกน ไม่หมุน ไม่โปร่ง)
+Sprites.crystalRGB = () => (typeof G !== 'undefined' && G.map && G.map.def.crystalGlow) || '190,120,255'; // สีเรืองคริสตัลตามแมพ
 Sprites.glowCache = new Map(); Sprites.glowN = 0; Sprites.glowS = 0; Sprites.glowSAt = 0;
 Sprites.glowBlit = (g, img, kind, pulse, W, H) => {
   const m = g.getTransform(), S = m.a;
@@ -975,13 +976,13 @@ Sprites.glowBlit = (g, img, kind, pulse, W, H) => {
   const now = performance.now(); // กำลังซูม (สเกลเปลี่ยน): วาดตรงไปก่อน ไม่สร้างแคชทุกเฟรม
   if (S !== Sprites.glowS) { Sprites.glowS = S; Sprites.glowSAt = now; }
   if (now - Sprites.glowSAt < 300) return false;
-  const q = Math.round(pulse * 15) / 15, key = `${img._gk || (img._gk = ++Sprites.glowN)}|${kind}|${q}|${S}|${W}|${H}`, pad = 32;
+  const q = Math.round(pulse * 15) / 15, key = `${img._gk || (img._gk = ++Sprites.glowN)}|${kind}|${kind === 'crystal' ? Sprites.crystalRGB() : ''}|${q}|${S}|${W}|${H}`, pad = 32;
   let c = Sprites.glowCache.get(key);
   if (!c) {
     c = document.createElement('canvas'); c.width = Math.ceil(W * S) + pad * 2; c.height = Math.ceil(H * S) + pad * 2;
     const cg = c.getContext('2d');
     cg.setTransform(S, 0, 0, S, pad + W * S / 2, pad + H * S);
-    cg.shadowColor = kind === 'crystal' ? `rgba(190,120,255,${0.6 * q})` : kind === 'mushroom' ? `rgba(120,255,160,${0.5 * q})` : `rgba(110,220,255,${0.6 * q})`;
+    cg.shadowColor = kind === 'crystal' ? `rgba(${Sprites.crystalRGB()},${0.6 * q})` : kind === 'mushroom' ? `rgba(120,255,160,${0.5 * q})` : `rgba(110,220,255,${0.6 * q})`;
     cg.shadowBlur = 10 + q * 8;
     cg.drawImage(img, -W / 2, -H, W, H);
     if (Sprites.glowCache.size > 240) Sprites.glowCache.clear();

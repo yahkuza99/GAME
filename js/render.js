@@ -337,7 +337,7 @@ R.render = () => {
     dg.globalCompositeOperation = 'destination-out';
     const lights = [[p.x, p.y, map.def.nightLight || 7]];
     if (!map.lightProps) map.lightProps = (map.props || []).filter(q => q.kind === 'mushroom' || q.kind === 'lamp' || q.kind === 'crystal')
-      .map(q => ({ x: q.x, y: q.y, lr: q.kind === 'lamp' ? 3 : 1.8, col: q.kind === 'mushroom' ? '140,255,170' : q.kind === 'crystal' ? '200,140,255' : '255,210,140' }));
+      .map(q => ({ x: q.x, y: q.y, lr: q.kind === 'lamp' ? 3 : 1.8, col: q.kind === 'mushroom' ? '140,255,170' : q.kind === 'crystal' ? (map.def.crystalGlow || '200,140,255') : '255,210,140' }));
     for (const q of map.lightProps) if (Math.abs(q.x - p.x) < 22 && Math.abs(q.y - p.y) < 16) lights.push([q.x, q.y, q.lr]); // เห็ดเรืองแสง/ตะเกียง/คริสตัล ส่องในที่มืด
     for (const f of G.fx) if (['firebolt', 'firering', 'lightning', 'holy', 'levelup'].includes(f.type)) {
       const pos = R.fxPos(f); lights.push([pos.x, pos.y, 3]);

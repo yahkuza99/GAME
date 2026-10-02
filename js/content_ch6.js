@@ -144,6 +144,11 @@
   // บรรยากาศ (อนุภาค + สีทับจอ) และภาพแบนเนอร์/แผนที่โลก ย้อมจากภาพ Hel's Hollow
   ATMOS.archive = { kind: 'data', n: 34, grade: 'rgba(150,120,40,0.10)' };          // ประกายข้อมูลสีทองลอยขึ้น (render.js)
   ATMOS.roots = { kind: 'spore', n: 40, fog: true, grade: 'rgba(130,45,20,0.14)' }; // สปอร์ส้มแดงเรือง + หมอก
+  // เอกลักษณ์ถ้ำ (maps.js caveTheme): Archive = โทนหินน้ำเงินเย็น + ตราผนึกทอง • Roots = โทนสนิมส้มแดง + รากชอนไช • คริสตัลย้อมสีตามแมพ
+  Object.assign(MAP_DEFS.archive, { caveTheme: { tint: '#3d6aa8', tintA: 0.55, glyph: '#ffcf5a' }, crystalImg: 'prop_crystal_gold', crystalGlow: '255,205,100' });
+  Object.assign(MAP_DEFS.roots, { caveTheme: { tint: '#a8461a', tintA: 0.6, colorA: 0.45, roots: '#5a3218' }, crystalImg: 'prop_crystal_ember', crystalGlow: '255,140,70' });
+  Art.alias('prop_crystal_gold', 'prop_crystal', { hue: 130, sat: 1.15, bri: 1.08 });
+  Art.alias('prop_crystal_ember', 'prop_crystal', { hue: 100, sat: 1.25 });
   Art.alias('map_archive', 'map_helcave', { hue: -135, sat: 0.9, flip: true, w: 960 });
   Art.alias('map_roots', 'map_helcave', { hue: 150, sat: 0.8, bri: 0.85, tint: ['#5a1a08', 0.3], w: 960 });
   // ฉากเปิดตัว MVP: ยังไม่มีภาพของ Garmr ใช้ฉากรากโทนแดงเข้มแทน (มีภาพจริงเมื่อไหร่ ใส่ assets/mvp_garmr.webp ได้เลย)
