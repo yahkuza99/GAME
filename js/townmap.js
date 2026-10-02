@@ -126,6 +126,72 @@ const TownArt = {
     }
   },
 
+  // ---------- ลานประลองโคลอสเซียม (PvP) ----------
+  // พื้นทรายวงกลม ลายกวาดทราย ตราวาลค์นัตกลางลาน • กำแพงในมีขอบทอง • อัฒจันทร์หินหลายชั้นมีผู้ชมเป็นจุดสี
+  // เสาธงแดง 8 ต้น • ประตูทางเข้ามืดตรงทางเดิน
+  arena(m, g) {
+    const A = m.arena, W = m.w * TILE, H = m.h * TILE, cx = A.cx * TILE, cy = A.cy * TILE, R0 = A.r * TILE, rnd = U.seeded(m.def.seed + 5);
+    // อัฒจันทร์ (ทั้งแผ่นนอกวง)
+    g.fillStyle = '#5c5246'; g.fillRect(0, 0, W, H);
+    for (let r = Math.hypot(W, H) / 1.6, i = 0; r > R0; r -= TILE * 0.9, i++) {
+      g.fillStyle = i % 2 ? '#bdb2a0' : '#d2c8b6'; g.beginPath(); g.arc(cx, cy, r, 0, 7); g.fill();
+      g.strokeStyle = 'rgba(60,48,36,0.55)'; g.lineWidth = 2; g.stroke(); // ขอบขั้นบันได (เงา)
+      g.strokeStyle = 'rgba(255,248,230,0.45)'; g.lineWidth = 1; g.beginPath(); g.arc(cx, cy, r - 2.5, 0, 7); g.stroke(); // ขอบรับแสง
+    }
+    // ทางแบ่งที่นั่ง (รัศมี) + ผู้ชมเป็นจุดสี
+    g.strokeStyle = 'rgba(80,66,50,0.5)'; g.lineWidth = 2;
+    for (let a = 0; a < Math.PI * 2; a += Math.PI / 10) { g.beginPath(); g.moveTo(cx + Math.cos(a) * R0, cy + Math.sin(a) * R0); g.lineTo(cx + Math.cos(a) * W, cy + Math.sin(a) * W); g.stroke(); }
+    const crowd = ['#c0392b', '#2e86c1', '#f1c40f', '#27ae60', '#8e44ad', '#ecf0f1', '#e67e22', '#34495e'];
+    for (let i = 0; i < 1400; i++) {
+      const a = rnd() * Math.PI * 2, r = R0 + TILE * (0.9 + rnd() * 9);
+      const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r;
+      if (x < 4 || y < 4 || x > W - 4 || y > H - 4 || Math.abs(Math.sin(a * 10)) < 0.08) continue;
+      g.fillStyle = 'rgba(0,0,0,0.25)'; g.beginPath(); g.arc(x + 1, y + 1.5, 3.2, 0, 7); g.fill();
+      g.fillStyle = crowd[(rnd() * crowd.length) | 0]; g.beginPath(); g.arc(x, y, 3, 0, 7); g.fill();
+      g.fillStyle = '#e8c8a0'; g.beginPath(); g.arc(x, y - 3, 1.8, 0, 7); g.fill();
+    }
+    // ทางเข้า: ช่องมืดตามทางเดินจากประตู
+    for (const p of m.portals) {
+      const px = (p.x + 0.5) * TILE, py = (p.y + 0.5) * TILE, a = Math.atan2(cy - py, cx - px);
+      g.save(); g.translate(px, py); g.rotate(a);
+      const len = Math.hypot(cx - px, cy - py) - R0 + TILE * 0.4;
+      const gr = g.createLinearGradient(0, 0, len, 0); gr.addColorStop(0, '#120c08'); gr.addColorStop(1, '#3a2c20');
+      g.fillStyle = gr; g.fillRect(-TILE, -TILE * 1.4, len + TILE, TILE * 2.8);
+      g.strokeStyle = '#c9a24e'; g.lineWidth = 2; g.strokeRect(-TILE, -TILE * 1.4, len + TILE, TILE * 2.8);
+      g.restore();
+    }
+    // กำแพงในวง (หน้ากำแพง + ขอบทอง)
+    g.fillStyle = '#4a3e32'; g.beginPath(); g.arc(cx, cy, R0 + TILE * 0.45, 0, 7); g.fill();
+    // พื้นทราย
+    const sg = g.createRadialGradient(cx - R0 * 0.2, cy - R0 * 0.25, R0 * 0.1, cx, cy, R0);
+    sg.addColorStop(0, '#ecd6a8'); sg.addColorStop(0.7, '#d9bd88'); sg.addColorStop(1, '#b89a68');
+    g.fillStyle = sg; g.beginPath(); g.arc(cx, cy, R0, 0, 7); g.fill();
+    // เปิดทางเข้าบนพื้นทราย
+    for (const p of m.portals) { const px = (p.x + 0.5) * TILE, py = (p.y + 0.5) * TILE, a = Math.atan2(cy - py, cx - px); g.save(); g.translate(cx - Math.cos(a) * R0, cy - Math.sin(a) * R0); g.rotate(a); g.fillStyle = '#c8a874'; g.fillRect(-TILE * 0.6, -TILE * 1.35, TILE * 1.2, TILE * 2.7); g.restore(); }
+    // ลายกวาดทรายวงกลม + รอยเท้าจาง
+    g.strokeStyle = 'rgba(150,118,72,0.22)'; g.lineWidth = 1.2;
+    for (let r = R0 * 0.18; r < R0 * 0.96; r += TILE * 0.55) { g.beginPath(); g.arc(cx, cy, r, 0, 7); g.stroke(); }
+    for (let i = 0; i < 260; i++) { const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()) * R0 * 0.95; g.fillStyle = 'rgba(120,90,50,0.18)'; g.beginPath(); g.ellipse(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 3, 1.8, rnd() * 3, 0, 7); g.fill(); }
+    // เงากำแพงทอดลงทราย (ด้านบน) + ขอบทอง
+    const shg = g.createRadialGradient(cx, cy, R0 * 0.82, cx, cy, R0);
+    shg.addColorStop(0, 'rgba(40,24,8,0)'); shg.addColorStop(1, 'rgba(40,24,8,0.35)');
+    g.fillStyle = shg; g.beginPath(); g.arc(cx, cy, R0, 0, 7); g.fill();
+    this.gold(g, () => g.arc(cx, cy, R0 + 1, 0, 7), 3);
+    // ตราวาลค์นัต (สามเหลี่ยมสามวงเกี่ยวกัน) กลางลาน
+    g.save(); g.translate(cx, cy); g.strokeStyle = 'rgba(140,40,30,0.55)'; g.lineWidth = 5; g.lineJoin = 'round';
+    const s = TILE * 1.6;
+    for (let k = 0; k < 3; k++) { const a = k * Math.PI * 2 / 3, ox = Math.cos(a - Math.PI / 2) * s * 0.35, oy = Math.sin(a - Math.PI / 2) * s * 0.35; g.beginPath(); for (let i = 0; i < 3; i++) { const b = -Math.PI / 2 + i * Math.PI * 2 / 3; g[i ? 'lineTo' : 'moveTo'](ox + Math.cos(b) * s, oy + Math.sin(b) * s); } g.closePath(); g.stroke(); }
+    g.strokeStyle = 'rgba(140,40,30,0.35)'; g.lineWidth = 3; g.beginPath(); g.arc(0, 0, s * 1.9, 0, 7); g.stroke();
+    g.restore();
+    // เสาธงแดงรอบกำแพง
+    for (let i = 0; i < 8; i++) {
+      const a = i / 8 * Math.PI * 2 + Math.PI / 8, x = cx + Math.cos(a) * (R0 + TILE * 0.9), y = cy + Math.sin(a) * (R0 + TILE * 0.9);
+      g.fillStyle = 'rgba(0,0,0,0.3)'; g.beginPath(); g.ellipse(x + 4, y + 3, 9, 4, 0, 0, 7); g.fill();
+      g.fillStyle = '#e8e2d4'; g.fillRect(x - 4, y - 30, 8, 30); g.fillStyle = '#c9a24e'; g.fillRect(x - 5, y - 33, 10, 4);
+      g.fillStyle = '#a8261c'; g.beginPath(); g.moveTo(x + 4, y - 30); g.lineTo(x + 22, y - 26); g.lineTo(x + 16, y - 20); g.lineTo(x + 22, y - 14); g.lineTo(x + 4, y - 14); g.closePath(); g.fill();
+    }
+  },
+
   // ---------- 2) คลอง สะพาน น้ำพุ เส้นแสง กระถาง ----------
   over(m, g) {
     this.canals(m, g);

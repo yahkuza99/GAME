@@ -92,6 +92,7 @@ class GameMap {
       this.portals.push({ x: p.x, y: p.y, ax: p.ax, ay: p.ay, to: def.links[side], toSide: OPP_SIDE[side] });
     }
     if (def.kind === 'town') this.genTown();
+    else if (def.pvp) this.genArena();
     else if (def.kind === 'cave') this.genCave();
     else this.genField();
     // ลานหน้าวาร์ป: เอาต้นไม้ที่ยอดไม้บังวาร์ปออก (ต้นที่อยู่ต่ำกว่าวาร์ป 3 แถว ยอดจะบัง) ในเมืองคงต้นไม้ขอบนอกข้างวาร์ปไว้
@@ -239,6 +240,15 @@ class GameMap {
     this.disc(cx + 0.5, cy + 0.5, 4, T.CAVE, 10, [T.ROCK]);
     this.floodCleanup(cx, cy, T.ROCK);
     this.seamTransitions('after');
+  }
+
+  // ลานประลอง PvP แบบโคลอสเซียม: พื้นทรายวงกลม รอบนอกเป็นอัฒจันทร์ (ชนได้) ทางเข้าด้านประตู — ภาพวาดใน townmap.js TownArt.arena
+  genArena() {
+    const w = this.w, h = this.h, cx = w / 2, cy = h / 2, R0 = Math.min(w, h) / 2 - 2.8;
+    this.fill(T.ROCK);
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (Math.hypot(x + 0.5 - cx, y + 0.5 - cy) < R0) this.set(x, y, T.DIRT);
+    for (const p of this.portals) { this.carvePath(p.x, p.y, Math.floor(cx), Math.floor(cy), T.DIRT, 1); this.set(p.x, p.y, T.DIRT); this.set(p.ax, p.ay, T.DIRT); }
+    this.arena = { cx, cy, r: R0 };
   }
 
   // รอยต่อกับแมพข้างเคียง (โลกเชื่อมกันทางกายภาพ — js/world.js):
@@ -478,6 +488,7 @@ class GameMap {
     const town = this.def.kind === 'town' && typeof TownArt !== 'undefined';
     if (town) { TownArt.floor(this, g); this.texClasses.add('stone'); }
     else if (this.paved.length && typeof TownArt !== 'undefined') { TownArt.pave(this, g); this.texClasses.add('stone'); } // ถนนหินอ่อนต่อจากประตูเมือง
+    if (this.arena && typeof TownArt !== 'undefined') { TownArt.arena(this, g); this.texClasses.add('dirt'); this.texClasses.add('rock'); }
     // 1.6) หน้ากากหญ้าความละเอียดต่ำ (4px/ช่อง เบลอแล้ว) สำหรับหญ้าพลิ้วตามลมตอนเล่น
     this.grassMask = null;
     // มี Flora: หญ้านิ่งแบบภาพวาด (หย่อมดิน/หญ้ากระจุก/เงาต้นไม้ที่อบลงพื้นจะไม่ถูกชั้นหญ้าพลิ้วทับ) — ต้นไม้/พุ่มไม้ยังไหวตามลม
@@ -504,6 +515,7 @@ class GameMap {
     // 4) ผนังหิน (ถ้ำ) มีมิติ
     if (this.def.kind === 'cave') { this.caveWalls(g, W, H); if (this.def.caveTheme) this.caveTheme(g, W, H); }
     else if (this.caveMouths.length) this.caveWalls(g, W, H, true); // สันหินก่อนถึงปากถ้ำ (ทุ่ง → ถ้ำ)
+    else if (this.arena) { /* อัฒจันทร์วาดใน TownArt.arena แล้ว */ }
     else for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) if (this.tile(x, y) === T.ROCK) this.rockTile(g, x, y);
     this.seamArt(g);
     // 5) ของตกแต่ง — ถ้ามีภาพ (assets/prop_*) จะเป็นวัตถุตั้งตรงเรียงความลึก ไม่อบลงพื้น

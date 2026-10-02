@@ -488,7 +488,7 @@ const Flora = {
     const fz = (x, y) => { const n = U.fbm(x / 6, y / 6, seed + 505, 2); return Math.min(1, Math.max(0, (n - 0.52) * 5)); };
     for (let y = 0; y < Hh; y++) for (let x = 0; x < W; x++) {
       const t = m.tile(x, y), c = cls(x, y), px = x * TILE, py = y * TILE;
-      if (t === T.HOUSE || c === 'water' || c === 'stone') continue;
+      if (t === T.HOUSE || c === 'water' || c === 'stone' || c === 'rock') continue;
       if (c === 'dirt') { if (hh(x, y, 1) < 0.22) pebble(px + hh(x, y, 2) * TILE, py + hh(x, y, 3) * TILE, 0.7 + hh(x, y, 4) * 0.6); continue; }
       const n = d.kind === 'town' ? 1 : 2 + (t === T.FLOWER ? 1 : 0);
       for (let i = 0; i < n; i++) {
