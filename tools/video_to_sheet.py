@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """แปลงวิดีโอท่าทาง (Grok Imagine ฯลฯ — ตัวละครท่าเดียว ทิศเดียว พื้นขาว กล้องนิ่ง) เป็นแถบเฟรมของเกม
-ใช้:  python3 tools/video_to_sheet.py <gk> <action> S=<mp4> SW=<mp4> W=<mp4> NW=<mp4> N=<mp4> [--frames 8] [--loop] [--preview out.gif]
+ใช้:  python3 tools/video_to_sheet.py <gk> <action> S=<mp4> SW=<mp4> W=<mp4> NW=<mp4> N=<mp4>  (หรือ S=clip.mp4@0,1.2 SW=clip.mp4@1.2,2.4 ... คลิปเดียวหลายทิศ) [--frames 8] [--loop] [--preview out.gif]
       (ทิศไหนไม่มีวิดีโอก็ข้ามได้ แต่ต้องมี W อย่างน้อย • ทิศขวาเกมกลับด้านให้เอง)
 ทำให้:
   1) อ่านวิดีโอ ตัดช่วงต้น/ท้ายที่ตัวละครยังนิ่ง
@@ -95,7 +95,10 @@ def main():
     dirs = [d for d in ORDER if d in vids]
     rows = []
     for d in dirs:
-        fr, fps = read(vids[d])
+        path, _, span = vids[d].partition('@')  # W=clip.mp4@2.4,3.6 → ใช้เฉพาะช่วงเวลานั้นของคลิป (คลิปเดียวหลายทิศ)
+        fr, fps = read(path)
+        if span:
+            t0, t1 = map(float, span.split(',')); fr = fr[int(t0 * fps):max(int(t0 * fps) + 2, int(t1 * fps))]
         if a.t:
             t0, t1 = map(float, a.t.split(',')); fr = fr[int(t0 * fps):max(int(t0 * fps) + 2, int(t1 * fps))]
         elif a.range:
