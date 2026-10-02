@@ -55,9 +55,13 @@ if a.tex:
             if not m: continue
             m.use_nodes = True; nt = m.node_tree
             bsdf = next((n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED'), None)
-            if bsdf and not bsdf.inputs['Base Color'].is_linked:
-                t = nt.nodes.new('ShaderNodeTexImage'); t.image = img
-                nt.links.new(t.outputs['Color'], bsdf.inputs['Base Color'])
+            if not bsdf: continue
+            # ภาพที่ไฟล์อ้างถึงหาไม่เจอ (ชี้ไปโฟลเดอร์ .fbm ของเครื่องอื่น) → ตัดทิ้งทั้งหมด แล้วใช้ --tex เป็นสีพื้นแทน
+            for l in list(nt.links):
+                if l.to_node == bsdf and l.from_node.type == 'TEX_IMAGE': nt.links.remove(l)
+                elif l.to_node.type == 'NORMAL_MAP': nt.links.remove(l)
+            t = nt.nodes.new('ShaderNodeTexImage'); t.image = img
+            nt.links.new(t.outputs['Color'], bsdf.inputs['Base Color'])
 for o in meshes:  # ผิวไม่มันวาว ดูเป็นงานวาดมากกว่า
     for slot in o.material_slots or []:
         m = slot.material
@@ -129,10 +133,11 @@ for di, d in enumerate(dirs):
 # ประกอบชีต (ใช้ PIL จาก venv ถ้ามี ไม่มีก็ใช้ bpy image)
 try:
     from PIL import Image
-    S = a.size; sheet = Image.new('RGBA', (S * len(frames), S * len(dirs)), (255, 255, 255, 255))
+    # พื้นโปร่งใส (ไม่ใช่พื้นขาว): ตัวละครขน/ผมขาวจะไม่ถูกลบไปพร้อมพื้นตอนติดตั้ง • sprite_std ใช้ภาพโปร่งใสได้ตรง ๆ
+    S = a.size; sheet = Image.new('RGBA', (S * len(frames), S * len(dirs)), (0, 0, 0, 0))
     for di in range(len(dirs)):
         for fi in range(len(frames)):
             sheet.alpha_composite(Image.open(os.path.join(tmp, f'{di}_{fi}.png')).convert('RGBA'), (fi * S, di * S))
-    sheet.convert('RGB').save(a.out); print('sheet', a.out, sheet.size)
+    sheet.save(a.out); print('sheet', a.out, sheet.size)
 except ImportError:
     print('frames in', tmp, '(install pillow in the venv to build the sheet)')
