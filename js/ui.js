@@ -1257,54 +1257,61 @@ const UI = {
       cv.addEventListener('pointerdown', e => {
         e.preventDefault(); e.stopPropagation();
         const A = WORLD.art(), r = cv.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * A.c.width, py = (e.clientY - r.top) / r.height * A.c.height;
-        for (const [id, q] of Object.entries(A.regions)) if (px >= q.x && px <= q.x + q.w && py >= q.y && py <= q.y + q.h) {
-          if (id !== G.map.id) { Nav.goTo({ kind: 'map', map: id, name: MAP_DEFS[id].name }); this.close('w-world'); }
+        const go = id => { if (id !== G.map.id) { Nav.goTo({ kind: 'map', map: id, name: MAP_DEFS[id].name }); this.close('w-world'); } };
+        const ci = A.caveIcon;
+        if (ci && Math.hypot(px - ci.x, py - ci.y) < 40) { // ปากถ้ำ: เลือกชั้นใต้ดิน
+          this.menu(L('ใต้ดิน — เลือกชั้น', 'Underground — choose a level'), L('ถ้ำทั้งหมดลงจากปากถ้ำนี้', 'Every cavern descends from this entrance'),
+            [...ci.ids.map(id => `${MAP_DEFS[id].name} — Lv ${String(MAP_DEFS[id].level || '').replace(/\s*\(.*\)/, '')}`), 'Cancel']).then(i => { if (i >= 0 && i < ci.ids.length) go(ci.ids[i]); }).catch(() => {});
           return;
         }
+        for (const [id, q] of Object.entries(A.regions)) if (px >= q.x && px <= q.x + q.w && py >= q.y && py <= q.y + q.h) { go(id); return; }
       });
-      body.append(cv, h('div', { class: 'hint' }, L('ขนาดและตำแหน่งตามพื้นที่จริง — ภูมิภาคติดกันตรงประตู • ⬤ เหลือง = คุณ • แตะภูมิภาคเพื่อเดินทางไปเอง', 'True size and position — regions meet at their gates • yellow = you • tap a region to travel there')));
+      body.append(cv, h('div', { class: 'hint' }, L('แตะดินแดนเพื่อเดินทางไปเอง • แตะปากถ้ำเพื่อเลือกชั้นใต้ดิน', 'Tap a region to travel there • tap the cave mouth to pick an underground level')));
     }
     this.drawWorldMap($('#worldmap-cv'));
   },
   drawWorldMap(cv) {
     const A = WORLD.art(), W = A.c.width, H = A.c.height, P = A.P, t = performance.now() / 1000;
-    if (cv.width !== W) { cv.width = W; cv.height = H; cv.style.width = `min(100%, calc((100vh - 200px) * ${(W / H).toFixed(4)}))`; }
+    if (cv.width !== W) { cv.width = W; cv.height = H; cv.style.width = `min(100%, calc((100vh - 190px) * ${(W / H).toFixed(4)}))`; }
     const g = cv.getContext('2d'), disp = cv.clientWidth ? W / cv.clientWidth : 1, fs = v => v * Math.max(0.8, disp);
     g.drawImage(A.c, 0, 0);
     const qt = typeof Quest !== 'undefined' ? Quest.navTarget() : null;
-    const txt = (s, x, y, col, size, weight = 700) => { g.font = `${weight} ${fs(size)}px Kanit, "Noto Sans Thai", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round'; g.lineWidth = fs(4); g.strokeStyle = 'rgba(14,9,3,0.9)'; g.strokeText(s, x, y); g.fillStyle = col; g.fillText(s, x, y); };
-    // ภูมิภาคที่อยู่: ขอบทองเรือง
-    const here = A.regions[G.map.id];
-    if (here) { g.save(); g.shadowColor = '#ffd34a'; g.shadowBlur = 16 + Math.sin(t * 3) * 6; g.strokeStyle = '#ffd34a'; g.lineWidth = 3; g.strokeRect(here.x, here.y, here.w, here.h); g.restore(); }
-    // ประตู (จุดเรืองบนรอยต่อ)
-    for (const [id, q] of Object.entries(A.regions)) for (const pt of q.portals) {
-      const x = q.x + (pt.x + 0.5) * P, y = q.y + (pt.y + 0.5) * P, pr = 7 + Math.sin(t * 3 + pt.x) * 1.5;
-      const gr = g.createRadialGradient(x, y, 1, x, y, pr * 2.2); gr.addColorStop(0, 'rgba(150,240,255,0.95)'); gr.addColorStop(1, 'rgba(150,240,255,0)');
-      g.fillStyle = gr; g.beginPath(); g.arc(x, y, pr * 2.2, 0, 7); g.fill();
-      g.fillStyle = '#eafcff'; g.beginPath(); g.arc(x, y, 3.5, 0, 7); g.fill();
-    }
-    // ป้ายชื่อภูมิภาค + เลเวล + MVP/เควสต์ — ขนาดคงที่บนจอ, เลื่อนหลบกันถ้าทับ
-    const placed = [];
+    // ตัวหนังสือแผนที่: หมึกเข้มบนรัศมีกระดาษ (ไม่มีกล่อง)
+    const ink = (s, x, y, size, col = '#2e1c06', font = 'Cinzel, "Kanit", serif', weight = 800, spacing = 0) => {
+      g.font = `${weight} ${fs(size)}px ${font}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
+      if ('letterSpacing' in g) g.letterSpacing = `${fs(spacing)}px`;
+      g.lineWidth = fs(size * 0.32); g.strokeStyle = 'rgba(246,234,204,0.82)'; g.strokeText(s, x, y);
+      g.fillStyle = col; g.fillText(s, x, y);
+      if ('letterSpacing' in g) g.letterSpacing = '0px';
+    };
     for (const [id, q] of Object.entries(A.regions)) {
-      const d = MAP_DEFS[id], cx = q.x + q.w / 2;
-      const tags = [d.mvp ? '☠ MVP' : '', qt && qt.map === id ? L('📜 เควสต์', '📜 Quest') : ''].filter(Boolean).join('  ');
-      g.font = `800 ${fs(12.5)}px Kanit, sans-serif`;
-      const bw = Math.max(g.measureText(d.name).width, fs(60)) + fs(16), bh = fs(tags ? 44 : 32);
-      let cy = q.y + q.h / 2;
-      for (let tries = 0; tries < 8 && placed.some(r => Math.abs(r[0] - cx) < (r[2] + bw) / 2 && Math.abs(r[1] - cy) < (r[3] + bh) / 2); tries++) cy += bh * 0.6 * (tries % 2 ? -(tries + 1) : tries + 1);
-      placed.push([cx, cy, bw, bh]);
-      g.fillStyle = 'rgba(22,14,6,0.82)'; g.strokeStyle = id === G.map.id ? '#ffd34a' : 'rgba(215,178,90,0.85)'; g.lineWidth = fs(1.2);
-      g.beginPath(); if (g.roundRect) g.roundRect(cx - bw / 2, cy - bh / 2, bw, bh, fs(6)); else g.rect(cx - bw / 2, cy - bh / 2, bw, bh); g.fill(); g.stroke();
-      const top = cy - bh / 2 + fs(10);
-      txt(d.name, cx, top, id === G.map.id ? '#ffe9a0' : '#f4e2b4', 12.5, 800);
-      txt(d.kind === 'town' ? L('เมือง • ปลอดภัย', 'Town • Safe') : `Lv ${String(d.level || '').replace(/\s*\(.*\)/, '')}`, cx, top + fs(12), '#cdb98a', 9.5, 600);
-      if (tags) txt(tags, cx, top + fs(24), d.mvp ? '#ff8a7a' : '#9ae6ff', 9.5, 700);
+      const d = MAP_DEFS[id], town = d.kind === 'town', cx = q.x + q.w / 2, cy = town ? q.y - fs(14) : q.y + q.h * 0.5;
+      ink(d.name.toUpperCase(), cx, cy, town ? 13 : 15, id === G.map.id ? '#7a3a00' : '#2e1c06', 'Cinzel, "Kanit", serif', 800, 1.5);
+      const sub = [town ? L('เมือง • ปลอดภัย', 'Town • Safe') : `Lv ${String(d.level || '').replace(/\s*\(.*\)/, '')}`, d.mvp ? '☠ MVP' : '', qt && qt.map === id ? L('📜 เควสต์', '📜 Quest') : ''].filter(Boolean).join('  ·  ');
+      ink(sub, cx, cy + fs(15), 9.5, d.mvp ? '#6a1a10' : '#4a3214', 'Kanit, sans-serif', 600);
     }
-    // ตัวเรา: จุดเหลืองเต้น ณ ตำแหน่งจริง
-    if (here) {
-      const x = here.x + G.player.x * P, y = here.y + G.player.y * P, k = (t % 1.4) / 1.4;
-      g.strokeStyle = `rgba(255,214,90,${1 - k})`; g.lineWidth = 3; g.beginPath(); g.arc(x, y, 8 + k * 26, 0, 7); g.stroke();
-      g.save(); g.shadowColor = '#ffd34a'; g.shadowBlur = 14; g.fillStyle = '#ffd34a'; g.strokeStyle = '#2a1a04'; g.lineWidth = 2.5; g.beginPath(); g.arc(x, y, 8, 0, 7); g.fill(); g.stroke(); g.restore();
+    const ci = A.caveIcon;
+    if (ci) {
+      const glow = 0.5 + Math.sin(t * 2.4) * 0.25, gr = g.createRadialGradient(ci.x, ci.y, 4, ci.x, ci.y, 44);
+      gr.addColorStop(0, `rgba(170,120,255,${glow})`); gr.addColorStop(1, 'rgba(170,120,255,0)'); g.fillStyle = gr; g.beginPath(); g.arc(ci.x, ci.y, 44, 0, 7); g.fill();
+      ink(L('ทางลงใต้ดิน', 'THE UNDERDARK'), ci.x, ci.y + fs(30), 11, '#3a1660', 'Cinzel, "Kanit", serif', 800, 1);
+      ink(ci.ids.map(id => MAP_DEFS[id].name).join(' › '), ci.x, ci.y + fs(44), 8.5, '#4a2a6a', 'Kanit, sans-serif', 600);
+    }
+    // ตัวเรา: หมุดทองเต้น (อยู่ในถ้ำ = ที่ปากถ้ำ)
+    const here = A.regions[G.map.id];
+    let mx = null, my = null;
+    if (here) { mx = here.x + G.player.x * P; my = here.y + G.player.y * P; }
+    else if (ci && ci.ids.includes(G.map.id)) { mx = ci.x; my = ci.y - 6; }
+    if (mx != null) {
+      const k = (t % 1.5) / 1.5, bob = Math.abs(Math.sin(t * 3)) * fs(3);
+      g.strokeStyle = `rgba(200,40,20,${0.9 * (1 - k)})`; g.lineWidth = fs(2.5); g.beginPath(); g.ellipse(mx, my, fs(6) + k * fs(22), (fs(6) + k * fs(22)) * 0.5, 0, 0, 7); g.stroke();
+      g.save(); g.translate(mx, my - bob);
+      g.fillStyle = 'rgba(0,0,0,0.3)'; g.beginPath(); g.ellipse(0, bob, fs(5), fs(2.2), 0, 0, 7); g.fill();
+      g.fillStyle = '#c0281c'; g.strokeStyle = '#3a0a04'; g.lineWidth = fs(1.6);
+      g.beginPath(); g.moveTo(0, 0); g.bezierCurveTo(-fs(10), -fs(12), -fs(9), -fs(24), 0, -fs(24)); g.bezierCurveTo(fs(9), -fs(24), fs(10), -fs(12), 0, 0); g.closePath(); g.fill(); g.stroke();
+      g.fillStyle = '#ffe9b0'; g.beginPath(); g.arc(0, -fs(16), fs(3.6), 0, 7); g.fill();
+      g.restore();
+      if (!here) ink(`📍 ${G.map.def.name}`, mx, my - fs(34), 10, '#7a1a00', 'Kanit, sans-serif', 700);
     }
   },
   // ---------------- ต้นไม้พาสซีฟ (แบบ PoE) ----------------
