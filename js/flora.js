@@ -154,7 +154,7 @@ const Flora = {
   // ของประดับวาดด้วยโค้ด: กรอบ = (w, h) พิกเซลโลก ฐานอยู่กึ่งกลางล่าง
   SIZE: { fern: [44, 40], tallgrass: [34, 30], flowers: [30, 26], stump: [34, 30], log: [56, 26], fence: [88, 40], bush: [52, 40], leafy: [52, 40], sprout: [26, 22] },
   drawSprite(kind, arg) {
-    const [w, h] = this.SIZE[kind] || [40, 40], S = this.SS, c = this.canvas(w * S, h * S), g = c.getContext('2d');
+    const [w, h] = this.SIZE[kind] || [40, 40], S = kind === 'flowers' ? 4 : this.SS, c = this.canvas(w * S, h * S), g = c.getContext('2d');
     g.scale(S, S); g.lineJoin = 'round'; g.lineCap = 'round';
     const OL = 'rgba(28,40,18,0.6)', cx = w / 2, by = h - 1;
     const leaf = (x, y, ang, len, wid, c1, c2) => {
@@ -187,29 +187,85 @@ const Flora = {
       if (arg !== 'plain') for (let i = 0; i < 3; i++) { g.fillStyle = '#e9d27a'; g.beginPath(); g.ellipse(cx - 6 + i * 6, by - 22 - i * 2, 1.6, 3.4, 0.2, 0, 7); g.fill(); }
     } else if (kind === 'flowers') {
       // ดอกไม้ 6 พันธุ์ × ตำแหน่งดอกสุ่มตามเลขแบบ (arg = "สี:แบบ") → กอดอกไม้ในแมพหน้าตาไม่ซ้ำกัน
+      // แสงสมจริง: แสงจากซ้ายบน • กลีบ 2 ชั้น (ชั้นหลังเข้ม) ไล่สีโคน→ปลาย มีเส้นกลีบ • เกสรเป็นเม็ด • เงาตกบนใบ/พื้น • ความละเอียด ×4
       const [col0, vs] = String(arg || '#ffd23f').split(':'), col = col0 || '#ffd23f', v = +vs || 0, sp = v % 6;
       const rn = (i, k) => U.hash2(i, k, 31 + v * 17);
       const MIX = ['#ffd23f', '#ff74a6', '#ffffff', '#b88cff', '#ff8c2e', '#7ac8f5'];
+      const LA = -2.36; // ทิศแสง (ซ้ายบน)
+      const tone = (c, k) => c === '#ffffff' && k < 0 ? U.shade('#d8dcea', k * 0.6) : U.shade(c, k);
+      // เงาติดพื้นใต้กอ
+      g.save(); g.translate(cx + 1.5, by - 1.2); g.scale(1, 0.28);
+      const sh = g.createRadialGradient(0, 0, 1, 0, 0, 13); sh.addColorStop(0, 'rgba(18,32,8,0.5)'); sh.addColorStop(1, 'rgba(18,32,8,0)');
+      g.fillStyle = sh; g.beginPath(); g.arc(0, 0, 13, 0, 7); g.fill(); g.restore();
+      // ใบ: ไล่สีโคนเข้ม→ปลายสว่าง ซีกรับแสงอ่อนกว่า เส้นกลางใบ
+      const leafR = (x, y, ang, len, wid) => {
+        const ex = x + Math.cos(ang) * len, ey = y + Math.sin(ang) * len, nx = -Math.sin(ang) * wid, ny = Math.cos(ang) * wid, mx = (x + ex) / 2, my = (y + ey) / 2;
+        const gr = g.createLinearGradient(x, y, ex, ey); gr.addColorStop(0, '#24561f'); gr.addColorStop(0.55, '#3f8f2e'); gr.addColorStop(1, '#78c04a');
+        g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(mx + nx, my + ny, ex, ey); g.quadraticCurveTo(mx - nx, my - ny, x, y);
+        g.fillStyle = gr; g.fill(); g.strokeStyle = 'rgba(20,40,12,0.55)'; g.lineWidth = 0.5; g.stroke();
+        const lit = Math.cos(ang + Math.PI / 2 - LA) > 0 ? -1 : 1;
+        g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(mx + nx * lit, my + ny * lit, ex, ey); g.quadraticCurveTo(mx + nx * lit * 0.15, my + ny * lit * 0.15, x, y);
+        g.fillStyle = 'rgba(190,240,140,0.28)'; g.fill();
+        g.strokeStyle = 'rgba(200,240,160,0.55)'; g.lineWidth = 0.35; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(mx + nx * 0.12, my + ny * 0.12, ex, ey); g.stroke();
+      };
       const nl = 3 + Math.floor(rn(0, 1) * 3);
-      for (let i = 0; i < nl; i++) leaf(cx + (rn(i, 2) - 0.5) * 14, by, -Math.PI / 2 + (rn(i, 3) - 0.5) * 1.6, 8 + rn(i, 4) * 6, 2.6 + rn(i, 5), '#3f8f2e', '#6cb83e');
-      const stem = (x, y) => { g.strokeStyle = '#2f6a2a'; g.lineWidth = 1.1; g.beginPath(); g.moveTo(cx + x * 0.4, by); g.quadraticCurveTo(cx + x * 0.8, by + y * 0.5, cx + x, by + y); g.stroke(); };
+      for (let i = 0; i < nl; i++) leafR(cx + (rn(i, 2) - 0.5) * 14, by, -Math.PI / 2 + (rn(i, 3) - 0.5) * 1.6, 8 + rn(i, 4) * 6, 2.6 + rn(i, 5));
+      const stem = (x, y) => {
+        g.strokeStyle = '#285a22'; g.lineWidth = 1.1; g.beginPath(); g.moveTo(cx + x * 0.4, by); g.quadraticCurveTo(cx + x * 0.8, by + y * 0.5, cx + x, by + y); g.stroke();
+        g.strokeStyle = 'rgba(150,210,110,0.7)'; g.lineWidth = 0.35; g.beginPath(); g.moveTo(cx + x * 0.4 - 0.35, by); g.quadraticCurveTo(cx + x * 0.8 - 0.35, by + y * 0.5, cx + x - 0.35, by + y); g.stroke();
+      };
+      // กลีบ: วงรีชี้ออกจากศูนย์กลาง (แบนเล็กน้อยตามมุมมอง) ไล่สีจากโคน
+      const petal = (x, y, a, r, cIn, cOut, w = 0.36) => {
+        const px = x + Math.cos(a) * r * 0.55, py = y + Math.sin(a) * r * 0.48;
+        const gr = g.createRadialGradient(x, y, r * 0.1, x, y, r * 1.05); gr.addColorStop(0, cIn); gr.addColorStop(1, cOut);
+        g.fillStyle = gr; g.beginPath(); g.ellipse(px, py, r * 0.56, r * w, a, 0, 7); g.fill();
+      };
+      const bloom = (x, y, r, c, n = 5) => {
+        g.fillStyle = 'rgba(16,30,8,0.3)'; g.beginPath(); g.ellipse(x + r * 0.25, y + r * 0.45, r * 1.05, r * 0.6, 0, 0, 7); g.fill(); // เงาตกบนใบ
+        const off = rn(Math.round(x * 7), Math.round(y * 5)) * 6;
+        for (let p = 0; p < n; p++) petal(x, y, off + (p + 0.5) / n * 6.283, r * 0.95, tone(c, -0.5), tone(c, -0.2)); // ชั้นหลัง
+        for (let p = 0; p < n; p++) {
+          const a = off + p / n * 6.283, lit = Math.cos(a - LA);
+          petal(x, y, a, r, tone(c, -0.3), tone(c, lit > 0 ? 0.12 + lit * 0.3 : -0.05 + lit * 0.12));
+          if (r > 2.4) { // เส้นกลีบ
+            g.strokeStyle = `rgba(60,20,40,${c === '#ffffff' ? 0.12 : 0.2})`; g.lineWidth = 0.25;
+            g.beginPath(); g.moveTo(x + Math.cos(a) * r * 0.25, y + Math.sin(a) * r * 0.22); g.lineTo(x + Math.cos(a) * r * 0.85, y + Math.sin(a) * r * 0.74); g.stroke();
+          }
+        }
+        // เกสร: จานไล่สี + เม็ดเกสร + ประกาย
+        const cc = c === '#ffd23f' || c === '#ff8c2e' ? '#b8561a' : '#ffc928', cr = r * 0.32;
+        const cg = g.createRadialGradient(x - cr * 0.35, y - cr * 0.4, cr * 0.1, x, y, cr); cg.addColorStop(0, U.shade(cc, 0.45)); cg.addColorStop(1, U.shade(cc, -0.35));
+        g.fillStyle = cg; g.beginPath(); g.arc(x, y, cr, 0, 7); g.fill();
+        if (r > 2.4) { g.fillStyle = 'rgba(90,40,10,0.55)'; for (let k = 0; k < 6; k++) { const a = k * 1.05 + off; g.beginPath(); g.arc(x + Math.cos(a) * cr * 0.6, y + Math.sin(a) * cr * 0.6, 0.22, 0, 7); g.fill(); } }
+        g.fillStyle = 'rgba(255,255,240,0.85)'; g.beginPath(); g.arc(x - cr * 0.35, y - cr * 0.4, Math.max(0.3, cr * 0.22), 0, 7); g.fill();
+      };
       const n = sp === 3 ? 1 : sp === 4 ? 7 : 3 + Math.floor(rn(0, 6) * 3);
       const pts = []; for (let i = 0; i < n; i++) pts.push(sp === 3 ? [(rn(i, 7) - 0.5) * 6, -14] : [(rn(i, 7) - 0.5) * 16, -(sp === 4 ? 4 + rn(i, 8) * 8 : sp === 2 ? 15 + rn(i, 8) * 3 : 7 + rn(i, 8) * 10)]); // อยู่ในกรอบ 30×26
       pts.sort((a, b) => a[1] - b[1]);
       pts.forEach(([x, y]) => stem(x, y));
       pts.forEach(([x, y], i) => {
         const X = cx + x, Y = by + y, c = sp === 5 ? MIX[Math.floor(rn(i, 9) * MIX.length)] : col;
-        if (sp === 1) { // ทิวลิป: ถ้วยกลีบปลายแหลม
-          g.fillStyle = c; g.beginPath(); g.moveTo(X - 3.4, Y - 1); g.lineTo(X - 3.6, Y - 6); g.lineTo(X - 1.6, Y - 3.6); g.lineTo(X, Y - 7); g.lineTo(X + 1.6, Y - 3.6); g.lineTo(X + 3.6, Y - 6); g.lineTo(X + 3.4, Y - 1);
-          g.quadraticCurveTo(X, Y + 2.4, X - 3.4, Y - 1); g.fill(); g.strokeStyle = 'rgba(60,20,20,0.35)'; g.lineWidth = 0.6; g.stroke();
-        } else if (sp === 2) { // ลาเวนเดอร์/ระฆัง: ช่อดอกเรียงตามก้าน
-          for (let k = 0; k < 5; k++) { g.fillStyle = k % 2 ? c : '#ffffff55'; g.beginPath(); g.ellipse(X + (k % 2 ? 1 : -1) * 1.3, Y + k * 2.2, 1.9, 1.5, 0, 0, 7); g.fill(); }
-          g.fillStyle = c; g.beginPath(); g.ellipse(X, Y - 1, 1.6, 2.2, 0, 0, 7); g.fill();
+        if (sp === 1) { // ทิวลิป: ถ้วยกลีบปลายแหลม ไล่สีโคนเข้ม ประกายด้านรับแสง
+          g.fillStyle = 'rgba(16,30,8,0.3)'; g.beginPath(); g.ellipse(X + 1.2, Y + 1.5, 3.6, 1.6, 0, 0, 7); g.fill();
+          const gr = g.createLinearGradient(X - 3.6, Y - 7, X + 3.6, Y + 1.5); gr.addColorStop(0, tone(c, 0.3)); gr.addColorStop(0.55, c); gr.addColorStop(1, tone(c, -0.45));
+          g.fillStyle = gr; g.beginPath(); g.moveTo(X - 3.4, Y - 1); g.lineTo(X - 3.6, Y - 6); g.lineTo(X - 1.6, Y - 3.6); g.lineTo(X, Y - 7); g.lineTo(X + 1.6, Y - 3.6); g.lineTo(X + 3.6, Y - 6); g.lineTo(X + 3.4, Y - 1);
+          g.quadraticCurveTo(X, Y + 2.4, X - 3.4, Y - 1); g.fill(); g.strokeStyle = 'rgba(60,15,20,0.4)'; g.lineWidth = 0.4; g.stroke();
+          g.strokeStyle = tone(c, -0.4); g.lineWidth = 0.4; g.beginPath(); g.moveTo(X - 1.6, Y - 3.6); g.quadraticCurveTo(X - 1.2, Y - 1, X - 0.6, Y + 0.6); g.moveTo(X + 1.6, Y - 3.6); g.quadraticCurveTo(X + 1.2, Y - 1, X + 0.6, Y + 0.6); g.stroke();
+          g.fillStyle = 'rgba(255,255,255,0.45)'; g.beginPath(); g.ellipse(X - 2.2, Y - 3, 0.6, 1.8, 0.15, 0, 7); g.fill();
+        } else if (sp === 2) { // ลาเวนเดอร์: ช่อดอกตูมเรียงตามก้าน ล่างเข้ม บนสว่าง
+          for (let k = 4; k >= 0; k--) {
+            const bx = X + (k % 2 ? 1 : -1) * 1.2, byy = Y + k * 2.1, kk = 0.2 - k * 0.12;
+            g.fillStyle = 'rgba(16,30,8,0.22)'; g.beginPath(); g.ellipse(bx + 0.6, byy + 0.9, 1.8, 1.2, 0, 0, 7); g.fill();
+            const gr = g.createRadialGradient(bx - 0.6, byy - 0.6, 0.2, bx, byy, 2); gr.addColorStop(0, tone(c, Math.min(0.6, kk + 0.35))); gr.addColorStop(1, tone(c, kk - 0.3));
+            g.fillStyle = gr; g.beginPath(); g.ellipse(bx, byy, 1.8, 1.45, 0, 0, 7); g.fill();
+          }
+          const gr = g.createRadialGradient(X - 0.5, Y - 1.8, 0.2, X, Y - 1, 2.3); gr.addColorStop(0, tone(c, 0.45)); gr.addColorStop(1, tone(c, -0.15));
+          g.fillStyle = gr; g.beginPath(); g.ellipse(X, Y - 1, 1.5, 2.2, 0, 0, 7); g.fill();
         } else if (sp === 3) { // ดอกใหญ่ดอกเดียว + ตูม
-          blossom(X, Y, 5.2, c); blossom(X - 7, Y + 7, 2.2, c); blossom(X + 7, Y + 6, 2, '#ffffff');
+          bloom(X - 7, Y + 7, 2.2, c); bloom(X + 7, Y + 6, 2, '#ffffff'); bloom(X, Y, 5.4, c, 7);
         } else if (sp === 4) { // ดอกจิ๋วกระจาย (โคลเวอร์/ดอกหญ้า)
-          blossom(X, Y, 1.8 + rn(i, 10), i % 3 ? c : '#ffffff');
-        } else blossom(X, Y, 3.2 + rn(i, 11) * 1.6, i === n - 1 && sp !== 5 ? '#ffffff' : c); // เดซี่ / กอผสมสี
+          bloom(X, Y, 1.9 + rn(i, 10), i % 3 ? c : '#ffffff');
+        } else bloom(X, Y, 3.3 + rn(i, 11) * 1.6, i === n - 1 && sp !== 5 ? '#ffffff' : c, sp === 0 ? 8 : 5); // เดซี่ (กลีบ 8) / กอผสมสี
       });
     } else if (kind === 'stump') {
       const top = by - 15;

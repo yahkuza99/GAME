@@ -197,14 +197,12 @@ const Feel = (() => {
     b.title = `${F.ULTS[F.ultKind()].name} — ${F.ULTS[F.ultKind()].desc}\n` + L('เกจไม่เต็ม: กดเพื่อเลือกไม้ตาย • เต็ม: กด T หรือปุ่มนี้', 'Not full: click to choose • Full: press T or this button');
     b.classList.toggle('ready', v >= ULT_MAX);
   };
-  // ไม้ตาย 4 แบบ ให้ผู้เล่นเลือกเอง (กดปุ่ม ULT ตอนเกจยังไม่เต็ม = เปิดตัวเลือก) • บันทึกใน p.ultKind
+  // ไม้ตายแบบบัฟ ให้ผู้เล่นเลือกเอง (เจ้าของ: เน้นบัฟพื้นฐาน — ไม้ตายโจมตี RAGNARÖK/METEOR ถูกถอด 2026-10-02) (กดปุ่ม ULT ตอนเกจยังไม่เต็ม = เปิดตัวเลือก) • บันทึกใน p.ultKind
   F.ULTS = {
-    nova: { name: 'RAGNARÖK', th: L('คลื่นกระแทก', 'Shockwave'), desc: L('ระเบิดรอบตัว 5 ช่อง แรง 3 เท่าของการตีปกติ', 'Blast all foes within 5 tiles for 3x a basic hit') },
-    storm: { name: 'METEOR STORM', th: L('ฝนอุกกาบาต', 'Meteor Storm'), desc: L('อุกกาบาต 8 ลูกตกใส่มอนรอบตัว 7 ช่อง ลูกละ 1.6 เท่า', '8 meteors strike foes within 7 tiles, 1.6x each') },
     fury: { name: 'BERSERK FURY', th: L('โหมดคลั่ง', 'Fury'), desc: L('10 วินาที: ATK/MATK +25% ตีเร็วขึ้น 30%', '10s: ATK/MATK +25%, attack speed +30%') },
     aegis: { name: 'VALKYRIE AEGIS', th: L('โล่วาลคิรี', 'Aegis'), desc: L('ฟื้น HP/SP เต็ม + อมตะ 4 วินาที', 'Full HP/SP + invulnerable for 4s') },
   };
-  F.ultKind = () => { const k = G.player && G.player.ultKind; return F.ULTS[k] ? k : 'nova'; };
+  F.ultKind = () => { const k = G.player && G.player.ultKind; return F.ULTS[k] ? k : 'fury'; };
   F.ultPick = () => {
     if (typeof UI === 'undefined' || !UI.menu) return;
     const keys = Object.keys(F.ULTS);
@@ -220,32 +218,16 @@ const Feel = (() => {
     if (!G.map || G.map.def.pvp) return;
     p.ult = 0; F.ultDraw();
     const kind = F.ultKind(), U2 = F.ULTS[kind], col = F.ultCol(), job = JOBS[p.job] ? JOBS[p.job].name : '';
-    p.atkAnim = 1; p.skillPose = G.time; p.skillKind = kind === 'fury' || kind === 'aegis' ? 'buff' : 'skill';
+    p.atkAnim = 1; p.skillPose = G.time; p.skillKind = 'buff';
     if (vis()) {
       F.banner(U2.name, job.toUpperCase(), false);
       if (F.lvEl) F.lvEl.style.setProperty('--uc', col), F.lvEl.classList.add('ult');
-      if (typeof Juice !== 'undefined') { Juice.dilate(0.12, 0.3, true); Juice.flash('gold', 0.8); Juice.shake(kind === 'nova' || kind === 'storm' ? 8 : 4, 0.45); }
+      if (typeof Juice !== 'undefined') { Juice.flash('gold', 0.8); Juice.shake(4, 0.45); } // ไม่สโลว์: ผู้เล่นคนอื่นเห็นตัวเราเดินตามปกติ
       F.nova(col, ULT_R); setTimeout(() => F.nova('#ffffff', ULT_R * 0.7), 120); setTimeout(() => F.nova(col, ULT_R * 1.2), 240);
       [262, 330, 392, 523, 659, 784].forEach((f2, i) => chime(f2, i * 0.045, 0.05, 0.9));
       Sound.play(kind === 'aegis' ? 'heal' : 'crit');
     }
-    const hit = (m, mult) => {
-      const a = physHit(m, mult, { sureHit: true, skill: true }), b = magicHit(m, mult);
-      applyHit(m, (b.dmg || 0) > (a.dmg || 0) ? b : a, { sfx: '', crit: true });
-      if (typeof Juice !== 'undefined' && vis()) Juice.sparks(m, col, 10, 50);
-    };
-    const quiet = fn => { F.ultBusy = true; try { fn(); } finally { F.ultBusy = false; F.ultQuiet = performance.now() + 800; } };
-    if (kind === 'nova') setTimeout(() => { if (!p.dead) quiet(() => { for (const m of G.mobs.slice()) if (!m.dead && Math.hypot(m.x - p.x, m.y - p.y) <= ULT_R) hit(m, 3); }); }, 260);
-    else if (kind === 'storm') {
-      for (let k = 0; k < 8; k++) setTimeout(() => {
-        if (p.dead) return;
-        const near = G.mobs.filter(m => !m.dead && Math.hypot(m.x - p.x, m.y - p.y) <= 7);
-        if (!near.length) return;
-        const m = near[Math.floor(Math.random() * near.length)];
-        if (vis()) { G.fx.push({ type: 'feel_nova', feel: true, t: 0, dur: 0.35, ref: m, x: m.x, y: m.y, col: '#ff8a3a', rad: 1.6 }); if (typeof Juice !== 'undefined') Juice.shake(3, 0.1); Sound.play('hit_big'); }
-        quiet(() => { for (const o of G.mobs.slice()) if (!o.dead && Math.hypot(o.x - m.x, o.y - m.y) <= 1.6) hit(o, 1.6); });
-      }, 300 + k * 230);
-    } else if (kind === 'fury') {
+    if (kind === 'fury') {
       p.ultBuffUntil = G.time + 10; recalc(); addFloater(p.x, p.y - 2, 'FURY!', col, true);
       setTimeout(() => { if (G.player === p) { recalc(); if (typeof UI !== 'undefined') UI.dirty(); } }, 10100);
     } else if (kind === 'aegis') {

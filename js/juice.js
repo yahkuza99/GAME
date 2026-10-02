@@ -80,6 +80,8 @@ const Juice = (() => {
   // ทำให้เวลาทั้งเกมช้าลงชั่วคราว (เฉพาะลูปจริง) • งบ 0.2 วิ/วินาที กันค้างสะสม • force = MVP ตาย
   J.dilate = (scale, sec, force, delay = 0) => {
     if (!vis() || (!force && typeof Bot !== 'undefined' && Bot.on)) return;
+    // มีผู้เล่นคนอื่นในแผนที่เดียวกัน: ไม่สโลว์ (เวลาในเครื่องเราช้า = คนอื่นเห็นเราขยับหน่วง) เหลือแค่ hit-stop สั้นมาก
+    if (typeof Online !== 'undefined' && Online.others && Online.others.size) { if (sec > 0.06) return; }
     sec *= rmMul();
     const now = performance.now();
     if (!force) {

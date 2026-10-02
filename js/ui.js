@@ -2000,5 +2000,6 @@ setInterval(() => { if (typeof G !== 'undefined' && G.started) UI.stackTop(); },
   const typing = t => t && t.closest && t.closest('input, textarea, [contenteditable="true"]');
   document.addEventListener('selectstart', e => { if (!typing(e.target)) e.preventDefault(); });
   document.addEventListener('dragstart', e => { if (!typing(e.target) && !(e.target.closest && e.target.closest('[draggable="true"]'))) e.preventDefault(); });
-  document.addEventListener('contextmenu', e => { if (!typing(e.target) && matchMedia('(pointer: coarse)').matches) e.preventDefault(); });
+  // เกมจริง: ปิดเมนูคลิกขวาของเบราว์เซอร์ทุกที่ (ยกเว้นช่องพิมพ์) — คลิกขวาสงวนไว้ดูรายละเอียดยูนิต (ROADMAP)
+  document.addEventListener('contextmenu', e => { if (!typing(e.target)) e.preventDefault(); });
 })();
