@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="../">
+<title>Grip Tuner</title>
+<style>
+  /* หน้าเครื่องมือจูนการถืออาวุธ (paperdoll) — เปิดผ่านเว็บเกม: <เว็บ>/tools/grip_tuner.html */
+  :root { --bg: #2a2420; --panel: #3a312a; --line: #5a4a3a; --fg: #efe4d0; --dim: #b8a88e; --acc: #e0b050; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.4 system-ui, sans-serif; padding: 12px 16px; }
+  h1 { font-size: 18px; margin: 0 0 8px; color: var(--acc); }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+  select, button, input { font: inherit; background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; }
+  button:active { background: var(--line); }
+  #grid { overflow-x: auto; background: #46505a; border-radius: 8px; padding: 4px; }
+  #grid canvas { display: block; touch-action: manipulation; }
+  .panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin-top: 10px; }
+  .box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+  .box h2 { font-size: 14px; margin: 0 0 6px; color: var(--acc); }
+  label { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  label span { width: 64px; color: var(--dim); }
+  label input[type=range] { flex: 1; }
+  .pad { display: grid; grid-template-columns: repeat(3, 52px); gap: 6px; justify-content: start; }
+  textarea { width: 100%; height: 160px; background: #1e1a16; color: var(--fg); border: 1px solid var(--line); border-radius: 6px; font: 12px/1.3 ui-monospace, monospace; }
+  .dim { color: var(--dim); font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>Grip Tuner — จูนการถืออาวุธ</h1>
+<div class="bar">
+  <select id="gk"></select>
+  <select id="act"></select>
+  <label style="margin:0"><input type="range" id="zoom" min="0.4" max="1.2" step="0.05" value="0.6"></label>
+  <button id="marker">ดูแท่งเดิม</button>
+</div>
+<div id="grid"><canvas id="cv"></canvas></div>
+<div class="panel">
+  <div class="box">
+    <h2>ทั้งท่า (Class + ท่านี้)</h2>
+    <label><span>ยาว</span><input type="range" id="s_len" min="20" max="140" step="1"><b id="v_len"></b></label>
+    <label><span>จุดจับ</span><input type="range" id="s_grip" min="0" max="0.7" step="0.01"><b id="v_grip"></b></label>
+    <label><span>หมุน°</span><input type="range" id="s_rot" min="-180" max="180" step="1"><b id="v_rot"></b></label>
+    <label><span>ตั้งตรง</span><input type="range" id="s_stand" min="0" max="1" step="0.05"><b id="v_stand"></b></label>
+    <label><span>หัวขึ้น</span><input type="checkbox" id="s_up"> <span>กลับหัว</span><input type="checkbox" id="s_flip"></label>
+    <div class="dim">ใช้กับทุกเฟรมของท่านี้ใน Class นี้ (ทั้งชายและหญิง)</div>
+  </div>
+  <div class="box">
+    <h2>เฟรมที่เลือก <b id="selname" class="dim"></b></h2>
+    <div class="pad">
+      <button data-m="rl">⟲</button><button data-m="u">↑</button><button data-m="rr">⟳</button>
+      <button data-m="l">←</button><button data-m="0">ล้าง</button><button data-m="r">→</button>
+      <span></span><button data-m="d">↓</button><span></span>
+    </div>
+    <div class="dim">แตะเฟรมในตารางเพื่อเลือก • ปุ่มลูกศร 1px, หมุน 5° (คีย์บอร์ด: ลูกศร / Q E / Shift = ทีละ 4)</div>
+  </div>
+  <div class="box" style="grid-column: 1 / -1">
+    <h2>ผลลัพธ์ — คัดลอกส่งให้ Claude</h2>
+    <button id="copy">คัดลอก</button>
+    <textarea id="out" readonly></textarea>
+  </div>
+</div>
+
+<script src="js/i18n.js"></script>
+<script src="js/data.js"></script>
+<script src="js/art.js"></script>
+<script src="js/anim.js"></script>
+<script src="js/paperdoll_data.js"></script>
+<script src="js/paperdoll_fix.js"></script>
+<script src="js/paperdoll.js"></script>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const C = 240;
+const KEY = 'grip_tuner_v1';
+// สิ่งที่จูนในหน้านี้: spec ทับ GRIP เดิม + fix รายเฟรม (เริ่มจากค่าที่อยู่ในเกม)
+let state = { grip: {}, fix: JSON.parse(JSON.stringify(PAPERDOLL_FIX)) };
+try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) state = s; } catch (e) { /* ไม่มีที่เก็บ */ }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* ไม่มีที่เก็บ */ } };
+let sel = null, showMarker = false;
+
+const gks = Object.keys(PAPERDOLL_DATA).filter(k => !k.startsWith('novice'));
+gks.forEach(k => $('gk').add(new Option(k, k)));
+const cls = () => $('gk').value.replace(/_[mf]$/, '');
+const fillActs = () => {
+  const acts = Object.keys(PAPERDOLL_DATA[$('gk').value]);
+  $('act').innerHTML = ''; acts.forEach(a => $('act').add(new Option(a, a)));
+};
+
+// ใช้ spec ที่จูนในหน้านี้ทับของในเกม
+function applyState() {
+  for (const c in state.grip) {
+    Paperdoll.GRIP[c] = Paperdoll.GRIP[c] || {};
+    for (const a in state.grip[c]) Paperdoll.GRIP[c][a] = Object.assign({}, Paperdoll.GRIP[c][a] || {}, state.grip[c][a]);
+  }
+  for (const k in PAPERDOLL_FIX) delete PAPERDOLL_FIX[k];
+  Object.assign(PAPERDOLL_FIX, JSON.parse(JSON.stringify(state.fix)));
+}
+function curSpec() {
+  const it = Paperdoll.classWeapon(cls());
+  return it ? Paperdoll.spec(it, $('act').value) : {};
+}
+function syncSliders() {
+  const s = curSpec();
+  for (const k of ['len', 'grip', 'rot', 'stand']) { $('s_' + k).value = s[k] || 0; $('v_' + k).textContent = s[k] || 0; }
+  $('s_up').checked = !!s.up; $('s_flip').checked = !!s.flip;
+}
+function setSpec(k, v) {
+  const c = cls(), a = $('act').value;
+  state.grip[c] = state.grip[c] || {}; state.grip[c][a] = state.grip[c][a] || {};
+  state.grip[c][a][k] = v; save(); applyState(); syncSliders(); draw();
+}
+['len', 'grip', 'rot', 'stand'].forEach(k => $('s_' + k).addEventListener('input', e => setSpec(k, +e.target.value)));
+['up', 'flip'].forEach(k => $('s_' + k).addEventListener('change', e => setSpec(k, e.target.checked ? 1 : 0)));
+
+function draw() {
+  const gk = $('gk').value, act = $('act').value, z = +$('zoom').value;
+  const bare = Art.get(`anim_${gk}_bare_${act}`), orig = Art.get(`anim_${gk}_${act}`);
+  const img = showMarker ? orig : bare;
+  const cv = $('cv'), g = cv.getContext('2d');
+  if (!img) { cv.width = 300; cv.height = 40; g.fillStyle = '#fff'; g.fillText('กำลังโหลดภาพ…', 10, 24); return; }
+  const cols = Math.round(img.width / C), rows = Math.round(img.height / C), cs = C * z;
+  cv.width = cols * cs; cv.height = rows * cs;
+  g.clearRect(0, 0, cv.width, cv.height);
+  const it = Paperdoll.classWeapon(cls());
+  const lay = Paperdoll.layers(gk, { job: cls(), equip: {} }, true);
+  for (let r = 0; r < rows; r++) for (let f = 0; f < cols; f++) {
+    g.save(); g.translate(f * cs, r * cs); g.scale(z, z);
+    if (sel && sel.r === r && sel.f === f) { g.fillStyle = 'rgba(224,176,80,0.25)'; g.fillRect(0, 0, C, C); }
+    g.translate(Anim.CX, Anim.GROUND);
+    const fr = { img, f, row: r, action: act };
+    if (!showMarker) lay.under(g, fr);
+    g.drawImage(img, f * C, r * C, C, C, -Anim.CX, -Anim.GROUND, C, C);
+    if (!showMarker) lay.over(g, fr);
+    g.restore();
+  }
+  g.strokeStyle = 'rgba(0,0,0,0.25)';
+  for (let r = 1; r < rows; r++) { g.beginPath(); g.moveTo(0, r * cs); g.lineTo(cv.width, r * cs); g.stroke(); }
+  $('selname').textContent = sel ? `แถว ${sel.r} เฟรม ${sel.f}` : '';
+  output();
+}
+function output() {
+  const lines = ['// GRIP (วางทับใน js/paperdoll.js)', 'GRIP_TUNED = ' + JSON.stringify(state.grip), '',
+    '// js/paperdoll_fix.js', 'const PAPERDOLL_FIX = ' + JSON.stringify(state.fix) + ';'];
+  $('out').value = lines.join('\n');
+}
+$('cv').addEventListener('click', e => {
+  const z = +$('zoom').value, rc = $('cv').getBoundingClientRect();
+  const sx = $('cv').width / rc.width;
+  sel = { f: Math.floor((e.clientX - rc.left) * sx / (C * z)), r: Math.floor((e.clientY - rc.top) * sx / (C * z)) };
+  draw();
+});
+function nudge(m, step = 1) {
+  if (!sel) return;
+  const gk = $('gk').value, act = $('act').value, i = sel.r * 64 + sel.f;
+  const F = ((state.fix[gk] = state.fix[gk] || {})[act] = state.fix[gk][act] || {});
+  const v = F[i] || [0, 0, 0];
+  if (m === 'l') v[0] -= step; if (m === 'r') v[0] += step;
+  if (m === 'u') v[1] -= step; if (m === 'd') v[1] += step;
+  if (m === 'rl') v[2] -= 5 * step; if (m === 'rr') v[2] += 5 * step;
+  if (m === '0' || (!v[0] && !v[1] && !v[2])) delete F[i]; else F[i] = v;
+  save(); applyState(); draw();
+}
+document.querySelectorAll('[data-m]').forEach(b => b.addEventListener('click', () => nudge(b.dataset.m)));
+document.addEventListener('keydown', e => {
+  const k = { ArrowLeft: 'l', ArrowRight: 'r', ArrowUp: 'u', ArrowDown: 'd', q: 'rl', e: 'rr' }[e.key];
+  if (k) { e.preventDefault(); nudge(k, e.shiftKey ? 4 : 1); }
+});
+$('gk').addEventListener('change', () => { sel = null; fillActs(); syncSliders(); draw(); });
+$('act').addEventListener('change', () => { sel = null; syncSliders(); draw(); });
+$('zoom').addEventListener('input', draw);
+$('marker').addEventListener('click', () => { showMarker = !showMarker; $('marker').textContent = showMarker ? 'ดูอาวุธ' : 'ดูแท่งเดิม'; draw(); });
+$('copy').addEventListener('click', () => {
+  navigator.clipboard.writeText($('out').value).catch(() => { $('out').select(); });
+});
+Art.onLoad = () => { clearTimeout(Art._t); Art._t = setTimeout(draw, 120); };
+fillActs(); applyState(); syncSliders();
+Art.load();
+</script>
+</body>
+</html>
