@@ -102,6 +102,7 @@ class GameMap {
       if (this.tile(x, y) === T.TREE) this.set(x, y, this.tile(p.x, p.y));
     }
     for (const n of def.npcs || []) this.block[this.idx(n.x, n.y)] = 1;
+    if (typeof Bake !== 'undefined') Bake.layout(this); // ฉากอบจาก 3D (js/bake.js): เคลียร์หินใต้แท่น + ช่องชนของบัลลังก์/ชั้นวาง (Hel's Hollow)
     if (opts && opts.lite) return; // แค่ผังช่อง (ใช้วาดแผนที่โลก — ไม่ต้องวาดพื้น/วางของประดับ)
     this.collectObjects();
     this.renderGround();
@@ -536,10 +537,12 @@ class GameMap {
     // 5) ของตกแต่ง — ถ้ามีภาพ (assets/prop_*) จะเป็นวัตถุตั้งตรงเรียงความลึก ไม่อบลงพื้น
     this.props = [];
     this.decorate(g);
+    if (typeof Bake !== 'undefined') Bake.ground(this, g); // แท่นหิน + เงาจากภาพเรนเดอร์ 3D (ทับกรวดที่ decorate วาด)
     for (const b of this.buildings) { b.img = BUILDING_ART[b.label] || (b.kind === 'castle' ? 'prop_bld_tower' : null); if (!propArt(b.img)) { b.img = null; this.drawBuilding(g, b); } }
     this.fountainImg = !!(this.fountain && propArt('prop_fountain'));
     if (this.fountain && !this.fountainImg) this.drawFountain(g);
     if (this.def.kind === 'town') this.placeTownProps(); else this.placeSeamProps();
+    if (typeof Bake !== 'undefined') Bake.props(this); // บัลลังก์/ชั้นวาง (สไปรต์ตั้งตรง) + แสงโหลประกาย → extraLights
     this.ground = c;
     // เก็บตำแหน่งน้ำไว้ทำคลื่นเคลื่อนไหว
     this.waterTiles = [];

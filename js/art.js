@@ -133,7 +133,7 @@ const Art = {
   },
   onLoad(k) {
     if (k === 'keyart' || k === 'logo' || k.startsWith('job_')) applyTitleArt();
-    if ((k.startsWith('ground_') || k.startsWith('prop_') || k === 'arena_ground') && typeof G !== 'undefined' && G.map) { // ภาพพื้น/ของประดับโหลดเสร็จช้า → วาดพื้นใหม่
+    if ((k.startsWith('ground_') || k.startsWith('prop_') || k.startsWith('bake_') || k === 'arena_ground') && typeof G !== 'undefined' && G.map) { // ภาพพื้น/ของประดับโหลดเสร็จช้า → วาดพื้นใหม่
       clearTimeout(this._regen);
       this._regen = setTimeout(() => {
         for (const id in G.mapCache || {}) if (G.mapCache[id] !== G.map) delete G.mapCache[id];
