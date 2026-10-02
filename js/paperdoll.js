@@ -33,7 +33,7 @@ const Paperdoll = {
   BASE: { dagger: 'knife', sword: 'sword', axe: 'hand_axe', mace: 'mace', rod: 'rod', bow: 'bow' },
 
   // เจ้าของเลือก (2026-10-02): ไม่เปลี่ยนอาวุธตามของที่สวม — แต่ละ Class ถืออาวุธประจำ Class ตลอด
-  // (Class 2 ใช้ของ Class 1 ต้นสาย) • ภาพอาวุธเฉพาะ Class ทีหลังได้: assets/cweapon_<class>.webp (วาดเฉียงแบบไอคอน)
+  // (Class 2 ใช้ของ Class 1 ต้นสาย) • ภาพอาวุธเฉพาะ Class: assets/cweapon_<class>.webp (ด้ามซ้ายล่าง ปลายขวาบน — prompt: docs/CLASS_WEAPONS.md)
   CLASS_WEAPON: { einherjar: 'sword', runecaster: 'rune_staff', wildhunter: 'bow', volva: 'mace', trickster: 'main_gauche', berserker: 'battle_axe' },
   CLASS_LEN: { berserker: 1.3 }, // อาวุธใหญ่กว่าปกติ (ขวานสองมือ)
   baseJob(job) {
@@ -136,13 +136,15 @@ const Paperdoll = {
   weapon(g, it, hand) {
     const img = this.icon(it);
     if (!img || !hand) return;
-    const spec = this.W[it.wtype] || this.W.dagger;
-    const m = this.measure(img, !!spec.rev), k = spec.len * (this.CLASS_LEN[it.cls] || 1) / m.len;
+    let spec = this.W[it.wtype] || this.W.dagger;
+    const rev = !!spec.rev && !(it.cls && img === Art.get('cweapon_' + it.cls)); // ภาพอาวุธ Class วาดด้ามซ้ายล่างทุกชิ้น
+    const m = this.measure(img, rev), k = spec.len * (this.CLASS_LEN[it.cls] || 1) / m.len;
     let ang = hand[2];
     if (spec.up && Math.sin(ang) > 0) ang += Math.PI;
     if (spec.stand) ang += Math.atan2(Math.sin(-Math.PI / 2 - ang), Math.cos(-Math.PI / 2 - ang)) * spec.stand;
     // จุดที่ต้องอยู่ตรงมือ (ระยะตามแนวทแยงจากมุมด้ามของภาพ, หน่วย px ของไอคอน)
     const at = spec.guard && m.guard != null ? m.guard - 2 : m.t0 + (m.t1 - m.t0) * spec.grip;
+    spec = Object.assign({}, spec, { rev });
     g.save();
     g.translate(hand[0] - Anim.CX, hand[1] - Anim.GROUND);
     // ไอคอนวาดเฉียง 45° → หมุนให้แนวด้าม→ปลายตรงกับมุมในเฟรม

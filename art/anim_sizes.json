@@ -577,5 +577,35 @@
    "median_src_h": 272
   },
   "_k1536": 0.36765
+ },
+ "volva_m": {
+  "attack": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.6173,
+   "median_src_h": 242.99368216426373
+  },
+  "cast": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.6173,
+   "median_src_h": 243
+  },
+  "_k1536": 0.41152
+ },
+ "volva_f": {
+  "cast": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.6073,
+   "median_src_h": 247
+  },
+  "_k1536": 0.40486,
+  "attack": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.6073,
+   "median_src_h": 246.99896260435708
+  }
  }
 }
