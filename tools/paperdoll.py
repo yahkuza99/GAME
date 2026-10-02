@@ -3,6 +3,7 @@
 ลบอาวุธเดิม (ใบมีดสีฟ้า) ออกจากทุกเฟรม แล้ววัดจุดมือ มุมอาวุธ และจุดหัว เก็บไว้ให้เกมวาดของที่สวมทับเอง
 
 ใช้:  python3 tools/paperdoll.py novice_f novice_m
+      python3 tools/paperdoll.py --marker magenta einherjar_m einherjar_f   (ภาพ Class วาดมือเปล่า + แท่ง magenta)
 ได้:  assets/anim_<key>_bare_<action>.webp  (ตัวเปล่าไม่มีอาวุธ)
       js/paperdoll_data.js                  (จุดมือ/มุม/หัว ทุกเฟรม ทุกทิศ)
       ภาพตรวจ debug ใน --debug <โฟลเดอร์> (ถ้าใส่)"""
@@ -16,13 +17,24 @@ C = 240
 ACTS = ['idle', 'walk', 'attack', 'shoot', 'cast', 'sit', 'hurt', 'dead']
 
 
+MARKER = 'cyan'  # cyan = ใบมีดเดิมของ Novice • magenta = แท่งบอกตำแหน่งมือในภาพ Class (วาดมือเปล่า)
+
+
 def cyan_mask(rgba):
+    if MARKER == 'magenta': return magenta_mask(rgba)
     rgb = rgba[..., :3]
     hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV_FULL).astype(np.float32)
     h, s, v = hsv[..., 0] / 255, hsv[..., 1] / 255, hsv[..., 2] / 255
     a = rgba[..., 3]
     core = (h > 0.42) & (h < 0.60) & (s > 0.30) & (v > 0.50) & (a > 30)
     return core
+
+
+def magenta_mask(rgba):
+    """แท่งสีชมพูบานเย็น (#FF00FF) ที่สั่งให้ AI วาดไว้ในมือแทนอาวุธ"""
+    hsv = cv2.cvtColor(rgba[..., :3], cv2.COLOR_RGB2HSV_FULL).astype(np.float32)
+    h, s, v = hsv[..., 0] / 255, hsv[..., 1] / 255, hsv[..., 2] / 255
+    return (h > 0.79) & (h < 0.92) & (s > 0.55) & (v > 0.55) & (rgba[..., 3] > 30)
 
 
 def head_ref(alpha, cyan):
@@ -63,14 +75,15 @@ def process(rgba, act=''):
         L = float(np.ptp((pts - mu) @ evec[:, 1]))
         flat = abs(evec[1, 1]) < 0.35  # แนวนอน (หน้ากาก)
         # ของบนหัว (หน้ากาก/ครีบหู): อยู่ในวงหัวทั้งชิ้น และเล็ก หรือเป็นแถบแนวนอน (ใบมีดที่ยกขึ้นข้างหัวจะใหญ่+เฉียง)
-        if dmax < 46 and dc < 36 and (cnt < 160 or flat): continue
-        if flat and dc < 44 and L < 40: continue  # หน้ากากตอนหันข้าง (อยู่เยื้องจากกลางผม)
+        if MARKER == 'cyan':  # ของสีฟ้าบนหัว Novice (แท่ง magenta ไม่มีของบนหัวให้แยก)
+            if dmax < 46 and dc < 36 and (cnt < 160 or flat): continue
+            if flat and dc < 44 and L < 40: continue  # หน้ากากตอนหันข้าง (อยู่เยื้องจากกลางผม)
         # เอฟเฟกต์ฟันเป็นวงโค้งยาว: เก็บไว้ในภาพ (เป็นเฟรมเบลอแทนอาวุธ) แล้วไม่วาดอาวุธในเฟรมนี้
         round_ = ev[1] / max(ev[0], 1e-3) < 4
         # ท่าร่าย: วงเวทกลม ๆ ที่มือ (ยังเล็กในเฟรมแรก) ก็เป็นเอฟเฟกต์ ไม่ใช่อาวุธ
-        if act == 'cast' and round_ and cnt > 60:
+        if MARKER == 'cyan' and act == 'cast' and round_ and cnt > 60:
             fx |= (lab == i); continue
-        if L >= 62 or (cnt > 380 and round_):
+        if MARKER == 'cyan' and (L >= 62 or (cnt > 380 and round_)):
             smear = True; fx |= (lab == i); continue
         parts.append((cnt, xs, ys))
         remove |= (lab == i)
@@ -119,6 +132,8 @@ def process(rgba, act=''):
             bys, bxs = np.nonzero(body)
             bc = np.array([bxs.mean(), bys.mean()])
             grip, tip = (e1, e2) if np.linalg.norm(e1 - bc) < np.linalg.norm(e2 - bc) else (e2, e1)
+            if act == 'shoot':  # ท่ายิง: แท่งตั้งอยู่ในกำปั้น = กลางคันธนู
+                grip = mu
             ang = math.atan2(tip[1] - grip[1], tip[0] - grip[0])
             hand = [round(float(grip[0]), 1), round(float(grip[1]), 1), round(ang, 3)]
     # หัวหลังลบ: ยอดเนื้อภาพ + กลางแถบบน
@@ -201,11 +216,17 @@ def run(key, dbg=None):
 if __name__ == '__main__':
     args = sys.argv[1:]
     dbg = None
+    if '--marker' in args:
+        i = args.index('--marker'); MARKER = args[i + 1]; del args[i:i + 2]
     if '--debug' in args:
         i = args.index('--debug'); dbg = args[i + 1]; del args[i:i + 2]
         os.makedirs(dbg, exist_ok=True)
     out_js = os.path.join(ROOT, 'js', 'paperdoll_data.js')
+    # เก็บข้อมูลตัวอื่นที่ทำไว้แล้ว (รันทีละ Class ได้)
     allp = {}
+    if os.path.exists(out_js):
+        txt = open(out_js, encoding='utf-8').read()
+        allp = json.loads(txt[txt.index('PAPERDOLL_DATA = ') + 17:txt.rindex(';')])
     for k in args: allp[k] = run(k, dbg)
     with open(out_js, 'w', encoding='utf-8') as fp:
         fp.write("'use strict';\n// สร้างอัตโนมัติโดย tools/paperdoll.py — อย่าแก้ด้วยมือ\n")
