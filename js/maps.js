@@ -27,7 +27,7 @@ const MAP_DEFS = {
     ],
   },
   meadow: {
-    name: 'Emerald Meadow', thai: L('ทุ่งหญ้ามรกต', 'Emerald Grasslands'), w: 84, h: 84, // ขยาย 1.5 เท่า (2026-10-02) kind: 'field', seed: 202,
+    name: 'Emerald Meadow', thai: L('ทุ่งหญ้ามรกต', 'Emerald Grasslands'), w: 84, h: 84, kind: 'field', seed: 202, // ขยาย 1.5 เท่า (2026-10-02)
     links: { W: 'eldheim', E: 'mistlake' }, level: '1-6',
     spawns: [['pudding', 36], ['leafworm', 20], ['moonbun', 20], ['ember_pudding', 16], ['buzzfly', 13]],
     grass: '#6fae4a', trees: 0.9, ponds: 4, flowers: 0.05,
