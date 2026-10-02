@@ -388,5 +388,20 @@
    "scale_src": 0.52,
    "median_src_h": 288.46153846153845
   }
+ },
+ "mob_rust_draugr": {
+  "walk": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4425,
+   "median_src_h": 339
+  },
+  "_k1536": 0.51104,
+  "attack": {
+   "frames": 4,
+   "dirs": 1,
+   "scale_src": 0.4425,
+   "median_src_h": 338.99927109423913
+  }
  }
 }
