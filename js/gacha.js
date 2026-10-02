@@ -412,9 +412,21 @@ Object.assign(Gacha, {
   open(tab) { if (tab) this.tab = tab; if (UI.isOpen('w-gacha')) this.render(); else UI.open('w-gacha'); },
   body() { return document.querySelector('#w-gacha .gc-body'); },
 
+  // ภาพจริงของหน้ากาชา (ฉากบ่อน้ำอูร์ด / วงล้อ / สามนอร์น / หลังการ์ด 5 ระดับ) — มีครบ = หน้าจอเต็มแบบมีภาพ
+  art() { return typeof Art !== 'undefined' && Art.has('gacha_wheel') && Art.has('gacha_bg'); },
+  applyArt() {
+    const w = document.getElementById('w-gacha'); if (!w) return;
+    const on = this.art(); w.classList.toggle('gc-art', on);
+    if (!on || w.dataset.art) return;
+    w.dataset.art = '1';
+    const u = k => Art.has(k) ? `url("${Art.get(k).src}")` : 'none';
+    w.style.setProperty('--gc-bg', u('gacha_bg'));
+    ['common', 'uncommon', 'rare', 'epic', 'legend'].forEach((k, i) => w.style.setProperty('--cb' + i, u('gacha_card_' + k)));
+  },
   render() {
     const body = this.body(); if (!body || !G.player) return;
     if (this.anim) return; // กำลังเล่นแอนิเมชัน: ไม่สร้างใหม่ทับ
+    this.applyArt();
     body.innerHTML = '';
     const tabs = [['wheel', L('วงล้อ', 'Wheel')], ['rates', L('อัตรารางวัล', 'Rates')], ['hist', L('ประวัติ', 'History')]];
     body.append(h('div', { class: 'tabs gc-tabs', role: 'tablist' }, ...tabs.map(([k, t]) => h('button', { type: 'button', role: 'tab', class: 'tab' + (this.tab === k ? ' on' : ''), 'aria-selected': this.tab === k ? 'true' : 'false',
@@ -447,10 +459,12 @@ Object.assign(Gacha, {
   wheelPane() {
     const st = this.st(), tk = this.tokens(), P = this.C.pity, D = this.C.drop;
     const runes = [...this.RUNES].map((r, i) => h('i', { style: `transform:rotate(${i * 30 + 15}deg) translateY(calc(var(--wr) * -0.38))` }, r));
-    const ring = h('div', { class: 'gc-ring', style: `transform:rotate(${this.angle}deg)` }, ...runes);
+    const art = this.art();
+    const ring = h('div', { class: 'gc-ring', style: `transform:rotate(${this.angle}deg)` }, ...(art ? [h('img', { src: Art.get('gacha_wheel').src, alt: '', draggable: 'false' })] : runes));
     const stage = h('div', { class: 'gc-stage' },
       h('div', { class: 'gc-rays' }),
-      h('div', { class: 'gc-norns', 'aria-hidden': 'true' }, h('span', {}, 'URÐR'), h('span', {}, 'VERÐANDI'), h('span', {}, 'SKULD')),
+      art && Art.has('gacha_norns') ? h('img', { class: 'gc-nornart', src: Art.get('gacha_norns').src, alt: '', 'aria-hidden': 'true', draggable: 'false' })
+        : h('div', { class: 'gc-norns', 'aria-hidden': 'true' }, h('span', {}, 'URÐR'), h('span', {}, 'VERÐANDI'), h('span', {}, 'SKULD')),
       h('div', { class: 'gc-threads', 'aria-hidden': 'true', html: '<svg viewBox="0 0 300 60" preserveAspectRatio="none"><path d="M50 4 C 70 40, 130 44, 150 58"/><path d="M150 4 C 146 24, 154 40, 150 58"/><path d="M250 4 C 230 40, 170 44, 150 58"/></svg>' }),
       h('div', { class: 'gc-wheel' },
         h('div', { class: 'gc-idle' }, ring),
@@ -703,6 +717,56 @@ Object.assign(Gacha, {
     }
   },
 
+  // หน้าจอเต็มแบบมีภาพ: ฉากหลังเต็มจอ • สามนอร์นหลังวงล้อ • วงล้อภาพจริงหมุน • การ์ดคว่ำใช้หลังการ์ดตามระดับ
+  artCss() {
+    return `
+#w-gacha.gc-art{position:fixed!important;inset:0!important;left:0!important;top:0!important;transform:none!important;width:100vw!important;max-width:none!important;height:100dvh!important;max-height:none!important;
+  border-radius:0!important;border:0!important;background:#05080d var(--gc-bg) center/cover no-repeat!important;box-shadow:none!important;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+#w-gacha.gc-art.hidden{display:none!important}
+#w-gacha.gc-art::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 55% at 50% 50%,transparent 30%,rgba(3,6,12,.55) 100%),linear-gradient(180deg,rgba(3,6,12,.35),transparent 25%,transparent 70%,rgba(3,6,12,.75));pointer-events:none}
+#w-gacha.gc-art .win-title .win-x{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;font-size:22px;background:rgba(6,10,18,.6);border:1px solid rgba(255,255,255,.2)}
+#w-gacha.gc-art .win-title{position:relative;min-height:52px;z-index:2;background:transparent;border:0;justify-content:center;font-size:15px;letter-spacing:.06em;text-shadow:0 2px 8px rgba(0,0,0,.9)}
+#w-gacha.gc-art .gc-body{position:relative;z-index:1;flex:1;height:auto!important;min-height:0!important;width:min(980px,100%);margin:0 auto;padding:0 14px calc(12px + env(safe-area-inset-bottom,0px))}
+#w-gacha.gc-art .gc-tabs{width:min(420px,100%);margin:0 auto;background:rgba(6,10,18,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#w-gacha.gc-art .gc-main{flex:1;min-height:0}
+#w-gacha.gc-art .gc-stage{--wr:min(44vh,62vw,400px);flex:1;height:auto;min-height:260px;background:none;box-shadow:none;overflow:visible}
+#w-gacha.gc-art .gc-stage[data-rank]{box-shadow:none}
+#w-gacha.gc-art .gc-rays{opacity:.55}
+#w-gacha.gc-art .gc-threads{display:none}
+.gc-nornart{position:absolute;left:50%;bottom:-2%;height:104%;max-width:none;transform:translateX(-50%);pointer-events:none;user-select:none;filter:drop-shadow(0 10px 30px rgba(0,0,0,.6));opacity:.92;transition:filter .3s}
+#w-gacha.gc-art .gc-wheel{top:47%;filter:drop-shadow(0 0 22px var(--hint)) drop-shadow(0 10px 24px rgba(0,0,0,.65))}
+#w-gacha.gc-art .gc-ring{background:none!important;border:0!important;box-shadow:none!important}
+#w-gacha.gc-art .gc-ring img{width:100%;height:100%;display:block;pointer-events:none;user-select:none}
+#w-gacha.gc-art .gc-rim,#w-gacha.gc-art .gc-visor{display:none}
+#w-gacha.gc-art .gc-hub{width:30%;height:30%;background:radial-gradient(circle,color-mix(in srgb,var(--hint) 55%,transparent),transparent 68%)!important;border:0!important;box-shadow:none!important;mix-blend-mode:screen}
+#w-gacha.gc-art .gc-pointer{top:-16px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.8))}
+#w-gacha.gc-art .gc-skip{color:#fff;text-shadow:0 1px 4px #000}
+#w-gacha.gc-art .gc-info,#w-gacha.gc-art .gc-btns,#w-gacha.gc-art .gc-hint{width:min(560px,100%);margin-left:auto;margin-right:auto}
+#w-gacha.gc-art .gc-info{background:rgba(6,10,18,.6);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:14px;padding:6px 10px}
+#w-gacha.gc-art .gc-hint{text-shadow:0 1px 4px #000;color:#d6e2ee}
+#w-gacha.gc-art .gc-rates,#w-gacha.gc-art .gc-hist{width:min(640px,100%);margin:10px auto 0;background:rgba(6,10,18,.82);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-radius:16px;padding:12px;overflow-y:auto}
+#w-gacha.gc-art .gc-res{inset:0;background:radial-gradient(70% 60% at 50% 45%,rgba(10,14,26,.55),rgba(3,6,12,.86));-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+#w-gacha.gc-art .gc-grid{width:min(760px,100%);margin:0 auto}
+#w-gacha.gc-art .gc-multi .gc-grid{grid-template-columns:repeat(5,minmax(0,118px));justify-content:center}
+#w-gacha.gc-art .gc-one .gc-grid{grid-template-columns:minmax(0,190px)}
+#w-gacha.gc-art .gc-card{aspect-ratio:1/1.75}
+#w-gacha.gc-art .gc-back{background:var(--cb0) center/100% 100% no-repeat;border-radius:10px}
+#w-gacha.gc-art .gc-card.r1 .gc-back{background-image:var(--cb1)}
+#w-gacha.gc-art .gc-card.r2 .gc-back{background-image:var(--cb2)}
+#w-gacha.gc-art .gc-card.r3 .gc-back{background-image:var(--cb3)}
+#w-gacha.gc-art .gc-card.r4 .gc-back{background-image:var(--cb4)}
+#w-gacha.gc-art .gc-back::before,#w-gacha.gc-art .gc-back b{display:none}
+#w-gacha.gc-art .gc-front{border-radius:10px;background:linear-gradient(180deg,rgba(20,28,44,.96),rgba(8,12,22,.98))}
+@media (max-width:760px){
+  #w-gacha.gc-art .gc-stage{--wr:min(36vh,66vw,320px);min-height:220px}
+  #w-gacha.gc-art .gc-multi .gc-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+  .gc-nornart{height:auto;width:155%;bottom:auto;top:50%;transform:translate(-50%,-46%)}
+}
+@media (orientation:landscape) and (max-height:520px){
+  #w-gacha.gc-art .gc-stage{--wr:min(52vh,280px);min-height:150px}
+  #w-gacha.gc-art .gc-card{aspect-ratio:1/1.5}
+}`;
+  },
   injectCss() {
     const R0 = RARITY;
     const css = `
@@ -856,7 +920,7 @@ Object.assign(Gacha, {
 @media (prefers-reduced-motion:reduce){
   .gc-rays,.gc-idle,.gc-threads path,.gc-visor,.gc-card,.gc-card .gc-back,.gc-tease .gc-cin,.gc-card.on .gc-front::after{animation:none!important}
 }`;
-    const el = document.createElement('style'); el.id = 'gacha-css'; el.textContent = css;
+    const el = document.createElement('style'); el.id = 'gacha-css'; el.textContent = css + this.artCss();
     (document.head || document.documentElement).append(el);
   },
 });
