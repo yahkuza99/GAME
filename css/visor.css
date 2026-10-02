@@ -1424,3 +1424,16 @@ body.visor #w-equip .eq-turn { box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5), inset 0 1
 @media (max-width: 760px) and (orientation: landscape) { .pad-mode #ult-btn { right: calc(310px + var(--sr)); bottom: calc(14px + var(--sb)); } }
 #lv-banner.ult b { color: #fff; font-size: 64px; text-shadow: 0 0 26px var(--uc), 0 0 70px var(--uc), 0 3px 0 rgba(0, 0, 0, .7); letter-spacing: .08em; }
 #lv-banner.ult small { color: var(--uc); }
+
+/* ---- GAME_FEEL 12: สกิลคูลดาวน์ยาวกลับมาพร้อมใช้ ---- */
+.hb.ready { animation: hbReady .45s ease-out; }
+@keyframes hbReady {
+  0% { box-shadow: inset 0 0 0 2px #fff, 0 0 0 0 rgba(120,230,255,.95); filter: brightness(1.9); }
+  100% { box-shadow: inset 0 0 0 0 rgba(255,255,255,0), 0 0 18px 8px rgba(120,230,255,0); filter: brightness(1); }
+}
+/* ---- GAME_FEEL 13: ใกล้เลเวลแล้ว ---- */
+#bi-bexp.near, #exp-line-fill.near { animation: expNear 1.2s ease-in-out infinite; }
+@keyframes expNear { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.7) drop-shadow(0 0 6px #ffe08a); } }
+#bi-lvbadge.near { animation: lvNear .9s ease-in-out infinite; }
+@keyframes lvNear { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.14); box-shadow: 0 0 12px 2px rgba(255,214,106,.75); } }
+@media (prefers-reduced-motion: reduce) { .hb.ready, #bi-bexp.near, #exp-line-fill.near, #bi-lvbadge.near { animation: none; } }

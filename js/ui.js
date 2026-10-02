@@ -226,6 +226,10 @@ const UI = {
     ring($('#ring-hp'), 41, p.hp / d.maxHp); ring($('#ring-sp'), 35, p.sp / d.maxSp);
     $('#ring-hp').classList.toggle('low', p.hp / d.maxHp < 0.25);
     $('#exp-line-fill').style.width = (bk * 100).toFixed(1) + '%';
+    // ใกล้เลเวลแล้ว: แสงกวาดบนแถบ EXP (≥90%) + ป้ายเลเวลเต้น (≥97%) — GAME_FEEL ข้อ 13
+    const near = bk >= 0.9 && bk < 1 && p.baseLv < MAX_BASE_LV;
+    $('#bi-bexp').classList.toggle('near', near); $('#exp-line-fill').classList.toggle('near', near);
+    $('#bi-lvbadge').classList.toggle('near', near && bk >= 0.97);
     $('#bi-hp-t').textContent = `${Math.floor(p.hp)} / ${d.maxHp}`;
     $('#bi-sp-t').textContent = `${Math.floor(p.sp)} / ${d.maxSp}`;
     const zi = Art.get('item_zeny'), zHtml = (zi ? `<img src="${zi.src}" alt="">` : '') + U.fmt(p.zeny) + ' ' + CUR;
@@ -301,6 +305,13 @@ const UI = {
         cd.style.setProperty('--cd', k.toFixed(3));
         const txt = k > 0 ? left.toFixed(1) : '';
         if (cd.textContent !== txt) cd.textContent = txt;
+        // สกิลคูลดาวน์ยาวกลับมาพร้อมใช้: วงแสงขยายออก + เสียงติ๊งเบา ๆ (GAME_FEEL ข้อ 12)
+        if (cl > 0) el._cdLong = (SKILLS[hb.id].cd || 0) >= 5;
+        else if (el._cdLong) {
+          el._cdLong = false; el.classList.remove('ready'); void el.offsetWidth; el.classList.add('ready');
+          clearTimeout(el._rdT); el._rdT = setTimeout(() => el.classList.remove('ready'), 450);
+          if (typeof Sound !== 'undefined' && p.options && p.options.sound !== false) Sound.play('click');
+        }
         el.classList.toggle('aiming', G.pendingSkill === hb.id);
         el.classList.toggle('nosp', !canPaySkill(skillCost(hb.id, skillLv(hb.id))));
       } else { cd.style.height = '0'; if (cd.textContent) cd.textContent = ''; el.classList.remove('nosp', 'aiming'); }

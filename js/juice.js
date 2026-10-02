@@ -433,8 +433,13 @@ const Juice = (() => {
     }
     // มึน: ส่ายหัวโยกตัว
     if (stun) { rot += Math.sin(now * 9 + (m.seed || 0) * 5) * 0.1; sy *= 0.96; }
+    // เกิดใหม่: ผุดขึ้นจากฝุ่น (ยืดจากแบน → ตัวเต็ม + เด้งนิด ๆ) 0.35 วิ
+    const ba = z.bornAt != null ? now - z.bornAt : 9;
+    let bornA = 1;
+    if (ba < 0.35) { const k = easeOut(clamp01(ba / 0.35)); sx *= 0.6 + 0.4 * k; sy *= 0.25 + 0.75 * k + Math.sin(k * Math.PI) * 0.12; bornA = clamp01(ba / 0.18); }
 
     g.save();
+    if (bornA < 1) g.globalAlpha *= bornA;
     g.translate(x + dx, y + dy - lift);
     if (rot) g.rotate(rot);
     g.scale(sx, sy);
@@ -637,6 +642,16 @@ const Juice = (() => {
       try { dm0(m, dmg, opts); } finally { J.ctx = prev; }
       J.onMobHit(m, dmg, opts, kind);
     };
+    // มอนเกิดใหม่ระหว่างเล่น (ไม่ใช่ตอนโหลดแมพ): ฝุ่นฟุ้ง + ผุดขึ้น (วาดใน J.drawMob)
+    if (typeof spawnMob === 'function' && typeof changeMap === 'function') {
+      const sm0 = spawnMob, cm0 = changeMap;
+      changeMap = function () { J.mapLoading = true; try { return cm0.apply(this, arguments); } finally { J.mapLoading = false; } };
+      spawnMob = function (id, pos) {
+        const m = sm0(id, pos);
+        if (m && vis() && !J.mapLoading) { st(m).bornAt = G.time; J.dust(m.x, m.y, (m.def.scale || 1) * 1.2); }
+        return m;
+      };
+    }
     const km0 = killMob;
     killMob = function (m) { const was = m && m.dead; km0(m); if (m && !was && m.dead) J.onKill(m); };
     const dp0 = damagePlayer;
