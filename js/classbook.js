@@ -172,7 +172,7 @@ const ClassBook = {
     UI.open = id => { open0(id); if (id === 'w-classbook') this.render(); };
     window.addEventListener('load', () => setTimeout(() => this.menuButton(), 0));
     document.addEventListener('keydown', e => {
-      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || (e.key || '').toLowerCase() !== 'l') return;
+      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || U.key(e) !== 'l') return;
       const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
       if (typeof G === 'undefined' || !G.started) return;
       UI.toggle('w-classbook');

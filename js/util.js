@@ -4,6 +4,16 @@
 // ============================================================
 
 const U = {
+  // ชื่อปุ่มสำหรับคีย์ลัด (ตัวเล็ก) — ใช้ "ตำแหน่งปุ่มจริง" เมื่อแป้นพิมพ์ให้อักษรที่ไม่ใช่ภาษาอังกฤษ
+  // (เช่นแป้นไทย: กด A ได้ "ฟ", กด 1 ได้ "ๅ") → คีย์ลัดทำงานเหมือนกันไม่ว่าจะเปิดภาษาอะไร
+  key(e) {
+    const k = e.key || '';
+    if (k.length !== 1 || k.charCodeAt(0) < 128) return k.toLowerCase();
+    const c = e.code || '';
+    if (/^Key[A-Z]$/.test(c)) return c.slice(3).toLowerCase();
+    if (/^Digit\d$/.test(c)) return c.slice(5);
+    return { Minus: '-', Equal: '=', Space: ' ', BracketLeft: '[', BracketRight: ']', Semicolon: ';', Quote: "'", Comma: ',', Period: '.', Slash: '/', Backslash: '\\', Backquote: '`' }[c] || k.toLowerCase();
+  },
   rand: (a, b) => a + Math.random() * (b - a),
   randi: (a, b) => Math.floor(a + Math.random() * (b - a + 1)),
   clamp: (v, a, b) => (v < a ? a : v > b ? b : v),

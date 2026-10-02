@@ -393,7 +393,7 @@ Object.assign(Gacha, {
     UI.renderWindows = force => { const d = UI.isDirty || force; rw0(force); if (d) this.refresh(); };
     window.addEventListener('load', () => setTimeout(() => this.menuButton(), 0));
     document.addEventListener('keydown', e => {
-      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || (e.key || '').toLowerCase() !== 'r') return;
+      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || U.key(e) !== 'r') return;
       const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
       if (typeof G === 'undefined' || !G.started || (UI.dialog && UI.isOpen('w-dialog'))) return;
       UI.toggle('w-gacha');

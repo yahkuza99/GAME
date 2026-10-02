@@ -152,13 +152,13 @@ function bindInput() {
     R.zoom = U.clamp(R.zoom * (e.deltaY > 0 ? 0.9 : 1.1), R.ZMIN, R.ZMAX);
   }, { passive: false });
 
-  window.addEventListener('keyup', e => keysDown.delete(e.key.toLowerCase()));
+  window.addEventListener('keyup', e => keysDown.delete(U.key(e)));
   window.addEventListener('blur', () => keysDown.clear());
   window.addEventListener('keydown', e => {
     if (!G.started) return;
     const tag = e.target.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-    const k = e.key.toLowerCase();
+    const k = U.key(e); // แป้นไทยก็ใช้คีย์ลัดได้
     // กำลังคุยกับ NPC: คีย์บอร์ดใช้กับบทสนทนาก่อน (Space/Enter ต่อไป-เลือก • ↑↓/W/S เลื่อน • 1-9 เลือกเลย • Esc ปิด)
     // กดค้าง (key repeat) ไม่นับในบทสนทนา — กัน Space ค้างไหลผ่านเมนูจนเลือกตัวเลือกแรก (เช่น เปลี่ยน Class)
     if (UI.dialog && UI.isOpen('w-dialog') && (e.repeat ? [' ', 'enter'].includes(k) : UI.dlgKey(k))) { e.preventDefault(); return; }
