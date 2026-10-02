@@ -1500,3 +1500,18 @@ body.visor #w-equip .eq-turn { box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5), inset 0 1
 #map-banner .mb-en::after { margin: 4px auto 0; }
 @media (max-height: 520px) { #map-banner, #map-banner.has-img { top: calc(env(safe-area-inset-top, 0px) + 74px); padding: 5px 16px; min-width: 0; } #splash.boss { top: calc(env(safe-area-inset-top, 0px) + 74px); } }
 @media (max-height: 520px) { #map-banner, #map-banner.has-img { top: calc(env(safe-area-inset-top, 0px) + 62px); padding: 3px 14px; } #map-banner .mb-th { display: none; } #map-banner .mb-en { font-size: 15px; } #map-banner .mb-en::after { display: none; } #splash.boss { top: calc(env(safe-area-inset-top, 0px) + 62px); } }
+/* แจกแต้ม: − ค่า + แล้วยืนยัน */
+.st-row.st-row3 { grid-template-columns: 38px 26px 1fr 26px 24px; }
+.st-dn, .st-up { border: 1px solid var(--edge-2); background: var(--fill); color: var(--cy); font: 700 13px/1 var(--font); padding: 4px 0; border-radius: 999px; }
+.st-dn { color: #ff9aa6; }
+.st-dn:disabled, .st-up:disabled { opacity: .28; cursor: default; }
+.st-dn:hover:not(:disabled) { background: rgba(255,107,125,.16); border-color: #ff6b7d; }
+.st-row3 .st-v { text-align: center; }
+.st-plus { color: #8dffb0; font-style: normal; font-weight: 700; }
+.st-row.drafted { background: rgba(141,255,176,.06); }
+.st-row2.preview b { color: #8dffb0; }
+.st-row2.preview s { color: var(--ink-faint); text-decoration-thickness: 1px; }
+.st-confirm { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+.st-confirm .btn { min-width: 96px; }
+.st-confirm .btn.primary:not(:disabled) { background: linear-gradient(180deg, rgba(111,243,255,.28), rgba(56,185,210,.18)); border-color: var(--cy); color: #fff; box-shadow: 0 0 14px -4px var(--cy); }
+@media (pointer: coarse) { .st-dn, .st-up { padding: 7px 0; font-size: 15px; } .st-row.st-row3 { grid-template-columns: 38px 34px 1fr 34px 24px; } }

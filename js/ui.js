@@ -905,24 +905,53 @@ const UI = {
     if (this.isOpen('w-shop') && this.shop) this.renderShop();
   },
 
+  // แจกแต้ม: กด + / − ปรับได้ก่อน (ยังไม่ใช้แต้มจริง) เห็นค่าที่จะได้ล่วงหน้า แล้วกด "ยืนยัน" ค่อยลงจริง • "รีเซ็ต" = ยกเลิกที่ปรับไว้
+  statDraftCost(s, n) { const p = G.player; let c = 0; for (let k = 0; k < n; k++) c += statCost(p.stats[s] + k); return c; },
+  statDraftLeft() { const D = this.statDraft || {}; return G.player.statPoints - Object.keys(D).reduce((a, s) => a + this.statDraftCost(s, D[s]), 0); },
+  statDraftAdd(s, dir) {
+    const p = G.player, D = this.statDraft || (this.statDraft = {}), n = D[s] || 0;
+    if (dir > 0) { if (p.stats[s] + n >= 99 || this.statDraftLeft() < statCost(p.stats[s] + n)) return; D[s] = n + 1; Sound.play('click'); }
+    else if (n > 0) { D[s] = n - 1; if (!D[s]) delete D[s]; Sound.play('click'); }
+    G.statBump = s; this.renderStatus();
+  },
+  statDraftApply() {
+    const D = this.statDraft || {}; let n = 0;
+    for (const s in D) for (let k = 0; k < D[s]; k++) { raiseStat(s); n++; }
+    this.statDraft = {};
+    if (n && typeof Sound !== 'undefined') Sound.play('levelup');
+    this.renderStatus();
+  },
   renderStatus() {
-    const p = G.player, d = p.d;
+    const p = G.player, D = this.statDraft || (this.statDraft = {});
+    for (const s in D) if (p.stats[s] + D[s] > 99) delete D[s];
+    if (this.statDraftLeft() < 0) { this.statDraft = {}; } // แต้มลดจากที่อื่น (รีเซ็ต/โหลดเซฟ) → ล้างที่ปรับไว้
+    const pending = Object.keys(this.statDraft).length > 0;
+    // ค่ารองแบบพรีวิว: ใส่ค่าที่ปรับไว้ชั่วคราว → recalc → อ่าน → คืนค่า
+    let d = p.d;
+    if (pending) { // recalc สั่ง UI.dirty() → เก็บ/คืนสถานะไว้ ไม่ให้หน้าต่างวาดใหม่วนทุกเฟรม (ปุ่มกดไม่ได้)
+      const dirty0 = this.isDirty, hp0 = p.hp, sp0 = p.sp;
+      for (const s in D) p.stats[s] += D[s]; recalc(); d = Object.assign({}, p.d); for (const s in D) p.stats[s] -= D[s]; recalc();
+      p.hp = hp0; p.sp = sp0; this.isDirty = dirty0;
+    }
+    const cur = p.d;
     const stats = ['str', 'agi', 'vit', 'int', 'dex', 'luk'];
     const desc = { str: L('พลังโจมตีระยะประชิด', 'Melee attack power'), agi: L('ความเร็วโจมตี/หลบหลีก/ลดคูลดาวน์สกิล', 'Attack speed / evasion / skill cooldown'), vit: L('HP/ป้องกัน', 'HP / defense'), int: L('พลังเวท/SP', 'Magic attack / SP'), dex: L('ความแม่นยำ/ธนู/ร่ายเร็ว', 'Accuracy / bows / cast speed'), luk: L('คริติคอล/โชค', 'Critical / luck') };
     const left = stats.map(s => {
-      const cost = statCost(p.stats[s]);
-      const can = p.statPoints >= cost && p.stats[s] < 99;
-      return h('div', { class: 'st-row', title: desc[s] },
+      const n = D[s] || 0, cost = statCost(p.stats[s] + n);
+      const can = this.statDraftLeft() >= cost && p.stats[s] + n < 99;
+      return h('div', { class: 'st-row st-row3' + (n ? ' drafted' : ''), title: desc[s] },
         h('span', { class: 'st-n' }, s.toUpperCase()),
-        h('span', { class: 'st-v' + (G.statBump === s ? ' bump' : '') }, String(p.stats[s]), d[s + 'Bonus'] ? h('em', {}, ` +${d[s + 'Bonus']}`) : ''),
-        h('button', { class: 'st-up', disabled: !can, onclick: () => raiseStat(s) }, '▲'),
+        h('button', { class: 'st-dn', disabled: !n, onclick: () => this.statDraftAdd(s, -1), 'aria-label': '−' }, '−'),
+        h('span', { class: 'st-v' + (G.statBump === s ? ' bump' : '') }, String(p.stats[s] + n), n ? h('i', { class: 'st-plus' }, ` +${n}`) : '', cur[s + 'Bonus'] ? h('em', {}, ` +${cur[s + 'Bonus']}`) : ''),
+        h('button', { class: 'st-up', disabled: !can, onclick: () => this.statDraftAdd(s, 1), 'aria-label': '+' }, '+'),
         h('span', { class: 'st-c' }, String(cost)));
     });
+    const row = (k, vNow, vNew) => { const ch = pending && String(vNow) !== String(vNew); return h('div', { class: 'st-row2' + (ch ? ' preview' : '') }, h('span', {}, k), h('b', {}, ch ? [h('s', {}, String(vNow)), ' → ', String(vNew)] : String(vNew))); };
     const right = [
-      ['ATK', d.atkDisplay], ['MATK', `${d.matkMin} ~ ${d.matkMax}`], ['HIT', d.hit], ['CRIT', d.crit],
-      ['DEF', `${d.def} + ${d.softDef}`], ['MDEF', `${d.mdef} + ${d.softMdef}`], ['FLEE', `${d.flee} + ${d.pdodge}`], ['ASPD', d.aspd],
-    ].map(([k, v]) => { const pv = (this._st2 || {})[k], ch = G.statBump && pv !== undefined && String(pv) !== String(v); return h('div', { class: 'st-row2' + (ch ? ' chg' : '') }, h('span', {}, k), h('b', {}, String(v))); });
-    this._st2 = Object.fromEntries([['ATK', d.atkDisplay], ['MATK', `${d.matkMin} ~ ${d.matkMax}`], ['HIT', d.hit], ['CRIT', d.crit], ['DEF', `${d.def} + ${d.softDef}`], ['MDEF', `${d.mdef} + ${d.softMdef}`], ['FLEE', `${d.flee} + ${d.pdodge}`], ['ASPD', d.aspd]]);
+      ['ATK', cur.atkDisplay, d.atkDisplay], ['MATK', `${cur.matkMin} ~ ${cur.matkMax}`, `${d.matkMin} ~ ${d.matkMax}`], ['HIT', cur.hit, d.hit], ['CRIT', cur.crit, d.crit],
+      ['DEF', `${cur.def} + ${cur.softDef}`, `${d.def} + ${d.softDef}`], ['MDEF', `${cur.mdef} + ${cur.softMdef}`, `${d.mdef} + ${d.softMdef}`], ['FLEE', `${cur.flee} + ${cur.pdodge}`, `${d.flee} + ${d.pdodge}`], ['ASPD', cur.aspd, d.aspd],
+      ['Max HP', cur.maxHp, d.maxHp], ['Max SP', cur.maxSp, d.maxSp],
+    ].map(([k, a, b2]) => row(k, a, b2));
     G.statBump = null;
     // ค่าพิเศษ (จากต้นไม้พาสซีฟ/สกิล/บัฟ) — แสดงเฉพาะที่มีผล
     const castCut = Math.round((1 - d.castMul * Math.max(0, 1 - d.dex / 150)) * 100);
@@ -938,8 +967,11 @@ const UI = {
     body.innerHTML = '';
     body.append(
       h('div', { class: 'st-grid' }, h('div', {}, left), h('div', {}, right)),
-      h('div', { class: 'st-foot' }, `Status Point: `, h('b', {}, String(p.statPoints)),
+      h('div', { class: 'st-foot' }, `Status Point: `, h('b', {}, pending ? `${this.statDraftLeft()} / ${p.statPoints}` : String(p.statPoints)),
         h('span', { class: 'hint' }, L(' — ตัวเลขขวาคือแต้มที่ใช้เพิ่ม 1 ค่า', ' — right number = cost to raise by 1'))),
+      h('div', { class: 'st-confirm' },
+        h('button', { class: 'btn', disabled: !pending, onclick: () => { this.statDraft = {}; this.renderStatus(); } }, L('รีเซ็ต', 'Reset')),
+        h('button', { class: 'btn primary', disabled: !pending, onclick: () => this.statDraftApply() }, L('ยืนยัน', 'Confirm'))),
     );
   },
 
