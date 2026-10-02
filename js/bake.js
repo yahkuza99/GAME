@@ -2,10 +2,13 @@
 // ============================================================
 //  ฉากที่เรนเดอร์จาก Blender แล้วอบเป็นภาพ 2D (docs/RENDER3D_PLAN.md) — ข้อมูล BAKE_DATA[map.id]:
 //    js/bake_data.js (tools/hel3d.py --install: Hel's Hollow) + js/bake_data_mistlake.js (tools/lake3d.py --install: ซากในบ่อน้ำ Mistlake)
+//    + js/bake_data_wolfwood.js (tools/tree3d.py --install: ต้นไม้ยักษ์ "ต้นหมาป่าเก่า" กลางป่า Wolfwood)
 //  • แบบ A (ground): วาดลงผ้าใบพื้นของแมพ (แท่น/เงา — ของเตี้ย ไม่บังใคร)
 //  • reflect: เงาสะท้อนในน้ำของชิ้น B — วาดลงผ้าใบพื้นเฉพาะส่วนน้ำลึก (หน้ากากจาก drawWater ใน maps.js) ใต้ตัวละครเสมอ
 //  • แบบ B (pieces): สไปรต์ตั้งตรงเรียงความลึกกับตัวละคร (บัลลังก์/ชั้นวาง/ซากหิน) — กล้องเรนเดอร์ = กล้องเกม จึงวาด 1:1 ตามจุดยึด
-//  • hash (ถ้ามี): ผังน้ำตอนเลือกตำแหน่ง — ผังแมพเปลี่ยน = ไม่ใช้ข้อมูลชุดนี้เลย (ไม่มีซากลอยบนหญ้า)
+//  • hash (ถ้ามี): ผังน้ำตอนเลือกตำแหน่ง (หรือผังช่องในกรอบ hashRect) — ผังแมพเปลี่ยน = ไม่ใช้ข้อมูลชุดนี้เลย (ไม่มีซากลอยบนหญ้า/ต้นไม้ทับถนน)
+//  • clearTree: ต้นไม้ (T.TREE) ในวงรีกลายเป็นหญ้า • free: ของประดับ/พุ่ม Flora ในรัศมีถูกเอาออก (รากอบลงพื้นแทน)
+//  • ชิ้นสูงใหญ่ (ต้นไม้ยักษ์): mask = ตารางความทึบหยาบ → จางเฉพาะตอนตัวละครอยู่หลังส่วนทึบจริง • sway = ไหวลม • cull = เผื่อนอกจอ
 //    ชนตาม block • จางเหลือ ~35% เมื่อผู้เล่น/เป้าหมายอยู่หลัง • ประกายโหลกะพริบ (lighter) • แสงตัดความมืดถ้ำ (map.extraLights)
 //  ทุกอย่างกำหนดตายตัวจากข้อมูล (ไม่สุ่ม) → ทุกเครื่องเห็น/ชนเหมือนกัน
 //  ใช้: maps.js (constructor → Bake.layout, renderGround → Bake.ground / Bake.props / Bake.gates), sprites.js drawProp → Bake.draw
@@ -15,11 +18,17 @@ const Bake = {
   data(map) {
     const d = typeof BAKE_DATA !== 'undefined' ? BAKE_DATA[map.id] : null;
     if (!d || d.hash == null) return d || null;
-    if (map._bakeOk === undefined) { // FNV-1a ของผังน้ำ (1 = ช่องน้ำ) — ตรงกับ tools/lake3d.py fnv_water
+    if (map._bakeOk === undefined) { // คำนวณครั้งแรก (Bake.layout ก่อนแก้ผัง) แล้วจำไว้
       let h = 0x811c9dc5;
-      for (let i = 0; i < map.tiles.length; i++) { h ^= map.tiles[i] === T.WATER ? 1 : 0; h = Math.imul(h, 0x01000193) >>> 0; }
+      const r = d.hashRect;
+      if (r) { // FNV-1a ของชนิดช่องในกรอบ [x0, y0, x1, y1) — ตรงกับ tools/tree3d.py fnv_rect
+        for (let y = r[1]; y < r[3]; y++) for (let x = r[0]; x < r[2]; x++) { h ^= map.tile(x, y); h = Math.imul(h, 0x01000193) >>> 0; }
+      } else { // FNV-1a ของผังน้ำ (1 = ช่องน้ำ) — ตรงกับ tools/lake3d.py fnv_water
+        for (let i = 0; i < map.tiles.length; i++) { h ^= map.tiles[i] === T.WATER ? 1 : 0; h = Math.imul(h, 0x01000193) >>> 0; }
+      }
       map._bakeOk = h === d.hash;
-      if (!map._bakeOk) console.warn(`Bake: ${map.id} ผังน้ำเปลี่ยน (hash ${h} ≠ ${d.hash}) — ไม่วางซาก 3D (รัน tools/lake3d.py ใหม่)`);
+      const warned = this._warned || (this._warned = new Set()); // เตือนครั้งเดียวต่อแมพ (แมพ lite ของแผนที่โลกสร้างซ้ำได้)
+      if (!map._bakeOk && !warned.has(map.id)) { warned.add(map.id); console.warn(`Bake: ${map.id} ผัง${r ? 'ช่อง' : 'น้ำ'}เปลี่ยน (hash ${h} ≠ ${d.hash}) — ไม่วางฉาก 3D (รัน tools/${r ? 'tree3d' : 'lake3d'}.py ใหม่)`); }
     }
     return map._bakeOk ? d : null;
   },
@@ -31,6 +40,9 @@ const Bake = {
     const c = d.clear;
     if (c) for (let y = Math.floor(c.y - c.r); y <= Math.ceil(c.y + c.r); y++) for (let x = Math.floor(c.x - c.r); x <= Math.ceil(c.x + c.r); x++)
       if (Math.hypot(x + 0.5 - c.x, y + 0.5 - c.y) <= c.r && map.tile(x, y) === T.ROCK && x > 1 && y > 1 && x < map.w - 2 && y < map.h - 2) map.set(x, y, T.CAVE);
+    const ct = d.clearTree; // ต้นไม้ Flora รอบต้นยักษ์ → หญ้า (ยอดไม่ซ้อน/บังต้นยักษ์) — เปิดทางเพิ่มอย่างเดียว ไม่ปิดทาง
+    if (ct) for (let y = Math.floor(ct.y - ct.ry); y <= Math.ceil(ct.y + ct.ry); y++) for (let x = Math.floor(ct.x - ct.rx); x <= Math.ceil(ct.x + ct.rx); x++)
+      if (((x + 0.5 - ct.x) / ct.rx) ** 2 + ((y + 0.5 - ct.y) / ct.ry) ** 2 <= 1 && map.tile(x, y) === T.TREE && x > 1 && y > 1 && x < map.w - 2 && y < map.h - 2) map.set(x, y, T.GRASS);
     const need = map.portals.map(p => [p.ax, p.ay]).concat((map.def.npcs || []).map(n => [n.x, n.y + 1]));
     for (const pc of d.pieces || []) {
       const cells = pc.block.filter(([x, y]) => map.inb(x, y) && !map.block[map.idx(x, y)]);
@@ -94,13 +106,17 @@ const Bake = {
   // แบบ B: เพิ่มเป็น prop ชนิด 'bake' (เรียงความลึกใน render.js ด้วย y = จุดยึด) + เอาของประดับที่ทับแท่น/ชิ้นออก + แสง
   props(map) {
     const d = this.data(map); if (!d) return;
-    const live = d.pieces.filter(pc => !map.bakeSkip || !map.bakeSkip.has(pc.id)), c = d.clear;
-    const near = (x, y) => (c && Math.hypot(x - c.x, y - c.y) < 4) || live.some(pc => pc.block.some(([bx, by]) => Math.abs(bx + 0.5 - x) < 1.1 && Math.abs(by + 0.5 - y) < 1.1));
+    const live = d.pieces.filter(pc => !map.bakeSkip || !map.bakeSkip.has(pc.id)), c = d.clear, fr = live.length && d.free;
+    const near = (x, y) => (c && Math.hypot(x - c.x, y - c.y) < 4) || (fr && Math.hypot(x - fr.x, y - fr.y) < fr.r) || live.some(pc => pc.block.some(([bx, by]) => Math.abs(bx + 0.5 - x) < 1.1 && Math.abs(by + 0.5 - y) < 1.1));
     map.props = map.props.filter(o => !near(o.x, o.y));
+    if (fr) { // พุ่ม/เฟิร์น/ดอกไม้ของ Flora บนรากต้นยักษ์ (รากอบลงพื้นแล้ว) — ต้นไม้ในวงเคลียร์กลายเป็นหญ้าตั้งแต่ layout
+      if (map.flora) map.flora = map.flora.filter(o => !near(o.x, o.y));
+      map.objects = map.objects.filter(o => !near(o.x, o.y));
+    }
     map.extraLights = (map.extraLights || []).filter(l => !l.bake); // วาดพื้นใหม่ (ภาพโหลดช้า) → ไม่ซ้ำแสงเดิม
     for (const pc of live) {
-      map.props.push({ kind: 'bake', img: pc.img, x: pc.x, y: pc.y, pc, fa: 1, lt: 0, r: U.hash2(pc.x * 10 | 0, pc.y * 10 | 0, 5) });
-      if (pc.light) map.extraLights.push({ x: pc.x + pc.light.dx, y: pc.y + pc.light.dy, lr: pc.light.lr, col: pc.light.col, bake: true });
+      map.props.push({ kind: 'bake', img: pc.img, x: pc.x, y: pc.y, pc, fa: 1, lt: 0, r: U.hash2(pc.x * 10 | 0, pc.y * 10 | 0, 5), cull: pc.cull || 0 });
+      for (const l of pc.lights || (pc.light ? [pc.light] : [])) map.extraLights.push({ x: pc.x + l.dx, y: pc.y + l.dy, lr: l.lr, col: l.col, bake: true }); // เห็ดเรือง/โทเท็มตัดความมืด
     }
     map.lightProps = null; // render.js แคชแสงครั้งแรกที่วาด → ให้สร้างใหม่รวมแสงของชิ้นเหล่านี้
   },
@@ -126,6 +142,15 @@ const Bake = {
     map.lightProps = null;
   },
 
+  // ตัวละครอยู่หลัง "ส่วนทึบ" ของภาพไหม: ช่วงลำตัว (ไม่นับเท้า — ยืนข้างรากเตี้ยไม่ต้องจาง) กว้าง ±hw ทับช่องทึบใน mask
+  //   mask = { cell: px ต่อช่อง (พิกัดภาพ), w: จำนวนคอลัมน์, rows: [hex 4 ช่องต่อตัว] } • x, y0, y1, hw = พิกัดภาพ (px)
+  behind(m, x, y0, y1, hw) {
+    const c = m.cell, i0 = Math.max(0, Math.floor((x - hw) / c)), i1 = Math.min(m.w - 1, Math.floor((x + hw) / c));
+    const j0 = Math.max(0, Math.floor(y0 / c)), j1 = Math.min(m.rows.length - 1, Math.floor(y1 / c));
+    for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) if ((parseInt(m.rows[j][i >> 2], 16) >> (3 - (i & 3))) & 1) return true;
+    return false;
+  },
+
   // ประกายโหล/รูน: จุดเรืองนุ่ม ๆ (แคชต่อสี) วาดแบบบวกแสง • col = 'r,g,b' (ค่าเริ่ม = เขียวอมฟ้าของ Hel)
   glint(col) {
     col = col || '96,240,208';
@@ -149,12 +174,14 @@ const Bake = {
     if (p) for (const q of [p, p.target]) {
       if (!q || q.dead || q.x == null || q.y >= pc.y) continue;
       const qx = q.x * TILE, fy = q.y * TILE * R.K - pc.y * TILE * (R.K - 1); // เท้าของ q ในกรอบ upright ของชิ้นนี้
-      if (qx > L + 10 && qx < L + W - 10 && fy > Tp + 14 && fy - 56 < y - 6) { target = 0.35; break; }
+      if (pc.mask ? this.behind(pc.mask, (qx - L) / s, (fy - 56 - Tp) / s, (fy - 16 - Tp) / s, 12 / s)
+        : qx > L + 10 && qx < L + W - 10 && fy > Tp + 14 && fy - 56 < y - 6) { target = pc.fade || 0.35; break; }
     }
     const dt = Math.min(0.1, Math.max(0, t - o.lt)); o.lt = t;
     o.fa += (target - o.fa) * Math.min(1, dt * 8);
     g.save();
     if (o.fa < 0.995) g.globalAlpha *= o.fa;
+    if (pc.sway) { g.translate(x, y); g.transform(1, 0, Math.sin(t * 0.7 + o.r * 10) * pc.sway, 1, 0, 0); g.translate(-x, -y); } // ไหวลมช้า ๆ (โคนนิ่ง ยอดเอนไม่กี่ px)
     g.drawImage(img, L, Tp, W, H);
     if (pc.jars.length && R.quality !== 'low') {
       const gl = this.glint(pc.glint); g.globalCompositeOperation = 'lighter';
