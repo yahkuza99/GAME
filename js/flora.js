@@ -483,6 +483,8 @@ const Flora = {
       g.fillStyle = 'rgba(255,255,255,0.45)'; g.beginPath(); g.ellipse(x - 0.8 * s, y - 0.7 * s, 1.3 * s, 0.7 * s, 0, 0, 7); g.fill();
     };
     if (d.kind === 'cave') return;
+    // ดอกไม้จิ๋วขึ้นเป็นดง (ทุ่งดอกไม้เป็นหย่อม) แทนการโรยเท่ากันทั้งแมพ
+    const fz = (x, y) => { const n = U.fbm(x / 6, y / 6, seed + 505, 2); return Math.min(1, Math.max(0, (n - 0.52) * 5)); };
     for (let y = 0; y < Hh; y++) for (let x = 0; x < W; x++) {
       const t = m.tile(x, y), c = cls(x, y), px = x * TILE, py = y * TILE;
       if (t === T.HOUSE || c === 'water' || c === 'stone') continue;
@@ -491,8 +493,8 @@ const Flora = {
       for (let i = 0; i < n; i++) {
         const r = hh(x, y, 10 + i), ox = px + 4 + hh(x, y, 20 + i) * (TILE - 8), oy = py + 6 + hh(x, y, 30 + i) * (TILE - 8), s = 0.8 + hh(x, y, 40 + i) * 0.5;
         if (r < 0.24) tuft(ox, oy, s);
-        else if (r < 0.4) sprout(ox, oy, s);
-        else if (r < 0.48 || t === T.FLOWER && r < 0.75) { const col = tiny[Math.floor(hh(x, y, 50 + i) * tiny.length)]; flower(ox, oy, col, s); if (r < 0.44) flower(ox + 5, oy + 2, col, s * 0.85); }
+        else if (r < 0.24 + 0.16 * fz(x + 40, y + 40)) sprout(ox, oy, s);
+        else if (r < 0.4 + 0.015 + 0.17 * fz(x, y) || t === T.FLOWER && r < 0.75) { const col = tiny[Math.floor(hh(x, y, 50 + i) * tiny.length)]; flower(ox, oy, col, s); if (r < 0.44) flower(ox + 5, oy + 2, col, s * 0.85); }
         else if (r < 0.515) pebble(ox, oy, s * 0.8);
       }
     }

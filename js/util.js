@@ -45,6 +45,24 @@ const U = {
     const a = U.hash2(xi, yi, seed), b = U.hash2(xi + 1, yi, seed), c = U.hash2(xi, yi + 1, seed), d = U.hash2(xi + 1, yi + 1, seed);
     return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
   },
+  // box blur หลายรอบ (≈ gaussian) บน Float32Array ขนาด w×h
+  boxBlur(src, w, h, R, passes) {
+    let A = Float32Array.from(src), B = new Float32Array(src.length);
+    const inv = 1 / (2 * R + 1);
+    for (let pass = 0; pass < passes; pass++) {
+      for (let y = 0; y < h; y++) {
+        let acc = 0; const row = y * w;
+        for (let k = -R; k <= R; k++) acc += A[row + Math.min(w - 1, Math.max(0, k))];
+        for (let x = 0; x < w; x++) { B[row + x] = acc * inv; acc += A[row + Math.min(w - 1, x + R + 1)] - A[row + Math.max(0, x - R)]; }
+      }
+      for (let x = 0; x < w; x++) {
+        let acc = 0;
+        for (let k = -R; k <= R; k++) acc += B[Math.min(h - 1, Math.max(0, k)) * w + x];
+        for (let y = 0; y < h; y++) { A[y * w + x] = acc * inv; acc += B[Math.min(h - 1, y + R + 1) * w + x] - B[Math.max(0, y - R) * w + x]; }
+      }
+    }
+    return A;
+  },
   fbm(x, y, seed = 0, oct = 3) {
     let v = 0, amp = 0.5, f = 1, norm = 0;
     for (let i = 0; i < oct; i++) { v += U.vnoise(x * f, y * f, seed + i * 17) * amp; norm += amp; amp *= 0.5; f *= 2.03; }

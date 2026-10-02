@@ -373,6 +373,9 @@ class GameMap {
     g.drawImage(small, 0, 0, sw * CS, sh * CS);
     // 1.5) ภาพพื้นผิวจริง (assets/ground_*.webp) ทับตามชนิดพื้น ขอบนุ่มด้วยหน้ากากเบลอ
     this.texClasses = new Set();
+    // ทางดินขอบธรรมชาติ (ไม่เป็นขั้นบันไดตามช่อง): หญ้าปูใต้ทั้งหมด แล้วทับดินด้วยหน้ากากเบลอ+นอยส์
+    const orgDirt = this.def.kind !== 'town' && this.def.kind !== 'cave' && typeof Art !== 'undefined' && !!Art.get('ground_grass') && !!Art.get('ground_dirt');
+    this.orgDirt = orgDirt;
     const TEX = { grass: 'ground_grass', dirt: 'ground_dirt', stone: 'ground_road', cave: 'ground_cave' };
     const TEX_PX = { grass: 256, dirt: 288, stone: 320, cave: 352 }; // ขนาดต่อ 1 รอบลาย (พิกเซลโลก)
     for (const cls in TEX) {
@@ -382,7 +385,8 @@ class GameMap {
       const mk = document.createElement('canvas'); mk.width = this.w; mk.height = this.h;
       const mg = mk.getContext('2d'), md = mg.createImageData(this.w, this.h);
       for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) {
-        if (this.terrainClass(this.tile(x, y)) === cls || (cls === 'grass' && this.tile(x, y) === T.WATER)) { md.data[(y * this.w + x) * 4 + 3] = 255; any = true; }
+        const tc = this.terrainClass(this.tile(x, y));
+        if (tc === cls || (cls === 'grass' && (this.tile(x, y) === T.WATER || (orgDirt && tc === 'dirt'))) || (cls === 'cave' && this.def.kind === 'cave' && tc === 'rock')) { md.data[(y * this.w + x) * 4 + 3] = 255; any = true; }
       }
       if (!any) continue;
       mg.putImageData(md, 0, 0);
@@ -395,11 +399,13 @@ class GameMap {
       lg.globalCompositeOperation = 'destination-in';
       lg.imageSmoothingEnabled = true; lg.imageSmoothingQuality = 'high';
       // ขยายหน้ากากจาก 1px/ช่อง → ขอบไล่นุ่ม (ถนนโลหะคมกว่าเล็กน้อย)
+      if (orgDirt && cls === 'dirt') { const om = this.organicMask('dirt'); lg.drawImage(om.mask, 0, 0, W, H); g.drawImage(layer, 0, 0); g.drawImage(om.rim, 0, 0, W, H); continue; }
       lg.filter = `blur(${cls === 'stone' ? 3 : 7}px)`;
       lg.drawImage(mk, 0, 0, W, H);
       lg.filter = 'none';
       g.drawImage(layer, 0, 0);
     }
+    if (this.def.kind !== 'town' && this.def.kind !== 'cave') this.lightVariation(g, W, H);
     const town = this.def.kind === 'town' && typeof TownArt !== 'undefined';
     if (town) { TownArt.floor(this, g); this.texClasses.add('stone'); }
     // 1.6) หน้ากากหญ้าความละเอียดต่ำ (4px/ช่อง เบลอแล้ว) สำหรับหญ้าพลิ้วตามลมตอนเล่น
@@ -426,7 +432,8 @@ class GameMap {
     // 3.5) น้ำทรงธรรมชาติจากหน้ากากเบลอ
     if (town) TownArt.over(this, g); else this.drawWater(g, P, depth);
     // 4) ผนังหิน (ถ้ำ) มีมิติ
-    for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) if (this.tile(x, y) === T.ROCK) this.rockTile(g, x, y);
+    if (this.def.kind === 'cave') this.caveWalls(g, W, H);
+    else for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) if (this.tile(x, y) === T.ROCK) this.rockTile(g, x, y);
     // 5) ของตกแต่ง — ถ้ามีภาพ (assets/prop_*) จะเป็นวัตถุตั้งตรงเรียงความลึก ไม่อบลงพื้น
     this.props = [];
     this.decorate(g);
@@ -538,7 +545,7 @@ class GameMap {
     const h = (i, k = 0) => U.hash2(x * 13 + i, y * 29 + k, seed + 5);
     const sides = [[0, -1], [0, 1], [-1, 0], [1, 0]];
     if (this.def.kind === 'town' && typeof TownArt !== 'undefined') return; // เมือง: ขอบคมแบบงานหินอ่อน (TownArt วาดขอบกระถาง/ขอบคลองเอง)
-    if (cls === 'dirt' || (cls === 'stone' && t === T.STONE)) {
+    if ((cls === 'dirt' && !this.orgDirt) || (cls === 'stone' && t === T.STONE)) {
       for (const [dx, dy] of sides) {
         const nc = this.terrainClass(this.tile(x + dx, y + dy));
         if (nc !== 'grass') continue;
@@ -577,6 +584,44 @@ class GameMap {
     }
   }
 
+  // หน้ากากพื้นขอบธรรมชาติ (ความละเอียด 1/4): เบลอขอบช่อง + นอยส์ → ขอบโค้งหยักแบบทางเดินจริง • rim = ขอบดินเข้ม (ดินชื้น/ร่องล้อ)
+  organicMask(cls) {
+    const S = 4, ts = TILE / S, mw = this.w * ts, mh = this.h * ts, seed = this.def.seed;
+    const M = new Float32Array(mw * mh);
+    for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++)
+      if (this.terrainClass(this.tile((px / ts) | 0, (py / ts) | 0)) === cls) M[py * mw + px] = 1;
+    const A = U.boxBlur(M, mw, mh, 5, 2);
+    const mk = document.createElement('canvas'); mk.width = mw; mk.height = mh;
+    const rk = document.createElement('canvas'); rk.width = mw; rk.height = mh;
+    const md = mk.getContext('2d').createImageData(mw, mh), rd = rk.getContext('2d').createImageData(mw, mh);
+    const ss = (a, b, v) => { const t = Math.min(1, Math.max(0, (v - a) / (b - a))); return t * t * (3 - 2 * t); };
+    for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++) {
+      const i = py * mw + px, v0 = A[i];
+      let a, v = v0;
+      if (v0 < 0.03) a = 0; else if (v0 > 0.97) a = 1;
+      else { v = v0 + (U.fbm(px * S / 70, py * S / 70, seed + 11, 3) - 0.5) * 0.6; a = ss(0.4, 0.5, v); }
+      const o = i * 4;
+      md.data[o] = md.data[o + 1] = md.data[o + 2] = 255; md.data[o + 3] = a * 255;
+      const rim = a * (1 - ss(0.5, 0.66, v)) * 0.5;
+      rd.data[o] = 74; rd.data[o + 1] = 50; rd.data[o + 2] = 28; rd.data[o + 3] = rim * 255;
+    }
+    mk.getContext('2d').putImageData(md, 0, 0); rk.getContext('2d').putImageData(rd, 0, 0);
+    return { mask: mk, rim: rk };
+  }
+  // แสงระดับใหญ่: หย่อมหญ้าแดดจ้า/ร่มเย็นสลับกันแบบภาพวาด (soft-light) → ไม่เป็นลายเดียวทั้งแมพ
+  lightVariation(g, W, H) {
+    const S = 16, vw = Math.ceil(W / S), vh = Math.ceil(H / S), seed = this.def.seed;
+    const c = document.createElement('canvas'); c.width = vw; c.height = vh;
+    const cg = c.getContext('2d'), id = cg.createImageData(vw, vh);
+    for (let y = 0; y < vh; y++) for (let x = 0; x < vw; x++) {
+      const n = U.fbm(x * S / 640, y * S / 640, seed + 77, 3), n2 = U.fbm(x * S / 220, y * S / 220, seed + 91, 2);
+      const v = Math.max(-1, Math.min(1, ((n - 0.5) * 1.5 + (n2 - 0.5) * 0.5) * 2.2)), o = (y * vw + x) * 4;
+      id.data[o] = 128 + v * 110; id.data[o + 1] = 128 + v * 85; id.data[o + 2] = 128 + v * 20 - Math.max(0, v) * 60 + Math.max(0, -v) * 30; id.data[o + 3] = 255;
+    }
+    cg.putImageData(id, 0, 0);
+    g.save(); g.globalCompositeOperation = 'soft-light'; g.globalAlpha = 0.85; g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+    g.drawImage(c, 0, 0, W, H); g.restore();
+  }
   drawWater(g, P, depth) {
     const S = 4, ts = TILE / S;
     let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
@@ -647,6 +692,57 @@ class GameMap {
     }
   }
 
+  // ผนังถ้ำแบบหน้าผา: ขอบโค้งธรรมชาติ (ไม่เป็นเหลี่ยมตามช่อง) • ยอดหินมืดมีลาย • ขอบปากผาสว่าง
+  // หน้าผาฝั่งใต้สูง ~0.6 ช่องไล่สี + ริ้วหินแนวตั้ง • เงาทอดและความมืดสะสม (AO) บนพื้นข้างผนัง
+  caveWalls(g, W, H) {
+    const S = 2, ts = TILE / S, mw = this.w * ts, mh = this.h * ts, seed = this.def.seed;
+    const M = new Float32Array(mw * mh);
+    for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++) if (this.tile((px / ts) | 0, (py / ts) | 0) === T.ROCK) M[py * mw + px] = 1;
+    const A = U.boxBlur(M, mw, mh, 7, 2), B = U.boxBlur(M, mw, mh, 16, 2);
+    const ss = (a, b, v) => { const t = Math.min(1, Math.max(0, (v - a) / (b - a))); return t * t * (3 - 2 * t); };
+    const al = new Float32Array(mw * mh);
+    for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++) {
+      const i = py * mw + px, v0 = A[i];
+      al[i] = v0 < 0.02 ? 0 : v0 > 0.98 ? 1 : ss(0.42, 0.54, v0 + (U.fbm(px * S / 60, py * S / 60, seed + 21, 3) - 0.5) * 0.55);
+    }
+    const FH = Math.round(TILE * 0.78 / S); // ความสูงหน้าผา (พิกเซลที่ความละเอียดนี้)
+    const mk = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+    const shC = mk(mw, mh), aoC = mk(mw, mh), alC = mk(mw, mh);
+    const shD = shC.getContext('2d').createImageData(mw, mh), aoD = aoC.getContext('2d').createImageData(mw, mh), alD = alC.getContext('2d').createImageData(mw, mh);
+    const sd = shD.data, ad = aoD.data, ld = alD.data;
+    for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++) {
+      const i = py * mw + px, a = al[i], o = i * 4;
+      if (a < 0.98) { // พื้น: AO ใกล้ผนัง + เงาทอดใต้หน้าผา
+        let sh = B[i] * 0.55;
+        for (let k = 1; k <= 10; k++) if (py - k >= 0 && al[i - k * mw] > 0.5) { sh = Math.max(sh, 0.7 * (1 - k / 11)); break; }
+        ad[o] = 8; ad[o + 1] = 5; ad[o + 2] = 12; ad[o + 3] = Math.min(0.78, sh) * 255;
+      }
+      if (a < 0.01) continue;
+      ld[o] = ld[o + 1] = ld[o + 2] = 255; ld[o + 3] = a * 255;
+      let down = FH + 1; for (let k = 1; k <= FH; k++) { if (py + k >= mh || al[i + k * mw] < 0.5) { down = k; break; } }
+      const n = U.fbm(px * S / 90, py * S / 90, seed + 33, 3);
+      let L, warm = 0;
+      if (down <= FH) { // หน้าผา (คูณกับลายหิน): บนสว่าง ล่างมืด + ริ้วแนวตั้งนุ่ม
+        const t = 1 - down / FH, str = Math.sin(px * 0.42 + n * 7) * 0.5 + 0.5;
+        L = 0.38 + t * t * 1.05 + (str - 0.5) * 0.26; warm = 0.22;
+        if (t > 0.86) L = 1.75; // ปากผารับแสง
+      } else { // ยอดหิน: มืดกว่าพื้น
+        let up = 0; for (let k = 1; k <= 3; k++) if (py - k < 0 || al[i - k * mw] < 0.5) { up = k; break; }
+        L = 0.2 + (n - 0.5) * 0.22 + (up ? 0.35 / up : 0);
+      }
+      sd[o] = Math.min(255, 255 * L * (1 + warm)); sd[o + 1] = Math.min(255, 238 * L); sd[o + 2] = Math.min(255, 228 * L * (1 - warm)); sd[o + 3] = 255;
+    }
+    shC.getContext('2d').putImageData(shD, 0, 0); aoC.getContext('2d').putImageData(aoD, 0, 0); alC.getContext('2d').putImageData(alD, 0, 0);
+    const wall = mk(W, H), wg = wall.getContext('2d');
+    wg.imageSmoothingEnabled = true; wg.imageSmoothingQuality = 'high';
+    const tex = typeof Art !== 'undefined' && Art.get('ground_cave');
+    if (tex) { const pc = mk(420, 420); pc.getContext('2d').drawImage(tex, 0, 0, 420, 420); wg.fillStyle = wg.createPattern(pc, 'repeat'); } else wg.fillStyle = '#6a5a5e';
+    wg.fillRect(0, 0, W, H);
+    wg.globalCompositeOperation = 'multiply'; wg.drawImage(shC, 0, 0, W, H);
+    wg.globalCompositeOperation = 'destination-in'; wg.drawImage(alC, 0, 0, W, H);
+    g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+    g.drawImage(aoC, 0, 0, W, H); g.drawImage(wall, 0, 0); g.restore();
+  }
   rockTile(g, x, y) {
     const px = x * TILE, py = y * TILE, h = i => U.hash2(x * 7 + i, y * 11, this.def.seed);
     const below = this.tile(x, y + 1) !== T.ROCK, above = this.tile(x, y - 1) !== T.ROCK;
