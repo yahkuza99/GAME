@@ -4,7 +4,8 @@
     python3 -m venv /tmp/bvenv && /tmp/bvenv/bin/pip install bpy
 ใช้:
     /tmp/bvenv/bin/python tools/render_blender.py <model.fbx|.obj|.glb> <out.png> [--frames 8] [--dirs S,SW,W,NW,N]
-        [--size 512] [--pitch 25] [--yaw0 0] [--tex texture.png] [--loop] [--range 0,1]
+        [--size 512] [--pitch 25] [--yaw0 0] [--tex texture.png] [--loop] [--range 0,1] [--anim walk.fbx]
+  - ไฟล์ใหญ่: โหลดตัวละคร With Skin ครั้งเดียว + ท่าแบบ Without Skin (ไฟล์ละไม่กี่ร้อย KB) แล้วใช้ --anim
 ได้: ชีต N คอลัมน์ (เฟรม) × จำนวนทิศ (แถว) บนพื้นขาว → ติดตั้งด้วย sprite_std.py install <out.png> <key> <ท่า> --grid Nx5 --dirs S,SW,W,NW,N
   - กล้องตั้งฉาก (orthographic) มองลง pitch องศา ขนาดตัวคงที่ทุกเฟรมทุกทิศ (คิดจากกรอบรวมของทั้งท่า)
   - --loop (เดิน/ยืน): ไม่เอาเฟรมสุดท้ายที่ซ้ำกับเฟรมแรก
@@ -19,6 +20,7 @@ ap.add_argument('--frames', type=int, default=8); ap.add_argument('--dirs', defa
 ap.add_argument('--size', type=int, default=512); ap.add_argument('--pitch', type=float, default=25)
 ap.add_argument('--yaw0', type=float, default=0); ap.add_argument('--tex', default='')
 ap.add_argument('--loop', action='store_true'); ap.add_argument('--range', default='0,1')
+ap.add_argument('--anim', default='', help='ไฟล์ท่า Mixamo แบบ Without Skin (ใช้กับโมเดล With Skin ตัวเดียว — ไฟล์เล็ก)')
 a = ap.parse_args(argv)
 
 YAW = {'S': 0, 'SW': 45, 'W': 90, 'NW': 135, 'N': 180, 'NE': 225, 'E': 270, 'SE': 315}
@@ -31,6 +33,18 @@ else: bpy.ops.wm.obj_import(filepath=a.model)
 sc = bpy.context.scene
 meshes = [o for o in sc.objects if o.type == 'MESH']
 arm = next((o for o in sc.objects if o.type == 'ARMATURE'), None)
+if a.anim and arm:  # ใส่ท่าจากไฟล์ท่าเปล่า (กระดูกชื่อเดียวกันเพราะมาจาก Mixamo ตัวเดียวกัน) แล้วลบโครงที่มากับไฟล์ท่า
+    before = set(sc.objects)
+    bpy.ops.import_scene.fbx(filepath=a.anim) if a.anim.lower().endswith('.fbx') else bpy.ops.import_scene.gltf(filepath=a.anim)
+    new = [o for o in sc.objects if o not in before]
+    src = next((o for o in new if o.type == 'ARMATURE' and o.animation_data and o.animation_data.action), None)
+    if src:
+        if not arm.animation_data: arm.animation_data_create()
+        arm.animation_data.action = src.animation_data.action
+        if hasattr(src.animation_data, 'action_slot') and src.animation_data.action_slot:  # Blender 4.4+ (action slots)
+            try: arm.animation_data.action_slot = src.animation_data.action_slot
+            except Exception: pass
+    for o in new: bpy.data.objects.remove(o, do_unlink=True)
 
 # texture (Mixamo ส่ง fbx ที่ฝัง texture มาให้อยู่แล้ว • obj ใช้ --tex)
 if a.tex:
