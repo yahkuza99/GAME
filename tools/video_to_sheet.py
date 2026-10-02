@@ -86,6 +86,7 @@ def main():
     ap.add_argument('--frames', type=int, default=0); ap.add_argument('--loop', action='store_true')
     ap.add_argument('--preview', default=''); ap.add_argument('--scale', type=float, default=0)
     ap.add_argument('--no-install', action='store_true')
+    ap.add_argument('--t', default='', help='ช่วงเวลา (วินาที) ในวิดีโอรวมหลายท่า เช่น 1.5,4.5')
     ap.add_argument('--range', default='', help='ใช้เฉพาะช่วงของวิดีโอ เช่น 0.5,1 = ครึ่งหลัง (นั่งลงแล้วนั่งนิ่ง)')
     a = ap.parse_args()
     loop = a.loop or a.action in ('walk', 'idle', 'sit')
@@ -95,7 +96,9 @@ def main():
     rows = []
     for d in dirs:
         fr, fps = read(vids[d])
-        if a.range:
+        if a.t:
+            t0, t1 = map(float, a.t.split(',')); fr = fr[int(t0 * fps):max(int(t0 * fps) + 2, int(t1 * fps))]
+        elif a.range:
             r0, r1 = map(float, a.range.split(',')); fr = fr[int(len(fr) * r0):max(int(len(fr) * r0) + 2, int(len(fr) * r1))]
         else:
             s, e = motion_span(fr); fr = fr[s:e]
