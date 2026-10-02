@@ -1,4 +1,4 @@
-// สร้าง docs/GAME_REFERENCE.md จากข้อมูลจริงในเกม (อาชีพ สกิล มอน แผนที่ ไอเทม เซ็ต เควสต์ กาชา ...)
+// สร้าง docs/GAME_REFERENCE.md จากข้อมูลจริงในเกม (Class สกิล มอน แผนที่ ไอเทม เซ็ต เควสต์ กาชา ...)
 // ใช้: (python3 -m http.server 8790 &) ; NODE_PATH=$(npm root -g) node tools/make_reference.js
 // ข้อมูลอ่านจากหน้าเกมที่รันจริง → แก้ตัวเลขใน js/ แล้วรันใหม่ เอกสารก็ตรงกับเกมเสมอ
 const { chromium } = require('playwright');
@@ -33,7 +33,7 @@ const OUT = path.join(__dirname, '..', 'docs', 'GAME_REFERENCE.md');
   const iname = id => ITEMS[id] ? ITEMS[id].name : id;
   const mname = id => MOBS[id] ? MOBS[id].name : id;
   const jname = id => JOBS[id] ? JOBS[id].name : id;
-  const jobsTxt = j => j === 'all' || !j ? 'ทุกอาชีพ' : j.length >= 6 ? `${j.length} อาชีพ` : j.map(jname).join(', ');
+  const jobsTxt = j => j === 'all' || !j ? 'ทุก Class' : j.length >= 6 ? `${j.length} Class` : j.map(jname).join(', ');
   const RAR = { common: 'ธรรมดา', uncommon: 'ดี', rare: 'หายาก', epic: 'มหากาพย์', legend: 'ตำนาน' };
   const SLOT = { weapon: 'อาวุธ', armor: 'ชุดเกราะ', head: 'หมวก', shield: 'โล่', garment: 'ผ้าคลุม', shoes: 'รองเท้า', acc: 'เครื่องประดับ', accessory: 'เครื่องประดับ' };
   const STAT = { str: 'STR', agi: 'AGI', vit: 'VIT', int: 'INT', dex: 'DEX', luk: 'LUK', atk: 'ATK', matk: 'MATK', def: 'DEF', mdef: 'MDEF', hit: 'HIT', flee: 'FLEE', crit: 'CRIT', hp: 'HP', sp: 'SP', aspd: 'ASPD',
@@ -55,7 +55,7 @@ const OUT = path.join(__dirname, '..', 'docs', 'GAME_REFERENCE.md');
   w('# NEO MIDGARD — เอกสารเกม (Game Reference)', '',
     `> สร้างอัตโนมัติจากข้อมูลจริงในเกมด้วย \`tools/make_reference.js\` • อัปเดต ${new Date().toISOString().slice(0, 10)}`,
     '> แก้ตัวเลขในไฟล์ `js/` แล้วรันสคริปต์ใหม่ เอกสารนี้จะตรงกับเกมเสมอ', '',
-    '## สารบัญ', '1. [ภาพรวม](#ภาพรวม)', '2. [ปรัชญาการออกแบบคลาส](#ปรัชญาการออกแบบคลาส)', '3. [อาชีพ](#อาชีพ)', '4. [สกิลทั้งหมด](#สกิลทั้งหมด)', '5. [แผนที่](#แผนที่)',
+    '## สารบัญ', '1. [ภาพรวม](#ภาพรวม)', '2. [ปรัชญาการออกแบบ Class](#ปรัชญาการออกแบบ Class)', '3. [Class](#Class)', '4. [สกิลทั้งหมด](#สกิลทั้งหมด)', '5. [แผนที่](#แผนที่)',
     '6. [มอนสเตอร์](#มอนสเตอร์)', '7. [อาวุธ](#อาวุธ)', '8. [ชุดเกราะและเครื่องแต่งกาย](#ชุดเกราะและเครื่องแต่งกาย)', '9. [ชิป (การ์ด)](#ชิป-การ์ด)', '10. [เซ็ตไอเทม](#เซ็ตไอเทม)',
     '11. [ไอเทมใช้งาน](#ไอเทมใช้งาน)', '12. [วัตถุดิบ](#วัตถุดิบ)', '13. [ร้านค้า](#ร้านค้า)', '14. [เควสต์เนื้อเรื่อง](#เควสต์เนื้อเรื่อง)', '15. [ภารกิจประจำวัน](#ภารกิจประจำวัน)',
     '16. [World Boss](#world-boss)', '17. [กาชา Norn\'s Wheel](#กาชา-norns-wheel)', '');
@@ -64,28 +64,28 @@ const OUT = path.join(__dirname, '..', 'docs', 'GAME_REFERENCE.md');
   const cnt = t => items(t).length;
   w('## ภาพรวม', '', 'MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online — โลกตำนานนอร์ส ทุกตัวละครเป็นแอนดรอยด์ (หน้ากากโลหะ + วิซอร์เรืองแสง ไม่มีดวงตา)', '');
   head(['หมวด', 'จำนวน']);
-  [['อาชีพคลาสแรก', firsts.length], ['อาชีพคลาส 2', seconds.length], ['สกิล', Object.keys(SK).length], ['แผนที่', Object.keys(MAPS).length], ['มอนสเตอร์', Object.keys(MOBS).filter(k => !MOBS[k].dummy && !k.startsWith('wb_')).length],
+  [['ClassClass แรก', firsts.length], ['ClassClass 2', seconds.length], ['สกิล', Object.keys(SK).length], ['แผนที่', Object.keys(MAPS).length], ['มอนสเตอร์', Object.keys(MOBS).filter(k => !MOBS[k].dummy && !k.startsWith('wb_')).length],
     ['อาวุธ', cnt('weapon')], ['ชุดเกราะ/เครื่องแต่งกาย', cnt('armor')], ['ชิป (การ์ด)', cnt('card')], ['ไอเทมใช้งาน', cnt('use')], ['วัตถุดิบ', cnt('etc')], ['เซ็ตไอเทม', Object.keys(D.SETS).length], ['เควสต์เนื้อเรื่อง', D.QUESTS.length]].forEach(row);
-  w('', '**เส้นทางเติบโต:** Novice → (Job Lv ' + D.JOB_CHANGE_LV + ') คลาสแรก → (Base Lv ' + D.SECOND_JOB_REQ.base + ' + Job Lv ' + D.SECOND_JOB_REQ.job + ') คลาส 2 • เปลี่ยนอาชีพที่ Mimir AI ในนีโอเอลด์ไฮม์', '');
+  w('', '**เส้นทางเติบโต:** Novice → (Job Lv ' + D.JOB_CHANGE_LV + ') Class แรก → (Base Lv ' + D.SECOND_JOB_REQ.base + ' + Job Lv ' + D.SECOND_JOB_REQ.job + ') Class 2 • เปลี่ยน Class ที่ Mimir AI ในนีโอเอลด์ไฮม์', '');
 
   // ---------------- ปรัชญา ----------------
-  w('## ปรัชญาการออกแบบคลาส', '',
-    '1. **ตำนานนอร์สก่อน แล้วแปลงเป็นหุ่นยนต์** — ทุกคลาสเริ่มจากบทบาทในตำนาน (ผู้ถูกเลือกแห่งวัลฮัลลา, หญิงพยากรณ์, นักรบหนังหมาป่า ...) แล้วตีความเป็นแอนดรอยด์ มีสีเรืองแสงประจำคลาสให้จำได้ทันที',
-    '2. **หนึ่งคลาส = หนึ่งตัวตน + หนึ่งราคาที่ต้องจ่าย** — อธิบายได้ในประโยคเดียว และมีจุดอ่อนชัด ไม่มีคลาสไหนเก่งทุกอย่าง',
-    '3. **คลาส 2 แตกเป็นทางแยกตรงข้ามกัน** — ตั้งรับ/บุก, ระเบิดทันที/ค่อยกัด, กว้าง/แม่น, ซัพพอร์ต/บู๊, ฆ่าเอง/ช่วยทีม, ฝูง/บอส',
-    '4. **โครงสกิลเหมือนกันทุกคลาส** — คลาสแรก 6 สกิล (พาสซีฟหลัก, เป้าเดียว, วงกว้าง, ยูทิลิตี้/บัฟ, ดึง/ยิงไกล, พาสซีฟเสริม) • คลาส 2 เพิ่ม 5 สกิล • แต้มไม่พอเก็บทุกสกิล ต้องเลือก • สกิลที่ใช้บ่อยเก่งขึ้นเอง (ความชำนาญ)',
-    '5. **สเตตัสอิสระแบบ RO แต่ทุกคลาสมี 2 สเตตัสหลัก** — ทั้ง 6 สเตตัสมีเจ้าของ (LUK = สายคริติคอล)',
-    '6. **เติบโตชัด เล่นคนเดียวได้** — คลาส 2 แรงกว่าคลาสแรกอย่างน้อย ~41% • เล่นปาร์ตี้ดีกว่าแต่ไม่บังคับ', '');
-  head(['คลาสแรก', 'ทาง A', 'ทาง B']);
+  w('## ปรัชญาการออกแบบ Class', '',
+    '1. **ตำนานนอร์สก่อน แล้วแปลงเป็นหุ่นยนต์** — ทุก Class เริ่มจากบทบาทในตำนาน (ผู้ถูกเลือกแห่งวัลฮัลลา, หญิงพยากรณ์, นักรบหนังหมาป่า ...) แล้วตีความเป็นแอนดรอยด์ มีสีเรืองแสงประจำ Class ให้จำได้ทันที',
+    '2. **หนึ่ง Class = หนึ่งตัวตน + หนึ่งราคาที่ต้องจ่าย** — อธิบายได้ในประโยคเดียว และมีจุดอ่อนชัด ไม่มี Class ไหนเก่งทุกอย่าง',
+    '3. **Class 2 แตกเป็นทางแยกตรงข้ามกัน** — ตั้งรับ/บุก, ระเบิดทันที/ค่อยกัด, กว้าง/แม่น, ซัพพอร์ต/บู๊, ฆ่าเอง/ช่วยทีม, ฝูง/บอส',
+    '4. **โครงสกิลเหมือนกันทุก Class** — Class แรก 6 สกิล (พาสซีฟหลัก, เป้าเดียว, วงกว้าง, ยูทิลิตี้/บัฟ, ดึง/ยิงไกล, พาสซีฟเสริม) • Class 2 เพิ่ม 5 สกิล • แต้มไม่พอเก็บทุกสกิล ต้องเลือก • สกิลที่ใช้บ่อยเก่งขึ้นเอง (ความชำนาญ)',
+    '5. **สเตตัสอิสระแบบ RO แต่ทุก Class มี 2 สเตตัสหลัก** — ทั้ง 6 สเตตัสมีเจ้าของ (LUK = สายคริติคอล)',
+    '6. **เติบโตชัด เล่นคนเดียวได้** — Class 2 แรงกว่า Class แรกอย่างน้อย ~41% • เล่นปาร์ตี้ดีกว่าแต่ไม่บังคับ', '');
+  head(['Class แรก', 'ทาง A', 'ทาง B']);
   for (const f of firsts) row([`${jname(f)} — ${JOBS[f].role}`, ...D.SECOND_JOBS[f].map(s => `**${jname(s)}** — ${JOBS[s].role}`)]);
   w('');
 
-  // ---------------- อาชีพ ----------------
-  w('## อาชีพ', '', '### คลาสแรก', '');
-  head(['อาชีพ', 'ชื่อไทย', 'บทบาท', 'สเตตัสหลัก', 'HP ×', 'SP ×', 'ความเร็วตี (ms)', 'Job สูงสุด', 'อาวุธ', 'ความยาก']);
+  // ---------------- Class ----------------
+  w('## Class', '', '### Class แรก', '');
+  head(['Class', 'ชื่อไทย', 'บทบาท', 'สเตตัสหลัก', 'HP ×', 'SP ×', 'ความเร็วตี (ms)', 'Job สูงสุด', 'อาวุธ', 'ความยาก']);
   for (const f of firsts) { const j = JOBS[f], c = D.CLASSBOOK[f] || {}; row([j.name, j.thai, j.role, j.stats, j.hp, j.sp, j.aspd, j.jobMax, c.weapon || '', c.diff ? '★'.repeat(c.diff) : '']); }
-  w('', '### คลาส 2', '');
-  head(['อาชีพ', 'ชื่อไทย', 'มาจาก', 'บทบาท', 'สเตตัสหลัก', 'HP ×', 'SP ×', 'ความเร็วตี (ms)', 'โบนัสคลาส']);
+  w('', '### Class 2', '');
+  head(['Class', 'ชื่อไทย', 'มาจาก', 'บทบาท', 'สเตตัสหลัก', 'HP ×', 'SP ×', 'ความเร็วตี (ms)', 'โบนัส Class']);
   for (const s of seconds) { const j = JOBS[s]; row([j.name, j.thai, jname(j.parent), j.role, j.stats, j.hp, j.sp, j.aspd, bonus(j.bonus)]); }
   w('');
   for (const id of ['novice', ...firsts, ...seconds]) {
@@ -103,7 +103,7 @@ const OUT = path.join(__dirname, '..', 'docs', 'GAME_REFERENCE.md');
 
   // ---------------- สกิลทั้งหมด ----------------
   w('## สกิลทั้งหมด', '');
-  head(['สกิล', 'อาชีพ', 'ชนิด', 'Lv สูงสุด', 'ต้องการ']);
+  head(['สกิล', 'Class', 'ชนิด', 'Lv สูงสุด', 'ต้องการ']);
   const owner = {};
   for (const [jid, j] of Object.entries(JOBS)) for (const k of j.skills || []) owner[k] = jid;
   for (const s of Object.values(SK)) row([s.name, owner[s.id] ? jname(owner[s.id]) : '-', s.type === 'passive' ? 'ติดตัว' : 'กดใช้', s.max, s.req ? Object.entries(s.req).map(([k, v]) => `${SK[k] ? SK[k].name : k} ${v}`).join(', ') : '']);
@@ -138,7 +138,7 @@ const OUT = path.join(__dirname, '..', 'docs', 'GAME_REFERENCE.md');
   const WT = [...new Set(items('weapon').map(i => i.wtype))];
   for (const t of WT) {
     w(`### ${WTN[t] || t}`, '');
-    head(['อาวุธ', 'ATK', 'MATK', 'Lv', 'ช่องชิป', 'อาชีพ', 'ความหายาก', 'ราคา', 'หาได้จาก']);
+    head(['อาวุธ', 'ATK', 'MATK', 'Lv', 'ช่องชิป', 'Class', 'ความหายาก', 'ราคา', 'หาได้จาก']);
     for (const i of items('weapon').filter(i => i.wtype === t).sort((a, b) => (a.lv || 0) - (b.lv || 0) || a.atk - b.atk)) row([i.name, i.atk || '', i.matk || '', i.lv || 1, i.slots || 0, jobsTxt(i.jobs), RAR[i.rarity] || i.rarity, num(i.price), [shopSet.has(i.id) ? 'ร้านค้า' : '', src(i.id)].filter(Boolean).join(' • ')]);
     w('');
   }
@@ -148,7 +148,7 @@ const OUT = path.join(__dirname, '..', 'docs', 'GAME_REFERENCE.md');
   const SL = [...new Set(items('armor').map(i => i.slot))];
   for (const s of SL) {
     w(`### ${SLOT[s] || s}`, '');
-    head(['ไอเทม', 'DEF', 'MDEF', 'โบนัส', 'Lv', 'ช่องชิป', 'อาชีพ', 'ความหายาก', 'ราคา', 'หาได้จาก']);
+    head(['ไอเทม', 'DEF', 'MDEF', 'โบนัส', 'Lv', 'ช่องชิป', 'Class', 'ความหายาก', 'ราคา', 'หาได้จาก']);
     for (const i of items('armor').filter(i => i.slot === s).sort((a, b) => (a.lv || 0) - (b.lv || 0) || (a.def || 0) - (b.def || 0))) row([i.name, i.def || '', i.mdef || '', bonus(i.b), i.lv || 1, i.slots || 0, jobsTxt(i.jobs), RAR[i.rarity] || i.rarity, num(i.price), [shopSet.has(i.id) ? 'ร้านค้า' : '', src(i.id)].filter(Boolean).join(' • ')]);
     w('');
   }
@@ -184,7 +184,7 @@ const OUT = path.join(__dirname, '..', 'docs', 'GAME_REFERENCE.md');
   w('## เควสต์เนื้อเรื่อง', '');
   head(['บท', 'เควสต์', 'ทำอะไร', 'รางวัล']);
   const npcName = {}; for (const m of Object.values(MAPS)) for (const n of m.npcs || []) npcName[n.id] = n.name;
-  const objTxt = o => !o ? '' : o.type === 'hit' ? `ตีหุ่นฝึก ×${o.n || ''}` : o.type === 'event' ? ({ save: 'บันทึกจุดเซฟที่ Bifrost', refine: 'ตีบวกอุปกรณ์ที่ Brokk' }[o.ev] || o.ev) : o.type === 'job' ? 'เปลี่ยนเป็นคลาสแรกที่ Mimir' : o.type === 'skill' ? 'อัปสกิลแรก' : o.type === 'useskill' ? `ใช้สกิล ×${o.n || ''}` : o.type === 'baseLv' ? `Base Lv ${o.lv || o.n}` : o.type === 'jobLv' ? `Job Lv ${o.lv || o.n}` : o.type === 'talk' ? `คุยกับ ${npcName[o.npc] || o.npc}` : o.type === 'kill' ? `ล่า ${mname(o.mob)} ×${o.n}` : o.type === 'collect' ? `เก็บ ${iname(o.item)} ×${o.n}${o.mob ? ' จาก ' + mname(o.mob) : ''}` : o.type === 'map' || o.type === 'visit' ? `ไปที่ ${MAPS[o.map] ? MAPS[o.map].name : o.map}` : o.type === 'level' ? `Base Lv ${o.lv}` : o.type;
+  const objTxt = o => !o ? '' : o.type === 'hit' ? `ตีหุ่นฝึก ×${o.n || ''}` : o.type === 'event' ? ({ save: 'บันทึกจุดเซฟที่ Bifrost', refine: 'ตีบวกอุปกรณ์ที่ Brokk' }[o.ev] || o.ev) : o.type === 'job' ? 'เปลี่ยนเป็น Class แรกที่ Mimir' : o.type === 'skill' ? 'อัปสกิลแรก' : o.type === 'useskill' ? `ใช้สกิล ×${o.n || ''}` : o.type === 'baseLv' ? `Base Lv ${o.lv || o.n}` : o.type === 'jobLv' ? `Job Lv ${o.lv || o.n}` : o.type === 'talk' ? `คุยกับ ${npcName[o.npc] || o.npc}` : o.type === 'kill' ? `ล่า ${mname(o.mob)} ×${o.n}` : o.type === 'collect' ? `เก็บ ${iname(o.item)} ×${o.n}${o.mob ? ' จาก ' + mname(o.mob) : ''}` : o.type === 'map' || o.type === 'visit' ? `ไปที่ ${MAPS[o.map] ? MAPS[o.map].name : o.map}` : o.type === 'level' ? `Base Lv ${o.lv}` : o.type;
   const rwTxt = r => !r ? '' : [r.zeny ? num(r.zeny) + ' Volt' : '', r.bexp ? num(r.bexp) + ' BEXP' : '', r.jexp ? num(r.jexp) + ' JEXP' : '', ...(r.items || []).map(([id, n]) => `${iname(id)} ×${n}`)].filter(Boolean).join(', ');
   for (const q of D.QUESTS) row([q.ch || 6, q.title, objTxt(q.obj), rwTxt(q.reward)]);
   w('');

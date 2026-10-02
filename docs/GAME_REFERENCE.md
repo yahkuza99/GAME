@@ -5,8 +5,8 @@
 
 ## สารบัญ
 1. [ภาพรวม](#ภาพรวม)
-2. [ปรัชญาการออกแบบคลาส](#ปรัชญาการออกแบบคลาส)
-3. [อาชีพ](#อาชีพ)
+2. [ปรัชญาการออกแบบ Class](#ปรัชญาการออกแบบ Class)
+3. [Class](#Class)
 4. [สกิลทั้งหมด](#สกิลทั้งหมด)
 5. [แผนที่](#แผนที่)
 6. [มอนสเตอร์](#มอนสเตอร์)
@@ -28,8 +28,8 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 
 | หมวด | จำนวน |
 |---|---|
-| อาชีพคลาสแรก | 6 |
-| อาชีพคลาส 2 | 12 |
+| ClassClass แรก | 6 |
+| ClassClass 2 | 12 |
 | สกิล | 98 |
 | แผนที่ | 8 |
 | มอนสเตอร์ | 29 |
@@ -41,18 +41,18 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 | เซ็ตไอเทม | 6 |
 | เควสต์เนื้อเรื่อง | 32 |
 
-**เส้นทางเติบโต:** Novice → (Job Lv 10) คลาสแรก → (Base Lv 30 + Job Lv 26) คลาส 2 • เปลี่ยนอาชีพที่ Mimir AI ในนีโอเอลด์ไฮม์
+**เส้นทางเติบโต:** Novice → (Job Lv 10) Class แรก → (Base Lv 30 + Job Lv 26) Class 2 • เปลี่ยน Class ที่ Mimir AI ในนีโอเอลด์ไฮม์
 
-## ปรัชญาการออกแบบคลาส
+## ปรัชญาการออกแบบ Class
 
-1. **ตำนานนอร์สก่อน แล้วแปลงเป็นหุ่นยนต์** — ทุกคลาสเริ่มจากบทบาทในตำนาน (ผู้ถูกเลือกแห่งวัลฮัลลา, หญิงพยากรณ์, นักรบหนังหมาป่า ...) แล้วตีความเป็นแอนดรอยด์ มีสีเรืองแสงประจำคลาสให้จำได้ทันที
-2. **หนึ่งคลาส = หนึ่งตัวตน + หนึ่งราคาที่ต้องจ่าย** — อธิบายได้ในประโยคเดียว และมีจุดอ่อนชัด ไม่มีคลาสไหนเก่งทุกอย่าง
-3. **คลาส 2 แตกเป็นทางแยกตรงข้ามกัน** — ตั้งรับ/บุก, ระเบิดทันที/ค่อยกัด, กว้าง/แม่น, ซัพพอร์ต/บู๊, ฆ่าเอง/ช่วยทีม, ฝูง/บอส
-4. **โครงสกิลเหมือนกันทุกคลาส** — คลาสแรก 6 สกิล (พาสซีฟหลัก, เป้าเดียว, วงกว้าง, ยูทิลิตี้/บัฟ, ดึง/ยิงไกล, พาสซีฟเสริม) • คลาส 2 เพิ่ม 5 สกิล • แต้มไม่พอเก็บทุกสกิล ต้องเลือก • สกิลที่ใช้บ่อยเก่งขึ้นเอง (ความชำนาญ)
-5. **สเตตัสอิสระแบบ RO แต่ทุกคลาสมี 2 สเตตัสหลัก** — ทั้ง 6 สเตตัสมีเจ้าของ (LUK = สายคริติคอล)
-6. **เติบโตชัด เล่นคนเดียวได้** — คลาส 2 แรงกว่าคลาสแรกอย่างน้อย ~41% • เล่นปาร์ตี้ดีกว่าแต่ไม่บังคับ
+1. **ตำนานนอร์สก่อน แล้วแปลงเป็นหุ่นยนต์** — ทุก Class เริ่มจากบทบาทในตำนาน (ผู้ถูกเลือกแห่งวัลฮัลลา, หญิงพยากรณ์, นักรบหนังหมาป่า ...) แล้วตีความเป็นแอนดรอยด์ มีสีเรืองแสงประจำ Class ให้จำได้ทันที
+2. **หนึ่ง Class = หนึ่งตัวตน + หนึ่งราคาที่ต้องจ่าย** — อธิบายได้ในประโยคเดียว และมีจุดอ่อนชัด ไม่มี Class ไหนเก่งทุกอย่าง
+3. **Class 2 แตกเป็นทางแยกตรงข้ามกัน** — ตั้งรับ/บุก, ระเบิดทันที/ค่อยกัด, กว้าง/แม่น, ซัพพอร์ต/บู๊, ฆ่าเอง/ช่วยทีม, ฝูง/บอส
+4. **โครงสกิลเหมือนกันทุก Class** — Class แรก 6 สกิล (พาสซีฟหลัก, เป้าเดียว, วงกว้าง, ยูทิลิตี้/บัฟ, ดึง/ยิงไกล, พาสซีฟเสริม) • Class 2 เพิ่ม 5 สกิล • แต้มไม่พอเก็บทุกสกิล ต้องเลือก • สกิลที่ใช้บ่อยเก่งขึ้นเอง (ความชำนาญ)
+5. **สเตตัสอิสระแบบ RO แต่ทุก Class มี 2 สเตตัสหลัก** — ทั้ง 6 สเตตัสมีเจ้าของ (LUK = สายคริติคอล)
+6. **เติบโตชัด เล่นคนเดียวได้** — Class 2 แรงกว่า Class แรกอย่างน้อย ~41% • เล่นปาร์ตี้ดีกว่าแต่ไม่บังคับ
 
-| คลาสแรก | ทาง A | ทาง B |
+| Class แรก | ทาง A | ทาง B |
 |---|---|---|
 | Einherjar — แทงค์ แนวหน้า | **Valkyrie Knight** — แทงค์ศักดิ์สิทธิ์ ปกป้องและลงทัณฑ์ | **Hersir Vanguard** — นักรบบุกทะลวง ดาเมจแรงแต่ยังทน |
 | Rune Caster — เวทธาตุระยะไกล | **Galdr Sage** — เวทวงกว้าง ฝนอุกกาบาตและน้ำแข็ง | **Seidr Witch** — เวทมืด คำสาป พิษ |
@@ -61,11 +61,11 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 | Loki's Trickster — ว่องไว คริติคอล ลอบโจมตี | **Loki's Phantom** — คริติคอลรุนแรง ฟันเงาซ้อน | **Skald Bard** — บทเพลงบัฟ คลื่นเสียงระยะกลาง |
 | Berserker — แลก HP เป็นพลังโจมตี | **Ulfhednar Warlord** — ฟันวงกว้าง ยิ่งเจ็บยิ่งไม่ตาย | **Jotun Breaker** — ทุบเป้าเดียวแรงที่สุด แลกเลือด |
 
-## อาชีพ
+## Class
 
-### คลาสแรก
+### Class แรก
 
-| อาชีพ | ชื่อไทย | บทบาท | สเตตัสหลัก | HP × | SP × | ความเร็วตี (ms) | Job สูงสุด | อาวุธ | ความยาก |
+| Class | ชื่อไทย | บทบาท | สเตตัสหลัก | HP × | SP × | ความเร็วตี (ms) | Job สูงสุด | อาวุธ | ความยาก |
 |---|---|---|---|---|---|---|---|---|---|
 | Einherjar | นักรบวิญญาณ | แทงค์ แนวหน้า | STR / VIT | 1.8 | 0.9 | 1200 | 26 | ดาบ + โล่ | ★ |
 | Rune Caster | นักเวทรูน | เวทธาตุระยะไกล | INT / DEX | 0.8 | 2 | 1500 | 26 | คทา | ★★ |
@@ -74,9 +74,9 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 | Loki's Trickster | นักลวงแห่งโลกิ | ว่องไว คริติคอล ลอบโจมตี | AGI / LUK | 1.3 | 1 | 1200 | 26 | มีดสั้น | ★★★ |
 | Berserker | นักรบคลั่ง | แลก HP เป็นพลังโจมตี | STR / AGI | 1.6 | 0.7 | 1250 | 26 | ขวาน | ★★ |
 
-### คลาส 2
+### Class 2
 
-| อาชีพ | ชื่อไทย | มาจาก | บทบาท | สเตตัสหลัก | HP × | SP × | ความเร็วตี (ms) | โบนัสคลาส |
+| Class | ชื่อไทย | มาจาก | บทบาท | สเตตัสหลัก | HP × | SP × | ความเร็วตี (ms) | โบนัส Class |
 |---|---|---|---|---|---|---|---|---|
 | Valkyrie Knight | อัศวินวาลคิรี | Einherjar | แทงค์ศักดิ์สิทธิ์ ปกป้องและลงทัณฑ์ | STR / VIT | 2.1 | 1 | 1150 | ATK% +15, MATK% +10, HIT +10, HP% +10 |
 | Hersir Vanguard | แนวหน้าเฮิร์เซียร์ | Einherjar | นักรบบุกทะลวง ดาเมจแรงแต่ยังทน | STR / VIT | 1.9 | 0.95 | 1100 | ATK% +10, MATK% +10, HIT +10, HP% +10 |
@@ -95,12 +95,12 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 
 **
 
-- **วิธีเล่น:** ช่วงฝึกพื้นฐาน ตีมอนในทุ่งหญ้ามรกตจนได้ Job Lv 10 แล้วไปหา Mimir AI เพื่อเลือกคลาสแรก
+- **วิธีเล่น:** ช่วงฝึกพื้นฐาน ตีมอนในทุ่งหญ้ามรกตจนได้ Job Lv 10 แล้วไปหา Mimir AI เพื่อเลือก Class แรก
 - **จุดเด่น:** ไม่ต้องคิดมาก ตายไม่เสีย EXP
 - **จุดอ่อน:** ยังไม่มีสกิลโจมตี
 - **สเตตัสแนะนำ:** STR 40% / AGI 30% / VIT 30%
 - **ลำดับอัปสกิล:** Basic Training 9
-- **เคล็ดลับ:** แต้มสเตตัสที่ใส่ตอนนี้ใช้ต่อได้ แนะนำใส่ตามคลาสที่ตั้งใจจะเป็น (รีเซ็ตได้ที่ Mimir)
+- **เคล็ดลับ:** แต้มสเตตัสที่ใส่ตอนนี้ใช้ต่อได้ แนะนำใส่ตาม Class ที่ตั้งใจจะเป็น (รีเซ็ตได้ที่ Mimir)
 
 | สกิล | ชนิด | เลเวลสูงสุด | คูลดาวน์ | คำอธิบาย |
 |---|---|---|---|---|
@@ -457,7 +457,7 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 
 ## สกิลทั้งหมด
 
-| สกิล | อาชีพ | ชนิด | Lv สูงสุด | ต้องการ |
+| สกิล | Class | ชนิด | Lv สูงสุด | ต้องการ |
 |---|---|---|---|---|
 | First Aid | Novice | กดใช้ | 1 |  |
 | Basic Training | Novice | ติดตัว | 9 |  |
@@ -650,26 +650,26 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 
 ### มีดสั้น
 
-| อาวุธ | ATK | MATK | Lv | ช่องชิป | อาชีพ | ความหายาก | ราคา | หาได้จาก |
+| อาวุธ | ATK | MATK | Lv | ช่องชิป | Class | ความหายาก | ราคา | หาได้จาก |
 |---|---|---|---|---|---|---|---|---|
-| Knife | 17 |  | 1 | 3 | 6 อาชีพ | ธรรมดา | 50 | ร้านค้า • Gel Unit 0.25% |
-| Cutter | 30 |  | 1 | 3 | 6 อาชีพ | ธรรมดา | 1,250 | ร้านค้า |
-| Main Gauche | 43 |  | 1 | 3 | 6 อาชีพ | ธรรมดา | 2,400 | ร้านค้า |
-| Gel Shiv | 50 |  | 5 | 1 | 6 อาชีพ | ดี | 650 | Gel Unit 0.2% |
-| Moonlit Kris | 60 |  | 8 | 2 | 6 อาชีพ | หายาก | 4,200 | Bunny Unit 0.04% |
-| Stiletto | 60 |  | 12 | 2 | 6 อาชีพ | ดี | 7,500 | Buzz Unit 0.04% |
-| Springsteel Kris | 66 |  | 12 | 1 | 6 อาชีพ | ดี | 1,350 | Hopper Unit 0.2% |
-| Mistfang | 76 |  | 16 | 2 | 6 อาชีพ | หายาก | 7,400 | Hopper Unit 0.04% |
-| Emberfang | 70 | 40 | 25 | 0 | 6 อาชีพ | มหากาพย์ | 60,000 | Kitsura EX 3.6%, Ancient Kitsura EX 2.5% |
-| Fenrir Clawblade | 90 |  | 25 | 1 | 6 อาชีพ | ดี | 2,650 | Fenrir Unit 0.2% |
+| Knife | 17 |  | 1 | 3 | 6 Class | ธรรมดา | 50 | ร้านค้า • Gel Unit 0.25% |
+| Cutter | 30 |  | 1 | 3 | 6 Class | ธรรมดา | 1,250 | ร้านค้า |
+| Main Gauche | 43 |  | 1 | 3 | 6 Class | ธรรมดา | 2,400 | ร้านค้า |
+| Gel Shiv | 50 |  | 5 | 1 | 6 Class | ดี | 650 | Gel Unit 0.2% |
+| Moonlit Kris | 60 |  | 8 | 2 | 6 Class | หายาก | 4,200 | Bunny Unit 0.04% |
+| Stiletto | 60 |  | 12 | 2 | 6 Class | ดี | 7,500 | Buzz Unit 0.04% |
+| Springsteel Kris | 66 |  | 12 | 1 | 6 Class | ดี | 1,350 | Hopper Unit 0.2% |
+| Mistfang | 76 |  | 16 | 2 | 6 Class | หายาก | 7,400 | Hopper Unit 0.04% |
+| Emberfang | 70 | 40 | 25 | 0 | 6 Class | มหากาพย์ | 60,000 | Kitsura EX 3.6%, Ancient Kitsura EX 2.5% |
+| Fenrir Clawblade | 90 |  | 25 | 1 | 6 Class | ดี | 2,650 | Fenrir Unit 0.2% |
 | Loki's Fang | 105 |  | 30 | 1 | Loki's Trickster | หายาก | 26,000 | Hel Guard Unit 0.08% |
-| Sapdrinker Dirk | 102 |  | 33 | 1 | 6 อาชีพ | ดี | 3,450 | Rust Sap Unit 0.2% |
-| Rootfang Dagger | 130 |  | 46 | 1 | 6 อาชีพ | ดี | 4,750 | Root Crawler Unit 0.2% |
-| Hellhound's Fang | 162 |  | 55 | 1 | 6 อาชีพ | มหากาพย์ | 74,000 | Garmr 1.4%, Ancient Garmr 1% |
+| Sapdrinker Dirk | 102 |  | 33 | 1 | 6 Class | ดี | 3,450 | Rust Sap Unit 0.2% |
+| Rootfang Dagger | 130 |  | 46 | 1 | 6 Class | ดี | 4,750 | Root Crawler Unit 0.2% |
+| Hellhound's Fang | 162 |  | 55 | 1 | 6 Class | มหากาพย์ | 74,000 | Garmr 1.4%, Ancient Garmr 1% |
 
 ### ดาบ
 
-| อาวุธ | ATK | MATK | Lv | ช่องชิป | อาชีพ | ความหายาก | ราคา | หาได้จาก |
+| อาวุธ | ATK | MATK | Lv | ช่องชิป | Class | ความหายาก | ราคา | หาได้จาก |
 |---|---|---|---|---|---|---|---|---|
 | Sword | 25 |  | 1 | 3 | Novice, Einherjar, Loki's Trickster, Berserker | ธรรมดา | 100 | ร้านค้า |
 | Falchion | 49 |  | 1 | 3 | Novice, Einherjar, Loki's Trickster, Berserker | ธรรมดา | 1,500 | ร้านค้า |
@@ -687,7 +687,7 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 
 ### ขวาน
 
-| อาวุธ | ATK | MATK | Lv | ช่องชิป | อาชีพ | ความหายาก | ราคา | หาได้จาก |
+| อาวุธ | ATK | MATK | Lv | ช่องชิป | Class | ความหายาก | ราคา | หาได้จาก |
 |---|---|---|---|---|---|---|---|---|
 | Hand Axe | 32 |  | 1 | 3 | Novice, Einherjar, Berserker | ธรรมดา | 300 | ร้านค้า |
 | Cleaver Axe | 50 |  | 1 | 3 | Novice, Einherjar, Berserker | ธรรมดา | 1,800 | ร้านค้า |
@@ -704,7 +704,7 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 
 ### คทา
 
-| อาวุธ | ATK | MATK | Lv | ช่องชิป | อาชีพ | ความหายาก | ราคา | หาได้จาก |
+| อาวุธ | ATK | MATK | Lv | ช่องชิป | Class | ความหายาก | ราคา | หาได้จาก |
 |---|---|---|---|---|---|---|---|---|
 | Energy Rod | 15 | 15 | 1 | 3 | Novice, Rune Caster, Völva | ธรรมดา | 50 | ร้านค้า |
 | Arc Wand | 20 | 26 | 1 | 3 | Novice, Rune Caster, Völva | ธรรมดา | 900 | ร้านค้า |
@@ -724,7 +724,7 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 
 ### ธนู
 
-| อาวุธ | ATK | MATK | Lv | ช่องชิป | อาชีพ | ความหายาก | ราคา | หาได้จาก |
+| อาวุธ | ATK | MATK | Lv | ช่องชิป | Class | ความหายาก | ราคา | หาได้จาก |
 |---|---|---|---|---|---|---|---|---|
 | Bow | 15 |  | 1 | 3 | Wildhunter, Loki's Trickster | ธรรมดา | 1,000 | ร้านค้า |
 | Composite Bow | 32 |  | 1 | 3 | Wildhunter, Loki's Trickster | ธรรมดา | 2,500 | ร้านค้า |
@@ -740,7 +740,7 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 
 ### กระบอง
 
-| อาวุธ | ATK | MATK | Lv | ช่องชิป | อาชีพ | ความหายาก | ราคา | หาได้จาก |
+| อาวุธ | ATK | MATK | Lv | ช่องชิป | Class | ความหายาก | ราคา | หาได้จาก |
 |---|---|---|---|---|---|---|---|---|
 | Club | 23 |  | 1 | 3 | Novice, Einherjar, Völva, Berserker | ธรรมดา | 60 | ร้านค้า |
 | Mace | 40 |  | 1 | 3 | Novice, Einherjar, Völva, Berserker | ธรรมดา | 800 | ร้านค้า |
@@ -757,115 +757,115 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 
 ### ชุดเกราะ
 
-| ไอเทม | DEF | MDEF | โบนัส | Lv | ช่องชิป | อาชีพ | ความหายาก | ราคา | หาได้จาก |
+| ไอเทม | DEF | MDEF | โบนัส | Lv | ช่องชิป | Class | ความหายาก | ราคา | หาได้จาก |
 |---|---|---|---|---|---|---|---|---|---|
-| Basic Plating | 1 |  |  | 1 | 1 | ทุกอาชีพ | ธรรมดา | 10 | ร้านค้า |
-| Padded Plating | 2 |  |  | 1 | 1 | ทุกอาชีพ | ธรรมดา | 400 | ร้านค้า |
-| Nano Robe | 3 | 10 | INT +1 | 1 | 1 | ทุกอาชีพ | ธรรมดา | 3,000 | ร้านค้า |
-| Light Plating | 4 |  |  | 1 | 1 | 6 อาชีพ | ธรรมดา | 1,500 | ร้านค้า |
-| Gel-Lined Vest | 3 | 2 | HP +30 | 4 | 1 | ทุกอาชีพ | ดี | 550 | Gel Unit 0.15% |
-| Gelheart Mail | 4 | 4 | VIT +1, HP +60 | 8 | 2 | ทุกอาชีพ | หายาก | 4,200 | Gel Unit 0.03% |
-| Mistweave Robe | 3 | 12 | INT +2 | 12 | 1 | ทุกอาชีพ | ดี | 1,350 | Moss Unit 0.12% |
+| Basic Plating | 1 |  |  | 1 | 1 | ทุก Class | ธรรมดา | 10 | ร้านค้า |
+| Padded Plating | 2 |  |  | 1 | 1 | ทุก Class | ธรรมดา | 400 | ร้านค้า |
+| Nano Robe | 3 | 10 | INT +1 | 1 | 1 | ทุก Class | ธรรมดา | 3,000 | ร้านค้า |
+| Light Plating | 4 |  |  | 1 | 1 | 6 Class | ธรรมดา | 1,500 | ร้านค้า |
+| Gel-Lined Vest | 3 | 2 | HP +30 | 4 | 1 | ทุก Class | ดี | 550 | Gel Unit 0.15% |
+| Gelheart Mail | 4 | 4 | VIT +1, HP +60 | 8 | 2 | ทุก Class | หายาก | 4,200 | Gel Unit 0.03% |
+| Mistweave Robe | 3 | 12 | INT +2 | 12 | 1 | ทุก Class | ดี | 1,350 | Moss Unit 0.12% |
 | Sentry Plating | 6 |  | VIT +1 | 12 | 1 | Einherjar, Berserker, Völva | ดี | 1,350 | Rust Sentry 0.12% |
-| Gravecloth Mail | 6 | 3 | HP +100 | 18 | 1 | 6 อาชีพ | ดี | 1,950 | Draugr Husk 0.12% |
+| Gravecloth Mail | 6 | 3 | HP +100 | 18 | 1 | 6 Class | ดี | 1,950 | Draugr Husk 0.12% |
 | Mesh Armor | 8 |  |  | 20 | 1 | Einherjar, Berserker, Völva | ดี | 9,000 | Iron Brute 0.06% |
 | Ironhide Plating | 8 |  | VIT +1, HP +120 | 26 | 1 | Einherjar, Berserker, Völva | ดี | 2,750 | Iron Brute 0.12% |
-| Helwick Robe | 4 | 14 | INT +3, castPct +6 | 30 | 2 | ทุกอาชีพ | หายาก | 13,000 | Hel Maiden Unit 0.04% |
+| Helwick Robe | 4 | 14 | INT +3, castPct +6 | 30 | 2 | ทุก Class | หายาก | 13,000 | Hel Maiden Unit 0.04% |
 | Helgate Plating | 9 |  | VIT +2 | 32 | 1 | Einherjar, Berserker, Völva | ดี | 3,350 | Hel Guard Unit 0.12% |
 | Titan Plate | 12 |  |  | 35 | 1 | Einherjar | หายาก | 30,000 | Archive Warden 0.08% |
-| Rootbark Plating | 9 | 4 | HP +150 | 42 | 1 | 6 อาชีพ | หายาก | 38,000 | Gnawed Brute 0.16% |
+| Rootbark Plating | 9 | 4 | HP +150 | 42 | 1 | 6 Class | หายาก | 38,000 | Gnawed Brute 0.16% |
 | Rusthusk Plating | 11 |  | VIT +2, HP +200 | 44 | 1 | Einherjar, Berserker, Völva | ดี | 4,550 | Rust Husk 0.12% |
 | Gnawed Bulwark | 13 |  | VIT +3, HP +250 | 53 | 1 | Einherjar, Berserker, Völva | ดี | 5,450 | Gnawed Brute 0.12% |
 
 ### หมวก
 
-| ไอเทม | DEF | MDEF | โบนัส | Lv | ช่องชิป | อาชีพ | ความหายาก | ราคา | หาได้จาก |
+| ไอเทม | DEF | MDEF | โบนัส | Lv | ช่องชิป | Class | ความหายาก | ราคา | หาได้จาก |
 |---|---|---|---|---|---|---|---|---|---|
-| Signal Ribbon | 1 | 3 | INT +1 | 1 | 0 | ทุกอาชีพ | ธรรมดา | 800 | ร้านค้า |
-| Sensor Cap | 2 |  |  | 1 | 0 | ทุกอาชีพ | ธรรมดา | 1,000 | ร้านค้า |
-| Seraph Wings | 3 | 5 | INT +2, LUK +2, AGI +1 | 1 | 0 | ทุกอาชีพ | มหากาพย์ | 50,000 | Seraph Core 3.6%, Ancient Seraph Core 2.5% |
-| Bunny-Ear Visor | 2 |  | LUK +1, CRIT +2 | 3 | 0 | ทุกอาชีพ | ดี | 450 | Bunny Unit 0.15% |
-| Iron Helm | 4 |  |  | 12 | 1 | 6 อาชีพ | ดี | 6,000 | Hel Guard Unit 0.1% |
-| Blastcap Helm | 4 |  | VIT +1 | 13 | 1 | ทุกอาชีพ | ดี | 1,450 | Mine Unit 0.12% |
-| Verdant Circlet | 2 | 4 | INT +2, SP +30, ฮีล% +6 | 14 | 1 | ทุกอาชีพ | หายาก | 6,600 | Moss Unit 0.04% |
-| Ashen Hood | 3 |  | AGI +1, FLEE +2 | 18 | 1 | ทุกอาชีพ | ดี | 1,950 | Ash Stalker 0.12% |
-| Tusked Helm | 5 |  | STR +1 | 27 | 1 | ทุกอาชีพ | ดี | 2,850 | Tusk Trooper 0.12% |
-| Lantern Veil | 3 | 8 | INT +2, SP +30 | 30 | 0 | ทุกอาชีพ | ดี | 3,150 | Hel Maiden Unit 0.12% |
-| Aureole of Baldr | 5 | 8 | INT +3, LUK +3, AGI +2, HP% +5, ฮีล% +8 | 30 | 1 | ทุกอาชีพ | ตำนาน | 150,000 | Ancient Seraph Core 1%, Seraph Core 0.025% |
-| Archive Warden Helm | 6 |  | VIT +2 | 36 | 1 | ทุกอาชีพ | ดี | 3,750 | Archive Warden 0.12% |
-| Kitsura Faceplate | 5 | 6 | LUK +3, CRIT +5, MATK% +5 | 42 | 1 | ทุกอาชีพ | มหากาพย์ | 58,400 | Kitsura EX 1.4%, Ancient Kitsura EX 1% |
-| Crown of the Rust King | 6 | 4 | STR +2, VIT +2 | 44 | 1 | ทุกอาชีพ | หายาก | 18,600 | Rust Husk 0.05% |
-| Gnawer Hide Hood | 7 |  | AGI +2, FLEE +4 | 57 | 1 | ทุกอาชีพ | ดี | 5,850 | Root Gnawer 0.12% |
+| Signal Ribbon | 1 | 3 | INT +1 | 1 | 0 | ทุก Class | ธรรมดา | 800 | ร้านค้า |
+| Sensor Cap | 2 |  |  | 1 | 0 | ทุก Class | ธรรมดา | 1,000 | ร้านค้า |
+| Seraph Wings | 3 | 5 | INT +2, LUK +2, AGI +1 | 1 | 0 | ทุก Class | มหากาพย์ | 50,000 | Seraph Core 3.6%, Ancient Seraph Core 2.5% |
+| Bunny-Ear Visor | 2 |  | LUK +1, CRIT +2 | 3 | 0 | ทุก Class | ดี | 450 | Bunny Unit 0.15% |
+| Iron Helm | 4 |  |  | 12 | 1 | 6 Class | ดี | 6,000 | Hel Guard Unit 0.1% |
+| Blastcap Helm | 4 |  | VIT +1 | 13 | 1 | ทุก Class | ดี | 1,450 | Mine Unit 0.12% |
+| Verdant Circlet | 2 | 4 | INT +2, SP +30, ฮีล% +6 | 14 | 1 | ทุก Class | หายาก | 6,600 | Moss Unit 0.04% |
+| Ashen Hood | 3 |  | AGI +1, FLEE +2 | 18 | 1 | ทุก Class | ดี | 1,950 | Ash Stalker 0.12% |
+| Tusked Helm | 5 |  | STR +1 | 27 | 1 | ทุก Class | ดี | 2,850 | Tusk Trooper 0.12% |
+| Lantern Veil | 3 | 8 | INT +2, SP +30 | 30 | 0 | ทุก Class | ดี | 3,150 | Hel Maiden Unit 0.12% |
+| Aureole of Baldr | 5 | 8 | INT +3, LUK +3, AGI +2, HP% +5, ฮีล% +8 | 30 | 1 | ทุก Class | ตำนาน | 150,000 | Ancient Seraph Core 1%, Seraph Core 0.025% |
+| Archive Warden Helm | 6 |  | VIT +2 | 36 | 1 | ทุก Class | ดี | 3,750 | Archive Warden 0.12% |
+| Kitsura Faceplate | 5 | 6 | LUK +3, CRIT +5, MATK% +5 | 42 | 1 | ทุก Class | มหากาพย์ | 58,400 | Kitsura EX 1.4%, Ancient Kitsura EX 1% |
+| Crown of the Rust King | 6 | 4 | STR +2, VIT +2 | 44 | 1 | ทุก Class | หายาก | 18,600 | Rust Husk 0.05% |
+| Gnawer Hide Hood | 7 |  | AGI +2, FLEE +4 | 57 | 1 | ทุก Class | ดี | 5,850 | Root Gnawer 0.12% |
 
 ### โล่
 
-| ไอเทม | DEF | MDEF | โบนัส | Lv | ช่องชิป | อาชีพ | ความหายาก | ราคา | หาได้จาก |
+| ไอเทม | DEF | MDEF | โบนัส | Lv | ช่องชิป | Class | ความหายาก | ราคา | หาได้จาก |
 |---|---|---|---|---|---|---|---|---|---|
-| Guard | 3 |  |  | 1 | 1 | ทุกอาชีพ | ธรรมดา | 500 | ร้านค้า |
-| Scrap Buckler | 4 |  | HP +40 | 6 | 1 | ทุกอาชีพ | ดี | 750 | Bunny Unit 0.1% |
-| Barkplate Shield | 5 |  | HP +80 | 12 | 1 | ทุกอาชีพ | ดี | 1,350 | Rust Sentry 0.1% |
+| Guard | 3 |  |  | 1 | 1 | ทุก Class | ธรรมดา | 500 | ร้านค้า |
+| Scrap Buckler | 4 |  | HP +40 | 6 | 1 | ทุก Class | ดี | 750 | Bunny Unit 0.1% |
+| Barkplate Shield | 5 |  | HP +80 | 12 | 1 | ทุก Class | ดี | 1,350 | Rust Sentry 0.1% |
 | Energy Buckler | 5 |  |  | 14 | 1 | Einherjar, Berserker, Völva | ดี | 6,000 | Draugr Husk 0.06% |
 | Bonewall Shield | 6 |  | VIT +1, HP +100 | 24 | 1 | Einherjar, Berserker, Völva | ดี | 2,550 | Frame Warden 0.12% |
-| Aegis of Hel | 8 | 3 | VIT +2, stunRes +10 | 34 | 1 | ทุกอาชีพ | หายาก | 14,600 | Hel Guard Unit 0.04% |
-| Heartwood Buckler | 8 | 2 | HP +250 | 49 | 1 | ทุกอาชีพ | ดี | 5,050 | Gnawed Sentry 0.12% |
+| Aegis of Hel | 8 | 3 | VIT +2, stunRes +10 | 34 | 1 | ทุก Class | หายาก | 14,600 | Hel Guard Unit 0.04% |
+| Heartwood Buckler | 8 | 2 | HP +250 | 49 | 1 | ทุก Class | ดี | 5,050 | Gnawed Sentry 0.12% |
 | Rootguard Shield | 9 | 2 | VIT +2, HP +200 | 52 | 1 | Einherjar, Berserker, Völva | ดี | 5,350 | Root Crawler Unit 0.08% |
 
 ### ผ้าคลุม
 
-| ไอเทม | DEF | MDEF | โบนัส | Lv | ช่องชิป | อาชีพ | ความหายาก | ราคา | หาได้จาก |
+| ไอเทม | DEF | MDEF | โบนัส | Lv | ช่องชิป | Class | ความหายาก | ราคา | หาได้จาก |
 |---|---|---|---|---|---|---|---|---|---|
-| Hood | 1 |  |  | 1 | 1 | ทุกอาชีพ | ธรรมดา | 120 | ร้านค้า |
-| Thermal Cloak | 1 |  | FLEE +3 | 1 | 1 | ทุกอาชีพ | ธรรมดา | 1,200 | ร้านค้า |
-| Cable Scarf | 2 |  |  | 1 | 1 | ทุกอาชีพ | ดี | 5,000 | Ash Stalker 0.08% |
-| Rotor-Fin Cape | 1 |  | AGI +1, FLEE +4 | 5 | 1 | ทุกอาชีพ | ดี | 650 | Buzz Unit 0.15% |
-| Mistlake Mantle | 2 | 2 | INT +1, FLEE +3 | 14 | 1 | ทุกอาชีพ | ดี | 1,550 | Rust Sentry 0.1% |
-| Ashtail Wrap | 2 |  | AGI +2, FLEE +5 | 18 | 1 | ทุกอาชีพ | ดี | 1,950 | Ash Stalker 0.2% |
-| Cindertail Cloak | 3 |  | AGI +2, FLEE +6, CRIT +3 | 20 | 1 | ทุกอาชีพ | หายาก | 9,000 | Ash Stalker 0.04% |
-| Seraph Down Mantle | 3 | 6 | LUK +2, FLEE +6, HP% +3 | 20 | 1 | ทุกอาชีพ | มหากาพย์ | 32,000 | Seraph Core 1.8%, Ancient Seraph Core 1.3% |
-| Wolfpelt Cloak | 2 |  | AGI +1, FLEE +4 | 24 | 1 | ทุกอาชีพ | ดี | 2,550 | Fenrir Unit 0.12% |
-| Vaultkeeper's Cloak | 3 | 3 | INT +1, FLEE +5 | 36 | 1 | ทุกอาชีพ | ดี | 3,750 | Rust Mine Unit 0.1% |
-| Rootweave Cloak | 3 | 3 | FLEE +4 | 40 | 1 | ทุกอาชีพ | หายาก | 22,000 | Root Gnawer 0.16% |
-| Nine-Ember Tail | 4 | 4 | AGI +3, INT +3, FLEE +8, castPct +5 | 40 | 1 | ทุกอาชีพ | มหากาพย์ | 56,000 | Kitsura EX 1.4%, Ancient Kitsura EX 1% |
-| Archive Maiden's Shroud | 3 | 6 | INT +2, FLEE +3 | 41 | 1 | ทุกอาชีพ | ดี | 4,250 | Archive Maiden 0.12% |
-| Mantle of the Gatehound | 5 | 5 | VIT +3, FLEE +6, HP% +8 | 55 | 1 | ทุกอาชีพ | มหากาพย์ | 74,000 | Garmr 1.4%, Ancient Garmr 1% |
+| Hood | 1 |  |  | 1 | 1 | ทุก Class | ธรรมดา | 120 | ร้านค้า |
+| Thermal Cloak | 1 |  | FLEE +3 | 1 | 1 | ทุก Class | ธรรมดา | 1,200 | ร้านค้า |
+| Cable Scarf | 2 |  |  | 1 | 1 | ทุก Class | ดี | 5,000 | Ash Stalker 0.08% |
+| Rotor-Fin Cape | 1 |  | AGI +1, FLEE +4 | 5 | 1 | ทุก Class | ดี | 650 | Buzz Unit 0.15% |
+| Mistlake Mantle | 2 | 2 | INT +1, FLEE +3 | 14 | 1 | ทุก Class | ดี | 1,550 | Rust Sentry 0.1% |
+| Ashtail Wrap | 2 |  | AGI +2, FLEE +5 | 18 | 1 | ทุก Class | ดี | 1,950 | Ash Stalker 0.2% |
+| Cindertail Cloak | 3 |  | AGI +2, FLEE +6, CRIT +3 | 20 | 1 | ทุก Class | หายาก | 9,000 | Ash Stalker 0.04% |
+| Seraph Down Mantle | 3 | 6 | LUK +2, FLEE +6, HP% +3 | 20 | 1 | ทุก Class | มหากาพย์ | 32,000 | Seraph Core 1.8%, Ancient Seraph Core 1.3% |
+| Wolfpelt Cloak | 2 |  | AGI +1, FLEE +4 | 24 | 1 | ทุก Class | ดี | 2,550 | Fenrir Unit 0.12% |
+| Vaultkeeper's Cloak | 3 | 3 | INT +1, FLEE +5 | 36 | 1 | ทุก Class | ดี | 3,750 | Rust Mine Unit 0.1% |
+| Rootweave Cloak | 3 | 3 | FLEE +4 | 40 | 1 | ทุก Class | หายาก | 22,000 | Root Gnawer 0.16% |
+| Nine-Ember Tail | 4 | 4 | AGI +3, INT +3, FLEE +8, castPct +5 | 40 | 1 | ทุก Class | มหากาพย์ | 56,000 | Kitsura EX 1.4%, Ancient Kitsura EX 1% |
+| Archive Maiden's Shroud | 3 | 6 | INT +2, FLEE +3 | 41 | 1 | ทุก Class | ดี | 4,250 | Archive Maiden 0.12% |
+| Mantle of the Gatehound | 5 | 5 | VIT +3, FLEE +6, HP% +8 | 55 | 1 | ทุก Class | มหากาพย์ | 74,000 | Garmr 1.4%, Ancient Garmr 1% |
 
 ### รองเท้า
 
-| ไอเทม | DEF | MDEF | โบนัส | Lv | ช่องชิป | อาชีพ | ความหายาก | ราคา | หาได้จาก |
+| ไอเทม | DEF | MDEF | โบนัส | Lv | ช่องชิป | Class | ความหายาก | ราคา | หาได้จาก |
 |---|---|---|---|---|---|---|---|---|---|
-| Hover Pads | 1 |  |  | 1 | 1 | ทุกอาชีพ | ธรรมดา | 400 | ร้านค้า |
-| Servo Boots | 2 |  |  | 1 | 1 | ทุกอาชีพ | ธรรมดา | 3,500 | ร้านค้า |
-| Crawler Treads | 2 |  | HP +40 | 4 | 1 | ทุกอาชีพ | ดี | 550 | Crawler Unit 0.15% |
-| Spring-Heel Greaves | 2 |  | AGI +1, FLEE +3 | 12 | 1 | ทุกอาชีพ | ดี | 1,350 | Hopper Unit 0.12% |
-| Mag Boots | 4 |  |  | 20 | 1 | ทุกอาชีพ | ดี | 18,000 | Rust Sap Unit 0.06% |
-| Wolfpath Boots | 3 |  | AGI +1, วิ่ง% +5 | 24 | 1 | ทุกอาชีพ | ดี | 2,550 | Fenrir Unit 0.1% |
-| Charger Greaves | 4 |  | STR +1, วิ่ง% +6, HP +80 | 28 | 1 | ทุกอาชีพ | หายาก | 12,200 | Tusk Trooper 0.04% |
-| Blastproof Greaves | 4 |  | VIT +1, HP +150 | 38 | 1 | ทุกอาชีพ | ดี | 3,950 | Rust Mine Unit 0.12% |
-| Rootrunner Boots | 5 |  | AGI +3, FLEE +4, วิ่ง% +8 | 46 | 1 | ทุกอาชีพ | หายาก | 19,400 | Root Crawler Unit 0.05% |
-| Gnawhide Boots | 5 |  | VIT +1, AGI +2, HP +120 | 53 | 1 | ทุกอาชีพ | ดี | 5,450 | Gnawed Brute 0.1% |
+| Hover Pads | 1 |  |  | 1 | 1 | ทุก Class | ธรรมดา | 400 | ร้านค้า |
+| Servo Boots | 2 |  |  | 1 | 1 | ทุก Class | ธรรมดา | 3,500 | ร้านค้า |
+| Crawler Treads | 2 |  | HP +40 | 4 | 1 | ทุก Class | ดี | 550 | Crawler Unit 0.15% |
+| Spring-Heel Greaves | 2 |  | AGI +1, FLEE +3 | 12 | 1 | ทุก Class | ดี | 1,350 | Hopper Unit 0.12% |
+| Mag Boots | 4 |  |  | 20 | 1 | ทุก Class | ดี | 18,000 | Rust Sap Unit 0.06% |
+| Wolfpath Boots | 3 |  | AGI +1, วิ่ง% +5 | 24 | 1 | ทุก Class | ดี | 2,550 | Fenrir Unit 0.1% |
+| Charger Greaves | 4 |  | STR +1, วิ่ง% +6, HP +80 | 28 | 1 | ทุก Class | หายาก | 12,200 | Tusk Trooper 0.04% |
+| Blastproof Greaves | 4 |  | VIT +1, HP +150 | 38 | 1 | ทุก Class | ดี | 3,950 | Rust Mine Unit 0.12% |
+| Rootrunner Boots | 5 |  | AGI +3, FLEE +4, วิ่ง% +8 | 46 | 1 | ทุก Class | หายาก | 19,400 | Root Crawler Unit 0.05% |
+| Gnawhide Boots | 5 |  | VIT +1, AGI +2, HP +120 | 53 | 1 | ทุก Class | ดี | 5,450 | Gnawed Brute 0.1% |
 
 ### เครื่องประดับ
 
-| ไอเทม | DEF | MDEF | โบนัส | Lv | ช่องชิป | อาชีพ | ความหายาก | ราคา | หาได้จาก |
+| ไอเทม | DEF | MDEF | โบนัส | Lv | ช่องชิป | Class | ความหายาก | ราคา | หาได้จาก |
 |---|---|---|---|---|---|---|---|---|---|
-| Clip |  |  | SP +10 | 1 | 1 | ทุกอาชีพ | ธรรมดา | 5,000 | ร้านค้า |
-| Data Band |  |  | VIT +1, HP +40 | 1 | 0 | ทุกอาชีพ | ธรรมดา | 1,500 | ร้านค้า |
-| Power Ring |  |  | STR +2 | 1 | 0 | ทุกอาชีพ | ดี | 20,000 | Tusk Trooper 0.04% |
-| Signal Earring |  |  | INT +2 | 1 | 0 | ทุกอาชีพ | ดี | 20,000 | Hel Maiden Unit 0.04% |
-| Grip Glove |  |  | DEX +2 | 1 | 0 | ทุกอาชีพ | ดี | 20,000 | Hopper Unit 0.03% |
-| Rune Charm |  |  | LUK +2, MDEF +3 | 1 | 0 | ทุกอาชีพ | ดี | 20,000 | Archive Maiden 0.04% |
-| Garmr Collar |  |  | STR +2, AGI +2, VIT +2, HP +200 | 1 | 0 | ทุกอาชีพ | มหากาพย์ | 70,000 | Garmr 2.7%, Ancient Garmr 1.9% |
-| Meadow Charm |  |  | LUK +2, HP +50, SP +10 | 1 | 1 | ทุกอาชีพ | หายาก | 1,400 | Buzz Unit 0.04% |
-| Ember Coil Ring |  |  | DEX +1, HIT +4 | 5 | 0 | ทุกอาชีพ | ดี | 650 | Ember Unit 0.15% |
-| Hearthcore Earring |  |  | INT +1, DEX +1, MATK +8 | 6 | 1 | ทุกอาชีพ | หายาก | 3,400 | Ember Unit 0.04% |
-| Sentinel Core |  |  | VIT +2, DEF +1, HP +80 | 10 | 1 | ทุกอาชีพ | หายาก | 5,000 | Rust Sentry 0.04% |
-| Coilspring Band |  |  | AGI +2 | 15 | 0 | ทุกอาชีพ | ดี | 1,650 | Hopper Unit 0.08% |
-| Husk Signet |  |  | VIT +2, HP +100 | 17 | 1 | ทุกอาชีพ | หายาก | 7,800 | Draugr Husk 0.05% |
-| Gleipnir Link |  |  | STR +2, AGI +2 | 25 | 1 | ทุกอาชีพ | หายาก | 11,000 | Fenrir Unit 0.04% |
-| Bearheart Band |  |  | VIT +3, HP% +4 | 26 | 1 | ทุกอาชีพ | หายาก | 11,400 | Iron Brute 0.05% |
-| Rustbloom Talisman |  |  | INT +2, SP +60, spCostPct -5 | 33 | 1 | ทุกอาชีพ | หายาก | 14,200 | Rust Sap Unit 0.05% |
-| Ember of Ragnarök |  |  | STR +3, INT +3, DEX +3, ATK% +5, MATK% +5 | 45 | 1 | ทุกอาชีพ | ตำนาน | 150,000 | Ancient Kitsura EX 1%, Kitsura EX 0.025% |
-| Sigil of Yggdrasil |  |  | VIT +2, INT +2, HP% +5, SP% +5 | 52 | 1 | ทุกอาชีพ | หายาก | 21,800 | Gnawed Sentry 0.04% |
+| Clip |  |  | SP +10 | 1 | 1 | ทุก Class | ธรรมดา | 5,000 | ร้านค้า |
+| Data Band |  |  | VIT +1, HP +40 | 1 | 0 | ทุก Class | ธรรมดา | 1,500 | ร้านค้า |
+| Power Ring |  |  | STR +2 | 1 | 0 | ทุก Class | ดี | 20,000 | Tusk Trooper 0.04% |
+| Signal Earring |  |  | INT +2 | 1 | 0 | ทุก Class | ดี | 20,000 | Hel Maiden Unit 0.04% |
+| Grip Glove |  |  | DEX +2 | 1 | 0 | ทุก Class | ดี | 20,000 | Hopper Unit 0.03% |
+| Rune Charm |  |  | LUK +2, MDEF +3 | 1 | 0 | ทุก Class | ดี | 20,000 | Archive Maiden 0.04% |
+| Garmr Collar |  |  | STR +2, AGI +2, VIT +2, HP +200 | 1 | 0 | ทุก Class | มหากาพย์ | 70,000 | Garmr 2.7%, Ancient Garmr 1.9% |
+| Meadow Charm |  |  | LUK +2, HP +50, SP +10 | 1 | 1 | ทุก Class | หายาก | 1,400 | Buzz Unit 0.04% |
+| Ember Coil Ring |  |  | DEX +1, HIT +4 | 5 | 0 | ทุก Class | ดี | 650 | Ember Unit 0.15% |
+| Hearthcore Earring |  |  | INT +1, DEX +1, MATK +8 | 6 | 1 | ทุก Class | หายาก | 3,400 | Ember Unit 0.04% |
+| Sentinel Core |  |  | VIT +2, DEF +1, HP +80 | 10 | 1 | ทุก Class | หายาก | 5,000 | Rust Sentry 0.04% |
+| Coilspring Band |  |  | AGI +2 | 15 | 0 | ทุก Class | ดี | 1,650 | Hopper Unit 0.08% |
+| Husk Signet |  |  | VIT +2, HP +100 | 17 | 1 | ทุก Class | หายาก | 7,800 | Draugr Husk 0.05% |
+| Gleipnir Link |  |  | STR +2, AGI +2 | 25 | 1 | ทุก Class | หายาก | 11,000 | Fenrir Unit 0.04% |
+| Bearheart Band |  |  | VIT +3, HP% +4 | 26 | 1 | ทุก Class | หายาก | 11,400 | Iron Brute 0.05% |
+| Rustbloom Talisman |  |  | INT +2, SP +60, spCostPct -5 | 33 | 1 | ทุก Class | หายาก | 14,200 | Rust Sap Unit 0.05% |
+| Ember of Ragnarök |  |  | STR +3, INT +3, DEX +3, ATK% +5, MATK% +5 | 45 | 1 | ทุก Class | ตำนาน | 150,000 | Ancient Kitsura EX 1%, Kitsura EX 0.025% |
+| Sigil of Yggdrasil |  |  | VIT +2, INT +2, HP% +5, SP% +5 | 52 | 1 | ทุก Class | หายาก | 21,800 | Gnawed Sentry 0.04% |
 
 ## ชิป (การ์ด)
 
@@ -999,7 +999,7 @@ MMORPG บนเบราว์เซอร์สไตล์ Ragnarok Online �
 | 1 | ร่างเริ่มปรับตัว | Base Lv 5 | 300 Volt, Hood ×1 |
 | 1 | โดรนที่ดุผิดปกติ | ล่า Buzz Unit ×3 | 150 BEXP, 100 JEXP, Repair Kit M ×3 |
 | 2 | ข้อมูลการต่อสู้ครบถ้วน | Job Lv 10 | Hover Pads ×1 |
-| 2 | รับแม่พิมพ์ของวีรชน | เปลี่ยนเป็นคลาสแรกที่ Mimir | 1,000 Volt, Repair Kit L ×3 |
+| 2 | รับแม่พิมพ์ของวีรชน | เปลี่ยนเป็น Class แรกที่ Mimir | 1,000 Volt, Repair Kit L ×3 |
 | 2 | ติดตั้งท่าแรกของแม่พิมพ์ | อัปสกิลแรก | 300 BEXP, 200 JEXP, Repair Kit M ×5 |
 | 2 | สานต่อท่าของเขา | ใช้สกิล ×10 | 400 BEXP, 300 JEXP, Charge Chip ×3 |
 | 3 | สนิมยังลามอยู่ | ล่า Rust Sentry ×10 | 800 BEXP, 500 JEXP, Guard ×1 |

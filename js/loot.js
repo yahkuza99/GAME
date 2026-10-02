@@ -367,7 +367,7 @@ const LOOT = {
   LOOT.WB_EXTRA = { seraph_pudding: ['aureole'], kitsura: ['ragnarok_ember'], garmr: ['tyr_hand', 'mimir_well'] };
 
   // ===================== ร้านค้า: เหลือแค่ของพื้นฐาน =====================
-  // ของดี ๆ ต้องล่าเอง • อาวุธเริ่มต้นของทุกอาชีพ (JOB_STARTER) ยังซื้อได้เสมอ
+  // ของดี ๆ ต้องล่าเอง • อาวุธเริ่มต้นของทุก Class (JOB_STARTER) ยังซื้อได้เสมอ
   const BASIC_WEAPON = ['knife', 'cutter', 'main_gauche', 'sword', 'falchion', 'broadsword', 'hand_axe', 'cleaver', 'rod', 'arc_wand', 'bow', 'composite_bow', 'club', 'mace'];
   const BASIC_ARMOR = ['cotton_shirt', 'padded_plate', 'leather_vest', 'silk_robe', 'hat', 'ribbon', 'guard', 'hood', 'thermal_cloak', 'sandals', 'shoes', 'data_band', 'clip'];
   for (const id of Object.values(JOB_STARTER)) if (!BASIC_WEAPON.includes(id)) BASIC_WEAPON.push(id);

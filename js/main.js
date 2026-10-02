@@ -160,7 +160,7 @@ function bindInput() {
     if (tag === 'INPUT' || tag === 'TEXTAREA') return;
     const k = e.key.toLowerCase();
     // กำลังคุยกับ NPC: คีย์บอร์ดใช้กับบทสนทนาก่อน (Space/Enter ต่อไป-เลือก • ↑↓/W/S เลื่อน • 1-9 เลือกเลย • Esc ปิด)
-    // กดค้าง (key repeat) ไม่นับในบทสนทนา — กัน Space ค้างไหลผ่านเมนูจนเลือกตัวเลือกแรก (เช่น เปลี่ยนอาชีพ)
+    // กดค้าง (key repeat) ไม่นับในบทสนทนา — กัน Space ค้างไหลผ่านเมนูจนเลือกตัวเลือกแรก (เช่น เปลี่ยน Class)
     if (UI.dialog && UI.isOpen('w-dialog') && (e.repeat ? [' ', 'enter'].includes(k) : UI.dlgKey(k))) { e.preventDefault(); return; }
     if (k.startsWith('arrow')) { e.preventDefault(); keysDown.add(k); return; }
     if (e.altKey && /^Digit[1-9]$/.test(e.code)) { e.preventDefault(); Emote.play(EMOTES[+e.code.slice(5) - 1].k); return; } // ใช้ e.code: Option+เลขบน Mac ให้อักขระพิเศษ
@@ -658,7 +658,7 @@ function drawTitlePreview(t) {
   g.restore();
 }
 
-// รูปแบบ HUD: Visor (ค่าเริ่มต้น) หรือคลาสสิก — สลับได้ในตั้งค่า
+// รูปแบบ HUD: Visor (ค่าเริ่มต้น) หรือ คลาสสิก — สลับได้ในตั้งค่า
 function applyHudStyle() {
   const o = G.player && G.player.options;
   document.body.classList.toggle('visor', !o || o.hud !== 'classic');

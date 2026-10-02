@@ -1,18 +1,18 @@
 'use strict';
 // ============================================================
-//  คู่มืออาชีพ (Class Guide) — สารบัญอาชีพทั้งหมด + คำแนะนำสเตตัส / ลำดับอัปสกิล / อาวุธ / วิธีเล่น
-//  เปิดได้จากเมนู (ไอคอนหนังสือ) หรือกด L • สกิลในแต่ละอาชีพดึงจาก SKILLS จริง (ชื่อ/คำอธิบายตรงกับเกมเสมอ)
+//  คู่มือ Class (Class Guide) — สารบัญ Class ทั้งหมด + คำแนะนำสเตตัส / ลำดับอัปสกิล / อาวุธ / วิธีเล่น
+//  เปิดได้จากเมนู (ไอคอนหนังสือ) หรือกด L • สกิลในแต่ละ Class ดึงจาก SKILLS จริง (ชื่อ/คำอธิบายตรงกับเกมเสมอ)
 // ============================================================
 const CLASSBOOK = {
   novice: {
     diff: 1, weapon: L('อะไรก็ได้ (มีด/ดาบ)', 'Anything (dagger/sword)'),
     stats: [['str', 40], ['agi', 30], ['vit', 30]],
     build: [['basic_training', 9]],
-    play: L('ช่วงฝึกพื้นฐาน ตีมอนในทุ่งหญ้ามรกตจนได้ Job Lv 10 แล้วไปหา Mimir AI เพื่อเลือกคลาสแรก', 'Your training phase. Hunt in Emerald Meadow until Job Lv 10, then visit Mimir AI to choose your first class.'),
+    play: L('ช่วงฝึกพื้นฐาน ตีมอนในทุ่งหญ้ามรกตจนได้ Job Lv 10 แล้วไปหา Mimir AI เพื่อเลือก Class แรก', 'Your training phase. Hunt in Emerald Meadow until Job Lv 10, then visit Mimir AI to choose your first class.'),
     pros: L('ไม่ต้องคิดมาก ตายไม่เสีย EXP', 'Simple; no EXP loss on death'), cons: L('ยังไม่มีสกิลโจมตี', 'No attack skills yet'),
-    tips: L('แต้มสเตตัสที่ใส่ตอนนี้ใช้ต่อได้ แนะนำใส่ตามคลาสที่ตั้งใจจะเป็น (รีเซ็ตได้ที่ Mimir)', 'Stat points carry over — invest toward the class you plan to take (Mimir can reset them).'),
+    tips: L('แต้มสเตตัสที่ใส่ตอนนี้ใช้ต่อได้ แนะนำใส่ตาม Class ที่ตั้งใจจะเป็น (รีเซ็ตได้ที่ Mimir)', 'Stat points carry over — invest toward the class you plan to take (Mimir can reset them).'),
   },
-  // ---------------- คลาสแรก ----------------
+  // ---------------- Class แรก ----------------
   einherjar: {
     diff: 1, weapon: L('ดาบ + โล่', 'Sword + shield'),
     stats: [['vit', 50], ['str', 40], ['dex', 10]],
@@ -61,7 +61,7 @@ const CLASSBOOK = {
     pros: L('ดาเมจกายภาพสูง ฟาร์มเร็ว', 'High physical damage, fast farming'), cons: L('เสี่ยงตายถ้าประมาท ใช้ยาแดงเยอะ', 'Risky if careless; uses many HP potions'),
     tips: L('ตั้งปั๊มยา HP ไว้ราว 40% จะเล่นสบายขึ้น', 'Set auto-potion HP to about 40% for a smoother run.'),
   },
-  // ---------------- คลาสขั้น 2 ----------------
+  // ---------------- Class ขั้น 2 ----------------
   valkyrie: {
     diff: 1, weapon: L('ดาบ + โล่', 'Sword + shield'),
     stats: [['vit', 50], ['str', 40], ['dex', 10]],
@@ -166,7 +166,7 @@ const ClassBook = {
   init() {
     const w = document.createElement('div');
     w.id = 'w-classbook'; w.className = 'win hidden center'; w.style.width = '720px';
-    w.innerHTML = `<div class="win-title"><span>${L('คู่มืออาชีพ (Class Guide)', 'Class Guide')}</span></div><div class="win-body"></div>`;
+    w.innerHTML = `<div class="win-title"><span>${L('คู่มือ Class', 'Class Guide')}</span></div><div class="win-body"></div>`;
     (document.getElementById('w-help') || document.body.lastElementChild).after(w);
     const open0 = UI.open.bind(UI);
     UI.open = id => { open0(id); if (id === 'w-classbook') this.render(); };
@@ -181,8 +181,8 @@ const ClassBook = {
   menuButton() {
     const m = document.getElementById('menubar'); if (!m || m.querySelector('[data-win="w-classbook"]')) return;
     const b = document.createElement('button');
-    b.dataset.win = 'w-classbook'; b.title = L('คู่มืออาชีพ (L)', 'Class Guide (L)');
-    b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M9 8h7M9 11.5h5"/></svg><span>${L('อาชีพ', 'Classes')}</span><small>L</small>`;
+    b.dataset.win = 'w-classbook'; b.title = L('คู่มือ Class (L)', 'Class Guide (L)');
+    b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M9 8h7M9 11.5h5"/></svg><span>${L('Class', 'Classes')}</span><small>L</small>`;
     b.addEventListener('click', () => { UI.toggle('w-classbook'); if (typeof Pad !== 'undefined' && Pad.enabled() && UI.setFold) UI.setFold(m, true); });
     const sit = [...m.querySelectorAll('button')].find(x => (x.querySelector('small') || {}).textContent === 'X'); // ปุ่มนั่ง อยู่ท้ายสุดเสมอ
     m.insertBefore(b, sit || null);
@@ -198,19 +198,19 @@ const ClassBook = {
     if (!this.sel || !JOBS[this.sel]) this.sel = cur;
     body.innerHTML = '';
     // ---- สารบัญ ----
-    const toc = h('nav', { class: 'cb-toc', 'aria-label': L('สารบัญอาชีพ', 'Class index') });
+    const toc = h('nav', { class: 'cb-toc', 'aria-label': L('สารบัญ Class', 'Class index') });
     const item = (id, lvl) => h('button', { type: 'button', class: `cb-ti l${lvl}` + (id === this.sel ? ' on' : '') + (id === cur ? ' me' : ''), style: `--g:${JOBS[id].glow || '#7ad8ff'}`,
       onclick: () => { this.sel = id; this.render(); } },
       h('i', {}), h('span', {}, JOBS[id].name), id === cur ? h('em', {}, L('คุณ', 'You')) : null);
     toc.append(h('div', { class: 'cb-th' }, L('สารบัญ', 'Contents')));
     toc.append(h('div', { class: 'cb-tg' }, L('เริ่มต้น', 'Starter')), item('novice', 0));
-    toc.append(h('div', { class: 'cb-tg' }, L('คลาสแรก → คลาสขั้น 2', 'First class → Second class')));
+    toc.append(h('div', { class: 'cb-tg' }, L('Class แรก → Class ขั้น 2', 'First class → Second class')));
     for (const [j, kids] of this.tree().slice(1)) { toc.append(item(j, 1)); for (const k of kids) toc.append(item(k, 2)); }
     // ---- รายละเอียด ----
     const id = this.sel, J = JOBS[id], B = CLASSBOOK[id] || {};
     const det = h('article', { class: 'cb-det', style: `--g:${J.glow || '#7ad8ff'}` });
     const art = Art.jobKey(id, (p && p.gender) || 'f'), em = Art.get('emblem_' + id);
-    const tierTxt = id === 'novice' ? L('ผู้เริ่มต้น', 'Starter') : J.tier === 2 ? L(`คลาสขั้น 2 · ต่อจาก ${JOBS[J.parent].name}`, `Second class · from ${JOBS[J.parent].name}`) : L('คลาสแรก', 'First class');
+    const tierTxt = id === 'novice' ? L('ผู้เริ่มต้น', 'Starter') : J.tier === 2 ? L(`Class ขั้น 2 · ต่อจาก ${JOBS[J.parent].name}`, `Second class · from ${JOBS[J.parent].name}`) : L('Class แรก', 'First class');
     det.append(h('header', { class: 'cb-hero' },
       art ? h('img', { class: 'cb-art', src: Art.get(art).src, alt: '' }) : null,
       h('div', { class: 'cb-hd' },
@@ -223,12 +223,12 @@ const ClassBook = {
           B.weapon ? h('span', {}, `${L('อาวุธ', 'Weapon')}: ${B.weapon}`) : null)),
     ));
     if (J.desc) det.append(h('p', { class: 'cb-desc' }, J.desc));
-    // วิธีได้อาชีพนี้
+    // วิธีได้ Class นี้
     const how = id === 'novice' ? L('ตัวละครใหม่ทุกตัวเริ่มที่นี่', 'Every new character starts here.')
-      : J.tier === 2 ? L(`เป็น ${JOBS[J.parent].name} แล้วมี Base Lv ${SECOND_JOB_REQ.base} + Job Lv ${SECOND_JOB_REQ.job} (อัป Job ของคลาสแรกให้เต็มก่อน) แล้วคุยกับ Mimir AI ในนีโอเอลด์ไฮม์ — เลือกได้ 1 จาก 2 สาย`,
+      : J.tier === 2 ? L(`เป็น ${JOBS[J.parent].name} แล้วมี Base Lv ${SECOND_JOB_REQ.base} + Job Lv ${SECOND_JOB_REQ.job} (อัป Job ของ Class แรกให้เต็มก่อน) แล้วคุยกับ Mimir AI ในนีโอเอลด์ไฮม์ — เลือกได้ 1 จาก 2 สาย`,
         `As a ${JOBS[J.parent].name}, reach Base Lv ${SECOND_JOB_REQ.base} + Job Lv ${SECOND_JOB_REQ.job} (first class must be at max Job), then talk to Mimir AI in Neo Eldheim — pick 1 of 2 branches.`)
         : L(`Novice ที่มี Job Lv ${JOB_CHANGE_LV} คุยกับ Mimir AI ในนีโอเอลด์ไฮม์`, `As a Novice with Job Lv ${JOB_CHANGE_LV}, talk to Mimir AI in Neo Eldheim.`);
-    det.append(this.sec(L('วิธีได้อาชีพนี้', 'How to unlock'), h('p', {}, how)));
+    det.append(this.sec(L('วิธีได้ Class นี้', 'How to unlock'), h('p', {}, how)));
     if (SECOND_JOBS[id]) det.append(this.sec(L('เส้นทางต่อไป', 'Next path'), h('div', { class: 'cb-next' }, ...SECOND_JOBS[id].map(k =>
       h('button', { type: 'button', style: `--g:${JOBS[k].glow}`, onclick: () => { this.sel = k; this.render(); } }, h('b', {}, JOBS[k].name), h('small', {}, JOBS[k].role || ''))))));
     // วิธีเล่น + ข้อดีข้อเสีย
@@ -244,12 +244,12 @@ const ClassBook = {
         const s = SKILLS[sid]; if (!s) return null;
         return UI.skillTipFor(h('li', {}, UI.skillIcon(sid), h('div', {}, h('b', {}, `${s.name} `, h('span', {}, `Lv ${n}${n < s.max ? '/' + s.max : ' (MAX)'}`), s.type === 'passive' ? h('em', {}, L('ติดตัว', 'Passive')) : null), h('small', {}, s.desc))), sid);
       }).filter(Boolean));
-      const note = J.tier === 2 ? L(`ใช้แต้มคลาสนี้ ${total} แต้ม (Job 1→${J.jobMax}) — แต้มคลาสแรกที่เหลือยกมาใช้ต่อได้`, `Uses ${total} points from this class (Job 1→${J.jobMax}) — leftover first-class points carry over.`)
+      const note = J.tier === 2 ? L(`ใช้แต้ม Class นี้ ${total} แต้ม (Job 1→${J.jobMax}) — แต้ม Class แรกที่เหลือยกมาใช้ต่อได้`, `Uses ${total} points from this class (Job 1→${J.jobMax}) — leftover first-class points carry over.`)
         : id === 'novice' ? L(`${total} แต้ม (Job 1→${J.jobMax})`, `${total} points (Job 1→${J.jobMax})`)
         : L(`${total} แต้ม จากทั้งหมด ${J.skills.reduce((a, k) => a + (SKILLS[k] ? SKILLS[k].max : 0), 0)} ช่อง — ต้องเลือก ไม่ได้ครบทุกสกิล`, `${total} points for ${J.skills.reduce((a, k) => a + (SKILLS[k] ? SKILLS[k].max : 0), 0)} skill slots — you must choose; you can't max everything.`);
       det.append(this.sec(L('ลำดับอัปสกิลแนะนำ', 'Recommended skill order'), h('p', { class: 'cb-note' }, note), ol));
     }
-    // สกิลทั้งหมดของอาชีพ
+    // สกิลทั้งหมดของ Class
     det.append(this.sec(L(`สกิลทั้งหมด (${J.skills.length})`, `All skills (${J.skills.length})`), h('div', { class: 'cb-all' }, ...J.skills.filter(k => SKILLS[k]).map(k => {
       const s = SKILLS[k];
       return UI.skillTipFor(h('div', { class: 'cb-sk' }, UI.skillIcon(k), h('div', {}, h('b', {}, s.name, s.type === 'passive' ? h('em', {}, L('ติดตัว', 'Passive')) : null), h('small', {}, s.desc + (s.cd ? L(` [คูลดาวน์ ${s.cd} วิ]`, ` [Cooldown ${s.cd}s]`) : '')))), k);

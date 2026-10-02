@@ -3,7 +3,7 @@
 //  เควสต์เนื้อเรื่อง (สายเดียว ทำทีละเควสต์): สอนระบบพื้นฐานไปพร้อมกับเล่าเรื่อง (docs/STORY.md บทที่ 1–5)
 //  ความคืบหน้าเก็บใน p.quests = { i: เควสต์ที่กำลังทำ, n: ตัวนับ, done: [id] }
 //  เป้าหมาย: talk (คุย NPC) • kill (ล่ามอน) • hit (ตีหุ่นฝึก) • collect (เก็บของ ส่งแล้วหาย)
-//           event (เช่น บันทึกจุดเกิด) • baseLv / jobLv • job (อัปเกรดคลาส)
+//           event (เช่น บันทึกจุดเกิด) • baseLv / jobLv • job (อัปเกรด Class)
 //  ห้ามเปลี่ยน id / obj / reward ของเควสต์เดิม (เซฟอ้างอิงอยู่) — เปลี่ยนได้แค่ title / desc / done / ch
 //  ch = บท (ป้ายในหน้าต่างเควสต์) • done = บรรทัดเล่าเรื่องตอนเควสต์สำเร็จ (ประกาศกลางจอ + แชต)
 // ============================================================
@@ -42,7 +42,7 @@ const QUESTS = [
   { id: 'upgrade', ch: 2, title: L('รับแม่พิมพ์ของวีรชน', 'The Mold of a Hero'), desc: L('คุยกับ Mimir AI แล้วเลือกแม่พิมพ์ 1 ใน 6 — ท่าของหกหน่วยที่ยืนรักษากำแพงเอลด์ไฮม์ในคืนที่กิ่งหัก', 'Speak with Mimir AI and choose 1 of 6 molds — the techniques of the six units who held the walls of Eldheim on the night the branch broke.'),
     done: L('Mimir AI (เบา ๆ): "...ไม่มีร่องรอยประกายเก่าต้าน แสดงว่า... ไม่ ยังไม่ถึงเวลา"', 'Mimir AI (quietly): "...No trace of an old spark resisting. Which means... no. Not yet."'),
     obj: { type: 'job', npc: 'jobmaster' }, reward: { items: [['yellow_potion', 3]], zeny: 1000 } },
-  { id: 'skill1', ch: 2, title: L('ติดตั้งท่าแรกของแม่พิมพ์', 'The Mold\'s First Technique'), desc: L('ใช้ Skill Point ติดตั้งสกิลของคลาสใหม่อย่างน้อย 1 สกิล (กด S) — ท่านี้เคยเป็นของใครบางคน', 'Spend a Skill Point to learn at least 1 skill of your new class (press S) — this technique once belonged to someone.'),
+  { id: 'skill1', ch: 2, title: L('ติดตั้งท่าแรกของแม่พิมพ์', 'The Mold\'s First Technique'), desc: L('ใช้ Skill Point ติดตั้งสกิลของ Class ใหม่อย่างน้อย 1 สกิล (กด S) — ท่านี้เคยเป็นของใครบางคน', 'Spend a Skill Point to learn at least 1 skill of your new class (press S) — this technique once belonged to someone.'),
     done: L('ท่าที่ติดตั้งขยับเองเล็กน้อย... แม่พิมพ์ยังจำเจ้าของเดิมได้', 'The technique twitches on its own... the mold still remembers its first owner.'),
     obj: { type: 'skill' }, reward: { items: [['orange_potion', 5]], bexp: 300, jexp: 200 } },
   { id: 'useskill', ch: 2, title: L('สานต่อท่าของเขา', 'Carry On Their Legacy'), desc: L('ใช้สกิล 10 ครั้งในสนามจริง (ลากสกิลไปวางที่แถบลัด แล้วกดเลขหรือแตะปุ่ม)', 'Use skills 10 times in real combat (drag a skill onto the hotbar, then press its number or tap the button).'),
@@ -127,8 +127,8 @@ const Quest = {
       case 'event': return o.ev === 'refine' ? L(`ตีบวกสำเร็จที่ ${npc(o.npc)}`, `Refine successfully at ${npc(o.npc)}`) : L(`บันทึกจุดเกิดที่ ${npc(o.npc)}`, `Save your point at ${npc(o.npc)}`);
       case 'baseLv': return `Base Lv ${G.player.baseLv}/${b}`;
       case 'jobLv': return `Job Lv ${Math.min(G.player.jobLv, b)}/${b}`;
-      case 'job': return L(`อัปเกรดคลาสที่ ${npc(o.npc)}`, `Change class at ${npc(o.npc)}`);
-      case 'skill': return L('ติดตั้งสกิลคลาสใหม่ (กด S)', 'Learn a new class skill (press S)');
+      case 'job': return L(`อัปเกรด Class ที่ ${npc(o.npc)}`, `Change class at ${npc(o.npc)}`);
+      case 'skill': return L('ติดตั้งสกิล Class ใหม่ (กด S)', 'Learn a new class skill (press S)');
       case 'useskill': return L(`ใช้สกิล ${a}/${b}`, `Use skills ${a}/${b}`);
     }
     return '';
@@ -171,7 +171,7 @@ const Quest = {
   onEvent(ev) { const q = this.current(); if (q && q.obj.type === 'event' && q.obj.ev === ev) { this.state().n = 1; this.check(); } },
   changed() { this.dirty = true; UI.dirty(); },
 
-  // เรียกทุกเฟรม (เบา): เป้าหมายที่ขึ้นกับสถานะ (เลเวล/ไอเทม/คลาส) และอัปเดตแถบติดตาม
+  // เรียกทุกเฟรม (เบา): เป้าหมายที่ขึ้นกับสถานะ (เลเวล/ไอเทม/Class) และอัปเดตแถบติดตาม
   tick() {
     if (!G.started || !G.player) return;
     if (G.time >= (this.nextCheck || 0)) { this.nextCheck = G.time + 0.5; this.check(); this.dirty = true; }

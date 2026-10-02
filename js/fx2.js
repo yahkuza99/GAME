@@ -1,6 +1,6 @@
 'use strict';
 // ============================================================
-//  FX2: เอฟเฟกต์เฉพาะสกิล (คลาสขั้น 2 + สกิลที่ 6 ของคลาสแรก)
+//  FX2: เอฟเฟกต์เฉพาะสกิล (Class ขั้น 2 + สกิลที่ 6 ของ Class แรก)
 //  - SKILLS[id].vfx = ชื่อเอฟเฟกต์ (ตั้งจากตาราง FX2.SKILL ด้านล่าง • ใส่ vfx ใน data.js เองเพื่อทับได้)
 //    ถ้าไม่มี vfx → ใช้ fx / selfFx เดิมตามปกติ
 //  - FX2.cast(s, lv, tgt)        ตอนใช้สกิล (วงรอบตัว/เส้นตรง/พื้นที่/บัฟ/ฮีล) → true = แทน selfFx เดิม
@@ -12,7 +12,7 @@
 // ============================================================
 const FX2 = {
   SKILL: {
-    // สกิลที่ 6 ของคลาสแรก
+    // สกิลที่ 6 ของ Class แรก
     shield_throw: 'shield_spin', earth_rune: 'rock_spikes', charge_arrow: 'charge_arrow',
     divine_shield: 'hex_shield', throwing_knife: 'knife_spin', axe_throw: 'axe_spin',
     // Valkyrie Knight

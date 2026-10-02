@@ -1,6 +1,6 @@
 'use strict';
 // ============================================================
-//  เรื่องราว (docs/STORY.md → ในเกม): บทนำครั้งแรก, บรรทัดตำนานตอนเข้าแผนที่, บรรทัด MVP, บทพูด Mimir ต่อคลาส
+//  เรื่องราว (docs/STORY.md → ในเกม): บทนำครั้งแรก, บรรทัดตำนานตอนเข้าแผนที่, บรรทัด MVP, บทพูด Mimir ต่อ Class
 //  สถานะเก็บใน p.story = { prologue: 1, eirScan, eirMask, helMet, helEnd, core: 'gave'|'kept', ... } (อยู่ใน SAVE_FIELDS)
 //  ไม่มีระบบใหม่ — ใช้กล่องบทสนทนา แบนเนอร์ ประกาศ และแชตที่มีอยู่แล้ว
 // ============================================================
@@ -48,7 +48,7 @@ const Story = {
     },
   },
 
-  // ---------- Mimir: แม่พิมพ์ของหกวีรชน (บรรทัดต่อคลาส ตอนเลือกอัปเกรด) ----------
+  // ---------- Mimir: แม่พิมพ์ของหกวีรชน (บรรทัดต่อ Class ตอนเลือกอัปเกรด) ----------
   JOB_LINES: {
     einherjar: L('แม่พิมพ์นี้หนักกว่าแบบอื่น เพราะมันแบกประตูทั้งบานไว้ — เจ้าจะเป็นคนที่โดนก่อนเสมอ และนั่นคือเกียรติ', 'This mold weighs more than the rest, for it carries an entire gate — you will always be the first one struck. And that is an honor.'),
     runecaster: L('รูนคือภาษาที่ต้นไม้ยังฟังอยู่ เขียนให้ถูก แล้วโลกจะตอบ — เขียนผิด โลกก็ตอบเช่นกัน ระวังด้วย', 'Runes are the language the tree still listens to. Write them true, and the world answers — write them wrong, and it answers all the same. Take care.'),

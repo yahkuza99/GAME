@@ -126,7 +126,7 @@ const Art = {
     c.variantOf = s.from;
     return c;
   },
-  // ภาพตัวละครตามอาชีพและเพศ (ถ้าไม่มีเพศนั้นใช้อีกเพศแทน)
+  // ภาพตัวละครตาม Class และเพศ (ถ้าไม่มีเพศนั้นใช้อีกเพศแทน)
   jobKey(job, gender) {
     const a = `job_${job}_${gender === 'm' ? 'm' : 'f'}`, b = `job_${job}_${gender === 'm' ? 'f' : 'm'}`;
     return this.has(a) ? a : this.has(b) ? b : null;
@@ -197,7 +197,7 @@ function applyTitleArt() {
   }
 }
 
-// ไอคอนสกิลติดตัวชุดที่ 2: ย้อมสี + กลับด้านจากไอคอนพาสซีฟแรกของอาชีพ (จนกว่าจะมีภาพจริง assets/skill_<id>.webp)
+// ไอคอนสกิลติดตัวชุดที่ 2: ย้อมสี + กลับด้านจากไอคอนพาสซีฟแรกของ Class (จนกว่าจะมีภาพจริง assets/skill_<id>.webp)
 Art.alias('skill_valhalla_oath', 'skill_iron_body', { hue: 35, sat: 1.25, bri: 1.08, tint: ['#e0a030', 0.22], flip: true });
 Art.alias('skill_runic_ward', 'skill_rune_mastery', { hue: 70, sat: 1.1, tint: ['#7ab0ff', 0.15], flip: true });
 Art.alias('skill_hunters_rhythm', 'skill_eagle_eye', { hue: -85, sat: 1.3, bri: 1.05, tint: ['#ffb040', 0.18], flip: true });
@@ -205,7 +205,7 @@ Art.alias('skill_freyjas_grace', 'skill_sanctuary', { hue: -80, sat: 1.2, bri: 1
 Art.alias('skill_lokis_gambit', 'skill_shadow_step', { hue: 120, sat: 1.15, tint: ['#b07ae0', 0.2], flip: true });
 Art.alias('skill_bloodthirst', 'skill_wolf_blood', { hue: -45, sat: 1.2, bri: 0.8, tint: ['#5a0030', 0.3], flip: true });
 
-// คลาสขั้นที่ 2: ภาพเต็มตัว/ตราประจำคลาส ย้อมสีจากคลาสแรก (จนกว่าจะมีภาพจริง assets/job_<id>_<f|m>.webp, emblem_<id>.webp)
+// Class ขั้นที่ 2: ภาพเต็มตัว/ตราประจำ Class ย้อมสีจาก Class แรก (จนกว่าจะมีภาพจริง assets/job_<id>_<f|m>.webp, emblem_<id>.webp)
 for (const [id, spec] of Object.entries({
   valkyrie: { hue: 25, sat: 1.15, bri: 1.1, tint: ['#ffe6a0', 0.22] },
   galdr: { hue: 40, sat: 1.2, bri: 1.05, tint: ['#bfe8ff', 0.2] },
@@ -225,7 +225,7 @@ for (const [id, spec] of Object.entries({
   Art.alias(`emblem_${id}`, `emblem_${base}`, spec);
 }
 
-// ไอคอนสกิลคลาสขั้น 2: ย้อมจากไอคอนสกิลที่ใกล้เคียง (สีประจำคลาส + เหลื่อมสีทีละสกิล ไม่ให้ซ้ำกัน)
+// ไอคอนสกิล Class ขั้น 2: ย้อมจากไอคอนสกิลที่ใกล้เคียง (สีประจำ Class + เหลื่อมสีทีละสกิล ไม่ให้ซ้ำกัน)
 (() => {
   const SRC = {
     valkyrie: ['iron_body', 'holy_spear', 'war_cry', 'whirlwind', 'light_of_freyja'],
@@ -246,7 +246,7 @@ for (const [id, spec] of Object.entries({
     Art.alias('skill_' + id, 'skill_' + SRC[job][i], { hue: HUE[job] + i * 22, sat: 1.15, bri: i % 2 ? 0.95 : 1.05, flip: i % 2 === 0 }));
 })();
 
-// ไอคอนสกิลที่ 6 ของคลาสแรก
+// ไอคอนสกิลที่ 6 ของ Class แรก
 for (const [id, from, hue] of [['shield_throw', 'shield_slam', 40], ['earth_rune', 'thunder_rune', -60], ['charge_arrow', 'piercing_arrow', 40],
   ['divine_shield', 'blessing_of_odin', 180], ['throwing_knife', 'backstab', 50], ['axe_throw', 'rage_strike', 30]])
   Art.alias('skill_' + id, 'skill_' + from, { hue, sat: 1.1, flip: true });

@@ -254,7 +254,7 @@ Sprites.human = (g, x, y, o) => {
     g.moveTo(-tw / 2, -29); g.lineTo(tw / 2, -29); g.lineTo(tw / 2 - 2.5, -17); g.quadraticCurveTo(0, -14.5, -tw / 2 + 2.5, -17); g.closePath();
     g.fill(); ol();
     if (!back) {
-      // แผงอกสีอาชีพ + แกนพลังงาน
+      // แผงอกสี Class + แกนพลังงาน
       g.fillStyle = metal(plate, -6, -28, 6, -18);
       if (side) { g.beginPath(); g.moveTo(1, -28); g.lineTo(6.5, -28); g.lineTo(5.5, -19); g.lineTo(1.5, -19); g.closePath(); g.fill(); }
       else { g.beginPath(); g.moveTo(-6.5, -28); g.lineTo(6.5, -28); g.lineTo(4.5, -19); g.lineTo(-4.5, -19); g.closePath(); g.fill(); }

@@ -1,6 +1,6 @@
 'use strict';
 // ============================================================
-//  ข้อมูลเกม NEO MIDGARD: อาชีพ สกิล ไอเทม มอนสเตอร์ ธาตุ
+//  ข้อมูลเกม NEO MIDGARD: Class สกิล ไอเทม มอนสเตอร์ ธาตุ
 //  ต้องการปรับสมดุล / เพิ่มสกิล / เพิ่มไอเทม แก้ที่ไฟล์นี้ได้เลย
 // ============================================================
 
@@ -32,9 +32,9 @@ const ELEM_THAI = {
 };
 
 // ------------------------------------------------------------
-//  อาชีพ (ออกแบบใหม่ ธีมตำนานนอร์ส)
+//  Class (ออกแบบใหม่ ธีมตำนานนอร์ส)
 //  hp/sp = ตัวคูณ MaxHP/MaxSP   aspd = ดีเลย์โจมตีพื้นฐาน (ms)
-//  look = หน้าตา (สีชุด + หมวกประจำอาชีพ)
+//  look = หน้าตา (สีชุด + หมวกประจำ Class)
 // ------------------------------------------------------------
 const JOBS = {
   novice: { glow: '#7ad8ff', name: 'Novice', thai: L('ผู้เริ่มต้น', 'Beginner'), hp: 0.9, sp: 1.0, jobMax: 10, aspd: 1500,
@@ -72,7 +72,7 @@ const JOBS = {
     skills: ['wolf_blood', 'rage_strike', 'blood_frenzy', 'howl', 'axe_throw', 'bloodthirst'] },
 };
 const FIRST_JOBS = ['einherjar', 'runecaster', 'wildhunter', 'volva', 'trickster', 'berserker'];
-// ===== คลาสขั้นที่ 2 — แยก 2 สายต่อคลาสแรก (parent = คลาสแรก ใช้สกิล/อาวุธของคลาสแรกได้ต่อ) =====
+// ===== Class ขั้นที่ 2 — แยก 2 สายต่อ Class แรก (parent = Class แรก ใช้สกิล/อาวุธของ Class แรกได้ต่อ) =====
 Object.assign(JOBS, {
   valkyrie: { glow: '#ffd27a', name: 'Valkyrie Knight', thai: L('อัศวินวาลคิรี', 'Chooser of the Slain'), parent: 'einherjar', tier: 2, bonus: { atkPct: 15, matkPct: 10, hit: 10, hpPct: 10 }, hp: 2.1, sp: 1.0, jobMax: 26, aspd: 1150,
     outfit: '#d8dce8', outfit2: '#e0b040', pants: '#4a4f62', cape: '#f0e6c8', jobHat: 'viking',
@@ -137,8 +137,8 @@ Object.assign(JOBS, {
     skills: ['jotun_blood', 'titan_smash', 'earth_splitter', 'giants_wrath', 'mountain_heart'] },
 });
 const SECOND_JOBS = { einherjar: ['valkyrie', 'hersir'], runecaster: ['galdr', 'seidr'], wildhunter: ['skadi', 'ullr'], volva: ['norn', 'gythja'], trickster: ['phantom', 'skald'], berserker: ['warlord', 'jotun'] };
-const SECOND_JOB_REQ = { base: 30, job: 26 }; // เปลี่ยนคลาสขั้นที่ 2: Base Lv 30 และต้องอัป Job ของคลาสแรกให้เต็ม (26) ก่อน
-// สายอาชีพ: [อาชีพปัจจุบัน, คลาสแรก] — ใช้ตรวจอาวุธ/สกิล/โบนัสประจำสาย
+const SECOND_JOB_REQ = { base: 30, job: 26 }; // เปลี่ยน Class ขั้นที่ 2: Base Lv 30 และต้องอัป Job ของ Class แรกให้เต็ม (26) ก่อน
+// สาย Class: [Class ปัจจุบัน, Class แรก] — ใช้ตรวจอาวุธ/สกิล/โบนัสประจำสาย
 function jobLine(job) { const out = []; for (let j = job; j && JOBS[j]; j = JOBS[j].parent) out.push(j); return out; }
 function jobRoot(job) { const l = jobLine(job); return l[l.length - 1]; }
 function canJobUse(jobs, job) { return jobs === 'all' || jobLine(job).some(j => jobs.includes(j)); }
@@ -148,7 +148,7 @@ const WEAPON_ASPD_MOD = { none: 0.85, dagger: 0.9, sword: 1.0, axe: 1.12, rod: 1
 const WTYPE_THAI = { none: L('มือเปล่า', 'Unarmed'), dagger: L('มีดสั้น', 'Dagger'), sword: L('ดาบ', 'Sword'), axe: L('ขวาน', 'Axe'), rod: L('คทา', 'Rod'), bow: L('ธนู', 'Bow'), mace: L('กระบอง', 'Mace') };
 
 // ------------------------------------------------------------
-//  สกิล (ระบบข้อมูล — สร้างสกิลใหม่ได้โดยเพิ่มรายการที่นี่ แล้วใส่ชื่อในรายการ skills ของอาชีพ)
+//  สกิล (ระบบข้อมูล — สร้างสกิลใหม่ได้โดยเพิ่มรายการที่นี่ แล้วใส่ชื่อในรายการ skills ของ Class)
 //
 //  type: 'active' | 'passive'      max: เลเวลสูงสุด      icon/glyph: สีและสัญลักษณ์ไอคอน
 //  --- สกิลติดตัว (passive) ---
@@ -299,7 +299,7 @@ const SKILLS = {
     passive: lv => ({ leech: 0.6 * lv, atkPct: 2 * lv }),
     desc: L('กระหายเลือด ดาเมจกายภาพดูดกลับเป็น HP 0.6%×Lv และดาเมจกายภาพ +2%×Lv', 'Bloodthirst. Physical damage drains 0.6%×Lv as HP, and physical damage +2%×Lv.') },
 
-  // ===== สกิลที่ 6 ของคลาสแรก (แต้มมีแค่ 25 จาก 30 ช่อง — ต้องเลือกเอง) =====
+  // ===== สกิลที่ 6 ของ Class แรก (แต้มมีแค่ 25 จาก 30 ช่อง — ต้องเลือกเอง) =====
   shield_throw: { name: 'Shield Throw', max: 5, type: 'active', target: 'enemy', range: 6, icon: '#b0a070', glyph: '◎', req: { shield_slam: 1 },
     sp: lv => 8 + lv, delay: 700, chain: true, fx: 'bash',
     dmg: { type: 'phys', mult: lv => 1.6 + 0.3 * lv, status: { kind: 'slow', chance: () => 100, dur: () => 2 } },
@@ -324,7 +324,7 @@ const SKILLS = {
     sp: () => 6, hpCost: () => 3, delay: 700, chain: true, fx: 'bash',
     dmg: { type: 'phys', mult: lv => 1.8 + 0.35 * lv },
     desc: L('ขว้างขวานระยะ 5 ช่อง 215~355% เสีย HP 3%', 'Hurls an axe up to 5 cells for 215~355%. Costs 3% HP.') },
-  // ===================== คลาสขั้นที่ 2 =====================
+  // ===================== Class ขั้นที่ 2 =====================
   // ===== Valkyrie Knight =====
   aegis_wall: { name: 'Aegis Wall', max: 5, type: 'passive', icon: '#e8d080', glyph: '⛉',
     passive: lv => ({ def: 3 * lv, mdef: 2 * lv, hpPct: 4 * lv }),
@@ -451,7 +451,7 @@ const SKILLS = {
     buff: { dur: lv => 15 + 3 * lv, stats: lv => ({ leech: 1 + lv, def: 4 * lv }) },
     desc: L('ความแค้นที่ไม่ยอมตาย ดูดเลือด +(1+Lv)% และ DEF +4×Lv ชั่วคราว', 'Rage that refuses to die. Temporary lifesteal +(1+Lv)% and DEF +4×Lv.') },
 
-  // ===================== คลาสขั้นที่ 2 สายที่สอง =====================
+  // ===================== Class ขั้นที่ 2 สายที่สอง =====================
   // ===== Hersir Vanguard =====
   hersir_might: { name: 'Hersir Might', max: 5, type: 'passive', icon: '#e06a50', glyph: 'ᛏ',
     passive: lv => ({ atkPct: 3 * lv, str: lv, hit: 2 * lv }),
@@ -825,7 +825,7 @@ const MAX_BASE_LV = 99;
 function baseExpNeed(lv) { return Math.floor(5 * Math.pow(lv, 2.75)) + 40; }
 function jobExpNeed(job, jl) {
   if (job === 'novice') return Math.floor(5 * Math.pow(jl, 1.5)) + 5;
-  if (JOBS[job] && JOBS[job].tier === 2) return Math.floor(70 * jl * jl); // คลาสขั้น 2 เก็บ Job ช้ากว่า
+  if (JOBS[job] && JOBS[job].tier === 2) return Math.floor(70 * jl * jl); // Class ขั้น 2 เก็บ Job ช้ากว่า
   return Math.floor(40 * jl * jl);
 }
 function statCost(v) { return Math.floor((v - 1) / 10) + 2; }

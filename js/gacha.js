@@ -66,8 +66,8 @@ const GACHA_CONFIG = {
     // ---- หายาก / Rare ----
     { volt: 25000,                   pct: 3, rarity: 'rare' },
     { id: 'valkyrie_plume', qty: 1,  pct: 3 },
-    { id: 'meadow_charm',   qty: 1,  pct: 2.5 },  // เครื่องประดับ Rare (ทุกอาชีพ)
-    { id: 'husk_signet',    qty: 1,  pct: 2.5 },  // เครื่องประดับ Rare (ทุกอาชีพ)
+    { id: 'meadow_charm',   qty: 1,  pct: 2.5 },  // เครื่องประดับ Rare (ทุก Class)
+    { id: 'husk_signet',    qty: 1,  pct: 2.5 },  // เครื่องประดับ Rare (ทุก Class)
     // ---- มหากาพย์ / Epic ----
     { id: 'yggdrasil_shard', qty: 1, pct: 2.8 },  // Yggdrasil Core
     { id: 'seraph_mantle',  qty: 1,  pct: 1.2 },

@@ -35,8 +35,8 @@ const Bot = {
     const p = G.player;
     const want = force != null ? force : !this.on;
     if (want && p.dead) { UI.msg(L('ฟื้นคืนชีพก่อนจึงจะเปิดบอทได้', 'Revive first before turning on the bot'), 'err'); return; }
-    // ช่วงแรกให้เล่นเอง: บอทปลดล็อกเมื่ออัปเกรดคลาสแรกแล้ว
-    if (want && !this.unlocked()) { UI.msg(L(`🔒 บอท AUTO ปลดล็อกเมื่ออัปเกรดคลาสแรก (Job Lv ${JOB_CHANGE_LV} แล้วคุยกับ Mimir AI)`, `🔒 The AUTO bot unlocks with your first class (reach Job Lv ${JOB_CHANGE_LV}, then talk to Mimir AI)`), 'err'); return; }
+    // ช่วงแรกให้เล่นเอง: บอทปลดล็อกเมื่ออัปเกรด Class แรกแล้ว
+    if (want && !this.unlocked()) { UI.msg(L(`🔒 บอท AUTO ปลดล็อกเมื่ออัปเกรด Class แรก (Job Lv ${JOB_CHANGE_LV} แล้วคุยกับ Mimir AI)`, `🔒 The AUTO bot unlocks with your first class (reach Job Lv ${JOB_CHANGE_LV}, then talk to Mimir AI)`), 'err'); return; }
     this.on = want;
     this.resting = false; this.pauseUntil = 0; this.warnedTown = false;
     this.reset();

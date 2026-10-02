@@ -173,7 +173,7 @@ function loadGameFrom(data) {
   if (!p.save || !MAP_DEFS[p.save.map]) p.save = { map: HOME_MAP, x: 20.5, y: 24.5 };
   // สกิลที่ไม่มีอยู่แล้ว (เช่น ถูกลบออกจาก data.js) คืนแต้มให้
   for (const id in p.skills) if (!SKILLS[id]) { if (!SKILLS.first_aid || id !== 'first_aid') p.skillPoints += p.skills[id]; delete p.skills[id]; }
-  fixSkillPoints(p, true); // เซฟเก่าที่แต้มสกิลเกิน (แต้ม Novice ค้างข้ามอาชีพ) → ปรับให้ถูกต้อง
+  fixSkillPoints(p, true); // เซฟเก่าที่แต้มสกิลเกิน (แต้ม Novice ค้างข้าม Class) → ปรับให้ถูกต้อง
   // แถบสกิล (8 ช่อง) แยกจากแถบไอเทม (4 ช่อง) — เซฟเก่าที่ปนกันจะถูกย้ายไอเทมไปแถบไอเทม
   const oldBar = (p.hotbar || []).filter(h => h && ((h.t === 'skill' && SKILLS[h.id]) || (h.t === 'item' && ITEMS[h.id])));
   const hadPot = Array.isArray(data.potbar);
@@ -220,7 +220,7 @@ function recalc() {
     const sk = SKILLS[id];
     if (sk && sk.passive) add(sk.passive(p.skills[id]));
   }
-  add(j.bonus); // คลาสขั้น 2: พลังตื่นแม่พิมพ์ (ATK/MATK +10%, HIT +10, MaxHP +10%)
+  add(j.bonus); // Class ขั้น 2: พลังตื่นแม่พิมพ์ (ATK/MATK +10%, HIT +10, MaxHP +10%)
   add(Passive.bonus(p)); // ต้นไม้พาสซีฟ
   const bf = p.buffs;
   for (const id in bf) {
@@ -398,7 +398,7 @@ function itemDisplayName(entry) {
 function canEquip(it, verbose) {
   const p = G.player;
   const say = m => { if (verbose) UI.msg(m, 'err'); return false; };
-  if (!canJobUse(it.jobs, p.job)) return say(L(`อาชีพ ${JOBS[p.job].name} ไม่สามารถสวมใส่ ${it.name} ได้`, `${JOBS[p.job].name} cannot equip ${it.name}.`));
+  if (!canJobUse(it.jobs, p.job)) return say(L(`Class ${JOBS[p.job].name} ไม่สามารถสวมใส่ ${it.name} ได้`, `${JOBS[p.job].name} cannot equip ${it.name}.`));
   if (it.lv && p.baseLv < it.lv) return say(L(`ต้องมี Base Level ${it.lv} ขึ้นไป`, `Requires Base Lv ${it.lv} or higher.`));
   if (it.slot === 'shield' && weaponType() === 'bow') return say(L('ไม่สามารถใช้โล่คู่กับธนูได้', 'Shields cannot be used with a bow.'));
   return true;
@@ -956,7 +956,7 @@ function skillReqMet(id) {
 }
 function learnableSkills() {
   const p = G.player;
-  // คลาสขั้น 2: ใช้แต้มกับสกิลของคลาสแรกที่ยังไม่เต็มได้ด้วย
+  // Class ขั้น 2: ใช้แต้มกับสกิลของ Class แรกที่ยังไม่เต็มได้ด้วย
   return jobLine(p.job).flatMap(j => JOBS[j].skills).filter(id => SKILLS[id] && !SKILLS[id].noLearn);
 }
 function canLearn(id) {
@@ -1074,7 +1074,7 @@ function executeSkill(id, lv, tgt) {
   if (s.cd) { const cd = s.cd * (1 - p.d.cdCut / 100); (p.cds || (p.cds = {}))[id] = G.time + cd; (p.cdTot || (p.cdTot = {}))[id] = cd; } // ดีเลย์หลังใช้สกิล (After-cast Delay) ทุกสกิลรอพร้อมกัน
   shout(`${s.name}!!`);
   p.atkAnim = 1;
-  p.skillPose = G.time; // ท่าใช้สกิล (1 ท่าต่ออาชีพ) — ความต่างของแต่ละสกิลอยู่ที่เอฟเฟกต์
+  p.skillPose = G.time; // ท่าใช้สกิล (1 ท่าต่อ Class) — ความต่างของแต่ละสกิลอยู่ที่เอฟเฟกต์
   if (tgt) faceTo(p, tgt.x, tgt.y);
   Sound.play(skillRange(s) > 3 ? 'skill_range' : 'skill');
 
@@ -1255,17 +1255,17 @@ function updateTraps() {
 }
 
 // ------------------------------------------------------------
-//  อาชีพ
+//  Class
 // ------------------------------------------------------------
 function changeJob(job) {
   const p = G.player;
-  // แต้มสกิลของ Novice ที่ยังไม่ใช้ → ใส่ Basic Training ให้อัตโนมัติ (แต้มไม่ยกข้ามอาชีพ)
+  // แต้มสกิลของ Novice ที่ยังไม่ใช้ → ใส่ Basic Training ให้อัตโนมัติ (แต้มไม่ยกข้าม Class)
   if (p.job === 'novice' && p.skillPoints > 0) {
     const cur = p.skills.basic_training || 0, add = Math.min(p.skillPoints, SKILLS.basic_training.max - cur);
     if (add > 0) { p.skills.basic_training = cur + add; UI.msg(L(`ใส่แต้มสกิล Novice ที่เหลือ ${add} แต้มให้ Basic Training อัตโนมัติ (ATK +${2 * add}, MaxHP +${2 * add}%)`, `${add} leftover Novice skill point(s) auto-assigned to Basic Training (ATK +${2 * add}, MaxHP +${2 * add}%).`), 'sys'); }
   }
   const second = JOBS[job].tier === 2;
-  if (second) p.job1Lv = p.jobLv; // จำ Job Lv ของคลาสแรกไว้ (แต้มสกิลคลาสแรกที่ยังไม่ใช้ ยกมาใช้ต่อได้)
+  if (second) p.job1Lv = p.jobLv; // จำ Job Lv ของ Class แรกไว้ (แต้มสกิล Class แรกที่ยังไม่ใช้ ยกมาใช้ต่อได้)
   p.skillPoints = 0;
   p.job = job; p.jobLv = 1; p.jobExp = 0;
   if (second) p.skillPoints = Math.max(0, totalSkillPoints(p) - lineSkillsSpent(p));
@@ -1282,15 +1282,15 @@ function changeJob(job) {
   const gc = (JOBS[job].glow || '#7ad8ff').replace('#', ''), gn = parseInt(gc, 16);
   addFx({ type: 'upgrade', ref: p, dur: 3.2, col: `${(gn >> 16) & 255},${(gn >> 8) & 255},${gn & 255}` });
   later(2.2, () => addFloater(p.x, p.y - 1.5, `UPGRADE: ${JOBS[job].name}`, JOBS[job].glow || '#7ad8ff', true));
-  UI.announce(L(`⚙ ${p.name} อัปเกรดร่างเป็นคลาส ${JOBS[job].name} (${JOBS[job].thai}) สำเร็จ!`, `⚙ ${p.name} has upgraded into the ${JOBS[job].name} class!`));
+  UI.announce(L(`⚙ ${p.name} อัปเกรดร่างเป็น Class ${JOBS[job].name} (${JOBS[job].thai}) สำเร็จ!`, `⚙ ${p.name} has upgraded into the ${JOBS[job].name} class!`));
   UI.splash(Art.jobKey(job, p.gender), `${JOBS[job].name}`, second ? 'SECOND CLASS AWAKENED' : 'BODY UPGRADE COMPLETE', 'upgrade');
-  if (second) UI.msg(L(`✦ ปลดล็อกสกิลคลาสขั้น 2 แล้ว — กด S เพื่อดูสกิลใหม่ (ใช้สกิลและอาวุธของ ${JOBS[JOBS[job].parent].name} ได้ต่อ)`, `✦ Second-class skills unlocked — press S to view them (${JOBS[JOBS[job].parent].name} skills and weapons remain usable).`), 'sys');
+  if (second) UI.msg(L(`✦ ปลดล็อกสกิล Class ขั้น 2 แล้ว — กด S เพื่อดูสกิลใหม่ (ใช้สกิลและอาวุธของ ${JOBS[JOBS[job].parent].name} ได้ต่อ)`, `✦ Second-class skills unlocked — press S to view them (${JOBS[JOBS[job].parent].name} skills and weapons remain usable).`), 'sys');
   else UI.msg(L('🔓 ปลดล็อกบอท AUTO แล้ว — กด B หรือปุ่ม AUTO เพื่อให้ล่าอัตโนมัติ', '🔓 AUTO bot unlocked — press B or the AUTO button to hunt automatically.'), 'sys');
   Sound.play('levelup');
   saveGame();
 }
-// แต้มสกิลที่ถูกต้อง = (Job Lv − 1) − แต้มที่ใช้ไปในสกิลของอาชีพปัจจุบัน (ได้ 1 แต้มต่อ Job Lv)
-// onLoad: เซฟเก่าที่แต้ม Novice ยกข้ามอาชีพ → แปลงส่วนเกินเป็น Basic Training (ไม่ลบทิ้งเฉย ๆ)
+// แต้มสกิลที่ถูกต้อง = (Job Lv − 1) − แต้มที่ใช้ไปในสกิลของ Class ปัจจุบัน (ได้ 1 แต้มต่อ Job Lv)
+// onLoad: เซฟเก่าที่แต้ม Novice ยกข้าม Class → แปลงส่วนเกินเป็น Basic Training (ไม่ลบทิ้งเฉย ๆ)
 function totalSkillPoints(p) { return (p.jobLv - 1) + (JOBS[p.job].tier === 2 ? Math.max(0, (p.job1Lv || JOBS[JOBS[p.job].parent].jobMax) - 1) : 0); }
 function lineSkillsSpent(p) { return jobLine(p.job).flatMap(j => JOBS[j].skills).filter(id => SKILLS[id] && !SKILLS[id].noLearn).reduce((a, id) => a + (p.skills[id] || 0), 0); }
 function fixSkillPoints(p, onLoad) {
