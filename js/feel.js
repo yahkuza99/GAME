@@ -167,7 +167,7 @@ const Feel = (() => {
     }
   };
 
-  // ---------- 6) ไม้ตาย RAGNARÖK (เกจ) ----------
+  // ---------- 6) ไม้ตาย (เกจ): BERSERK FURY / VALKYRIE AEGIS / WAR CRY ----------
   // ตีโดน +2 • ฆ่า +5 (CHAIN 5 ขึ้นไป +2 เพิ่ม) → เต็ม 100 กดปุ่ม/คีย์ T: คัตอินชื่อ Class + สโลว์ + คลื่นกระแทกรัศมี 5 ช่อง
   // ดาเมจ = ตีแรง 3 เท่าของการตีปกติ (เลือกกายภาพหรือเวท ที่แรงกว่า) ใส่มอนทุกตัวในวง • ไม่ใช้ในลานประลอง/ตอนตาย • บอทไม่กดให้
   const ULT_MAX = 100, ULT_R = 5;
@@ -201,6 +201,25 @@ const Feel = (() => {
   F.ULTS = {
     fury: { name: 'BERSERK FURY', th: L('โหมดคลั่ง', 'Fury'), desc: L('10 วินาที: ATK/MATK +25% ตีเร็วขึ้น 30%', '10s: ATK/MATK +25%, attack speed +30%') },
     aegis: { name: 'VALKYRIE AEGIS', th: L('โล่วาลคิรี', 'Aegis'), desc: L('ฟื้น HP/SP เต็ม + อมตะ 4 วินาที', 'Full HP/SP + invulnerable for 4s') },
+    warcry: { name: 'WAR CRY', th: L('เสียงคำรามศึก', 'War Cry'), desc: L(`10 วินาที: ตัวเราและปาร์ตี้ในระยะ ${8} ช่อง ATK/MATK +15% เดินเร็วขึ้น 25%`, `10s: you and party members within ${8} cells get ATK/MATK +15% and +25% move speed`) },
+  };
+  // WAR CRY: บัฟทั้งปาร์ตี้รอบตัว (ส่งผ่านช่องปาร์ตี้ 'wcry' — js/party.js) • คนรับต้องอยู่แผนที่เดียวกัน ห่างไม่เกิน WARCRY_R ช่อง และไม่ใช่ลานประลอง
+  const WARCRY_R = 8, WARCRY_SEC = 10;
+  F.warCryApply = (from, col) => {
+    const p = G.player; if (!p || p.dead || !G.map || G.map.def.pvp) return;
+    p.warcryUntil = G.time + WARCRY_SEC; recalc();
+    addFloater(p.x, p.y - 2.2, from ? L(`WAR CRY! ← ${from}`, `WAR CRY! ← ${from}`) : 'WAR CRY!', col || '#ff9a3a', true);
+    if (vis()) {
+      [0, 160].forEach((d, i) => setTimeout(() => { if (G.player === p) G.fx.push({ type: 'feel_nova', feel: true, t: 0, dur: 0.6, ref: p, x: p.x, y: p.y, col: col || '#ff9a3a', rad: 1.4 + i }); }, d));
+      if (typeof Juice !== 'undefined') Juice.sparks({ x: p.x, y: p.y, def: {} }, col || '#ff9a3a', 14, 55);
+      Sound.play('buff');
+    }
+    clearTimeout(F.wcT); F.wcT = setTimeout(() => { if (G.player === p) { recalc(); if (typeof UI !== 'undefined') UI.dirty(); } }, WARCRY_SEC * 1000 + 100);
+  };
+  F.warCryRecv = pl => { // จากเพื่อนร่วมปาร์ตี้
+    const p = G.player; if (!pl || !p || !G.map || pl.map !== G.map.id) return;
+    if (!(Math.hypot((+pl.x || 0) - p.x, (+pl.y || 0) - p.y) <= WARCRY_R + 0.5)) return;
+    F.warCryApply(String(pl.name || '?').slice(0, 24), '#ffb060');
   };
   F.ultKind = () => { const k = G.player && G.player.ultKind; return F.ULTS[k] ? k : 'fury'; };
   F.ultPick = () => {
@@ -225,7 +244,7 @@ const Feel = (() => {
       if (typeof Juice !== 'undefined') { Juice.flash('gold', 0.8); Juice.shake(4, 0.45); } // ไม่สโลว์: ผู้เล่นคนอื่นเห็นตัวเราเดินตามปกติ
       F.nova(col, ULT_R); setTimeout(() => F.nova('#ffffff', ULT_R * 0.7), 120); setTimeout(() => F.nova(col, ULT_R * 1.2), 240);
       [262, 330, 392, 523, 659, 784].forEach((f2, i) => chime(f2, i * 0.045, 0.05, 0.9));
-      Sound.play(kind === 'aegis' ? 'heal' : 'crit');
+      Sound.play(kind === 'aegis' ? 'heal' : kind === 'warcry' ? 'buff' : 'crit');
     }
     if (kind === 'fury') {
       p.ultBuffUntil = G.time + 10; recalc(); addFloater(p.x, p.y - 2, 'FURY!', col, true);
@@ -233,6 +252,13 @@ const Feel = (() => {
     } else if (kind === 'aegis') {
       p.hp = p.d.maxHp; p.sp = p.d.maxSp; p.invulnUntil = G.time + 4;
       addFloater(p.x, p.y - 2, 'AEGIS!', '#fff1a8', true);
+    } else if (kind === 'warcry') {
+      F.warCryApply(null, col);
+      if (vis()) { // คำรามศึก: แตรต่ำ 2 ชั้น + คลื่นวงกว้างเท่ารัศมีบัฟ (ไม่สโลว์ — คนอื่นเห็นเราเคลื่อนไหวตามปกติ)
+        G.fx.push({ type: 'feel_nova', feel: true, t: 0, dur: 0.9, ref: p, x: p.x, y: p.y, col, rad: WARCRY_R });
+        if (Sound.ctx && p.options.sound) { Sound.tone(98, 0.9, 'sawtooth', 0.05, 30); Sound.tone(147, 0.8, 'sawtooth', 0.035, 45, 0.05); Sound.noise(0.5, 0.03, 300); }
+      }
+      if (typeof Party !== 'undefined' && Party.party && Party.send) Party.send('wcry', { id: Party.me(), name: p.name, map: G.map.id, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10 });
     }
   };
   // ---------- 7) vibe เมาส์: เคอร์เซอร์ธีมนอร์ส + วงกระเพื่อมตอนคลิกพื้น ----------
@@ -293,7 +319,7 @@ const Feel = (() => {
         const r = k0.apply(this, arguments);
         try {
           F.onKill(m);
-          if (m.def && !m.def.dummy) F.ultGain(5 + (F.chain >= 5 ? 2 : 0));
+          if (m.def && !m.def.dummy && !m.minion) F.ultGain(5 + (F.chain >= 5 ? 2 : 0)); // ลูกสมุนบอสไม่เติมเกจ (กันปั่นไม้ตาย)
           const boss = m.def && (m.def.boss || m.isMvp || m.isWB);
           if (m.def && !m.def.dummy) F.orbs(m.x, m.y, boss ? 10 : 2 + (Math.random() < 0.5 ? 1 : 0), '#7fd4ff');
         } catch (e) { /* ภาพล้วน ไม่ให้กระทบเกม */ }
@@ -339,6 +365,9 @@ const Feel = (() => {
         if (d && p.ultBuffUntil > G.time) { // โหมดคลั่ง (ไม้ตาย fury)
           d.atkPct += 25; d.matkMin = Math.floor(d.matkMin * 1.25); d.matkMax = Math.floor(d.matkMax * 1.25);
           d.aspdDelay = Math.max(200, Math.floor(d.aspdDelay * 0.7)); d.aspd = Math.floor(200 - d.aspdDelay / 10);
+        }
+        if (d && p.warcryUntil > G.time && !(G.map && G.map.def.pvp)) { // เสียงคำรามศึก (ไม้ตาย warcry ของเราหรือของเพื่อนร่วมปาร์ตี้)
+          d.atkPct += 15; d.matkMin = Math.floor(d.matkMin * 1.15); d.matkMax = Math.floor(d.matkMax * 1.15); d.speed *= 1.25;
         }
         return res;
       };

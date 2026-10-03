@@ -321,8 +321,9 @@ R.render = () => {
     if (m.dead || m.x < VL || m.x > Rr || m.y < Tp - 1 || m.y > B) continue; // นอกจอ: ไม่ต้องวาดหลอด/ป้าย
     const x = m.x * TILE, y = P(m.y * TILE), s = (m.def.scale || 1);
     if (m.isPlayer) { R.bar(g, x, y + 10, 40, m.hp / Math.max(1, m.maxHp), '#ff4f6a'); continue; } // คู่ต่อสู้ PvP: แถบเลือดแดง (ชื่อวาดโดยระบบผู้เล่นอื่น)
-    if (m.hp < m.maxHp || m.isMvp) R.bar(g, x, y + 10, m.isMvp ? 64 : 38, m.hp / m.maxHp, m.isMvp ? '#ff4f6a' : '#ff6b7d');
-    if (m.isMvp) R.name(g, x, y + 26, `MVP · ${m.def.name}`, 'mvp');
+    const bossTag = m.isMvp || m.isWB; // บอสระดับ 1 (MVP) / ระดับ 2 (Ancient) — หลอดยาว + ป้ายชื่อถาวร
+    if (m.hp < m.maxHp || bossTag) R.bar(g, x, y + 10, m.isWB ? 84 : bossTag ? 64 : 38, m.hp / m.maxHp, bossTag ? '#ff4f6a' : '#ff6b7d');
+    if (bossTag) R.name(g, x, y + 26, m.isWB ? `TIER 2 · ${m.def.name}${m.phase ? (m.phase >= 2 ? ' · FRENZY' : ' · ENRAGED') : ''}` : `MVP · ${m.def.name}`, 'mvp');
     else if ((G.hover && G.hover.ref === m) || (p.target === m && !(Pad.enabled() && innerHeight > innerWidth))) { // มือถือแนวตั้ง: ชื่อเป้าหมายอยู่ในแถบบนแล้ว ไม่ต้องซ้ำในฉาก
       // ยืนชิดผู้เล่น: ป้ายชื่อมอนจะทับชื่อผู้เล่น → เลื่อนลงไปใต้ป้ายผู้เล่น
       let ty = y + 26; const py = P(p.y * TILE) + 28;
@@ -330,6 +331,7 @@ R.render = () => {
       R.name(g, x, ty, m.def.name, 'mob', { dot: m.def.aggro ? '#ff6b7d' : '#8fe3a8', lv: `Lv ${m.def.lv}`, lvCol: R.lvColor(m.def.lv, p.baseLv || 1) });
     }
     if (m.emoteUntil > G.time) R.emote(g, x + 12, y - 44 * s, '!');
+    if (m.speech && m.speech.until > G.time) R.speech(g, x, y - 44 * s - 12, m.speech.text, true); // บอสตะโกน (เรียกลูกสมุน/คลั่ง — js/bosskit.js)
   }
   for (const o of Online.others.values()) {
     if (o.stealth) continue;
