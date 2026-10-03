@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-"""ตัดชีต UI (docs/UI_ART_SHEETS.md แผ่น 2–10, ต้นฉบับ art/ui_sheets/*.webp) เป็นชิ้นรายตัว → assets/ui_*.webp
+"""ตัดชีต UI (docs/UI_ART_SHEETS.md แผ่น 1–10, ต้นฉบับ art/ui_sheets/*.webp) เป็นชิ้นรายตัว → assets/ui_*.webp
 แล้วอัปเดต assets/manifest.json (tools/slice_sheet.manifest)
 
 ใช้:  python3 tools/ui_slice.py            (ตัดทุกแผ่นที่มีไฟล์ — รันซ้ำได้ ทับไฟล์เดิม)
+      python3 tools/ui_slice.py --only sheet01   (ตัดเฉพาะแผ่นที่ชื่อขึ้นต้นแบบนี้)
       python3 tools/ui_slice.py --preview <โฟลเดอร์>   (บันทึกภาพตรวจ: ทุกชิ้นบนพื้นเทา/ขาว/ฉากเกม)
 
 ขั้นตอน
@@ -27,6 +28,15 @@ OUT = os.path.join(HERE, '..', 'assets')
 #         'glow' = มีแสงเรืองรอบตัว • 'keepholes' = ไม่เจาะหลุมมืดข้างใน (เช่นช่องใส่ไอคอนสีเข้ม)
 ICON = ('max', 128)
 SHEETS = {
+    # แผ่น 1: กรอบหน้าต่าง (9 ส่วน) / หัวหน้าต่าง / ปุ่มปิด / tooltip / แท็บ 2 สถานะ
+    'sheet01_window.webp': dict(dilate=9, pieces=[
+        ('win_frame',   (0.278, 0.465), ('max', 512), 'solid'),
+        ('win_title',   (0.765, 0.16), ('w', 640), 'solid'),
+        ('win_close',   (0.758, 0.38), ('max', 96), 'solid'),
+        ('tooltip',     (0.76, 0.62), ('w', 400), 'solid'),
+        ('tab_on',      (0.64, 0.82), ('w', 256), 'solid'),
+        ('tab_off',     (0.865, 0.82), ('w', 256), 'solid'),
+    ]),
     'sheet02_buttons.webp': dict(dilate=9, pieces=[
         ('btn_normal',   (0.39, 0.16), ('h', 96), 'solid'),
         ('btn_hover',    (0.39, 0.385), ('h', 96), 'solid'),
@@ -132,7 +142,22 @@ def fill_holes(px):
     return px
 
 # ชิ้นที่แปลงจากชิ้นอื่น: แถบเควสต์บนจอเป็นแนวนอน → หมุนม้วนกระดาษ 90° (แกนม้วนซ้าย/ขวา ตราครั่งอยู่ซ้าย)
-DERIVED = [('quest_scroll_h', 'quest_scroll', lambda im: im.rotate(90, expand=True))]
+# กล่องคุย: ลวดลายกลางขอบบน (ข้าวหลามตัด) / ล่าง (อีกา) ยืดแบบ 9 ส่วนไม่ได้ → ตัดกลางออก ต่อซ้าย+ขวาเป็นกรอบเปล่า (dlg_box9)
+#   แล้วแยกลวดลายสองชิ้นไว้วางทับกึ่งกลางด้วย CSS (ไม่ยืดตามความกว้างกล่อง)
+def _cat(im, a, b):
+    W, H = im.size; l = im.crop((0, 0, round(W * a), H)); r = im.crop((round(W * b), 0, W, H))
+    out = Image.new('RGBA', (l.width + r.width, H)); out.paste(l, (0, 0)); out.paste(r, (l.width, 0)); return out
+def _frac(im, x0, y0, x1, y1):
+    W, H = im.size; return im.crop((round(W * x0), round(H * y0), round(W * x1), round(H * y1)))
+def _disc(im):  # เหรียญอีกา: ตัดเป็นวงกลม (ไม่ติดลายเชือกถักข้าง ๆ)
+    from PIL import ImageDraw
+    w, h = im.size; m = Image.new('L', (w, h), 0); r = min(w, h) * 0.5 - 1; cx, cy = w / 2, h * 0.515
+    ImageDraw.Draw(m).ellipse((cx - r, cy - r, cx + r, cy + r), fill=255)
+    a = np.minimum(np.asarray(im.getchannel('A')), np.asarray(m)); im = im.copy(); im.putalpha(Image.fromarray(a)); return im
+DERIVED = [('quest_scroll_h', 'quest_scroll', lambda im: im.rotate(90, expand=True)),
+           ('dlg_box9', 'dlg_box', lambda im: _cat(im, 0.311, 0.689)),
+           ('dlg_raven', 'dlg_box', lambda im: _disc(_frac(im, 0.447, 0.747, 0.553, 1.0))),
+           ('dlg_diamond', 'dlg_box', lambda im: _frac(im, 0.406, 0.0, 0.594, 0.175))]
 
 def to_rgba(path, modes):
     im = Image.open(path)
@@ -228,7 +253,9 @@ def main():
     if '--preview' in sys.argv:
         preview(sys.argv[sys.argv.index('--preview') + 1]); return
     saved = []
+    only = sys.argv[sys.argv.index('--only') + 1] if '--only' in sys.argv else ''  # --only sheet01 = ตัดเฉพาะแผ่นนั้น
     for fname, cfg in SHEETS.items():
+        if only and not fname.startswith(only): continue
         print(fname)
         slice_one(fname, cfg, saved)
     for key, src, op in DERIVED:

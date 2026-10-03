@@ -34,6 +34,8 @@ const UI = {
     this.initTip();
     this.initFolds();
     for (const w of $$('.win')) this.makeWindow(w);
+    // กล่องคุย NPC: ลวดลายกลางขอบบน/ล่าง (ข้าวหลามตัด/อีกา — css/ui_art.css) ไม่ยืดตามความกว้างกล่อง
+    $('#w-dialog').append(h('i', { class: 'dlg-orn top', 'aria-hidden': 'true' }), h('i', { class: 'dlg-orn bot', 'aria-hidden': 'true' }));
     $('#chat-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         const v = e.target.value.trim();
