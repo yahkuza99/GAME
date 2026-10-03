@@ -1014,7 +1014,7 @@ const UI = {
     return [
       h('div', { class: 'tip-head' }, this.skillIcon(id), h('div', {}, h('b', {}, s.name), h('small', {}, `${s.type === 'passive' ? 'Passive' : 'Active'} • Lv ${lv}/${s.max}${lv ? '' : L(' (ยังไม่เรียน)', ' (not learned)')}`))),
       s.desc ? h('div', { class: 'tip-desc' }, s.desc) : null,
-      s.rune ? h('div', { class: 'tip-desc rn-tip' }, h('b', {}, `ᚱ ${s.rune.name}: `), s.rune.desc()) : null, // รูนที่ใส่อยู่ (js/runes.js)
+      s.rune ? h('div', { class: 'tip-desc rn-tip' }, h('b', {}, `ᚱ ${s.rune.name}: `), Runes.shortOf(s.rune)) : null, // รูนที่ใส่อยู่ (js/runes.js)
       ...lines,
       pas && typeof PSTAT !== 'undefined' ? h('div', { class: 'tip-bon' }, ...Object.entries(pas).filter(([k]) => PSTAT[k]).map(([k, v]) => h('span', {}, PSTAT_FMT(k, Math.round(v * 10) / 10)))) : null,
       s.buff ? h('div', { class: 'tip-line' }, L(`นาน ${Math.round(s.buff.dur(show) * masteryMul(id))} วิ`, `Lasts ${Math.round(s.buff.dur(show) * masteryMul(id))}s`)) : null,
@@ -1166,7 +1166,7 @@ const UI = {
       h('div', { class: 'det-hero r-' + r }, plate),
       h('div', { class: 'det-top' }, h('h3', { class: 'dname r-' + r }, h('i', { class: 'rgem r-' + r, title: rar, 'aria-hidden': 'true' }), itemDisplayName(e)),
         h('small', {}, this.itemKind(it) + (r !== 'common' ? ` · ${rar}` : ''))),
-      hr ? h('p', { class: 'det-short' }, hr.short) : null,
+      hr ? h('p', { class: 'det-short' }, HuntRunes.shortOf(hr)) : null,
       chips.length ? h('div', { class: 'det-chips' }, chips.slice(0, 5).map(([k, v]) => h('span', { class: 'dchip' }, h('i', {}, k), h('b', {}, v)))) : null,
       ...leadTop,
       eq && (opt.cmp || p.inventory.includes(e)) ? this.compareLine(e, true) : null,

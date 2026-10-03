@@ -96,6 +96,11 @@ const Runebook = {
   },
   // Hunt Rune: ภาพไอเทม (itemIconUrl)
   huntIcon(id, cls) { return h('span', { class: 'rb-ic' + (cls ? ' ' + cls : '') }, h('img', { src: itemIconUrl(id), alt: '', draggable: 'false' })); },
+  // การ์ดที่ไม่ได้เลือก: r.short แยก 2 บรรทัดสั้น — ผลหลัก (บน) / สิ่งที่แลก (ล่าง จางกว่า) ตัดที่ " · " • ชี้ค้าง = คำอธิบายเต็ม
+  shortEl(r) {
+    const [eff, ...cost] = r.short.split(' · ');
+    return h('span', { class: 'rb-card-d rb-short', title: r.desc() }, h('span', { class: 'rb-eff' }, eff), cost.length ? h('span', { class: 'rb-cost' }, cost.join(' · ')) : null);
+  },
   back() { return UI.bookBack(() => { this.det = false; this.skPick = undefined; this.render(); }); },
   note(text, cls) { return h('div', { class: 'det-note' + (cls ? ' ' + cls : '') }, UI.ico('info'), h('span', {}, text)); },
 
@@ -141,14 +146,14 @@ const Runebook = {
     const pick = this.skPick === undefined ? curId : this.skPick;
     const card = r => {
       const rid = r ? r.id : null, on = pick === rid, isCur = curId === rid;
-      // แผ่นหินแกะ: ช่องไอคอน 72px ซ้าย • ชื่อ + ป้ายแบบ + ตรา "ใช้อยู่" • คำอธิบาย
+      // แผ่นหินแกะ: ช่องไอคอน 72px ซ้าย • ชื่อ + ป้ายแบบ + ตรา "ใช้อยู่" • คำอธิบาย (เลือกอยู่ = เต็ม / ไม่ได้เลือก = r.short: ผล + สิ่งที่แลก)
       return h('button', { type: 'button', class: 'rb-card' + (on ? ' sel' : '') + (isCur ? ' cur' : '') + (r ? '' : ' none') + (open ? '' : ' off'), 'data-rune': rid || '', 'aria-pressed': on ? 'true' : 'false',
         style: r && r.col ? `--rc:${r.col}` : null, onclick: () => { if (!open) return; this.skPick = rid; this.render(); } },
         this.runeIcon(r),
         h('span', { class: 'rb-card-t' },
           h('b', {}, r ? r.name : L('ไม่ใส่รูน', 'None')),
           r ? h('small', { class: 'rn-tag ' + r.intent }, Runes.INTENT[r.intent]()) : h('small', { class: 'rb-tag-none' }, L('สกิลแบบเดิม', 'Original'))),
-        h('span', { class: 'rb-card-d' }, r ? r.desc() : L(`${s.name} แบบเดิม ไม่เปลี่ยนวิธีเล่น`, `The original ${s.name}, unchanged.`)),
+        r && !on && r.short ? this.shortEl(r) : h('span', { class: 'rb-card-d' }, r ? (on ? r.desc() : Runes.shortOf(r)) : on ? L(`${s.name} แบบเดิม ไม่เปลี่ยนวิธีเล่น`, `The original ${s.name}, unchanged.`) : L('ไม่เปลี่ยนวิธีเล่น', 'Unchanged')),
         isCur ? h('i', { class: 'rb-cur' }, L('ใช้อยู่', 'Current')) : on ? h('i', { class: 'rb-pick' }, '✓') : null);
     };
     const same = pick === curId;
@@ -184,7 +189,7 @@ const Runebook = {
         : h('span', { class: 'ipr' + (p.zeny >= d.price ? '' : ' poor') }, h('i', { class: 'coin' }), U.fmt(d.price));
       const t = h('div', { class: 'rb-tile r-' + r + (d.id === sel ? ' sel' : '') + (own ? ' own' : ' rb-shop') + (at >= 0 ? ' in' : ''), role: 'button', tabindex: '0', 'data-hr': d.id, 'aria-pressed': d.id === sel ? 'true' : 'false' },
         this.huntIcon(d.id), extra,
-        h('span', { class: 'rb-tile-t' }, h('b', {}, d.name.replace(/ Rune$/, '')), h('small', {}, HR.rowSum(d.id))));
+        h('span', { class: 'rb-tile-t', title: HR.rowSum(d.id) }, h('b', {}, d.name.replace(/ Rune$/, '')), this.huntShort(d))); // ชนิดดูจากแผ่นหิน/ตัวกรอง — แผ่นนี้โชว์แค่ผล
       t.addEventListener('click', () => pick(d.id));
       t.addEventListener('keydown', ev => { if (ev.key === 'Enter') pick(d.id); });
       return t;
@@ -208,6 +213,11 @@ const Runebook = {
     } else right.push(UI.emptyState('hrune', L('เลือกรูนทางซ้าย', 'Pick a rune on the left'), L('Slayer = ตีเผ่านั้นแรงขึ้น • Endow = เปลี่ยนธาตุการโจมตี • Conditional = แรงขึ้นตามสถานการณ์', 'Slayer = bonus vs a race • Endow = change your attack element • Conditional = bonus in a situation')));
     return { left, right, det: this.det && !!sel };
   },
+  // แผ่น Hunt Rune: ผลหลักบรรทัดแรก / สิ่งที่แลกหรือเงื่อนไขย่อยบรรทัดสอง (มือถือแนวนอนตัดเหลือบรรทัดแรกด้วย CSS เดิม)
+  huntShort(d) {
+    const [eff, ...rest] = HuntRunes.shortOf(d).split(' · ');
+    return h('small', {}, eff, rest.length ? [h('br'), rest.join(' · ')] : null);
+  },
   // ช่องรูน 2 ช่อง (ล็อกตาม Base Lv) — แตะช่องที่มีรูน = เลือกรูนนั้น
   sockets(sel, busy) {
     const HR = HuntRunes, p = G.player, s = HR.slots(p);
@@ -219,7 +229,7 @@ const Runebook = {
         lock ? h('span', { class: 'rb-ic rb-stone lock' }, UI.ico('lock')) : d ? this.huntIcon(d.id, 'rb-stone') : h('span', { class: 'rb-ic rb-stone empty' }, h('i', { class: 'rb-glyph' }, '+')),
         h('span', { class: 'rb-sock-t' },
           h('b', {}, lock ? `Base Lv ${HR.UNLOCK[i]}` : d ? d.name.replace(/ Rune$/, '') : L('ช่องว่าง', 'Empty')),
-          h('small', {}, lock ? L(`ล็อก — ตอนนี้ Lv ${p.baseLv}`, `Locked — you are Lv ${p.baseLv}`) : d ? d.short : L('เลือกรูนแล้วกด Socket', 'Pick a rune, then Socket'))),
+          h('small', {}, lock ? L(`ล็อก — ตอนนี้ Lv ${p.baseLv}`, `Locked — you are Lv ${p.baseLv}`) : d ? HR.shortOf(d) : L('เลือกรูนแล้วกด Socket', 'Pick a rune, then Socket'))),
         d && !lock ? h('button', { type: 'button', class: 'btn small rb-rm', 'data-slot': i, disabled: busy ? 'disabled' : false,
           onclick: ev => { ev.stopPropagation(); if (HR.set(i, null)) this.render(true); } }, L('ถอด', 'Remove')) : null);
       if (d) { el.setAttribute('role', 'button'); el.tabIndex = 0; el.addEventListener('click', () => { this.hrSel = d.id; this.det = true; this.render(); }); }

@@ -54,26 +54,27 @@ const HuntRunes = {
       name: `${HR_RACE_EN[race]} Slayer Rune`, short: `+${HR_SLAY * 100}% vs ${HR_RACE_EN[race]}`,
       desc: `Slayer rune. +${HR_SLAY * 100}% physical and magic damage against ${HR_RACE_EN[race]}-race monsters.` });
     this.add({ id: 'hr_slay_human', kind: 'slayer', race: 'human', pct: HR_SLAY_PVP, price: 2500, col: '#c87a8a', glyph: 'mannaz', rarity: 'uncommon', arena: true,
-      name: 'Human Slayer Rune', short: `+${HR_SLAY_PVP * 100}% vs players (Arena)`,
+      name: 'Human Slayer Rune', short: `+${HR_SLAY_PVP * 100}% vs players · Arena only`,
       desc: `Slayer rune. +${HR_SLAY_PVP * 100}% physical and magic damage against other players (they only meet in the PvP Arena).` });
     const endow = [['fire', 2500, '#e8602a', 'kenaz'], ['water', 1500, '#3a90e0', 'laguz'], ['wind', 1500, '#3ab89a', 'ansuz'], ['earth', 1500, '#a07a40', 'othala'],
       ['holy', 4000, '#e8c850', 'sowilo'], ['shadow', 4000, '#6a4a9a', 'hagalaz']];
     for (const [el, price, col, glyph] of endow) {
       const row = ELEM_TABLE[el] || {}, good = Object.keys(row).filter(k => row[k] > 1), bad = Object.keys(row).filter(k => row[k] < 1);
       const fmt = ks => ks.map(k => `${k[0].toUpperCase() + k.slice(1)} ×${row[k]}`).join(', ');
+      const best = good.slice().sort((a, b) => row[b] - row[a])[0]; // จุดเด่นที่สุด (โชว์ในสรุป 1 บรรทัด)
       this.add({ id: 'hr_endow_' + el, kind: 'endow', elem: el, price, col, glyph, rarity: price >= 4000 ? 'rare' : 'uncommon',
-        name: `${HR_ELEM_EN[el]} Endow Rune`, short: `Attacks become ${HR_ELEM_EN[el]}`,
+        name: `${HR_ELEM_EN[el]} Endow Rune`, short: `${HR_ELEM_EN[el]} attacks` + (best ? ` · ×${row[best]} vs ${best[0].toUpperCase() + best.slice(1)}` : ''),
         desc: `Endow rune. Your basic attacks and skills without an element of their own deal ${HR_ELEM_EN[el]} damage.`
           + (good.length ? ` Strong: ${fmt(good)}.` : '') + (bad.length ? ` Weak: ${fmt(bad)}.` : '') + ' Only one Endow can be active.' });
     }
     const C = (id, glyph, col, pct, name, short, desc, test, extra) => this.add(Object.assign({ id, kind: 'cond', glyph, col, pct, price: 6000, rarity: 'rare', name, short, desc, test }, extra || {}));
     C('hr_giant', 'thurisaz', '#c8962a', 0.25, 'Giant Slayer Rune', '+25% vs bosses · −10% vs others',
       'Conditional rune. +25% damage against MVPs, bosses and Ancients, but −10% against every other monster.', m => this.isBig(m), { miss: -0.10 });
-    C('hr_exec', 'eihwaz', '#b03030', 0.30, 'Executioner Rune', '+30% vs targets under 30% HP',
+    C('hr_exec', 'eihwaz', '#b03030', 0.30, 'Executioner Rune', '+30% vs <30% HP',
       'Conditional rune. +30% damage against a target below 30% HP.', m => m.maxHp > 0 && m.hp / m.maxHp < 0.30);
-    C('hr_ambush', 'perthro', '#4a6a9a', 0.25, 'Ambusher Rune', '+25% first hit on a full-HP target',
+    C('hr_ambush', 'perthro', '#4a6a9a', 0.25, 'Ambusher Rune', '+25% vs full-HP foes · first hit only',
       'Conditional rune. +25% damage on the opening hit against a target at full HP.', m => m.maxHp > 0 && m.hp >= m.maxHp);
-    C('hr_pack', 'dagaz', '#c86a20', 0.15, 'Pack Breaker Rune', '+15% with 3+ enemies within 3 cells',
+    C('hr_pack', 'dagaz', '#c86a20', 0.15, 'Pack Breaker Rune', '+15% with 3+ foes near · within 3 cells',
       'Conditional rune. +15% damage while 3 or more enemies are within 3 cells of you.', () => this.packCount() >= 3);
   },
   isBig(m) { return !!(m.def.boss || m.isMvp || m.isWB || m.def.worldBoss); },
@@ -245,7 +246,9 @@ const HuntRunes = {
   entry(id) { const c = this._ent || (this._ent = {}); return c[id] || (c[id] = { id, qty: 1, refine: 0, cards: [] }); },
   entries() { return this.LIST.filter(d => this.owns(d.id)).map(d => this.entry(d.id)); },
   kindLabel(d) { return this.KINDS[d.kind]; },
-  rowSum(id) { const d = this.def(id); return d ? `${this.kindLabel(d)} · ${d.short}` : ''; },
+  // สรุป 1 บรรทัด (อังกฤษ) • ไม่มี short = คำอธิบายเต็ม
+  shortOf(d) { return !d ? '' : d.short || d.desc || ''; },
+  rowSum(id) { const d = this.def(id); return d ? `${this.kindLabel(d)} · ${this.shortOf(d)}` : ''; },
   slotName(i) { return i ? 'II' : 'I'; },
   // ส่วนข้อมูลเฉพาะรูน (อังกฤษ) ใส่ใต้ภาพใหญ่ในหน้ารายละเอียด
   infoSec(d) {
@@ -259,7 +262,7 @@ const HuntRunes = {
     } else {
       rows.push(kv('Bonus', `+${Math.round(d.pct * 100)}%`, 'ok'));
       if (d.miss) rows.push(kv('Penalty', `${Math.round(d.miss * 100)}% vs normal monsters`, 'bad'));
-      rows.push(kv('Condition', d.short));
+      rows.push(kv('Condition', this.shortOf(d)));
     }
     rows.push(kv('Cap', `Hunt Rune bonus ≤ +${HR_CAP * 100}% per hit`));
     return h('div', { class: 'dsec hr-sec' }, h('div', { class: 'dsec-h' }, UI.ico('gem'), 'Hunt Rune'), ...rows);
@@ -339,7 +342,7 @@ const HuntRunes = {
         lock ? h('span', { class: 'hr-stone lock', html: UI.icoSvg.lock }) : d ? h('img', { class: 'hr-stone', src: itemIconUrl(d.id), alt: '' }) : h('span', { class: 'hr-stone empty' }),
         h('div', { class: 'hr-sock-t' },
           h('b', {}, lock ? L(`ปลดที่ Base Lv ${HR_UNLOCK[i]}`, `Unlocks at Base Lv ${HR_UNLOCK[i]}`) : d ? d.name : L('ช่องว่าง', 'Empty socket')),
-          h('small', {}, lock ? L(`ตอนนี้ Lv ${p.baseLv}`, `You are Lv ${p.baseLv}`) : d ? d.short : L('เลือกรูนด้านล่างแล้วกดใส่', 'Pick a rune below to socket it'))),
+          h('small', {}, lock ? L(`ตอนนี้ Lv ${p.baseLv}`, `You are Lv ${p.baseLv}`) : d ? this.shortOf(d) : L('เลือกรูนด้านล่างแล้วกดใส่', 'Pick a rune below to socket it'))),
         d && !lock ? h('button', { type: 'button', class: 'btn small hr-rm', disabled: busy ? 'disabled' : false, onclick: () => { if (this.set(i, null)) this.render(); } }, L('ถอด', 'Remove')) : null));
     }
     wrap.append(socks);
@@ -351,7 +354,7 @@ const HuntRunes = {
       for (const e of owned) {
         const d = this.def(e.id), at = s.indexOf(d.id);
         grid.append(h('button', { type: 'button', class: 'hr-tile' + (this.sel === d.id ? ' sel' : '') + (at >= 0 ? ' in' : ''), 'data-hr': d.id, onclick: () => { this.sel = this.sel === d.id ? null : d.id; this.render(); } },
-          h('img', { src: itemIconUrl(d.id), alt: '' }), h('span', { class: 'hr-tile-t' }, h('b', {}, d.name.replace(/ Rune$/, '')), h('small', {}, d.short)),
+          h('img', { src: itemIconUrl(d.id), alt: '' }), h('span', { class: 'hr-tile-t' }, h('b', {}, d.name.replace(/ Rune$/, '')), h('small', {}, this.shortOf(d))),
           at >= 0 ? h('i', { class: 'hr-tag' }, this.slotName(at)) : null));
       }
       wrap.append(grid);

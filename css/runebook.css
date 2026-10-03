@@ -78,6 +78,11 @@ body.visor .win .rb-tabs .rb-tab { --pq: 14px; position: relative; flex: 1 1 0; 
 .rb-card-t { grid-area: t; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px var(--s2); padding-right: 56px; }
 .rb-card-t b { font: 700 var(--fs-l)/1.2 var(--f-title); letter-spacing: 0.02em; color: #fff6e0; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6), 0 -1px 0 rgba(0, 0, 0, 0.25); }
 .rb-card-d { grid-area: d; font: 400 var(--fs-s)/1.5 var(--f-body); color: var(--st-ink); text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45); }
+/* การ์ดที่ไม่ได้เลือก: สรุปสั้น (Runes short) = ผลหลัก 1 บรรทัด + สิ่งที่แลก 1 บรรทัดจาง • ล้นตัด … (ชนะกฎ clamp 1 บรรทัดใน theme5.css ด้วย .rb-short) */
+.rb-card:not(.sel) .rb-card-d.rb-short { display: flex; flex-direction: column; min-width: 0; -webkit-line-clamp: none; overflow: visible; }
+.rb-short > span { display: block; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rb-short .rb-eff { font-weight: 600; color: #fff3da; }
+.rb-short .rb-cost { font-size: var(--fs-xs); color: color-mix(in srgb, var(--st-ink) 72%, transparent); }
 .rb-card .rn-tag { margin: 0; border-color: currentColor; background: rgba(20, 18, 15, 0.55); font-weight: 700; }
 .rb-card .rn-tag.single { color: #ffb07a; } .rb-card .rn-tag.pack { color: #8fd4ff; } .rb-card .rn-tag.both { color: #a8e29a; }
 .rb-tag-none { display: inline-block; padding: 0 6px; border: 1px solid rgba(255, 255, 255, 0.4); color: #ece6d8; background: rgba(20, 18, 15, 0.35); font: 700 9.5px/15px var(--f-body); }

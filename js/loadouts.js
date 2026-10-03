@@ -410,7 +410,7 @@ const Loadouts = {
     const rl = h('ul', { class: 'lo-pv-list' });
     for (const rid of b.runes) {
       const r = Runes.BY_ID[rid], lvOk = (p.skills[r.skill] || 0) >= Runes.UNLOCK;
-      rl.append(h('li', { class: c.classOk && !lvOk ? 'dim' : '' }, `${SKILLS[r.skill].name} → `, h('b', {}, `${r.glyph || 'ᚱ'} ${r.name}`),
+      rl.append(h('li', { class: c.classOk && !lvOk ? 'dim' : '', title: Runes.shortOf(r) }, `${SKILLS[r.skill].name} → `, h('b', {}, `${r.glyph || 'ᚱ'} ${r.name}`),
         c.classOk && !lvOk ? h('small', {}, L(` (ต้อง ${SKILLS[r.skill].name} Lv ${Runes.UNLOCK})`, ` (needs Lv ${Runes.UNLOCK})`)) : null));
     }
     if (!b.runes.length) rl.append(h('li', { class: 'dim' }, L('ไม่ใส่รูน', 'No runes')));
