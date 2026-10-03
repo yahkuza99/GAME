@@ -10,7 +10,7 @@
   --ua-frame: url("../assets/ui_win_frame.webp");
   --ua-wb: 16px;                  /* ขอบหน้าต่าง (เลย์เอาต์) */
   --ua-wi: 36px 34px 36px 34px;   /* ขนาดที่วาดกรอบ (มุมหัวหมาป่า/ขนสัตว์) — ใหญ่กว่าขอบได้ วาดทับขอบช่องด้านใน */
-  --ua-ink: #2e1f10; --ua-ink-dim: #5f4730; --ua-ink-faint: #8a7254;
+  --ua-ink: #2e1f10; --ua-ink-dim: #5f4730; --ua-ink-faint: #76603f;
 }
 @media (max-width: 760px), (max-height: 520px) {
   :root { --ua-wb: 12px; --ua-wi: 28px 27px 28px 27px; }
@@ -181,7 +181,7 @@ body.visor :is(#item-tip, .win) .tip-set .ts-tier.on { color: #2a7a36; }
 
 /* ---------------- บทสนทนา NPC (แผ่น 5) ---------------- */
 body.visor #w-dialog.win { border-width: 14px 14px 18px; border-image: url("../assets/ui_dlg_box9.webp") 104 100 112 100 fill / 32px 30px 34px / 0 stretch; }
-body.visor #w-dialog .win-title { margin-top: -6px; }
+body.visor #w-dialog .win-title { margin-top: -6px; justify-content: flex-start; padding-left: 18px; } /* ป้ายชื่อชิดซ้าย — กลางขอบบนเป็นลายข้าวหลามตัด */
 /* ป้ายชื่อ NPC: แผ่นไม้ปลายแหลม (แทนแผ่นหมาป่าของหน้าต่างทั่วไป) */
 body.visor #w-dialog .win-title span { height: 30px; border-width: 0 28px; border-image: url("../assets/ui_dlg_name.webp") 0 92 fill / 0 28px / 0 stretch;
   color: var(--ua-ink); text-shadow: 0 1px 0 rgba(255, 245, 220, 0.7); font-size: 14px; padding: 0 8px; }
@@ -194,16 +194,24 @@ body.visor .win .dlg-text { background: none; border: 0; box-shadow: none; paddi
 body.visor .win .dlg-text .npc-hl, body.visor .win .npc-hl { color: #8a3f00; }
 /* ตัวเลือก: แถบไม้+หนัง หมุดรูนบรอนซ์ซ้าย กลางกระดาษ */
 body.visor .win .dlg-opt { min-height: 34px; border-radius: 0; background: none; box-shadow: none; color: var(--ua-ink); font-weight: 600;
-  border-style: solid; border-color: transparent; border-width: 0 10px 0 30px; padding: 4px 6px 4px 4px;
-  border-image: url("../assets/ui_dlg_choice.webp") 0 34 0 92 fill / 0 11px 0 30px / 0 stretch; transition: filter 0.15s, transform 0.12s; }
+  border-style: solid; border-color: transparent; border-width: 0 10px 0 38px; padding: 4px 6px 4px 9px;
+  border-image: url("../assets/ui_dlg_choice.webp") 0 34 0 112 fill / 0 11px 0 38px / 0 stretch; transition: filter 0.15s, transform 0.12s; }
 body.visor .win .dlg-opt::before { content: none; }
 body.visor .win .dlg-opt:hover, body.visor .win .dlg-opt.gp-sel, body.visor .win .dlg-opt.kbd { background: none !important; border-color: transparent !important; box-shadow: none !important; color: #1d1005;
   filter: drop-shadow(0 0 5px rgba(242, 170, 60, 0.9)) brightness(1.06); }
 body.visor .win .dlg-opt:active { transform: translateY(1px); }
 body.visor .win .dlg-opt kbd, body.visor .win .dlg-btns kbd { color: #5f4730; background: rgba(120, 82, 40, 0.12); border-color: rgba(92, 60, 28, 0.35); }
 body.visor .win .dlg-opt.kbd kbd { color: #fff6dc; background: #94570c; }
-/* รูปหน้า NPC ในกรอบโค้ง (มือถือ: ภาพประกอบใหญ่ถูกกล่องบัง) */
+/* รูปหน้า NPC ในกรอบโค้ง — เฉพาะจอมือถือ (ภาพประกอบใหญ่ #illust ถูกกล่องคุยบังจนมองไม่เห็น) • จอใหญ่ใช้ภาพประกอบเต็มตัวแบบเดิม */
 body.visor #w-dialog .dlg-pic { display: none; }
+@media (max-width: 760px), (max-height: 520px) {
+  body.visor #w-dialog.has-pic .dlg-pic { display: block; position: absolute; right: 2px; bottom: 6px; width: 84px; height: 187px; max-height: calc(100% - 60px); z-index: 0; pointer-events: none;
+    filter: drop-shadow(0 3px 5px rgba(40, 20, 4, 0.5)); }
+  body.visor #w-dialog.has-pic .dlg-pic::before { content: ""; position: absolute; inset: 13% 16.7% 8% 16.7%; border-radius: 50% 50% 0 0 / 19% 19% 0 0;
+    background: var(--npc-pic) center 4% / 250% auto no-repeat, radial-gradient(circle at 50% 30%, #6b4a2c, #24160a 80%); }
+  body.visor #w-dialog.has-pic .dlg-pic::after { content: ""; position: absolute; inset: 0; background: url("../assets/ui_dlg_portrait.webp") center / 100% 100% no-repeat; }
+  body.visor #w-dialog.has-pic .win-body { padding-right: 88px; }
+}
 
 /* ---------------- เมนู: เหรียญไม้แกะสลัก 20 แบบ (แผ่น 6–9) ---------------- */
 body.visor #menubar button[data-win] svg, body.visor #menubar button[data-ic] svg { display: none; }
@@ -233,9 +241,10 @@ body.visor #chat-btn { background: url("../assets/ui_icon_chat.webp") center / 8
 
 /* ---------------- HUD (แผ่น 4) ---------------- */
 /* กรอบรูปวงกลมไม้+รูน (วงแหวน HP/SP ยังวาดด้วย SVG ในร่องด้านใน) */
-body.visor .bi-face::after { content: ""; position: absolute; left: -13px; top: -12px; width: 114px; height: 111px; pointer-events: none; z-index: 1;
+body.visor .bi-face::after { content: ""; position: absolute; left: -14.8%; top: -13.6%; width: 129.5%; height: 126%; pointer-events: none; z-index: 1;
   background: url("../assets/ui_hud_portrait.webp") center / 100% 100% no-repeat; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6)); }
-body.visor .bi-face em { z-index: 2; }
+body.visor .bi-face em { z-index: 2; left: auto; right: -9px; bottom: 3px; transform: none; background: radial-gradient(circle at 50% 35%, #6b4a2c, #2c1a0b 80%); border-color: #e2c788; color: #ffe2a0; }
+body.visor .bi-id span { color: #ffd27a; }
 body.visor #bi-rings .rb { stroke: rgba(30, 16, 4, 0.55); }
 /* มินิแมพ: กรอบไม้สี่เหลี่ยมมุมมน รูน 4 ทิศ ลูกศรบนบอกทิศเหนือ */
 body.visor .mm-ring { overflow: visible; padding: 8.3%; background: none; border: 0; box-shadow: none; border-radius: 0; }
@@ -274,9 +283,9 @@ body.visor #party-hud .gauge.hp .fill { background: url("../assets/ui_bar_red.we
 body.visor #party-hud .gauge.sp .fill { background: url("../assets/ui_bar_cyan.webp") left center / 120px 100% repeat-x; }
 
 /* ---------------- ตัวติดตามเควสต์: ม้วนกระดาษ ตราครั่ง (แผ่น 5) ---------------- */
-body.visor #quest-track, body.visor.pad-mode #quest-track, body.visor .pad-mode #quest-track {
-  border-style: solid; border-color: transparent; border-width: 7px 12px 7px 26px; padding: 2px 4px 3px 6px; background: none; text-shadow: none;
-  border-image: url("../assets/ui_quest_scroll_h.webp") 44 74 46 140 fill / 10px 17px 11px 32px / 0 stretch;
+body.visor #quest-track, body.visor.pad-mode #quest-track, body.visor .pad-mode #quest-track, body.visor.pad-mode #hud #quest-track {
+  border-style: solid; border-color: transparent; border-width: 7px 12px 7px 38px; padding: 2px 4px 3px 4px; background: none; text-shadow: none;
+  border-image: url("../assets/ui_quest_scroll_h.webp") 44 74 46 140 fill / 10px 17px 11px 36px / 0 stretch;
   filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.55)); }
 body.visor #quest-track::before { color: #8a4f0a; }
 body.visor #quest-track .qt-title { color: var(--ua-ink); }
@@ -365,7 +374,7 @@ body.visor .win:not(.gc-art) .seg button:hover { color: #2c1806; }
 body.visor .win:not(.gc-art) .seg button.on { border-image-source: url("../assets/ui_btn_hover.webp"); color: #1d0e02; text-shadow: 0 1px 0 rgba(255, 238, 200, 0.7); }
 body.visor .win:not(.gc-art) .opt-lbl { color: #8a5300; }
 /* แท็บแคบ (กระเป๋า 4 แท็บ): หัวหมาป่าเล็กลง ไม่ล้นหน้าต่าง */
-body.visor .win .tabs .tab { flex: 1 1 0; min-width: 0; border-width: 0 14px; border-image-width: 0 15px; padding: 4px 0 7px; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.visor .win .tabs .tab { flex: 1 1 0; min-width: 0; border-width: 0 12px; border-image-width: 0 14px; padding: 4px 0 7px; font-size: 11.5px; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* เมนู (คอม): แผงไม้เข้มแทนกระจกฟ้า */
 body.visor:not(.pad-mode) #menubar:not(.folded) { background: rgba(38, 24, 10, 0.82); box-shadow: inset 0 0 0 1px rgba(226, 199, 136, 0.3), 0 16px 30px -12px rgba(0, 0, 0, 0.8); }
 /* ปุ่มกลมรอบมินิแมพ / พับแผง: บรอนซ์ */
@@ -401,3 +410,19 @@ body.visor #w-classbook .cb-next button { color: var(--ua-ink); background: colo
 body.visor #w-classbook .cb-next button small { color: var(--ua-ink-dim); }
 body.visor #w-classbook .cb-tip { background: rgba(242, 180, 90, 0.16); color: var(--ua-ink); }
 body.visor #w-classbook .cb-art { opacity: 0.4; }
+/* หน้าอุปกรณ์: style.css ใช้ shorthand border (ล้าง border-image) ด้วย selector ระดับ id → ต้องตั้งซ้ำที่ระดับเดียวกัน */
+body.visor #w-equip.win { border-style: solid; border-color: transparent; border-width: var(--ua-wb) var(--ua-wb) calc(var(--ua-wb) + 4px);
+  border-image: var(--ua-frame) 118 112 fill / var(--ua-wi) / 0 round; background: none; }
+body.visor #w-equip.win::before { content: none; }
+body.visor #w-equip .win-x { background: url("../assets/ui_win_close.webp") center / contain no-repeat; color: transparent; }
+body.visor #w-equip .win-title span::before { background: var(--wic) center / contain no-repeat; transform: none; border-radius: 50%; box-shadow: none; }
+body.visor #w-equip .eq-slot { box-shadow: inset 0 1px 3px rgba(60, 30, 5, 0.25); }
+body.visor #w-equip .eq-slot.empty { background: rgba(120, 82, 40, 0.05); border-color: rgba(92, 60, 28, 0.25); }
+body.visor #w-equip .hint { color: var(--ua-ink-faint); }
+/* มือถือ: ม้วนเควสต์มีแกนม้วน+ตราครั่งกินที่ ~50px → ขยายกล่องเท่านั้น (ยึดขอบขวาเดิม ข้อความกว้างเท่าเดิม) */
+@media (max-height: 520px) and (orientation: landscape) {
+  body.visor.pad-mode #hud #quest-track, body.visor.pad-mode #hud:has(#buffs .buff) #quest-track { width: 186px; }
+}
+@media (orientation: portrait) {
+  body.visor.pad-mode #hud #quest-track, body.visor.pad-mode #hud:has(#buffs .buff) #quest-track { width: min(58vw, 236px); }
+}

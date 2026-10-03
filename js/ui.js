@@ -35,7 +35,7 @@ const UI = {
     this.initFolds();
     for (const w of $$('.win')) this.makeWindow(w);
     // กล่องคุย NPC: ลวดลายกลางขอบบน/ล่าง (ข้าวหลามตัด/อีกา — css/ui_art.css) ไม่ยืดตามความกว้างกล่อง
-    $('#w-dialog').append(h('i', { class: 'dlg-orn top', 'aria-hidden': 'true' }), h('i', { class: 'dlg-orn bot', 'aria-hidden': 'true' }));
+    $('#w-dialog').append(h('i', { class: 'dlg-orn top', 'aria-hidden': 'true' }), h('i', { class: 'dlg-orn bot', 'aria-hidden': 'true' }), h('i', { class: 'dlg-pic', 'aria-hidden': 'true' }));
     $('#chat-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         const v = e.target.value.trim();
@@ -1912,6 +1912,8 @@ const UI = {
   illust(key) {
     const el = $('#illust');
     const img = key && Art.get(key);
+    // มือถือ: ภาพประกอบใหญ่ถูกกล่องคุยบัง → แสดงหน้า NPC ในกรอบโค้ง (ui_dlg_portrait) ในกล่องคุยแทน
+    const dw = $('#w-dialog'); dw.classList.toggle('has-pic', !!img); if (img) dw.style.setProperty('--npc-pic', `url("${img.src}")`);
     if (!img) { el.classList.remove('show'); return; }
     if (el.dataset.key !== key) { el.innerHTML = ''; el.append(Object.assign(new Image(), { src: img.src, alt: '' })); el.dataset.key = key; }
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
