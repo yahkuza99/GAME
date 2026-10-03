@@ -393,8 +393,8 @@ NPC.scripts.hel = async n => {
     await UI.say('[...]', L('พื้นโพรงสั่น เสียงแทะดังมาจากข้างล่าง<br>ชั้นวางประกายของ Hel สว่างพรึบพร้อมกัน', 'The floor of the Hollow trembles. A gnawing sound rises from below.<br>All of Hel\'s spark shelves blaze to light at once.'));
     UI.dlgClose();
     Sound.play('mvp');
-    UI.splash(null, L('บทที่ 6 — รากที่ถูกแทะ', 'Chapter 6 — The Gnawed Root'), L('เร็ว ๆ นี้ • IRON VALHALLA', 'Coming Soon • IRON VALHALLA'), 'upgrade');
-    UI.msg(L('📖 บทที่ 6 — รากที่ถูกแทะ (เร็ว ๆ นี้)', '📖 Chapter 6 — The Gnawed Root (Coming Soon)'), 'lvl');
+    UI.splash(null, L('บทที่ 6 — รากที่ถูกแทะ', 'Chapter 6 — The Gnawed Root'), L('ลงไปที่ Archive Depths • IRON VALHALLA', 'Descend to the Archive Depths • IRON VALHALLA'), 'upgrade');
+    UI.msg(L('📖 เริ่มบทที่ 6 — รากที่ถูกแทะ: ทางลงอยู่ใต้ Hel\'s Hollow (Archive Depths)', '📖 Chapter 6 begins — The Gnawed Root: the way down lies beneath Hel\'s Hollow (Archive Depths)'), 'lvl');
     saveGame();
     return;
   }

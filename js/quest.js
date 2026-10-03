@@ -104,7 +104,7 @@ const QUESTS = [
     done: L('เก้าหัวเผาดับลงทีละหัว... ใครบางคนเพิ่งใช้กุญแจของผู้พิทักษ์ — กลับไปหา Hel', 'The nine burners die out one by one... someone has just used a Guardian\'s key — return to Hel.'),
     obj: { type: 'kill', mob: 'kitsura', n: 1 }, reward: { items: [['white_potion', 5], ['blue_potion', 5]], zeny: 10000 } },
   { id: 'hollow5', ch: 5, title: L('ใบแรก', 'The First Leaf'), desc: L('ไฟดับแล้ว — กลับไปหา Hel ที่กลางโพรง มีคนรออยู่ในเงาหลังเธอ', 'The fire is out — return to Hel in the heart of the Hollow. Someone waits in the shadow behind her.'),
-    done: L('บทที่ 6 — รากที่ถูกแทะ (เร็ว ๆ นี้)', 'Chapter 6 — The Gnawed Root (Coming Soon)'),
+    done: L('ต่อไป: บทที่ 6 — รากที่ถูกแทะ (Archive Depths)', 'Next: Chapter 6 — The Gnawed Root (Archive Depths)'),
     obj: { type: 'talk', npc: 'hel' }, reward: { items: [['white_potion', 5]], zeny: 5000, bexp: 8000, jexp: 5000 } },
 ];
 
