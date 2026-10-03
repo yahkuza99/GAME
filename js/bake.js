@@ -288,17 +288,8 @@ const Bake = {
       g.globalAlpha = a0; g.globalCompositeOperation = 'source-over';
     }
     g.restore();
-    // ชื่ออาคารบนแผ่นป้าย (ตัวหนังสือจากโค้ด — คมทุกระดับซูม) ไม่จางตามอาคาร
-    const lx = L + e.lx * s, ly = Tp + e.ly * s, lw = e.lw * s;
-    g.save();
-    g.textAlign = 'center'; g.textBaseline = 'middle';
-    let fs = b.kind === 'castle' ? 14 : 12;
-    g.font = `700 ${fs}px Kanit, "Noto Sans Thai", sans-serif`;
-    const tw = g.measureText(b.label).width;
-    if (tw > lw * 0.9) { fs = Math.max(8, fs * lw * 0.9 / tw); g.font = `700 ${fs.toFixed(1)}px Kanit, "Noto Sans Thai", sans-serif`; }
-    g.shadowColor = b.roof || '#6ad8ff'; g.shadowBlur = 6 + Math.sin(t * 3) * 2;
-    g.fillStyle = '#fff'; g.fillText(b.label, lx, ly + 1);
-    g.restore();
+    // ชื่ออาคาร: ป้ายไม้ขอบทองแบบเดียวกับภาพวาด (Sprites.shopSign) วางทับแผ่นป้ายแขวนในภาพ 3D (lx, ly = กลางแผ่นป้าย) — คมทุกระดับซูม ไม่จางตามอาคาร
+    if (typeof Sprites !== 'undefined' && Sprites.shopSign) Sprites.shopSign(g, L + e.lx * s, Tp + e.ly * s, b.label, b.roof);
     return true;
   },
 
