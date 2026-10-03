@@ -572,7 +572,7 @@ const Juice = (() => {
       if (c.crit) { f.js = 'crit'; f.dur = 1.25; }
       else if (c.skill) { f.js = 'skill'; f.dur = 1.05; f.color = EL_COL[c.el] || EL_COL.neutral; }
       else if (c.dot) { f.js = 'dot'; f.dur = 0.85; }
-      else { f.js = 'normal'; f.dur = 0.95; f.color = color || '#ffffff'; }
+      else { f.js = 'normal'; f.dur = 1.05; f.color = color || '#ffffff'; }
       if (c.boss && f.js !== 'dot') f.bossHit = true;
       // เทียบกับ "ปกติของฉัน" (มัธยฐาน 20 ฮิตล่าสุด): แรงกว่า 2 เท่า = ใหญ่ขึ้น+เรือง, 4 เท่า = ใหญ่กว่าอีก+สั่น (GAME_FEEL ข้อ 11)
       const v = +String(txt).replace(/[^0-9]/g, '');
@@ -605,6 +605,18 @@ const Juice = (() => {
     }
   };
   const FONT = 'Kanit, "Trebuchet MS", Tahoma, sans-serif';
+  // ตัวเลขดาเมจแบบ RO: พุ่งขึ้นเหนือหัว → ตกโค้งลงต่ำกว่าจุดเกิด (ไปด้านข้าง) → เด้งพื้น 1 ที แล้วจางหาย
+  // คืนค่า [dy (บวก = ลง), dx, scale] จากเวลา t (วิ) • ทิศซ้าย/ขวาสุ่มต่อตัว
+  const RO_UP = 26, RO_FLOOR = 24, RO_T1 = 0.22, RO_V0 = 2 * RO_UP / RO_T1, RO_G = RO_V0 / RO_T1;
+  const RO_TF = RO_T1 + Math.sqrt(2 * (RO_UP + RO_FLOOR) / RO_G), RO_VB = 0.34 * RO_G * (RO_TF - RO_T1), RO_TB = RO_TF + 2 * RO_VB / RO_G;
+  const roArc = (t, dir, side = 30) => {
+    let up;
+    if (t < RO_TF) up = RO_V0 * t - 0.5 * RO_G * t * t;
+    else if (t < RO_TB) { const u = t - RO_TF; up = -RO_FLOOR + RO_VB * u - 0.5 * RO_G * u * u; }
+    else up = -RO_FLOOR;
+    const p = Math.min(1, t / RO_TB);
+    return [-up, dir * side * easeOut(p), 1 - 0.14 * Math.max(0, Math.min(1, (t - RO_T1) / (RO_TF - RO_T1)))];
+  };
   const pop = (t, peak, d = 0.06, back = 0.14) => (t < d ? 0.5 + (peak - 0.5) * (t / d) : t < d + back ? peak + (1 - peak) * easeOut((t - d) / back) : 1);
   J.drawFloater = (base, g, f) => {
     const s = f.js;
@@ -613,14 +625,14 @@ const Juice = (() => {
     let x = f.x * TILE + (f.ox || 0), y = R.py(f.y * TILE), sc = 1, a = 1, size = 18, fill = f.color || '#fff', stroke = 'rgba(0,0,0,0.88)', lw = 4, font = '800';
     const fadeFrom = (k0) => (k > k0 ? Math.max(0, 1 - (k - k0) / (1 - k0)) : 1);
     if (s === 'normal') {
-      sc = pop(t, 1.55); y -= 28 * easeOut(Math.min(1, t / 0.6)) + 6 * k; x += f.vx * k; a = fadeFrom(0.6);
+      const [dy, dx, ss] = roArc(t, f.rdir || (f.rdir = f.vx < 0 ? -1 : 1)); sc = pop(t, 1.55) * ss; y += dy; x += dx; a = fadeFrom(0.72);
     } else if (s === 'crit') {
       sc = pop(t, 1.85, 0.05, 0.18); size = 25; lw = 6; stroke = '#3a1000';
-      y -= 22 * easeOut(Math.min(1, t / 0.7)) + 8 * k; a = fadeFrom(0.65);
+      const [dy, dx] = roArc(t * 0.85, f.rdir || (f.rdir = f.vx < 0 ? -1 : 1), 18); y += dy; x += dx; a = fadeFrom(0.74);
       if (t < 0.2) { const j = (1 - t / 0.2) * 3; x += (rand() - 0.5) * j * 2; y += (rand() - 0.5) * j; }
       fill = J.goldGrad || (J.goldGrad = (() => { const gr = g.createLinearGradient(0, -13, 0, 13); gr.addColorStop(0, '#fffbe0'); gr.addColorStop(0.45, '#ffd84a'); gr.addColorStop(1, '#ff9a1a'); return gr; })());
     } else if (s === 'skill') {
-      sc = pop(t, 1.8); size = 21; y -= 32 * easeOut(Math.min(1, t / 0.65)) + 6 * k; x += f.vx * k; a = fadeFrom(0.62);
+      const [dy, dx, ss] = roArc(t, f.rdir || (f.rdir = f.vx < 0 ? -1 : 1), 34); sc = pop(t, 1.8) * ss; size = 21; y += dy; x += dx; a = fadeFrom(0.72);
     } else if (s === 'heal') {
       sc = pop(t, f.num ? 1.3 : 1.15, 0.06, 0.2); size = f.num ? 17 : 14; y -= 46 * easeOut(k); a = fadeFrom(0.7);
     } else if (s === 'miss') {
@@ -629,7 +641,7 @@ const Juice = (() => {
     } else if (s === 'player') {
       sc = pop(t, 1.6); size = 19; lw = 5; stroke = '#2a0006';
       if (t < 0.12) x += (rand() - 0.5) * 3;
-      y += -14 * Math.sin(Math.min(1, t / 0.3) * Math.PI) + 10 * easeOut(Math.max(0, (t - 0.15) / 0.85)); x += f.vx * k; a = fadeFrom(0.6);
+      const [dy, dx, ss] = roArc(t, f.rdir || (f.rdir = f.vx < 0 ? -1 : 1), 24); sc *= ss; y += dy; x += dx; a = fadeFrom(0.72);
     } else if (s === 'dot') {
       size = 14; lw = 3; y -= 20 * k; a = fadeFrom(0.5);
     }
