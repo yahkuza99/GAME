@@ -315,3 +315,13 @@ body.fx-low .rb-card.sel, body.fx-low .rb-tile.sel { box-shadow: inset 0 1px 0 r
   body:not(.pad-mode) .win.book-win:not(.hidden), body:not(.pad-mode) #w-runes:not(.hidden) { top: max(4px, var(--st, 0px)) !important;
     height: auto !important; max-height: calc(100dvh - 8px - var(--st, 0px) - var(--sb, 0px)) !important; }
 }
+/* แถบลัดล่าง (เลย์เอาต์คอมบนจอแคบ): เดิม 3 แถว (AUTO/ULT • สกิล 1–8 • ยา) → 2 แถว ตามที่เจ้าของวาด:
+   แถวบน = สกิล 1–8 • แถวล่าง = AUTO ชิดซ้าย · ยา · ULT ชิดขวา */
+@media (max-width: 760px) {
+  body:not(.pad-mode) #dock { flex-wrap: wrap; justify-content: space-between; align-items: center; row-gap: 6px; column-gap: 6px; }
+  body:not(.pad-mode) #dock #hotbar { order: 0; flex: 1 0 100%; width: 100%; max-width: 100%; margin: 0 !important; padding: 0 !important; justify-content: space-between; gap: 4px; box-sizing: border-box; }
+  body:not(.pad-mode) #dock #hotbar .hb { flex: 0 1 40px; min-width: 0; }
+  body:not(.pad-mode) #dock #auto-btn { order: 1; width: 46px !important; height: 46px !important; margin: 0 !important; position: relative !important; left: auto !important; top: auto !important; }
+  body:not(.pad-mode) #dock #potbar { order: 2; flex: 0 1 auto; margin: 0 auto; }
+  body:not(.pad-mode) #dock #ult-btn { order: 3; width: 46px !important; height: 46px !important; margin: 0 !important; position: relative !important; left: auto !important; top: auto !important; right: auto !important; bottom: auto !important; }
+}
