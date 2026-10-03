@@ -1045,6 +1045,7 @@ Sprites.glowBlit = (g, img, kind, pulse, W, H) => {
 };
 // อาคารจากภาพ: วางทับฐานอาคาร (footprint) ตั้งตรง หลังคายื่นขึ้นไปด้านบน
 Sprites.drawBuildingImg = (g, b, t) => {
+  if (b.bake && Bake.drawBuilding(g, b, t)) return; // อาคาร 3D (js/bake.js) — ภาพวาดด้านล่างเป็นทางสำรอง
   const img = Art.get(b.img); if (!img) return;
   const pw = b.w * TILE, cx = (b.x + b.w / 2) * TILE, by = (b.y + b.h) * TILE;
   let W = pw * 1.12, H = W * img.height / img.width;

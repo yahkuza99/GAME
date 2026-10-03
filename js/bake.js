@@ -7,6 +7,7 @@
 //    + js/bake_data_archive.js (tools/archive3d.py --install: ชั้นวางตั้งอิสระ + ประกายโหลของชั้นวางสลักผนัง/ตราผนึกประตูห้องนิรภัย Archive Depths)
 //    + js/bake_data_eldheim.js (tools/fountain3d.py --install: น้ำพุคริสตัลกลางเมือง Neo Eldheim — ขอบสระ A + แกนน้ำพุ 12 เฟรม + เสาคริสตัล 4 ทิศ)
 //    + js/bake_data_eldheim_bifrost.js (tools/bifrost3d.py --install: แท่น Bifrost + เสาคริสตัลสายรุ้ง + เงา Norn's Wheel — ภาพวงล้อวาดใน gacha.js)
+//    + js/bake_data_eldheim_bld.js (tools/bld3d.py --install: หอคอย CENTRAL CORE + ร้าน 4 ร้าน — BLD_BAKE แยกจาก BAKE_DATA, Bake.buildings/drawBuilding)
 //  • แบบ A (ground): วาดลงผ้าใบพื้นของแมพ (แท่น/เงา — ของเตี้ย ไม่บังใคร)
 //  • reflect: เงาสะท้อนในน้ำของชิ้น B — วาดลงผ้าใบพื้นเฉพาะส่วนน้ำลึก (หน้ากากจาก drawWater ใน maps.js) ใต้ตัวละครเสมอ
 //  • แบบ B (pieces): สไปรต์ตั้งตรงเรียงความลึกกับตัวละคร (บัลลังก์/ชั้นวาง/ซากหิน) — กล้องเรนเดอร์ = กล้องเกม จึงวาด 1:1 ตามจุดยึด
@@ -191,6 +192,91 @@ const Bake = {
       if (map.def.dark) map.extraLights.push({ x: cx, y: cy - 0.3, lr: 3, col: GATE_BAKE.glow[map.def.kind], pgate: true }); // แสงรูนตัดความมืด (ถ้ำ/ป่ากลางคืน)
     }
     map.lightProps = null;
+  },
+
+  // ชุดอาคาร 3D ของเมือง (หอคอย CENTRAL CORE + ร้าน 4 ร้าน — tools/bld3d.py → BLD_BAKE ใน js/bake_data_eldheim_bld.js)
+  //   ใช้ทั้งชุดหรือไม่ใช้เลย (ไม่ปนภาพวาดกับ 3D): ปิดด้วยมือ BUILDING_3D = false (js/maps.js) • ฐาน/ป้ายไม่ตรงกับ addBuilding หรือ hash ผังรอบอาคารไม่ตรง
+  //   = ภาพวาดเดิม (BUILDING_ART) + console.warn ครั้งเดียว • คำนวณครั้งเดียวต่อแมพ (ผังเมืองไม่เปลี่ยนระหว่างเล่น)
+  bldSet(map) {
+    if (map._bldSet !== undefined) return map._bldSet;
+    map._bldSet = null;
+    if ((typeof BUILDING_3D !== 'undefined' && !BUILDING_3D) || typeof BLD_BAKE === 'undefined' || !map.buildings.length) return null;
+    const list = BLD_BAKE.list.filter(e => map.buildings.some(b => b.label === e.label));
+    if (!list.length) return null;
+    const bad = [];
+    for (const b of map.buildings) {
+      const e = list.find(q => q.label === b.label);
+      if (!e || e.x !== b.x || e.y !== b.y || e.w !== b.w || e.h !== b.h) { bad.push(`${b.label} ฐานไม่ตรง`); continue; }
+      let h = 0x811c9dc5; const r = e.hashRect; // FNV-1a ชนิดช่องในกรอบ — ตรงกับ tools/bld3d.py fnv_rect
+      for (let y = r[1]; y < r[3]; y++) for (let x = r[0]; x < r[2]; x++) { h ^= map.tile(x, y); h = Math.imul(h, 0x01000193) >>> 0; }
+      if (h !== e.hash) bad.push(`${b.label} ผังรอบอาคารเปลี่ยน (hash ${h} ≠ ${e.hash})`);
+    }
+    if (bad.length) {
+      const warned = this._warned || (this._warned = new Set());
+      if (!warned.has(map.id + ':bld')) { warned.add(map.id + ':bld'); console.warn(`Bake: ${map.id} อาคาร 3D ไม่ตรงผัง — ใช้ภาพวาดเดิมทั้งชุด (รัน tools/bld3d.py ใหม่): ${bad.join(' • ')}`); }
+      return null;
+    }
+    return (map._bldSet = list);
+  },
+  // renderGround: ภาพครบทุกไฟล์ → ผูก b.bake + วาดเงาอาคารลงผ้าใบพื้น • ยังไม่ครบ = เริ่มโหลด (Art.need) ใช้ภาพวาดไปก่อน แล้ววาดพื้นใหม่ตอนครบ (bakeWait)
+  buildings(map, g) {
+    for (const b of map.buildings) b.bake = null;
+    const set = this.bldSet(map); if (!set) return;
+    let ok = true;
+    for (const e of set) for (const k of [e.img, e.sh.img]) {
+      Art.need(k);
+      if (!Art.get(k)) { ok = false; (map.bakeWait || (map.bakeWait = new Set())).add(k); }
+    }
+    if (!ok) return;
+    g.save(); g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+    for (const e of set) g.drawImage(Art.get(e.sh.img), e.sh.x * TILE, e.sh.y * TILE, e.sh.w * TILE, e.sh.h * TILE); // เงาอาคาร (ตกขวาล่าง) ใต้ตัวละคร
+    g.restore();
+    for (const b of map.buildings) b.bake = { e: set.find(q => q.label === b.label), fa: 1, lt: 0 };
+  },
+  // วาดอาคาร 3D (เรียกใน upright(b.y + b.h − 0.5) ของ render.js — ที่เดียวกับภาพวาดเดิม เรียงความลึกเหมือนเดิม)
+  //   จุดยึด = กลางขอบหน้าฐานบนพื้น • จางเมื่อผู้เล่น/เป้าหมายยืนหลังส่วนทึบของภาพ • จุดเรืองกะพริบ (เตา/อ่างชุบ/คริสตัล/โคม) • ชื่ออาคารบนแผ่นป้าย
+  drawBuilding(g, b, t) {
+    const bk = b.bake, e = bk.e, img = Art.get(e.img); if (!img) return false;
+    const s = BLD_BAKE.s, K = R.K, sy = b.y + b.h - 0.5;
+    const L = (b.x + b.w / 2) * TILE - e.ax * s, Tp = (b.y + b.h) * TILE * K - sy * TILE * (K - 1) - e.ay * s;
+    let target = 1;
+    const p = typeof G !== 'undefined' && G.player;
+    if (p) for (const q of [p, p.target]) {
+      if (!q || q.dead || q.x == null || q.y >= sy) continue;
+      const qx = q.x * TILE, fy = q.y * TILE * K - sy * TILE * (K - 1); // เท้าของ q ในกรอบ upright ของอาคาร
+      if (this.behind(e.mask, (qx - L) / s, (fy - 56 - Tp) / s, (fy - 16 - Tp) / s, 12 / s)) { target = 0.4; break; }
+    }
+    const dt = Math.min(0.1, Math.max(0, t - bk.lt)); bk.lt = t;
+    bk.fa += (target - bk.fa) * Math.min(1, dt * 8);
+    g.save();
+    if (bk.fa < 0.995) g.globalAlpha *= bk.fa;
+    g.drawImage(img, L, Tp, img.width * s, img.height * s);
+    if (R.quality !== 'low') { // แสงเรืองมีชีวิต (บวกแสง): ไฟเตาวูบวาบ • อ่างชุบ/คริสตัลเต้นช้า • โคม/ไฟในร้านหายใจเบา ๆ
+      g.globalCompositeOperation = 'lighter';
+      const a0 = g.globalAlpha;
+      for (let i = 0; i < e.glows.length; i++) {
+        const [x, y, r, col, kd] = e.glows[i], ph = i * 1.7 + b.x;
+        const k = kd === 'fire' ? 0.55 + 0.25 * Math.sin(t * 11 + ph) + 0.2 * Math.sin(t * 23.7 + ph * 3)
+          : kd === 'vat' || kd === 'core' || kd === 'gem' ? 0.55 + 0.45 * Math.sin(t * 2.2 + ph) : 0.6 + 0.2 * Math.sin(t * 1.3 + ph);
+        const rr = r * s * (kd === 'warm' || kd === 'door' ? 1.1 : 1.6) * (0.9 + 0.15 * k);
+        g.globalAlpha = a0 * (kd === 'warm' || kd === 'door' ? 0.22 : 0.5) * k;
+        g.drawImage(this.glint(col), L + x * s - rr, Tp + y * s - rr, rr * 2, rr * 2);
+      }
+      g.globalAlpha = a0; g.globalCompositeOperation = 'source-over';
+    }
+    g.restore();
+    // ชื่ออาคารบนแผ่นป้าย (ตัวหนังสือจากโค้ด — คมทุกระดับซูม) ไม่จางตามอาคาร
+    const lx = L + e.lx * s, ly = Tp + e.ly * s, lw = e.lw * s;
+    g.save();
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    let fs = b.kind === 'castle' ? 14 : 12;
+    g.font = `700 ${fs}px Kanit, "Noto Sans Thai", sans-serif`;
+    const tw = g.measureText(b.label).width;
+    if (tw > lw * 0.9) { fs = Math.max(8, fs * lw * 0.9 / tw); g.font = `700 ${fs.toFixed(1)}px Kanit, "Noto Sans Thai", sans-serif`; }
+    g.shadowColor = b.roof || '#6ad8ff'; g.shadowBlur = 6 + Math.sin(t * 3) * 2;
+    g.fillStyle = '#fff'; g.fillText(b.label, lx, ly + 1);
+    g.restore();
+    return true;
   },
 
   // ตัวละครอยู่หลัง "ส่วนทึบ" ของภาพไหม: ช่วงลำตัว (ไม่นับเท้า — ยืนข้างรากเตี้ยไม่ต้องจาง) กว้าง ±hw ทับช่องทึบใน mask

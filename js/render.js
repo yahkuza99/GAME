@@ -254,7 +254,7 @@ R.render = () => {
   else for (const o of map.objects) if (o.x > VL && o.x < Rr && o.y > Tp && o.y < B) list.push({ y: o.y + 0.3, f: () => Sprites.drawTree(g, o, t) });
   if (map.backdrop && typeof Flora !== 'undefined') for (const o of map.backdrop) if (o.x > VL - 2 && o.x < Rr + 2 && o.y > Tp - 6) list.push({ y: o.y + 0.3, f: () => Flora.drawObj(g, o, t) }); // ป่าฉากหลังเหนือขอบแมพ (y ติดลบ = วาดก่อนทุกอย่างในแมพ)
   for (const o of map.props || []) { const cm = o.cull || 0; if (o.x > VL - cm && o.x < Rr + cm && o.y > Tp && o.y < B + 2 + cm) list.push({ y: o.y, f: () => Sprites.drawProp(g, o, t) }); } // cull = ของใหญ่ (ต้นไม้ยักษ์ js/bake.js) เผื่อขอบจอ
-  for (const b of map.buildings) if (b.img) list.push({ y: b.y + b.h - 0.5, f: () => Sprites.drawBuildingImg(g, b, t) });
+  for (const b of map.buildings) if (b.img || b.bake) list.push({ y: b.y + b.h - 0.5, f: () => Sprites.drawBuildingImg(g, b, t) });
   if (gate && gate.x > VL && gate.x < Rr && gate.y > Tp && gate.y < B + 6) { // ซุ้มปากถ้ำ (tools/ridge3d.py) + วาร์ปของมัน
     list.push({ y: gate.y, f: () => Sprites.drawRidgeGate(g, gate, t) });
     const pt = gate.portal;

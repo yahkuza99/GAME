@@ -92,6 +92,8 @@ function portalPos(def, side) {
 // ภาพฉาก (assets/prop_*) — ไม่มีภาพจะวาดด้วยโค้ดแบบเดิม
 const PROP_ART = { pylon: 'prop_pylon', crate: 'prop_crate', scrap: 'prop_scrap', bush: 'prop_bush', rock: 'prop_rock', mushroom: 'prop_mushroom', crystal: 'prop_crystal' };
 const BUILDING_ART = { SUPPLY: 'prop_bld_shop', ARMORY: 'prop_bld_house', PLATING: 'prop_bld_house', FORGE: 'prop_bld_forge' };
+// อาคาร 3D ทั้งชุดของเมือง (หอคอย + ร้าน 4 ร้าน — tools/bld3d.py, js/bake_data_eldheim_bld.js, js/bake.js Bake.buildings) • false = กลับไปใช้ภาพวาด BUILDING_ART เดิม
+const BUILDING_3D = true;
 const propArt = k => !!k && typeof Art !== 'undefined' && Art.has(k);
 // ภาพอบจาก Blender ของรอยต่อทุ่ง→ถ้ำ (tools/ridge3d.py): แถบสันหินแถวล่าง (แบบ A วาดลงพื้นแทน caveWalls) + ซุ้มปากถ้ำ (แบบ B ตั้งตรงเรียงความลึก)
 // hash = ผังช่องแถว y0..ล่างสุดตอนเรนเดอร์ — ผังเปลี่ยน (แก้ seed/ตัวสร้างแมพ) จะไม่ใช้ภาพ กลับไปวาดด้วยโค้ดเหมือนเดิม
@@ -605,7 +607,8 @@ class GameMap {
     this.props = [];
     this.decorate(g);
     if (typeof Bake !== 'undefined') Bake.ground(this, g); // แท่นหิน + เงาจากภาพเรนเดอร์ 3D (ทับกรวดที่ decorate วาด)
-    for (const b of this.buildings) { b.img = BUILDING_ART[b.label] || (b.kind === 'castle' ? 'prop_bld_tower' : null); if (!propArt(b.img)) { b.img = null; this.drawBuilding(g, b); } }
+    if (typeof Bake !== 'undefined') Bake.buildings(this, g); // อาคาร 3D (ภาพครบ + ผังตรง) → b.bake + เงาบนพื้น • ไม่งั้นภาพวาด/โค้ดเดิม
+    for (const b of this.buildings) { b.img = BUILDING_ART[b.label] || (b.kind === 'castle' ? 'prop_bld_tower' : null); if (!propArt(b.img)) { b.img = null; if (!b.bake) this.drawBuilding(g, b); } }
     this.fountainImg = !!(this.fountain && !this.fountain3d && propArt('prop_fountain')); // ภาพวาดน้ำพุเดิม = ทางสำรองของน้ำพุ 3D
     if (this.fountain && !this.fountainImg && !this.fountain3d) this.drawFountain(g);
     if (this.def.kind === 'town') this.placeTownProps(); else this.placeSeamProps();
