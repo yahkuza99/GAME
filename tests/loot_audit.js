@@ -220,7 +220,7 @@ const KILLS_PER_HOUR = 600;
   ok('tooltip shows set info and "Dropped by"', /Regalia of the Rust King/.test(setRes.tip) && /(ได้จาก|Dropped by)/.test(setRes.tip), setRes.tip.slice(0, 160));
   ok('tooltip item name is colored by rarity', /rar-rare/.test(setRes.tipHead), setRes.tipHead);
 
-  // ---------- 5) Brokk: ตั้งแต่ +5 ต้องใช้แร่ • ตีอัตโนมัติหยุดเมื่อแร่หมด ----------
+  // ---------- 5) Brokk (หน้าต่างเตาตีเหล็ก #w-forge): ตั้งแต่ +5 ต้องใช้แร่ • ตีอัตโนมัติหยุดเมื่อแร่หมด ----------
   const ref = await p.evaluate(async () => {
     const pl = G.player, out = {};
     pl.job = 'einherjar'; pl.zeny = 10000000;
@@ -228,31 +228,35 @@ const KILLS_PER_HOUR = 600;
     addItem('sword', 1, true); const w = pl.inventory.find(x => x.id === 'sword'); equipItem(w, true);
     w.refine = 4;
     pl.inventory = pl.inventory.filter(x => x.id !== 'rune_alloy');
-    const say0 = UI.say, menu0 = UI.menu, dc0 = UI.dlgClose;
-    const said = [];
-    let script = [];
-    UI.say = async (n, t) => { said.push(t); };
-    UI.menu = async (n, t, opts) => { said.push(t); return script.length ? script.shift() : opts.length - 1; };
-    UI.dlgClose = () => {};
-    const run = async s => { script = s.slice(); await NPC.scripts.refine({ name: 'Brokk' }); };
-    // ไม่มีแร่: ตี 1 ครั้งไม่ได้
-    await run([0, 0, 0]); // เมนูหลัก: ตีบวก → เลือกอาวุธ (ช่องแรก) → ตี 1 ครั้ง
-    out.noOre = w.refine; out.noOreMsg = said[said.length - 1];
-    out.menuMentionsOre = said.some(t => /Rune Alloy/.test(t));
+    const say0 = UI.say, dc0 = UI.dlgClose;
+    UI.say = async () => {}; UI.dlgClose = () => {};
+    const win = () => document.querySelector('#w-forge');
+    const btn = cls => win().querySelector('.det-acts .' + cls);
+    await NPC.scripts.refine({ name: 'Brokk' }); // เปิดหน้าต่างเตาตีเหล็ก
+    UI.forge.sel = 'weapon'; UI.renderForge();
+    out.open = UI.isOpen('w-forge');
+    // ไม่มีแร่: ปุ่มตี 1 ครั้งกดไม่ได้ และหน้าต่างบอกว่าต้องใช้แร่
+    out.strikeDisabled = !!btn('rf-strike') && btn('rf-strike').disabled;
+    btn('rf-strike') && btn('rf-strike').click();
+    await new Promise(r => setTimeout(r, 300));
+    out.noOre = w.refine;
+    out.menuMentionsOre = /Rune Alloy/.test(win().textContent);
     // มีแร่ 3 ชิ้น ตีอัตโนมัติถึง +10: ต้องหยุดเมื่อแร่หมด
     addItem('rune_alloy', 3, true);
-    const slotIdx = EQUIP_SLOTS.filter(s => pl.equip[s]).indexOf('weapon');
-    await run([0, slotIdx, 1, 5]); // ตีบวก → อาวุธ → ตีต่อเนื่อง → +10 (ตัวเลือกที่ 6 นับจาก +5)
+    UI.forge.target = 10; UI.renderForge();
+    btn('rf-autobtn').click();
     const t0 = Date.now();
-    while (Date.now() - t0 < 6000 && countItem('rune_alloy') > 0) await new Promise(r => setTimeout(r, 200));
-    await new Promise(r => setTimeout(r, 800));
-    out.oreLeft = countItem('rune_alloy'); out.after = w.refine; out.endMsg = said[said.length - 1];
-    UI.say = say0; UI.menu = menu0; UI.dlgClose = dc0;
+    while (Date.now() - t0 < 8000 && (countItem('rune_alloy') > 0 || (UI.forge && UI.forge.busy))) await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => setTimeout(r, 500));
+    out.oreLeft = countItem('rune_alloy'); out.after = w.refine; out.endMsg = (win().querySelector('.rf-res') || {}).textContent || '';
+    UI.close('w-forge');
+    UI.say = say0; UI.dlgClose = dc0;
     return out;
   });
-  ok('Brokk: +4 → +5 refuses without ore', ref.noOre === 4, ref.noOreMsg && ref.noOreMsg.slice(0, 80));
-  ok('Brokk: refine menu shows the ore requirement', ref.menuMentionsOre);
-  ok('Brokk: auto-refine consumes ore and stops when it runs out', ref.oreLeft === 0 && ref.after >= 5 && ref.after < 10, `refine +${ref.after}, ore left ${ref.oreLeft}`);
+  ok('Brokk: forge window opens', ref.open);
+  ok('Brokk: +4 → +5 refuses without ore', ref.noOre === 4 && ref.strikeDisabled, `refine +${ref.noOre}, strike disabled ${ref.strikeDisabled}`);
+  ok('Brokk: refine window shows the ore requirement', ref.menuMentionsOre);
+  ok('Brokk: auto-refine consumes ore and stops when it runs out', ref.oreLeft === 0 && ref.after >= 5 && ref.after < 10, `refine +${ref.after}, ore left ${ref.oreLeft} — ${ref.endMsg.slice(0, 80)}`);
 
   await browser.close();
   if (srv) srv.close();

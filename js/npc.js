@@ -231,62 +231,37 @@ NPC.bountyBoard = async nm => {
   }
 };
 
-NPC.scripts.refine = async n => {
-  const p = G.player, st = Story.st();
-  const nm = `[${n.name}]`;
-  const RATE = [1, 1, 1, 1, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1];
-  if (qDone('wolf') && !st.brokkWolf) { // หลังป่าหมาป่า: Brokk คือคนตีโซ่ Gleipnir และปลดมันในคืนนั้น
-    st.brokkWolf = 1;
-    await UI.say(nm, L('หมาป่าในป่าดมเจ้าแล้วเดินหนีงั้นรึ... (เสียงดังของเขาเบาลง)<br>Gleipnir โซ่ที่ล่าม Fenrir — ข้าเป็นคนตีมัน และเป็นคนปลดมันในคืนนั้น ตามคำสั่ง Odin', 'The wolves in that forest sniffed you and walked away, eh... (His booming voice drops low.)<br>Gleipnir, the chain that bound Fenrir — I forged it. And I\'m the one who unchained it that night, on Odin\'s orders.'));
-    await UI.say(nm, L('หมาป่าทุกตัวในป่านั่นคือของที่ข้าทำหลุดมือ เจ้าหนู<br>เอาเขี้ยวมันมาให้ข้าสักวัน ข้าจะตีเป็นอาวุธให้ — ด้วยมือสั่น ๆ นี่แหละ ฮ่าฮ่า...', 'Every wolf in that forest is something that slipped through my hands, kiddo.<br>Bring me one of their fangs someday. I\'ll forge you a weapon — with these shaky old hands. Ha-ha...'));
-  }
-  const slots = EQUIP_SLOTS.filter(s => p.equip[s]);
-  if (!slots.length) { await UI.say(nm, L('ฮ่าฮ่า! ข้าคือ Brokk Forge-Bot ช่างตีเหล็กรุ่นโบราณ เจ้าหนู!<br>สวมอุปกรณ์ที่อยากตีบวกก่อน แล้วค่อยมาหาข้า', 'Ha-ha! I\'m Brokk Forge-Bot, smith of the ancient line, kiddo!<br>Put on the gear you want refined first, then come see me!')); return; }
-  const intro = Quest.is('refine1') ? L('ทูตตัวนั้นโล่หนา ของธรรมดาเจาะไม่เข้า เจ้าหนู — ให้ข้าตีให้!<br>', 'That envoy\'s got a thick shield — ordinary gear won\'t pierce it, kiddo. Let me hammer yours!<br>')
-    : L('ฮ่าฮ่า! ข้าคือ Brokk Forge-Bot ช่างตีเหล็กรุ่นโบราณ!<br>', 'Ha-ha! I\'m Brokk Forge-Bot, smith of the ancient line!<br>');
-  // แร่ตีบวก (js/loot.js): ตั้งแต่ +5 ทุกครั้งที่ตีใช้แร่ 1 ชิ้น — อาวุธใช้ Rune Alloy ชุดเกราะใช้ Volt Ore
-  const oreOn = typeof LOOT !== 'undefined';
-  const oreNote = oreOn ? L(`<br>ตั้งแต่ +5 ขึ้นไป ทุกครั้งที่ตีต้องใช้แร่ 1 ชิ้น: ${B(ITEMS[LOOT.ORE.weapon].name)} (อาวุธ) / ${B(ITEMS[LOOT.ORE.armor].name)} (ชุดเกราะ) — ได้จากมอนสเตอร์เลเวลกลางขึ้นไป`, `<br>From +5 upward, every strike also needs 1 ore: ${B(ITEMS[LOOT.ORE.weapon].name)} for weapons, ${B(ITEMS[LOOT.ORE.armor].name)} for armor — mid-level monsters and up drop them.`) : '';
-  const i = await UI.menu(nm, L(`${intro}+1~+4 สำเร็จแน่นอน หลังจากนั้นอาจพลาดได้ — แต่ไม่ต้องกลัว <b>ของไม่มีวันแตก</b> แค่เสียค่าบริการ${oreNote}<br>จะตีบวกชิ้นไหน เจ้าหนู?`, `${intro}+1 to +4 always succeeds. After that it might miss — but fear not, <b>your gear never breaks</b>. You only lose the fee!${oreNote}<br>Which piece are we hammering, kiddo?`),
-    [...slots.map(s => `${SLOT_THAI[s]}: ${itemDisplayName(p.equip[s])}`), 'Cancel']);
-  if (i >= slots.length) return;
-  const slot = slots[i], e = p.equip[slot];
-  if ((e.refine || 0) >= 10) { await UI.say(nm, L('ชิ้นนี้ถูกตีบวกถึง +10 แล้ว ไม่มีอะไรให้ข้าทำอีก — ฝีมือข้าเองนี่นา ฮ่าฮ่า!', 'This piece is already at +10. Nothing left for me to do — my own handiwork, after all! Ha-ha!')); return; }
-  const lvl = e.refine || 0;
+// ------------------------------------------------------------
+//  Brokk Forge-Bot — ตีบวก / ถอดชิป
+//  UI เป็นหน้าต่างสมุดเปิด #w-forge (js/ui.js: UI.openForge / renderForge) • สูตรตีบวกอยู่ที่นี่ที่เดียว (ไม่เปลี่ยนจากเดิม)
+//  +1~+4 สำเร็จแน่นอน • จากนั้นอาจพลาด (ของไม่แตก เสียค่าบริการ) • ตั้งแต่ +5 ใช้แร่ 1 ชิ้นต่อครั้ง (js/loot.js)
+// ------------------------------------------------------------
+NPC.REFINE_RATE = [1, 1, 1, 1, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1];
+// ข้อมูลตีบวกของอุปกรณ์ที่สวมในช่อง slot: ค่าบริการ / โอกาส / แร่ / ค่าเฉลี่ยถึงเป้า
+NPC.refineCalc = slot => {
+  const p = G.player, e = p.equip[slot]; if (!e) return null;
+  const RATE = NPC.REFINE_RATE, lvl = e.refine || 0;
   const costAt = l => (slot === 'weapon' ? 250 : 400) * (l + 1);
-  const rate = RATE[lvl];
-  const ore = oreOn ? LOOT.oreFor(slot) : null, oreName = ore ? ITEMS[ore].name : '';
+  const ore = typeof LOOT !== 'undefined' ? LOOT.oreFor(slot) : null;
   const needOre = l => !!ore && l >= LOOT.ORE_FROM; // ตีจาก +l ไป +(l+1) ต้องใช้แร่ไหม
-  const oreLine = needOre(lvl) ? L(` • ใช้ ${B(oreName + ' 1 ชิ้น')} (มี ${B(countItem(ore))})`, ` • uses ${B('1 ' + oreName)} (you have ${B(countItem(ore))})`)
-    : ore ? L(` • ตั้งแต่ +5 ต้องใช้ ${oreName}`, ` • from +5: needs ${oreName}`) : '';
-  const c = await UI.menu(nm, L(`ตีบวก ${B(itemDisplayName(e))} (ตอนนี้ +${lvl})<br>ครั้งถัดไป +${lvl + 1}: ค่าบริการ ${B(U.fmt(costAt(lvl)) + ' ' + CUR)}${oreLine} • โอกาสสำเร็จ ${B(Math.round(rate * 100) + '%')}<br>หากพลาด อุปกรณ์ยังอยู่ครบ เสียแค่ค่าบริการ${ore ? 'และแร่' : ''} • มี ${B(U.fmt(p.zeny) + ' ' + CUR)}`, `Refine ${B(itemDisplayName(e))} (currently +${lvl})<br>Next, +${lvl + 1}: fee ${B(U.fmt(costAt(lvl)) + ' ' + CUR)}${oreLine} • success rate ${B(Math.round(rate * 100) + '%')}<br>On a miss your gear stays intact — you only lose the fee${ore ? ' and the ore' : ''} • You have ${B(U.fmt(p.zeny) + ' ' + CUR)}`),
-    [L('ตี 1 ครั้ง', 'Strike once'), L('ตีต่อเนื่องอัตโนมัติจนถึงเป้า', 'Auto-strike until target'), 'Cancel']);
-  if (c !== 0 && c !== 1) return;
-  let target = lvl + 1;
-  if (c === 1) {
-    const tg = [];
-    for (let t = lvl + 1; t <= 10; t++) tg.push(t);
-    const k = await UI.menu(nm, L(`ตีต่อเนื่องจนถึง +เท่าไร? ข้าจะตีไปเรื่อย ๆ ไม่ต้องสั่งใหม่ — หยุดเองเมื่อถึงเป้า หรือ ${CUR}${ore ? `/${oreName}` : ''} ไม่พอ`, `Strike up to what level? I'll keep hammering without another word from you — I stop at the target or when your ${CUR}${ore ? ` or ${oreName}` : ''} runs out.`),
-      [...tg.map(t => {
-        let sum = 0, ores = 0; for (let l = lvl; l < t; l++) { sum += costAt(l) / RATE[l]; if (needOre(l)) ores += 1 / RATE[l]; }
-        const o = ores ? L(` + ${oreName} ~${Math.ceil(ores)}`, ` + ~${Math.ceil(ores)} ${oreName}`) : '';
-        return L(`+${t} (เฉลี่ยราว ${U.fmt(Math.round(sum))} ${CUR}${o})`, `+${t} (avg. ~${U.fmt(Math.round(sum))} ${CUR}${o})`);
-      }), 'Cancel']);
-    if (k >= tg.length) return;
-    target = tg[k];
-  }
-  if (p.zeny < costAt(lvl)) { await UI.say(nm, L(`${CUR} ไม่พอนะเจ้าหนู`, `Not enough ${CUR}, kiddo!`)); return; }
-  if (needOre(lvl) && countItem(ore) < 1) { await UI.say(nm, L(`จะตีเกิน +4 ต้องมี ${B(oreName)} ด้วยนะเจ้าหนู — ไม่มีแร่ ค้อนข้าก็ไร้ความหมาย!<br>ไปล่ามอนสเตอร์เลเวลกลางขึ้นไป (Wolfwood, Hel's Hollow และลึกกว่านั้น) แล้วค่อยกลับมา`, `Going past +4 takes ${B(oreName)}, kiddo — without ore my hammer's just noise!<br>Go hunt mid-level monsters and up (Wolfwood, Hel's Hollow and deeper), then come back.`)); return; }
-  UI.dlgClose();
+  const avg = t => { let sum = 0, ores = 0; for (let l = lvl; l < t; l++) { sum += costAt(l) / RATE[l]; if (needOre(l)) ores += 1 / RATE[l]; } return { zeny: Math.round(sum), ore: Math.ceil(ores) }; };
+  return { slot, e, lvl, maxed: lvl >= 10, rate: RATE[lvl], cost: costAt(lvl), costAt, ore, oreName: ore ? ITEMS[ore].name : '', needOre, avg,
+    oreHave: ore ? countItem(ore) : 0, canPay: p.zeny >= costAt(lvl), oreOk: !needOre(lvl) || (ore && countItem(ore) > 0) };
+};
+// ตีทีละครั้ง เว้นจังหวะให้เห็นผล (เสียง + ข้อความ) จนถึงเป้า / เงินหรือแร่ไม่พอ / อุปกรณ์ถูกถอด / ผู้เล่นตาย
+// auto = ตีต่อเนื่อง (ค้อน 1 จังหวะต่อครั้ง) • คืนสรุปผล
+NPC.refineRun = async (slot, target, auto) => {
+  const p = G.player, c = NPC.refineCalc(slot);
+  if (!c || c.maxed) return null;
+  const { e, costAt, needOre, ore } = c, RATE = NPC.REFINE_RATE;
   let tries = 0, spent = 0, fails = 0, oreUsed = 0;
-  // ตีทีละครั้ง เว้นจังหวะให้เห็นผล (เสียง + ข้อความ) จนถึงเป้า / เงินไม่พอ / อุปกรณ์ถูกถอด / ผู้เล่นตาย
   while ((e.refine || 0) < target) {
     const l = e.refine || 0, cost = costAt(l);
     if (p.zeny < cost || p.equip[slot] !== e || p.dead) break;
     if (needOre(l)) { const oe = p.inventory.find(x => x.id === ore); if (!oe) break; removeEntry(oe, 1); oreUsed++; }
     p.zeny -= cost; spent += cost; tries++;
-    if (typeof Feel !== 'undefined') await Feel.forge(c === 1); // ค้อน 3 จังหวะ → เงียบลุ้น (ตีอัตโนมัติ = 1 จังหวะ)
-    else await new Promise(r => setTimeout(r, c === 1 ? 380 : 400));
+    if (typeof Feel !== 'undefined') await Feel.forge(auto); // ค้อน 3 จังหวะ → เงียบลุ้น (ตีอัตโนมัติ = 1 จังหวะ)
+    else await new Promise(r => setTimeout(r, auto ? 380 : 400));
     if (U.chance(RATE[l])) {
       e.refine = l + 1;
       Quest.onEvent('refine');
@@ -304,28 +279,36 @@ NPC.scripts.refine = async n => {
       if (typeof Feel !== 'undefined') Feel.forgeResult(false, l + 1);
     }
     UI.dirty();
-    if (c === 0) break;
+    if (!auto) break;
   }
   saveGame();
-  const done = (e.refine || 0) >= target;
-  if (c === 0) await UI.say(nm, done ? L(`ฮ่าฮ่า! สำเร็จ! ตอนนี้กลายเป็น ${B(itemDisplayName(e))} แล้ว!`, `Ha-ha! Success! It's now ${B(itemDisplayName(e))}!`) : L('โอ๊ะ! ค้อนพลาดไปนิด... อุปกรณ์ยังปลอดภัยดี ลองใหม่ได้เสมอ!', 'Whoops! The hammer slipped a bit... your gear\'s safe and sound. You can always try again!'));
-  else {
-    const noOre = !done && needOre(e.refine || 0) && countItem(ore) < 1;
-    const oreSpent = oreUsed ? L(` และ ${B(oreName + ' ' + oreUsed + ' ชิ้น')}`, ` and ${B(oreUsed + ' ' + oreName)}`) : '';
-    await UI.say(nm, L(`${done ? 'ถึงเป้าแล้ว! ฮ่าฮ่า!' : noOre ? `${oreName} หมดก่อนถึงเป้า — ไปล่าแร่มาเพิ่มแล้วค่อยมาใหม่!` : p.zeny < costAt(e.refine || 0) ? `${CUR} หมดกระเป๋าก่อนถึงเป้า — พักไปหาเงินแล้วมาใหม่!` : 'หยุดก่อนนะเจ้าหนู'}<br>ตอนนี้: ${B(itemDisplayName(e))}<br>ตีไป ${B(tries + ' ครั้ง')} (พลาด ${fails}) • ใช้ไป ${B(U.fmt(spent) + ' ' + CUR)}${oreSpent}`, `${done ? 'Target reached! Ha-ha!' : noOre ? `You ran out of ${oreName} before the target — go hunt for more ore and come back!` : p.zeny < costAt(e.refine || 0) ? `Your ${CUR} ran dry before the target — go earn some more and come back!` : 'Let\'s stop here, kiddo'}<br>Now: ${B(itemDisplayName(e))}<br>Strikes: ${B(tries)} (${fails} missed) • Spent ${B(U.fmt(spent) + ' ' + CUR)}${oreSpent}`));
-  }
+  const lv = e.refine || 0, done = lv >= target;
+  const noOre = !done && needOre(lv) && countItem(ore) < 1, broke = !done && p.zeny < costAt(lv);
+  return { e, tries, fails, spent, oreUsed, done, noOre, broke, oreName: c.oreName };
+};
+// ถอดชิปออกจากอุปกรณ์ (ฟรี ชิปกลับเข้ากระเป๋าครบ) • j = ลำดับชิป หรือ 'all'
+NPC.removeChips = (e, j) => {
+  if (!e || !e.cards || !e.cards.length) return [];
+  const out = j === 'all' ? e.cards.splice(0) : e.cards.splice(j, 1);
+  for (const id of out) addItem(id, 1, true);
+  recalc(); saveGame(); UI.dirty();
+  Sound.play('equip');
+  UI.msg(L(`ถอด ${out.map(id => ITEMS[id].name).join(', ')} ออกจาก ${itemDisplayName(e)} แล้ว (ฟรี)`, `Removed ${out.map(id => ITEMS[id].name).join(', ')} from ${itemDisplayName(e)} (free)`), 'item');
+  return out;
 };
 
-// Brokk: เมนูแรก ตีบวก / ถอดชิปออกจากอุปกรณ์ (ฟรี ชิปกลับเข้ากระเป๋าครบ)
-{
-  const forge = NPC.scripts.refine;
-  NPC.scripts.refine = async n => {
-    const nm = `[${n.name}]`;
-    const c = await UI.menu(nm, L('มาหา Brokk มีงานอะไรให้ข้าทำ?', 'Come to see Brokk, eh? What job have you got for me?'), [L('ตีบวกอุปกรณ์', 'Refine Equipment'), L('ถอดชิปออกจากอุปกรณ์ (ฟรี)', 'Remove Chips from Equipment (Free)'), 'Cancel']);
-    if (c === 0) return forge(n);
-    if (c === 1) return NPC.unsocket(nm);
-  };
-}
+NPC.scripts.refine = async n => {
+  const st = Story.st();
+  const nm = `[${n.name}]`;
+  if (qDone('wolf') && !st.brokkWolf) { // หลังป่าหมาป่า: Brokk คือคนตีโซ่ Gleipnir และปลดมันในคืนนั้น
+    st.brokkWolf = 1;
+    await UI.say(nm, L('หมาป่าในป่าดมเจ้าแล้วเดินหนีงั้นรึ... (เสียงดังของเขาเบาลง)<br>Gleipnir โซ่ที่ล่าม Fenrir — ข้าเป็นคนตีมัน และเป็นคนปลดมันในคืนนั้น ตามคำสั่ง Odin', 'The wolves in that forest sniffed you and walked away, eh... (His booming voice drops low.)<br>Gleipnir, the chain that bound Fenrir — I forged it. And I\'m the one who unchained it that night, on Odin\'s orders.'));
+    await UI.say(nm, L('หมาป่าทุกตัวในป่านั่นคือของที่ข้าทำหลุดมือ เจ้าหนู<br>เอาเขี้ยวมันมาให้ข้าสักวัน ข้าจะตีเป็นอาวุธให้ — ด้วยมือสั่น ๆ นี่แหละ ฮ่าฮ่า...', 'Every wolf in that forest is something that slipped through my hands, kiddo.<br>Bring me one of their fangs someday. I\'ll forge you a weapon — with these shaky old hands. Ha-ha...'));
+  }
+  UI.dlgClose();
+  UI.openForge(n); // หน้าต่างเตาตีเหล็ก: แท็บ ตีบวก / ถอดชิป
+};
+// ถอดชิปแบบบทสนทนา (สำรอง — หน้าต่างเตาตีเหล็กมีแท็บถอดชิปแล้ว)
 NPC.unsocket = async nm => {
   const p = G.player;
   // อุปกรณ์ที่มีชิปติดอยู่ ทั้งที่สวมและที่อยู่ในกระเป๋า
@@ -339,11 +322,7 @@ NPC.unsocket = async nm => {
   const j = await UI.menu(nm, L(`ถอดชิปชิ้นไหนออกจาก ${B(itemDisplayName(e))}?`, `Which chip comes out of ${B(itemDisplayName(e))}?`), opts);
   const all = e.cards.length > 1 && j === e.cards.length;
   if (!all && j >= e.cards.length) return;
-  const out = all ? e.cards.splice(0) : e.cards.splice(j, 1);
-  for (const id of out) addItem(id, 1, true);
-  recalc(); saveGame(); UI.dirty();
-  Sound.play('equip');
-  UI.msg(L(`ถอด ${out.map(id => ITEMS[id].name).join(', ')} ออกจาก ${itemDisplayName(e)} แล้ว (ฟรี)`, `Removed ${out.map(id => ITEMS[id].name).join(', ')} from ${itemDisplayName(e)} (free)`), 'item');
+  const out = NPC.removeChips(e, all ? 'all' : j);
   await UI.say(nm, L(`เรียบร้อย! ${B(out.map(id => ITEMS[id].name).join(', '))} กลับเข้ากระเป๋าแล้ว ช่องว่างพร้อมใส่ชิปใหม่`, `All done! ${B(out.map(id => ITEMS[id].name).join(', '))} is back in your bag, and the socket's ready for a new chip!`));
 };
 

@@ -1,0 +1,598 @@
+/* =====================================================================
+   IRON VALHALLA — UI ชุดใหม่ เฟส 2 (วาดด้วยโค้ดทั้งหมด • ใช้ค่าจาก css/tokens.css • โหลดหลัง theme.css / runes.css)
+   1) ไอคอนเส้นทอง (ป้ายชื่อหน้าต่าง / ปุ่ม / แท็บ)   2) สมุดร้านค้า คลัง เตาตีเหล็ก   3) สมุดบนคอม: แชท/การ์ดเควสต์จางลง
+   4) ช่องอุปกรณ์ + หน้าว่าง   5) Status   6) Skills + Rune   7) เควสต์ + Daily   8) ตั้งค่า   9) Party
+   10) Bot + Battle Script   11) แผนที่โลก / ต้นไม้พาสซีฟ / กาชา   12) การ์ดเควสต์ใต้โปรไฟล์ (แท็บ Quest / Daily)
+   13) แบนเนอร์: ฟื้นคืนชีพ / เลเวลอัป / ได้ของ / บอส / บท   14) จัดวาง HUD ไม่ให้ซ้อนกัน (คอม / มือถือแนวตั้ง / แนวนอน)
+   ระยะห่างใช้แค่ 4 / 8 / 12 / 16 / 24 (--s1..--s5)
+   ===================================================================== */
+
+/* ======================= 1) ไอคอนเส้นทอง ======================= */
+/* ป้ายชื่อหน้าต่าง: ไอคอนแทนเพชรทอง (mask สร้างโดย js/icons.js ตาม id หน้าต่าง) */
+body.visor .win:not(.gc-art) .win-title span::before {
+  width: 18px; height: 18px; border-radius: 0; transform: none; box-shadow: none;
+  background: linear-gradient(160deg, var(--c-gold-hi), var(--c-gold) 70%); }
+body.visor .win.book-win .win-title span::before { background: linear-gradient(160deg, #b57b22, #7a4e0e); }
+.ivi { display: inline-grid; place-items: center; flex: none; width: 18px; height: 18px; line-height: 0; }
+.ivi svg { width: 100%; height: 100%; }
+body.visor .win .btn .ivi { width: 18px; height: 18px; margin-right: 2px; }
+body.visor .win .btn.big .ivi { width: 20px; height: 20px; }
+body.visor .win .pill .ivi { width: 16px; height: 16px; }
+body.visor .win .dsec-h .ivi { width: 16px; height: 16px; color: #c48a1c; }
+/* เมนูกริด: ไอคอนเส้นทองบาง เงาเรืองนิด ๆ */
+body.visor #menubar button svg { stroke-width: 1.7; filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.45)); }
+body.visor #menubar button:hover svg { filter: drop-shadow(0 0 6px rgba(246, 200, 110, 0.55)); }
+body.visor #menubar button.on svg { filter: none; }
+
+/* ======================= 2) สมุดร้านค้า / คลัง / เตาตีเหล็ก ======================= */
+/* ราคาขวาแถว */
+.ipr { display: inline-flex; align-items: center; gap: var(--s1); min-height: 28px; padding: 0 var(--s2) 0 var(--s1); border-radius: var(--rad-pill);
+  background: var(--c-paper-2); border: 1px solid var(--c-line-2); color: var(--c-ink); font: 600 var(--fs-s)/1 var(--f-num); white-space: nowrap; }
+.ipr .coin { width: 18px; height: 18px; }
+.ipr.poor { color: var(--c-bad); border-color: rgba(179, 50, 31, 0.35); background: #fbe9e2; }
+.ipr-w { display: inline-flex; flex-direction: column; align-items: flex-end; gap: var(--s1); }
+/* กล่องราคา / จำนวน */
+.pricebox .kv { align-items: center; min-height: 36px; }
+.pricebox .kv.total { background: rgba(240, 220, 170, 0.35); }
+.pricebox .kv.total b { font: 700 var(--fs-l)/1.2 var(--f-num); color: var(--c-gold-ink); }
+.pricebox .kv.total.bad b, .pricebox .kv.bad b { color: var(--c-bad); }
+.pricebox .kv.ok b { color: var(--c-ok); }
+.pricebox .dsec-h .coin { width: 16px; height: 16px; }
+.qstep { display: inline-flex; align-items: center; gap: var(--s1); }
+body.visor .win .qstep .qty { width: 64px; height: 32px; padding: 0 var(--s2); text-align: center; font: 600 var(--fs-m)/1 var(--f-num); -moz-appearance: textfield; }
+.qstep .qty::-webkit-inner-spin-button, .qstep .qty::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.qstep :is(.qs-b, .qs-max) { min-width: 32px; height: 32px; padding: 0 var(--s2); border-radius: var(--rad-s); border: 1px solid #c9a464; cursor: pointer;
+  background: linear-gradient(180deg, #fffdf6, #f2e2bf); color: var(--c-ink); font: 700 var(--fs-m)/1 var(--f-body); box-shadow: 0 2px 0 #d6b97f; }
+.qstep .qs-max { font: 600 var(--fs-xs)/1 var(--f-body); }
+.qstep :is(.qs-b, .qs-max):hover:not(:disabled) { border-color: var(--c-gold); box-shadow: 0 2px 0 #d6b97f, var(--glow-gold); }
+.qstep :is(.qs-b, .qs-max):disabled { opacity: 0.45; cursor: default; box-shadow: none; }
+@media (pointer: coarse) { .qstep :is(.qs-b, .qs-max) { min-width: 40px; height: 40px; } body.visor .win .qstep .qty { height: 40px; } }
+/* หน้าว่างแบบเป็นมิตร */
+.book-empty.es { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s2); margin: auto; padding: var(--s5) var(--s4); max-width: 320px; }
+.es-ic { width: 84px; height: 84px; display: grid; place-items: center; border-radius: 50%; color: #b98a3a; margin-bottom: var(--s2);
+  background: radial-gradient(circle at 50% 38%, #fffaf0, #f1e2c2 70%); border: 2px dashed rgba(170, 125, 55, 0.5); box-shadow: 0 0 0 6px rgba(240, 220, 170, 0.35), inset 0 2px 6px rgba(120, 80, 30, 0.15); }
+.es-ic svg { width: 40px; height: 40px; stroke-width: 1.5; }
+.es-t { font: 600 var(--fs-l)/1.3 var(--f-body); color: var(--c-ink); }
+.es-s { font: 400 var(--fs-s)/1.55 var(--f-body); color: var(--c-ink-3); }
+.book-empty.es .btn { margin-top: var(--s2); }
+.book .book-r > .book-empty.es:only-child { margin: auto; }
+/* เตาตีเหล็ก */
+.rf-chance { min-width: 48px; padding: 4px var(--s2); border-radius: var(--rad-pill); text-align: center; font: 700 var(--fs-xs)/1.2 var(--f-num); border: 1px solid; }
+.rf-chance.safe { color: #1f6e2c; background: #e6f4e3; border-color: #9fd3a3; }
+.rf-chance.mid { color: #8a5300; background: #fff1d1; border-color: #e9c27a; }
+.rf-chance.low { color: #a2281a; background: #fbe6e0; border-color: #e3a294; }
+.rf-chance.max { color: #6a3fb0; background: #efe6fb; border-color: #c6aaf0; }
+.rf-hero .det-side { gap: var(--s1); }
+.rf-lv { display: inline-flex; align-items: center; gap: var(--s2); font: 700 var(--fs-2xl)/1 var(--f-num); color: var(--c-ink-2); }
+.rf-lv b.nx { color: var(--c-gold-ink); text-shadow: 0 0 12px rgba(246, 200, 110, 0.8); }
+.rf-lv i { font-style: normal; font-size: var(--fs-l); color: var(--c-ink-3); }
+.rf-lv small { padding: 2px var(--s2); border-radius: var(--rad-pill); background: var(--c-wood); color: #ffd98a; font: 700 var(--fs-xs)/1.4 var(--f-num); }
+.rf-up { color: var(--c-ok); }
+.rf-meter .dsec-h .rf-pct { margin-left: auto; font: 700 var(--fs-l)/1 var(--f-num); }
+.rf-meter.safe .rf-pct { color: var(--c-ok); } .rf-meter.mid .rf-pct { color: var(--c-warn); } .rf-meter.low .rf-pct { color: var(--c-bad); } .rf-meter.max .rf-pct { color: var(--r-epic); }
+.rf-bar { margin: var(--s3) var(--s3) var(--s1); height: 12px; border-radius: var(--rad-pill); background: rgba(120, 85, 35, 0.14); box-shadow: inset 0 1px 2px rgba(80, 50, 15, 0.3); overflow: hidden; }
+.rf-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f6d98a, #e3a43a); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5); transition: width 0.3s; }
+.rf-meter.safe .rf-bar i { background: linear-gradient(90deg, #9fe0a0, #3e9a4c); }
+.rf-meter.low .rf-bar i { background: linear-gradient(90deg, #f3b19a, #c9452e); }
+.rf-meter.max .rf-bar i { background: linear-gradient(90deg, #d9c2ff, #8a3fc4); }
+.rf-sub { padding: var(--s1) var(--s3) var(--s2); font-size: var(--fs-xs); color: var(--c-ink-3); }
+.mrow { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; grid-template-areas: "pic name need" "pic have have"; align-items: center; column-gap: var(--s3);
+  padding: var(--s2) var(--s3); }
+.mrow + .mrow { border-top: 1px dashed var(--c-line); }
+.mrow > .plate { grid-area: pic; width: 40px; height: 40px; }
+.mrow .coinplate .coin { width: 24px; height: 24px; }
+.mrow-n { grid-area: name; font: 600 var(--fs-s)/1.25 var(--f-body); color: var(--c-ink); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mrow-q { grid-area: need; font: 700 var(--fs-m)/1.2 var(--f-num); color: var(--c-ink); text-align: right; }
+.mrow-h { grid-area: have; font-size: var(--fs-xs); color: var(--c-ink-3); }
+.mrow.ok .mrow-h { color: var(--c-ok); }
+.mrow.bad .mrow-q, .mrow.bad .mrow-h { color: var(--c-bad); }
+.mrow.later { opacity: 0.7; }
+.mrow.later .mrow-q { font: 600 var(--fs-xs)/1.2 var(--f-body); color: var(--c-ink-3); }
+.rf-tg { display: flex; flex-wrap: wrap; gap: var(--s1); padding: var(--s3) var(--s3) var(--s1); }
+body.visor .win .rf-tg .pill { min-height: 30px; min-width: 44px; padding: 0 var(--s2); font-family: var(--f-num); }
+.det-note.rf-res.ok { background: #eef8ea; border-color: #b6dcb0; color: #1f5e2a; }
+.det-note.rf-res.bad { background: #fdf0e6; border-color: #ecc39a; color: #8a4a10; }
+.det-note.rf-why { background: #fbe9e2; border-color: rgba(179, 50, 31, 0.3); color: #8a2414; }
+body.visor .win .btn.big.rf-strike { font-size: var(--fs-l); }
+body.visor .win.book-win .det-acts { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); }
+body.visor #w-forge .det-acts { grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); }
+
+/* ======================= 3) สมุดบนคอม: ขนาดพอดี + แชท/การ์ดเควสต์จางลง ======================= */
+/* คอม: สมุดสูงพอดีช่องระหว่างแถบบน (เงิน/มินิแมพ) กับแถบลัดล่าง • วางกลางช่องว่างระหว่างคอลัมน์ซ้าย (โปรไฟล์ 312px) กับเมนูขวา (~190px)
+   → การ์ดโปรไฟล์/HP ยังเห็นตอนซื้อของ • แชท (ซ้ายล่าง) จางลงและไม่รับคลิกระหว่างเปิดสมุด */
+@media (min-width: 761px) and (min-height: 521px) {
+  body.visor .win.book-win { --bw: min(760px, calc(100vw - 24px)); width: var(--bw) !important; height: min(580px, calc(100dvh - 140px)); top: calc(50% - 18px);
+    left: max(calc(12px + var(--bw) / 2), min(calc(320px + (100vw - 510px) / 2), calc(100vw - 12px - var(--bw) / 2))); }
+  body.visor.book-open :is(#chat, #nav-pill) { opacity: 0.12; pointer-events: none; }
+  body.visor :is(#chat, #nav-pill) { transition: opacity 0.2s; }
+}
+
+/* ======================= 4) ช่องอุปกรณ์: ไอคอนช่องเส้นทอง ======================= */
+body.visor #w-equip .eq-ph { width: 28px; height: 28px; border: 0; border-radius: 0; color: #b98a3a; opacity: 0.75; font-size: 0; }
+body.visor #w-equip .eq-ph::after { content: none; }
+body.visor #w-equip .eq-ph svg { width: 26px; height: 26px; }
+
+/* ======================= 5) Status: สองคอลัมน์สมดุล ======================= */
+body.visor #w-status { width: 560px; }
+body.visor #w-status .win-body { overflow-y: auto; }
+.st-grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s3); align-items: start; }
+.st-grid2 .st-col { display: flex; flex-direction: column; gap: var(--s3); }
+body.visor .st-card { background: var(--c-card); border: 1px solid var(--c-line); border-radius: var(--rad-m); box-shadow: var(--sh-1); overflow: hidden; }
+body.visor .st-card > .dsec-h { margin: 0; }
+body.visor .st-card .st-row { grid-template-columns: 40px 28px minmax(0, 1fr) 28px 24px; gap: var(--s1); min-height: 40px; padding: 0 var(--s3); border-bottom: 1px dashed var(--c-line); }
+body.visor .st-card .st-row:last-of-type { border-bottom: 0; }
+body.visor .st-card .st-n { font: 700 var(--fs-s)/1 var(--f-num); color: var(--c-gold-ink); letter-spacing: 0.04em; }
+body.visor .st-card .st-v { text-align: center; font: 700 var(--fs-m)/1.1 var(--f-num); color: var(--c-ink); }
+body.visor .st-card .st-v em { display: block; font: 600 var(--fs-2xs)/1.2 var(--f-num); color: var(--c-ok); }
+body.visor .st-card .st-v .st-plus { font-style: normal; font-size: var(--fs-xs); color: var(--c-ok); }
+body.visor .st-card :is(.st-up, .st-dn) { width: 28px; height: 28px; min-height: 0; padding: 0; border-radius: 50%; display: grid; place-items: center; font: 700 var(--fs-m)/1 var(--f-body); }
+body.visor .st-card .st-dn { background: var(--c-paper-2); border: 1px solid var(--c-line-2); color: var(--c-ink-2); }
+body.visor .st-card .st-up:disabled, body.visor .st-card .st-dn:disabled { opacity: 0.35; }
+body.visor .st-card .st-c { text-align: right; font: 500 var(--fs-2xs)/1 var(--f-num); color: var(--c-ink-3); }
+body.visor .st-card .st-row.drafted { background: rgba(255, 230, 156, 0.25); }
+body.visor .st-card .st-row2 { display: flex; align-items: center; justify-content: space-between; min-height: 32px; padding: 0 var(--s3); border-bottom: 1px dashed var(--c-line); }
+body.visor .st-card .st-row2:last-child { border-bottom: 0; }
+body.visor .st-card .st-row2 span { font: 600 var(--fs-s)/1.2 var(--f-body); color: var(--c-ink-2); }
+body.visor .st-card .st-row2 b { font: 700 var(--fs-s)/1.2 var(--f-num); color: var(--c-ink); text-align: right; }
+body.visor .st-card .st-row2.preview b { color: var(--c-ok); }
+body.visor .st-card .st-row2 s { color: var(--c-ink-3); font-weight: 500; }
+.st-pts { display: flex; align-items: center; justify-content: space-between; margin: var(--s2) var(--s3); padding: var(--s1) var(--s1) var(--s1) var(--s3); border-radius: var(--rad-pill);
+  background: var(--c-paper-2); border: 1px solid var(--c-line-2); font: 600 var(--fs-xs)/1 var(--f-body); color: var(--c-ink-2); }
+.st-pts b { min-width: 36px; padding: 4px var(--s2); border-radius: var(--rad-pill); text-align: center; background: var(--c-card); font: 700 var(--fs-m)/1 var(--f-num); color: var(--c-ink); }
+.st-pts.has b { background: linear-gradient(180deg, #ffe69c, #e3a43a); color: #3b2204; box-shadow: 0 1px 0 #a4701c; }
+body.visor .st-card .st-foot { margin: 0; padding: var(--s2) var(--s3); border-top: 1px dashed var(--c-line); font-size: var(--fs-2xs); line-height: 1.45; }
+body.visor #w-status .st-confirm { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin: 0; }
+body.visor #w-status .st-confirm .btn { min-height: 40px; }
+.st-bonus { margin-top: var(--s3); }
+.st-bon { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--s3); }
+body.visor .st-bonus .st-row2 { border-bottom: 1px dashed var(--c-line) !important; }
+body.visor .st-bonus .st-ks { padding: var(--s2) var(--s3); border-top: 1px dashed var(--c-line); color: #8a4a10; font-size: var(--fs-xs); }
+body.visor .st-bonus .st-ks b { color: var(--c-gold-ink); }
+@media (max-width: 760px) {
+  .st-grid2 { gap: var(--s2); }
+  body.visor .st-card .st-row { grid-template-columns: 34px 30px minmax(0, 1fr) 30px 18px; padding: 0 var(--s2); }
+  body.visor .st-card .st-row2 { padding: 0 var(--s2); }
+  body.visor .st-card .st-row2 span { font-size: var(--fs-xs); }
+  .st-bon { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 400px) { .st-grid2 { grid-template-columns: minmax(0, 1fr); } }
+
+/* ======================= 6) Skills + Rune Paths ======================= */
+body.visor #w-skills { width: 420px; }
+body.visor #w-skills .win-body { display: flex; flex-direction: column; gap: var(--s2); }
+body.visor #w-skills .sk-head { margin: 0; padding: var(--s2) var(--s3); border-radius: var(--rad-m); background: var(--c-paper-2); border: 1px solid var(--c-line); font: 500 var(--fs-s)/1.3 var(--f-body); color: var(--c-ink-2); }
+body.visor #w-skills .sk-head b { color: var(--c-gold-ink); font: 700 var(--fs-m)/1 var(--f-num); }
+body.visor #w-skills .sk-tabs { margin: 0; }
+body.visor #w-skills .sk-tabs .tab { flex-direction: column; gap: 2px; min-height: 44px; border-radius: var(--rad-m); }
+body.visor #w-skills .sk-tabs .tab small { font: 600 var(--fs-2xs)/1 var(--f-num); letter-spacing: 0.08em; opacity: 0.75; }
+body.visor .sk-mas-help { margin: 0; padding: var(--s2) var(--s3); border-radius: var(--rad-m); background: #fdf6e3; border: 1px solid var(--c-line); color: var(--c-ink-2); font-size: var(--fs-xs); }
+body.visor .sk-mas-help b { color: var(--c-gold-ink); }
+body.visor #w-skills .sk-list { gap: var(--s2); }
+body.visor .win .sk-row.uni { height: 60px; padding: var(--s2) var(--s3) var(--s2) var(--s2); gap: var(--s3); }
+body.visor .win .sk-row.uni .sicon { width: 44px; height: 44px; border-radius: var(--rad-s); box-shadow: 0 0 0 2px #e4cf9d, 0 2px 4px rgba(80, 50, 15, 0.3); }
+body.visor .win .sk-row .sk-lv { color: var(--c-gold-ink); font-weight: 600; }
+body.visor .win .sk-mas { color: var(--c-ink-3); }
+body.visor .win .sk-mas i { background: rgba(120, 85, 35, 0.15); }
+body.visor .win .sk-mas i b { background: linear-gradient(90deg, #f6d98a, #e3a43a); }
+body.visor .win .sk-mas em { color: #1d6a62; }
+body.visor .win .sk-row.uni .sk-acts .btn.small { min-height: 30px; padding: 0 var(--s2); }
+body.visor .win .sk-equip.on { border-color: var(--c-gold); color: var(--c-gold-ink); background: linear-gradient(180deg, #fff6dc, #f6e3b4); }
+/* Rune Paths: ห้อยใต้การ์ดสกิลเป็นลิ้นชักเดียวกัน (ขอบทองซ้าย + การ์ดตัวเลือกสองช่อง) */
+body.visor .win .rn-help { padding: var(--s2) var(--s3); border-radius: var(--rad-m); border: 1px dashed var(--c-line-2); background: #fdf6e3; color: var(--c-ink-2); font-size: var(--fs-xs); }
+body.visor .win .rn-help b { color: var(--c-gold-ink); }
+body.visor .win .rn-row { margin: calc(-1 * var(--s2) - 1px) var(--s2) 0 var(--s4); padding: var(--s2) var(--s2) var(--s2) var(--s3);
+  border: 1px solid var(--c-line); border-top: 0; border-left: 3px solid #e1c27c; border-radius: 0 0 var(--rad-m) var(--rad-m);
+  background: linear-gradient(180deg, #f6ead0, #fbf4e4 40%); box-shadow: inset 0 6px 6px -6px rgba(90, 55, 20, 0.35); }
+body.visor .win .rn-head { gap: var(--s2); margin-bottom: var(--s2); font-size: var(--fs-xs); }
+body.visor .win .rn-tier { color: var(--c-gold-ink); font: 700 var(--fs-xs)/1 var(--f-title); letter-spacing: 0.08em; }
+body.visor .win .rn-state { color: var(--c-ink-3); }
+body.visor .win .rn-opts { gap: var(--s2); }
+body.visor .win .rn-opt { gap: var(--s1); padding: var(--s2) var(--s3); border-radius: var(--rad-s); background: var(--c-card); border: 1px solid var(--c-line); color: var(--c-ink); box-shadow: var(--sh-1); }
+body.visor .win .rn-opt:hover:not([disabled]) { border-color: var(--c-gold); background: #fffaea; }
+body.visor .win .rn-opt.on { border: 2px solid var(--c-gold); padding: calc(var(--s2) - 1px) calc(var(--s3) - 1px); background: var(--c-card-hi); box-shadow: 0 0 0 3px rgba(242, 190, 80, 0.22); }
+body.visor .win .rn-opt.on .rn-n::after { color: var(--c-ok); }
+body.visor .win .rn-opt[disabled] { opacity: 0.55; filter: grayscale(0.5); background: rgba(255, 251, 242, 0.6); box-shadow: none; }
+body.visor .win .rn-n { font: 600 var(--fs-s)/1.25 var(--f-body); }
+body.visor .win .rn-d { color: var(--c-ink-2); font-size: var(--fs-xs); line-height: 1.45; }
+body.visor .win .rn-g { text-shadow: none; color: var(--c-gold-ink); }
+body.visor .win .rn-tag.single { color: #b0521a; } body.visor .win .rn-tag.pack { color: #1f6aa0; } body.visor .win .rn-tag.both { color: #3e7a2e; }
+@media (max-width: 520px) { body.visor .win .rn-row { margin-left: var(--s2); margin-right: var(--s1); } }
+
+/* ======================= 7) เควสต์ + Daily ======================= */
+body.visor #w-quest { width: 380px; }
+body.visor #w-quest .win-body { display: flex; flex-direction: column; gap: var(--s3); }
+body.visor #w-quest .dl-tabs { margin: 0; }
+body.visor #w-quest .dl-tabs .tab { flex: 1; }
+body.visor .win .q-card { padding: 0; overflow: hidden; }
+body.visor .win .q-main { padding: var(--s3) var(--s4) var(--s4); display: flex; flex-direction: column; gap: var(--s2);
+  background: radial-gradient(120% 60% at 50% 0%, #fffaf0, var(--c-card) 70%); }
+body.visor .win .q-chapter { align-self: flex-start; margin: 0; padding: 3px var(--s3); border-radius: var(--rad-pill); background: var(--c-wood); color: #ffd98a; font: 600 var(--fs-2xs)/1.3 var(--f-body); letter-spacing: 0.06em; }
+body.visor .win .q-card h4 { display: flex; align-items: center; gap: var(--s2); margin: 0; color: var(--c-ink); font: 700 var(--fs-l)/1.3 var(--f-body); }
+body.visor .win .q-card h4 .ivi { width: 22px; height: 22px; color: #c48a1c; }
+body.visor .win .q-desc { margin: 0; color: var(--c-ink-2); font: 400 var(--fs-s)/1.55 var(--f-thai); }
+body.visor .win .q-obj, body.visor .win .q-rw { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: var(--s1) var(--s2); padding: var(--s2) var(--s3);
+  border-radius: var(--rad-s); background: #fdf6e3; border: 1px solid var(--c-line); font-size: var(--fs-s); color: var(--c-ink); }
+body.visor .win .q-obj b { font-weight: 600; color: var(--c-gold-ink); }
+body.visor .win .q-k { font: 600 var(--fs-2xs)/1.2 var(--f-body); letter-spacing: 0.06em; color: var(--c-ink-3); text-transform: uppercase; }
+body.visor .win .q-obj .q-bar { grid-column: 2; }
+.q-bar, .q-dbar { display: block; height: 6px; border-radius: var(--rad-pill); background: rgba(120, 85, 35, 0.15); overflow: hidden; }
+.q-bar i, .q-dbar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f6d98a, #e3a43a); }
+body.visor .win .q-main .opt-btns { margin: var(--s1) 0 0; }
+body.visor .win .q-main .opt-btns .btn { width: 100%; min-height: 40px; }
+body.visor .win .q-bounty > .dsec-h, body.visor .win .q-card > .dsec-h { margin: 0; }
+.q-blist { display: flex; flex-direction: column; }
+.q-bnt { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; grid-template-areas: "ic t z" "ic bar bar"; align-items: center; column-gap: var(--s2); row-gap: var(--s1); padding: var(--s2) var(--s3); }
+.q-bnt + .q-bnt { border-top: 1px dashed var(--c-line); }
+.q-bic { grid-area: ic; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; border: 1.5px solid var(--c-line-2); font: 700 var(--fs-xs)/1 var(--f-num); color: transparent; }
+.q-bnt.ready .q-bic { background: linear-gradient(180deg, #ffe69c, #e3a43a); border-color: #b5802a; color: #3b2204; }
+.q-bnt.done .q-bic { background: var(--c-ok); border-color: var(--c-ok); color: #fff; }
+.q-bt { grid-area: t; font: 500 var(--fs-s)/1.3 var(--f-body); color: var(--c-ink); min-width: 0; }
+.q-bnt > b { grid-area: z; font: 600 var(--fs-xs)/1 var(--f-num); color: var(--c-gold-ink); white-space: nowrap; }
+.q-bnt .q-bar { grid-area: bar; height: 4px; }
+.q-bnt.done { opacity: 0.6; }
+.q-note { margin: 0; padding: var(--s2) var(--s3); font-size: var(--fs-xs); color: var(--c-ink-3); line-height: 1.5; border-top: 1px dashed var(--c-line); }
+.q-bounty > .q-note:first-of-type:last-child, .q-done > .q-note { border-top: 0; }
+body.visor .win .q-done { display: block; margin: 0; padding: 0; border-radius: var(--rad-m); background: var(--c-card); border: 1px solid var(--c-line); box-shadow: var(--sh-1); }
+body.visor .win .q-done summary { display: grid; grid-template-columns: 16px auto minmax(0, 1fr); align-items: center; gap: var(--s2); padding: var(--s2) var(--s3); cursor: pointer; list-style: none;
+  font: 600 var(--fs-s)/1.2 var(--f-body); color: var(--c-ink); }
+body.visor .win .q-done summary::-webkit-details-marker { display: none; }
+body.visor .win .q-done summary .ivi { width: 16px; height: 16px; color: var(--c-ok); }
+.q-dlist { display: grid; gap: var(--s1); padding: 0 var(--s3) var(--s3); max-height: 180px; overflow-y: auto; }
+body.visor .win .q-dlist b { font: 500 var(--fs-xs)/1.4 var(--f-body); color: #2e6b35; }
+/* Daily (js/daily.js เดิมโทนฟ้ามืด) → กระดาษครีม */
+body.visor .win .dl-head { margin: 0; padding: var(--s3); border-radius: var(--rad-m); background: var(--c-card); border: 1px solid var(--c-line); box-shadow: var(--sh-1); }
+body.visor .win .dl-streak b { color: var(--c-ink); font-family: var(--f-body); }
+body.visor .win .dl-streak small, body.visor .win .dl-reset { color: var(--c-ink-3); font-family: var(--f-num); }
+body.visor .win .dl-pip { background: var(--c-paper-2); border-color: var(--c-line); border-radius: var(--rad-s); }
+body.visor .win .dl-pip b { color: var(--c-ink-2); font-family: var(--f-num); }
+body.visor .win .dl-pip small { color: var(--c-ink-3); font-family: var(--f-num); }
+body.visor .win .dl-pip.got { background: linear-gradient(180deg, #fff1c8, #f2d48a); border-color: #c99a3c; }
+body.visor .win .dl-pip.got b { color: #6a4206; }
+body.visor .win .dl-pip.today { border-color: var(--c-gold); box-shadow: var(--glow-gold); }
+body.visor .win .dl-pip.today b { color: var(--c-gold-ink); }
+body.visor .win .dl-pip.rare b { color: var(--r-legend); }
+body.visor .win .dl-warn { color: #8a4a10; background: #fdf0e6; border-color: #ecc39a; }
+body.visor .win .dl-task { margin: 0; padding: var(--s2) var(--s3); gap: var(--s3); border-radius: var(--rad-m); background: var(--c-card); border: 1px solid var(--c-line); box-shadow: var(--sh-1); }
+body.visor .win .dl-task.done { background: #f2f8ec; border-color: #b6dcb0; }
+body.visor .win .dl-ic { color: #b07a1c; background: #fdf3da; border-color: #e3c27a; }
+body.visor .win .dl-task.done .dl-ic { color: #fff; background: var(--c-ok); border-color: var(--c-ok); }
+body.visor .win .dl-t { color: var(--c-ink); }
+body.visor .win .dl-task.done .dl-t { color: var(--c-ink-2); }
+body.visor .win .dl-sub { color: var(--c-ink-3); }
+body.visor .win .dl-bar { background: rgba(120, 85, 35, 0.15); }
+body.visor .win .dl-bar i { background: linear-gradient(90deg, #f6d98a, #e3a43a); }
+body.visor .win .dl-task.done .dl-bar i { background: linear-gradient(90deg, #9fe0a0, #3e9a4c); }
+body.visor .win .dl-chest { margin: 0; padding: var(--s3); border-radius: var(--rad-m); background: radial-gradient(120% 80% at 50% 0%, #fff6dc, #f6e7c4); border: 1px solid #d9b46a; }
+body.visor .win .dl-chest.ready { border-color: var(--c-gold); box-shadow: var(--glow-gold); }
+body.visor .win .dl-chest-h b { color: var(--c-gold-ink); font-family: var(--f-body); }
+body.visor .win .dl-rw { color: var(--c-ink); background: var(--c-card); border-color: var(--c-line-2); }
+body.visor .win .dl-rw.rare { color: var(--r-legend); border-color: #f2b84a; background: #fff3d4; }
+body.visor .win .btn.big.dl-claim:not(:disabled) { color: #3b2204; background: linear-gradient(180deg, #ffe699, #f2c056 55%, #e3a43a); border-color: #b5802a; box-shadow: 0 2px 0 #a4701c; }
+body.visor .win .dl-note, body.visor .win .dl-hint { color: var(--c-ink-3); }
+
+/* ======================= 8) ตั้งค่า: การ์ดตามหมวด + สวิตช์ ======================= */
+@media (min-width: 761px) and (min-height: 521px) { body.visor #w-options { width: 420px !important; } }
+body.visor #w-options .win-body { display: flex; flex-direction: column; gap: var(--s3); overflow-y: auto; }
+.opt-card { background: var(--c-card); border: 1px solid var(--c-line); border-radius: var(--rad-m); box-shadow: var(--sh-1); padding-bottom: var(--s2); }
+.opt-card > .dsec-h { margin-bottom: var(--s1); }
+body.visor #w-options .opt-card > :is(.opt, .bot-row, .opt-lbl, .seg, .opt-btns) { margin-left: var(--s3); margin-right: var(--s3); }
+body.visor .win .opt { display: flex; align-items: center; gap: var(--s2); min-height: 36px; padding: var(--s1) 0; color: var(--c-ink); font-size: var(--fs-s); line-height: 1.35; }
+body.visor .win .opt-lbl { margin-top: var(--s2); margin-bottom: var(--s1); font: 600 var(--fs-2xs)/1.2 var(--f-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--c-ink-3); }
+body.visor .opt-card .seg { display: flex; flex-wrap: wrap; }
+body.visor .opt-card .seg button { flex: 1 1 0; }
+body.visor .opt-card .opt-btns { margin-top: var(--s2); gap: var(--s2); }
+body.visor .opt-card .opt-btns .btn { flex: 1 1 140px; }
+.opt-range { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(120px, 1.3fr); }
+/* checkbox = สวิตช์ทอง (ใช้ทุกหน้าต่าง: ตั้งค่า / บอท / ปาร์ตี้) */
+body.visor .win:not(.gc-art) input[type=checkbox] { -webkit-appearance: none; appearance: none; flex: none; position: relative; width: 36px; height: 20px; margin: 0; border-radius: var(--rad-pill); cursor: pointer;
+  background: #e6d7b6; border: 1px solid #c9a464; box-shadow: inset 0 1px 2px rgba(80, 50, 15, 0.25); transition: background 0.15s, border-color 0.15s; vertical-align: middle; }
+body.visor .win:not(.gc-art) input[type=checkbox]::after { content: ""; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fff, #f1e3c2); box-shadow: 0 1px 2px rgba(60, 30, 5, 0.45); transition: transform 0.15s; }
+body.visor .win:not(.gc-art) input[type=checkbox]:checked { background: linear-gradient(180deg, #f2c056, #d99a30); border-color: #a4701c; }
+body.visor .win:not(.gc-art) input[type=checkbox]:checked::after { transform: translateX(16px); }
+body.visor .win:not(.gc-art) input[type=checkbox]:focus-visible { outline: 2px solid var(--c-gold); outline-offset: 2px; }
+@media (pointer: coarse) { body.visor .win:not(.gc-art) input[type=checkbox] { width: 44px; height: 26px; } body.visor .win:not(.gc-art) input[type=checkbox]::after { width: 20px; height: 20px; } body.visor .win:not(.gc-art) input[type=checkbox]:checked::after { transform: translateX(18px); } }
+/* ตัวเลื่อน */
+body.visor .win:not(.gc-art) input[type=range] { -webkit-appearance: none; appearance: none; height: 20px; background: transparent; min-width: 0; width: 100%; }
+body.visor .win:not(.gc-art) input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: var(--rad-pill); background: linear-gradient(90deg, #e3a43a, #f6d98a); box-shadow: inset 0 1px 2px rgba(80, 50, 15, 0.3); }
+body.visor .win:not(.gc-art) input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -6px; border-radius: 50%; border: 2px solid #a4701c;
+  background: radial-gradient(circle at 40% 35%, #fff6d8, #f2c056); box-shadow: 0 1px 3px rgba(60, 30, 5, 0.5); }
+body.visor .win:not(.gc-art) input[type=range]::-moz-range-track { height: 6px; border-radius: 999px; background: linear-gradient(90deg, #e3a43a, #f6d98a); }
+body.visor .win:not(.gc-art) input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #a4701c; background: #f6d98a; }
+body.visor .win:not(.gc-art) input[type=range]:disabled { opacity: 0.45; }
+body.visor .win .bot-row { grid-template-columns: minmax(0, 1fr) minmax(90px, 1.1fr) minmax(44px, auto); gap: var(--s2); min-height: 36px; padding: 0; font-size: var(--fs-s); color: var(--c-ink); }
+body.visor .win .bot-row > span { min-width: 0; line-height: 1.3; overflow-wrap: anywhere; }
+body.visor .win .bot-row > b { white-space: nowrap; text-align: right; }
+body.visor .win:not(.gc-art) :is(.opt input, .bot-row input[type=range]) { transform: none; } /* เดิมขยาย 1.25 เท่าบนมือถือ → ทับป้ายข้าง ๆ (สวิตช์/ตัวเลื่อนใหม่ใหญ่พอแล้ว) */
+@media (pointer: coarse) { body.visor .win:not(.gc-art) input[type=range] { height: 32px; } body.visor .win:not(.gc-art) input[type=range]::-webkit-slider-thumb { width: 24px; height: 24px; margin-top: -9px; } }
+body.visor .win .bot-row b { color: var(--c-ink); font: 600 var(--fs-s)/1 var(--f-num); }
+
+/* ======================= 9) Party ======================= */
+body.visor #w-party { width: 380px; }
+body.visor #w-party .win-body { display: flex; flex-direction: column; gap: var(--s3); }
+body.visor .win .py-empty { gap: var(--s2); padding: var(--s4) var(--s3); border-radius: var(--rad-m); background: var(--c-card); border: 1px solid var(--c-line); box-shadow: var(--sh-1); }
+body.visor .win .py-empty > b { color: var(--c-ink); font: 600 var(--fs-l)/1.3 var(--f-body); }
+body.visor .win .py-empty p { color: var(--c-ink-2); }
+body.visor .win .py-hero { width: 64px; height: 64px; color: #b98a3a; background: radial-gradient(circle at 50% 38%, #fffaf0, #f1e2c2 70%); border: 2px dashed rgba(170, 125, 55, 0.5); box-shadow: 0 0 0 5px rgba(240, 220, 170, 0.35); }
+body.visor .win .py-hero svg { width: 32px; height: 32px; }
+body.visor .win .py-create { gap: var(--s2); margin-top: var(--s2); }
+body.visor .win .py-create input { background: #fffdf7; border: 1px solid var(--c-line-2); border-radius: var(--rad-s); color: var(--c-ink); min-height: 34px; }
+body.visor .win .py-sec { margin: 0; padding: 0 var(--s1); }
+body.visor .win .py-sec span { color: var(--c-gold-ink); font: 600 var(--fs-xs)/1.2 var(--f-body); letter-spacing: 0.06em; text-transform: uppercase; }
+body.visor .win .py-sec small, body.visor .win .py-none, body.visor .win .py-s, body.visor .win .py-mid > small { color: var(--c-ink-3); }
+body.visor .win :is(.py-row, .py-nrow) { gap: var(--s3); padding: var(--s2) var(--s3); border-radius: var(--rad-m); background: var(--c-card); border: 1px solid var(--c-line); box-shadow: var(--sh-1); }
+body.visor .win .py-row.me { border-color: var(--c-gold); background: var(--c-card-hi); }
+body.visor .win .py-av { width: 38px; height: 38px; background: radial-gradient(circle at 50% 38%, #fffaf0, #e9d4a6 75%); border: 2px solid #d4a347; box-shadow: 0 1px 2px rgba(80, 50, 15, 0.3); }
+body.visor .win .py-av .py-crown { color: #c48a1c; background: var(--c-card); border-color: var(--c-gold); }
+body.visor .win :is(.py-mid > b, .py-n b) { color: var(--c-ink); }
+body.visor .win .py-count b { color: var(--c-ink); } body.visor .win .py-count { color: var(--c-ink-3); }
+body.visor .win .py-share b { color: var(--c-ok); } body.visor .win .py-share small { color: var(--c-ink-3); }
+body.visor .win .py-head { margin: 0; padding: var(--s2) var(--s3); border-radius: var(--rad-m); background: var(--c-paper-2); border: 1px solid var(--c-line); }
+body.visor .win :is(.py-n em, .py-lead) { color: var(--c-gold-ink); background: #fff1cf; }
+body.visor .win .py-bar i { background: rgba(120, 85, 35, 0.15); }
+body.visor .win .py-bar b { background: linear-gradient(90deg, #f0806a, var(--c-hp)); }
+body.visor .win .py-bar.sp b { background: linear-gradient(90deg, #8cc8ff, var(--c-sp)); }
+body.visor .win .py-bar em { color: var(--c-ink-3); }
+body.visor .win .py-map { color: #6a3fb0; }
+body.visor .win .py-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); }
+
+/* ======================= 10) Bot + Battle Script ======================= */
+body.visor #w-bot { width: 420px; }
+body.visor #w-bot .win-body { display: flex; flex-direction: column; gap: var(--s3); }
+.bw-hero { display: flex; flex-direction: column; gap: var(--s2); padding: var(--s3); border-radius: var(--rad-m); background: radial-gradient(120% 80% at 50% 0%, #fff6dc, #f3e2bc); border: 1px solid #d9b46a; box-shadow: var(--sh-1); }
+body.visor .win .bw-hero .bot-toggle { width: 100%; margin: 0; min-height: 48px; font-size: var(--fs-l); background: linear-gradient(180deg, #ffe699, #f2c056 55%, #e3a43a); border-color: #b5802a; color: #3b2204; box-shadow: 0 2px 0 #a4701c, 0 6px 12px -6px rgba(180, 120, 20, 0.7); }
+body.visor .win .bw-hero .bot-toggle.on { background: linear-gradient(180deg, #f7b6a4, #d96a50 55%, #b3321f) !important; border-color: #8a2414 !important; color: #fff6f2 !important; box-shadow: 0 2px 0 #7a1c10 !important; }
+body.visor .win .bot-stats { margin: 0; gap: var(--s1); }
+body.visor .win .bot-stats > div { padding: var(--s1) var(--s2); border-radius: var(--rad-s); background: rgba(255, 255, 255, 0.7); color: var(--c-ink-3); font-size: var(--fs-2xs); }
+body.visor .win .bot-stats b { color: var(--c-ink); font: 700 var(--fs-s)/1.2 var(--f-num); }
+body.visor .win .bot-stats .hint { padding: var(--s1); background: none; border: 0; box-shadow: none; text-align: center; }
+.bw-card { display: flex; flex-direction: column; gap: var(--s2); padding: 0 var(--s3) var(--s3); border-radius: var(--rad-m); background: var(--c-card); border: 1px solid var(--c-line); box-shadow: var(--sh-1); }
+body.visor .win .bw-card > .bot-sec { margin: 0 calc(-1 * var(--s3)); padding: var(--s2) var(--s3); background: rgba(240, 220, 170, 0.45); border-bottom: 1px solid var(--c-line);
+  font: 600 var(--fs-s)/1.2 var(--f-body); letter-spacing: 0; text-transform: none; color: var(--c-ink); }
+body.visor .win .bw-card .hint { margin: 0; font-size: var(--fs-xs); line-height: 1.45; }
+body.visor .win .bw-card > .btn { align-self: flex-start; }
+body.visor .win .bw-card .opt { min-height: 32px; }
+body.visor .win .bot-seg { display: flex; }
+body.visor .win .bot-seg button { flex: 1 1 0; }
+body.visor .win .bot-mobs .bm-head { color: var(--c-ink-3); }
+body.visor .win .bot-mobs .linkbtn { color: var(--c-gold-ink); }
+body.visor .win .bm-grid { gap: var(--s2); }
+body.visor .win .bm-card { border-radius: var(--rad-m); background: #fbf3e0; border: 1px solid var(--c-line); color: var(--c-ink); opacity: 0.7; filter: grayscale(0.4); }
+body.visor .win .bm-card.on { opacity: 1; filter: none; background: var(--c-card-hi); border: 2px solid var(--c-gold); box-shadow: 0 0 0 2px rgba(242, 190, 80, 0.2); }
+body.visor .win .bm-card small { color: var(--c-ink-3); }
+body.visor .win .bm-chk { border-color: var(--c-line-2); color: #3b2204; background: var(--c-card); }
+body.visor .win .bm-card.on .bm-chk { background: linear-gradient(180deg, #ffe69c, #e3a43a); }
+body.visor .win .bot-skill-row { min-height: 40px; gap: var(--s2); }
+body.visor .win .bot-skill-row + .bot-skill-row { border-top: 1px dashed var(--c-line); }
+body.visor .win .bot-skill { gap: var(--s2); }
+body.visor .win .bot-skill small { color: var(--c-ink-3); }
+body.visor .win .bot-gate { background: #fffdf7; border: 1px solid var(--c-line-2); color: var(--c-ink); border-radius: var(--rad-pill); min-height: 30px; }
+body.visor #w-bot #bot-pots { padding: var(--s2) var(--s3); border-radius: var(--rad-m); background: #fdf6e3; border: 1px dashed var(--c-line-2); }
+/* Battle Script: การ์ดกฎเป็นกระดาษเดียวกัน ป้ายเลขกฎทอง แถว IF/AND/THEN */
+body.visor .win .bw-script { padding: 0; gap: 0; background: none; border: 0; box-shadow: none; }
+body.visor .win .bw-script > .bw-card + .bw-card { margin-top: var(--s3); }
+body.visor .win .bs .hint.bs-help { padding: var(--s2) var(--s3); border-radius: var(--rad-s); background: #fdf6e3; border: 1px solid var(--c-line); }
+body.visor .win .bs-list { margin: 0; gap: var(--s2); }
+body.visor .win .bs-rule { padding: var(--s2) var(--s3) var(--s3); border-radius: var(--rad-m); border: 1px solid var(--c-line-2); background: #fffdf7; box-shadow: var(--sh-1); }
+body.visor .win .bs-rule.off { opacity: 0.6; background: #f6efe0; }
+body.visor .win .bs-head { gap: var(--s1); }
+body.visor .win .bs-num { min-width: 32px; height: 24px; display: inline-grid; place-items: center; border-radius: var(--rad-pill); background: var(--c-wood); color: #ffd98a; font: 700 var(--fs-xs)/1 var(--f-num); }
+body.visor .win .bs .bs-on.on { background: linear-gradient(180deg, #ffe69c, #edba50); border-color: #b5802a; color: #3b2204; }
+body.visor .win .bs-line { grid-template-columns: 44px minmax(0, 1fr); gap: var(--s2); margin-top: var(--s2); }
+body.visor .win .bs-k { justify-self: start; padding: 2px var(--s2); border-radius: var(--rad-pill); background: var(--c-paper-2); border: 1px solid var(--c-line-2); color: var(--c-gold-ink); font: 700 var(--fs-2xs)/1.4 var(--f-num); letter-spacing: 0.06em; opacity: 1; }
+body.visor .win .bs-sel { gap: var(--s1); }
+body.visor .win .bs-line select { border-radius: var(--rad-s); min-height: 32px; }
+body.visor .win .bs-tools { margin: 0; gap: var(--s2); }
+body.visor .win .bs-preset { margin: 0; padding: var(--s1) 0; gap: var(--s2); }
+body.visor .win .bs-preset + .bs-preset { border-top: 1px dashed var(--c-line); }
+body.visor .win .bs-preset span { color: var(--c-ink-2); }
+body.visor .win .bs-code { margin: 0; border-radius: var(--rad-s); }
+body.visor .win .bs-empty { color: var(--c-ink-3); }
+
+/* ======================= 11) แผนที่โลก / ต้นไม้พาสซีฟ / กาชา ======================= */
+body.visor #w-world .win-body, body.visor #w-map .win-body { display: flex; flex-direction: column; gap: var(--s2); }
+body.visor #w-world #worldmap-cv { border: 3px solid #a9792e; border-radius: var(--rad-m); box-shadow: 0 0 0 1px rgba(255, 240, 200, 0.6), 0 0 0 5px rgba(91, 58, 31, 0.15), var(--sh-2); }
+body.visor :is(#w-world, #w-map) .hint { display: flex; align-items: center; gap: var(--s2); padding: var(--s2) var(--s3); border-radius: var(--rad-pill); background: var(--c-paper-2); border: 1px solid var(--c-line); font-size: var(--fs-xs); color: var(--c-ink-2); margin: 0; }
+body.visor #w-map .opt-btns { margin: 0; justify-content: flex-end; }
+/* ต้นไม้พาสซีฟ: แถบบนเป็นแผ่นครีม ปุ่มซูมกลม ตำนานเป็นเม็ดยา */
+body.visor #w-tree .win-body { display: flex; flex-direction: column; gap: var(--s2); }
+body.visor #w-tree .pt-head { margin: 0; padding: var(--s2) var(--s2) var(--s2) var(--s3); border-radius: var(--rad-m); background: var(--c-card); border: 1px solid var(--c-line); box-shadow: var(--sh-1); }
+body.visor #w-tree #pt-pts { color: var(--c-ink-2); font: 500 var(--fs-s)/1 var(--f-body); }
+body.visor #w-tree #pt-pts b { display: inline-block; min-width: 32px; margin: 0 2px; padding: 4px var(--s2); border-radius: var(--rad-pill); text-align: center; background: linear-gradient(180deg, #ffe69c, #e3a43a); color: #3b2204; font: 700 var(--fs-m)/1 var(--f-num); }
+body.visor #w-tree .pt-zoom { gap: var(--s1); }
+body.visor #w-tree .pt-zoom .btn { min-width: 34px; min-height: 32px; padding: 0 var(--s3); }
+body.visor #w-tree .pt-zoom .btn:nth-child(-n+2) { width: 34px; padding: 0; border-radius: 50%; font-size: var(--fs-l); }
+body.visor #w-tree .pt-cv { border-width: 3px; }
+body.visor #w-tree .pt-legend { margin: 0; gap: var(--s1); }
+body.visor #w-tree .pt-lg { padding: 2px var(--s2); background: var(--c-card); border: 1px solid var(--c-line); color: var(--c-ink-2); font: 500 var(--fs-2xs)/1.6 var(--f-body); }
+body.visor #w-tree .pt-lg svg { color: #b07a1c; }
+body.visor #w-tree .pt-lg i { border-color: #8a6a3a; background: #fff6dc; }
+body.visor #w-tree .pt-lg-key i { border-color: #c48a1c; background: #ffe69c; }
+body.visor #w-tree .pt-lg-sep { background: var(--c-line-2); }
+body.visor #w-tree .hint { margin: 0; font: 400 var(--fs-2xs)/1.5 var(--f-body); color: var(--c-ink-3); }
+body.visor #w-tree .pt-info { border: 1px solid var(--c-gold); box-shadow: 0 0 0 2px rgba(64, 41, 20, 0.6), var(--sh-2); }
+/* กาชา (โหมดฉากเต็มจอ): แผงข้อมูล/ปุ่ม/แท็บเป็นแผ่นไม้ขอบทอง • (โหมดหน้าต่าง) ใช้กระดาษ */
+#w-gacha.gc-art .gc-tabs { padding: var(--s1); gap: var(--s1); border-radius: var(--rad-pill); background: linear-gradient(180deg, rgba(64, 41, 20, 0.88), rgba(36, 23, 11, 0.86)) !important; border: 1px solid var(--c-hud-line); box-shadow: var(--sh-hud); }
+#w-gacha.gc-art .gc-tabs .tab { min-height: 34px; border-radius: var(--rad-pill); border: 0; background: none; color: var(--c-hud-ink-2); font: 600 var(--fs-s)/1 var(--f-body); }
+#w-gacha.gc-art .gc-tabs .tab.on { background: linear-gradient(180deg, #ffe69c, #edba50); color: #3b2204; box-shadow: 0 2px 0 #9a6a1e; }
+#w-gacha.gc-art .win-title span { font: 600 var(--fs-l)/1 var(--f-title); color: #fbe6b2; letter-spacing: 0.06em; }
+#w-gacha.gc-art .win-title .win-x { border: 2px solid var(--c-gold) !important; background: radial-gradient(circle at 50% 35%, #7f5532, #3f2613 75%) !important; color: #fbe6b2; }
+#w-gacha.gc-art .gc-info { gap: var(--s2); padding: var(--s2) !important; border-radius: var(--rad-l) !important; background: linear-gradient(180deg, rgba(64, 41, 20, 0.9), rgba(36, 23, 11, 0.88)) !important; border: 1px solid var(--c-hud-line); box-shadow: var(--sh-hud); }
+#w-gacha.gc-art .gc-tk { border-radius: var(--rad-m); background: rgba(255, 230, 160, 0.1); box-shadow: inset 0 0 0 1px rgba(232, 196, 120, 0.4); }
+#w-gacha.gc-art .gc-tk small { color: var(--c-hud-ink-2); } #w-gacha.gc-art .gc-tk b { color: #ffe6a6; font-family: var(--f-num); }
+#w-gacha.gc-art .gc-pity-w { border-radius: var(--rad-m); background: rgba(255, 255, 255, 0.04); box-shadow: inset 0 0 0 1px rgba(232, 196, 120, 0.2); }
+#w-gacha.gc-art .gc-pity-t { color: var(--c-hud-ink-2); }
+#w-gacha.gc-art .gc-btns { gap: var(--s3); }
+#w-gacha.gc-art .gc-roll { min-height: 52px; border-radius: var(--rad-pill) !important; border: 2px solid var(--c-gold) !important; color: #3b2204 !important;
+  background: linear-gradient(180deg, #fff3cf, #efd38f) !important; box-shadow: 0 3px 0 #9a6a1e, var(--sh-hud) !important; }
+#w-gacha.gc-art .gc-roll.gc-ten { background: linear-gradient(180deg, #ffe699, #f2c056 55%, #e3a43a) !important; }
+#w-gacha.gc-art .gc-roll .gc-bl, #w-gacha.gc-art .gc-roll .gc-bl small { color: #3b2204; font-family: var(--f-body); }
+#w-gacha.gc-art .gc-roll .gc-cost { background: var(--c-wood); color: #ffe6a6; }
+#w-gacha.gc-art .gc-roll:disabled { opacity: 0.6 !important; filter: grayscale(0.4) !important; }
+#w-gacha.gc-art :is(.gc-rates, .gc-hist) { background: linear-gradient(180deg, var(--c-paper), var(--c-paper-2)) !important; border: 1px solid var(--c-gold-lo); box-shadow: 0 0 0 3px var(--c-wood), 0 0 0 4px var(--c-gold), var(--sh-win);
+  --ink: var(--c-ink); --ink-dim: var(--c-ink-2); --ink-faint: var(--c-ink-3); color: var(--c-ink); }
+#w-gacha.gc-art .gc-rrow { background: var(--c-card); box-shadow: inset 3px 0 0 -1px var(--c), var(--sh-1); border-radius: var(--rad-s); }
+#w-gacha.gc-art .gc-rp { color: var(--c-ink); }
+#w-gacha.gc-art .gc-rsum span { background: var(--c-card); color: var(--c-ink-2); box-shadow: inset 0 0 0 1px var(--c-line-2); }
+#w-gacha.gc-art .gc-hint { color: #fbefd2; }
+body.visor #w-gacha:not(.gc-art) .gc-stage { box-shadow: 0 0 0 2px #a9792e, var(--sh-2); }
+body.visor #w-gacha:not(.gc-art) .gc-info { --ink-dim: var(--c-ink-2); }
+body.visor #w-gacha:not(.gc-art) .gc-tk { background: var(--c-card); box-shadow: inset 0 0 0 1px var(--c-line-2); }
+body.visor #w-gacha:not(.gc-art) .gc-tk small { color: var(--c-ink-3); } body.visor #w-gacha:not(.gc-art) .gc-tk b { color: var(--c-gold-ink); }
+
+/* ======================= 12) การ์ดเควสต์ใต้โปรไฟล์: แท็บ Quest / Daily ======================= */
+body.visor #quest-track.qt-tabbed { padding-top: var(--s2); }
+body.visor #quest-track.qt-tabbed::before { display: none; }
+.qt-tabs { display: flex; gap: var(--s1); margin: 0 0 var(--s2); padding: 3px; border-radius: var(--rad-pill); background: rgba(10, 6, 2, 0.45); box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5); }
+.qt-tab { flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; gap: var(--s1); min-height: 26px; padding: 0 var(--s2); border: 0; border-radius: var(--rad-pill); cursor: pointer;
+  background: none; color: var(--c-hud-ink-3); font: 600 var(--fs-xs)/1 var(--f-body); }
+.qt-tab .ivi { width: 14px; height: 14px; }
+.qt-tab:hover { color: var(--c-hud-ink); }
+.qt-tab.on { background: linear-gradient(180deg, #ffe69c, #e3a43a); color: #3b2204; box-shadow: 0 1px 0 #9a6a1e; }
+.qt-badge { min-width: 16px; height: 16px; padding: 0 4px; border-radius: var(--rad-pill); background: #fbefd2; color: #3b2204; font: 700 var(--fs-2xs)/16px var(--f-num); font-style: normal; text-align: center; }
+.qt-tab.on .qt-badge { background: var(--c-wood); color: #ffe2a0; }
+.qt-badge.ready { background: #ffd34a; color: #3b2204; animation: dl-pulse 1.4s ease-in-out infinite; }
+.qt-ch { display: inline-block; margin: 0 0 var(--s1); padding: 2px var(--s2); border-radius: var(--rad-pill); background: linear-gradient(180deg, #ffe69c, #e3a43a); color: #3b2204; font: 600 var(--fs-2xs)/1.3 var(--f-body); letter-spacing: 0.04em; }
+.qt-ch:empty { display: none; }
+#quest-track.qt-daily :is(.qt-title, .qt-obj, .dl-chip, .qt-ch) { display: none !important; }
+#quest-track.qt-tabbed .dl-chip { display: none !important; } /* แท็บ Daily แทนป้ายเล็กเดิม */
+#quest-track:not(.qt-daily) .qt-dl { display: none; }
+.qt-dl { display: flex; flex-direction: column; gap: 6px; }
+.qt-dl-row { display: grid; grid-template-columns: 20px minmax(0, 1fr); grid-template-areas: "ic t" "ic bar"; column-gap: var(--s2); row-gap: 3px; align-items: center; }
+.qt-dl-ic { grid-area: ic; width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; background: rgba(255, 230, 160, 0.12); border: 1px solid rgba(232, 196, 120, 0.45); color: #f0c46a; font-size: 11px; line-height: 1; }
+.qt-dl-row.done .qt-dl-ic { background: #4caa5a; border-color: #4caa5a; color: #fff; font-weight: 700; }
+.qt-dl-t { grid-area: t; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--c-hud-ink); font: 500 var(--fs-xs)/1.25 var(--f-body); }
+.qt-dl-row.done .qt-dl-t { color: var(--c-hud-ink-3); text-decoration: line-through; text-decoration-color: rgba(216, 195, 155, 0.5); }
+.qt-dl-bar { grid-area: bar; height: 3px; border-radius: var(--rad-pill); background: rgba(10, 6, 2, 0.6); overflow: hidden; }
+.qt-dl-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f6d98a, var(--c-exp)); }
+.qt-dl-row.done .qt-dl-bar i { background: #4caa5a; }
+.qt-dl-foot { color: var(--c-hud-ink-3); font: 500 var(--fs-2xs)/1.3 var(--f-body); }
+.qt-dl-foot.ready { color: #ffd34a; font-weight: 600; }
+.qt-dl-lock { color: var(--c-hud-ink-2); font: 400 var(--fs-xs)/1.4 var(--f-body); }
+@media (max-width: 760px), (max-height: 520px) {
+  .qt-tabs { margin-bottom: 6px; padding: 2px; }
+  .qt-tab { min-height: 22px; font-size: var(--fs-2xs); }
+  .qt-tab .ivi { width: 12px; height: 12px; }
+  .qt-dl { gap: var(--s1); }
+  .qt-dl-row { grid-template-columns: 16px minmax(0, 1fr); }
+  .qt-dl-ic { width: 16px; height: 16px; font-size: 9px; }
+  .qt-dl-t { font-size: var(--fs-2xs); }
+}
+@media (max-height: 520px) and (orientation: landscape) { .pad-mode #quest-track .qt-dl-foot, .pad-mode #quest-track .qt-dl-bar { display: none; } }
+
+/* ======================= 13) แบนเนอร์ (ครีม/ทองตระกูลเดียวกัน) ======================= */
+/* --- ล้ม / ฟื้นคืนชีพ: ใบ Yggdrasil บนการ์ดกระดาษ ไม่มีหัวกะโหลก --- */
+body.visor #death { background: radial-gradient(ellipse at 50% 45%, rgba(40, 26, 10, 0.35), rgba(12, 8, 3, 0.82) 72%); }
+body.visor .death-box { width: min(400px, calc(100vw - 32px)); padding: var(--s4) var(--s5) var(--s5); border-radius: var(--rad-xl); color: var(--c-ink);
+  background: radial-gradient(130% 70% at 50% 0%, #fffaf0 0%, rgba(255, 250, 240, 0) 62%), linear-gradient(180deg, var(--c-paper), var(--c-paper-2));
+  border: 1px solid var(--c-gold-lo); outline: 1px solid rgba(212, 163, 71, 0.55); outline-offset: -6px; box-shadow: 0 0 0 3px var(--c-wood), 0 0 0 4px var(--c-gold), var(--sh-win); }
+body.visor .death-core { margin: calc(-1 * var(--s5) - 40px) auto var(--s1); width: 120px; height: 120px; }
+body.visor .dc-halo { background: radial-gradient(circle, rgba(255, 230, 150, 0.95), rgba(255, 214, 120, 0.35) 45%, rgba(255, 214, 120, 0) 70%) !important; }
+body.visor .dc-glyph { width: 88px !important; height: 88px !important; border-radius: 50% !important; display: grid !important; place-items: center !important;
+  background: radial-gradient(circle at 50% 38%, #fffdf6 0%, #f1e3c2 62%, #dcc596 100%) !important; border: 3px solid var(--c-gold) !important;
+  box-shadow: 0 0 0 3px var(--c-wood), 0 0 0 5px rgba(212, 163, 71, 0.6), 0 0 34px 6px rgba(255, 210, 120, 0.7) !important; }
+body.visor .death-box .dc-glyph svg { width: 48px !important; height: 48px !important; color: #4f8a2e !important; stroke-width: 1.7; }
+body.visor .death-box svg .lf, body.visor #death-mini svg .lf { fill: rgba(120, 190, 90, 0.35); }
+body.visor .dc-mote { background: #ffe39a !important; box-shadow: 0 0 8px #ffd06a !important; }
+body.visor .death-t { margin-top: var(--s1); font: 700 var(--fs-2xl)/1.25 var(--f-body); color: var(--c-ink); text-shadow: none; letter-spacing: 0; }
+body.visor .death-s { margin: var(--s1) 0 var(--s3); color: var(--c-ink-2); font-size: var(--fs-s); }
+body.visor .death-info { gap: var(--s2); margin-bottom: var(--s4); }
+body.visor .death-info span { padding: 4px var(--s3); border-radius: var(--rad-pill); background: var(--c-card); border: 1px solid var(--c-line-2); color: var(--c-ink-2); font: 600 var(--fs-xs)/1.3 var(--f-num); }
+body.visor .death-info span:first-child { color: var(--c-bad); background: #fbe9e2; border-color: rgba(179, 50, 31, 0.3); }
+body.visor .death-btns { gap: var(--s2); }
+body.visor .death-btns .btn { min-height: 48px; border-radius: var(--rad-m); font: 600 var(--fs-m)/1.1 var(--f-body); }
+body.visor .death-btns .btn.primary { background: linear-gradient(180deg, #ffe699, #f2c056 55%, #e3a43a); border: 1px solid #b5802a; color: #3b2204; box-shadow: 0 2px 0 #a4701c, 0 6px 12px -6px rgba(180, 120, 20, 0.7); }
+body.visor .death-btns .btn.primary:hover { background: linear-gradient(180deg, #fff0b8, #f6cb68 55%, #e8ad44); }
+body.visor .death-btns .btn:not(.primary) { background: linear-gradient(180deg, #fffdf6, #f2e2bf); border: 1px solid #c9a464; color: var(--c-ink); box-shadow: 0 2px 0 #d6b97f; }
+body.visor #death-hide { margin-top: var(--s3); color: var(--c-gold-ink); font-size: var(--fs-s); }
+body.visor #death-mini { color: #3b2204; background: linear-gradient(180deg, #fff3cf, #efd38f); border: 2px solid var(--c-gold); box-shadow: 0 0 0 2px var(--c-wood), var(--sh-hud); }
+body.visor #death-mini svg { color: #4f8a2e; }
+@media (max-height: 520px) and (orientation: landscape) {
+  body.visor .death-box { padding: var(--s2) var(--s4) var(--s3); }
+  body.visor .death-core { width: 64px; height: 64px; margin: 0 auto; }
+  body.visor .dc-glyph { width: 52px !important; height: 52px !important; }
+  body.visor .death-box .dc-glyph svg { width: 30px !important; height: 30px !important; }
+  body.visor .death-t { font-size: var(--fs-xl); }
+  body.visor .death-btns .btn { min-height: 40px; }
+}
+/* --- เลเวลอัป: ป้ายริบบิ้นครีมทอง ตัวเลขใหญ่น้ำตาลทอง --- */
+#lv-banner { display: flex; flex-direction: column; align-items: center; }
+#lv-banner b { position: relative; padding: var(--s2) var(--s5) var(--s1); border-radius: var(--rad-l) var(--rad-l) 0 0; font: 800 52px/1 var(--f-title) !important; letter-spacing: 0.04em;
+  color: #7a4a0c !important; background: linear-gradient(180deg, #fffaf0, #f3e2b6); border: 2px solid var(--c-gold); border-bottom: 0;
+  text-shadow: 0 1px 0 #fff, 0 0 18px rgba(255, 210, 120, 0.9) !important; box-shadow: 0 0 0 3px var(--c-wood), 0 0 40px 6px rgba(255, 210, 120, 0.55); }
+#lv-banner small { display: block; padding: 6px var(--s5); border-radius: var(--rad-pill); font: 700 var(--fs-s)/1 var(--f-body) !important; letter-spacing: 0.32em !important;
+  color: #3b2204 !important; background: linear-gradient(180deg, #ffe69c, #e3a43a); border: 1px solid #fff2c8; text-shadow: none !important; box-shadow: 0 0 0 2px var(--c-wood), 0 6px 14px -4px rgba(0, 0, 0, 0.6); }
+#lv-banner.job b { color: #2c4f80 !important; background: linear-gradient(180deg, #fbfdff, #dfe9f3); text-shadow: 0 1px 0 #fff, 0 0 18px rgba(140, 200, 255, 0.8) !important; }
+#lv-banner.job small { background: linear-gradient(180deg, #d9ecff, #8cc8ff); }
+#lv-banner.ult b { color: #fff !important; background: linear-gradient(180deg, color-mix(in srgb, var(--uc) 60%, #3b2204), #2e1c0d); text-shadow: 0 0 18px var(--uc) !important; font-size: 44px !important; }
+#lv-banner.ult small { background: linear-gradient(180deg, #ffe69c, #e3a43a); }
+@media (max-width: 760px), (max-height: 520px) { #lv-banner b { font-size: 38px !important; padding: 6px var(--s4) 2px; } #lv-banner small { font-size: var(--fs-2xs) !important; letter-spacing: 0.24em !important; } }
+/* --- ได้ของ (ป้ายครีม + รูปไอเทมบนจานกลม + ความหายาก) --- */
+body.visor #announce { padding: var(--s2) var(--s4); border-radius: var(--rad-pill); background: linear-gradient(180deg, #fffaf0, #f3e2b6); border: 1px solid var(--c-gold);
+  color: var(--c-ink); font: 600 var(--fs-m)/1.3 var(--f-body); text-shadow: none; box-shadow: 0 0 0 2px var(--c-wood), var(--sh-hud); white-space: normal; text-align: center; max-width: min(560px, calc(100vw - 32px)); }
+body.visor #announce:empty { display: none; }
+body.visor #announce.loot { display: flex; align-items: center; gap: var(--s3); padding: var(--s2) var(--s5) var(--s2) var(--s2); text-align: left; border-color: var(--rr, var(--c-gold));
+  box-shadow: 0 0 0 2px var(--c-wood), 0 0 0 4px var(--rr, var(--c-gold)), 0 0 30px 2px var(--rg, rgba(255, 210, 120, 0.6)), var(--sh-hud); }
+body.visor #announce.loot .plate { width: 52px; height: 52px; box-shadow: inset 0 2px 5px rgba(120, 80, 30, 0.25), 0 0 16px 2px var(--rg, rgba(255, 210, 120, 0.6)); }
+.an-t { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.an-t small { font: 700 var(--fs-2xs)/1.2 var(--f-body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--rc, var(--c-gold-ink)); }
+.an-t b { font: 700 var(--fs-l)/1.25 var(--f-body); color: var(--rc, var(--c-ink)); }
+.an-t em { font: 400 var(--fs-xs)/1.3 var(--f-body); font-style: normal; color: var(--c-ink-3); }
+/* --- คำเตือนบอส: การ์ดครีมขอบแดงทอง ภาพบอสในวงกลม --- */
+#splash.boss .sp-card { background: linear-gradient(90deg, #fff6e6, #f5dfc0) !important; border: 2px solid #b3321f; box-shadow: 0 0 0 3px var(--c-wood), 0 0 0 5px var(--c-gold), 0 0 34px rgba(220, 70, 40, 0.45), var(--sh-win) !important; }
+#splash.boss .sp-card img { -webkit-mask-image: linear-gradient(90deg, #000 72%, transparent) !important; mask-image: linear-gradient(90deg, #000 72%, transparent) !important; }
+#splash.boss .sp-sheen { background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.55) 50%, transparent 65%) !important; }
+#splash.boss .sp-text small { display: inline-flex; align-items: center; gap: var(--s1); color: #b3321f !important; font: 700 var(--fs-2xs)/1.3 var(--f-body) !important; letter-spacing: 0.16em !important; }
+#splash.boss .sp-text small::before { content: "!"; display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: #b3321f; color: #fff6f2; font: 800 11px/1 var(--f-num); letter-spacing: 0; }
+#splash.boss .sp-text b { color: var(--c-ink) !important; text-shadow: 0 1px 0 #fff !important; font-family: var(--f-title) !important; letter-spacing: 0.02em; }
+#splash.boss.noimg .sp-card { padding-left: var(--s4); }
+/* --- การ์ดบท / อัปเกรด Class (#splash.upgrade): ป้ายกระดาษกลางจอ หัวมุมทอง --- */
+#splash.upgrade .sp-text { margin-top: 30vh; padding: var(--s4) var(--s5) var(--s4); border-radius: var(--rad-l); text-align: center;
+  background: radial-gradient(130% 80% at 50% 0%, #fffaf0, #f3e2b6) !important; border: 1px solid var(--c-gold-lo); outline: 1px solid rgba(212, 163, 71, 0.55); outline-offset: -6px;
+  box-shadow: 0 0 0 3px var(--c-wood), 0 0 0 4px var(--c-gold), 0 0 60px 10px rgba(255, 210, 120, 0.45), var(--sh-win); max-width: min(640px, calc(100vw - 32px)); }
+#splash.upgrade.noimg .sp-text { margin-top: 0; }
+#splash.upgrade .sp-text small { display: inline-block; margin-bottom: var(--s2); padding: 3px var(--s3); border-radius: var(--rad-pill); background: var(--c-wood); color: #ffd98a !important; font: 600 var(--fs-xs)/1.3 var(--f-body) !important; letter-spacing: 0.14em !important; }
+#splash.upgrade .sp-text b { color: var(--c-ink) !important; text-shadow: 0 1px 0 #fff, 0 0 20px rgba(255, 210, 120, 0.8) !important; font: 700 clamp(24px, 4.4vw, 42px)/1.2 var(--f-title) !important; }
+#splash.upgrade .sp-text::before, #splash.upgrade .sp-text::after { content: ""; display: block; height: 10px; margin: 0 auto; width: 60%;
+  background: radial-gradient(circle, var(--c-gold) 0 3px, transparent 3.5px) center / 10px 10px no-repeat, linear-gradient(90deg, transparent, var(--c-gold), transparent) center / 100% 1px no-repeat; }
+#splash.upgrade .sp-text::before { margin-bottom: var(--s2); } #splash.upgrade .sp-text::after { margin-top: var(--s3); }
+/* --- ป้ายชื่อแผนที่ (การ์ดเข้าแมพ / บรรทัดตำนาน) --- */
+body.visor #map-banner, body.visor #map-banner.has-img { border-radius: var(--rad-l); background-color: transparent !important;
+  background: linear-gradient(180deg, #fffaf0, #f3e2b6) !important; border: 1px solid var(--c-gold-lo); outline: 1px solid rgba(212, 163, 71, 0.5); outline-offset: -5px;
+  box-shadow: 0 0 0 2px var(--c-wood), 0 0 0 3px var(--c-gold), var(--sh-hud); padding: var(--s2) var(--s5) var(--s3) !important; }
+body.visor #map-banner .mb-en { color: var(--c-ink) !important; font-family: var(--f-title) !important; text-shadow: 0 1px 0 #fff !important; letter-spacing: 0.04em; }
+body.visor #map-banner .mb-en::after { height: 1px; background: linear-gradient(90deg, transparent, var(--c-gold), transparent) !important; }
+body.visor #map-banner .mb-th { color: var(--c-gold-ink) !important; text-shadow: none !important; font-weight: 600; }
+body.visor #map-banner .mb-story { color: var(--c-ink-2) !important; text-shadow: none !important; font-style: italic; }
+body.visor #map-banner.mini { padding: var(--s1) var(--s4) !important; }
+
+/* ======================= 14) จัดวาง HUD ไม่ให้ซ้อนกัน ======================= */
+/* เมนูกริดเปิด (มือถือ): แผ่นไม้เดียวกับคอม • กริด 4 คอลัมน์เต็มแผ่น (เดิมเหลือช่องว่างซ้าย) เรียงจากขวา (ปุ่ม ≡ มุมขวาบน) */
+body.visor.pad-mode #menubar:not(.folded) { display: grid; grid-template-columns: repeat(4, 52px); grid-auto-rows: 48px; gap: var(--s1); direction: rtl; width: auto; padding: var(--s2);
+  background: linear-gradient(180deg, rgba(64, 41, 20, 0.95), rgba(36, 23, 11, 0.95)); border: 1px solid var(--c-hud-line); box-shadow: var(--sh-hud); }
+body.visor.pad-mode #menubar:not(.folded) > button { direction: ltr; width: 52px; height: 48px; margin: 0; }
+body.visor.pad-mode #menubar:not(.folded) > button span { font-size: var(--fs-2xs); }
+/* ป้ายได้ของบนมือถือแนวตั้ง: ใต้การ์ดเควสต์ กว้างพอให้ชื่อไอเทมอยู่บรรทัดเดียว */
+@media (max-width: 760px) and (orientation: portrait) { body.visor #announce { top: calc(var(--st) + 392px); } body.visor #announce.loot { width: max-content; max-width: calc(100vw - 32px); } }
+@media (max-height: 520px) and (orientation: landscape) { body.visor #announce { top: calc(var(--st) + 100px); } }
+/* เมนูเปิดบนมือถือ = แผงหลัก: เป้าหมาย/การ์ดเควสต์/บัฟที่อยู่ใต้แผงซ่อนชั่วคราว (เมนูพับเองเมื่อเริ่มเล่น) */
+body.visor.pad-mode #hud:has(#menubar:not(.folded)) :is(#target, #quest-track, #party-hud) { visibility: hidden; }
+/* มือถือ: แชท (ข้อความลอยซ้าย) ไม่วิ่งลอดใต้แผงเมนูที่เปิดอยู่ */
+body.visor.pad-mode #hud:has(#menubar:not(.folded)) #chat { visibility: hidden; }
+body.visor.pad-mode #menubar:not(.folded) { grid-auto-rows: 44px; }
+/* มือถือแนวตั้ง: คอลัมน์ขวาเรียงลง มินิแมพ(+ป้าย MVP) → เงิน → ปุ่มเมนู → แถบเป้าหมาย → ULT → AUTO ไม่ทับกัน */
+@media (max-width: 760px) and (orientation: portrait) {
+  #top-pills { top: calc(var(--st) + 164px); }
+  body.visor.pad-mode #menubar { top: calc(var(--st) + 202px); }
+  .pad-mode #ult-btn { bottom: calc(334px + var(--sb)); }
+  body.visor #target { top: calc(var(--s2) + var(--st) + 242px); }
+  body.visor #hud-toggle { left: calc(var(--s2) + var(--sl) + min(62vw, 236px) - 2px) !important; }
+}
+/* มือถือแนวนอน: เมนูเปิดใต้แถบเงิน • บัฟเรียงแถวเดียวขวาของช่องยา (ไม่ทับช่องยา) • แชทลงใต้แถวบัฟ */
+@media (max-height: 520px) and (orientation: landscape) {
+  body.visor.pad-mode #menubar:not(.folded) { top: calc(var(--st) + 44px); }
+  body.visor.pad-mode #buffs { top: calc(var(--st) + 132px) !important; left: calc(var(--sl) + 120px) !important; right: auto; flex-wrap: nowrap; max-width: calc(100vw - 480px); overflow: hidden; }
+  body.visor.pad-mode #hud:has(#buffs .buff) #chat { top: calc(160px + var(--st)); }
+  /* แถบเป้าหมาย: แทนที่การ์ดเควสต์ (ซ่อนตอนล็อกเป้า) ระหว่างปุ่มซ่อน HUD กับแถบเงิน */
+  body.visor #target { left: calc(var(--sl) + 286px) !important; right: auto !important; transform: none !important; width: min(200px, calc(100vw - 650px)) !important; }
+}
