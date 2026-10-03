@@ -849,12 +849,13 @@ const UI = {
       nav: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
       party: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c.6-3.6 3-5.6 6-5.6s5.4 2 6 5.6"/><circle cx="17" cy="9" r="2.6"/><path d="M15.6 14.6c2.6-.4 4.8 1.3 5.4 4.4"/>',
       help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7"/><circle cx="12" cy="17" r=".6"/>',
+      builds: '<rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 17.5h7M17.5 14v7"/>',
       sit: '<path d="M6 21v-5h9l3 5"/><circle cx="10" cy="5" r="2.5"/><path d="M10 8v8M10 11h5"/>',
     };
     const icon = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${P[k]}</svg>`;
     const items = [
       ['w-status', 'Status', 'A', 'status'], ['w-inv', 'Items', 'E', 'bag'], ['w-equip', 'Equip', 'Q', 'equip'],
-      ['w-skills', 'Skills', 'S', 'skill'], ['w-tree', 'Passive', 'P', 'tree'], ['w-map', 'Map', 'M', 'map'], ['w-quest', 'Quests', 'J', 'quest'], ['w-party', 'Party', 'Y', 'party'], ['w-emote', 'Emote', 'Alt', 'emote'], ['w-nav', 'Navi', 'G', 'nav'], ['w-bot', 'Bot', 'N', 'bot'], ['w-options', 'Settings', 'O', 'options'], ['w-help', 'Help', 'H', 'help'],
+      ['w-skills', 'Skills', 'S', 'skill'], ['w-tree', 'Passive', 'P', 'tree'], ['w-map', 'Map', 'M', 'map'], ['w-quest', 'Quests', 'J', 'quest'], ['w-party', 'Party', 'Y', 'party'], ['w-emote', 'Emote', 'Alt', 'emote'], ['w-nav', 'Navi', 'G', 'nav'], ['w-bot', 'Bot', 'N', 'bot'], ['w-builds', 'Builds', 'D', 'builds'], ['w-options', 'Settings', 'O', 'options'], ['w-help', 'Help', 'H', 'help'],
     ];
     const m = $('#menubar');
     for (const [id, label, key, ic] of items) {
@@ -917,6 +918,7 @@ const UI = {
     if (this.isOpen('w-world')) this.renderWorld();
     if (this.isOpen('w-tree')) this.renderTree();
     if (this.isOpen('w-bot')) this.renderBot();
+    if (this.isOpen('w-builds') && typeof Loadouts !== 'undefined') Loadouts.render(); // Loadouts + Build Code (js/loadouts.js)
     if (this.isOpen('w-map')) $('#w-map .win-title span').textContent = `Map — ${G.map.def.name}`;
     if (this.isOpen('w-shop') && this.shop) this.renderShop();
   },
@@ -988,6 +990,7 @@ const UI = {
       h('div', { class: 'st-confirm' },
         h('button', { class: 'btn', disabled: !pending, onclick: () => { this.statDraft = {}; this.renderStatus(); } }, L('รีเซ็ต', 'Reset')),
         h('button', { class: 'btn primary', disabled: !pending, onclick: () => this.statDraftApply() }, L('ยืนยัน', 'Confirm'))),
+      typeof Loadouts !== 'undefined' ? Loadouts.statusEntry() : null, // Builds (js/loadouts.js)
     );
   },
 

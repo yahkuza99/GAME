@@ -1,0 +1,79 @@
+/* =====================================================================
+   Loadouts + Build Code (js/loadouts.js) — หน้าต่าง "Builds" (#w-builds) + แถบเล็กในหน้าต่าง Status (.lo-st)
+   ใช้ค่าจาก css/tokens.css (กระดาษครีม ขอบทอง ไม้เข้ม) • ไม่แตะสไตล์หน้าต่างอื่น (ทุกกฎอยู่ใต้ #w-builds / .lo-st)
+   ===================================================================== */
+#w-builds .win-body { min-height: 0; }
+#w-builds .lo { display: flex; flex-direction: column; gap: var(--s3); font-family: var(--f-body); color: var(--c-ink); }
+#w-builds .lo-intro { margin: 0; font-size: var(--fs-s); line-height: 1.5; color: var(--c-ink-2); }
+#w-builds .lo-busy { margin: 0; padding: var(--s2) var(--s3); border-radius: var(--rad-m); font-weight: 600; font-size: var(--fs-s);
+  color: var(--c-bad); background: rgba(179, 50, 31, 0.08); border: 1px solid rgba(179, 50, 31, 0.35); }
+
+/* ---------- 3 ช่อง ---------- */
+#w-builds .lo-slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s2); }
+#w-builds .lo-card { position: relative; display: flex; flex-direction: column; gap: var(--s2); min-width: 0; padding: var(--s3);
+  background: var(--c-card); border: 1px solid var(--c-line-2); border-radius: var(--rad-m); box-shadow: var(--sh-1); }
+#w-builds .lo-card.on { background: var(--c-card-hi); border-color: var(--c-gold); box-shadow: var(--glow-gold); }
+#w-builds .lo-card.empty { background: rgba(140, 100, 45, 0.05); border-style: dashed; box-shadow: none; }
+#w-builds .lo-head { display: flex; align-items: center; gap: var(--s2); min-width: 0; flex-wrap: wrap; }
+#w-builds .lo-num { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  font: 700 var(--fs-s)/1 var(--f-num); color: #fbe6b2; background: radial-gradient(circle at 50% 35%, #7f5532, #3f2613 75%); border: 1px solid var(--c-gold); }
+#w-builds .lo-card.on .lo-num { color: #3b2204; background: linear-gradient(180deg, #ffe69c, #edba50); border-color: #b5802a; }
+#w-builds .lo-name { flex: 1 1 90px; min-width: 0; height: 30px; padding: 0 var(--s2); font: 600 var(--fs-m)/1 var(--f-body); color: var(--c-ink); }
+#w-builds input.lo-name { background: transparent; border: 1px solid transparent; border-radius: var(--rad-s); }
+#w-builds input.lo-name:hover { border-color: var(--c-line-2); background: #fffdf7; }
+#w-builds input.lo-name:focus { border-color: var(--c-gold); background: #fffdf7; box-shadow: 0 0 0 3px rgba(242, 190, 80, 0.3); outline: none; }
+#w-builds .lo-name.empty { display: flex; align-items: center; color: var(--c-ink-3); }
+#w-builds .lo-badge { flex: none; padding: 2px var(--s2); border-radius: var(--rad-pill); font: 600 var(--fs-2xs)/1.4 var(--f-body); white-space: nowrap;
+  border: 1px solid var(--c-line-2); color: var(--c-ink-2); background: var(--c-paper-2); }
+#w-builds .lo-badge.ok { color: var(--c-ok); border-color: rgba(46, 125, 58, 0.45); background: rgba(46, 125, 58, 0.1); }
+#w-builds .lo-badge.edit { color: var(--c-warn); border-color: rgba(176, 106, 0, 0.45); background: rgba(176, 106, 0, 0.08); }
+#w-builds .lo-badge.ro { color: var(--c-info); border-color: rgba(44, 106, 168, 0.45); background: rgba(44, 106, 168, 0.08); }
+#w-builds .lo-empty, #w-builds .lo-meta { margin: 0; font-size: var(--fs-xs); color: var(--c-ink-3); line-height: 1.45; }
+#w-builds .lo-chips { display: flex; flex-wrap: wrap; gap: var(--s1); }
+#w-builds .lo-chip { display: inline-flex; align-items: baseline; gap: var(--s1); max-width: 100%; padding: 2px var(--s2); border-radius: var(--rad-s);
+  background: var(--c-paper-2); border: 1px solid var(--c-line); font-size: var(--fs-xs); line-height: 1.4; min-width: 0; }
+#w-builds .lo-chip i { font-style: normal; color: var(--c-gold-ink); font-weight: 600; flex: none; }
+#w-builds .lo-chip b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+#w-builds .lo-chip.warn { border-color: rgba(176, 106, 0, 0.5); background: rgba(176, 106, 0, 0.08); }
+#w-builds .lo-warn { margin: 0; padding: var(--s1) var(--s2); border-radius: var(--rad-s); font-size: var(--fs-xs); line-height: 1.45;
+  color: var(--c-warn); background: rgba(176, 106, 0, 0.07); border: 1px solid rgba(176, 106, 0, 0.3); }
+#w-builds .lo-acts { display: flex; flex-wrap: wrap; gap: var(--s1); margin-top: auto; }
+#w-builds .lo-acts .btn { flex: 1 1 auto; min-width: 0; }
+#w-builds .lo-acts .lo-go { flex-basis: 100%; }
+
+/* ---------- Build Code ---------- */
+#w-builds .lo-sec { margin: var(--s2) 0 0; padding-top: var(--s3); border-top: 1px dashed var(--c-line-2); font: 600 var(--fs-l)/1.2 var(--f-title); color: var(--c-gold-ink); }
+#w-builds .lo-sec + .hint { margin: calc(-1 * var(--s2)) 0 0; }
+#w-builds .lo-row { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+#w-builds .lo-row .btn { flex: none; }
+#w-builds .lo-opt { display: inline-flex; align-items: center; gap: var(--s1); font-size: var(--fs-s); cursor: pointer; min-height: 32px; }
+#w-builds .lo-opt input { width: 18px; height: 18px; accent-color: var(--c-gold-lo); margin: 0; }
+#w-builds .lo-opt.off { color: var(--c-ink-3); cursor: default; }
+#w-builds .lo-opt small { color: var(--c-ink-3); font-size: var(--fs-xs); }
+#w-builds .lo-code { width: 100%; box-sizing: border-box; height: 36px; padding: 0 var(--s2); font: 500 var(--fs-xs)/1 "IBM Plex Mono", monospace; }
+#w-builds .lo-import .lo-code { flex: 1 1 200px; width: auto; }
+#w-builds .lo-pv { display: flex; flex-direction: column; gap: var(--s2); padding: var(--s3); border-radius: var(--rad-m);
+  background: var(--c-card); border: 1px solid var(--c-gold); box-shadow: var(--sh-2); }
+#w-builds .lo-pv.ro { border-color: rgba(44, 106, 168, 0.5); background: #fbfaf5; }
+#w-builds .lo-pv-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); flex-wrap: wrap; font-size: var(--fs-m); }
+#w-builds .lo-pv-sec h5 { margin: 0 0 2px; font: 600 var(--fs-xs)/1.3 var(--f-body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--c-gold-ink); }
+#w-builds .lo-pv-list { margin: 0; padding-left: var(--s4); font-size: var(--fs-s); line-height: 1.5; }
+#w-builds .lo-pv-list .dim, #w-builds .lo-pv-list small { color: var(--c-ink-3); }
+#w-builds .lo-pv-big { margin: 0; font-weight: 600; font-size: var(--fs-s); }
+#w-builds .lo-pv-sum { margin: 0; font-size: var(--fs-xs); color: var(--c-ink-2); line-height: 1.5; }
+#w-builds .lo-opts { display: flex; flex-direction: column; gap: 2px; padding-top: var(--s2); border-top: 1px dashed var(--c-line-2); }
+#w-builds .lo-pv .lo-acts .btn { flex: 1 1 100%; }
+
+/* ---------- แถบในหน้าต่าง Status ---------- */
+.lo-st { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); margin-top: var(--s2); padding: var(--s2) var(--s3);
+  border-radius: var(--rad-m); border: 1px dashed var(--c-line-2, rgba(140, 100, 45, 0.38)); font-size: var(--fs-s); }
+.lo-st span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lo-st .btn { flex: none; }
+
+/* ---------- มือถือ ---------- */
+@media (max-width: 760px) {
+  #w-builds .lo-slots { grid-template-columns: minmax(0, 1fr); }
+  #w-builds .lo-acts .lo-go { flex-basis: auto; flex-grow: 2; }
+  #w-builds .lo-acts .btn, #w-builds .lo-row .btn { min-height: 40px; }
+  #w-builds .lo-code { height: 40px; }
+}

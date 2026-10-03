@@ -11,7 +11,7 @@ const G = {
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
 const SAVE_FIELDS = ['pvp', 'mvpAt', 'job1Lv', 'name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
-  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery', 'story', 'daily', 'gacha', 'runes'];
+  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery', 'story', 'daily', 'gacha', 'runes', 'loadouts'];
 
 // ------------------------------------------------------------
 //  สร้าง / บันทึก / โหลด
@@ -175,6 +175,7 @@ function loadGameFrom(data) {
   // สกิลที่ไม่มีอยู่แล้ว (เช่น ถูกลบออกจาก data.js) คืนแต้มให้
   for (const id in p.skills) if (!SKILLS[id]) { if (!SKILLS.first_aid || id !== 'first_aid') p.skillPoints += p.skills[id]; delete p.skills[id]; }
   p.runes = typeof Runes !== 'undefined' ? Runes.sanitize(p.runes) : {}; // Rune Paths: เซฟเก่าไม่มี = ไม่มีรูน (สกิลแบบเดิม) • รูน/สกิลที่ไม่มีแล้วถูกตัดทิ้ง
+  if (typeof Loadouts !== 'undefined') p.loadouts = Loadouts.sanitize(p.loadouts); // Loadouts (js/loadouts.js): เซฟเก่าไม่มี = 3 ช่องว่าง • ข้อมูลเสียถูกตัดทิ้ง
   fixSkillPoints(p, true); // เซฟเก่าที่แต้มสกิลเกิน (แต้ม Novice ค้างข้าม Class) → ปรับให้ถูกต้อง
   // แถบสกิล (8 ช่อง) แยกจากแถบไอเทม (4 ช่อง) — เซฟเก่าที่ปนกันจะถูกย้ายไอเทมไปแถบไอเทม
   const oldBar = (p.hotbar || []).filter(h => h && ((h.t === 'skill' && SKILLS[h.id]) || (h.t === 'item' && ITEMS[h.id])));
