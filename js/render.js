@@ -72,7 +72,8 @@ R.GT = 256;
 R.gtile = { key: '', tiles: new Map(), pool: [], settle: 0, frame: 0 };
 R.drawGround = (g, map, sx, sy, sw, sh) => {
   const m = g.getTransform(), C = R.gtile, T = R.GT;
-  const ok = !m.b && !m.c && Math.abs(m.e - Math.round(m.e)) < 1e-4 && Math.abs(m.f - Math.round(m.f)) < 1e-4;
+  // (เมทริกซ์ของแคนวาสเก็บแบบ float32: กล้องไกลจากมุมแมพ ตำแหน่งเพี้ยนจากจำนวนเต็ม ~1e-3 พิกเซล — เดิมเผื่อแค่ 1e-4 แคชจึงปิดเกือบทั้งแมพ)
+  const ok = !m.b && !m.c && Math.abs(m.e - Math.round(m.e)) < 0.01 && Math.abs(m.f - Math.round(m.f)) < 0.01;
   if (ok) {
     const key = `${m.a}|${m.d}`;
     if (key !== C.key || map.ground !== C.ground) { C.key = key; C.ground = map.ground; R.gtileDrop(); C.settle = 3; }
@@ -102,6 +103,38 @@ R.drawGround = (g, map, sx, sy, sw, sh) => {
 };
 
 R.gtileDrop = () => { const C = R.gtile; for (const tl of C.tiles.values()) if (C.pool.length < 16) C.pool.push(tl.c); C.tiles.clear(); };
+
+// ชั้นครึ่งความละเอียด (ครึ่งพิกเซล CSS — เท่าชั้นความมืด R.dark) สำหรับไล่สีนุ่มขนาดใหญ่ (เงาเมฆ): ไล่สีเต็มจอบนแคนวาสซอฟต์แวร์แพงมาก
+// → วาดลงภาพเล็ก (1/4 พิกเซลบนมือถือ dpr 2) ด้วยพิกัดเดิม (คัดลอกการแปลงพิกัดของ g มาย่อ) แล้ววางขยายครั้งเดียวเฉพาะกรอบที่มีของ
+//   ซ้อนกันในชั้นแบบ source-over แล้ววางทับ = ผลเท่าวาดทีละก้อน (ต่างแค่ขอบเงาเมฆเป็นขั้น 2 พิกเซล CSS ที่ความเข้ม ~6% — มองไม่เห็น)
+R.soft = {};
+R.softLayer = (name, g) => {
+  const w = Math.ceil(R.W / 2), h = Math.ceil(R.H / 2);
+  let L = R.soft[name];
+  if (!L) { const cv = document.createElement('canvas'); L = R.soft[name] = { cv, g: cv.getContext('2d'), x0: 0, y0: 0, x1: 0, y1: 0 }; }
+  const lg = L.g;
+  if (L.cv.width !== w || L.cv.height !== h) { L.cv.width = w; L.cv.height = h; }
+  else if (L.x1 > L.x0) { lg.setTransform(1, 0, 0, 1, 0, 0); lg.clearRect(L.x0, L.y0, L.x1 - L.x0, L.y1 - L.y0); } // ล้างเฉพาะกรอบที่วาดเฟรมก่อน
+  const m = g.getTransform(), q = 1 / (2 * R.dpr);
+  lg.setTransform(m.a * q, m.b * q, m.c * q, m.d * q, m.e * q, m.f * q);
+  L.m = lg.getTransform(); L.x0 = w; L.y0 = h; L.x1 = 0; L.y1 = 0;
+  return L;
+};
+// ขยายกรอบที่มีของ (พิกัดเดียวกับที่วาด) → พิกเซลชั้น (+ขอบ 2 พิกเซล ให้การขยายภาพที่ขอบกรอบเหมือนวางทั้งภาพ)
+R.softAdd = (L, x0, y0, x1, y1) => {
+  const m = L.m, w = L.cv.width, h = L.cv.height;
+  let a = m.a * x0 + m.e, b = m.a * x1 + m.e, c = m.d * y0 + m.f, d = m.d * y1 + m.f;
+  if (m.b || m.c) { a = 0; b = w; c = 0; d = h; }
+  L.x0 = Math.max(0, Math.min(L.x0, Math.floor(Math.min(a, b)) - 2)); L.x1 = Math.min(w, Math.max(L.x1, Math.ceil(Math.max(a, b)) + 2));
+  L.y0 = Math.max(0, Math.min(L.y0, Math.floor(Math.min(c, d)) - 2)); L.y1 = Math.min(h, Math.max(L.y1, Math.ceil(Math.max(c, d)) + 2));
+};
+R.softDraw = (g, L) => {
+  if (L.x1 <= L.x0 || L.y1 <= L.y0) return;
+  const s = 2 * R.dpr, w = L.x1 - L.x0, h = L.y1 - L.y0;
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.imageSmoothingEnabled = false; // ขยายแบบไม่กรองภาพ: ไล่สีนุ่มมาก ต่างกัน < 1 ระดับสีต่อบล็อก (ขยายแบบกรองภาพเต็มจอแพงเท่าไล่สีเดิม)
+  g.drawImage(L.cv, L.x0, L.y0, w, h, L.x0 * s, L.y0 * s, w * s, h * s);
+  g.restore();
+};
 
 // หาสิ่งที่อยู่ใต้เมาส์ (มอนสเตอร์ / NPC / ไอเทม)
 R.pick = (wx, wy) => {
@@ -144,6 +177,7 @@ R.render = () => {
   }
   g.scale(R.zoom, R.zoom);
   g.translate(-R.camX, -R.camY);
+  { const cm = g.getTransform(); R.snapS = !cm.b && !cm.c && cm.a === cm.d && Math.abs(cm.e - Math.round(cm.e)) < 0.01 && Math.abs(cm.f - Math.round(cm.f)) < 0.01 ? cm.a : 0; } // กล้องลงพิกเซลจอพอดี (แคชต้นไม้ js/flora.js)
   const K = R.K, wTop = R.camY / K, wH = vh / K; // ขอบบน/ความสูงของพื้นที่เห็นในพิกัดโลก
   // วาดสิ่งที่ยืนตรง ณ ตำแหน่งโลก wy (เลื่อนแกน y ให้ตรงกับพื้นที่ถูกบีบ)
   const upright = (wy, fn) => { g.save(); g.translate(0, wy * (K - 1)); fn(); g.restore(); };
@@ -214,17 +248,23 @@ R.render = () => {
   // กับดัก
   for (const tr of G.traps) Sprites.drawTrap(g, tr, t);
   // เงาเมฆลอยผ่าน (กลางแจ้ง) — อยู่บนพื้น
+  // ไล่สีนุ่มขนาดเกือบเต็มจอ → วาดลงชั้นครึ่งความละเอียด (R.softLayer) แล้ววางขยายครั้งเดียวเฉพาะกรอบที่มีเงา (เดิมเติมเต็มจอทีละก้อน)
   if (map.def.kind !== 'cave') {
     const mw = map.w * TILE, mh = map.h * TILE;
+    let L = null;
     for (let i = 0; i < 5; i++) {
       const cx = ((U.hash2(i, 1, 9) * mw + t * (14 + i * 3)) % (mw + 600)) - 300;
       const cy = U.hash2(i, 2, 9) * mh + Math.sin(t * 0.05 + i) * 40;
       const r = 160 + U.hash2(i, 3, 9) * 140;
       if (cx + r < R.camX || cx - r > R.camX + vw || cy + r < wTop || cy - r > wTop + wH) continue;
-      const cg = g.createRadialGradient(cx, cy, r * 0.2, cx, cy, r);
+      if (!L) L = R.softLayer('gcloud', g);
+      const lg = L.g;
+      const cg = lg.createRadialGradient(cx, cy, r * 0.2, cx, cy, r);
       cg.addColorStop(0, 'rgba(20,30,50,0.13)'); cg.addColorStop(1, 'rgba(20,30,50,0)');
-      g.fillStyle = cg; g.beginPath(); g.ellipse(cx, cy, r * 1.4, r, 0, 0, 7); g.fill();
+      lg.fillStyle = cg; lg.beginPath(); lg.ellipse(cx, cy, r * 1.4, r, 0, 0, 7); lg.fill();
+      R.softAdd(L, cx - r * 1.4, cy - r, cx + r * 1.4, cy + r);
     }
+    if (L) R.softDraw(g, L);
   }
   g.restore();
   // ---------- จบชั้นพื้น ----------
@@ -457,7 +497,9 @@ R.render = () => {
     // หมอกทับความมืดในชั้นเดียวกัน = ผลเท่าวาดทีละชั้น • แสงเรืองด้านล่างจึงวาดทีหลังหมอก → หรี่ตามความหนาหมอกตรงนั้นให้เท่าเดิม
     const fogIn = R.quality !== 'low' && ATMOS[map.id] && ATMOS[map.id].fog;
     if (fogIn) { dg.globalCompositeOperation = 'source-over'; R.drawFog(dg, t, 0.5); }
-    g.drawImage(dc, 0, 0, R.W, R.H);
+    // วางขยายแบบไม่กรองภาพ (เหมือนชั้นเงาเมฆ R.softDraw): ความมืด/หมอก/วงแสงไล่สีนุ่ม ต่างกัน ~1 ระดับสีต่อบล็อก มองไม่เห็น
+    //   แต่ขยายแบบกรองภาพเต็มจอบนแคนวาสซอฟต์แวร์ ~3.5 ms/เฟรม (มือถือ CPU/5)
+    g.imageSmoothingEnabled = false; g.drawImage(dc, 0, 0, R.W, R.H); g.imageSmoothingEnabled = true;
     // แสงเรืองสีของแหล่งแสง (เห็ดเขียว/คริสตัลม่วง/ตะเกียงส้ม) ทับความมืดแบบบวกแสง
     if (R.quality !== 'low') {
       g.save(); g.globalCompositeOperation = 'lighter';
@@ -504,6 +546,9 @@ R.drawSky = (g, map, t) => {
   const S = SKY[map.id]; if (!S) return;
   const z = R.zoom, P = 900; // เมฆวนซ้ำทุก P px ของโลก (ยึดกับโลก: เดินแล้วเงาเลื่อนตามพื้น)
   g.save();
+  // เมฆ 1 ก้อน = วงรีไล่สีใหญ่เกือบเต็มจอ 3 วง (เดิมเติมเต็มจอทีละวง ~12 วง/เฟรม แพงสุดของทุ่งหญ้า)
+  // → วาดลงชั้นครึ่งความละเอียด (R.softLayer พิกัดจอเดียวกัน) แล้ววางขยายครั้งเดียว: ผลเท่าวาดซ้อนทีละวง (ซ้อนทับแบบ source-over)
+  const L = S.cloud ? R.softLayer('sky', g) : null, cl = L && L.g;
   for (let k = 0; k < (S.cloud ? 4 : 0); k++) {
     const wx0 = ((k * 613 + t * (9 + k * 2)) % P + P) % P, wy0 = (k * 347) % P;
     for (let ox = -P; ox <= P; ox += P) for (let oy = -P; oy <= P; oy += P) {
@@ -512,12 +557,14 @@ R.drawSky = (g, map, t) => {
       if (sx < -r * 1.6 || sx > R.W + r * 1.6 || sy < -r || sy > R.H + r) continue;
       for (let b = 0; b < 3; b++) { // เมฆ 1 ก้อน = วงรีนุ่ม 3 วงซ้อนกัน
         const bx = sx + (b - 1) * r * 0.55, by = sy + Math.sin(k + b) * r * 0.18, rr = r * (b === 1 ? 1 : 0.7);
-        const gr = g.createRadialGradient(bx, by, rr * 0.2, bx, by, rr);
+        const gr = cl.createRadialGradient(bx, by, rr * 0.2, bx, by, rr);
         gr.addColorStop(0, `rgba(12,22,18,${S.cloud})`); gr.addColorStop(1, 'rgba(12,22,18,0)');
-        g.fillStyle = gr; g.beginPath(); g.ellipse(bx, by, rr * 1.3, rr * 0.75, 0, 0, 7); g.fill();
+        cl.fillStyle = gr; cl.beginPath(); cl.ellipse(bx, by, rr * 1.3, rr * 0.75, 0, 0, 7); cl.fill();
+        R.softAdd(L, bx - rr * 1.3, by - rr * 0.75, bx + rr * 1.3, by + rr * 0.75);
       }
     }
   }
+  if (L) R.softDraw(g, L);
   // แสงแดดอุ่นจากมุมซ้ายบน (ค่อย ๆ หายใจ)
   // ไล่สีเต็มจอทุกเฟรมแพง (มือถือ) → อบไล่สีที่ความสว่างเต็มลงแคนวาสความละเอียดจริงครั้งเดียว (เฉพาะส่วนที่แสงถึง)
   // แล้ววางแบบ 1:1 ด้วย globalAlpha = จังหวะหายใจ (โหมดบวกแสง: ภาพ × alpha = ไล่สีที่ alpha นั้น ผลเท่าเดิม)
@@ -588,7 +635,12 @@ R.drawAtmosphere = (g, map, t, o = {}) => {
     g.restore();
   }
   // หมอกลอยต่ำ
-  if (A.fog && !o.noFog) R.drawFog(g, t, 1);
+  if (A.fog && !o.noFog) { // (Mistlake) ไล่สีวงรีกว้างเกือบเต็มจอ 4 ก้อน → ชั้นครึ่งความละเอียด วางครั้งเดียว (แบบเดียวกับหมอกในชั้นความมืดของ Wolfwood)
+    const L = R.softLayer('fog', g);
+    R.drawFog(L.g, t, 1);
+    for (let i = 0; i < 4; i++) { const fx = R.fogX(t, i), fy = R.H * (0.2 + i * 0.22); R.softAdd(L, fx - 420, fy - 126, fx + 420, fy + 126); }
+    R.softDraw(g, L);
+  }
   for (let i = 0; i < R.parts.length; i++) {
     const p = R.parts[i];
     p.life += dt; p.ph += dt;

@@ -669,6 +669,7 @@ const Flora = {
   // ------------------------------------------------------------
   collect(list, g, m, t, L, Rr, Tp, B) {
     this.frame(t);
+    this.dcFrame(m);
     for (const o of m.objects) if (o.x > L - 2 && o.x < Rr + 2 && o.y > Tp && o.y < B + 5) list.push({ y: o.y + 0.3, f: () => this.drawObj(g, o, t) });
     for (const o of m.flora) if (o.x > L && o.x < Rr && o.y > Tp && o.y < B + 1) list.push({ y: o.y, f: () => this.drawDecor(g, o, t) });
   },
@@ -683,7 +684,7 @@ const Flora = {
     if (p.target && !p.target.dead && p.target.x != null) out.push(p.target.x * TILE, p.target.y * TILE * K, p.target.y);
   },
   drawObj(g, o, t) {
-    if (o.kind === 'hedge') { this.drawDecor(g, { k: o.k, x: o.x, y: o.y + 0.3, s: o.size, flip: o.flip, r: o.r, sway: true }, t); return; }
+    if (o.kind === 'hedge') { this.drawDecor(g, { k: o.k, x: o.x, y: o.y + 0.3, s: o.size, flip: o.flip, r: o.r, sway: true }, t, o); return; }
     const img = this.treeImg(o.sp);
     if (!img) { // ไม่มีภาพ: ต้นไม้วาดด้วยโค้ดขนาดใหญ่ขึ้น
       if (typeof Sprites !== 'undefined') Sprites.drawTree(g, { kind: (o.sp || '').startsWith('pine') ? 'pine' : 'tree', x: o.x, y: o.y, size: o.size * 1.8, hue: '#3f8a3a', r: o.r }, t);
@@ -700,22 +701,102 @@ const Flora = {
       if (dx < Wd * 0.4 + 12 && cy > sy - H * 0.98 + 20 && cy - 56 < sy - H * 0.22) { target = 0.42; break; }
     }
     o.fa += (target - o.fa) * Math.min(1, this.dt * 9);
+    const sway = Math.sin(t * 1.1 + o.r * 10) * (img.pine ? 0.016 : 0.012);
+    if (this.devDraw(g, o, img, x, by, -Wd / 2, -H, Wd, H, o.flip, sway, o.fa)) return;
     g.save(); g.translate(x, by);
     if (o.fa < 0.995) g.globalAlpha *= o.fa;
-    const sway = Math.sin(t * 1.1 + o.r * 10) * (img.pine ? 0.016 : 0.012);
     g.transform(1, 0, sway, 1, 0, 0);
     if (o.flip) g.scale(-1, 1);
     g.drawImage(img, -Wd / 2, -H, Wd, H);
     g.restore();
   },
-  drawDecor(g, o, t) {
+  // ------------------------------------------------------------
+  //  ต้นไม้/พุ่มไม้/ของประดับที่ความละเอียดจอ (ประสิทธิภาพ: ป่าทึบ ~25 ต้นบนจอ = วาดภาพขยาย+เอียงทับกันหลายชั้นทุกเฟรม แพงที่สุดของ Wolfwood)
+  //  แคชภาพ "ตั้งตรง" ต่อชิ้นที่สเกลจอจริง (ตัดขอบใสออก) ครั้งเดียว → ทุกเฟรมวางแบบ 1:1 พิกเซลตรง (ไม่ต้องกรองภาพ — ถูกกว่า ~4 เท่าบนแคนวาสซอฟต์แวร์)
+  //  ลมเอียง (skew) = วางทีละแถบแนวนอนเลื่อนเป็นจำนวนเต็มพิกเซลจอตามความสูง (ต่างจากเอียงจริง < 0.5 พิกเซลจอ)
+  //  ลำดับความลึก/ยอดจางเมื่อผู้เล่นอยู่หลัง = เหมือนเดิม (ยังวาดในรายการเรียงความลึก ทีละต้น × globalAlpha)
+  //  ใช้เฉพาะกล้องลงพิกเซลจอพอดี (R.snapS: ไม่ซูมค้าง ไม่สั่น) — นอกนั้นวาดแบบเดิม • งบหน่วยความจำ DC_BUDGET พิกเซล ทิ้งต้นที่ไม่ได้ใช้
+  // ------------------------------------------------------------
+  DC_BUDGET: 10e6,
+  dcFrame(m) {
+    if (!this.dc || this.dcMap !== m) { if (this.dc) for (const e of this.dc.values()) e.cv.width = 0; this.dc = new Map(); this.dcMap = m; this.dcPx = 0; this.dcN = 0; } // เปลี่ยนแมพ: คืนหน่วยความจำทันที (iOS)
+    this.dcN++;
+    const S = typeof R !== 'undefined' && R.snapS || 0;
+    if (S !== this.dcS0) { this.dcS0 = S; this.dcSettle = 3; } else if (this.dcSettle > 0) this.dcSettle--; // ซูม/สั่นเพิ่งเปลี่ยน: รอนิ่ง 3 เฟรม (ไม่สร้างแคชทิ้งทุกเฟรม)
+    this.snapS = this.dcSettle ? 0 : S;
+    if (this.dcPx > this.DC_BUDGET * 0.75 || this.dcN % 60 === 0) // ทิ้งต้นที่ไม่ได้วาด ~2 วินาที (หรือเกินงบ: ทิ้งต้นนอกจอทันที)
+      for (const [o, e] of this.dc) if (this.dcN - e.used > (this.dcPx > this.DC_BUDGET * 0.75 ? 1 : 120)) { this.dc.delete(o); this.dcPx -= e.w * e.h; e.cv.width = 0; }
+  },
+  // กรอบส่วนที่ไม่โปร่งใสของภาพ (พิกเซลภาพ) + ขอบใส 2 พิกเซล (การกรองภาพที่ขอบเหมือนวาดทั้งภาพ)
+  alphaBox(img) {
+    if (img._bb) return img._bb;
+    const w = img.width, h = img.height;
+    let bb = [0, 0, w, h];
+    try {
+      const d = img.getContext('2d').getImageData(0, 0, w, h).data;
+      let x0 = w, y0 = h, x1 = -1, y1 = -1;
+      for (let y = 0; y < h; y++) for (let x = 0, i = y * w * 4 + 3; x < w; x++, i += 4) if (d[i]) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; y1 = y; }
+      if (x1 >= 0) bb = [Math.max(0, x0 - 2), Math.max(0, y0 - 2), Math.min(w, x1 + 3), Math.min(h, y1 + 3)];
+    } catch (e) { /* อ่านภาพไม่ได้: ใช้ทั้งภาพ */ }
+    return (img._bb = bb);
+  },
+  // วาดภาพ img ที่กรอบท้องถิ่น (lx, ly, w, h) รอบจุดยึด (x, y) — เหมือน translate(x, y) · เอียง sway · กลับด้าน flip · drawImage
+  //   key = อ็อบเจกต์ประจำชิ้น (แคชต่อชิ้น) • alpha = ความทึบ (ยอดไม้จาง) • คืน false = ใช้ไม่ได้ (ผู้เรียกวาดแบบเดิม)
+  devDraw(g, key, img, x, y, lx, ly, w, h, flip, sway, alpha) {
+    const S = this.snapS;
+    if (!S || !img.getContext) return false;
+    const m = g.getTransform();
+    if (m.a !== S || m.d !== S || m.b || m.c) return false;
+    const X = S * x + m.e, Y = S * y + m.f; // จุดยึด (พิกัดพิกเซลจอ)
+    let e = this.dc.get(key), ox, oy;
+    if (e && e.S === S && e.img === img && e.lw === w) { // ยังใช้ได้: ตำแหน่งต่างจากตอนสร้างเป็นจำนวนเต็มพิกเซลจอ (กล้องเลื่อนทีละพิกเซล)
+      const dx = X - e.X, dy = Y - e.Y, rx = Math.round(dx), ry = Math.round(dy);
+      if (Math.abs(dx - rx) < 0.02 && Math.abs(dy - ry) < 0.02) { ox = e.ix + rx; oy = e.iy + ry; } else e = null; // (เผื่อเมทริกซ์ float32)
+    } else e = null;
+    if (!e) {
+      const old = this.dc.get(key);
+      if (old) { this.dc.delete(key); this.dcPx -= old.w * old.h; old.cv.width = 0; }
+      const bb = this.alphaBox(img), kx = w / img.width, ky = h / img.height;
+      let lx0 = lx + bb[0] * kx, lx1 = lx + bb[2] * kx;
+      if (flip) { const q = lx0; lx0 = -lx1; lx1 = -q; }
+      const ly0 = ly + bb[1] * ky, ly1 = ly + bb[3] * ky;
+      const ix = Math.floor(X), iy = Math.floor(Y), fx = X - ix, fy = Y - iy;
+      const L = Math.floor(fx + S * lx0) - 1, T = Math.floor(fy + S * ly0) - 1;
+      const cw = Math.ceil(fx + S * lx1) + 1 - L, ch = Math.ceil(fy + S * ly1) + 1 - T;
+      if (cw <= 0 || ch <= 0 || this.dcPx + cw * ch > this.DC_BUDGET) return false; // เกินงบ: วาดแบบเดิม
+      const cv = this.canvas(cw, ch), cg = cv.getContext('2d');
+      cg.setTransform(S, 0, 0, S, fx - L, fy - T); // ตำแหน่งเศษพิกเซลเดียวกับบนจอ = การกรองภาพเหมือนวาดตรง
+      if (flip) cg.scale(-1, 1);
+      cg.drawImage(img, lx, ly, w, h);
+      e = { cv, S, img, lw: w, X, Y, ix, iy, fy, L, T, w: cw, h: ch, used: 0 };
+      this.dc.set(key, e); this.dcPx += cw * ch;
+      ox = ix; oy = iy;
+    }
+    e.used = this.dcN;
+    // เอียงตามลม: แถวจอ r เลื่อน sway × (ระยะจากจุดยึด) พิกเซลจอ → แบ่งแถบตามค่าที่ปัดเป็นจำนวนเต็ม (วาด ~|เลื่อนยอด|+1 แถบ)
+    const a0 = g.globalAlpha, cv = e.cv, cw = e.w, ch = e.h, bx = ox + e.L, by = oy + e.T;
+    if (alpha < 0.995) g.globalAlpha = a0 * alpha;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    const a = sway * (e.T + 0.5 - e.fy), k0 = Math.round(a), k1 = Math.round(a + sway * (ch - 1)), st = k1 >= k0 ? 1 : -1;
+    for (let k = k0, r0 = 0; ; k += st) {
+      let r1 = ch;
+      if (k !== k1) { const v = (k + st * 0.5 - a) / sway; r1 = Math.min(ch, Math.max(r0, st > 0 ? Math.ceil(v) : Math.floor(v) + 1)); }
+      if (r1 > r0) g.drawImage(cv, 0, r0, cw, r1 - r0, bx + k, by + r0, cw, r1 - r0);
+      r0 = r1;
+      if (k === k1) break;
+    }
+    g.setTransform(m); g.globalAlpha = a0;
+    return true;
+  },
+  drawDecor(g, o, t, key) { // key = อ็อบเจกต์ประจำชิ้นสำหรับแคชจอ (พุ่มไม้ส่ง o เป็นอ็อบเจกต์ชั่วคราว → ส่งต้นฉบับมาแทน)
     const img = this.sprite(o.k), kind = o.k.split(':')[0];
     let w, h;
     if ((kind === 'bush' || kind === 'leafy') && img.width === 320) { h = 40 * o.s; w = h * img.width / img.height; }
     else { const sz = this.SIZE[kind] || [40, 40]; w = sz[0] * o.s; h = sz[1] * o.s; }
-    const x = o.x * TILE, y = o.y * TILE;
+    const x = o.x * TILE, y = o.y * TILE, sway = o.sway ? Math.sin(t * 1.3 + o.r * 10) * 0.03 : 0;
+    if (this.devDraw(g, key || o, img, x, y, -w / 2, -h, w, h, o.flip, sway, 1)) return;
     g.save(); g.translate(x, y);
-    if (o.sway) g.transform(1, 0, Math.sin(t * 1.3 + o.r * 10) * 0.03, 1, 0, 0);
+    if (o.sway) g.transform(1, 0, sway, 1, 0, 0);
     if (o.flip) g.scale(-1, 1);
     g.drawImage(img, -w / 2, -h, w, h);
     g.restore();
