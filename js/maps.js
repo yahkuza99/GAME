@@ -31,19 +31,19 @@ const MAP_DEFS = {
     name: 'Emerald Meadow', thai: L('ทุ่งหญ้ามรกต', 'Emerald Grasslands'), w: 104, h: 68, kind: 'field', seed: 202, // ทุ่งกว้างแนวตะวันออก-ตก (ทางผ่านเมือง → ทะเลสาบ) พื้นที่เท่าเดิม
     links: { W: 'eldheim', E: 'mistlake' }, level: '1-6', gate: { W: 0.78 }, // ประตูเมืองค่อนลงใต้ → ทุ่งอยู่เหนือป่า Wolfwood ไม่ซ้อนกัน
     spawns: [['pudding', 36], ['leafworm', 20], ['moonbun', 20], ['ember_pudding', 16], ['buzzfly', 13]],
-    grass: '#6fae4a', trees: 0.9, ponds: 4, flowers: 0.05,
+    grass: '#6fae4a', trees: 0.9, ponds: 4, flowers: 0.05, ground: 'meadow',
   },
   mistlake: {
     name: 'Mistlake Plains', thai: L('ที่ราบทะเลสาบหมอก', 'Plains of the Misty Lake'), w: 96, h: 80, kind: 'field', seed: 303, // ที่ราบปลายทางตะวันออก (+9% พื้นที่ มอน +9%)
     links: { W: 'meadow' }, level: '8-16 (MVP: Seraph Core)',
     spawns: [['fiddlehopper', 29], ['stumpling', 24], ['capshroom', 24], ['moss_pudding', 24]], mvp: 'seraph_pudding',
-    grass: '#86b04a', trees: 0.8, ponds: 8, flowers: 0.08, treeHue: '#5f9a3a', flora: 'lake',
+    grass: '#86b04a', trees: 0.8, ponds: 8, flowers: 0.08, treeHue: '#5f9a3a', flora: 'lake', ground: 'lake',
   },
   wolfwood: {
     name: 'Wolfwood Forest', thai: L('ป่าหมาป่า', 'Forest of the Wolves'), w: 68, h: 104, kind: 'field', seed: 404, // ป่ายาวเหนือ-ใต้ (เมือง → ปากถ้ำ) พื้นที่เท่าเดิม
     links: { N: 'eldheim', S: 'helcave' }, level: '18-30',
     spawns: [['ashtail', 29], ['fenrir_pup', 25], ['mossback', 18], ['tuskboar', 14]], // tuskboar ตีก่อน: เพิ่มน้อย กันโดนรุม
-    grass: '#4f8a3a', trees: 1.7, ponds: 2, flowers: 0.02, pine: true,
+    grass: '#4f8a3a', trees: 1.7, ponds: 2, flowers: 0.02, pine: true, ground: 'forest',
     dark: 'rgba(6,14,38,0.62)', nightLight: 5, // กลางคืนแสงจันทร์ (ตามภาพประกอบแผนที่) — เห็ดเรืองแสงเป็นแหล่งแสง
   },
   // ลานประลอง PvP: ผู้เล่นตีกันได้ ไม่มีมอน ตายไม่เสีย EXP (ต้องออนไลน์ถึงจะเจอคู่ต่อสู้)
@@ -60,6 +60,21 @@ const MAP_DEFS = {
   },
 };
 const HOME_MAP = 'eldheim';
+// ลายพื้นทุ่งตามภูมิภาค (def.ground → GameMap.paintGrass / organicMask / js/flora.js Flora.bake) — แบบภาพวาด ไม่เห็นลายซ้ำ
+// สีหญ้า: base พื้น • lush หย่อมเขียวชุ่ม • sun หย่อมแดดอุ่น • dry หย่อมแห้งอมเหลือง • damp ริมน้ำ • shade ใต้ต้นไม้ • litter ใบไม้ร่วง (ป่า)
+// worn = หญ้าโดนเหยียบริมทางดิน • dirt = ย้อมทางดิน (multiply) • dirtSat = ลดความสดของดิน (ป่า = ดินฮิวมัสน้ำตาลอุ่น ไม่เทาไม่ส้ม) • hl/sh = ตัวคูณ [R,G,B] ไฮไลต์/เงาของลายหญ้า (sh R มาก = เงาเขียวมรกตไม่อมมะกอก • B น้อย = ฟ้าไม่ขึ้นตามแสง สีอิ่มไม่เทา — เทียบลายภาพหญ้าเดิม) • tex = ความคมลาย
+// dryAt/dryAmt = จุดเริ่ม/ความแรงหย่อมแห้ง • light = ความแรงแสงหย่อมใหญ่ (lightVariation) • patches/patchTone/patchA = จำนวน/สี/ความทึบหย่อมดิน • tuft = สีหญ้ากระจุก [เข้ม, สว่าง] • sand = ดินชื้นริมน้ำ • ที่เหลือ = ของจิ๋วบนพื้น (flora.js)
+const GROUND_STYLE = {
+  meadow: { base: '#5aad20', lush: '#329e26', sun: '#96c22a', dry: '#b8ae3a', damp: '#2a903c', shade: '#247e24', worn: '#a8a24c', dirt: '#f4ead8', dirtSat: 0.08,
+    hl: [1.0, 1.0, 0.3], sh: [1.45, 0.95, 0.3], tex: 1.75, light: 0.45, dryAmt: 0.3, dryAt: 0.62, tuft: ['#3f7a2c', '#a6c85a'], sand: [118, 104, 70], reeds: 0.35,
+    patches: 0.25, patchTone: 'rgba(80,60,30,0.08)', clover: 1, flowers: 1, dew: 0 },
+  lake: { base: '#40ac3a', lush: '#268e46', sun: '#80c038', dry: '#8aa844', damp: '#1e7e56', shade: '#247444', worn: '#8aa45a', dirt: '#dcd8cc', dirtSat: 0.18,
+    hl: [0.98, 1.0, 0.35], sh: [1.35, 0.95, 0.6], tex: 1.6, light: 0.4, dryAmt: 0.3, dryAt: 0.6, tuft: ['#2f7048', '#8cc278'], sand: [88, 92, 70],
+    patches: 0.2, patchTone: 'rgba(60,50,30,0.08)', reeds: 1, flowers: 0.55, dew: 1 },
+  forest: { base: '#50b628', lush: '#2e9c2c', sun: '#84bc2e', dry: '#80a034', damp: '#28884a', shade: '#26782a', litter: '#9c7032', worn: '#7e8e44', dirt: '#e4cfb2', dirtSat: 0.12,
+    hl: [1.0, 1.0, 0.4], sh: [1.45, 0.95, 0.4], tex: 1.7, light: 0.5, dryAmt: 0.25, dryAt: 0.6, litterAmt: 0.35, tuft: ['#2c5e2a', '#80b04c'], sand: [80, 72, 52],
+    patches: 0.22, patchTone: 'rgba(50,34,12,0.1)', patchA: 0.62, leaves: 1, roots: 1, reeds: 0.25, flowers: 0.3, dew: 0 },
+};
 
 const PORTAL_SIDE = {
   E: (w, h) => ({ x: w - 2, y: h >> 1, ax: w - 4, ay: h >> 1 }),
@@ -489,6 +504,8 @@ class GameMap {
     // ทางดินขอบธรรมชาติ (ไม่เป็นขั้นบันไดตามช่อง): หญ้าปูใต้ทั้งหมด แล้วทับดินด้วยหน้ากากเบลอ+นอยส์
     const orgDirt = this.def.kind !== 'town' && this.def.kind !== 'cave' && typeof Art !== 'undefined' && !!Art.get('ground_grass') && !!Art.get('ground_dirt');
     this.orgDirt = orgDirt;
+    const GS = this.def.kind === 'field' && GROUND_STYLE[this.def.ground] || null; // ลายพื้นตามภูมิภาค (meadow/mistlake/wolfwood)
+    this.gstyle = GS;
     const TEX = { grass: 'ground_grass', dirt: 'ground_dirt', stone: 'ground_road', cave: 'ground_cave' };
     const TEX_PX = { grass: 256, dirt: 288, stone: 320, cave: 352 }; // ขนาดต่อ 1 รอบลาย (พิกเซลโลก)
     for (const cls in TEX) {
@@ -508,7 +525,9 @@ class GameMap {
       const lg = layer.getContext('2d');
       const pc = document.createElement('canvas'); pc.width = TEX_PX[cls]; pc.height = TEX_PX[cls];
       pc.getContext('2d').drawImage(tex, 0, 0, pc.width, pc.height);
-      lg.fillStyle = lg.createPattern(pc, 'repeat'); lg.fillRect(0, 0, W, H);
+      if (cls === 'grass' && GS) this.paintGrass(lg, W, H, tex, GS); // ทุ่งตามภูมิภาค: สีเป็นหย่อมใหญ่ + ลายหญ้า 2 ทิศ (ไม่ใช่ภาพเดียวปูซ้ำ)
+      else { lg.fillStyle = lg.createPattern(pc, 'repeat'); lg.fillRect(0, 0, W, H); }
+      if (cls === 'dirt' && GS) { lg.globalCompositeOperation = 'multiply'; lg.fillStyle = GS.dirt; lg.fillRect(0, 0, W, H); lg.globalCompositeOperation = 'saturation'; lg.globalAlpha = GS.dirtSat; lg.fillStyle = '#808080'; lg.fillRect(0, 0, W, H); lg.globalAlpha = 1; } // ย้อมทางดินตามภูมิภาค (ป่า = ดินฮิวมัสเข้ม)
       lg.globalCompositeOperation = 'destination-in';
       lg.imageSmoothingEnabled = true; lg.imageSmoothingQuality = 'high';
       // ขยายหน้ากากจาก 1px/ช่อง → ขอบไล่นุ่ม (ถนนโลหะคมกว่าเล็กน้อย)
@@ -518,7 +537,7 @@ class GameMap {
       lg.filter = 'none';
       g.drawImage(layer, 0, 0);
     }
-    if (this.def.kind !== 'town' && this.def.kind !== 'cave') this.lightVariation(g, W, H);
+    if (this.def.kind !== 'town' && this.def.kind !== 'cave') this.lightVariation(g, W, H, GS ? GS.light : 0.85); // มีลายตามภูมิภาค: แสงหย่อมใหญ่อยู่ในสีพื้นแล้ว เหลือบาง ๆ (ให้ทางดินมีแดด/ร่มด้วย)
     const town = this.def.kind === 'town' && typeof TownArt !== 'undefined';
     if (town) { // พื้นเมืองอบ 3D (TOWN_BAKE) วาดแทนลานหินอ่อนโค้ด — ก่อน Flora.bake (เงาต้นไม้/หญ้ากระจุกทับได้เหมือนเดิม) • ยังไม่โหลด/ผังไม่ตรง = TownArt.floor
       const tb = this.townBake(), img = tb && typeof Art !== 'undefined' && (Art.need(tb.img), Art.get(tb.img));
@@ -559,6 +578,7 @@ class GameMap {
     // 3.5) น้ำทรงธรรมชาติจากหน้ากากเบลอ
     this.fountain3d = !!this.fountain && typeof Bake !== 'undefined' && Bake.fountain(this); // น้ำพุคริสตัล 3D (tools/fountain3d.py) — ภาพยังไม่ครบ/ผังไม่ตรง = สระโค้ด + ภาพวาดเดิม
     if (town) TownArt.over(this, g); else this.drawWater(g, P, depth);
+    if (!town && this.gstyle && typeof Flora !== 'undefined') Flora.shore(this, g); // กกริมน้ำ (วาดหลังน้ำ ก่อนซากอบ 3D)
     // 4) ผนังหิน (ถ้ำ) มีมิติ
     if (this.def.kind === 'cave') { // ผนังถ้ำ: ภาพอบ 3D (tools/cave3d.py) • ยังไม่โหลด/ผังไม่ตรง = วาดด้วยโค้ด
       const cb = this.caveBake(), img = cb && typeof Art !== 'undefined' && (Art.need(cb.img), Art.get(cb.img));
@@ -736,37 +756,148 @@ class GameMap {
     }
   }
 
+  // ---- ลายพื้นทุ่งตามภูมิภาค (GROUND_STYLE) ----
+  // สีของ style เป็น [r,g,b] (แคชไว้ในตัว style)
+  styleRGB(S) {
+    if (S._c) return S._c;
+    const hx = h => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }, c = {};
+    for (const k of ['base', 'lush', 'sun', 'dry', 'damp', 'shade', 'litter', 'worn']) if (S[k]) c[k] = hx(S[k]);
+    return (S._c = c);
+  }
+  // ลายหญ้าเป็น "แสงเงาล้วน" (เทากลาง 128 = ไม่เปลี่ยนสี) จากภาพ ground_grass: ตัดดอกไม้ในภาพออก (ไม่ให้เห็นจุดดอกซ้ำเป็นตาราง)
+  // ส่วนสว่าง/ส่วนมืดย้อมโทนตามภูมิภาค (hl/sh) → วาดแบบ overlay ทับสีพื้น สีหญ้าจริงมาจากสีพื้นที่เป็นหย่อม
+  grassDetail(tex, S) {
+    const N = 256;
+    if (S._gd && S._gd.src === tex) return S._gd.c;
+    const c = document.createElement('canvas'); c.width = c.height = N;
+    const cg = c.getContext('2d'); cg.drawImage(tex, 0, 0, N, N);
+    const id = cg.getImageData(0, 0, N, N), d = id.data, L = new Float32Array(N * N), ok = new Uint8Array(N * N);
+    let sum = 0, cnt = 0;
+    for (let i = 0; i < N * N; i++) {
+      const r = d[i * 4], gg = d[i * 4 + 1], b = d[i * 4 + 2];
+      L[i] = r * 0.3 + gg * 0.59 + b * 0.11;
+      if (gg > r * 1.12 && gg > b * 1.25) { ok[i] = 1; sum += L[i]; cnt++; } // ใบหญ้า (เขียวเด่น) • ไม่ใช่ = ดอกไม้ขาว/เหลืองในภาพ
+    }
+    const mean = cnt ? sum / cnt : 128;
+    for (let i = 0; i < N * N; i++) {
+      const v = ((ok[i] ? L[i] : mean) - mean) * S.tex, f = v > 0 ? S.hl : S.sh, o = i * 4;
+      d[o] = 128 + v * f[0]; d[o + 1] = 128 + v * f[1]; d[o + 2] = 128 + v * f[2]; d[o + 3] = 255;
+    }
+    cg.putImageData(id, 0, 0);
+    S._gd = { src: tex, c };
+    return c;
+  }
+  // สีหญ้าที่จุดหนึ่งตาม style (out = [r,g,b]): n1 เขียวชุ่ม↔แดด • n2 หย่อมแห้ง • n5 ใบไม้ร่วง • wd/td/rd = ใกล้น้ำ/ต้นไม้/ทางดิน (0..1)
+  grassColor(S, out, n1, n2, n5, wd, td, rd) {
+    const C = this.styleRGB(S), mix = (c, k) => { if (k <= 0) return; k = Math.min(1, k); out[0] += (c[0] - out[0]) * k; out[1] += (c[1] - out[1]) * k; out[2] += (c[2] - out[2]) * k; };
+    out[0] = C.base[0]; out[1] = C.base[1]; out[2] = C.base[2];
+    const t = (n1 - 0.5) * 3.6;
+    if (t > 0) mix(C.lush, t * 0.9); else mix(C.sun, -t * 0.85);
+    const dz = Math.min(1, Math.max(0, (n2 - S.dryAt) / 0.1)); mix(C.dry, dz * dz * (3 - 2 * dz) * S.dryAmt); // หย่อมแห้งเล็ก ๆ เฉพาะยอดนอยส์
+    if (C.litter) { const lz = Math.min(1, Math.max(0, (n5 - 0.5) / 0.16)); mix(C.litter, lz * lz * (3 - 2 * lz) * S.litterAmt * (0.45 + td * 0.55)); }
+    mix(C.worn, rd * 0.3);
+    mix(C.damp, wd * 0.8);
+    mix(C.shade, td * 0.5);
+  }
+  paintGrass(lg, W, H, tex, S) {
+    const CS = 8, cw = Math.ceil(W / CS) + 1, ch = Math.ceil(H / CS) + 1, w = this.w, h = this.h;
+    // นอยส์ใช้พิกัดบนผืนโลก + seed ร่วม → หย่อมสีของสองแมพที่ติดกัน (ขอบเปิด) ต่อกันพอดี
+    const wp = typeof WORLD !== 'undefined' && WORLD.layout()[this.id], OX = wp ? wp.x * TILE : 0, OY = wp ? wp.y * TILE : 0, NS = 7177;
+    const Mw = new Float32Array(w * h), Mt = new Float32Array(w * h), Md = new Float32Array(w * h);
+    for (let i = 0; i < w * h; i++) { const t = this.tiles[i]; Mw[i] = t === T.WATER ? 1 : 0; Mt[i] = t === T.TREE ? 1 : 0; Md[i] = t === T.DIRT ? 1 : 0; }
+    const Bw = U.boxBlur(Mw, w, h, 1, 2), Bt = U.boxBlur(Mt, w, h, 1, 2), Bd = U.boxBlur(Md, w, h, 1, 1);
+    const samp = (A, fx, fy) => { // bilinear ที่พิกัดช่อง
+      fx = Math.min(w - 1.001, Math.max(0, fx - 0.5)); fy = Math.min(h - 1.001, Math.max(0, fy - 0.5));
+      const x0 = fx | 0, y0 = fy | 0, tx = fx - x0, ty = fy - y0, i = y0 * w + x0;
+      return (A[i] * (1 - tx) + A[i + 1] * tx) * (1 - ty) + (A[i + w] * (1 - tx) + A[i + w + 1] * tx) * ty;
+    };
+    const nz = (sc, k, oct, cell) => U.noiseGrid(cw, ch, cell, (x, y) => U.fbm((x * CS + OX) / sc, (y * CS + OY) / sc, NS + k, oct));
+    const n1 = nz(1000, 0, 3, 4), n2 = nz(430, 1, 3, 4), n3 = nz(150, 2, 3, 2), nB = nz(360, 5, 2, 4);
+    const n5 = S.litter ? nz(110, 4, 3, 2) : () => 0;
+    // ขอบเปิด (ทุ่ง↔ทุ่ง): ผสมสีของแมพข้าง ๆ เข้ามา 50% ที่ขอบ → สองฝั่งสีเดียวกันตรงรอยต่อ
+    const seams = (this.seams || []).map(s => ({ side: s.side, S: GROUND_STYLE[s.def.ground] })).filter(s => s.S && s.S !== S);
+    const sm = document.createElement('canvas'); sm.width = cw; sm.height = ch;
+    const sg = sm.getContext('2d'), id = sg.createImageData(cw, ch), d = id.data;
+    const mk = document.createElement('canvas'); mk.width = cw; mk.height = ch;
+    const mkg = mk.getContext('2d'), mid = mkg.createImageData(cw, ch), md = mid.data;
+    const col = [0, 0, 0], col2 = [0, 0, 0];
+    for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) {
+      const fx = x * CS / TILE, fy = y * CS / TILE, X = x * CS + OX, Y = y * CS + OY;
+      const a1 = n1(x, y), a2 = n2(x, y), a5 = n5(x, y);
+      const wd = Math.min(1, samp(Bw, fx, fy) * 2.2), td = Math.min(1, samp(Bt, fx, fy) * 4), rd = Math.min(1, samp(Bd, fx, fy) * 1.6);
+      this.grassColor(S, col, a1, a2, a5, wd, td, rd);
+      for (const s of seams) {
+        const dd = s.side === 'W' ? fx : s.side === 'E' ? w - fx : s.side === 'N' ? fy : h - fy, k = 0.5 * Math.max(0, 1 - dd / 16);
+        if (k <= 0) continue;
+        this.grassColor(s.S, col2, a1, a2, a5, wd, td, rd);
+        col[0] += (col2[0] - col[0]) * k; col[1] += (col2[1] - col[1]) * k; col[2] += (col2[2] - col[2]) * k;
+      }
+      // ความสว่างระดับกลาง/เล็ก (หญ้าหนา-บางเป็นก้อน) — ไม่เปลี่ยนสี
+      const v = 1 + (n3(x, y) - 0.5) * 0.36 + (U.vnoise(X / 46, Y / 46, NS + 3) - 0.5) * 0.12;
+      const o = (y * cw + x) * 4;
+      d[o] = col[0] * v; d[o + 1] = col[1] * v; d[o + 2] = col[2] * v; d[o + 3] = 255;
+      const b = Math.min(1, Math.max(0, (nB(x, y) - 0.47) / 0.12));
+      md[o + 3] = b * b * (3 - 2 * b) * 255;
+    }
+    sg.putImageData(id, 0, 0); mkg.putImageData(mid, 0, 0);
+    lg.imageSmoothingEnabled = true; lg.imageSmoothingQuality = 'high';
+    lg.drawImage(sm, 0, 0, cw * CS, ch * CS);
+    // ลายหญ้า: ชั้น A ทั่วทั้งแมพ • ชั้น B กลับด้าน (ใบหญ้าเอนอีกทิศ) ขนาด/มุมต่างกัน เฉพาะหย่อมตามนอยส์ → ทิศใบหญ้าเปลี่ยนเป็นหย่อม ไม่เห็นลายซ้ำเป็นตาราง
+    const dt = this.grassDetail(tex, S);
+    const pA = lg.createPattern(dt, 'repeat'), pB = lg.createPattern(dt, 'repeat');
+    if (pA.setTransform && typeof DOMMatrix !== 'undefined') {
+      pA.setTransform(new DOMMatrix().translate(-OX, -OY));
+      pB.setTransform(new DOMMatrix().translate(-OX * 0.7, -OY * 0.7).rotate(-14).scale(-1.37, 1.37));
+    }
+    lg.globalCompositeOperation = 'overlay'; lg.globalAlpha = 0.85;
+    lg.fillStyle = pA; lg.fillRect(0, 0, W, H);
+    const lb = document.createElement('canvas'); lb.width = W; lb.height = H;
+    const bg = lb.getContext('2d');
+    bg.fillStyle = pB; bg.fillRect(0, 0, W, H);
+    bg.globalCompositeOperation = 'destination-in'; bg.imageSmoothingEnabled = true; bg.drawImage(mk, 0, 0, cw * CS, ch * CS);
+    lg.globalAlpha = 0.6; lg.drawImage(lb, 0, 0);
+    lg.globalAlpha = 1; lg.globalCompositeOperation = 'source-over';
+  }
   // หน้ากากพื้นขอบธรรมชาติ (ความละเอียด 1/4): เบลอขอบช่อง + นอยส์ → ขอบโค้งหยักแบบทางเดินจริง • rim = ขอบดินเข้ม (ดินชื้น/ร่องล้อ)
   organicMask(cls) {
-    const S = 4, ts = TILE / S, mw = this.w * ts, mh = this.h * ts, seed = this.def.seed;
+    const S = 4, ts = TILE / S, mw = this.w * ts, mh = this.h * ts, seed = this.def.seed, GS = this.gstyle;
     const M = new Float32Array(mw * mh);
-    for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++)
-      if (this.terrainClass(this.tile((px / ts) | 0, (py / ts) | 0)) === cls) M[py * mw + px] = 1;
-    const A = U.boxBlur(M, mw, mh, 5, 2);
+    for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++) {
+      const t = this.tile((px / ts) | 0, (py / ts) | 0);
+      if (this.terrainClass(t) === cls || (GS && t === T.STONE)) M[py * mw + px] = 1; // ถนนหินอ่อน (วาดทับทีหลัง) นับเป็นทาง → ทางดินต่อชนหินอ่อนไม่มีหญ้าคั่น
+    }
+    // ทุ่งตามภูมิภาค: เบลอกว้าง ~1 ช่อง (ทางที่หยักขึ้นลงทีละช่องกลายเป็นโค้งยาวนุ่ม ไม่เป็นก้อน) + นอยส์ 2 ระดับ (คดเคี้ยวช้า ๆ + ขอบหยักละเอียดเล็กน้อย)
+    const A = GS ? U.boxBlur(M, mw, mh, 10, 3) : U.boxBlur(M, mw, mh, 5, 2);
     const mk = document.createElement('canvas'); mk.width = mw; mk.height = mh;
     const rk = document.createElement('canvas'); rk.width = mw; rk.height = mh;
     const md = mk.getContext('2d').createImageData(mw, mh), rd = rk.getContext('2d').createImageData(mw, mh);
     const ss = (a, b, v) => { const t = Math.min(1, Math.max(0, (v - a) / (b - a))); return t * t * (3 - 2 * t); };
-    const nO = U.noiseGrid(mw, mh, 3, (x, y) => U.fbm(x * S / 70, y * S / 70, seed + 11, 3));
+    const nO = GS ? U.noiseGrid(mw, mh, 6, (x, y) => U.fbm(x * S / 170, y * S / 170, seed + 12, 2)) : U.noiseGrid(mw, mh, 3, (x, y) => U.fbm(x * S / 70, y * S / 70, seed + 11, 3));
+    const nF = GS && U.noiseGrid(mw, mh, 2, (x, y) => U.fbm(x * S / 22, y * S / 22, seed + 13, 2));
+    const WC = GS && this.styleRGB(GS).worn;
     for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++) {
       const i = py * mw + px, v0 = A[i];
       let a, v = v0;
       if (v0 < 0.03) a = 0; else if (v0 > 0.97) a = 1;
+      else if (GS) { v = v0 + (nO(px, py) - 0.5) * 0.26 + (nF(px, py) - 0.5) * 0.16; a = ss(0.44, 0.52, v); }
       else { v = v0 + (nO(px, py) - 0.5) * 0.6; a = ss(0.4, 0.5, v); }
       const o = i * 4;
       md.data[o] = md.data[o + 1] = md.data[o + 2] = 255; md.data[o + 3] = a * 255;
       // ขอบทาง: ด้านบนมีเงาตลิ่งหญ้าทอดลงมา (มีมิติ) ด้านล่างสว่างเล็กน้อย + ขอบดินชื้นรอบ ๆ
       const up = py >= 4 ? A[i - 4 * mw] : 0, dn = py < mh - 4 ? A[i + 4 * mw] : 0;
       const top = Math.max(0, Math.min(1, (v0 - up) * 3)), bot = Math.max(0, Math.min(1, (v0 - dn) * 3));
-      const rim = a * (1 - ss(0.5, 0.66, v)) * 0.4, shd = a * top * 0.55, hl = a * bot * (1 - top) * 0.3;
-      if (hl > shd + rim) { rd.data[o] = 255; rd.data[o + 1] = 232; rd.data[o + 2] = 190; rd.data[o + 3] = hl * 255; }
+      const rim = a * (1 - ss(0.5, 0.66, v)) * (GS ? 0.26 : 0.4), shd = a * top * (GS ? 0.42 : 0.55), hl = a * bot * (1 - top) * 0.3;
+      // หญ้าโดนเหยียบริมทาง: หญ้าบาง อมเหลืองหม่น เป็นจุด ๆ ไล่จางออกไปจากขอบทาง (ไม่ใช่เส้นขอบแข็ง)
+      const wear = GS && a < 1 ? ss(0.16, 0.47, v) * (1 - a) * (0.45 + 0.55 * U.hash2(px, py, seed + 14)) * 0.62 : 0;
+      if (wear > hl && wear > rim + shd) { rd.data[o] = WC[0]; rd.data[o + 1] = WC[1]; rd.data[o + 2] = WC[2]; rd.data[o + 3] = wear * 255; }
+      else if (hl > shd + rim) { rd.data[o] = 255; rd.data[o + 1] = 232; rd.data[o + 2] = 190; rd.data[o + 3] = hl * 255; }
       else { rd.data[o] = 58; rd.data[o + 1] = 38; rd.data[o + 2] = 20; rd.data[o + 3] = Math.min(0.7, rim + shd) * 255; }
     }
     mk.getContext('2d').putImageData(md, 0, 0); rk.getContext('2d').putImageData(rd, 0, 0);
     return { mask: mk, rim: rk };
   }
   // แสงระดับใหญ่: หย่อมหญ้าแดดจ้า/ร่มเย็นสลับกันแบบภาพวาด (soft-light) → ไม่เป็นลายเดียวทั้งแมพ
-  lightVariation(g, W, H) {
+  lightVariation(g, W, H, alpha = 0.85) {
     const S = 16, vw = Math.ceil(W / S), vh = Math.ceil(H / S), seed = this.def.seed;
     const c = document.createElement('canvas'); c.width = vw; c.height = vh;
     const cg = c.getContext('2d'), id = cg.createImageData(vw, vh);
@@ -776,7 +907,7 @@ class GameMap {
       id.data[o] = 128 + v * 110; id.data[o + 1] = 128 + v * 85; id.data[o + 2] = 128 + v * 20 - Math.max(0, v) * 60 + Math.max(0, -v) * 30; id.data[o + 3] = 255;
     }
     cg.putImageData(id, 0, 0);
-    g.save(); g.globalCompositeOperation = 'soft-light'; g.globalAlpha = 0.85; g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+    g.save(); g.globalCompositeOperation = 'soft-light'; g.globalAlpha = alpha; g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
     g.drawImage(c, 0, 0, W, H); g.restore();
   }
   drawWater(g, P, depth) {
@@ -822,6 +953,7 @@ class GameMap {
       const j = py * mw + px, a0 = A[j];
       V[j] = a0 < 0.05 || a0 > 0.95 ? a0 : a0 + (nW(px, py) - 0.5) * 0.32;
     }
+    const SD = (this.gstyle && this.gstyle.sand) || [120, 104, 70];
     const SH = [Math.min(255, WS[0] * 0.75 + 40), Math.min(255, WS[1] * 0.9 + 20), Math.min(255, WS[2] * 0.8)];
     for (let py = 0; py < mh; py++) {
       for (let px = 0; px < mw; px++) {
@@ -832,7 +964,7 @@ class GameMap {
         const wr = SH[0] + (WD[0] * 0.8 - SH[0]) * k, wg = SH[1] + (WD[1] * 0.85 - SH[1]) * k, wb = SH[2] + (WD[2] * 0.95 - SH[2]) * k;
         const fz = (v - 0.535) / 0.012, foam = Math.exp(-fz * fz) * 0.75;
         const sand = ss(0.32, 0.46, v) * (1 - aw);
-        let r = 120 * sand + wr * aw, gg = 104 * sand + wg * aw, bb = 70 * sand + wb * aw;  // ดินชื้นริมน้ำ
+        let r = SD[0] * sand + wr * aw, gg = SD[1] * sand + wg * aw, bb = SD[2] * sand + wb * aw;  // ดินชื้นริมน้ำ (สีตามภูมิภาค)
         r += (238 - r) * foam; gg += (248 - gg) * foam; bb += (250 - bb) * foam;
         d[i] = r; d[i + 1] = gg; d[i + 2] = bb; d[i + 3] = Math.max(aw, sand * 0.8, foam) * 255;
       }
