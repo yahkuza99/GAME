@@ -1242,7 +1242,7 @@ const UI = {
   },
   // ---------- ช่องกระเป๋าแบบตาราง (สไตล์ RO — เจ้าของ 2026-10-03: "หน้า Inven เอาแบบช่องเหมือนเดิมดีกว่า") ----------
   // ช่องสี่เหลี่ยม: ไอคอน + จำนวน (มุมขวาล่าง) + ตีบวก (มุมขวาบน) + กรอบ/แสงตามความหายาก • ใช้ร่วม: กระเป๋า / คลัง / ขายของ
-  gridCols() { return this.narrow() ? 5 : 6; },
+  gridCols() { return this.narrow() ? 5 : innerHeight <= 430 ? 7 : 6; }, // แนวนอนจอเตี้ย: ช่องเล็กลง เห็นของมากขึ้น
   gridRows() { return this.narrow() ? 7 : innerHeight <= 520 ? 4 : 7; },
   qtyShort(q) { return q >= 100000 ? `${Math.floor(q / 1000)}k` : q >= 10000 ? `${+(q / 1000).toFixed(1)}k` : String(q); },
   itemSlot(e, sel, onPick, opt = {}) {

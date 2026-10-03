@@ -135,6 +135,18 @@
 #unit-card.uc-sheet .btn { min-height: 40px; font-size: var(--fs-s); }
 #unit-card.uc-sheet .uc-drops { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
 @keyframes uc-up { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+/* มือถือแนวนอน (สูง ≤ 430px): แผ่นล่างจอเตี้ยเกินไป → เป็นแผ่นข้างขวาเต็มความสูง (เห็นฉากทางซ้าย) • ปุ่มปิดติดบนเสมอแม้เลื่อน */
+@media (max-height: 430px) and (orientation: landscape) {
+  #unit-card.uc-sheet {
+    left: auto !important; right: 0; top: 0 !important; bottom: 0; width: min(400px, 52vw); max-width: none; max-height: none; margin: 0;
+    border-radius: var(--rad-xl) 0 0 var(--rad-xl); padding: var(--s3) calc(var(--s3) + env(safe-area-inset-right, 0px)) calc(var(--s3) + env(safe-area-inset-bottom, 0px)) var(--s3);
+    box-shadow: 0 0 0 3px var(--c-wood), 0 0 0 4px var(--c-gold), -18px 0 40px -12px rgba(25, 12, 2, 0.7);
+    animation: uc-side 0.18s ease-out; }
+  #unit-card.uc-sheet::before { display: none; }
+  #unit-card.uc-sheet .uc-x { position: sticky; top: 0; right: auto; margin: 0 0 -32px auto; }
+  #unit-card.uc-sheet .btn { min-height: 36px; }
+}
+@keyframes uc-side { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
 
 /* วงกดค้าง (มือถือ) */
 .uc-press { position: fixed; z-index: 4400; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%; pointer-events: none;
