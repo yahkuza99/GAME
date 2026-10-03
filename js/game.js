@@ -290,6 +290,11 @@ function gainExp(bexp, jexp) {
     p.baseLv++;
     p.statPoints += statPointsForLevel(p.baseLv);
     baseUp = true;
+    if (typeof HR_UNLOCK !== 'undefined' && HR_UNLOCK.includes(p.baseLv)) setTimeout(() => { // เปิดช่อง Hunt Rune: บอกว่าซื้อ/ใส่ที่ไหน
+      UI.announce(L(`✦ ช่อง Hunt Rune ${HR_UNLOCK.indexOf(p.baseLv) ? 'II' : 'I'} เปิดแล้ว! ✦`, `✦ Hunt Rune socket ${HR_UNLOCK.indexOf(p.baseLv) ? 'II' : 'I'} unlocked! ✦`));
+      UI.msg(L('ᚱ ซื้อ Hunt Rune ที่ Brokk Forge-Bot ใน Neo Eldheim (แท็บ Hunt Rune) → ใส่ที่หน้าต่าง Status (A) การ์ด Hunt Rune • ตีแรงขึ้นตามเงื่อนไข เช่น ตีเผ่า/ธาตุที่แพ้',
+        'ᚱ Buy Hunt Runes from Brokk Forge-Bot in Neo Eldheim (Hunt Rune tab) → socket them in Status (A), Hunt Rune card • conditional damage, e.g. vs a race or a weak element'), 'lvl');
+    }, 1800);
   }
   if (p.baseLv >= MAX_BASE_LV) p.baseExp = 0;
   const jmax = JOBS[p.job].jobMax;
@@ -1038,6 +1043,12 @@ function learnSkill(id) {
   p.skillPoints--;
   const first = !p.skills[id];
   p.skills[id] = skillLv(id) + 1;
+  // ปลดรูนสกิลครั้งแรก: บอกผู้เล่นว่าใส่ตรงไหน (เจ้าของงงว่าใส่ยังไง 2026-10-03)
+  if (typeof Runes !== 'undefined' && p.skills[id] === Runes.UNLOCK && Runes.list(id).length) {
+    UI.announce(L(`✦ ปลดล็อก Skill Rune ของ ${SKILLS[id].name}! ✦`, `✦ ${SKILLS[id].name} Skill Rune unlocked! ✦`));
+    UI.msg(L(`ᚱ เปิดหน้าต่าง Skills (S) → ใต้การ์ด ${SKILLS[id].name} กดเลือกรูน 1 จาก 2 แบบ เพื่อเปลี่ยนวิธีเล่นของสกิล (เปลี่ยนฟรีนอกการต่อสู้)`,
+      `ᚱ Open Skills (S) → under ${SKILLS[id].name}, pick 1 of 2 runes to change how the skill plays (free to swap out of combat)`), 'lvl');
+  }
   if (first && SKILLS[id].type === 'active') {
     const slot = p.hotbar.findIndex(h => !h);
     if (slot >= 0 && !p.hotbar.some(h => h && h.t === 'skill' && h.id === id)) p.hotbar[slot] = { t: 'skill', id };
