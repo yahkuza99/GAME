@@ -90,7 +90,7 @@ const ok = (name, cond, info) => { if (cond) { pass++; console.log('✔', name, 
     // อุปกรณ์: ต่ำกว่าของตำนาน Lv 60 เดิม (ไม่มีพลังกระโดด)
     out.gear = ['nid_fang', 'nid_rotstaff'].map(id => [id, ITEMS[id].atk, ITEMS[id].matk || 0]);
     out.gearOk = ITEMS.nid_fang.atk < ITEMS.tyr_hand.atk && ITEMS.nid_rotstaff.matk < ITEMS.mimir_well.matk && ITEMS.shell_greatsword.atk > ITEMS.gnawer_saber.atk;
-    out.wb = !!MOBS.wb_nidhogg && WB.MAPS.abyss && WB.MAPS.abyss.mvp === 'nidhogg' && MOBS.wb_nidhogg.hp === MOBS.nidhogg.hp * 5 && MOBS.wb_nidhogg.drops.some(([i, c]) => i === 'nid_heart' && c >= 0.01) && MOBS.nidhogg.drops.some(([i, c]) => i === 'nid_heart' && c < 0.001); // ตำนาน: MVP 0.05% • Ancient 1% (เพดานใน balance.js)
+    out.wb = !!MOBS.wb_nidhogg && WB.MAPS.abyss && WB.MAPS.abyss.mvp === 'nidhogg' && MOBS.wb_nidhogg.hp === Math.round(MOBS.nidhogg.hp * WB.hpMul('abyss')) && WB.hpMul('abyss') >= 5 && MOBS.wb_nidhogg.drops.some(([i, c]) => i === 'nid_heart' && c >= 0.01) && MOBS.nidhogg.drops.some(([i, c]) => i === 'nid_heart' && c < 0.001); // ตำนาน: MVP 0.05% • Ancient 1% (เพดานใน balance.js)
     out.slayFormless = Object.values(MOBS).filter(m => m.race === 'formless' && !m.dummy && !m.minion).map(m => m.id);
     out.set = LOOT.setOf('nid_fang') && LOOT.setOf('nid_fang').id;
     return out;
@@ -99,7 +99,7 @@ const ok = (name, cond, info) => { if (cond) { pass++; console.log('✔', name, 
   ok('มอนบท 7: Lv 58–69 ไล่ขึ้น, EXP/HP ต่อเส้นเดิม, ตีก่อน 2 จาก 5', data.mono && data.lv[0] >= 58 && data.lv[4] <= 70 && data.expRatio > 1 && data.expRatio < 1.15 && data.hpRatio < 1.15 && data.aggro === 2, JSON.stringify(data));
   ok('Formless Slayer มีเป้าแล้ว (มอนไร้รูปจริง)', data.slayFormless.length >= 2, data.slayFormless.join(','));
   ok('อุปกรณ์ Lv 58–70: แรงกว่าขั้นก่อน แต่ไม่เกินของตำนาน Lv 60', data.gearOk, JSON.stringify(data.gear));
-  ok('Ancient Nidhogg: บอสโลก HP ×5 + ของตำนานดรอปง่ายขึ้น + ชุดเซ็ต Wyrmbane', data.wb && data.set === 'wyrmbane', JSON.stringify({ wb: data.wb, set: data.set }));
+  ok('Ancient Nidhogg: บอสโลก HP ×WB.TUNE (≥5) + ของตำนานดรอปง่ายขึ้น + ชุดเซ็ต Wyrmbane', data.wb && data.set === 'wyrmbane', JSON.stringify({ wb: data.wb, set: data.set }));
 
   // ---------- 3) Nidhogg: เกิด / ชุดท่า / ลูกสมุน / ล้ม ----------
   const boss = await p.evaluate(() => {

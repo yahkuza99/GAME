@@ -8,15 +8,19 @@ globalThis.EXTRA = async (A, B, ok) => {
   });
   for (const P of [A, B]) await P.waitForFunction(() => G.mobs.some(m => m.isWB && !m.dead), null, { timeout: 10000 }).catch(() => {});
   const max = await A.evaluate(() => { const m = WB.live(); return m && m.maxHp; });
-  const want = await A.evaluate(() => MOBS.seraph_pudding.hp * 5);
-  ok('บอสโลกเกิดในแผนที่ (เลือด 5 เท่า MVP)', max === want, `${max} / ${want}`);
+  // เลือด Ancient = MVP × ตัวคูณต่อบอส (WB.TUNE — 2026-10-03 จูนใหม่ เดิม ×5 ทุกตัว) • Seraph ×100 ATK ×1.6
+  const want = await A.evaluate(() => Math.round(MOBS.seraph_pudding.hp * WB.hpMul('mistlake')));
+  const tune = await A.evaluate(() => [WB.hpMul('mistlake'), WB.atkMul('mistlake'), MOBS.wb_seraph_pudding.atk[1] / MOBS.seraph_pudding.atk[1]]);
+  ok('บอสโลกเกิดในแผนที่ (เลือด = MVP × WB.TUNE, ATK ≥ ×1.5)', max === want && tune[0] >= 5 && tune[1] >= 1.5 && Math.abs(tune[2] - tune[1]) < 0.02, `${max} / ${want} ${JSON.stringify(tune)}`);
+  // ตีแรงพอให้เลือดร่วมต่ำกว่า 50% (ช่วงคลั่ง 1) ไม่ว่าตัวคูณเลือดจะเท่าไร
+  const BIG = Math.round(max * 0.55), TOT = BIG + 1000;
   // B ตีก่อน 1 ครั้ง (ร่วมตี) แล้ว A ตีแรง ๆ
   await B.evaluate(() => damageMob(WB.live(), 1000));
   await A.waitForFunction(() => WB.live() && WB.live().hp <= WB.live().maxHp - 1000, null, { timeout: 8000 }).catch(() => {});
-  await A.evaluate(() => damageMob(WB.live(), 20000));
-  await B.waitForFunction(() => WB.live() && WB.live().hp <= WB.live().maxHp - 21000, null, { timeout: 8000 }).catch(() => {});
+  await A.evaluate(d => damageMob(WB.live(), d), BIG);
+  await B.waitForFunction(t => WB.live() && WB.live().hp <= WB.live().maxHp - t, TOT, { timeout: 8000 }).catch(() => {});
   const [ha, hb] = [await A.evaluate(() => WB.live().hp), await B.evaluate(() => WB.live().hp)];
-  ok('เลือดบอสตรงกันทั้งสองเครื่อง', ha === hb && ha === max - 21000, `${ha} / ${hb}`);
+  ok('เลือดบอสตรงกันทั้งสองเครื่อง', ha === hb && ha === max - TOT, `${ha} / ${hb}`);
   // บอสระดับ 2: ช่วงคลั่งคิดจากเลือดร่วม → ทั้งสองเครื่องอยู่ช่วงเดียวกัน (เลือด < 50%) • ลูกสมุนเป็นของในเครื่อง ไม่ถูกส่งไปอีกเครื่อง
   await A.waitForFunction(() => WB.live() && WB.live().phase >= 1, null, { timeout: 4000 }).catch(() => {});
   await B.waitForFunction(() => WB.live() && WB.live().phase >= 1, null, { timeout: 4000 }).catch(() => {});
@@ -31,18 +35,18 @@ globalThis.EXTRA = async (A, B, ok) => {
   await A.evaluate(() => { for (const m of G.mobs) if (m.minion) damageMob(m, 1e9); G.player.target = null; teleportPlayer(20, 20); G.player.options.autoCounter = true; });
   await A.waitForTimeout(600);
   ok('ตีลูกสมุนไม่หักเลือดบอสร่วม', (await B.evaluate(() => WB.live().hp)) === hb, String(await B.evaluate(() => WB.live().hp)));
-  // ตารางดาเมจ: ทั้งสองเครื่องเห็นอันดับเดียวกัน (Alice 20000 > Bobby 1000) + ป้าย Top damage แสดงอยู่
+  // ตารางดาเมจ: ทั้งสองเครื่องเห็นอันดับเดียวกัน (Alice ≈55% ของเลือด > Bobby 1000) + ป้าย Top damage แสดงอยู่
   const topOf = P => P.evaluate(() => { WB.tick(); const el = document.getElementById('wb-top');
     return { top: WB.top('mistlake').map(r => `${r.rank}.${r.n}:${r.d}`).join(','), me: (WB.top('mistlake').find(r => r.me) || {}).n, shown: !!el && !el.hidden && /Alice/.test(el.textContent) }; });
   const [ta, tb] = [await topOf(A), await topOf(B)];
-  ok('ตารางดาเมจตรงกันทั้งสองเครื่อง', ta.top === tb.top && ta.top === '1.Alice:20000,2.Bobby:1000', `${ta.top} / ${tb.top}`);
+  ok('ตารางดาเมจตรงกันทั้งสองเครื่อง', ta.top === tb.top && ta.top === `1.Alice:${BIG},2.Bobby:1000`, `${ta.top} / ${tb.top}`);
   ok('ป้าย Top damage แสดงและรู้ว่าแถวไหนคือตัวเอง', ta.shown && tb.shown && ta.me === 'Alice' && tb.me === 'Bobby', JSON.stringify([ta, tb]));
-  ok('ยอดดาเมจรอบนี้เก็บใน nm_wb', await B.evaluate(() => { WB.save(true); const s2 = JSON.parse(localStorage.getItem('nm_wb')).mistlake; return !!(s2 && s2.dmg && Object.values(s2.dmg).some(r => r.n === 'Alice' && r.d === 20000)); }));
+  ok('ยอดดาเมจรอบนี้เก็บใน nm_wb', await B.evaluate(big => { WB.save(true); const s2 = JSON.parse(localStorage.getItem('nm_wb')).mistlake; return !!(s2 && s2.dmg && Object.values(s2.dmg).some(r => r.n === 'Alice' && r.d === big)); }, BIG));
   // B ตาย → ฟื้นที่เมือง → กลับมาแผนที่เดิม: บอสยังเลือดเท่าเดิม
   await B.evaluate(async () => { playerDie(); await new Promise(r => setTimeout(r, 200)); respawnPlayer(false); await new Promise(r => setTimeout(r, 300)); changeMap('mistlake', 20, 20); await new Promise(r => setTimeout(r, 1500)); });
   await B.waitForFunction(() => WB.live(), null, { timeout: 8000 }).catch(() => {});
   const hb2 = await B.evaluate(() => WB.live() && WB.live().hp);
-  ok('ผู้เล่นตายแล้วกลับมา บอสไม่เลือดเต็ม', hb2 === max - 21000, String(hb2));
+  ok('ผู้เล่นตายแล้วกลับมา บอสไม่เลือดเต็ม', hb2 === max - TOT, String(hb2));
   await B.evaluate(() => damageMob(WB.live(), 1)); // B กลับมาร่วมตีต่อ (บอสใหม่ในเครื่อง B ต้องนับว่าร่วมตี)
   // A ปิดฉาก → B เห็นบอสตายและได้ EXP
   const expB = await B.evaluate(() => G.player.baseExp + G.player.baseLv * 1e9);

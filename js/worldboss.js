@@ -1,6 +1,6 @@
 'use strict';
 // ============================================================
-//  World Boss — บอสโลก 1 ตัวต่อแผนที่ที่มี MVP (แข็งกว่า MVP ปกติ 5 เท่า) ไว้ให้ผู้เล่นมาช่วยกันตี
+//  World Boss — บอสโลก 1 ตัวต่อแผนที่ที่มี MVP (แข็งกว่า MVP ปกติหลายเท่า — ตัวคูณต่อบอสใน WB.TUNE) ไว้ให้ผู้เล่นมาช่วยกันตี
 //  • เวลาเกิดตามนาฬิกาจริงร่วมกันทุกเครื่อง: ทุก 60 นาที (แต่ละแผนที่เหลื่อมกัน 20 นาที) อยู่ 40 นาทีหรือจนกว่าจะถูกปราบ
 //  • เลือดใช้ร่วมกันทั้งแผนที่: ใครตีโดน ส่ง 'wb' hit ให้ทุกคนหักเลือดเท่ากัน • คนเข้ามาใหม่ขอเลือดล่าสุดจากคนที่อยู่ก่อน
 //  • เลือดจำไว้ในเครื่อง (localStorage): ผู้เล่นตาย/ออกจากแผนที่/รีโหลด แล้วกลับมา บอสไม่เลือดเต็มใหม่
@@ -12,7 +12,14 @@
 //    + ประกาศกลางจอเมื่อ Ancient ตัวไหนตื่น (และเตือนก่อน 2 นาที) ไม่ว่าเราอยู่แผนที่ไหน
 // ============================================================
 const WB = {
-  PERIOD: 60 * 60e3, WINDOW: 40 * 60e3, MULT: 5,
+  PERIOD: 60 * 60e3, WINDOW: 40 * 60e3, MULT: 5, // MULT = ตัวคูณ EXP/JEXP (รางวัลเท่าเดิม)
+  // ตัวคูณ HP/ATK ต่อบอส (เทียบ MVP) — Claude ตัดสินแทนเจ้าของ 2026-10-03 (เดิม HP ×5 ATK ×3 ทุกตัว): จูนด้วย tests/boss_sim.js (ANC=1 PARTY=5 GEAR=lv)
+  //   เป้า: ปาร์ตี้ 5 คนคละ Class ใส่ของตามเลเวล (Lv ของ MVP) ล้มได้ ~10–15 นาที • ปาร์ตี้ Lv +10 เร็วกว่านั้น (~5–10 นาที)
+  //   ATK ×1.5–2 = ยังแรงกว่า MVP ชัด (+ ช่วงคลั่ง ×1.2/×1.35 ป้ายใหญ่ ร่ายถี่ ลูกสมุน) — เดิม ATK ×3 ตีตายวนจนยาหมด (ปาร์ตี้ส่วนใหญ่ล้ม Kitsura/Garmr/Nidhogg ไม่ได้ใน 30 นาที)
+  //   HP ต่างกันมากต่อบอส เพราะ MVP เดิมไม่ได้ไล่เส้นเดียวกัน (Seraph HP ×5 ปาร์ตี้ Lv 27 ล้มได้ในไม่ถึงนาที)
+  TUNE: { mistlake: { hp: 100, atk: 1.6 }, helcave: { hp: 14, atk: 1.5 }, roots: { hp: 6, atk: 1.5 }, abyss: { hp: 8, atk: 2 } },
+  hpMul(map) { return (this.TUNE[map] || {}).hp || this.MULT; },
+  atkMul(map) { return (this.TUNE[map] || {}).atk || 3; },
   MAPS: { mistlake: { mvp: 'seraph_pudding', off: 0 }, helcave: { mvp: 'kitsura', off: 20 }, roots: { mvp: 'garmr', off: 40 }, abyss: { mvp: 'nidhogg', off: 50 } }, // abyss = js/content_ch7.js (ไม่มี MOBS.nidhogg = ถูกลบใน init)
   st: {}, saveAt: 0, nextTick: 0,
 
@@ -20,9 +27,9 @@ const WB = {
   init() {
     for (const map in this.MAPS) {
       const b = MOBS[this.MAPS[map].mvp]; if (!b) { delete this.MAPS[map]; continue; }
-      const id = this.id(map), M = this.MULT;
+      const id = this.id(map), M = this.MULT, H = this.hpMul(map), A = this.atkMul(map);
       MOBS[id] = Object.assign({}, b, {
-        id, base: b.id, name: `Ancient ${b.name}`, lv: b.lv + 10, hp: b.hp * M, atk: [Math.round(b.atk[0] * 3), Math.round(b.atk[1] * 3)], // ATK ×3 (เจ้าของเกมกำหนด)
+        id, base: b.id, name: `Ancient ${b.name}`, lv: b.lv + 10, hp: Math.round(b.hp * H), atk: [Math.round(b.atk[0] * A), Math.round(b.atk[1] * A)], // HP/ATK ต่อบอส (WB.TUNE)
         def: Math.min(80, b.def + 15), mdef: Math.min(80, b.mdef + 15), hit: b.hit + 20, flee: b.flee + 10,
         exp: b.exp * M, jexp: b.jexp * M, scale: (b.scale || 1.6) * 1.3, worldBoss: true, respawn: this.PERIOD,
         hue: 35, sat: 1.25, bri: 1.05, tint: ['#ffcf4a', 0.25],
@@ -105,7 +112,7 @@ const WB = {
     // ประกาศกลางจอครั้งเดียว: ตัวที่เหมาะกับเลเวลเราที่สุด (ตื่นพร้อมกันหลายตัว = ที่เหลืออยู่ในแชต)
     if (fresh.length) {
       const r = this.pick(), map = r && fresh.includes(r.map) ? r.map : fresh[0], B = MOBS[this.id(map)], nm = MAP_DEFS[map] ? MAP_DEFS[map].name : map;
-      UI.announce(L(`☠ ${B.name} (Lv ${B.lv}) ตื่นแล้วที่ ${nm}! บอสระดับ 2 แข็งกว่า MVP 5 เท่า — รวมทีมไปปราบ (แตะป้ายใต้มินิแมพเพื่อนำทาง)`, `☠ ${B.name} (Lv ${B.lv}) has awakened in ${nm}! A Tier-2 boss, 5× an MVP — gather a party (tap the minimap tag to navigate)`));
+      UI.announce(L(`☠ ${B.name} (Lv ${B.lv}) ตื่นแล้วที่ ${nm}! บอสระดับ 2 (เลือด ×${this.hpMul(map)} ของ MVP) — รวมทีมไปปราบ (แตะป้ายใต้มินิแมพเพื่อนำทาง)`, `☠ ${B.name} (Lv ${B.lv}) has awakened in ${nm}! A Tier-2 boss (${this.hpMul(map)}× an MVP's HP) — gather a party (tap the minimap tag to navigate)`));
     }
   },
   pill(map) {
@@ -129,7 +136,7 @@ const WB = {
       }
     } else if (map) {
       const live = this.live(), cy = this.cycleOf(map);
-      el.title = L(`World Boss: ${MOBS[this.id(map)].name} (แข็งกว่า MVP 5 เท่า) — เกิดทุก 60 นาที อยู่ 40 นาที เลือดใช้ร่วมกันทั้งแผนที่`, `World Boss: ${MOBS[this.id(map)].name} (5× stronger than an MVP) — spawns every 60 min and stays for 40 min. HP is shared across the whole map.`);
+      el.title = L(`World Boss: ${MOBS[this.id(map)].name} (เลือด ×${this.hpMul(map)} ของ MVP) — เกิดทุก 60 นาที อยู่ 40 นาที เลือดใช้ร่วมกันทั้งแผนที่`, `World Boss: ${MOBS[this.id(map)].name} (${this.hpMul(map)}× an MVP's HP) — spawns every 60 min and stays for 40 min. HP is shared across the whole map.`);
       if (live) { alive = true; const ph = live.phase ? L(live.phase >= 2 ? ' · คลั่งสุดขีด' : ' · คลั่ง', live.phase >= 2 ? ' · FRENZY' : ' · ENRAGED') : ''; t = L(`☠ Ancient · เลือด ${Math.ceil(live.hp / live.maxHp * 100)}%${ph}`, `☠ Ancient · HP ${Math.ceil(live.hp / live.maxHp * 100)}%${ph}`); }
       else {
         const left = Math.max(0, ((this.state(map).dead || Date.now() >= cy.end) ? cy.next : cy.start) - Date.now()) / 1000;
@@ -148,7 +155,7 @@ const WB = {
     if (typeof BossKit !== 'undefined') BossKit.onSpawn(m); // ช่วงคลั่งตามเลือดร่วม + ฉากออกจากประตู
     const fresh = s.hp >= m.maxHp;
     UI.announce(L(`☠ WORLD BOSS ${MOBS[id].name} ${fresh ? 'ตื่นขึ้นแล้ว' : `ยังอยู่ (เลือด ${Math.ceil(m.hp / m.maxHp * 100)}%)`} ที่ ${G.map.def.name} — ชวนเพื่อนมาช่วยกันตี!`, `☠ WORLD BOSS ${MOBS[id].name} ${fresh ? 'has awakened' : `still stands (HP ${Math.ceil(m.hp / m.maxHp * 100)}%)`} in ${G.map.def.name} — rally your friends and bring it down!`));
-    if (fresh && !G.fastSim) UI.splash(`mvp_${id}`, MOBS[id].name, L('ANCIENT · บอสระดับ 2 — แข็งกว่า MVP 5 เท่า', 'ANCIENT · TIER-2 BOSS — 5× an MVP'));
+    if (fresh && !G.fastSim) UI.splash(`mvp_${id}`, MOBS[id].name, L(`ANCIENT · บอสระดับ 2 — เลือด ×${this.hpMul(map)} ของ MVP`, `ANCIENT · TIER-2 BOSS — ${this.hpMul(map)}× an MVP's HP`));
     UI.msg(L(`[WORLD BOSS] ${MOBS[id].name} อยู่ในแผนที่นี้ เลือดใช้ร่วมกันทุกคน — ตายแล้วกลับมาตีต่อได้ บอสไม่ฟื้นเลือด`, `[WORLD BOSS] ${MOBS[id].name} is on this map. Its HP is shared by everyone — fall, come back, and keep fighting. The boss never regenerates.`), 'mvp');
     this.send('ask');
   },

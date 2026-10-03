@@ -51,12 +51,13 @@
   };
 
   // ===================== ไอเทม =====================
-  // ของดรอปขายได้ (ราคาไล่ต่อจาก Gnawer Tusk 500)
-  etc('rust_petal', 'Rust Petal', 540, { s: 'feather', c: '#c8642a' }, ['moss_gel', -70], 'กลีบสนิมที่งอกเป็นดอก ไม่มีเมล็ด ไม่มีราก — มันแค่โต', 'A petal of rust grown into a flower. No seed, no root — it simply grows.');
-  etc('sparkless_core', 'Sparkless Core', 600, { s: 'gem', c: '#8a8698' }, ['yggdrasil_shard', 0, 0.7], 'แกนร่างที่ว่างเปล่า ไม่ไหม้ ไม่ผุ — ประกายข้างในถูก "กิน" ออกไป', 'An empty frame core. Not burned, not corroded — the spark inside was simply eaten.');
-  etc('wyrm_scale', 'Wyrm Scale', 660, { s: 'shell', c: '#5aa83a' }, ['fenrir_fang', 90, 0.5], 'เกล็ดสีเขียวสนิมที่หลุดจากตัว Nidhogg ยังอุ่นและยังขยับได้นิด ๆ', "A rust-green scale shed from Nidhogg's body. Still warm — and still twitching.");
-  etc('binding_root', 'Binding Root', 720, { s: 'feather', c: '#5a7a30' }, ['living_bark', 30], 'รากที่พันร่างยามของ Hel ไว้สามสิบปี เหนียวกว่าเหล็ก', "A root that bound one of Hel's guards for thirty years. Tougher than steel.");
-  etc('rot_plate', 'Rot-Crusted Plate', 780, { s: 'cloth', c: '#6a5a2a' }, ['plate_armor', 40, 0.5], 'แผ่นเกราะที่สนิมพอกหนาจนหนักกว่าตัวเกราะเอง', 'An armor plate so crusted with rust it outweighs the armor itself.');
+  // ของดรอปขายได้ (ราคาไล่ต่อจาก Gnawer Tusk 500) • 2026-10-03 ขึ้น ~25% (Claude ตัดสินแทนเจ้าของ): เข้า Nidhogg's Hollow แล้วรายได้/ชม. ไม่ตกจาก Gnawed Roots
+  //   (ฆ่าได้น้อยลง ~40% ต่อชม. — วัดด้วย CURVE=1 tests/balance_sim.js) • ของ Lv 25–57 ไม่ต้องขึ้น: รายได้ขึ้นตามเลเวลอยู่แล้ว
+  etc('rust_petal', 'Rust Petal', 680, { s: 'feather', c: '#c8642a' }, ['moss_gel', -70], 'กลีบสนิมที่งอกเป็นดอก ไม่มีเมล็ด ไม่มีราก — มันแค่โต', 'A petal of rust grown into a flower. No seed, no root — it simply grows.');
+  etc('sparkless_core', 'Sparkless Core', 750, { s: 'gem', c: '#8a8698' }, ['yggdrasil_shard', 0, 0.7], 'แกนร่างที่ว่างเปล่า ไม่ไหม้ ไม่ผุ — ประกายข้างในถูก "กิน" ออกไป', 'An empty frame core. Not burned, not corroded — the spark inside was simply eaten.');
+  etc('wyrm_scale', 'Wyrm Scale', 830, { s: 'shell', c: '#5aa83a' }, ['fenrir_fang', 90, 0.5], 'เกล็ดสีเขียวสนิมที่หลุดจากตัว Nidhogg ยังอุ่นและยังขยับได้นิด ๆ', "A rust-green scale shed from Nidhogg's body. Still warm — and still twitching.");
+  etc('binding_root', 'Binding Root', 900, { s: 'feather', c: '#5a7a30' }, ['living_bark', 30], 'รากที่พันร่างยามของ Hel ไว้สามสิบปี เหนียวกว่าเหล็ก', "A root that bound one of Hel's guards for thirty years. Tougher than steel.");
+  etc('rot_plate', 'Rot-Crusted Plate', 980, { s: 'cloth', c: '#6a5a2a' }, ['plate_armor', 40, 0.5], 'แผ่นเกราะที่สนิมพอกหนาจนหนักกว่าตัวเกราะเอง', 'An armor plate so crusted with rust it outweighs the armor itself.');
 
   // ---------- อุปกรณ์ Lv 58–70 (ได้จากมอนเท่านั้น — ต่อขั้นจาก Gnawed Roots Lv 53–60 ใน js/loot.js) ----------
   // uncommon ≈ +2 ATK ต่อเลเวลจากขั้นก่อน • rare/epic ต่ำกว่าของตำนาน Lv 60 (Hand of Týr ATK 232 / Mímir's Wellspring MATK 172)
@@ -76,11 +77,11 @@
     'กำไลขดเป็นงูพิษ รัดแน่นขึ้นทุกครั้งที่เจ้าโจมตี', 'A band coiled like a venomous serpent. It tightens every time you strike.');
   eq('abyssal_robe', 'Abyssal Robe', 'armor', 64, 'rare', { def: 5, mdef: 15, slots: 1, b: { int: 3, sp: 80 }, c: '#3a5a2a', art: 'silk_robe' },
     'เสื้อคลุมทอจากความมืดใต้ราก ดูดเสียงรอบตัวจนเงียบ', 'A robe woven from the dark beneath the roots. It drinks every sound around it.');
-  eq('rootbound_axe', 'Rootbound Axe', 'axe', 66, 'uncommon', { atk: 200, slots: 1, b: { str: 3, vit: 1 }, c: '#6a8a30', art: 'battle_axe' },
+  eq('rootbound_axe', 'Rootbound Axe', 'axe', 66, 'uncommon', { atk: 206, slots: 1, b: { str: 3, vit: 1 }, c: '#6a8a30', art: 'battle_axe' },
     'ขวานของยามที่ถูกรากพัน รากยังเกาะด้ามอยู่ — และยังไม่ยอมปล่อย', "A bound guard's axe. The roots still cling to its haft — and will not let go.");
   eq('rootbound_shield', 'Rootbound Shield', 'shield', 66, 'uncommon', { def: 10, mdef: 3, slots: 1, b: { vit: 2, hp: 250 }, jobs: J.heavy, c: '#5a7a30', art: 'round_shield' },
     'โล่ที่รากพันจนกลายเป็นเกราะไม้มีชีวิต', 'A shield so overgrown with roots it has become living wood.');
-  eq('rotroot_bow', 'Rotroot Longbow', 'bow', 66, 'uncommon', { atk: 188, slots: 1, b: { dex: 3, agi: 1 }, c: '#7a6a30', art: 'great_bow' },
+  eq('rotroot_bow', 'Rotroot Longbow', 'bow', 66, 'uncommon', { atk: 196, slots: 1, b: { dex: 3, agi: 1 }, c: '#7a6a30', art: 'great_bow' },
     'ธนูยาวจากรากที่สนิมกิน สายธนูขึงด้วยเส้นใยราก', 'A longbow of rust-eaten root, strung with root fiber.');
   eq('colossus_maul', 'Colossus Maul', 'mace', 69, 'uncommon', { atk: 196, slots: 1, b: { str: 3, vit: 2 }, c: '#8a7a3a', art: 'morning_star' },
     'ค้อนที่หมีเหล็กใช้ทุบรากหักให้เข้าที่ หนักจนพื้นยุบ', 'The maul an iron colossus used to beat broken roots back into place. The floor sinks under it.');

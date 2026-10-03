@@ -7,6 +7,9 @@
 //  รัน:  NODE_PATH=$(npm root -g) node tests/boss_sim.js [Class,Class] [วิเฉพาะฟาร์ม]   • MVPONLY=1 = เฉพาะระดับ 1 • NOKIT=1 = เทียบของเดิม (ไม่มีชุดท่า/ลูกสมุน)
 //        BOSSES=garmr,nidhogg = เลือกบอส • GEAR=lv = ใส่ของดรอปตามเลเวล (common/uncommon Lv ≤ เรา, อาวุธตามสาย — เหมือน CURVE=1 ใน balance_sim) แทนของร้าน
 //        MVP ปาร์ตี้ 3 (เพื่อนตีแรงเท่าเรา) แสดงด้วยทุกครั้ง
+//        ANC=1 = เฉพาะ Ancient (ข้าม MVP/ฟาร์ม/ตารางท่า) • PARTY=5 = ขนาดปาร์ตี้ที่จำลอง (ค่าเริ่ม 1,3,5) • HI=0 = ไม่จำลองปาร์ตี้ 5 ที่ Lv+10
+//        ท้ายรายงาน: "ปาร์ตี้ 5 คนคละ Class" ต่อบอส = เวลาปาร์ตี้ 5 แต่ละ Class รวมแบบ harmonic (ดาเมจรวมของ 5 Class ต่างกัน)
+//          ล้มไม่ทันเวลา → ประมาณเวลาจากเลือดที่หักได้ (sec × 100 / %ที่หักได้)
 // ============================================================
 const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
@@ -30,7 +33,7 @@ const serve = () => new Promise(res => {
   await p.waitForFunction(() => G.started, null, { timeout: 15000 });
   const jobs = (process.argv[2] || 'einherjar,runecaster,wildhunter').split(',');
   const FARM = +process.argv[3] || 300;
-  const res = await p.evaluate(async ({ jobs, FARM, NOKIT, MVPONLY, BOSSES, GEAR }) => {
+  const res = await p.evaluate(async ({ jobs, FARM, NOKIT, MVPONLY, BOSSES, GEAR, ANC, PARTY, HI }) => {
     if (NOKIT) { BossKit.summon = () => false; BossKit.rotation = () => null; BossKit.enrage = () => {}; } // เทียบกับของเดิม (ก่อนมีชุดท่า/ลูกสมุน)
     G.player.options.sound = false; UI.msg = () => {}; UI.announce = () => {}; UI.splash = () => {}; saveGame = () => {}; WB.tick = () => {};
     const pathTo = (pl, id) => { const pr = { [id]: null }, q = [id]; while (q.length) { const c = q.shift(); if (Passive.has(pl, c)) { const o = []; for (let x = pr[c]; x; x = pr[x]) o.push(x); return o; } for (const l of PTREE[c].links) if (!(l in pr)) { pr[l] = c; q.push(l); } } return []; };
@@ -153,40 +156,54 @@ const serve = () => new Promise(res => {
     const PLAN = [['seraph_pudding', 27, 'mistlake'], ['kitsura', 47, 'helcave'], ['garmr', 60, 'roots'], ['nidhogg', 70, 'abyss']].filter(x => !BOSSES || BOSSES.includes(x[0]));
     for (const job of jobs) for (const [boss, lv, map] of PLAN) {
       const row = { job, boss, lv };
+      if (!ANC) {
       build(job, lv); row.hitsT1 = skillHits(boss); row.hitsT2 = skillHits('wb_' + boss);
       build(job, lv); row.mvp = fight(boss, 1, 900, true);
       build(job, lv); row.mvpNoDodge = fight(boss, 1, 900, false);
       build(job, lv); row.mvp3 = fight(boss, 3, 900, true);
       build(job, lv); expSum = 0; row.farm = farm(map, FARM);
+      }
       // ระดับ 2 ที่เลเวลเดียวกัน (ปาร์ตี้ 1 / 3 / 5) และที่เลเวลของ Ancient (+10)
       if (!MVPONLY) {
-        for (const n of [1, 3, 5]) { build(job, lv); row['wb' + n] = fight('wb_' + boss, n, 1800, true); }
-        build(job, Math.min(99, lv + 10)); row.wb5hi = fight('wb_' + boss, 5, 1800, true);
+        for (const n of PARTY) { build(job, lv); row['wb' + n] = fight('wb_' + boss, n, 1800, true); }
+        if (HI) { build(job, Math.min(99, lv + 10)); row.wb5hi = fight('wb_' + boss, 5, 1800, true); }
       }
+      if (!ANC) {
       // EXP/ชม. จากบอส (สูงสุดที่เป็นไปได้): MVP ถูกจำกัดด้วยเวลาเกิดใหม่ส่วนตัว (mvpAt) • Ancient = 1 ตัว/ชม./แผนที่
       const em = (id, plv) => Math.round(MOBS[id].exp * expLevelMul(MOBS[id].lv, plv));
       row.mvpExpH = Math.round(em(boss, lv) * 3600 / Math.max(MOBS[boss].respawn / 1000, row.mvp.sec));
       row.ancExpH = em('wb_' + boss, lv);
+      }
       out.push(row);
     }
     return out;
-  }, { jobs, FARM, NOKIT: !!process.env.NOKIT, MVPONLY: !!process.env.MVPONLY, BOSSES: process.env.BOSSES ? process.env.BOSSES.split(',') : null, GEAR: process.env.GEAR || '' });
+  }, { jobs, FARM, NOKIT: !!process.env.NOKIT, MVPONLY: !!process.env.MVPONLY, BOSSES: process.env.BOSSES ? process.env.BOSSES.split(',') : null, GEAR: process.env.GEAR || '', ANC: !!process.env.ANC,
+    PARTY: (process.env.PARTY || '1,3,5').split(',').map(Number), HI: process.env.HI !== '0' });
   for (const r of res) {
     console.log(`\n=== ${r.job} Lv${r.lv} vs ${r.boss} ===`);
     const f = x => `${x.killed ? 'KILL' : 'fail'} ${String(x.sec).padStart(4)}s${x.killed ? '' : ` (HP left ${x.hpLeft}%)`} deaths ${x.deaths} pots ${x.pots} dmgTaken/min ${x.dmgTakenPerMin} (maxHP ${x.maxHp}) maxHit ${x.maxHitPct}% minions ${x.minions}${Object.keys(x.phaseAt).length ? ' phases@' + JSON.stringify(x.phaseAt) : ''}`;
     const hf = h => Object.entries(h).map(([k, v]) => `${k} ${v.avg}%${v.max > v.avg + 5 ? `(max ${v.max})` : ''}${v.stun ? ` stun ${v.stun}s` : ''}`).join(' • ');
+    if (r.hitsT1) {
     console.log('  ยืนรับท่า T1 (%MaxHP):', hf(r.hitsT1));
     if (r.hitsT2) console.log('  ยืนรับท่า T2 (%MaxHP):', hf(r.hitsT2));
     console.log('  T1 MVP   solo dodge  ', f(r.mvp));
     console.log('  T1 MVP   solo no-dodge', f(r.mvpNoDodge));
     console.log('  T1 MVP   party3 dodge', f(r.mvp3));
-    if (r.wb1) {
-    console.log('  T2 Anc   party1 dodge', f(r.wb1));
-    console.log('  T2 Anc   party3 dodge', f(r.wb3));
-    console.log('  T2 Anc   party5 dodge', f(r.wb5));
-    console.log(`  T2 Anc   party5 @Lv${r.lv + 10}`, f(r.wb5hi));
     }
-    console.log(`  farm ${r.farm.map}: EXP/h ${r.farm.expPerHour} deaths ${r.farm.deaths} • boss EXP/h max: MVP ${r.mvpExpH} (${(r.mvpExpH / r.farm.expPerHour).toFixed(2)}× farm) • Ancient ${r.ancExpH} (${(r.ancExpH / r.farm.expPerHour).toFixed(2)}×)`);
+    for (const n of [1, 3, 5]) if (r['wb' + n]) console.log(`  T2 Anc   party${n} dodge`, f(r['wb' + n]));
+    if (r.wb5hi) console.log(`  T2 Anc   party5 @Lv${r.lv + 10}`, f(r.wb5hi));
+    if (r.farm) console.log(`  farm ${r.farm.map}: EXP/h ${r.farm.expPerHour} deaths ${r.farm.deaths} • boss EXP/h max: MVP ${r.mvpExpH} (${(r.mvpExpH / r.farm.expPerHour).toFixed(2)}× farm) • Ancient ${r.ancExpH} (${(r.ancExpH / r.farm.expPerHour).toFixed(2)}×)`);
+  }
+  // ปาร์ตี้ 5 คนคละ Class: ดาเมจรวม = ผลรวมดาเมจต่อวิของแต่ละ Class → เวลา = 1 / เฉลี่ย(1/เวลาของแต่ละ Class) (ประมาณ ไม่รวมการตายที่ต่างกัน)
+  const est = x => x.killed ? x.sec : x.hpLeft >= 100 ? Infinity : x.sec * 100 / (100 - x.hpLeft);
+  const mins = s => isFinite(s) ? (s / 60).toFixed(1) + ' min' : '∞';
+  for (const key of ['wb5', 'wb5hi']) {
+    const by = {};
+    for (const r of res) if (r[key]) (by[r.boss] = by[r.boss] || []).push(r);
+    for (const boss in by) {
+      const rows = by[boss], inv = rows.reduce((a, r) => a + 1 / est(r[key]), 0) / rows.length;
+      console.log(`\n[สรุป] Ancient ${boss} ปาร์ตี้ 5 คละ Class${key === 'wb5hi' ? ' @Lv+10' : ''}: ≈ ${mins(1 / inv)} • ` + rows.map(r => `${r.job} ${r[key].killed ? mins(r[key].sec) : `fail(${r[key].hpLeft}%)≈${mins(est(r[key]))}`} d${r[key].deaths}`).join(' • '));
+    }
   }
   console.log('errors:', errs.slice(0, 5));
   await b.close(); srv.close();
