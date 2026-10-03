@@ -1,7 +1,9 @@
 'use strict';
 // ============================================================
 //  เควสต์เนื้อเรื่อง (สายเดียว ทำทีละเควสต์): สอนระบบพื้นฐานไปพร้อมกับเล่าเรื่อง (docs/STORY.md บทที่ 1–5)
-//  ความคืบหน้าเก็บใน p.quests = { i: เควสต์ที่กำลังทำ, n: ตัวนับ, done: [id] }
+//  ความคืบหน้าเก็บใน p.quests = { i: เควสต์ที่กำลังทำ, n: ตัวนับ, done: [id], v: 2, id: id ของเควสต์ที่กำลังทำ, side: เควสต์เสริม }
+//  (v/id: แทรกเควสต์กลางสายได้ — Quest.state หาดัชนีใหม่จาก id • เซฟเก่าแปลงครั้งเดียวด้วย QUEST_ORDER_V1)
+//  เควสต์เสริม (ไม่บังคับ รับ/ส่งกับ NPC ในเมือง): SIDE_QUESTS + Side ท้ายไฟล์
 //  เป้าหมาย: talk (คุย NPC) • kill (ล่ามอน) • hit (ตีหุ่นฝึก) • collect (เก็บของ ส่งแล้วหาย)
 //           event (เช่น บันทึกจุดเกิด) • baseLv / jobLv • job (อัปเกรด Class)
 //  ห้ามเปลี่ยน id / obj / reward ของเควสต์เดิม (เซฟอ้างอิงอยู่) — เปลี่ยนได้แค่ title / desc / done / ch
@@ -68,7 +70,24 @@ const QUESTS = [
     done: L('Mimir AI: "เจ้าไม่ใช่คนเก่าที่ถูกปลุก — เจ้าคือใบใหม่ และตอนนี้พวกเขารู้แล้วว่าเจ้ามีอยู่"', 'Mimir AI: "You are no old one reawakened — you are a new leaf. And now they know you exist."'),
     obj: { type: 'kill', mob: 'seraph_pudding', n: 1 }, reward: { items: [['clip', 1], ['white_potion', 3]], zeny: 5000 } },
   // ---- บทที่ 4 — เสียงหอนในป่า (Wolfwood Forest, Lv 18–30) ----
-  { id: 'lv30', ch: 4, title: L('เสียงหอนในป่า', 'Howls in the Wood'), desc: L('ทุกคืนเสียงหอนจากป่าทางใต้ดังมาถึงกำแพง — ขึ้นถึง Base Lv 30 แล้ว Eir กับ Rolf มีเรื่องจะบอกก่อนเจ้าลงโพรง', 'Every night, howls from the southern forest reach the walls — reach Base Lv 30. Eir and Rolf have something to tell you before you descend into the Hollow.'),
+  // สะพานจากข้อความของ Odin (บท 3) ไปโพรงแห่งเฮล (บท 5): รอยไฟที่เดินลงใต้ • ตำนาน Fenrir • Sigrún • Lopt ที่ปากป่าด้านใต้
+  // บทพูดเต็มอยู่ใน js/npc.js (NPC.scripts.sigrun / lopt) — Quest.onTalk ทำงานก่อนสคริปต์ จึงแยกฉากด้วย flag ใน Story.st()
+  { id: 'ch4_sigrun', ch: 4, title: L('นักล่าที่เร็วกว่า', 'The Faster Hunter'), desc: L('Mimir เตือนว่าตอนนี้ "พวกเขา" รู้แล้วว่าเจ้ามีอยู่ — ไฟที่เผาป่าเดินลงใต้ไปแล้ว ไปหา Sigrún หน่วยทหารผ่านศึกที่ล่าอยู่ริมถนนกลางป่า Wolfwood นางเห็นรอยไฟก่อนใคร', 'Mimir warned that "they" now know you exist — and the fire that burned the forest has gone south. Find Sigrún, a veteran unit hunting by the road through Wolfwood. She saw the burn trail before anyone else.'),
+    done: L('Sigrún: "เร็วกว่าเจ้าอีกแล้ว หน่วยใหม่ — ข้าเห็นรอยไฟก่อนเจ้าตั้งสามคืน"', 'Sigrún: "Faster than you again, rookie — I found that burn trail three nights before you did."'),
+    obj: { type: 'talk', npc: 'sigrun' }, reward: { items: [['yellow_potion', 3]], bexp: 1500, jexp: 1000 } },
+  { id: 'ch4_filter', ch: 4, title: L('ไส้กรองยังอุ่น', 'The Filters Are Still Warm'), desc: L('Sigrún: "อยากรู้ว่าไฟผ่านไปเมื่อไหร่ ดูที่ไส้กรอง" — เก็บ Ash Filter 6 ชิ้นจาก Ash Stalker (ส่งแล้วไอเทมจะถูกใช้ไป)', 'Sigrún: "Want to know when the fire passed? Read the filters." — Collect 6 Ash Filters from Ash Stalkers (the items are consumed on turn-in).'),
+    done: L('ไส้กรองทุกชิ้นอุ่นเท่ากัน... ไฟผ่านไปไม่ถึงเจ็ดคืน — และรอยไหม้ทุกรอยชี้ลงใต้ ทางโพรง', 'Every filter is equally warm... the fire passed less than seven nights ago — and every scorch mark points south, toward the Hollow.'),
+    obj: { type: 'collect', item: 'ash_tail', n: 6, mob: 'ashtail' }, reward: { zeny: 2500, bexp: 2800, jexp: 1800 } },
+  { id: 'ch4_fenrir', ch: 4, title: L('หมาป่าที่ไม่ไล่เจ้า', 'The Wolves That Ignore You'), desc: L('Fenrir Unit คือเศษของหมาป่าใหญ่ ยังล่าทุกอย่างที่มีกลิ่นสนิม — มันไม่ไล่เจ้า แต่ไล่ Sigrún ที่ถูกปลุกซ้ำมานับร้อยครั้ง ช่วยนางหยุดพวกมัน 10 ตัว', 'Fenrir Units are shards of the great wolf, still hunting anything that smells of rust — they ignore you, but they hound Sigrún, who has been reawakened hundreds of times. Help her stop 10 of them.'),
+    done: L('Sigrún: "...ไม่มีสักตัวที่ไล่เจ้า ข้อต่อของข้าคงเก่าจนมีกลิ่นสนิม — ส่วนเจ้าไม่มีกลิ่นอะไรเลย"', 'Sigrún: "...Not one of them went after you. My joints must be old enough to smell of rust — and you smell of nothing at all."'),
+    obj: { type: 'kill', mob: 'fenrir_pup', n: 10 }, reward: { items: [['yellow_potion', 5]], bexp: 3200, jexp: 2100 } },
+  { id: 'ch4_tusk', ch: 4, title: L('เร็วกว่าเจ้าอีกแล้ว', 'Faster Than You Again'), desc: L('Sigrún ท้าแข่ง: "Tusk Trooper 5 ตัว ใครครบก่อนชนะ" — รถถังหมูป่าไถทุกอย่างในเส้นทาง และโจมตีก่อน ระวังตัว!', 'Sigrún throws down a challenge: "Five Tusk Troopers. First to five wins." — These boar tanks plow through everything in their path, and they attack first. Watch yourself!'),
+    done: L('เสียง Sigrún ดังมาจากอีกฝั่งถนน: "...ครั้งนี้เจ้าเร็วกว่า" — วิเซอร์ของนางหรี่ลง ไปคุยกับนางเมื่อพร้อม', 'Sigrún\'s voice carries from across the road: "...This time, you were faster." — Her visor dims. Talk to her when you\'re ready.'),
+    obj: { type: 'kill', mob: 'tuskboar', n: 5 }, reward: { items: [['white_potion', 2]], bexp: 3500, jexp: 2300 } },
+  { id: 'ch4_lopt', ch: 4, title: L('พ่อค้าที่ปากโพรง', 'The Peddler at the Hollow\'s Mouth'), desc: L('รอยไหม้จบที่ปากป่าด้านใต้ ตรงทางลงโพรง — มีพ่อค้าเร่ตั้งแผงอยู่ที่นั่นพอดี ไปคุยกับ Lopt', 'The burn trail ends at the forest\'s southern edge, right where the path drops into the Hollow — and a peddler happens to have set up shop there. Go talk to Lopt.'),
+    done: L('Lopt: "ไฟตัวนั้นชื่อ Kitsura ข้าเคยเห็นมันครั้งหนึ่ง... นานมาแล้ว" — วิเซอร์สีเหลืองอุ่นของเขากะพริบเขียวเสี้ยววินาที', 'Lopt: "That fire has a name — Kitsura. I saw it once... long ago." — His warm yellow visor flickers green for a split second.'),
+    obj: { type: 'talk', npc: 'lopt_wood' }, reward: { items: [['ash_tail', 1], ['white_potion', 3]], zeny: 2000, bexp: 2000, jexp: 1300 } },
+  { id: 'lv30', ch: 4, title: L('เสียงหอนในป่า', 'Howls in the Wood'), desc: L('Kitsura เดินลงโพรงไปแล้ว และทุกคืนเสียงหอนจากป่าดังมาถึงกำแพง — ขึ้นถึง Base Lv 30 แล้ว Eir กับ Rolf มีเรื่องจะบอกก่อนเจ้าลงโพรง', 'Kitsura has gone down into the Hollow, and every night the forest\'s howls reach the walls — reach Base Lv 30. Eir and Rolf have something to tell you before you descend.'),
     done: L('Rolf ถอดหมวกเขาวางบนบอร์ดครู่หนึ่ง แล้วสวมกลับ: "ไปเถอะ แต่กลับมา"', 'Rolf sets his horned helm on the board for a moment, then puts it back on: "Go. But come back."'),
     obj: { type: 'baseLv', n: 30 }, reward: { items: [['white_potion', 5]], zeny: 3000 } },
   // ---- บทที่ 5 — โพรงแห่งเฮล (Hel's Hollow, Lv 30–45) ----
@@ -89,14 +108,45 @@ const QUESTS = [
     obj: { type: 'talk', npc: 'hel' }, reward: { items: [['white_potion', 5]], zeny: 5000, bexp: 8000, jexp: 5000 } },
 ];
 
+// ลำดับเควสต์ก่อนแทรกบทที่ 4 (2026-10-03) — เซฟเก่าเก็บแค่ดัชนี i ในลำดับนี้ ใช้แปลงเป็น id ครั้งเดียว (Quest.migrate)
+// ห้ามแก้รายการนี้ • เซฟใหม่ (v: 2) จำ id ของเควสต์ปัจจุบันไว้ใน s.id → แทรกเควสต์กลางสายภายหลังได้โดยเซฟไม่เลื่อน
+const QUEST_ORDER_V1 = ['welcome', 'repair', 'dummy', 'gel5', 'jelly', 'savept', 'lv5', 'buzz', 'job10', 'upgrade', 'skill1', 'useskill',
+  'mist', 'shroom', 'refine1', 'lv20', 'wolf', 'mvp1', 'lv30', 'hollow1', 'hollow2', 'hollow3', 'hollow4', 'hollow5',
+  'ch6_listen', 'ch6_sap', 'ch6_spark', 'ch6_eir', 'ch6_lv45', 'ch6_roots', 'ch6_garmr', 'ch6_mimir'];
+
 const Quest = {
   state() {
     const p = G.player;
     if (!p.quests || typeof p.quests !== 'object') p.quests = { i: 0, n: 0, done: [] };
-    return p.quests;
+    const s = p.quests;
+    if (!Array.isArray(s.done)) s.done = [];
+    if (typeof s.i !== 'number' || !(s.i >= 0)) s.i = 0;
+    if (s.v !== 2) this.migrate(s);
+    else if (s.id && (!QUESTS[s.i] || QUESTS[s.i].id !== s.id)) { // มีเควสต์แทรกก่อนหน้า → หาดัชนีใหม่จาก id
+      const k = QUESTS.findIndex(q => q.id === s.id);
+      if (k >= 0) s.i = k;
+    } else if (!s.id && s.done.length) { // จบสายแล้ว (id ว่าง): ต่อจากเควสต์สุดท้ายที่ทำ — มีเควสต์ต่อท้ายเพิ่มเมื่อไหร่ก็เริ่มได้เลย
+      const k = QUESTS.findIndex(q => q.id === s.done[s.done.length - 1]);
+      if (k >= 0) { s.i = k + 1; s.id = QUESTS[s.i] ? QUESTS[s.i].id : null; }
+    }
+    return s;
+  },
+  // เซฟเก่า (ไม่มี v): ดัชนีเดิม → id → ดัชนีใหม่ • คนที่ค้างอยู่ที่ [lv30] (จบบท 3 แล้ว ยังไม่ถึงบท 5) เริ่มสายบทที่ 4 ใหม่ตั้งแต่ต้น
+  //   คนที่ผ่านบท 4 ไปแล้ว อยู่ที่เดิม (เควสต์บท 4 ใหม่ถูกข้าม — บทพูดใช้ Quest.passed เช็กว่าเลยมาแล้ว)
+  migrate(s) {
+    const V1 = QUEST_ORDER_V1, lastV1 = QUESTS.findIndex(q => q.id === V1[V1.length - 1]);
+    let id = V1[s.i], k;
+    if (id === 'lv30' && !s.done.includes('lv30')) id = 'ch4_sigrun';
+    if (id) k = QUESTS.findIndex(q => q.id === id);
+    else k = lastV1 >= 0 ? lastV1 + 1 + (s.i - V1.length) : s.i; // เลยท้ายสายเดิม (เควสต์ที่ต่อท้ายภายหลัง) — นับต่อจากท้ายสายเดิม
+    if (k == null || k < 0) k = s.i;
+    if (id && QUESTS[k] && QUESTS[k].id !== V1[s.i]) s.n = 0; // ย้ายไปเควสต์อื่น → ตัวนับเริ่มใหม่
+    s.i = Math.max(0, k); s.v = 2; s.id = QUESTS[s.i] ? QUESTS[s.i].id : null;
   },
   current() { const s = this.state(); return QUESTS[s.i] || null; },
   isDone(id) { return this.state().done.includes(id); },
+  // ทำแล้ว หรือเลยมาแล้ว (เซฟเก่าที่ข้ามเควสต์ที่แทรกภายหลัง) — ใช้แยกบทพูด NPC
+  passed(id) { if (this.isDone(id)) return true; const k = QUESTS.findIndex(q => q.id === id); return k >= 0 && k < this.state().i; },
   is(id) { const q = this.current(); return !!q && q.id === id; },
   chapterText(q = this.current()) { return q && q.ch ? L(`บทที่ ${q.ch} — ${CHAPTERS[q.ch] || ''}`, `Chapter ${q.ch} — ${CHAPTERS[q.ch] || ''}`) : 'QUEST'; },
 
@@ -165,7 +215,7 @@ const Quest = {
 
   // ---------- เหตุการณ์จากเกม ----------
   onTalk(npcId) { const q = this.current(); if (q && q.obj.type === 'talk' && q.obj.npc === npcId) { this.state().n = 1; this.check(); } },
-  onKill(mobId) { const q = this.current(); if (q && q.obj.type === 'kill' && q.obj.mob === mobId) { this.state().n++; this.changed(); this.check(); } },
+  onKill(mobId) { Side.onKill(mobId); const q = this.current(); if (q && q.obj.type === 'kill' && q.obj.mob === mobId) { this.state().n++; this.changed(); this.check(); } },
   onHitDummy() { const q = this.current(); if (q && q.obj.type === 'hit') { this.state().n++; this.changed(); this.check(); } },
   onSkillUse() { const q = this.current(); if (q && q.obj.type === 'useskill') { this.state().n++; this.changed(); this.check(); } },
   onEvent(ev) { const q = this.current(); if (q && q.obj.type === 'event' && q.obj.ev === ev) { this.state().n = 1; this.check(); } },
@@ -174,7 +224,7 @@ const Quest = {
   // เรียกทุกเฟรม (เบา): เป้าหมายที่ขึ้นกับสถานะ (เลเวล/ไอเทม/Class) และอัปเดตแถบติดตาม
   tick() {
     if (!G.started || !G.player) return;
-    if (G.time >= (this.nextCheck || 0)) { this.nextCheck = G.time + 0.5; this.check(); this.dirty = true; }
+    if (G.time >= (this.nextCheck || 0)) { this.nextCheck = G.time + 0.5; this.check(); Side.tick(); this.dirty = true; }
     if (this.dirty) { this.dirty = false; this.renderTracker(); }
   },
   check() {
@@ -188,7 +238,7 @@ const Quest = {
       let need = q.obj.n;
       for (const e of [...p.inventory]) { if (e.id !== q.obj.item || need <= 0) continue; const k = Math.min(e.qty, need); removeEntry(e, k); need -= k; }
     }
-    s.done.push(q.id); s.i++; s.n = 0;
+    s.done.push(q.id); s.i++; s.n = 0; s.id = QUESTS[s.i] ? QUESTS[s.i].id : null;
     if (r.zeny) p.zeny += r.zeny;
     for (const [id, n] of r.items || []) addItem(id, n, true);
     if (r.bexp || r.jexp) gainExp(r.bexp || 0, r.jexp || 0);
@@ -277,3 +327,215 @@ const Bounty = {
   },
   line(b) { const m = MOBS[b.mob], map = this.mapOf(b.mob); return `${m.name} ${Math.min(b.got, b.n)}/${b.n}${map ? ` • ${MAP_DEFS[map].name}` : ''}`; },
 };
+
+// ============================================================
+//  เควสต์เสริม (docs/STORY.md ข้อ 8) — ไม่บังคับ สั้น ใช้ NPC/ไอเทม/มอนเดิมล้วน
+//  รับ: คุยกับ NPC ผู้ให้ (giver) เมื่อถึงเงื่อนไข (req) → เมนู รับ / ไว้ก่อน (ไว้ก่อน = ไม่ถามซ้ำ 5 นาที)
+//  ขั้น (steps): kill (ล่าครบ) / collect (เก็บครบ ส่งแล้วหาย) / talk — ส่งแต่ละขั้นที่ NPC `to` • say = บทพูดตอนส่ง
+//  สถานะเก็บใน p.quests.side = { [id]: { k: ขั้นที่ทำอยู่, n: ตัวนับ kill, done: 1 } } (เซฟพร้อมเควสต์หลัก)
+//  NPC.talk เรียก Side.npcTalk ก่อนสคริปต์ของ NPC (ส่งงาน → เสนองานใหม่ ทีละ 1)
+//  ห้ามเปลี่ยน id ของเควสต์เสริม (เซฟอ้างอิง)
+// ============================================================
+const SIDE_QUESTS = [
+  { id: 's_slot47', giver: 'storage', req: () => Quest.passed('savept') && G.player.baseLv >= 5,
+    title: L('ช่องที่ 47', 'Slot 47'),
+    offer: L('ฝาช่องที่ 47 หลวมแล้ว ระเบียบคือระเบียบ — ต้องซ่อม<br>ขอ Silver Mesh 5 ชิ้นจาก Bunny Unit ที่ Emerald Meadow ได้ไหม ข้าไม่ให้ใครแตะช่องนั้นนอกจากข้า', 'The lid on slot 47 has worked loose. Rules are rules — it gets fixed.<br>Could you bring me 5 Silver Mesh from the Bunny Units on Emerald Meadow? No one touches that slot but me.'),
+    steps: [
+      { type: 'collect', item: 'moon_fur', n: 5, mob: 'moonbun', to: 'storage',
+        say: L('ซ่อมเสร็จแล้ว... (Kaia ปิดฝาช่องช้า ๆ)<br>ช่องนี้เป็นของคู่หูของ Rolf ล้มนอกรัศมีรากในคืนที่กิ่งหัก ข้างในมีผ้าพันคอแดงผืนเดียว — ไปบอก Rolf ทีว่าฝาช่องซ่อมแล้ว', 'There. Repaired... (Kaia slowly closes the lid.)<br>This slot belonged to Rolf\'s partner, who fell beyond the roots\' reach the night the branch broke. Inside is a single red scarf — please tell Rolf the lid has been fixed.') },
+      { type: 'talk', to: 'guide', say: L('...ช่องที่ 47 รึ (เขาเงียบไปนาน แล้วแตะหมวกเขาเบา ๆ)<br>ขอบใจ', '...Slot 47, huh. (He\'s silent for a long moment, then touches his horned helm.)<br>Thanks.') },
+    ],
+    done: L('Rolf ไม่พูดอะไรอีก แต่วิเซอร์ของเขาสว่างขึ้นนิดหนึ่ง', 'Rolf says nothing more, but his visor glows a little brighter.'),
+    reward: { items: [['orange_potion', 3]], zeny: 600, bexp: 150, jexp: 100 } },
+  { id: 's_rotor', giver: 'tool', req: () => Quest.passed('buzz'),
+    title: L('ใบพัดที่หายไป', 'The Missing Rotors'),
+    offer: L('พัดลมร้านพังอีกแล้ว! ราคาน้ำมันก็ขึ้น ใบพัดก็หัก ร้อนจนชั้นวางยาจะละลาย<br>หา Rotor Blade 10 ชิ้นจาก Buzz Unit ที่ Emerald Meadow ให้หน่อยได้ไหม', 'The shop fan broke AGAIN! Oil prices up, rotor blades snapped — it\'s so hot the potion shelf\'s about to melt.<br>Could you get me 10 Rotor Blades from the Buzz Units on Emerald Meadow?'),
+    steps: [
+      { type: 'collect', item: 'buzz_wing', n: 10, mob: 'buzzfly', to: 'tool',
+        say: L('ลมมาแล้ว! ร้านเย็นลงตั้งสององศา<br>อย่าบอกใครนะว่าข้าจ่ายค่าจ้างเจ้า — เดี๋ยวราคาของขึ้นอีก', 'There\'s a breeze! The shop\'s two whole degrees cooler.<br>Don\'t tell anyone I paid you — or prices will go up again.') },
+    ],
+    done: L('พัดลมร้าน Tool Dealer หมุนอีกครั้ง — เมืองนี้ยังซ่อมกันทุกวัน', 'The Tool Dealer\'s fan spins once more — this city still repairs itself every day.'),
+    reward: { items: [['blink_feather', 3]], zeny: 800, bexp: 250, jexp: 160 } },
+  { id: 's_biogel', giver: 'nurse', req: () => Quest.passed('mist'),
+    title: L('น้ำเลี้ยงของที่ราบ', 'The Sap of the Plains'),
+    offer: L('Gel Cell จากทุ่งสะอาดค่ะ... แต่ข้าอยากเทียบกับ Bio Gel ของ Moss Unit ที่ Mistlake Plains ด้วย<br>ขอ 5 ชิ้นได้ไหมคะ แค่ตรวจให้สบายใจ', 'The Gel Cells from the meadow were clean... but I\'d like to compare them with the Bio Gel from the Moss Units on Mistlake Plains.<br>Could you bring me 5? Just for peace of mind.'),
+    steps: [
+      { type: 'collect', item: 'moss_gel', n: 5, mob: 'moss_pudding', to: 'nurse',
+        say: L('(วิเซอร์ของ Eir หรี่ลง) Bio Gel มีสนิมปนค่ะ... นิดเดียว แต่มี<br>สนิมกำลังลามเข้าไปในน้ำเลี้ยงของที่ราบ — รอยร้าวเล็กน้อย... ข้าหวังว่ามันจะเล็กน้อยจริง ๆ นะคะ', '(Eir\'s visor dims.) There\'s rust in the Bio Gel... only a trace, but it\'s there.<br>The rust is seeping into the plains\' sap — a minor crack... I do hope it\'s truly minor.') },
+    ],
+    done: L('Eir กังวลเป็นครั้งแรก — สนิมไม่ได้หายไปกับ Fenrir', 'For the first time, Eir is worried — the rust did not vanish with Fenrir.'),
+    reward: { items: [['orange_potion', 5]], bexp: 600, jexp: 400 } },
+  { id: 's_sentry', giver: 'guide', req: () => Quest.passed('mist'),
+    title: L('ยามคนสุดท้าย', 'The Last Watch'),
+    offer: L('Rust Sentry ที่ Mistlake... ข้าเคยเดินยามกับพวกมันก่อนคืนที่กิ่งหัก<br>มันยังเดินยามอยู่ทั้งที่สนิมกินถึงข้อต่อ ปล่อยพวกมันพักเถอะ — 15 ตัว', 'The Rust Sentries out on Mistlake... I used to walk patrol with them, before the night the branch broke.<br>They\'re still on watch with rust in every joint. Let them rest — 15 of them.'),
+    steps: [
+      { type: 'kill', mob: 'stumpling', n: 15, to: 'guide',
+        say: L('ขอบใจ... พวกมันเดินยามมานานพอแล้ว<br>เอาไป Repair Kit ของข้าเอง — อย่าบอกบอร์ดค่าหัวนะ', 'Thanks... they\'ve walked that watch long enough.<br>Here — Repair Kits from my own stash. Don\'t tell the bounty board.') },
+    ],
+    done: L('ที่ราบเงียบลงอีกนิด ยามเก่าได้พักแล้ว', 'The plains grow a little quieter. The old watch can rest now.'),
+    reward: { items: [['yellow_potion', 3]], zeny: 1500, bexp: 700, jexp: 450 } },
+  { id: 's_buoy', giver: 'jobmaster', req: () => Quest.passed('shroom'),
+    title: L('ใครวางคำสั่ง', 'Who Gave the Order'),
+    offer: L('ข้าคือ Mimir AI... ข้อมูลไม่ครบหนึ่งข้อ: ใครสั่งให้ทุ่นกั้นสนิมเดินได้<br>นำ Detonator 6 ชิ้นจาก Mine Unit มาให้ข้าอ่าน', 'I am Mimir AI... One fact is missing: who ordered the rust-barrier mines to walk?<br>Bring me 6 Detonators from the Mine Units, and I will read them.'),
+    steps: [
+      { type: 'collect', item: 'cap_spore', n: 6, mob: 'capshroom', to: 'jobmaster',
+        say: L('ผลการอ่าน 3 ข้อ:<br>1) คำสั่งมาจากกุญแจของผู้พิทักษ์ 2) ลายเซ็นถูกลบอย่างประณีต<br>3) มีผู้พิทักษ์เพียงคนเดียวที่ "ปรับตัว" ได้เก่งขนาดนี้ — ข้าจะยังไม่เอ่ยชื่อ', 'Three findings:<br>1) The order came from a Guardian\'s key. 2) The signature was erased with great care.<br>3) Only one Guardian "adapts" this well — I will not speak the name. Not yet.') },
+    ],
+    done: L('ลายเซ็นที่ถูกลบ... ผู้พิทักษ์ผู้ดูแลความแปรผัน', 'An erased signature... the Guardian of change.'),
+    reward: { items: [['grape', 3]], bexp: 800, jexp: 500 } },
+  { id: 's_fang', giver: 'refine', req: () => Quest.passed('wolf') && !!Story.st().brokkWolf, // หลัง Brokk เล่าเรื่อง Gleipnir แล้ว
+    title: L('เขี้ยวที่ข้าทำหลุดมือ', 'The Fangs That Slipped My Grip'),
+    offer: L('ข้าพูดจริงนะเจ้าหนู — เขี้ยว Fenrir 3 ชิ้น<br>ข้าอยากดูว่ามันยังจำโซ่ของข้าได้ไหม', 'I meant it, kiddo — three Fenrir Fangs.<br>I want to see if they still remember my chain.'),
+    steps: [
+      { type: 'collect', item: 'fenrir_fang', n: 3, mob: 'fenrir_pup', to: 'refine',
+        say: L('(มือของ Brokk สั่น) ...รอยตรงโคนเขี้ยวนี่ คือรอย Gleipnir ข้าจำงานตัวเองได้<br>มันไม่ได้ชั่วร้ายหรอก แค่แยกสนิมกับชีวิตไม่ออก — เอาไป ค่าตีบวกครั้งหน้าข้าออกให้ ฮ่าฮ่า...', '(Brokk\'s hands tremble.) ...These marks at the root of the fang — that\'s Gleipnir. I know my own work.<br>They were never evil. They just can\'t tell rust from life. Here — your next refine\'s on me. Ha-ha...') },
+    ],
+    done: L('Brokk วางเขี้ยวไว้ข้างทั่ง — ไม่ขาย ไม่หลอม แค่เก็บไว้', 'Brokk sets the fangs beside his anvil — not to sell, not to melt. Just to keep.'),
+    reward: { zeny: 3000, bexp: 1500, jexp: 1000 } },
+];
+
+const Side = {
+  SNOOZE_MS: 5 * 60 * 1000,
+  snooze: {},
+  st() { const s = Quest.state(); if (!s.side || typeof s.side !== 'object' || Array.isArray(s.side)) s.side = {}; return s.side; },
+  def(id) { return SIDE_QUESTS.find(q => q.id === id) || null; },
+  rec(id) { const r = this.st()[id]; return r && typeof r === 'object' ? r : null; },
+  isDone(id) { const r = this.rec(id); return !!(r && r.done); },
+  isActive(id) { const r = this.rec(id); return !!(r && !r.done); },
+  available(q) { if (this.rec(q.id)) return false; try { return !!q.req(); } catch (e) { return false; } },
+  active() { return SIDE_QUESTS.filter(q => this.isActive(q.id)); },
+  step(q) { const r = this.rec(q.id); return r && !r.done ? q.steps[Math.min(r.k || 0, q.steps.length - 1)] : null; },
+  npcName(id) { for (const m in MAP_DEFS) { const n = (MAP_DEFS[m].npcs || []).find(x => x.id === id); if (n) return n.name; } return id; },
+  progress(q) {
+    const st = this.step(q), r = this.rec(q.id); if (!st) return [0, 0];
+    if (st.type === 'kill') return [Math.min(r.n || 0, st.n), st.n];
+    if (st.type === 'collect') return [Math.min(countItem(st.item), st.n), st.n];
+    return [0, 1]; // talk: สำเร็จตอนคุยกับ NPC
+  },
+  ready(q) { const st = this.step(q); if (!st) return false; if (st.type === 'talk') return true; const [a, b] = this.progress(q); return a >= b; },
+  objText(q) {
+    const st = this.step(q); if (!st) return '';
+    const [a, b] = this.progress(q), to = this.npcName(st.to);
+    if (st.type === 'talk') return L(`คุยกับ ${to}`, `Talk to ${to}`);
+    const what = st.type === 'kill' ? MOBS[st.mob].name : ITEMS[st.item].name;
+    return a >= b ? L(`${what} ${a}/${b} — ส่งที่ ${to}`, `${what} ${a}/${b} — turn in to ${to}`) : `${what} ${a}/${b}`;
+  },
+  navTarget(q) {
+    const st = this.step(q); if (!st) return null;
+    const o = this.ready(q) ? { type: 'talk', npc: st.to } : { type: st.type, mob: st.mob, npc: st.to };
+    return Quest.navTarget({ obj: o });
+  },
+  changed() { Quest.dirty = true; UI.dirty(); },
+
+  // ล่ามอน (Quest.onKill เรียก)
+  onKill(mobId) {
+    if (!G.player) return;
+    for (const q of this.active()) {
+      const st = this.step(q), r = this.rec(q.id);
+      if (st.type !== 'kill' || st.mob !== mobId || (r.n || 0) >= st.n) continue;
+      r.n = (r.n || 0) + 1;
+      if (r.n >= st.n) { UI.msg(L(`📜 เควสต์เสริม "${q.title}": ครบแล้ว — กลับไปหา ${this.npcName(st.to)}`, `📜 Side quest "${q.title}": done — return to ${this.npcName(st.to)}`), 'lvl'); Sound.play('quest_new'); }
+      this.changed();
+    }
+  },
+  // ของครบ: แจ้งครั้งเดียว (Quest.tick ทุก 0.5 วิ)
+  tick() {
+    if (!G.player) return;
+    for (const q of this.active()) {
+      const st = this.step(q), r = this.rec(q.id);
+      if (st.type !== 'collect') continue;
+      const ok = countItem(st.item) >= st.n;
+      if (ok && !r.told) { r.told = 1; UI.msg(L(`📜 เควสต์เสริม "${q.title}": ของครบแล้ว — นำไปส่ง ${this.npcName(st.to)}`, `📜 Side quest "${q.title}": you have everything — bring it to ${this.npcName(st.to)}`), 'lvl'); this.changed(); }
+      else if (!ok && r.told) r.told = 0;
+    }
+  },
+  accept(q) {
+    if (!this.available(q)) return false;
+    this.st()[q.id] = { k: 0, n: 0 };
+    UI.msg(L(`📜 รับเควสต์เสริม: ${q.title} — ${this.objText(q)}`, `📜 Side quest accepted: ${q.title} — ${this.objText(q)}`), 'info');
+    Sound.play('quest_new'); this.changed(); saveGame();
+    return true;
+  },
+  // ส่งขั้นปัจจุบัน (ตรวจแล้วว่าคุยกับ NPC ถูกตัวและของครบ) → ขั้นต่อไป หรือจบพร้อมรางวัล
+  advance(q) {
+    const p = G.player, st = this.step(q), r = this.rec(q.id);
+    if (!st || !this.ready(q)) return false;
+    if (st.type === 'collect') {
+      let need = st.n;
+      for (const e of [...p.inventory]) { if (e.id !== st.item || need <= 0) continue; const k = Math.min(e.qty, need); removeEntry(e, k); need -= k; }
+    }
+    r.k = (r.k || 0) + 1; r.n = 0; r.told = 0;
+    if (r.k < q.steps.length) {
+      UI.msg(L(`📜 เควสต์เสริม "${q.title}": ${this.objText(q)}`, `📜 Side quest "${q.title}": ${this.objText(q)}`), 'info');
+    } else {
+      r.done = 1; delete r.k; delete r.n; delete r.told;
+      const w = q.reward;
+      if (w.zeny) p.zeny += w.zeny;
+      for (const [id, n] of w.items || []) addItem(id, n, true);
+      if (w.bexp || w.jexp) gainExp(w.bexp || 0, w.jexp || 0);
+      addFloater(p.x, p.y - 1.8, 'QUEST CLEAR!', '#ffd34a', true);
+      addFx({ type: 'buff', ref: p, dur: 1.2 });
+      Sound.play('quest');
+      UI.msg(L(`📜 เควสต์เสริมสำเร็จ: ${q.title} — รางวัล ${Quest.rewardText(q)}`, `📜 Side quest complete: ${q.title} — Reward: ${Quest.rewardText(q)}`), 'lvl');
+      if (q.done) UI.msg(`📖 ${q.done}`, 'map');
+    }
+    this.changed(); saveGame();
+    return true;
+  },
+  // NPC.talk เรียกก่อนสคริปต์ของ NPC: ส่งงานที่ครบ (บทพูด say) แล้วเสนองานใหม่ทีละ 1
+  async npcTalk(n) {
+    if (!G.player) return;
+    const nm = `[${n.name}]`;
+    for (const q of SIDE_QUESTS) {
+      const st = this.step(q);
+      if (!st || st.to !== n.id || !this.ready(q)) continue;
+      if (st.say) await UI.say(nm, st.say);
+      this.advance(q);
+    }
+    const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    const q = SIDE_QUESTS.find(x => x.giver === n.id && this.available(x) && !((this.snooze[x.id] || 0) > now));
+    if (!q) return;
+    const c = await UI.menu(nm, L(`${q.offer}<br><br>📜 เควสต์เสริม ${B(q.title)} (ไม่บังคับ)<br>รางวัล: ${Quest.rewardText(q)}`, `${q.offer}<br><br>📜 Side quest ${B(q.title)} (optional)<br>Reward: ${Quest.rewardText(q)}`),
+      [L('รับเควสต์', 'Accept'), L('ไว้ก่อน', 'Not now')]);
+    if (c === 0) this.accept(q); else this.snooze[q.id] = now + this.SNOOZE_MS;
+  },
+
+  // ---------- หน้าต่างเควสต์: การ์ดเควสต์เสริม (ใต้เควสต์หลัก) ----------
+  key() {
+    const act = this.active().map(q => `${q.id}:${this.rec(q.id).k || 0}:${this.progress(q).join('/')}`).join(',');
+    const av = SIDE_QUESTS.filter(q => this.available(q)).map(q => q.id).join(',');
+    return `${act}|${av}|${SIDE_QUESTS.filter(q => this.isDone(q.id)).length}`;
+  },
+  card() {
+    const act = this.active(), av = SIDE_QUESTS.filter(q => this.available(q)), nDone = SIDE_QUESTS.filter(q => this.isDone(q.id)).length;
+    if (!act.length && !av.length && !nDone) return null;
+    const rows = act.map(q => {
+      const [a, b] = this.progress(q), rd = this.ready(q);
+      return h('div', { class: 'q-bnt' + (rd ? ' ready' : ''), role: 'button', tabindex: 0, style: 'cursor:pointer', title: L('นำทาง', 'Navigate'),
+        onclick: () => { const t = this.navTarget(q); if (t) { Nav.goTo(t); UI.close('w-quest'); } } },
+      h('span', { class: 'q-bic' }, rd ? '!' : ''), h('span', { class: 'q-bt' }, h('b', {}, q.title), ' — ', this.objText(q)), h('b', {}, '🧭'),
+      b > 1 ? h('span', { class: 'q-bar' }, h('i', { style: `width:${Math.round(Math.min(a, b) / b * 100)}%` })) : null);
+    });
+    const notes = [];
+    if (av.length) notes.push(L(`มีงานเสริมรออยู่ที่: ${[...new Set(av.map(q => this.npcName(q.giver)))].join(', ')}`, `Side quests waiting with: ${[...new Set(av.map(q => this.npcName(q.giver)))].join(', ')}`));
+    notes.push(L(`สำเร็จแล้ว ${nDone}/${SIDE_QUESTS.length} • ไม่บังคับ — คุยกับ NPC เพื่อรับ/ส่ง`, `Completed ${nDone}/${SIDE_QUESTS.length} • optional — talk to NPCs to accept/turn in`));
+    return h('div', { class: 'q-card q-bounty q-side' }, h('div', { class: 'dsec-h' }, ivIconEl('quest'), h('span', {}, L('เควสต์เสริม', 'Side Quests'))),
+      rows.length ? h('div', { class: 'q-blist' }, ...rows) : null, h('p', { class: 'q-note' }, ...notes.flatMap((t, i) => (i ? [h('br'), t] : [t]))));
+  },
+};
+// หน้าต่างเควสต์ (UI.renderQuest ใน js/ui.js): แทรกการ์ดเควสต์เสริมต่อจากเควสต์หลัก • key ของหน้าต่างเดิมไม่รวมเควสต์เสริม → ล้าง key เมื่อเควสต์เสริมเปลี่ยน
+(() => {
+  const rq = UI.renderQuest;
+  UI.renderQuest = function (...a) {
+    const body = document.querySelector('#w-quest .win-body');
+    if (!body || !G.player) return rq.apply(this, a);
+    const sk = Side.key();
+    if (body.dataset.sk !== sk) { body.dataset.sk = sk; body.dataset.key = ''; }
+    const r = rq.apply(this, a);
+    if (!body.querySelector(':scope > .q-side')) {
+      const c = Side.card();
+      if (c) { const main = body.querySelector(':scope > .q-main'); if (main) main.after(c); else body.append(c); }
+    }
+    return r;
+  };
+})();
