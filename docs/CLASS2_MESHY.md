@@ -3,8 +3,17 @@
 ทำแบบเดียวกับ Berserker F (Wolf Warrior) ที่อยู่ในเกมแล้ว: โมเดล Meshy → คีย์ 7 ท่า (tools/char3d) → เรนเดอร์ชีต 8 ทิศ → ติดตั้ง
 ระหว่างที่ยังไม่มีภาพ เกมใช้ภาพ Class 1 ต้นสายแทน (Anim.playerKey) — ใส่ทีละตัวได้ ไม่ต้องรอครบ
 
+## ขั้น 0 (สำคัญ): ทำภาพจิบิก่อนเข้า Meshy
+ภาพ `job_*` เป็นตัวสูงสมจริง (~7–8 หัว) → ถ้าใส่ Meshy ตรง ๆ จะได้โมเดลตัวสูง ไม่เข้ากับตัวละครในเกม (จิบิ RO)
+→ ให้ ChatGPT แปลงเป็นจิบิท่ายืน A-pose ก่อน (แนบ `job_<class>_<g>.webp` 1 ภาพต่อแชต):
+
+```
+Redraw this character as a single full-body 3D-model reference for image-to-3D. Cute CHIBI proportions like Ragnarok Online: head about 1/3 of the body height (about 3 heads tall), short limbs, big hands and feet. Standing straight in an A-pose (arms down and slightly away from the body, legs slightly apart), facing the camera, front view, full body visible from head to feet. Keep the exact colors, armor, hair, cape and accessories of the attached design. Android: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Hold the class weapon in the hand as in the design (weapon fully visible, not crossing the body). NO magic effects, NO smoke, NO particles, NO floating objects, NO glow aura. Short stiff cape (not reaching the ground). Plain flat white background, soft even lighting, no shadow on the ground.
+```
+แล้วค่อยเอาภาพจิบิที่ได้ไปใส่ Meshy (Image to 3D)
+
 ## เจ้าของทำ (ต่อ 1 ตัว)
-1. Meshy **Image to 3D** — ใช้ภาพ `assets/job_<class>_<m|f>.webp` เป็นภาพตั้งต้น (ภาพตัวเต็มที่มีครบ 24 ภาพแล้ว)
+1. Meshy **Image to 3D** — ใช้ภาพจิบิจากขั้น 0 (ทำจาก `assets/job_<class>_<m|f>.webp`)
    - ให้มีอาวุธติดมือตามตารางด้านล่าง • ท่า A-pose/T-pose • ไม่ต้องมีผ้าฟิสิกส์ (ผ้าคลุมสั้นแข็งพอ)
 2. **Auto-Rig** ใน Meshy (Humanoid) → Export **FBX** พร้อม texture
 3. วางไฟล์ไว้ที่ `art/mixamo/<class>_<m|f>/model.fbx` + `texture.jpg` (หรือ .png) แล้ว push / ส่งในแชต
