@@ -624,28 +624,16 @@ const Juice = (() => {
   const pop = (t, peak, d = 0.06, back = 0.14) => (t < d ? 0.5 + (peak - 0.5) * (t / d) : t < d + back ? peak + (1 - peak) * easeOut((t - d) / back) : 1);
   // สัญลักษณ์แพ้/ต้านธาตุ ติดมุมขวาบนของตัวเลข (วาดในพิกัดของตัวเลข — ขยับ/จาง/ย่อไปพร้อมกัน)
   // ▲ สีธาตุ + เรืองนุ่ม = แพ้ธาตุ (แรงขึ้น) • ▼ เทาเล็ก = ต้าน • ตอนเกิดเด้งขึ้นจากเล็ก • fx ต่ำ = ไม่มีเรือง
+  // ธาตุแพ้/ต้าน (เจ้าของ: "Weak/Resist เอาเล็ก ๆ"): ป้ายคำเล็กแบบตัวยกมุมขวาบนของตัวเลข • Weak = สีธาตุ • Resist = เทา
   J.emMark = (g, f, size, t) => {
-    const weak = f.em > 0, w = g.measureText(f.text).width;
-    const r = size * (weak ? 0.25 : 0.19), x = w / 2 + r * 0.8 + 2, y = -size * (weak ? 0.42 : 0.36); // ยกขึ้นแบบตัวยก ไม่เบียดตัวเลข
-    const p = Math.min(1, (t - 0.03) / 0.12), s = p < 1 ? 0.4 + 0.9 * easeOut(p) - 0.3 * p * p : 1; // เด้งเกินนิดแล้วเข้าที่
-    g.save(); g.translate(x, y); g.scale(s, s);
-    const tri = () => {
-      g.beginPath();
-      if (weak) { g.moveTo(0, -r * 1.05); g.lineTo(r, r * 0.72); g.lineTo(-r, r * 0.72); }
-      else { g.moveTo(0, r * 1.05); g.lineTo(r, -r * 0.72); g.lineTo(-r, -r * 0.72); }
-      g.closePath();
-    };
-    if (weak && !low()) { // เรืองนุ่มสีธาตุ
-      const gl = g.createRadialGradient(0, 0, 0, 0, 0, r * 2.6);
-      gl.addColorStop(0, rgba(f.emCol, 0.7)); gl.addColorStop(0.45, rgba(f.emCol, 0.3)); gl.addColorStop(1, rgba(f.emCol, 0));
-      g.fillStyle = gl; g.beginPath(); g.arc(0, 0, r * 2.6, 0, TAU); g.fill();
-    }
-    tri(); g.lineJoin = 'round'; g.lineWidth = weak ? 3 : 2.5; g.strokeStyle = weak ? 'rgba(20,10,0,.9)' : 'rgba(10,14,24,.8)'; g.stroke();
-    if (weak) {
-      const gr = g.createLinearGradient(0, -r, 0, r); gr.addColorStop(0, '#fffbe8'); gr.addColorStop(0.45, f.emCol); gr.addColorStop(1, f.emCol);
-      g.fillStyle = gr;
-    } else g.fillStyle = '#9aa6b6';
-    g.fill();
+    const weak = f.em > 0, w = g.measureText(f.text).width, txt = weak ? 'WEAK' : 'RESIST';
+    const p = Math.min(1, (t - 0.03) / 0.1), s = p < 1 ? 0.6 + 0.5 * easeOut(p) - 0.1 * p : 1;
+    g.save(); g.translate(w / 2 + 2, -size * 0.5); g.scale(s, s);
+    g.font = `800 8px ${FONT}`; g.textAlign = 'left'; g.textBaseline = 'middle'; g.lineJoin = 'round';
+    if (g.letterSpacing !== undefined) g.letterSpacing = '0.6px';
+    g.lineWidth = 2.5; g.strokeStyle = weak ? 'rgba(20,10,0,.92)' : 'rgba(10,14,24,.85)'; g.strokeText(txt, 0, 0);
+    g.fillStyle = weak ? f.emCol : '#a9b3c2'; g.fillText(txt, 0, 0);
+    if (g.letterSpacing !== undefined) g.letterSpacing = '0px';
     g.restore();
   };
   J.drawFloater = (base, g, f) => {
