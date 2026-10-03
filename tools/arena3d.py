@@ -24,10 +24,12 @@
 
 ใช้:
   python3 tools/arena3d.py --extract                               (node + playwright) → tools/arena3d_tiles.json
-  /tmp/bvenv/bin/python tools/arena3d.py --render [--samples 20] [--ss 2] [--preview] [--only ground,front,crowd] [--check] [--out /tmp/arena3d]
+  /tmp/bvenv/bin/python tools/arena3d.py --render [--samples 14] [--ss 1.5] [--preview] [--only ground,front,crowd] [--check] [--out /tmp/arena3d]
       → <out>/ground.png (×ss) + mask_*.png (หน้ากากชั้นหน้า) + crowd_f1..f4.png (×1) + meta.json  • --check = สร้างฉากแล้วตรวจการบังอย่างเดียว
   python3 tools/arena3d.py --install /tmp/arena3d                  (โทนสี, ภาพพื้น, ชั้นหน้า, ชีตผู้ชม, js/bake_data_arena.js, manifest)
-  ค่าที่ใช้จริง: --samples 20 --ss 2 (ภาพพื้น ~15–25 นาทีบน CPU 2–3 เธรด) • BTHREADS=2 จำกัดเธรด (มีงาน Blender อื่นรันพร้อมกัน)
+  ค่าที่ใช้จริง: --samples 14 --ss 1.5 (สร้างฉาก ~1.5 นาที + ภาพพื้น ~7–15 นาที + หน้ากาก 20 ชิ้น + ผู้ชม 4 เฟรม ~1 นาที/เฟรม บน CPU 3 เธรด)
+  BTHREADS=3 จำกัดเธรด (มีงาน Blender อื่นรันพร้อมกัน) • AEXP = exposure (ค่าเริ่ม −0.6: ทรายกลางแดดไม่ขาวโพลน)
+  ACROP=x0,y0,x1,y1 = เรนเดอร์ภาพพื้นเฉพาะกรอบ (px ที่ ×ss) ไว้ดูรายละเอียดเร็ว ๆ • ARENA_TRY=1 --install = ลองระบบในเกมด้วยภาพ --preview
 """
 import math, os, sys, json, random
 
@@ -891,8 +893,8 @@ if __name__ == '__main__':
     if '--extract' in a: extract()
     elif '--install' in a: install(a[a.index('--install') + 1])
     elif '--render' in a or '--check' in a:
-        build(int(a[a.index('--samples') + 1]) if '--samples' in a else 20,
+        build(int(a[a.index('--samples') + 1]) if '--samples' in a else 14,
               a[a.index('--out') + 1] if '--out' in a else '/tmp/arena3d',
-              float(a[a.index('--ss') + 1]) if '--ss' in a else 2.0, '--preview' in a,
+              float(a[a.index('--ss') + 1]) if '--ss' in a else 1.5, '--preview' in a,
               a[a.index('--only') + 1].split(',') if '--only' in a else None, '--check' in a)
     else: print(__doc__)

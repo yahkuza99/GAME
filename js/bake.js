@@ -291,7 +291,9 @@ const Bake = {
       if (x1 < 0 || x0 > fw || y1 < 0 || y0 > fh || (pc.mask && !this.behind(pc.mask, (qx - L) / s, y0, y1, 34 * sc / s))) continue;
       b = b ? [Math.min(b[0], x0), Math.min(b[1], y0), Math.max(b[2], x1), Math.max(b[3], y1)] : [x0, y0, x1, y1];
     }
-    return b && [Math.max(0, Math.floor(b[0])), Math.max(0, Math.floor(b[1])), Math.min(fw, Math.ceil(b[2])), Math.min(fh, Math.ceil(b[3]))];
+    if (!b) return null;
+    b = [Math.max(0, Math.floor(b[0])), Math.max(0, Math.floor(b[1])), Math.min(fw, Math.ceil(b[2])), Math.min(fh, Math.ceil(b[3]))];
+    return b[2] > b[0] && b[3] > b[1] ? b : null;
   },
   // ประกายโหลกะพริบ (บวกแสง) ที่ตำแหน่ง jars ของชิ้น — L, Tp = มุมซ้ายบนของภาพ (หรือจุดยึดของชิ้นไม่มีภาพ), s = สเกลพิกัด jars
   sparks(g, o, t, L, Tp, s) {
