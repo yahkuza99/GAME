@@ -13,14 +13,15 @@
   <meta name="description" content="IRON VALHALLA — เกม RPG หุ่นยนต์แอนดรอยด์ในโลกตำนานนอร์ส เล่นบนเบราว์เซอร์">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Kanit:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=202610030811">
-  <link rel="stylesheet" href="css/visor.css?v=202610030811">
-  <link rel="stylesheet" href="css/tokens.css?v=202610030811">
-  <link rel="stylesheet" href="css/theme.css?v=202610030811">
-  <link rel="stylesheet" href="css/runes.css?v=202610030811">
-  <link rel="stylesheet" href="css/loadouts.css?v=202610030811">
-  <link rel="stylesheet" href="css/huntrunes.css?v=202610030811">
-  <link rel="stylesheet" href="css/theme2.css?v=202610030811">
+  <link rel="stylesheet" href="css/style.css?v=202610030855">
+  <link rel="stylesheet" href="css/visor.css?v=202610030855">
+  <link rel="stylesheet" href="css/tokens.css?v=202610030855">
+  <link rel="stylesheet" href="css/theme.css?v=202610030855">
+  <link rel="stylesheet" href="css/runes.css?v=202610030855">
+  <link rel="stylesheet" href="css/loadouts.css?v=202610030855">
+  <link rel="stylesheet" href="css/huntrunes.css?v=202610030855">
+  <link rel="stylesheet" href="css/theme2.css?v=202610030855">
+  <link rel="stylesheet" href="css/unitcard.css?v=202610030855">
 </head>
 <body class="visor">
   <canvas id="cv"></canvas>
@@ -177,6 +178,7 @@
           <li data-en="&lt;b&gt;Left-click&lt;/b&gt; the ground = walk (hold to follow the cursor)"><b>คลิกซ้าย</b> ที่พื้น = เดิน (กดค้างเพื่อเดินตามเมาส์)</li>
           <li data-en="&lt;b&gt;Click a monster&lt;/b&gt; = auto-attack continuously"><b>คลิกมอนสเตอร์</b> = โจมตีต่อเนื่องอัตโนมัติ</li>
           <li data-en="&lt;b&gt;Click an item&lt;/b&gt; on the ground = pick up • &lt;b&gt;Click an NPC&lt;/b&gt; = talk"><b>คลิกไอเทม</b> บนพื้น = เก็บ • <b>คลิก NPC</b> = คุย</li>
+          <li data-en="&lt;b&gt;Right-click&lt;/b&gt; a monster / player / NPC = details card (right-click yourself = Status)"><b>คลิกขวา</b> ที่มอนสเตอร์ / ผู้เล่น / NPC = การ์ดรายละเอียด (คลิกขวาที่ตัวเอง = สถานะ)</li>
           <li data-en="&lt;b&gt;1-8&lt;/b&gt; = skill bar • &lt;b&gt;Z C V F&lt;/b&gt; = item bar (Skills window → <b>Equip</b> → tap a glowing slot • tap an empty + slot to pick a skill • PC: hover a skill and press 1-8) • &lt;b&gt;Space&lt;/b&gt; = attack/talk/pick up the nearest target"><b>1-8</b> = แถบสกิล • <b>Z C V F</b> = แถบไอเทม (หน้าต่างสกิล → กด <b>ติดตั้ง</b> → แตะช่องที่สว่าง • แตะช่องว่าง + เพื่อเลือกสกิล • คอม: ชี้ที่สกิลแล้วกด 1-8) • <b>Space</b> = โจมตี/คุย/เก็บของ ที่ใกล้ที่สุด</li>
           <li data-en="&lt;b&gt;A&lt;/b&gt; Status • &lt;b&gt;E&lt;/b&gt; Inventory • &lt;b&gt;Q&lt;/b&gt; Equipment • &lt;b&gt;S&lt;/b&gt; Skills • &lt;b&gt;O&lt;/b&gt; Settings • &lt;b&gt;H&lt;/b&gt; Help"><b>A</b> สถานะ • <b>E</b> ไอเทม • <b>Q</b> อุปกรณ์ • <b>S</b> สกิล • <b>O</b> ตั้งค่า • <b>H</b> วิธีเล่น</li>
           <li data-en="&lt;b&gt;U&lt;/b&gt; hide/show the whole HUD • the &lt;b&gt;▾&lt;/b&gt; button on a panel corner folds that panel"><b>U</b> ซ่อน/แสดง HUD ทั้งหมด • ปุ่ม <b>▾</b> มุมแผงเพื่อพับเก็บทีละแผง</li>
@@ -192,6 +194,7 @@
           <li data-en="&lt;b&gt;Bottom-left stick&lt;/b&gt; = walk in 8 directions • &lt;b&gt;Bottom-right sword button&lt;/b&gt; = attack the nearest monster / talk to NPC / pick up"><b>จอยซ้ายล่าง</b> = เดิน 8 ทิศ • <b>ปุ่มดาบขวาล่าง</b> = โจมตีมอนที่ใกล้สุด / คุย NPC / เก็บของ</li>
           <li data-en="Targeted skills auto-aim at the nearest monster • toggle on-screen controls in Settings">สกิลที่ต้องเลือกเป้า จะเล็งมอนที่ใกล้ที่สุดให้เอง • ปิด/เปิดปุ่มบนจอได้ใน ตั้งค่า</li>
           <li data-en="&lt;b&gt;Tap&lt;/b&gt; the ground to walk, tap a monster to attack, hold to follow your finger"><b>แตะ</b> พื้นเพื่อเดิน, แตะมอนสเตอร์เพื่อโจมตี, แตะค้างเพื่อเดินตามนิ้ว</li>
+          <li data-en="&lt;b&gt;Long-press&lt;/b&gt; a monster / player / NPC (0.5 s) = details card"><b>แตะค้าง</b> ที่มอนสเตอร์ / ผู้เล่น / NPC (0.5 วิ) = การ์ดรายละเอียด</li>
           <li data-en="&lt;b&gt;Pinch&lt;/b&gt; to zoom • &lt;b&gt;Long-press a hotkey&lt;/b&gt; to clear it • use 📌 in the Skills/Inventory window to set hotkeys"><b>ถ่างสองนิ้ว</b> เพื่อซูม • <b>แตะค้างที่ปุ่มลัด</b> เพื่อลบ • ใช้ปุ่ม 📌 ในหน้าต่างสกิล/ไอเทมเพื่อตั้งปุ่มลัด</li>
           <li data-en="&lt;b&gt;Gamepad&lt;/b&gt;: left stick walk • A attack/talk • B cancel/sit • X Y LB RB = skills 1-4 • D-pad = skills 5-8 • LT RT L3 R3 = items • Select map • Start menu"><b>จอยเกม</b>: สติ๊กซ้ายเดิน • A โจมตี/คุย • B ยกเลิก/นั่ง • X Y LB RB = สกิล 1-4 • D-pad = สกิล 5-8 • LT RT L3 R3 = ไอเทม • Select แผนที่ • Start เมนู</li>
           <li data-en="&lt;b&gt;AUTO&lt;/b&gt; = let the bot hunt (uses repair kits and skills, rests, loots on its own); keeps running for up to 10 min when you switch apps">ปุ่ม <b>AUTO</b> = ปล่อยบอทล่ามอน (ใช้ชุดซ่อม ใช้สกิล นั่งพัก เก็บของเอง) ทำงานต่อแม้สลับแอป สูงสุด 10 นาที</li>
@@ -302,69 +305,70 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-  <script src="js/i18n.js?v=202610030811"></script>
-  <script src="js/online.config.js?v=202610030811"></script>
-  <script src="js/data.js?v=202610030811"></script>
-  <script src="js/art.js?v=202610030811"></script>
-  <script src="js/util.js?v=202610030811"></script>
-  <script src="js/icons.js?v=202610030811"></script>
-  <script src="js/maps.js?v=202610030811"></script>
-  <script src="js/bake_data.js?v=202610030811"></script>
-  <script src="js/bake_data_mistlake.js?v=202610030811"></script>
-  <script src="js/bake_data_wolfwood.js?v=202610030811"></script>
-  <script src="js/bake_data_roots.js?v=202610030811"></script>
-  <script src="js/bake_data_archive.js?v=202610030811"></script>
-  <script src="js/bake_data_eldheim.js?v=202610030811"></script>
-  <script src="js/bake_data_eldheim_bifrost.js?v=202610030811"></script>
-  <script src="js/bake_data_arena.js?v=202610030811"></script>
-  <script src="js/bake_data_eldheim_bld.js?v=202610030811"></script>
-  <script src="js/bake.js?v=202610030811"></script>
-  <script src="js/flora.js?v=202610030811"></script>
-  <script src="js/townmap.js?v=202610030811"></script>
-  <script src="js/world.js?v=202610030811"></script>
-  <script src="js/sprites.js?v=202610030811"></script>
-  <script src="js/rig.js?v=202610030811"></script>
-  <script src="js/pose.js?v=202610030811"></script>
-  <script src="js/anim.js?v=202610030811"></script>
-  <script src="js/paperdoll_data.js?v=202610030811"></script>
-  <script src="js/paperdoll_fix.js?v=202610030811"></script>
-  <script src="js/paperdoll_depth.js?v=202610030811"></script>
-  <script src="js/paperdoll.js?v=202610030811"></script>
-  <script src="js/armed_trail.js?v=202610030811"></script>
-  <script src="js/weapontrail.js?v=202610030811"></script>
-  <script src="js/sound.js?v=202610030811"></script>
-  <script src="js/music.js?v=202610030811"></script>
-  <script src="js/title.js?v=202610030811"></script>
-  <script src="js/passive.js?v=202610030811"></script>
-  <script src="js/game.js?v=202610030811"></script>
-  <script src="js/npc.js?v=202610030811"></script>
-  <script src="js/bot.js?v=202610030811"></script>
-  <script src="js/botscript.js?v=202610030811"></script>
-  <script src="js/online.js?v=202610030811"></script>
-  <script src="js/party.js?v=202610030811"></script>
-  <script src="js/trade.js?v=202610030811"></script>
-  <script src="js/fx2.js?v=202610030811"></script>
-  <script src="js/runes.js?v=202610030811"></script>
-  <script src="js/loadouts.js?v=202610030811"></script>
-  <script src="js/juice.js?v=202610030811"></script>
-  <script src="js/render.js?v=202610030811"></script>
-  <script src="js/ui.js?v=202610030811"></script>
-  <script src="js/pad.js?v=202610030811"></script>
-  <script src="js/nav.js?v=202610030811"></script>
-  <script src="js/quest.js?v=202610030811"></script>
-  <script src="js/daily.js?v=202610030811"></script>
-  <script src="js/story.js?v=202610030811"></script>
-  <script src="js/content_ch6.js?v=202610030811"></script>
-  <script src="js/loot.js?v=202610030811"></script>
-  <script src="js/balance.js?v=202610030811"></script>
-  <script src="js/worldboss.js?v=202610030811"></script>
-  <script src="js/bosskit.js?v=202610030811"></script>
-  <script src="js/classbook.js?v=202610030811"></script>
-  <script src="js/gacha.js?v=202610030811"></script>
-  <script src="js/emote.js?v=202610030811"></script>
-  <script src="js/feel.js?v=202610030811"></script>
-  <script src="js/uikit.js?v=202610030811"></script>
-  <script src="js/huntrunes.js?v=202610030811"></script>
-  <script src="js/main.js?v=202610030811"></script>
+  <script src="js/i18n.js?v=202610030855"></script>
+  <script src="js/online.config.js?v=202610030855"></script>
+  <script src="js/data.js?v=202610030855"></script>
+  <script src="js/art.js?v=202610030855"></script>
+  <script src="js/util.js?v=202610030855"></script>
+  <script src="js/icons.js?v=202610030855"></script>
+  <script src="js/maps.js?v=202610030855"></script>
+  <script src="js/bake_data.js?v=202610030855"></script>
+  <script src="js/bake_data_mistlake.js?v=202610030855"></script>
+  <script src="js/bake_data_wolfwood.js?v=202610030855"></script>
+  <script src="js/bake_data_roots.js?v=202610030855"></script>
+  <script src="js/bake_data_archive.js?v=202610030855"></script>
+  <script src="js/bake_data_eldheim.js?v=202610030855"></script>
+  <script src="js/bake_data_eldheim_bifrost.js?v=202610030855"></script>
+  <script src="js/bake_data_arena.js?v=202610030855"></script>
+  <script src="js/bake_data_eldheim_bld.js?v=202610030855"></script>
+  <script src="js/bake.js?v=202610030855"></script>
+  <script src="js/flora.js?v=202610030855"></script>
+  <script src="js/townmap.js?v=202610030855"></script>
+  <script src="js/world.js?v=202610030855"></script>
+  <script src="js/sprites.js?v=202610030855"></script>
+  <script src="js/rig.js?v=202610030855"></script>
+  <script src="js/pose.js?v=202610030855"></script>
+  <script src="js/anim.js?v=202610030855"></script>
+  <script src="js/paperdoll_data.js?v=202610030855"></script>
+  <script src="js/paperdoll_fix.js?v=202610030855"></script>
+  <script src="js/paperdoll_depth.js?v=202610030855"></script>
+  <script src="js/paperdoll.js?v=202610030855"></script>
+  <script src="js/armed_trail.js?v=202610030855"></script>
+  <script src="js/weapontrail.js?v=202610030855"></script>
+  <script src="js/sound.js?v=202610030855"></script>
+  <script src="js/music.js?v=202610030855"></script>
+  <script src="js/title.js?v=202610030855"></script>
+  <script src="js/passive.js?v=202610030855"></script>
+  <script src="js/game.js?v=202610030855"></script>
+  <script src="js/npc.js?v=202610030855"></script>
+  <script src="js/bot.js?v=202610030855"></script>
+  <script src="js/botscript.js?v=202610030855"></script>
+  <script src="js/online.js?v=202610030855"></script>
+  <script src="js/party.js?v=202610030855"></script>
+  <script src="js/trade.js?v=202610030855"></script>
+  <script src="js/fx2.js?v=202610030855"></script>
+  <script src="js/runes.js?v=202610030855"></script>
+  <script src="js/loadouts.js?v=202610030855"></script>
+  <script src="js/juice.js?v=202610030855"></script>
+  <script src="js/render.js?v=202610030855"></script>
+  <script src="js/ui.js?v=202610030855"></script>
+  <script src="js/pad.js?v=202610030855"></script>
+  <script src="js/nav.js?v=202610030855"></script>
+  <script src="js/quest.js?v=202610030855"></script>
+  <script src="js/daily.js?v=202610030855"></script>
+  <script src="js/story.js?v=202610030855"></script>
+  <script src="js/content_ch6.js?v=202610030855"></script>
+  <script src="js/loot.js?v=202610030855"></script>
+  <script src="js/balance.js?v=202610030855"></script>
+  <script src="js/worldboss.js?v=202610030855"></script>
+  <script src="js/bosskit.js?v=202610030855"></script>
+  <script src="js/classbook.js?v=202610030855"></script>
+  <script src="js/gacha.js?v=202610030855"></script>
+  <script src="js/emote.js?v=202610030855"></script>
+  <script src="js/feel.js?v=202610030855"></script>
+  <script src="js/uikit.js?v=202610030855"></script>
+  <script src="js/huntrunes.js?v=202610030855"></script>
+  <script src="js/unitcard.js?v=202610030855"></script>
+  <script src="js/main.js?v=202610030855"></script>
 </body>
 </html>
