@@ -155,6 +155,7 @@ R.render = () => {
     }
   }
 
+  if (typeof AmbientLife !== 'undefined') AmbientLife.ground(g, map, t); // ชีวิตในฉาก: วงน้ำ/ฝุ่นรอยเท้า/เงานก + อัปเดต (js/ambient.js)
   // ช่องที่เมาส์ชี้
   if (R.mouse.x >= 0 && !G.hover && !p.dead) {
     const tx = Math.floor(R.mouse.wx / TILE), ty = Math.floor(R.mouse.wy / TILE);
@@ -302,11 +303,13 @@ R.render = () => {
     Sprites.drawPlayer(p.hurtFlash > 0 ? R.filterCtx(g, 'sepia(1) saturate(6) hue-rotate(-40deg)') : g, p, t);
     g.restore();
   } });
+  if (typeof AmbientLife !== 'undefined') AmbientLife.collect(list, g, map); // ชาวเมือง/นกบนพื้น/เป็ด (เรียงความลึกร่วมกับตัวละคร)
   list.sort((a, b) => a.y - b.y);
   for (const it of list) upright(it.y * TILE, it.f);
 
   // เอฟเฟกต์ (คำนวณตำแหน่งแบบฉายแล้วใน drawFx)
   for (const f of G.fx) R.drawFx(g, f, t);
+  if (typeof AmbientLife !== 'undefined') AmbientLife.air(g, map); // สิ่งที่บิน/ร่วง (ผีเสื้อ นก ใบไม้ ควัน หยดน้ำ)
   // ป้ายชื่อ / หลอด HP
   g.textAlign = 'center'; g.textBaseline = 'middle';
   const P = R.py;
@@ -417,6 +420,7 @@ R.render = () => {
     }
     if (R.quality !== 'low') R.drawAtmosphere(g, map, t); // ถ้ำมืด: อนุภาคเรืองแสงอยู่เหนือความมืด (มองเห็นในที่มืด)
   }
+  if (typeof AmbientLife !== 'undefined') AmbientLife.glow(g, map); // ของเรืองแสงเหนือความมืด (ประกายคริสตัล รูน ตานกฮูก ค้างคาว เถ้า)
   // HP ต่ำ: ขอบจอแดง
   if (!p.dead && p.hp / p.d.maxHp < 0.25) {
     const a = 0.25 + Math.sin(t * 5) * 0.12;
