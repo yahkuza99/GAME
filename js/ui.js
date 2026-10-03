@@ -2162,6 +2162,7 @@ const UI = {
     body.append(h('button', { class: 'btn big bot-toggle' + (Bot.on ? ' on' : ''), onclick: () => Bot.toggle() }, Bot.on ? '■ Stop Bot' : '▶ Start Bot'));
     body.append(h('div', { id: 'bot-stats', class: 'bot-stats' }));
     this.updateBotStats();
+    if (typeof BotScript !== 'undefined') body.append(BotScript.panel(c, () => this.renderBot(true))); // Battle Script (โหมดขั้นสูง) — js/botscript.js
     const slider = (key, label, min, max, unit = '%') => {
       const val = h('b', {}, `${c[key]}${unit}`);
       const inp = h('input', { type: 'range', min, max, value: c[key], oninput: e => { c[key] = +e.target.value; val.textContent = `${c[key]}${unit}`; body.dataset.key = this.botKey(); }, onchange: () => saveGame() });
