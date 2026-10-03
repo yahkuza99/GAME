@@ -280,14 +280,15 @@ async function start(browser, port, vp, mobile) {
     UI.open('w-status'); await new Promise(r => setTimeout(r, 50));
     const stOk = !!document.querySelector('#w-status .hr-st') && /Plant/.test(document.querySelector('#w-status .hr-st').textContent);
     UI.close('w-status');
+    // #w-hrunes เดิม → หน้าต่าง Runes (js/runebook.js) แท็บ Hunt Runes — ช่องรูน + รายการรูน + กดใส่ (tests/runebook.js ทดสอบละเอียด)
     UI.open('w-hrunes'); await new Promise(r => setTimeout(r, 50));
-    const w = document.querySelector('#w-hrunes');
-    const winOk = w.querySelectorAll('.hr-sock-card').length === 2 && w.querySelectorAll('.hr-tile').length === ids.length;
-    w.querySelector('.hr-tile[data-hr="hr_pack"]').click(); await new Promise(r => setTimeout(r, 30));
-    w.querySelector('.hr-det .hr-sock[data-slot="1"]').click(); await new Promise(r => setTimeout(r, 30));
+    const w = document.querySelector('#w-runes');
+    const winOk = UI.isOpen('w-runes') && !UI.isOpen('w-hrunes') && Runebook.tab === 'hunt' && w.querySelectorAll('.rb-sock').length === 2 && w.querySelectorAll('.irow[data-hr]').length === ids.length;
+    w.querySelector('.irow[data-hr="hr_pack"]').click(); await new Promise(r => setTimeout(r, 30));
+    w.querySelector('.rb-sock-btn[data-slot="1"]').click(); await new Promise(r => setTimeout(r, 30));
     const clickOk = pl.hrunes[1] === 'hr_pack';
-    UI.close('w-hrunes');
-    ok('UI: Status card + Hunt Rune window (2 sockets, owned grid, click to socket)', stOk && winOk && clickOk, { stOk, winOk, clickOk });
+    UI.close('w-runes');
+    ok('UI: Status card + Hunt Rune sockets (Runes window, 2 sockets, every rune, click to socket)', stOk && winOk && clickOk, { stOk, winOk, clickOk });
     UI.invTab = 'hrune'; UI.open('w-inv'); await new Promise(r => setTimeout(r, 50));
     const inv = document.querySelector('#w-inv');
     const invOk = inv.querySelectorAll('.irow').length === ids.length && /Hunt Rune/.test(inv.querySelector('.book-r').textContent) && !/Sell price|Drop/.test(inv.querySelector('.book-r').textContent);
@@ -309,11 +310,12 @@ async function start(browser, port, vp, mobile) {
     const pl = G.player; pl.baseLv = 40; pl.zeny = 1e5; recalc();
     for (const id of ['hr_slay_brute', 'hr_endow_fire', 'hr_giant']) HuntRunes.buy(id);
     HuntRunes.set(0, 'hr_slay_brute', true);
-    UI.open('w-hrunes'); await new Promise(r => setTimeout(r, 80));
-    const w = document.querySelector('#w-hrunes'), r = w.getBoundingClientRect();
-    return { fits: r.left >= -1 && r.right <= innerWidth + 1, scrollX: document.documentElement.scrollWidth <= innerWidth + 1, socks: w.querySelectorAll('.hr-sock-card').length };
+    UI.open('w-hrunes'); await new Promise(r => setTimeout(r, 80)); // → Runes แท็บ Hunt (มือถือ: เปิดที่หน้ารายการ แตะรูนเพื่อดูช่อง)
+    document.querySelector('#w-runes .irow[data-hr="hr_giant"]').click(); await new Promise(r => setTimeout(r, 60));
+    const w = document.querySelector('#w-runes'), r = w.getBoundingClientRect();
+    return { fits: r.left >= -1 && r.right <= innerWidth + 1, scrollX: document.documentElement.scrollWidth <= innerWidth + 1, socks: w.querySelectorAll('.rb-sock').length };
   });
-  const all = [...checks, ['phone: Hunt Rune window fits 390 px', mob.fits && mob.scrollX && mob.socks === 2, JSON.stringify(mob)],
+  const all = [...checks, ['phone: Hunt Rune sockets (Runes window) fit 390 px', mob.fits && mob.scrollX && mob.socks === 2, JSON.stringify(mob)],
     ['no page errors', !p._errors.length && !m._errors.length, [...p._errors, ...m._errors].slice(0, 3).join(' | ')]];
   let fail = 0;
   for (const [n, c, info] of all) { console.log(`${c ? '✔' : '✘'} ${n}${info && !c ? '  ' + info : info && c ? '  (' + String(info).slice(0, 90) + ')' : ''}`); if (!c) fail++; }
