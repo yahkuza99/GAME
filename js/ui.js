@@ -1523,18 +1523,25 @@ const UI = {
     g.drawImage(A.c, 0, 0);
     const qt = typeof Quest !== 'undefined' ? Quest.navTarget() : null;
     // ตัวหนังสือแผนที่: หมึกเข้มบนรัศมีกระดาษ (ไม่มีกล่อง)
+    // จอแคบ (แผนที่กว้าง < 640px บนจอ): ย่อป้ายลงตามสัดส่วน ไม่ให้ชื่อดินแดนทับกัน • ป้ายไม่ล้นขอบภาพ
+    const sm = U.clamp((cv.clientWidth || 640) / 640, 0.62, 1), sz = v => v * (v >= 11 ? sm : Math.max(sm, 0.85));
     const ink = (s, x, y, size, col = '#2e1c06', font = 'Cinzel, "Kanit", serif', weight = 800, spacing = 0) => {
+      size = sz(size); spacing *= sm;
       g.font = `${weight} ${fs(size)}px ${font}`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
       if ('letterSpacing' in g) g.letterSpacing = `${fs(spacing)}px`;
+      const hw = g.measureText(s).width / 2 + fs(4); x = U.clamp(x, Math.min(hw, W / 2), Math.max(W - hw, W / 2));
       g.lineWidth = fs(size * 0.32); g.strokeStyle = 'rgba(246,234,204,0.82)'; g.strokeText(s, x, y);
       g.fillStyle = col; g.fillText(s, x, y);
       if ('letterSpacing' in g) g.letterSpacing = '0px';
     };
     for (const [id, q] of Object.entries(A.regions)) {
-      const d = MAP_DEFS[id], town = d.kind === 'town', cx = q.x + q.w / 2, cy = town ? q.y - fs(14) : q.y + q.h * 0.5;
-      ink(d.name.toUpperCase(), cx, cy, town ? 13 : 15, id === G.map.id ? '#7a3a00' : '#2e1c06', 'Cinzel, "Kanit", serif', 800, 1.5);
+      const d = MAP_DEFS[id], town = d.kind === 'town', cx = q.x + q.w / 2, cy = town ? q.y - fs(14 * sm) : q.y + q.h * 0.5;
+      // จอแคบ: ชื่อดินแดนสองคำขึ้นสองบรรทัด (ไม่ชนดินแดนข้าง ๆ)
+      const nm = d.name.toUpperCase(), two = sm < 0.9 && !town && nm.includes(' '), lh = fs(sz(15) * 1.05), ncol = id === G.map.id ? '#7a3a00' : '#2e1c06';
+      if (two) { const k = nm.indexOf(' '); ink(nm.slice(0, k), cx, cy - lh / 2, 15, ncol, 'Cinzel, "Kanit", serif', 800, 1.5); ink(nm.slice(k + 1), cx, cy + lh / 2, 15, ncol, 'Cinzel, "Kanit", serif', 800, 1.5); }
+      else ink(nm, cx, cy, town ? 13 : 15, ncol, 'Cinzel, "Kanit", serif', 800, 1.5);
       const sub = [town ? L('เมือง • ปลอดภัย', 'Town • Safe') : `Lv ${String(d.level || '').replace(/\s*\(.*\)/, '')}`, d.mvp ? '☠ MVP' : '', qt && qt.map === id ? L('📜 เควสต์', '📜 Quest') : ''].filter(Boolean).join('  ·  ');
-      ink(sub, cx, cy + fs(15), 9.5, d.mvp ? '#6a1a10' : '#4a3214', 'Kanit, sans-serif', 600);
+      ink(sub, cx, cy + fs(15 * sm) + (two ? lh / 2 : 0), 9.5, d.mvp ? '#6a1a10' : '#4a3214', 'Kanit, sans-serif', 600);
     }
     const ci = A.caveIcon;
     if (ci) {

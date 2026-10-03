@@ -325,3 +325,261 @@ body.fx-low .rb-card.sel, body.fx-low .rb-tile.sel { box-shadow: inset 0 1px 0 r
   body:not(.pad-mode) #dock #potbar { order: 2; flex: 0 1 auto; margin: 0 auto; }
   body:not(.pad-mode) #dock #ult-btn { order: 3; width: 46px !important; height: 46px !important; margin: 0 !important; position: relative !important; left: auto !important; top: auto !important; right: auto !important; bottom: auto !important; }
 }
+
+/* =====================================================================
+   9) ตรวจความเรียบร้อยทุกหน้าต่าง (2026-10-03 "ปราณีต") — แก้ตำหนิที่เห็นจากภาพจริง 390×844 / 844×390 / 1280×720
+   ===================================================================== */
+/* แถบหัวหน้าต่าง: กระจกควันทึบขึ้น (เดิมเห็นตัวเลข HP/ชื่อของ HUD ข้างหลังลอดขึ้นมาชัด) */
+body.visor .win:not(.gc-art) .win-title { background: var(--g5-tint), linear-gradient(180deg, rgba(46, 27, 11, 0.62), rgba(30, 17, 6, 0.7)); }
+
+/* --- HUD มือถือแนวตั้งที่ปิดปุ่มควบคุมบนจอ (ไม่มี pad-mode) --- */
+@media (max-width: 760px) and (orientation: portrait) {
+  /* การ์ดเควสต์: กว้างเท่าการ์ดตัวละคร (เดิม 300px ทับเรดาร์ + ป้ายเงิน) */
+  body.visor:not(.pad-mode) #quest-track, body.visor:not(.pad-mode) #hud #quest-track, body.visor:not(.pad-mode) #hud:has(#buffs .buff) #quest-track {
+    left: calc(var(--s2) + var(--sl)); right: auto; width: min(62vw, 236px); padding-left: var(--s2); padding-right: var(--s2); }
+  body.visor:not(.pad-mode) #quest-track .qt-tabs { gap: 4px; }
+  body.visor:not(.pad-mode) #quest-track .qt-tab { padding-left: 6px; padding-right: 6px; }
+}
+@media (max-width: 760px) {
+  /* แชท: อยู่เหนือแถบลัด 2 แถว (เดิมจมอยู่หลังแถบ เห็นตัวหนังสือลอดออกมา) */
+  body.visor:not(.pad-mode) #chat { bottom: calc(134px + var(--sb)); }
+  /* เส้นคั่นหน้าแถบยา (เหลือจากแถบแถวเดียว) ลอยกลางแถวล่าง → เอาออก */
+  body.visor:not(.pad-mode) #dock #potbar { box-shadow: none; }
+  /* กล่องยืนยัน: กลางจอ (เดิมชิดบนทับการ์ดตัวละคร) */
+  body.visor .win#w-confirm:not(.hidden) { top: 50% !important; translate: 0 -50%; }
+}
+
+/* --- Skills --- */
+/* Rune Paths: ปุ่ม "จัดการใน Runes" ขึ้นบรรทัดของตัวเอง (เดิมคำสุดท้ายตกบรรทัดเดี่ยวแล้วปุ่มต่อท้าย) */
+body.visor .win .rn-help .rn-manage { display: flex; width: fit-content; margin: 8px 0 0; }
+/* ความชำนาญ: จอแคบ = ชื่อ/เลเวลบรรทัดบน • ผล + แถบบรรทัดล่าง (เดิมถูกปุ่ม Use/Move ตัดเหลือ "แ…") */
+@media (max-width: 760px), (max-height: 520px) {
+  .sk-row.uni .sk-mas { flex-wrap: wrap; row-gap: 2px; white-space: normal; }
+  .sk-row.uni .sk-mas > span { flex: 1 0 100%; }
+  .sk-row.uni .sk-mas em { order: 2; flex: none; white-space: nowrap; }
+  .sk-row.uni .sk-mas i { order: 3; min-width: 28px; }
+}
+
+/* --- ภาพไอเทมใหญ่ (รายละเอียด / ร้าน / คลัง / เตา / Runes): ขอบสีความหายากตามทรงซุ้ม (เดิมเป็นกรอบสี่เหลี่ยมคมรอบซุ้มตัดมุม) --- */
+.det-hero .plate.big { box-shadow: none;
+  filter: drop-shadow(0 0 1px rgba(20, 9, 1, 0.85)) drop-shadow(0 0 2px color-mix(in srgb, var(--rr, #c9a46a) 90%, transparent)) drop-shadow(0 0 9px var(--rg, rgba(255, 210, 120, 0.4))) drop-shadow(5px 8px 7px rgba(0, 0, 0, 0.45)); }
+body.fx-low .det-hero .plate.big { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--rr, #c9a46a) 90%, transparent)) drop-shadow(4px 6px 4px rgba(0, 0, 0, 0.4)); }
+/* เตาตีเหล็ก: "+4 → +5" มีช่องไฟจากภาพ (เดิมชิดจนตัวอักษรชนกรอบภาพ) */
+.det-hero.rf-hero { gap: 16px; }
+.det-hero.rf-hero .det-side { min-width: 0; }
+@media (max-width: 760px), (max-height: 520px) { .det-hero.rf-hero { gap: 12px; } }
+
+/* ปุ่มใหญ่ติดล่าง: เนื้อหาที่เลื่อนอยู่ใต้ปุ่มจางหายก่อนถึงปุ่ม (เดิมตัวอักษรโผล่ครึ่งบรรทัดใต้ปุ่ม) */
+.det-acts { padding-top: 18px; background: linear-gradient(180deg, rgba(236, 220, 186, 0), #ecdcb8 16px, #ead9b4); }
+
+/* ราคา (ร้าน/คลัง): ใบเสร็จ — ป้ายชิดซ้าย ค่าชิดขวา แถวละรายการ (เดิมจัดกลางแล้วแถวจำนวนเยื้อง) • แนวนอนจอเตี้ยคงแบบบรรทัดเดียวเดิม (ประหยัดความสูง) */
+@media (min-height: 521px) {
+  .book-r .pricebox { flex-direction: column; flex-wrap: nowrap; align-items: stretch; justify-content: flex-start; gap: 0; padding: 2px var(--s3); }
+  .book-r .pricebox .kv { justify-content: space-between; min-height: 34px; border-bottom: 1px dashed rgba(138, 98, 50, 0.28); }
+  .book-r .pricebox .kv:last-child, .book-r .pricebox .kv:has(+ .kv.ok:last-child) { border-bottom: 0; }
+  .book-r .pricebox .kv.total b { font-size: var(--fs-m); }
+}
+.book-r .pricebox .kv span { color: #7a5a34; }
+
+/* แผนที่ (พื้นที่ / โลก) บนแนวนอนจอเตี้ย: ใช้ความสูงที่มี (เดิมเหลือภาพเล็ก ~120px กลางกระดาษว่าง) */
+@media (max-height: 520px) and (orientation: landscape) {
+  body.visor #bigmap-cv { width: auto !important; height: auto; max-width: 100%; max-height: calc(100dvh - 150px - var(--st) - var(--sb)); }
+  body.visor #worldmap-cv { width: auto !important; height: auto; max-width: 100%; max-height: calc(100dvh - 104px - var(--st) - var(--sb)); }
+}
+
+/* --- Navi (แท็บไล่เลเวล): ยังเป็นสีชุดมืดบนกระดาษ (EXP เขียว/เหลืองอ่อน, ป้าย Aggro ชมพูบนชมพู, แถวแคปซูล) --- */
+body.visor .win .hunt-row { border: 0; border-radius: 10px; background: var(--a-card); box-shadow: var(--a-card-sh); color: #3a2410; padding: 6px 8px 6px 8px; }
+body.visor .win .hunt-row:hover { background: linear-gradient(180deg, #fffbef 0%, #f9ebc4 100%); box-shadow: var(--a-card-sh), 0 0 0 3px rgba(242, 190, 80, 0.2); }
+body.visor .win .hunt-row:is(.good, .hard, .mvp) { border-left: 0; }
+body.visor .win .hunt-row.good { box-shadow: inset 3px 0 0 #5aa04a, var(--a-card-sh); }
+body.visor .win .hunt-row.hard { box-shadow: inset 3px 0 0 #c0503a, var(--a-card-sh); }
+body.visor .win .hunt-row.mvp { box-shadow: inset 3px 0 0 #d39a32, var(--a-card-sh); }
+body.visor .win .hunt-pic { border-radius: 8px; background: radial-gradient(circle at 50% 40%, #fffaf0, #ead6ac); box-shadow: inset 0 0 0 1px rgba(138, 98, 50, 0.35); }
+body.visor .win .hunt-n { color: #3a2410; }
+body.visor .win .hunt-s { color: #7a5a34; }
+body.visor .win .hunt-row.here .hunt-s { color: #1d6a62; }
+body.visor .win .hunt-r b { color: #3a2410; }
+body.visor .win .hunt-r small { color: #8a5a10; font-weight: 600; }
+body.visor .win .hunt-r small.exp-hi { color: #2f7a2a; }
+body.visor .win .hunt-r small.exp-low { color: #a3301c; }
+body.visor .win .hunt-tag { border-radius: 4px !important; }
+body.visor .win .hunt-tag.bad { color: #8e2010; background: #fbe3d3; border: 1px solid #e0a882; }
+body.visor .win .hunt-info { color: #7a4c10; border: 1px solid #b48a4a; background: radial-gradient(circle at 50% 35%, #fffaf0, #efdcb2); font-family: var(--f-title); }
+body.visor .win .hunt-sec.good b { color: #2f7a2a; } body.visor .win .hunt-sec.hard b { color: #a3301c; } body.visor .win .hunt-sec.mvp b { color: #8a5a10; }
+body.visor .win .hunt-sec span { color: #7a5a34; }
+
+/* การ์ดมอนสเตอร์: ชื่อของดรอปตามความหายากใช้สีเข้มชุดกระดาษ (เดิมเขียว/ฟ้าอ่อนบนครีม อ่านไม่ออก) */
+body.visor #unit-card .rar-uncommon { color: var(--r-uncommon) !important; }
+body.visor #unit-card .rar-rare { color: var(--r-rare) !important; }
+body.visor #unit-card .rar-epic { color: var(--r-epic) !important; }
+body.visor #unit-card .rar-legend { color: var(--r-legend) !important; }
+
+/* Battle Script: เลขกฎ (#1) อ่านได้ — ป้ายไม้เข้มตัวอักษรครีม (เดิมตัวอักษรน้ำตาลบนน้ำตาล) */
+body.visor .win .bs-rule .bs-num { display: inline-grid; place-items: center; height: 24px; padding: 0 6px; border-radius: 5px; background: #5b3a1f !important; color: #fff1d2 !important;
+  font: 700 12px/1 var(--f-disp); letter-spacing: 0.02em; box-shadow: inset 0 1px 0 rgba(255, 230, 180, 0.25), 0 0 0 1px #2e1903; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5); }
+
+/* Builds: คำอธิบายบนสุดมีช่องไฟจากแถบหัว */
+body.visor #w-builds .lo-intro { margin-top: 6px; }
+
+/* --- Epic / Legendary ในช่องเล็ก (~40px): แสงกวาดเห็นชัดขึ้น + ไอคอนเรืองหายใจช้า ๆ (เดิมจางจนแทบไม่เห็นบนช่องเล็ก) --- */
+.islot:is(.r-epic, .r-legend)::before { width: 70%; mix-blend-mode: normal; opacity: 0.78; animation: a7-sweep 3.2s cubic-bezier(0.45, 0, 0.3, 1) infinite;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0) 0%, color-mix(in srgb, var(--rr) 40%, rgba(255, 255, 255, 0.5)) 38%, rgba(255, 255, 255, 0.9) 50%,
+    color-mix(in srgb, var(--rr) 40%, rgba(255, 255, 255, 0.5)) 62%, rgba(255, 255, 255, 0) 100%); }
+.islot.r-legend::before { animation-duration: 2.6s; }
+@keyframes a7-sweep { 0%, 64% { transform: translateX(-150%) skewX(-18deg); } 88%, 100% { transform: translateX(250%) skewX(-18deg); } }
+.islot:is(.r-epic, .r-legend) { box-shadow: inset 0 0 0 2px var(--rr), inset 0 0 12px 2px var(--rg), 0 0 10px 2px var(--rg), 2px 3px 4px -1px rgba(0, 0, 0, 0.55); }
+:is(.islot, .plate:not(.big)):is(.r-epic, .r-legend) img { animation: a7-gem 3.2s ease-in-out infinite; }
+:is(.islot, .plate:not(.big)).r-legend img { animation-duration: 2.6s; }
+@keyframes a7-gem { 0%, 100% { filter: drop-shadow(0 2px 2px rgba(60, 30, 5, 0.45)) drop-shadow(0 0 3px var(--rg)); }
+  50% { filter: drop-shadow(0 2px 2px rgba(60, 30, 5, 0.45)) drop-shadow(0 0 7px var(--rr)) brightness(1.12); } }
+body.fx-low :is(.islot, .plate):is(.r-epic, .r-legend) img { animation: none; }
+@media (prefers-reduced-motion: reduce) { :is(.islot, .plate):is(.r-epic, .r-legend) img { animation: none; } .islot:is(.r-epic, .r-legend)::before { display: none; } }
+
+/* =====================================================================
+   10) หน้าแรก / ล็อกอิน / เลือกตัวละคร / สร้างตัวละคร — ชุดเดียวกับในเกม (ไม้โอ๊ค • ทองเหลือง • กระดาษ • ปุ่มแบบ A)
+       ภาพพื้นหลังวาดด้วยโค้ดใน js/title.js (ไม่แตะ) • เลย์เอาต์เดิม เปลี่ยนแค่วัสดุ/สี
+   ===================================================================== */
+body.visor #title { background: #0d0805; }
+body.visor #title::before { background:
+  linear-gradient(90deg, rgba(20, 11, 4, 0.86) 0%, rgba(20, 11, 4, 0.6) 28%, rgba(20, 11, 4, 0.12) 56%, rgba(20, 11, 4, 0) 70%),
+  linear-gradient(0deg, rgba(20, 11, 4, 0.72), rgba(20, 11, 4, 0) 34%), linear-gradient(180deg, rgba(20, 11, 4, 0.5), rgba(20, 11, 4, 0) 22%); }
+body.visor #title.creating::before, body.visor #title.selecting::before { background: radial-gradient(60% 70% at 50% 60%, rgba(20, 11, 4, 0.45), rgba(20, 11, 4, 0.76)); }
+/* โลโก้ตัวอักษร: ทองหล่อ Cinzel + ขอบเงาเข้ม */
+body.visor #title .logo:not(.logo-img) { font-family: var(--f-title); font-weight: 800; letter-spacing: 0.06em;
+  background: linear-gradient(180deg, #fff7da 0%, #f8d88e 30%, #dca645 52%, #9c6619 55%, #e2b257 78%, #fff1c4 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 1px 0 #4a2a06) drop-shadow(0 2px 0 #241302) drop-shadow(0 0 16px rgba(255, 190, 90, 0.32)) drop-shadow(0 8px 14px rgba(0, 0, 0, 0.6)); }
+body.visor #title .logo.logo-img { filter: drop-shadow(0 0 22px rgba(255, 190, 90, 0.3)) drop-shadow(0 14px 24px rgba(0, 0, 0, 0.65)); }
+body.visor #title .logo-sub { color: #f1dcae; font-family: var(--f-body); }
+body.visor #title .logo-sub::before { background: linear-gradient(90deg, #f2c96c, #b8801c); box-shadow: 0 0 8px rgba(255, 196, 80, 0.6); }
+body.visor #title .hero-cap { color: #f1dcae; }
+body.visor #title-ver { color: rgba(241, 220, 174, 0.78); }
+body.visor #title-ver::before { background: #f2c96c; box-shadow: 0 0 10px #f2c96c; }
+
+/* การ์ด: กระดาษในกรอบไม้โอ๊ค + เส้นทองเหลืองบางด้านใน/นอก + ลายถักทองที่มุม */
+body.visor #title .card { border: 6px solid transparent; border-radius: 14px; color: #3a2410; overflow: hidden;
+  background: var(--l5-pool) padding-box, var(--l5-vignette) padding-box, var(--ui-bg-parchment) padding-box, linear-gradient(#efe0bd, #efe0bd) padding-box,
+    linear-gradient(180deg, rgba(90, 52, 20, 0.15), rgba(0, 0, 0, 0.35)) border-box, var(--ui-bg-wood) border-box, linear-gradient(#4a2c12, #4a2c12) border-box;
+  box-shadow: inset 0 0 0 1px #b48a4a, inset 0 0 0 2px rgba(255, 246, 220, 0.55), inset 0 0 26px -8px rgba(110, 66, 20, 0.55),
+    0 0 0 1px #c99a46, 0 0 0 2px #2a1603, 0 28px 54px -20px rgba(0, 0, 0, 0.88), 0 0 70px -24px rgba(255, 180, 80, 0.3);
+  -webkit-backdrop-filter: none; backdrop-filter: none; }
+body.visor #title .card::before { background: radial-gradient(120% 55% at 50% -12%, rgba(255, 246, 220, 0.5), rgba(255, 246, 220, 0) 60%); }
+body.visor #title .card::after { content: ""; position: absolute; z-index: 3; inset: 0; pointer-events: none;
+  border: 30px solid transparent; border-image: var(--u6-knot) 144 / 30px / 0 stretch; filter: drop-shadow(0 1px 1px rgba(40, 20, 2, 0.5)); }
+body.visor #title .card-kicker { color: #8a5410; font: 700 11px var(--f-title); letter-spacing: 0.18em; }
+body.visor #title .card-kicker span { color: #8a6a44; font-family: var(--f-body); letter-spacing: 0; }
+body.visor #title .card-kicker::after { height: 1px; background: linear-gradient(90deg, rgba(160, 110, 40, 0.75), rgba(160, 110, 40, 0)); }
+body.visor #title .cs-right .card-kicker b { color: #8a6a44; font-family: var(--f-disp); }
+/* ป้าย + ช่องกรอก: กระดาษเว้าขอบทองเหลือง */
+body.visor #title :is(.cr-right, .auth) label { color: #6b4a22; font: 700 11px var(--f-body); letter-spacing: 0.06em; }
+body.visor #title .cr-right label::before { color: #b8801c; font-family: var(--f-disp); }
+body.visor #title :is(#cr-name, .auth input) { background: linear-gradient(180deg, #fbf3e0, #fffaf0); border: 1px solid #c9a46a; color: #3a2410; border-radius: var(--a-r);
+  box-shadow: inset 0 2px 3px rgba(120, 80, 30, 0.18), 0 1px 0 rgba(255, 255, 255, 0.7); }
+body.visor #title :is(#cr-name, .auth input)::placeholder { color: #a08a6a; }
+body.visor #title :is(#cr-name, .auth input):hover { border-color: #b48a4a; }
+body.visor #title :is(#cr-name, .auth input):focus { background: #fffdf6; border-color: #d39a32; box-shadow: inset 0 2px 3px rgba(120, 80, 30, 0.12), 0 0 0 3px rgba(242, 190, 80, 0.32); }
+body.visor #title .auth input:-webkit-autofill { -webkit-text-fill-color: #3a2410; -webkit-box-shadow: 0 0 0 1000px #fffaf0 inset; }
+body.visor #title .err { color: #a3301c; }
+body.visor #title .au-note { color: #8a6a44; }
+/* ตัวเลือกแบ่งช่อง (ล็อกอิน/สมัคร • โครงร่าง • หัว • วิเซอร์): ครีม A / ทอง A */
+body.visor #title .seg { gap: 6px; padding: 4px; border-radius: 10px; background: rgba(120, 80, 30, 0.12); box-shadow: inset 0 1px 2px rgba(80, 50, 15, 0.22), 0 1px 0 rgba(255, 255, 255, 0.6); }
+body.visor #title .seg button { border: 0; border-radius: var(--a-r); background: var(--a-cream); box-shadow: var(--a-cream-sh); color: var(--a-ink-2); text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75); }
+body.visor #title .seg button:hover { background: var(--a-cream-hi); color: #3a2208; }
+body.visor #title .seg button.on { background: var(--a-gold); box-shadow: var(--a-gold-sh); color: var(--a-ink); text-shadow: 0 1px 0 rgba(255, 244, 205, 0.8); }
+body.visor #title .swatch { border-color: #fff8e6; box-shadow: 0 0 0 1px #8a6232, 0 1px 2px rgba(60, 35, 10, 0.35); }
+body.visor #title .swatch.on { box-shadow: 0 0 0 2px #fff3c8, 0 0 0 4px #b8801c, 0 0 10px rgba(255, 190, 80, 0.6); }
+/* ปุ่ม: หลัก = ทอง A • รอง = ครีม A • ลบ = ครีม + ตัวอักษรแดงเข้ม */
+body.visor #title .tbtn { border: 1px solid transparent; border-radius: var(--a-r); background: var(--a-cream); color: var(--a-ink-2); box-shadow: var(--a-cream-sh);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75); -webkit-backdrop-filter: none; backdrop-filter: none; transition: transform 90ms ease-out, box-shadow 120ms, filter 120ms; }
+body.visor #title .tbtn small { color: #7a5a34; }
+body.visor #title .tbtn:hover { background: var(--a-cream-hi); color: #3a2208; border-color: transparent; box-shadow: var(--a-cream-sh), var(--a-glow); transform: none; }
+body.visor #title .tbtn:active { transform: translateY(1px); box-shadow: var(--a-press-cream); }
+body.visor #title .tbtn.primary { background: var(--a-gold); color: var(--a-ink); box-shadow: var(--a-gold-sh); text-shadow: 0 1px 0 rgba(255, 244, 205, 0.8); }
+body.visor #title .tbtn.primary small { color: rgba(58, 32, 3, 0.75); }
+body.visor #title .tbtn.primary:hover { background: var(--a-gold-hi); color: #2a1601; box-shadow: var(--a-gold-sh), var(--a-glow); }
+body.visor #title .tbtn.primary:active { background: var(--a-gold); box-shadow: var(--a-press-gold); }
+body.visor #title .tbtn.small:not(.primary) { background: var(--a-cream); color: var(--a-ink-2); border-color: transparent; box-shadow: var(--a-cream-sh); }
+body.visor #title .tbtn.small:not(.primary):hover { background: var(--a-cream-hi); color: #3a2208; box-shadow: var(--a-cream-sh), var(--a-glow); }
+body.visor #title .tbtn.small.danger { color: var(--a-ink-bad); }
+body.visor #title .tbtn.small.danger:hover { color: #6e1406; background: var(--a-cream-hi); box-shadow: var(--a-cream-sh), 0 0 0 3px rgba(200, 80, 50, 0.16); }
+body.visor #title .tbtn:disabled { background: var(--a-off); color: #9a8a6c; box-shadow: var(--a-off-sh); }
+body.visor #title .tbtn:focus-visible { outline: none; box-shadow: var(--a-cream-sh), 0 0 0 3px #fff3c8, 0 0 0 4px #7a4c10; }
+body.visor #title .card .linkbtn { color: #8a5410; font-weight: 600; }
+body.visor #title .card .linkbtn:hover { color: #5a3008; }
+/* แถบบัญชี / ปุ่มภาษา: แผ่นไม้เข้มขอบทองเหลือง */
+body.visor #title .acct, body.visor #lang-pill { border: 1px solid #b48a4a; border-radius: 9px; color: #f1dcae;
+  background: linear-gradient(180deg, rgba(70, 42, 18, 0.25), rgba(0, 0, 0, 0.35)), var(--ui-bg-wood), #3a2412;
+  box-shadow: inset 0 1px 0 rgba(255, 226, 170, 0.25), 0 0 0 1px #2a1603, 0 6px 14px -6px rgba(0, 0, 0, 0.7); -webkit-backdrop-filter: none; backdrop-filter: none; }
+body.visor #title .acct b { color: #ffe39a; }
+body.visor #title .acct .linkbtn { color: #f2c96c; }
+body.visor #title .acct .linkbtn:hover { color: #fff1c4; }
+body.visor #lang-pill { gap: 3px; padding: 3px; }
+body.visor #lang-pill button { border-radius: 6px; color: #e9d4a6; font-family: var(--f-body); }
+body.visor #lang-pill button.on { background: var(--a-gold); color: var(--a-ink); box-shadow: var(--a-gold-sh); text-shadow: 0 1px 0 rgba(255, 244, 205, 0.8); }
+/* เวทีพรีวิวตัวละคร: หนังเข้มอุ่น + สปอตไลต์ทอง (เหมือนแผ่นเบ้ารูน) */
+body.visor #title .cr-left { border: 0; border-radius: 10px;
+  background: radial-gradient(ellipse at 50% 82%, rgba(255, 200, 110, 0.32), rgba(255, 200, 110, 0) 58%), radial-gradient(90% 60% at 50% 0%, rgba(255, 220, 160, 0.14), rgba(255, 220, 160, 0) 65%), linear-gradient(180deg, #4e3521 0%, #2f1f12 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 226, 170, 0.25), inset 0 -10px 20px -10px rgba(0, 0, 0, 0.55), 0 0 0 1px #b48a4a, 0 3px 8px -4px rgba(40, 20, 4, 0.6); }
+body.visor #title .cr-left::after { background: radial-gradient(rgba(255, 226, 170, 0.13) 1px, transparent 1.4px) 0 0 / 18px 18px; }
+body.visor #title .cr-left::before { color: #f2c96c; font: 700 10.5px var(--f-title); letter-spacing: 0.2em; }
+body.visor #title .cs-name { color: #fff1d2; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6), 0 0 14px rgba(255, 190, 90, 0.35); }
+body.visor #title .cs-job { color: #e0c8a0; }
+body.visor #title :is(.cs-job, .cs-main small) img { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.4)); }
+body.visor #title .cs-stats span { border-radius: 8px; background: rgba(255, 230, 180, 0.07); border: 1px solid rgba(201, 154, 70, 0.45); }
+body.visor #title .cs-stats small { color: #d9c29a; font-family: var(--f-title); letter-spacing: 0.12em; }
+body.visor #title .cs-stats b { color: #fff1d2; }
+body.visor #title :is(.cs-empty, .cs-wait) { color: #e0c8a0; }
+/* ช่องตัวละคร: การ์ดกระดาษขอบทองเหลือง • เลือกอยู่ = ขอบทอง + แสงนุ่ม • ว่าง = เส้นประ */
+body.visor #title .cs-slot { border: 0; border-radius: 10px; background: var(--a-card); box-shadow: var(--a-card-sh); color: #3a2410; }
+body.visor #title .cs-slot:hover { background: linear-gradient(180deg, #fffbef, #f9ebc4); box-shadow: var(--a-card-sh), 0 0 0 3px rgba(242, 190, 80, 0.2); }
+body.visor #title .cs-slot.on { background: linear-gradient(180deg, #fffbef 0%, #f9ebc4 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 0 18px -6px rgba(242, 190, 80, 0.55), 0 0 0 1.5px #d39a32, 0 0 0 4px rgba(242, 201, 108, 0.28), 0 0 14px rgba(255, 190, 80, 0.35); }
+body.visor #title .cs-slot.on::before { left: 0; background: linear-gradient(180deg, #f7cf6c, #b87a1c); box-shadow: none; }
+body.visor #title .cs-slot:focus-visible { box-shadow: var(--a-card-sh), 0 0 0 3px #fff3c8, 0 0 0 4px #7a4c10; }
+body.visor #title .cs-face { background: #2f1f12; box-shadow: 0 0 0 1px #8a5a1e, 0 0 0 2px rgba(230, 187, 94, 0.55); }
+body.visor #title .cs-slot.on .cs-face { box-shadow: 0 0 0 2px #e0aa48, 0 0 10px rgba(255, 190, 80, 0.55); }
+body.visor #title .cs-main b { color: #3a2410; }
+body.visor #title .cs-main small { color: #7a5a34; }
+body.visor #title .cs-main small i { color: #9a7a54; }
+body.visor #title .cs-lv b { color: #8a5410; font-family: var(--f-disp); }
+body.visor #title .cs-lv small { color: #9a7a54; font-family: var(--f-disp); }
+body.visor #title .cs-slot.empty { background: rgba(255, 250, 238, 0.45); box-shadow: none; outline: 1.5px dashed rgba(138, 98, 50, 0.45); outline-offset: -2px; }
+body.visor #title .cs-slot.empty:hover { background: rgba(255, 248, 228, 0.85); outline-color: #c98a28; }
+body.visor #title .cs-slot.empty b { color: #6b4a22; }
+body.visor #title .cs-slot.empty small { color: #9a7a54; }
+body.visor #title .cs-slot.empty:hover b { color: #8a5410; }
+body.visor #title .cs-plus { color: #b8801c; font-weight: 400; }
+body.visor #title :is(.cs-btns, .cr-btns) { border-top: 1px solid rgba(138, 98, 50, 0.35); }
+body.visor #title .cr-btns { background: none; }
+/* คอม: โลโก้บรรทัดเดียว ขนาดตามความสูงจอ (เดิม 2 บรรทัด 84px ดันการ์ดล็อกอินล้นจอล่างที่ 720px) */
+@media (min-width: 761px) and (min-height: 521px) {
+  body.visor #title .logo:not(.logo-img) { white-space: nowrap; font-size: clamp(40px, min(4.4vw, 8vh), 64px); }
+}
+body.visor #title .cs-confirm { background: #fbe9dc; border: 1px solid #e0a882; }
+body.visor #title .cs-cf-text { color: #6b4a22; }
+body.visor #title .cs-cf-text b { color: #8e2010; }
+body.visor #title .cs-confirm input { background: #fffaf0; border: 1px solid #d9a07a; color: #3a2410; }
+/* มือถือแนวตั้ง: โลโก้ไม่ชนปุ่มภาษา (ขวาบน) */
+@media (max-width: 760px) {
+  body.visor #title::before { background: linear-gradient(0deg, rgba(20, 11, 4, 0.9), rgba(20, 11, 4, 0.45) 36%, rgba(20, 11, 4, 0) 58%), linear-gradient(180deg, rgba(20, 11, 4, 0.62), rgba(20, 11, 4, 0) 26%); }
+  body.visor #title.creating::before, body.visor #title.selecting::before { background: rgba(20, 11, 4, 0.7); }
+  body.visor #title .title-inner { padding-top: calc(58px + var(--st)); }
+  body.visor #title.creating .title-inner, body.visor #title.selecting .title-inner { padding-top: calc(54px + var(--st)); }
+  body.visor #title .logo:not(.logo-img) { font-size: clamp(30px, 9.4vw, 42px); text-align: center; }
+  body.visor #title:is(.creating, .selecting) .logo:not(.logo-img) { font-size: clamp(24px, 7.4vw, 32px); }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  body.visor #title::before { background: linear-gradient(90deg, rgba(20, 11, 4, 0.88) 0%, rgba(20, 11, 4, 0.76) 44%, rgba(20, 11, 4, 0.3) 70%, rgba(20, 11, 4, 0) 84%), linear-gradient(0deg, rgba(20, 11, 4, 0.6), rgba(20, 11, 4, 0) 40%); }
+  body.visor #title .card::after { border-width: 24px; border-image-width: 24px; }
+  /* การ์ดล็อกอินแคบลงนิด: ไม่ชนปุ่มภาษามุมขวาบน (เดิมแท็บ "สมัครสมาชิก" อยู่ใต้ปุ่ม ไทย/EN) */
+  body.visor #title .auth { width: min(326px, 100%); }
+}
+@media (prefers-reduced-motion: reduce) { body.visor #title .tbtn { transition: none; } }
+
+/* การ์ดมอนสเตอร์แบบแผ่นล่างจอ (มือถือ): ปุ่ม โจมตี / สมุดมอนสเตอร์ ติดล่างเสมอ (เดิมล้นขอบจอล่าง ต้องเลื่อนหา) */
+#unit-card.uc-sheet .uc-btns { position: sticky; z-index: 2; bottom: calc(-1 * (var(--s4) + env(safe-area-inset-bottom, 0px)));
+  margin: var(--s3) calc(-1 * var(--s4)) calc(-1 * (var(--s4) + env(safe-area-inset-bottom, 0px))); padding: 12px var(--s4) calc(var(--s4) + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, rgba(243, 230, 201, 0), var(--c-paper-2) 12px); }
+@media (max-height: 430px) and (orientation: landscape) {
+  #unit-card.uc-sheet .uc-btns { bottom: calc(-1 * (var(--s3) + env(safe-area-inset-bottom, 0px))); margin: var(--s3) calc(-1 * var(--s3)) calc(-1 * (var(--s3) + env(safe-area-inset-bottom, 0px)));
+    padding: 10px var(--s3) calc(var(--s3) + env(safe-area-inset-bottom, 0px)); }
+}
