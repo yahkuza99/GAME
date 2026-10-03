@@ -394,34 +394,42 @@ const SIDE_QUESTS = [
     reward: { zeny: 3000, bexp: 1500, jexp: 1000 } },
 ];
 
+// แพ็กเนื้อหาเพิ่มเควสต์เสริมที่นี่ (เช่น js/content_world.js) — แยกจาก SIDE_QUESTS (ชุดตาม STORY.md §8) • ระบบเดียวกันทุกอย่าง
+// ขั้นชนิดใหม่ลงทะเบียนที่ Side.STEPS[type] = { talk: ส่งเมื่อคุยกับ to (ไม่มีตัวนับ), progress(st, r) → [ทำได้, เป้า], text(st, a, b, ชื่อ NPC to), nav(st) → จุดนำทาง }
+const SIDE_EXTRA = [];
 const Side = {
   SNOOZE_MS: 5 * 60 * 1000,
   snooze: {},
+  STEPS: {},
+  all() { return SIDE_EXTRA.length ? SIDE_QUESTS.concat(SIDE_EXTRA) : SIDE_QUESTS; },
   st() { const s = Quest.state(); if (!s.side || typeof s.side !== 'object' || Array.isArray(s.side)) s.side = {}; return s.side; },
-  def(id) { return SIDE_QUESTS.find(q => q.id === id) || null; },
+  def(id) { return this.all().find(q => q.id === id) || null; },
   rec(id) { const r = this.st()[id]; return r && typeof r === 'object' ? r : null; },
   isDone(id) { const r = this.rec(id); return !!(r && r.done); },
   isActive(id) { const r = this.rec(id); return !!(r && !r.done); },
   available(q) { if (this.rec(q.id)) return false; try { return !!q.req(); } catch (e) { return false; } },
-  active() { return SIDE_QUESTS.filter(q => this.isActive(q.id)); },
+  active() { return this.all().filter(q => this.isActive(q.id)); },
   step(q) { const r = this.rec(q.id); return r && !r.done ? q.steps[Math.min(r.k || 0, q.steps.length - 1)] : null; },
   npcName(id) { for (const m in MAP_DEFS) { const n = (MAP_DEFS[m].npcs || []).find(x => x.id === id); if (n) return n.name; } return id; },
   progress(q) {
     const st = this.step(q), r = this.rec(q.id); if (!st) return [0, 0];
     if (st.type === 'kill') return [Math.min(r.n || 0, st.n), st.n];
     if (st.type === 'collect') return [Math.min(countItem(st.item), st.n), st.n];
+    const X = this.STEPS[st.type]; if (X && X.progress) return X.progress(st, r);
     return [0, 1]; // talk: สำเร็จตอนคุยกับ NPC
   },
-  ready(q) { const st = this.step(q); if (!st) return false; if (st.type === 'talk') return true; const [a, b] = this.progress(q); return a >= b; },
+  ready(q) { const st = this.step(q); if (!st) return false; if (st.type === 'talk' || (this.STEPS[st.type] || {}).talk) return true; const [a, b] = this.progress(q); return a >= b; },
   objText(q) {
     const st = this.step(q); if (!st) return '';
     const [a, b] = this.progress(q), to = this.npcName(st.to);
     if (st.type === 'talk') return L(`คุยกับ ${to}`, `Talk to ${to}`);
+    const X = this.STEPS[st.type]; if (X && X.text) return X.text(st, a, b, to);
     const what = st.type === 'kill' ? MOBS[st.mob].name : ITEMS[st.item].name;
     return a >= b ? L(`${what} ${a}/${b} — ส่งที่ ${to}`, `${what} ${a}/${b} — turn in to ${to}`) : `${what} ${a}/${b}`;
   },
   navTarget(q) {
     const st = this.step(q); if (!st) return null;
+    const X = this.STEPS[st.type]; if (X && X.nav && !this.ready(q)) return X.nav(st);
     const o = this.ready(q) ? { type: 'talk', npc: st.to } : { type: st.type, mob: st.mob, npc: st.to };
     return Quest.navTarget({ obj: o });
   },
@@ -486,14 +494,14 @@ const Side = {
   async npcTalk(n) {
     if (!G.player) return;
     const nm = `[${n.name}]`;
-    for (const q of SIDE_QUESTS) {
+    for (const q of this.all()) {
       const st = this.step(q);
       if (!st || st.to !== n.id || !this.ready(q)) continue;
       if (st.say) await UI.say(nm, st.say);
       this.advance(q);
     }
     const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
-    const q = SIDE_QUESTS.find(x => x.giver === n.id && this.available(x) && !((this.snooze[x.id] || 0) > now));
+    const q = this.all().find(x => x.giver === n.id && this.available(x) && !((this.snooze[x.id] || 0) > now));
     if (!q) return;
     const c = await UI.menu(nm, L(`${q.offer}<br><br>📜 เควสต์เสริม ${B(q.title)} (ไม่บังคับ)<br>รางวัล: ${Quest.rewardText(q)}`, `${q.offer}<br><br>📜 Side quest ${B(q.title)} (optional)<br>Reward: ${Quest.rewardText(q)}`),
       [L('รับเควสต์', 'Accept'), L('ไว้ก่อน', 'Not now')]);
@@ -503,11 +511,11 @@ const Side = {
   // ---------- หน้าต่างเควสต์: การ์ดเควสต์เสริม (ใต้เควสต์หลัก) ----------
   key() {
     const act = this.active().map(q => `${q.id}:${this.rec(q.id).k || 0}:${this.progress(q).join('/')}`).join(',');
-    const av = SIDE_QUESTS.filter(q => this.available(q)).map(q => q.id).join(',');
-    return `${act}|${av}|${SIDE_QUESTS.filter(q => this.isDone(q.id)).length}`;
+    const all = this.all(), av = all.filter(q => this.available(q)).map(q => q.id).join(',');
+    return `${act}|${av}|${all.filter(q => this.isDone(q.id)).length}`;
   },
   card() {
-    const act = this.active(), av = SIDE_QUESTS.filter(q => this.available(q)), nDone = SIDE_QUESTS.filter(q => this.isDone(q.id)).length;
+    const all = this.all(), act = this.active(), av = all.filter(q => this.available(q)), nDone = all.filter(q => this.isDone(q.id)).length;
     if (!act.length && !av.length && !nDone) return null;
     const rows = act.map(q => {
       const [a, b] = this.progress(q), rd = this.ready(q);
@@ -518,7 +526,7 @@ const Side = {
     });
     const notes = [];
     if (av.length) notes.push(L(`มีงานเสริมรออยู่ที่: ${[...new Set(av.map(q => this.npcName(q.giver)))].join(', ')}`, `Side quests waiting with: ${[...new Set(av.map(q => this.npcName(q.giver)))].join(', ')}`));
-    notes.push(L(`สำเร็จแล้ว ${nDone}/${SIDE_QUESTS.length} • ไม่บังคับ — คุยกับ NPC เพื่อรับ/ส่ง`, `Completed ${nDone}/${SIDE_QUESTS.length} • optional — talk to NPCs to accept/turn in`));
+    notes.push(L(`สำเร็จแล้ว ${nDone}/${all.length} • ไม่บังคับ — คุยกับ NPC เพื่อรับ/ส่ง`, `Completed ${nDone}/${all.length} • optional — talk to NPCs to accept/turn in`));
     return h('div', { class: 'q-card q-bounty q-side' }, h('div', { class: 'dsec-h' }, ivIconEl('quest'), h('span', {}, L('เควสต์เสริม', 'Side Quests'))),
       rows.length ? h('div', { class: 'q-blist' }, ...rows) : null, h('p', { class: 'q-note' }, ...notes.flatMap((t, i) => (i ? [h('br'), t] : [t]))));
   },
