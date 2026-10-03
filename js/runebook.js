@@ -146,20 +146,20 @@ const Runebook = {
     const pick = this.skPick === undefined ? curId : this.skPick;
     const card = r => {
       const rid = r ? r.id : null, on = pick === rid, isCur = curId === rid;
-      // แผ่นหินแกะ: ช่องไอคอน 72px ซ้าย • ชื่อ + ป้ายแบบ + ตรา "ใช้อยู่" • คำอธิบาย (เลือกอยู่ = เต็ม / ไม่ได้เลือก = r.short: ผล + สิ่งที่แลก)
+      // การ์ด: เบ้ารูนซ้าย • ชื่อ + ป้ายแบบ + ตรา "ใช้อยู่" • r.short (ผล + สิ่งที่แลก) ทุกการ์ด — คำอธิบายเต็มของรูนที่เลือกอยู่ใน Details ใต้การ์ด
       return h('button', { type: 'button', class: 'rb-card' + (on ? ' sel' : '') + (isCur ? ' cur' : '') + (r ? '' : ' none') + (open ? '' : ' off'), 'data-rune': rid || '', 'aria-pressed': on ? 'true' : 'false',
         style: r && r.col ? `--rc:${r.col}` : null, onclick: () => { if (!open) return; this.skPick = rid; this.render(); } },
         this.runeIcon(r),
         h('span', { class: 'rb-card-t' },
           h('b', {}, r ? r.name : L('ไม่ใส่รูน', 'None')),
           r ? h('small', { class: 'rn-tag ' + r.intent }, Runes.INTENT[r.intent]()) : h('small', { class: 'rb-tag-none' }, L('สกิลแบบเดิม', 'Original'))),
-        r && !on && r.short ? this.shortEl(r) : h('span', { class: 'rb-card-d' }, r ? (on ? r.desc() : Runes.shortOf(r)) : on ? L(`${s.name} แบบเดิม ไม่เปลี่ยนวิธีเล่น`, `The original ${s.name}, unchanged.`) : L('ไม่เปลี่ยนวิธีเล่น', 'Unchanged')),
+        r && r.short ? this.shortEl(r) : h('span', { class: 'rb-card-d' }, r ? (on ? r.desc() : Runes.shortOf(r)) : on ? L(`${s.name} แบบเดิม ไม่เปลี่ยนวิธีเล่น`, `The original ${s.name}, unchanged.`) : L('ไม่เปลี่ยนวิธีเล่น', 'Unchanged')),
         isCur ? h('i', { class: 'rb-cur' }, L('ใช้อยู่', 'Current')) : on ? h('i', { class: 'rb-pick' }, '✓') : null);
     };
     const same = pick === curId;
     const label = !open ? `🔒 Skill Lv ${Runes.UNLOCK}` : same ? (pick ? L('ใช้รูนนี้อยู่ ✓', 'Chosen ✓') : L('ไม่ได้ใส่รูน ✓', 'No rune ✓'))
       : pick ? `Choose ${Runes.BY_ID[pick].name}` : L('Choose None (ถอดรูน)', 'Choose None');
-    const acts = [h('button', { type: 'button', class: 'btn big primary rb-choose', disabled: !open || busy || same ? 'disabled' : false,
+    const acts = [h('button', { type: 'button', class: 'btn big primary rb-choose' + (open && !busy && same ? ' cur' : ''), disabled: !open || busy || same ? 'disabled' : false,
       onclick: () => { if (Runes.set(id, pick)) { this.skPick = undefined; this.render(true); } } }, label)];
     if (!open) acts.push(h('button', { type: 'button', class: 'btn big rb-goskills', onclick: () => { UI.skTab = jobLine(G.player.job).find(j => (JOBS[j].skills || []).includes(id)) || UI.skTab; UI.open('w-skills'); } }, ivIconEl('skill'), L('เปิด Skills', 'Open Skills')));
     return [this.back(),
@@ -170,6 +170,7 @@ const Runebook = {
         `Raise ${s.name} to Lv ${Runes.UNLOCK} in the Skills window (S) first — now Lv ${lv} • you can preview both runes below`), 'rb-lock-note') : null,
       open && busy ? this.note(this.busyText(), 'rb-busy') : null,
       h('div', { class: 'rb-cards' + (open ? '' : ' off') }, card(null), ...list.map(card)),
+      pick && Runes.BY_ID[pick] && Runes.BY_ID[pick].short ? h('details', { class: 'det-more rb-more' }, h('summary', {}, 'Details'), h('p', {}, Runes.BY_ID[pick].desc())) : null,
       open ? this.note(L('แตะการ์ดเพื่อเลือก แล้วกด Choose • เลือกได้ 1 แบบต่อสกิล (หรือไม่ใส่) • เปลี่ยนได้ฟรีทุกที่ ยกเว้นระหว่างต่อสู้', 'Tap a card, then press Choose • 1 rune per skill (or none) • free to swap anywhere, except in combat')) : null,
       h('div', { class: 'det-acts' }, acts)];
   },
