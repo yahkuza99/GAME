@@ -42,6 +42,7 @@ const ICONS = {
   sword: '<path d="M19.6 4.4l-.6 4.2-9.3 9.3-3.6-3.6 9.3-9.3z"/><path d="M4.9 12.9l6.2 6.2"/><path d="M4.4 19.6l2.4-2.4"/>',
   sparkle: '<path d="M12 3.5l1.9 6.6 6.6 1.9-6.6 1.9L12 20.5l-1.9-6.6L3.5 12l6.6-1.9z"/>',
   crown: '<path d="M4 17.5l-1-10 5 4 4-6.5 4 6.5 5-4-1 10z"/><path d="M4.5 20.5h15"/>',
+  rune: '<path d="M7.6 2.8h8.8l3.2 4.4-.9 11.3-3.3 3H8.6l-3.3-3-.9-11.3z"/><path d="M10 7v10.2M10 7h2.4a2.4 2.4 0 0 1 0 4.8H10M12 11.8l3.1 5.4"/>', // Runes (js/runebook.js)
   bell: '<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
   // ช่องอุปกรณ์
   slot_head: '<path d="M5 16V12a7 7 0 0 1 14 0v4"/><path d="M5 16h5.2v3.5H5zM19 16h-5.2v3.5H19z"/><path d="M12 5v7.5"/>',
@@ -58,12 +59,12 @@ const WIN_ICONS = {
   'w-status': 'status', 'w-inv': 'bag', 'w-equip': 'equip', 'w-skills': 'skill', 'w-mob': 'mob', 'w-storage': 'storage', 'w-emote': 'emote',
   'w-quest': 'quest', 'w-nav': 'nav', 'w-party': 'party', 'w-options': 'options', 'w-shop': 'shop', 'w-map': 'map', 'w-world': 'world',
   'w-tree': 'tree', 'w-bot': 'bot', 'w-trade': 'trade', 'w-dialog': 'dialog', 'w-confirm': 'confirm', 'w-help': 'help', 'w-gacha': 'gacha',
-  'w-classbook': 'classbook', 'w-forge': 'forge', 'w-builds': 'builds',
+  'w-classbook': 'classbook', 'w-forge': 'forge', 'w-builds': 'builds', 'w-runes': 'rune',
 };
 // ปุ่มเมนู (data-win / data-ic) → ไอคอน
 const MENU_ICONS = {
   'w-status': 'status', 'w-inv': 'bag', 'w-equip': 'equip', 'w-skills': 'skill', 'w-tree': 'tree', 'w-map': 'map', 'w-quest': 'quest', 'w-party': 'party',
-  'w-emote': 'emote', 'w-nav': 'nav', 'w-bot': 'bot', 'w-options': 'options', 'w-help': 'help', 'w-trade': 'trade', 'w-classbook': 'classbook', 'w-gacha': 'gacha', 'w-builds': 'builds', sit: 'sit',
+  'w-emote': 'emote', 'w-nav': 'nav', 'w-bot': 'bot', 'w-options': 'options', 'w-help': 'help', 'w-trade': 'trade', 'w-classbook': 'classbook', 'w-gacha': 'gacha', 'w-builds': 'builds', 'w-runes': 'rune', sit: 'sit',
 };
 const ivIcon = (k, cls) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${cls ? ` class="${cls}"` : ''}>${ICONS[k] || ICONS.sparkle}</svg>`;
 // ไอคอนเป็น element (ใส่ในปุ่ม)

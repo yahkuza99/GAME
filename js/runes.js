@@ -325,7 +325,8 @@ Runes.skillRow = function (list, id) {
       h('b', {}, 'ᚱ Rune Paths'),
       h('span', {}, L(` — สกิล Lv ${this.UNLOCK} ปลดรูนชั้น I: เลือก 1 จาก 2 (หรือไม่เลือก) เปลี่ยนวิธีเล่นของสกิล • เปลี่ยนได้ฟรีทุกที่ ยกเว้นระหว่างต่อสู้`,
         ` — Skill Lv ${this.UNLOCK} unlocks tier-I runes: pick 1 of 2 (or none) to change how the skill plays • free to swap anywhere, except in combat`)),
-      busy ? h('em', { class: 'rn-busy-t' }, L(` ⚔ กำลังต่อสู้ — เปลี่ยนได้ในอีก ${Math.ceil(this.combatLeft())} วิ`, ` ⚔ In combat — swap in ${Math.ceil(this.combatLeft())}s`)) : null));
+      busy ? h('em', { class: 'rn-busy-t' }, L(` ⚔ กำลังต่อสู้ — เปลี่ยนได้ในอีก ${Math.ceil(this.combatLeft())} วิ`, ` ⚔ In combat — swap in ${Math.ceil(this.combatLeft())}s`)) : null,
+      typeof Runebook !== 'undefined' ? h('button', { type: 'button', class: 'btn small rn-manage', title: `Runes (${Runebook.KEY})`, onclick: e => { e.stopPropagation(); Runebook.open('skill'); } }, L(`จัดการใน Runes (${Runebook.KEY})`, `Manage in Runes (${Runebook.KEY})`)) : null)); // หน้าต่าง Runes รวมทั้งสองระบบ (js/runebook.js)
   }
   const row = h('div', { class: 'rn-row' + (open ? '' : ' locked') + (busy ? ' busy' : ''), 'data-skill': id },
     h('div', { class: 'rn-head' },

@@ -11,7 +11,7 @@
 //  • ลานประลอง (PvP): ใช้ได้แค่ Human Slayer (+10%) • Endow เจอเกราะธาตุกลาง (×1) • Slayer อื่น/เงื่อนไขไม่ทำงาน
 //  เซฟ: p.hrunes = [ช่อง I, ช่อง II] (id หรือ null) • p.hrunesOwn = id ที่ซื้อแล้ว • เซฟเก่าไม่มี = ว่าง
 //  ข้อมูลไอเทม (ชื่อ/คำอธิบาย) เป็นภาษาอังกฤษ — ITEMS[id].type = 'hrune' (ไม่เข้ากระเป๋า)
-//  หน้าต่าง: #w-hrunes (ช่องรูน) • แท็บ Runes ในกระเป๋า • แท็บ Hunt Rune ในเตาของ Brokk • CSS: css/huntrunes.css
+//  หน้าต่าง: ใส่ช่องที่หน้าต่าง Runes (js/runebook.js — #w-hrunes เดิมเปิดไปที่นั่น) • แท็บ Runes ในกระเป๋า • แท็บ Hunt Rune ในเตาของ Brokk • CSS: css/huntrunes.css
 // ============================================================
 
 const HR_UNLOCK = [15, 35], HR_CAP = 0.45, HR_SLAY = 0.20, HR_SLAY_PVP = 0.20; // กติกาเดียวทุกที่ (เจ้าของ: ไม่แยก PvE/PvP) — Human Slayer แรงเท่า Slayer อื่น
@@ -203,7 +203,7 @@ const HuntRunes = {
     if (p.zeny < d.price) { UI.msg(L(`${CUR} ไม่พอ (ต้องใช้ ${U.fmt(d.price)})`, `Not enough ${CUR} (needs ${U.fmt(d.price)}).`), 'err'); return false; }
     p.zeny -= d.price; this.own(p).push(id);
     if (typeof Sound !== 'undefined') Sound.play('buy');
-    UI.msg(L(`ได้รับ ${d.name} — ใส่ได้ที่ Status → Hunt Rune`, `Obtained ${d.name} — socket it from Status → Hunt Rune.`), 'sys');
+    UI.msg(L(`ได้รับ ${d.name} — ใส่ช่องได้ที่เมนู Runes (Shift+R) → Hunt Runes`, `Obtained ${d.name} — socket it in Runes (Shift+R) → Hunt Runes.`), 'sys');
     saveGame(); UI.dirty();
     return true;
   },
@@ -276,7 +276,7 @@ const HuntRunes = {
   // แท็บ Runes ในกระเป๋า: หน้ารายละเอียด
   invDetail(e, back) {
     const d = this.def(e.id);
-    return [back, ...UI.itemDetail(e, [...this.slotBtns(e.id), h('button', { type: 'button', class: 'btn big', 'data-open': 'w-hrunes' }, 'Hunt Runes…')],
+    return [back, ...UI.itemDetail(e, [...this.slotBtns(e.id), h('button', { type: 'button', class: 'btn big', 'data-open': typeof Runebook !== 'undefined' ? null : 'w-hrunes', onclick: () => { if (typeof Runebook !== 'undefined') Runebook.open('hunt', e.id); } }, 'Open in Runes')],
       this.canChange() ? L('ใส่/ถอดได้ฟรีทุกที่ ยกเว้นระหว่างต่อสู้', 'Free to swap anywhere, except in combat') : this.busyMsg(),
       { noPrice: true, lead: [this.infoSec(d)] })];
   },
@@ -301,10 +301,10 @@ const HuntRunes = {
     let right;
     if (cur) {
       const d = this.def(cur), own = this.owns(cur), e = this.entry(cur);
-      const acts = own ? [h('button', { type: 'button', class: 'btn big primary', 'data-open': 'w-hrunes' }, 'Socket…')]
+      const acts = own ? [h('button', { type: 'button', class: 'btn big primary', 'data-open': typeof Runebook !== 'undefined' ? null : 'w-hrunes', onclick: () => { if (typeof Runebook !== 'undefined') Runebook.open('hunt', cur); } }, 'Socket in Runes…')]
         : [h('button', { type: 'button', class: 'btn big primary hr-buy', disabled: p.zeny < d.price ? 'disabled' : false, onclick: () => { if (this.buy(cur)) UI.renderForge(); } },
           ivIconEl('shop'), `Forge · ${U.fmt(d.price)} ${CUR}`)];
-      right = [back, ...UI.itemDetail(e, acts, own ? L('มีแล้ว — ใส่ได้ที่ Status → Hunt Rune', 'Owned — socket it from Status → Hunt Rune')
+      right = [back, ...UI.itemDetail(e, acts, own ? L('มีแล้ว — ใส่ช่องได้ที่เมนู Runes (Shift+R) → Hunt Runes', 'Owned — socket it in Runes (Shift+R) → Hunt Runes')
         : L(`Brokk ตีรูนให้ ${U.fmt(d.price)} ${CUR} • ปลดช่อง I ที่ Base Lv ${HR_UNLOCK[0]}, ช่อง II ที่ Lv ${HR_UNLOCK[1]}`, `Brokk forges it for ${U.fmt(d.price)} ${CUR} • slot I unlocks at Base Lv ${HR_UNLOCK[0]}, slot II at Lv ${HR_UNLOCK[1]}`),
       { noPrice: true, lead: [this.infoSec(d)] })];
     } else right = UI.emptyState('gem', L('เลือกรูนทางซ้าย', 'Pick a rune'), L('Slayer = ตีเผ่านั้นแรงขึ้น • Endow = เปลี่ยนธาตุการโจมตี • Conditional = แรงขึ้นตามสถานการณ์', 'Slayer = bonus vs a race • Endow = change your attack element • Conditional = bonus in a situation'));
@@ -319,7 +319,7 @@ const HuntRunes = {
         return h('span', { class: 'hr-st-s' + (lock ? ' lock' : d ? '' : ' empty') }, d ? h('img', { src: itemIconUrl(d.id), alt: '' }) : null,
           lock ? `🔒 Lv ${HR_UNLOCK[i]}` : d ? d.name.replace(/ Rune$/, '') : L('ว่าง', 'Empty'));
       }),
-      h('button', { type: 'button', class: 'btn small', 'data-open': 'w-hrunes' }, L('จัดการ', 'Manage')));
+      h('button', { type: 'button', class: 'btn small', 'data-open': 'w-hrunes' }, L('จัดการใน Runes', 'Manage in Runes'))); // #w-hrunes → หน้าต่าง Runes แท็บ Hunt (js/runebook.js)
   },
   // หน้าต่าง #w-hrunes
   render() {
