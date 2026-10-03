@@ -430,7 +430,8 @@ body.visor:not(.pad-mode) #hud:has(#buffs .buff) #quest-track { top: calc(var(--
 body.visor:not(.pad-mode) #buffs { top: calc(var(--s3) + var(--st) + 112px); }
 /* เป้าหมาย (กลางบน) */
 body.visor:not(.pad-mode) #target { padding: 5px 14px 6px 5px; border-radius: var(--rad-pill); background: linear-gradient(180deg, rgba(64, 41, 20, 0.9), rgba(36, 23, 11, 0.88)); border: 1px solid var(--c-hud-line); box-shadow: var(--sh-hud); }
-body.visor #target .gauge { height: 8px; border-radius: var(--rad-pill); background: rgba(10, 6, 2, 0.6); overflow: hidden; }
+body.visor #target .gauge { height: 8px; border-radius: var(--rad-pill); background: rgba(10, 6, 2, 0.6); overflow: visible; }
+body.visor #target .gauge span { top: calc(100% + 3px); } /* ตัวเลข HP ใต้หลอด (เดิม overflow:hidden ตัดครึ่งบรรทัด) */
 body.visor #target .gauge .fill { background: linear-gradient(180deg, var(--c-hp-2), var(--c-hp) 60%, #b22a24); border-radius: inherit; }
 body.visor #target.boss .gauge .fill { background: linear-gradient(180deg, #ffe69c, #e3a43a); }
 /* แชท (ซ้ายล่าง เหนือแถบลัด) */
