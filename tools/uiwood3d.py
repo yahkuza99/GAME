@@ -11,7 +11,8 @@
 ใช้:
   /tmp/bvenv/bin/python tools/uiwood3d.py --render [--only frame,hud,...] [--samples 96] [--raw /tmp/uiwood3d_raw]
   /tmp/bvenv/bin/python tools/uiwood3d.py --install [--raw /tmp/uiwood3d_raw]     → assets/ui3d_<ชื่อ>.webp + assets/manifest.json
-CSS ที่ใช้ภาพชุดนี้: css/theme5.css (ขนาด slice ใน CSS ต้องตรงกับค่า SLICE ด้านล่าง ÷ 2)
+CSS ที่ใช้ภาพชุดนี้: css/theme5.css + css/theme6.css (ชุดลวดลายประดับ: knot/runeband/scroll/portrait/medal/flourish/gem)
+  (ขนาด slice ใน CSS ต้องตรงกับค่า SPEC ด้านล่าง ÷ 2)
 """
 import math, os, sys, json
 
@@ -169,6 +170,14 @@ SPEC = {
     'niche':  dict(W=240, H=240, C=60),
     'wood':   dict(W=512, H=256),
     'paper':  dict(W=512, H=512),
+    # ---- ชุดลวดลายประดับ (css/theme6.css) ----
+    'knot':     dict(W=304, H=304, C=144, P=16),    # มุมหน้าต่าง: ลายถักนอร์ส 4 มุม (แสงซ้ายบนทุกมุม) • ขอบ/กลางโปร่ง
+    'runeband': dict(W=368, H=28, C=28, P=156),     # ราวสลักรูนลงยาทอง หลังป้ายหัวหน้าต่าง
+    'scroll':   dict(W=208, H=56, C=40, P=64, R=24),  # ไม้ม้วนคัมภีร์บน/ล่าง (แผงเควสต์/แชต)
+    'portrait': dict(W=144, H=144),                 # กรอบรูปตัวละคร
+    'medal':    dict(W=112, H=40),                  # เหรียญคั่นส่วน
+    'flourish': dict(W=580, H=96),                  # ลายเครือเถา (ป้ายเลเวลอัป/เควสต์สำเร็จ)
+    'gem':      dict(W=32, H=32),                   # อัญมณีในเบ้า (แท็บที่เลือก)
 }
 
 
@@ -237,8 +246,7 @@ def frame_fields(X, Y, W, H, C, P, T, kind='frame'):
         arm, aw = 40, 18
         cap = sd_poly(a, b, [(0, 0), (arm - 6, 0), (arm, aw / 2), (arm - 6, aw), (aw, aw), (aw, arm - 6), (aw / 2, arm), (0, arm - 6)])
         ch = 11.5 + bevel(cap, 2.5, 2.2, 'round')
-        rv = dome(a, b, 9.5, 9.5, 3.6, 3.4)
-        ch = ch + rv
+        rv = np.zeros_like(a)                                     # (เดิม: หมุดโดม) → อัญมณีโกเมนในเบ้า ใส่หลังลงวัสดุ
         cavity_ring = np.zeros_like(a)
     capm = cover(cap)
     h = h * (1 - capm) + np.maximum(h, ch) * capm
@@ -254,6 +262,8 @@ def frame_fields(X, Y, W, H, C, P, T, kind='frame'):
     fil_col = brass_cols(np.zeros_like(u) + 0.15, np.zeros_like(u), tex)
     L.put(bm, fil_col, (1, 0.32, 0, 0), tex * 0.05)
     L.put(capm, bcol, (1, 0.3 + 0.15 * cav.mean(), 0, 0), tex * 0.05)
+    if kind == 'hud':
+        h = put_gem(L, h, a, b, 9.5, 9.5, 4.6, '#a8101c', seat=1.4, z0=12.5)
     return dict(h=h, alb=L.alb, par=L.par, det=L.det, a=L.a)
 
 
@@ -331,6 +341,12 @@ def button_fields(X, Y, W, H, C, P, kind):
         L.put(m, rimc, (1, 0.38, 0, 0), tex * 0.05)
         L.put(cover(inner) * m, pap, (0, 0.8, 0, 0), tx(pnoise(H, W, 1.2, 1.2, 3), X, Y) * 0.6)
         L.put(groove * m, srgb('#6e4a20'), (0, 0.8, 0, 0), 0)
+    if kind.startswith('tab'):                                    # หมุดย้ำ 4 มุม (ชิ้นมุม 9-slice → ไม่ถูกยืด)
+        aa = np.minimum(X, W - X); bb = np.minimum(Y, H - Y)
+        sdr = sd_circle(aa, bb, 14.5, 13.5, 2.7)
+        h = np.where(sdr < 0, np.maximum(h, 8.2 + dome(aa, bb, 14.5, 13.5, 2.7, 2.2)), h)
+        rc = srgb('#5a3810') if kind == 'tab_on' else srgb('#c8973e')
+        L.put(cover(sdr) * m, rc[None, None, :] * np.ones(X.shape + (3,)), (1, 0.3, 0, 0), 0)
     return dict(h=h, alb=L.alb, par=L.par, det=L.det, a=m)
 
 
@@ -407,6 +423,10 @@ def ring_fields(X, Y, W, H):
     tex = tx(pnoise(H, W, 5, 5, 23), X, Y)
     m = cover(sd)
     L.put(m, brass_cols(np.maximum(0.6 * (tick | (groove > 0.5)).astype(float), 0.85 * let), np.clip(1 - np.abs(sd + 2) / 2.5, 0, 1) * 0.5, tex), (1, 0.3, 0, 0), tex * 0.05)
+    for i in range(4):                                            # อัญมณีโกเมน 4 ทิศทแยง (ชุดลวดลายประดับ)
+        a = math.radians(45 + 90 * i); gx_, gy_ = c + math.sin(a) * (rr - 1), c - math.cos(a) * (rr - 1)
+        h = np.where(sd_circle(X, Y, gx_, gy_, 9) < 0, np.minimum(h, 9.5), h)
+        h = put_gem(L, h, X, Y, gx_, gy_, 6.2, '#a8101c', seat=2.0, z0=9.0)
     return dict(h=h, alb=L.alb, par=L.par, det=L.det, a=m)
 
 
@@ -451,6 +471,365 @@ def paper_tile(X, Y, W, H):
     return dict(h=np.zeros(X.shape), alb=L.alb, par=L.par, det=L.det, a=np.ones(X.shape))
 
 
+# ============================================================
+#  ชุดลวดลายประดับ (Ornament pass • css/theme6.css) — ลายถักนอร์ส (knotwork) แบบลอดเหนือ-ใต้สลับจริง
+#  เส้นโค้ง (polyline) → หาจุดตัดทั้งหมด → ระบายสองสี (เหนือ/ใต้) ให้สลับกันตามแนวเส้น → ริบบิ้นนูนมีร่องกลาง + ช่องว่างรอบเส้นที่ลอดใต้
+# ============================================================
+def curve(fn, n, t0=0.0, t1=2 * math.pi, closed=True):
+    t = np.linspace(t0, t1, n, endpoint=not closed)
+    return (np.array([fn(v) for v in t], float), closed)
+
+
+def spiral(cx, cy, r0, r1, a0, turns, n=90, cw=1):
+    """เกลียวก้นหอย: จากรัศมี r0 (มุม a0) ม้วนเข้า r1 จำนวน turns รอบ (cw = ทิศหมุน)"""
+    t = np.linspace(0, 1, n)
+    r = r0 * (r1 / r0) ** t; a = a0 + cw * t * turns * 2 * math.pi
+    return np.stack([cx + r * np.cos(a), cy + r * np.sin(a)], -1)
+
+
+def _segs(curves):
+    S = []
+    for ci, (P, closed) in enumerate(curves):
+        n = len(P); m = n if closed else n - 1
+        L = np.hypot(*np.diff(np.vstack([P, P[:1]]) if closed else P, axis=0).T)
+        cum = np.concatenate([[0], np.cumsum(L)])
+        for i in range(m):
+            S.append((ci, i, P[i], P[(i + 1) % n], cum[i], cum[i + 1], m, closed))
+    return S
+
+
+def _weave(curves, S, dz, sigma):
+    """จุดตัด → ระดับเหนือ/ใต้ (+dz/-dz) ของแต่ละเส้นตามระยะทาง → z ที่ปลายแต่ละท่อน"""
+    n = len(S)
+    A = np.array([s[2] for s in S]); B = np.array([s[3] for s in S])
+    ci = np.array([s[0] for s in S]); ii = np.array([s[1] for s in S]); mm = np.array([s[6] for s in S]); cl = np.array([s[7] for s in S])
+    d1 = B - A
+    # จุดตัดของท่อนทุกคู่ (i < j)
+    rx = d1[:, None, 0]; ry = d1[:, None, 1]; sx = d1[None, :, 0]; sy = d1[None, :, 1]
+    qpx = A[None, :, 0] - A[:, None, 0]; qpy = A[None, :, 1] - A[:, None, 1]
+    den = rx * sy - ry * sx
+    with np.errstate(divide='ignore', invalid='ignore'):
+        t = (qpx * sy - qpy * sx) / den; u = (qpx * ry - qpy * rx) / den
+    hit = (np.abs(den) > 1e-9) & (t >= 0) & (t < 1) & (u >= 0) & (u < 1)
+    same = ci[:, None] == ci[None, :]
+    gap = np.abs(ii[:, None] - ii[None, :]); gap = np.where(same & cl[:, None], np.minimum(gap, mm[:, None] - gap), gap)
+    hit &= ~(same & (gap <= 1)); hit &= np.triu(np.ones((n, n), bool), 1)
+    vis = []          # (curve, s, crossing id)
+    clen = {}
+    for s_ in S: clen[s_[0]] = max(clen.get(s_[0], 0), s_[5])
+    def near_end(c, s):   # ปลายเส้นเปิดที่งอกออกจากเส้นอื่น = รอยต่อ (หลอมรวม) ไม่ใช่จุดลอด
+        return (not curves[c][1]) and (s < sigma * 1.3 or s > clen[c] - sigma * 1.3)
+    for k, (i, j) in enumerate(zip(*np.nonzero(hit))):
+        si = S[i][4] + t[i, j] * (S[i][5] - S[i][4]); sj = S[j][4] + u[i, j] * (S[j][5] - S[j][4])
+        if near_end(S[i][0], si) or near_end(S[j][0], sj): continue
+        vis.append((S[i][0], si, k)); vis.append((S[j][0], sj, k))
+    # ระบายสอง สี: จุดเดียวกัน = ตรงข้าม • ลำดับติดกันบนเส้นเดียวกัน = ตรงข้าม
+    from collections import defaultdict, deque
+    adj = defaultdict(list); byc = defaultdict(list); byk = defaultdict(list)
+    for vi, (c, s, k) in enumerate(vis): byc[c].append(vi); byk[k].append(vi)
+    for k, vv in byk.items():
+        if len(vv) == 2: adj[vv[0]].append(vv[1]); adj[vv[1]].append(vv[0])
+    for c, vv in byc.items():
+        vv.sort(key=lambda v: vis[v][1])
+        for a, b in zip(vv, vv[1:]): adj[a].append(b); adj[b].append(a)
+        if curves[c][1] and len(vv) > 2 and len(vv) % 2 == 0: adj[vv[0]].append(vv[-1]); adj[vv[-1]].append(vv[0])
+    col = {}
+    for st in range(len(vis)):
+        if st in col: continue
+        col[st] = 1; dq = deque([st])
+        while dq:
+            v = dq.popleft()
+            for w in adj[v]:
+                if w not in col: col[w] = -col[v]; dq.append(w)
+    zc = defaultdict(list)
+    for vi, (c, s, k) in enumerate(vis): zc[c].append((s, col[vi]))
+    def zf(c, s):
+        tot = curves[c]
+        out = np.zeros_like(s)
+        per = None
+        if tot[1]:
+            P = tot[0]; per = np.hypot(*np.diff(np.vstack([P, P[:1]]), axis=0).T).sum()
+        for s0, sg in zc[c]:
+            ds = s - s0
+            if per: ds = (ds + per / 2) % per - per / 2
+            out = out + sg * dz * np.exp(-(ds / sigma) ** 2)
+        return np.clip(out, -dz, dz)
+    z0 = np.array([zf(s[0], np.array([s[4]]))[0] for s in S]); z1 = np.array([zf(s[0], np.array([s[5]]))[0] for s in S])
+    return z0, z1, len(byk)
+
+
+def ribbons(Xa, Ya, curves, hw=3.2, gap=1.6, base=6.0, hb=2.6, dz=2.2, groove=0.9):
+    """ลายถัก: Xa/Ya = พิกัด (ค่า X ขึ้นกับคอลัมน์เท่านั้น, Y ขึ้นกับแถว) → dict(h, m (ริบบิ้น), cav (ร่อง/ขอบ), d)"""
+    xs = np.unique(Xa); ys = np.unique(Ya)
+    GX, GY = np.meshgrid(xs, ys)
+    S = _segs(curves)
+    z0, z1, ncross = _weave(curves, S, dz, sigma=hw * 2.4)
+    best = np.full(GX.shape, -1e9); bd = np.full(GX.shape, 1e9); bz = np.zeros(GX.shape)
+    R = hw + gap
+    for k, (c, i, p0, p1, s0, s1, m, closed) in enumerate(S):
+        x0 = min(p0[0], p1[0]) - R - 1; x1 = max(p0[0], p1[0]) + R + 1; y0 = min(p0[1], p1[1]) - R - 1; y1 = max(p0[1], p1[1]) + R + 1
+        a0, a1 = np.searchsorted(xs, [x0, x1]); b0, b1 = np.searchsorted(ys, [y0, y1])
+        if a1 <= a0 or b1 <= b0: continue
+        gx = GX[b0:b1, a0:a1]; gy = GY[b0:b1, a0:a1]
+        ex, ey = p1[0] - p0[0], p1[1] - p0[1]; ll = ex * ex + ey * ey + 1e-12
+        tt = np.clip(((gx - p0[0]) * ex + (gy - p0[1]) * ey) / ll, 0, 1)
+        d = np.hypot(gx - p0[0] - ex * tt, gy - p0[1] - ey * tt)
+        z = z0[k] + (z1[k] - z0[k]) * tt
+        key = z - 1.0 * d          # ท่อนเดียวกัน: ใกล้สุดชนะ (ความชัน z ≤ 0.4/px) • จุดตัด: เส้นบนชนะในช่องว่างรอบตัว
+        upd = (d < R) & (key > best[b0:b1, a0:a1])
+        best[b0:b1, a0:a1] = np.where(upd, key, best[b0:b1, a0:a1])
+        bd[b0:b1, a0:a1] = np.where(upd, d, bd[b0:b1, a0:a1])
+        bz[b0:b1, a0:a1] = np.where(upd, z, bz[b0:b1, a0:a1])
+    prof = np.sqrt(np.clip(1 - (bd / hw) ** 2, 0, 1))
+    hh = base + bz + hb * prof - groove * np.exp(-(bd / 0.75) ** 2)
+    m = cover(bd - hw, 0.6)
+    cav = np.clip(0.75 * np.exp(-(bd / 0.8) ** 2) + 0.55 * sstep(hw * 0.55, hw, bd), 0, 1)
+    hh = np.where(m > 0, hh, 0.0)
+    xi = np.searchsorted(xs, Xa); yi = np.searchsorted(ys, Ya)
+    return dict(h=hh[yi, xi], m=m[yi, xi], cav=cav[yi, xi], d=bd[yi, xi], n=ncross)
+
+
+def gold_cols(cav, tex, bright=1.0):
+    """ทองขัดเงา (ลายถัก): สว่างกว่าทองเหลืองกรอบ • ร่อง = คราบเข้ม"""
+    base = srgb('#e8b85a') * bright; dark = srgb('#5a3a10')
+    t = np.clip(cav, 0, 1)[..., None]
+    return np.clip((base * (1 - t) + dark * t) * (0.95 + 0.05 * tex[..., None]), 0, 1)
+
+
+def put_gem(L, h, X, Y, cx, cy, r, col='#b0121e', seat=1.6, hgt=None, z0=7.5):
+    """อัญมณีหลังเต่า (cabochon) ในเบ้าทองเหลือง → คืนค่าความสูงใหม่"""
+    hgt = hgt if hgt is not None else r * 0.75
+    sd = sd_circle(X, Y, cx, cy, r + seat)
+    bez = cover(sd)
+    h = np.where(sd < 0, np.maximum(h, z0 + bevel(sd, 1.2, 1.4, 'round')), h)
+    gm = sd_circle(X, Y, cx, cy, r)
+    h = np.where(gm < 0, np.maximum(h, z0 + dome(X, Y, cx, cy, r, hgt)), h)
+    L.put(bez, brass_cols(np.zeros_like(X) + 0.25, np.zeros_like(X), np.zeros_like(X)), (1, 0.3, 0, 0), 0)
+    rr = np.hypot(X - cx, Y - cy) / r
+    gc = srgb(col)[None, None, :] * (0.55 + 0.45 * np.clip(1 - rr, 0, 1))[..., None] + srgb('#ff8a70') * 0.25 * np.exp(-((X - cx + r * 0.3) ** 2 + (Y - cy + r * 0.3) ** 2) / (r * 0.35) ** 2)[..., None]
+    L.put(cover(gm), np.clip(gc, 0, 1), (0, 0.06, 1.0, 0), 0)
+    return h
+
+
+def trefoil(cx, cy, s, rot, n=260):
+    """ตรีเกตรา (trefoil) — ปมสามแฉก ลอดสลับ 3 จุด"""
+    ca, sa = math.cos(rot), math.sin(rot)
+    def f(t):
+        x = math.sin(t) + 2 * math.sin(2 * t); y = math.cos(t) - 2 * math.cos(2 * t)
+        return (cx + s * (x * ca - y * sa), cy + s * (x * sa + y * ca))
+    return curve(f, n)
+
+
+def knot_corner(A, B):
+    """มุมหน้าต่าง (พิกัดมุม: a,b = ระยะจากขอบนอก 2×): ตรีเกตรา+วงแหวน ครอบฝามุม + เกลียวถักสองเส้นวิ่งตามแท่งไม้ทั้งสองด้าน"""
+    # ทิศแฉก: แฉกหนึ่งชี้ออกนอกมุม (225°) อีกสองแฉกวิ่งตามแท่ง
+    cx = cy = 29.0
+    # trefoil มาตรฐานมีแฉกที่มุม 270°+k·120° (y ลง) → หมุนให้แฉกชี้ 225°
+    tre = trefoil(cx, cy, 7.3, math.radians(225 - 270))
+    ring = curve(lambda t: (cx + 13.5 * math.cos(t), cy + 13.5 * math.sin(t)), 140)
+    cs = [tre, ring]
+    lam, amp, u0 = 28.0, 6.2, 15.5
+    for horiz in (True, False):
+        for sg, ph in ((1, 0.0), (-1, 0.37)):
+            s = np.arange(46 + ph, 135.2, 1.0)                 # เริ่มแยกกันใต้แฉกตรีเกตรา → ไปบรรจบใต้หมุดปลายแขน (s=135)
+            v = u0 + sg * amp * np.cos(2 * math.pi * (s - 44) / lam)
+            P = np.stack([s, v], -1) if horiz else np.stack([v, s], -1)
+            cs.append((P, False))
+    r = ribbons(A, B, cs, hw=3.1, gap=1.5, base=6.5, hb=2.4, dz=2.2)
+    return r
+
+
+def knot_fields(X, Y, W, H):
+    L = Layers(X.shape)
+    a = np.minimum(X, W - X); b = np.minimum(Y, H - Y)
+    r = knot_corner(a, b)
+    h = r['h']
+    tex = tx(pnoise(64, 64, 5, 5, 71), X, Y)
+    L.put(r['m'], gold_cols(r['cav'], tex), (1, 0.26, 0, 0), tex * 0.04)
+    # หัวหมุดปลายเกลียว (ปลายแขนทั้งสอง)
+    for (px, py) in ((135, 15.5), (15.5, 135)):
+        sd = sd_circle(a, b, px, py, 4.6)
+        h = np.where(sd < 0, np.maximum(h, 7 + dome(a, b, px, py, 4.6, 4.0)), h)
+        L.put(cover(sd), brass_cols(np.zeros_like(X) + 0.1, np.zeros_like(X) + 0.3, tex), (1, 0.28, 0, 0), 0)
+    # อัญมณีกลางปม
+    h = put_gem(L, h, a, b, 29, 29, 3.8, seat=1.1)
+    L.a = np.maximum(L.a, 0)
+    return dict(h=h, alb=L.alb, par=L.par, det=L.det, a=L.a)
+
+
+RUNES = {   # อักษรรูน Elder Futhark (เส้นในกล่อง กว้าง≤0.7 สูง 1, y ลง)
+    'f': [[(0, 0), (0, 1)], [(0, 0.35), (0.5, 0.05)], [(0, 0.62), (0.5, 0.32)]],
+    'u': [[(0, 1), (0, 0), (0.5, 0.3), (0.5, 1)]],
+    'th': [[(0, 0), (0, 1)], [(0, 0.25), (0.45, 0.5), (0, 0.75)]],
+    'a': [[(0, 0), (0, 1)], [(0, 0.05), (0.45, 0.3)], [(0, 0.35), (0.45, 0.6)]],
+    'r': [[(0, 1), (0, 0), (0.45, 0.22), (0, 0.45), (0.45, 1)]],
+    'k': [[(0.45, 0.2), (0, 0.5), (0.45, 0.8)]],
+    'g': [[(0, 0), (0.6, 1)], [(0.6, 0), (0, 1)]],
+    'w': [[(0, 1), (0, 0), (0.45, 0.22), (0, 0.45)]],
+    'h': [[(0, 0), (0, 1)], [(0.5, 0), (0.5, 1)], [(0, 0.35), (0.5, 0.65)]],
+    'n': [[(0.25, 0), (0.25, 1)], [(0, 0.35), (0.5, 0.65)]],
+    'i': [[(0.1, 0), (0.1, 1)]],
+    't': [[(0.3, 0), (0.3, 1)], [(0, 0.3), (0.3, 0), (0.6, 0.3)]],
+    'b': [[(0, 0), (0, 1)], [(0, 0), (0.45, 0.25), (0, 0.5), (0.45, 0.75), (0, 1)]],
+    'z': [[(0.3, 0), (0.3, 1)], [(0, 0), (0.3, 0.4), (0.6, 0)]],
+    'o': [[(0.3, 0), (0.6, 0.35), (0, 1)], [(0.3, 0), (0, 0.35), (0.6, 1)]],
+    'd': [[(0, 0), (0, 1), (0.7, 0), (0.7, 1), (0, 0)]],
+    'm': [[(0, 0), (0, 1)], [(0.6, 0), (0.6, 1)], [(0, 0), (0.6, 0.45)], [(0.6, 0), (0, 0.45)]],
+    's': [[(0.45, 0), (0, 0.35), (0.45, 0.65), (0, 1)]],
+    'l': [[(0, 1), (0, 0), (0.45, 0.3)]],
+}
+
+
+def runeband_fields(X, Y, W, H, C, P):
+    """ราวสลักรูน: แถบบรอนซ์ดำ ขอบทองเหลืองบน/ล่าง • อักษรรูนแกะลึกลงยาทอง (คาบ P = 8 ตัว) • ปลายมน + หมุดโดม (9-slice แนวนอน)"""
+    from PIL import Image, ImageDraw
+    L = Layers(X.shape)
+    sd = sd_box(X, Y, W / 2, H / 2, W / 2 - 1, H / 2 - 2, 6)
+    inner = sd_box(X, Y, W / 2, H / 2, W / 2 - 4, H / 2 - 5.5, 3)
+    h = bevel(sd, 3, 6, 'round')
+    h = np.where(inner < 0, 5.0 + 0.4 * sstep(0, 3, -inner), h)
+    rim = cover(sd) * (1 - cover(inner))
+    S2 = 4; M = Image.new('L', (P * S2, H * S2), 0); dr = ImageDraw.Draw(M)
+    seq = ['f', 'u', 'th', 'a', 'r', 'k', 'g', 'w', 'h', 'n', 'i', 't', 'b', 'o', 'd', 'm', 's', 'l', 'z']
+    step = P / 8; gh = 12.0
+    for k in range(8):
+        g = RUNES[seq[(k * 5 + 1) % len(seq)]]
+        x0 = k * step + step / 2 - 3.2; y0 = H / 2 - gh / 2
+        for st in g:
+            pts = [((x0 + px * 9.0) * S2, (y0 + py * gh) * S2) for px, py in st]
+            dr.line(pts, fill=255, width=int(1.7 * S2), joint='curve')
+        cxp = (k * step) * S2; dr.ellipse([cxp - 1.2 * S2, H / 2 * S2 - 1.2 * S2, cxp + 1.2 * S2, H / 2 * S2 + 1.2 * S2], fill=255)
+    M = np.asarray(M.resize((P, H), Image.LANCZOS), float) / 255
+    let = sample(M, Y - 0.5, np.mod(X - C, P) - 0.5) * (X > C - 2) * (X < W - C + 2)
+    h = h - 1.1 * let
+    tex = tx(pnoise(H, W, 4, 4, 81), X, Y)
+    a = np.minimum(X, W - X)
+    rv = dome(a, Y, 12, H / 2, 5.2, 4.0)
+    h = np.maximum(h, np.where(rv > 0, 5 + rv, 0))
+    m = cover(sd)
+    L.put(m, srgb('#2a1c10') * (0.85 + 0.15 * tex[..., None]), (0.7, 0.42, 0.3, 0), tex * 0.05)
+    wear = np.clip(1 - np.abs(sd + 1.5) / 2, 0, 1) * 0.5
+    L.put(np.maximum(rim, cover(sd_circle(a, Y, 12, H / 2, 5.2))) * m, brass_cols(np.zeros_like(X) + 0.15, wear, tex), (1, 0.3, 0, 0), tex * 0.04)
+    L.put(np.clip(let * 1.4, 0, 1) * m, gold_cols(np.zeros_like(X), tex, 1.08), (1, 0.28, 0, 0), 0)
+    return dict(h=h, alb=L.alb, par=L.par, det=L.det, a=m)
+
+
+def scroll_fields(X, Y, W, H, C, P, R):
+    """ไม้ม้วนคัมภีร์ บน/ล่าง (แผงเควสต์/แชต): แกนไม้โอ๊คกลึง + ปลอกทองเหลือง + หัวจุกกลึงสองข้าง • กลางภาพโปร่ง"""
+    L = Layers(X.shape)
+    h = np.zeros_like(X); a_m = np.zeros_like(X)
+    tex = tx(pnoise(H, W, 4, 4, 91), X, Y)
+    gw, gd = wood_tex(32, P, 93, 'x', dark=True)
+    for yc in (R / 2, H - R / 2):
+        rr = 8.5                                         # รัศมีแกน
+        a = np.minimum(X, W - X)                         # ระยะจากปลาย
+        dy = np.abs(Y - yc)
+        cyl = np.sqrt(np.clip(1 - (dy / rr) ** 2, 0, 1)) * rr
+        body = (a >= 25) & (dy < rr)
+        h = np.where(body, np.maximum(h, 2 + cyl), h)
+        wc = sample_rgb(gw, Y - yc + 16, np.mod(X, P)); wd = sample(gd, Y - yc + 16, np.mod(X, P))
+        shade = (0.75 + 0.25 * np.sqrt(np.clip(1 - (dy / rr) ** 2, 0, 1)))[..., None]
+        L.put(cover(np.maximum(dy - rr, 25 - a)), wc * shade, (0, 0.45, 0.45, 0), wd * 0.6)
+        # ปลอกทองเหลือง (แหวนสองวง)
+        for ax0, ax1, rad in ((25, 31, 9.3), (31, 33, 8.4)):
+            ring = (a >= ax0) & (a < ax1) & (dy < rad)
+            h = np.where(ring, np.maximum(h, 2 + np.sqrt(np.clip(1 - (dy / rad) ** 2, 0, 1)) * rad), h)
+            L.put(cover(np.maximum(dy - rad, np.maximum(ax0 - a, a - ax1))), brass_cols(np.zeros_like(X) + 0.2, np.zeros_like(X), tex), (1, 0.3, 0, 0), 0)
+        # หัวจุกกลึง: ทรงกลม + คอคอด
+        sd = sd_circle(a, Y, 12.5, yc, 11.0)
+        neck = (a >= 20) & (a < 25) & (dy < 5.5)
+        h = np.where(neck, np.maximum(h, 2 + np.sqrt(np.clip(1 - (dy / 5.5) ** 2, 0, 1)) * 5.5), h)
+        L.put(cover(np.maximum(dy - 5.5, np.maximum(20 - a, a - 25))), brass_cols(np.zeros_like(X) + 0.35, np.zeros_like(X), tex), (1, 0.32, 0, 0), 0)
+        h = np.where(sd < 0, np.maximum(h, 2 + dome(a, Y, 12.5, yc, 11.0, 11.0)), h)
+        knob_groove = cover(np.abs(sd_circle(a, Y, 12.5, yc, 6.5)) - 0.6)
+        h = h - 0.8 * knob_groove * (sd < 0)
+        L.put(cover(sd), brass_cols(0.5 * knob_groove, np.zeros_like(X) + 0.2, tex), (1, 0.26, 0, 0), tex * 0.04)
+    return dict(h=h, alb=L.alb, par=L.par, det=L.det, a=L.a)
+
+
+def portrait_fields(X, Y, W, H):
+    """กรอบรูปตัวละคร: วงทองเหลืองสองขอบ + ลายถักสองเส้นรอบวง (ลอดสลับ 16 จุด) + อัญมณีบนสุด • รูกลางโปร่ง (เงาตกบนรูป)"""
+    L = Layers(X.shape)
+    c = W / 2; r = np.hypot(X - c, Y - c)
+    Ro, Ri = c - 1.0, 53.0
+    sd = np.maximum(r - Ro, Ri - r)
+    h = bevel(sd, 3, 5, 'round')
+    tex = tx(pnoise(H, W, 5, 5, 101), X, Y)
+    # ขอบนอก/ขอบในนูน (ทองเหลือง) + พื้นแถบสีบรอนซ์เข้ม
+    rim_o = cover(np.abs(r - (Ro - 3)) - 2.6); rim_i = cover(np.abs(r - (Ri + 3)) - 2.6)
+    h = h + 1.8 * rim_o + 1.8 * rim_i
+    m = cover(sd)
+    L.put(m, srgb('#3a2410') * (0.9 + 0.1 * tex[..., None]), (0.6, 0.5, 0.2, 0), tex * 0.05)
+    L.put(np.maximum(rim_o, rim_i) * m, brass_cols(np.zeros_like(X) + 0.15, np.zeros_like(X) + 0.2, tex), (1, 0.28, 0, 0), 0)
+    Rm = (Ro + Ri) / 2; amp = 3.6; k = 8
+    cs = []
+    for sg, ph in ((1, 0.0), (-1, math.pi / k)):
+        cs.append(curve(lambda t, sg=sg: (c + (Rm + sg * amp * math.sin(k * t)) * math.cos(t), c + (Rm + sg * amp * math.sin(k * t)) * math.sin(t)), 420))
+    rb = ribbons(X, Y, cs, hw=2.4, gap=1.1, base=5.5, hb=1.8, dz=1.6, groove=0.6)
+    top = rb['m'] * m
+    h = np.where(rb['m'] > 0, np.maximum(h, rb['h']), h)
+    L.put(top, gold_cols(rb['cav'], tex), (1, 0.25, 0, 0), tex * 0.03)
+    h = put_gem(L, h, X, Y, c, c - Rm, 5.2, '#b0121e', seat=1.8)
+    L.a = m
+    return dict(h=h, alb=L.alb, par=L.par, det=L.det, a=m)
+
+
+def medal_fields(X, Y, W, H):
+    """เหรียญคั่นส่วน: ปมเลขแปด (lemniscate) ถักลอดวงรี + ลูกปัดปลาย"""
+    L = Layers(X.shape)
+    cx, cy = W / 2, H / 2
+    lem = curve(lambda t: (cx + 34 * math.cos(t) / (1 + math.sin(t) ** 2), cy + 34 * 1.15 * math.sin(t) * math.cos(t) / (1 + math.sin(t) ** 2)), 260)
+    ell = curve(lambda t: (cx + 22 * math.cos(t), cy + 9.5 * math.sin(t)), 200)
+    rb = ribbons(X, Y, [lem, ell], hw=2.5, gap=1.2, base=5.5, hb=1.8, dz=1.6, groove=0.6)
+    tex = tx(pnoise(H, W, 5, 5, 111), X, Y)
+    h = rb['h']
+    L.put(rb['m'], gold_cols(rb['cav'], tex), (1, 0.26, 0, 0), tex * 0.03)
+    for px in (cx - 46, cx + 46):
+        sd = sd_circle(X, Y, px, cy, 3.4)
+        h = np.where(sd < 0, np.maximum(h, 5 + dome(X, Y, px, cy, 3.4, 3.0)), h)
+        L.put(cover(sd), brass_cols(np.zeros_like(X) + 0.1, np.zeros_like(X) + 0.3, tex), (1, 0.28, 0, 0), 0)
+    return dict(h=h, alb=L.alb, par=L.par, det=L.det, a=L.a)
+
+
+def flourish_fields(X, Y, W, H):
+    """ลายเครือเถาทองสำหรับป้ายเลเวลอัป/เควสต์สำเร็จ: ก้านเครือวิ่งออกสองข้าง ม้วนก้นหอยปลาย + แขนงม้วนบน/ล่าง + เหรียญกลางฝังทับทิม"""
+    L = Layers(X.shape)
+    cx, cy = W / 2, H / 2
+    cs = []
+    def ystem(x): return -4.0 * np.sin(math.pi * (x - 24) / 212)
+    xs = np.arange(24, 236.5, 1.0)
+    right = [np.stack([xs, ystem(xs)], -1)]
+    # ปลายก้าน: ม้วนขึ้น (ออกนอก → ขึ้น → วกเข้าใน)
+    right[0] = np.vstack([right[0], spiral(236, ystem(236) - 13, 13, 3.4, math.pi / 2, 1.3, 110, cw=-1)[1:]])
+    # แขนงม้วนขึ้น (x=150) และม้วนลง (x=92) — งอกออกจากก้านแบบสัมผัส
+    right.append(spiral(150, ystem(150) - 10, 10, 2.8, math.pi / 2, 1.15, 90, cw=-1))
+    right.append(spiral(92, ystem(92) + 10.5, 10.5, 2.8, -math.pi / 2, 1.15, 90, cw=1))
+    right.append(spiral(196, ystem(196) + 7, 7, 2.4, -math.pi / 2, 1.0, 70, cw=1))
+    for P in right:
+        cs.append((np.stack([cx + P[:, 0], cy + P[:, 1]], -1), False))
+        cs.append((np.stack([cx - P[:, 0], cy + P[:, 1]], -1), False))
+    # เหรียญกลาง: สี่เหลี่ยมขนมเปียกปูนถักลอดวงกลม
+    loz = curve(lambda t: (cx + 24 * np.sign(math.cos(t)) * abs(math.cos(t)) ** 1.6, cy + 18 * np.sign(math.sin(t)) * abs(math.sin(t)) ** 1.6), 200)
+    cir = curve(lambda t: (cx + 15 * math.cos(t), cy + 15 * math.sin(t)), 160)
+    cs += [loz, cir]
+    rb = ribbons(X, Y, cs, hw=2.8, gap=1.3, base=6, hb=2.0, dz=1.8, groove=0.7)
+    tex = tx(pnoise(H, W, 5, 5, 121), X, Y)
+    h = rb['h']
+    L.put(rb['m'], gold_cols(rb['cav'], tex, 1.04), (1, 0.24, 0, 0), tex * 0.03)
+    h = put_gem(L, h, X, Y, cx, cy, 6.4, '#b0121e', seat=2.0)
+    return dict(h=h, alb=L.alb, par=L.par, det=L.det, a=L.a)
+
+
+def gem_fields(X, Y, W, H):
+    L = Layers(X.shape)
+    h = np.zeros_like(X)
+    sd = sd_circle(X, Y, W / 2, H / 2, W / 2 - 1.5)
+    h = np.where(sd < 0, 3 + bevel(sd, 2.5, 3, 'round'), h)
+    L.put(cover(sd), brass_cols(np.zeros_like(X) + 0.2, np.clip(1 - np.abs(sd + 1.5) / 2, 0, 1) * 0.5, np.zeros_like(X)), (1, 0.28, 0, 0), 0)
+    h = put_gem(L, h, X, Y, W / 2, H / 2, W / 2 - 5.5, '#b0121e', seat=1.4, z0=5.0)
+    return dict(h=h, alb=L.alb, par=L.par, det=L.det, a=L.a)
+
+
 def build(name):
     sp = SPEC[name]; W, H = sp['W'], sp['H']
     def ev(X, Y):
@@ -464,6 +843,13 @@ def build(name):
         if name == 'niche': return niche_fields(X, Y, W, H, sp['C'])
         if name == 'wood': return wood_tile(X, Y, W, H)
         if name == 'paper': return paper_tile(X, Y, W, H)
+        if name == 'knot': return knot_fields(X, Y, W, H)
+        if name == 'runeband': return runeband_fields(X, Y, W, H, sp['C'], sp['P'])
+        if name == 'scroll': return scroll_fields(X, Y, W, H, sp['C'], sp['P'], sp['R'])
+        if name == 'portrait': return portrait_fields(X, Y, W, H)
+        if name == 'medal': return medal_fields(X, Y, W, H)
+        if name == 'flourish': return flourish_fields(X, Y, W, H)
+        if name == 'gem': return gem_fields(X, Y, W, H)
     Yc, Xc = np.mgrid[0:H, 0:W].astype(float) + 0.5
     f = ev(Xc, Yc)
     Yv, Xv = np.mgrid[0:H + 1, 0:W + 1].astype(float)
@@ -474,7 +860,7 @@ def build(name):
 # ============================================================
 #  Blender
 # ============================================================
-CATCHER = {'frame', 'hud', 'slot'}     # มีพื้นรับเงา (โปร่งใส ยกเว้นเงา)
+CATCHER = {'frame', 'hud', 'slot', 'knot', 'scroll', 'portrait', 'medal', 'flourish', 'runeband', 'gem'}     # มีพื้นรับเงา (โปร่งใส ยกเว้นเงา)
 
 
 def render(samples, raw, only=None):
@@ -578,12 +964,13 @@ def render(samples, raw, only=None):
 # ============================================================
 #  ติดตั้ง: ภาพดิบ → WebP (ตัดชิ้น 9-slice ให้ขอบต่อกันเป็นคาบ)
 # ============================================================
-def nine(im, C, P, axis='both'):
-    """ภาพเรนเดอร์ (มุม C + ขอบ n×P + มุม C) → ภาพ 9-slice ขนาด (2C+P) — ขอบเหลือ 1 คาบ"""
+def nine(im, C, P, axis='both', Cy=None, Py=None):
+    """ภาพเรนเดอร์ (มุม C + ขอบ n×P + มุม C) → ภาพ 9-slice ขนาด (2C+P) — ขอบเหลือ 1 คาบ (Cy/Py = ค่าแนวตั้งถ้าต่างจากแนวนอน)"""
     from PIL import Image
     W, H = im.size
+    Cy = C if Cy is None else Cy; Py = P if Py is None else Py
     xs = [(0, C), (C, C + P), (W - C, W)] if axis in ('both', 'x') else [(0, W)]
-    ys = [(0, C), (C, C + P), (H - C, H)] if axis in ('both', 'y') else [(0, H)]
+    ys = [(0, Cy), (Cy, Cy + Py), (H - Cy, H)] if axis in ('both', 'y') else [(0, H)]
     ow = sum(b - a for a, b in xs); oh = sum(b - a for a, b in ys)
     out = Image.new('RGBA', (ow, oh)); oy = 0
     for y0, y1 in ys:
@@ -594,16 +981,18 @@ def nine(im, C, P, axis='both'):
     return out
 
 
-def install(raw):
+def install(raw, only=None):
     from PIL import Image
     sys.path.insert(0, os.path.join(ROOT, 'tools'))
     sizes = {}
     for name, sp in SPEC.items():
+        if only and name not in only: continue
         p = os.path.join(raw, name + '.png')
         if not os.path.exists(p): print('ข้าม', name); continue
         im = Image.open(p).convert('RGBA')
-        if name in ('frame', 'hud'): im = nine(im, sp['C'], sp['P'])
-        elif name in ('plaque', 'tab', 'tab_on', 'btn', 'btn_gold'): im = nine(im, sp['C'], sp['P'], 'x')
+        if name in ('frame', 'hud', 'knot'): im = nine(im, sp['C'], sp['P'])
+        elif name in ('plaque', 'tab', 'tab_on', 'btn', 'btn_gold', 'runeband'): im = nine(im, sp['C'], sp['P'], 'x')
+        elif name == 'scroll': im = nine(im, sp['C'], sp['P'], 'both', sp['R'], sp['H'] - 2 * sp['R'])
         q = 96 if name in ('paper', 'wood') else 90
         dst = os.path.join(ROOT, 'assets', f'ui3d_{name}.webp')
         im.save(dst, 'WEBP', quality=q, method=6, alpha_quality=90)
@@ -619,4 +1008,4 @@ if __name__ == '__main__':
     raw = a[a.index('--raw') + 1] if '--raw' in a else RAW
     only = a[a.index('--only') + 1].split(',') if '--only' in a else None
     if '--render' in a: render(int(a[a.index('--samples') + 1]) if '--samples' in a else 96, raw, only)
-    if '--install' in a: install(raw)
+    if '--install' in a: install(raw, only)
