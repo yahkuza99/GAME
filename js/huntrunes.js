@@ -14,7 +14,7 @@
 //  หน้าต่าง: #w-hrunes (ช่องรูน) • แท็บ Runes ในกระเป๋า • แท็บ Hunt Rune ในเตาของ Brokk • CSS: css/huntrunes.css
 // ============================================================
 
-const HR_UNLOCK = [15, 35], HR_CAP = 0.45, HR_SLAY = 0.20, HR_SLAY_PVP = 0.10;
+const HR_UNLOCK = [15, 35], HR_CAP = 0.45, HR_SLAY = 0.20, HR_SLAY_PVP = 0.20; // กติกาเดียวทุกที่ (เจ้าของ: ไม่แยก PvE/PvP) — Human Slayer แรงเท่า Slayer อื่น
 // เส้นรูน (กล่อง 10×14) วาดเองทั้งหมด — ไม่พึ่งฟอนต์ Runic
 const HR_GLYPH = {
   tiwaz: [[[5, 14], [5, 0]], [[1, 4], [5, 0], [9, 4]]],
@@ -52,10 +52,10 @@ const HuntRunes = {
       ['undead', 2500, '#6f8296'], ['demon', 4000, '#b03a3a'], ['angel', 4000, '#e0c060']];
     for (const [race, price, col] of slay) this.add({ id: 'hr_slay_' + race, kind: 'slayer', race, pct: HR_SLAY, price, col, glyph: 'tiwaz', rarity: price >= 4000 ? 'rare' : 'uncommon',
       name: `${HR_RACE_EN[race]} Slayer Rune`, short: `+${HR_SLAY * 100}% vs ${HR_RACE_EN[race]}`,
-      desc: `Slayer rune. +${HR_SLAY * 100}% physical and magic damage against ${HR_RACE_EN[race]}-race monsters. No effect in the Arena.` });
+      desc: `Slayer rune. +${HR_SLAY * 100}% physical and magic damage against ${HR_RACE_EN[race]}-race monsters.` });
     this.add({ id: 'hr_slay_human', kind: 'slayer', race: 'human', pct: HR_SLAY_PVP, price: 2500, col: '#c87a8a', glyph: 'mannaz', rarity: 'uncommon', arena: true,
       name: 'Human Slayer Rune', short: `+${HR_SLAY_PVP * 100}% vs players (Arena)`,
-      desc: `Slayer rune, arena-tuned. +${HR_SLAY_PVP * 100}% physical and magic damage against other players — works only in the PvP Arena.` });
+      desc: `Slayer rune. +${HR_SLAY_PVP * 100}% physical and magic damage against other players (they only meet in the PvP Arena).` });
     const endow = [['fire', 2500, '#e8602a', 'kenaz'], ['water', 1500, '#3a90e0', 'laguz'], ['wind', 1500, '#3ab89a', 'ansuz'], ['earth', 1500, '#a07a40', 'othala'],
       ['holy', 4000, '#e8c850', 'sowilo'], ['shadow', 4000, '#6a4a9a', 'hagalaz']];
     for (const [el, price, col, glyph] of endow) {
@@ -68,18 +68,18 @@ const HuntRunes = {
     }
     const C = (id, glyph, col, pct, name, short, desc, test, extra) => this.add(Object.assign({ id, kind: 'cond', glyph, col, pct, price: 6000, rarity: 'rare', name, short, desc, test }, extra || {}));
     C('hr_giant', 'thurisaz', '#c8962a', 0.25, 'Giant Slayer Rune', '+25% vs bosses · −10% vs others',
-      'Conditional rune. +25% damage against MVPs, bosses and Ancients, but −10% against every other monster. No effect in the Arena.', m => this.isBig(m), { miss: -0.10 });
+      'Conditional rune. +25% damage against MVPs, bosses and Ancients, but −10% against every other monster.', m => this.isBig(m), { miss: -0.10 });
     C('hr_exec', 'eihwaz', '#b03030', 0.30, 'Executioner Rune', '+30% vs targets under 30% HP',
-      'Conditional rune. +30% damage against a target below 30% HP. No effect in the Arena.', m => m.maxHp > 0 && m.hp / m.maxHp < 0.30);
+      'Conditional rune. +30% damage against a target below 30% HP.', m => m.maxHp > 0 && m.hp / m.maxHp < 0.30);
     C('hr_ambush', 'perthro', '#4a6a9a', 0.25, 'Ambusher Rune', '+25% first hit on a full-HP target',
-      'Conditional rune. +25% damage on the opening hit against a target at full HP. No effect in the Arena.', m => m.maxHp > 0 && m.hp >= m.maxHp);
+      'Conditional rune. +25% damage on the opening hit against a target at full HP.', m => m.maxHp > 0 && m.hp >= m.maxHp);
     C('hr_pack', 'dagaz', '#c86a20', 0.15, 'Pack Breaker Rune', '+15% with 3+ enemies within 3 cells',
-      'Conditional rune. +15% damage while 3 or more enemies are within 3 cells of you. No effect in the Arena.', () => this.packCount() >= 3);
+      'Conditional rune. +15% damage while 3 or more enemies are within 3 cells of you.', () => this.packCount() >= 3);
   },
   isBig(m) { return !!(m.def.boss || m.isMvp || m.isWB || m.def.worldBoss); },
   packCount() {
     const p = G.player; let n = 0;
-    for (const o of G.mobs) if (!o.dead && !o.isPlayer && !o.def.dummy && Math.abs(o.x - p.x) <= 3 && Math.abs(o.y - p.y) <= 3 && U.dist(o.x, o.y, p.x, p.y) <= 3) n++;
+    for (const o of G.mobs) if (!o.dead && !o.def.dummy && Math.abs(o.x - p.x) <= 3 && Math.abs(o.y - p.y) <= 3 && U.dist(o.x, o.y, p.x, p.y) <= 3) n++;
     return n;
   },
   def(id) { return typeof id === 'string' && Object.prototype.hasOwnProperty.call(this.DEFS, id) ? this.DEFS[id] : null; },
@@ -132,7 +132,7 @@ const HuntRunes = {
       if (d.kind === 'slayer') {
         if (d.arena) on = pvp && m.def.race === 'human';
         else on = !arena && m.def.race === d.race;
-      } else if (d.kind === 'cond' && !arena) {
+      } else if (d.kind === 'cond') { // ใช้ได้ทุกที่รวมลานประลอง (เจ้าของ: ไม่แยก PvE/PvP)
         on = !!d.test(m);
         if (!on && d.miss) k *= 1 + d.miss; // Giant Slayer: มอนธรรมดา −10% (หุ่นฝึกก็นับเป็นมอนธรรมดา — วัด DPS ตรงความจริง)
       }

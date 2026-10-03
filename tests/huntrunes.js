@@ -254,8 +254,8 @@ async function start(browser, port, vp, mobile) {
     clear(); HR.set(0, 'hr_exec', true); HR.set(1, 'hr_endow_fire', true);
     const condK = HR.hit(Object.assign(foe, { hp: 10 })).k, endEl = elemMod(HR.hit(foe).el, foe.def.element);
     changeMap(home.map, home.x, home.y, { quiet: true });
-    ok('PvP: Human Slayer +10% only in the Arena', inArena && near(arenaK, 1.1, 1e-9) && near(arenaR[0], 1.1, 0.003) && townK === 1 && townN === 1, { inArena, arenaK, townK, townN });
-    ok('PvP: other Slayers / conditionals do nothing vs players; Endow vs neutral armor = ×1', otherK === 1 && condK === 1 && endEl === 1, { otherK, condK, endEl });
+    ok('PvP: Human Slayer +20% (same as other Slayers) vs players in the Arena', inArena && near(arenaK, 1.2, 1e-9) && near(arenaR[0], 1.2, 0.003) && townK === 1 && townN === 1, { inArena, arenaK, townK, townN });
+    ok('PvP: one rule everywhere — race Slayers miss players, Giant Slayer −10% vs players, Executioner works on low-HP players, Endow vs neutral armor = ×1', near(otherK, 0.9, 1e-9) && near(condK, 1.3, 1e-9) && endEl === 1, { otherK, condK, endEl });
 
     // ---------- 9) เอฟเฟกต์ตีโดน + Battle Script ----------
     pl.combatAt = -99; clear(); HR.set(0, 'hr_slay_insect', true); HR.set(1, 'hr_endow_fire', true);
