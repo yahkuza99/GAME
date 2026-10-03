@@ -1,0 +1,190 @@
+/* =====================================================================
+   IRON VALHALLA — Ornament pass "งานช่างละเอียด" (โหลดหลัง theme5.css • ตกแต่งล้วน ไม่เพิ่มข้อความ)
+   ภาพเรนเดอร์ Blender ชุดเดียวกับ ui3d_* (แสงอุ่นซ้ายบน): tools/uiwood3d.py → assets/ui3d_knot/runeband/scroll/portrait/medal/flourish/gem.webp
+   + เรนเดอร์ใหม่: ui3d_hud (ฝามุมฝังโกเมน) • ui3d_tab/tab_on (หมุดย้ำ 4 มุม) • ui3d_ring (โกเมน 4 ทิศทแยง)
+   1) มุมหน้าต่างลายถักนอร์ส (.orn-k จาก js/ornate.js)   2) ราวรูนหลังป้ายหัว   3) เส้นคั่นแกะสลัก
+   4) กรอบรูปตัวละคร / ไม้ม้วนคัมภีร์ (แผงเควสต์ + แชต)   5) แอนิเมชันเล็ก ๆ (120–300ms • transform/opacity)
+   6) ป้ายเลเวลอัป/เควสต์สำเร็จ + ลายเครือเถา   7) ประหยัดเครื่อง / ลดการเคลื่อนไหว / จอเล็ก
+   ===================================================================== */
+:root {
+  --u6-knot: url("../assets/ui3d_knot.webp");
+  --u6-band: url("../assets/ui3d_runeband.webp");
+  --u6-scroll: url("../assets/ui3d_scroll.webp");
+  --u6-portrait: url("../assets/ui3d_portrait.webp");
+  --u6-medal: url("../assets/ui3d_medal.webp");
+  --u6-flourish: url("../assets/ui3d_flourish.webp");
+  --u6-gem: url("../assets/ui3d_gem.webp");
+  --u6-k: 80px;          /* ขนาดชิ้นมุมลายถัก (ภาพ 144 2× → ใหญ่กว่ากรอบนิดหน่อยให้ปมเด่น) */
+  --u6-out: -10px;       /* ตรงกับกรอบ ::after ของ theme5 */
+  /* เส้นแกะ: ร่องเข้ม + ขอบรับแสงด้านล่าง (แสงซ้ายบน) */
+  --u6-groove: linear-gradient(180deg, rgba(92, 56, 16, 0.6) 0 1px, rgba(255, 244, 214, 0.75) 1px 2px, transparent 2px);
+  --u6-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ======================= 1) มุมหน้าต่าง: ลายถักนอร์สทองฝังทับฝามุมทองเหลือง ======================= */
+body.visor .win:not(.gc-art) > .orn-k {
+  display: block; position: absolute; z-index: 7; inset: var(--u6-out); pointer-events: none;
+  border: var(--u6-k) solid transparent; border-image: var(--u6-knot) 144 / var(--u6-k) / 0 stretch; }
+/* ชั้นประกายทองกวาดตามกรอบตอนเปิดหน้าต่าง (มาสก์ด้วยรูปกรอบ → ทองเรืองเฉพาะเนื้อไม้/ทองเหลือง) */
+body.visor .win:not(.gc-art) > .orn-k::after {
+  content: ""; position: absolute; inset: calc(-1 * var(--u6-k)); pointer-events: none; opacity: 0;
+  background: linear-gradient(115deg, rgba(255, 236, 170, 0) 38%, rgba(255, 246, 210, 0.95) 50%, rgba(255, 236, 170, 0) 62%) 0 0 / 300% 100% no-repeat;
+  -webkit-mask-box-image: var(--u3-frame) 96 / 48px round; mix-blend-mode: screen; }
+body.visor .win:not(.gc-art):not(.hidden) > .orn-k::after { animation: orn-glint 300ms 70ms ease-out both; }
+@keyframes orn-glint { 0% { opacity: 0; background-position: 100% 0; } 25% { opacity: 1; } 100% { opacity: 0; background-position: 0 0; } }
+
+/* เปิดหน้าต่าง: ย่อ 0.96 → 1 + จาง (220ms) • ปิด: จางเร็ว 120ms (display ค้างจนจบด้วย allow-discrete) */
+body.visor .win:not(.hidden) { animation: orn-win-in 220ms var(--u6-ease); }
+@keyframes orn-win-in { from { opacity: 0; scale: 0.96; } to { opacity: 1; scale: 1; } }
+body.visor .win { transition: opacity 120ms ease-in, display 120ms allow-discrete; }
+body.visor .win.hidden { opacity: 0; pointer-events: none; }
+
+/* ======================= 2) ราวรูนสลักหลังป้ายหัวหน้าต่าง ======================= */
+body.visor .win:not(.gc-art) .win-title { position: relative; }
+body.visor .win:not(.gc-art) .win-title::before {
+  content: ""; position: absolute; z-index: 0; left: 8px; right: 56px; top: 50%; height: 14px; margin-top: -7px; pointer-events: none;
+  border: solid transparent; border-width: 0 14px; border-image: var(--u6-band) 0 28 fill / 0 14px / 0 round;
+  filter: drop-shadow(1px 2px 1.5px rgba(20, 9, 1, 0.55)); opacity: 0.95;
+  -webkit-mask: linear-gradient(90deg, #000 0 55%, transparent 96%); mask: linear-gradient(90deg, #000 0 55%, transparent 96%); }
+body.visor .win[data-noclose] .win-title::before { right: 8px; }
+
+/* ======================= 3) เส้นคั่นแกะสลัก (แทนเส้นเรียบ) ======================= */
+/* หัวส่วน (Settings / Status / Quest …): ร่องแกะใต้หัว + เหรียญปมเลขแปดตรงกลาง */
+.dsec-h { position: relative; border-bottom-color: transparent !important; }
+.dsec-h::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: -6px; height: 12px; z-index: 1; pointer-events: none;
+  background: var(--u6-medal) center / 34px 12px no-repeat,
+    var(--u6-groove) left 50% / calc(50% - 20px) 2px no-repeat, var(--u6-groove) right 50% / calc(50% - 20px) 2px no-repeat; }
+/* หัวรายการรูน: ร่องแกะ + หมุดอัญมณีปลายเส้น */
+.rb-sec::before, .rb-sec::after { height: 8px; background: var(--u6-gem) left center / 8px 8px no-repeat, var(--u6-groove) right center / calc(100% - 10px) 2px no-repeat; }
+.rb-sec::after { background: var(--u6-gem) right center / 8px 8px no-repeat, var(--u6-groove) left center / calc(100% - 10px) 2px no-repeat; }
+/* Details ▾: เส้นแกะบน/ล่าง */
+.det-more > summary { border: 0; background: var(--u6-groove) center top / 100% 2px no-repeat, var(--u6-groove) center bottom / 100% 2px no-repeat; padding: 4px 14px; }
+.det-more > summary:hover { background: var(--u6-groove) center top / 100% 2px no-repeat, var(--u6-groove) center bottom / 100% 2px no-repeat, rgba(255, 230, 170, 0.35); }
+
+/* ======================= 4) HUD: กรอบรูป / ไม้ม้วน / แท็บ ======================= */
+/* กรอบรูปตัวละคร: วงทองเหลืองลายถักสองเส้น + โกเมนบนสุด (แทนวงรูนหมุน) */
+body.visor .bi-face::after { background: var(--u6-portrait) center / 100% 100% no-repeat; animation: none; inset: -1px; }
+body.visor .bi-face canvas { box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.6); }
+/* รูป NPC ในกล่องคุย: กรอบเดียวกัน (แทนวงรูนหมุน + วงเงาซ้อน) */
+body.visor #w-dialog.has-pic .dlg-face { box-shadow: 0 8px 16px -4px rgba(40, 20, 4, 0.6); }
+body.visor #w-dialog.has-pic .dlg-face::after { inset: -15px; background: var(--u6-portrait) center / 100% 100% no-repeat; opacity: 1; animation: none; }
+/* สวิตช์เปิด/ปิด: ปุ่มเลื่อนทองเหลืองเหลี่ยม (ไม่มีทรงแคปซูล/วงกลม) */
+body.visor .win:not(.gc-art) input[type=checkbox] { border-radius: 3px; }
+body.visor .win:not(.gc-art) input[type=checkbox]::after { border-radius: 2px; background: linear-gradient(160deg, #fffaf0, #e9d3a2 55%, #c9a05a); box-shadow: 0 0 0 1px rgba(110, 70, 20, 0.55), 1px 2px 2px rgba(60, 30, 5, 0.45); }
+/* ไม้ม้วนคัมภีร์ บน/ล่าง แผงเควสต์และแชต (หัวจุกทองเหลืองยื่นพ้นขอบ) */
+body.visor #quest-track.qt-tabbed:not([hidden])::before, body.visor #chat:not(.folded)::before {
+  content: ""; display: block; position: absolute; z-index: 3; inset: -8px -12px; margin: 0; padding: 0; pointer-events: none; background: none; border-radius: 0; box-shadow: none;
+  border: solid transparent; border-width: 12px 20px; border-image: var(--u6-scroll) 24 40 / 12px 20px / 0 stretch; }
+/* แท็บที่เลือก: แถบทองใต้ตัวอักษร (เลื่อนออกจากกลางตอนสลับ) */
+body.visor .win:not(.gc-art) :is(.tab, .pill).on::before, body.visor .win .seg button.on::before, body.visor .win .rb-tabs .rb-tab.on::before, body.visor .qt-tab.on::before {
+  content: "" !important; display: block !important; position: absolute; left: 50%; top: auto; right: auto; bottom: 4px; width: 60%; height: 2px; margin-left: -30%; pointer-events: none; z-index: 1;
+  background: linear-gradient(90deg, rgba(255, 244, 200, 0), rgba(255, 246, 214, 0.95) 30%, rgba(255, 246, 214, 0.95) 70%, rgba(255, 244, 200, 0)) !important;
+  box-shadow: 0 -1px 0 rgba(90, 50, 6, 0.45); border: 0 !important; border-radius: 0 !important; transform-origin: 50% 50%; opacity: 1; clip-path: none !important; inset: auto auto 4px 50%; }
+body.visor .qt-tab.on::before { bottom: 3px; }
+body.orn-tabsw :is(.tab, .pill, .rb-tab, .seg button, .qt-tab).on::before { animation: orn-bar 260ms var(--u6-ease) both; }
+body.orn-tabsw :is(.tab, .pill, .rb-tab, .seg button, .qt-tab).on { animation: orn-tab-glow 280ms ease-out; }
+@keyframes orn-bar { from { transform: scaleX(0); opacity: 0.2; } to { transform: scaleX(1); opacity: 1; } }
+@keyframes orn-tab-glow { 0% { filter: drop-shadow(1px 2px 1.5px rgba(36, 18, 2, 0.5)) drop-shadow(0 0 12px rgba(255, 214, 120, 0.95)) brightness(1.18); } }
+
+/* ======================= 5) แอนิเมชันเล็ก ๆ ======================= */
+/* กดปุ่ม: ฝุ่นแสง (ตำแหน่งจาก js/ornate.js) */
+#orn-dust { position: fixed; left: 0; top: 0; z-index: 2000; width: 0; height: 0; pointer-events: none; }
+#orn-dust::before, #orn-dust::after { content: ""; position: absolute; left: -28px; top: -28px; width: 56px; height: 56px; opacity: 0; pointer-events: none; }
+#orn-dust::before { background: radial-gradient(circle, rgba(255, 244, 200, 0.75) 0 10%, rgba(255, 210, 120, 0.35) 28%, rgba(255, 200, 100, 0) 62%); }
+#orn-dust::after { background:
+    radial-gradient(circle at 18% 30%, #fff6d0 0 1.6px, transparent 2.4px), radial-gradient(circle at 80% 22%, #ffe39a 0 1.4px, transparent 2.2px),
+    radial-gradient(circle at 70% 82%, #fff6d0 0 1.5px, transparent 2.3px), radial-gradient(circle at 26% 76%, #ffd27a 0 1.3px, transparent 2px),
+    radial-gradient(circle at 50% 8%, #fff 0 1.2px, transparent 2px), radial-gradient(circle at 94% 56%, #ffe9b0 0 1.2px, transparent 2px),
+    radial-gradient(circle at 6% 58%, #ffe9b0 0 1.1px, transparent 1.8px), radial-gradient(circle at 44% 96%, #fff6d0 0 1.1px, transparent 1.8px);
+  filter: drop-shadow(0 0 2px rgba(255, 200, 90, 0.9)); }
+#orn-dust.go::before { animation: orn-puff 240ms ease-out; }
+#orn-dust.go::after { animation: orn-motes 300ms ease-out; }
+@keyframes orn-puff { 0% { opacity: 0.9; transform: scale(0.3); } 100% { opacity: 0; transform: scale(1.15); } }
+@keyframes orn-motes { 0% { opacity: 1; transform: scale(0.45) rotate(0deg); } 100% { opacity: 0; transform: scale(1.35) translateY(-6px) rotate(25deg); } }
+/* ปุ่มในหน้าต่าง: จมลงนุ่มขึ้น (สั้น ไม่มีกระตุก) */
+body.visor :where(.win, #slot-pick) .btn { transition: transform 120ms var(--u6-ease), filter 140ms; }
+
+/* ช่องเก็บของ: ชี้ = ยกขึ้น + ขอบเรืองทอง */
+.islot { transition: transform 140ms var(--u6-ease), box-shadow 160ms, filter 140ms; }
+.islot:not(.empty):hover { transform: translateY(-2px); filter: brightness(1.07);
+  box-shadow: inset 0 0 0 1px rgba(255, 236, 180, 0.75), 0 0 10px 1px rgba(255, 200, 100, 0.55), 3px 6px 6px -2px rgba(0, 0, 0, 0.55); }
+.islot:not(.empty):is(.r-uncommon, .r-rare, .r-epic, .r-legend):hover {
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--rr) 90%, #fff), inset 0 0 14px 1px var(--rg), 0 0 16px 3px var(--rg), 3px 6px 6px -2px rgba(0, 0, 0, 0.55); }
+.islot.sel:hover { transform: translateY(-1px); }
+body.visor:not(.pad-mode) #dock #hotbar .hb { transition: transform 140ms var(--u6-ease), box-shadow 160ms; }
+body.visor:not(.pad-mode) #dock #hotbar .hb:hover { transform: translateY(-2px); }
+body.visor:not(.pad-mode) #dock #hotbar .hb:active { transform: translateY(1px); }
+/* Epic / Legendary เท่านั้น: แสงกวาดเฉียงผ่านไอเทม (ทุก ~3.4 วิ • transform ล้วน) แทนกรอบกะพริบ */
+.islot:is(.r-epic, .r-legend) { overflow: hidden; }
+.islot:is(.r-epic, .r-legend)::before { inset: 0 auto 0 0; width: 55%; padding: 0; border-radius: 0; opacity: 1; z-index: 1;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0) 0%, color-mix(in srgb, var(--rr) 30%, rgba(255, 255, 255, 0.55)) 50%, rgba(255, 255, 255, 0) 100%);
+  -webkit-mask: none; mask: none; mix-blend-mode: screen; transform: translateX(-130%) skewX(-16deg); animation: orn-shimmer 3.4s ease-in-out infinite; }
+.islot.r-legend::before { animation-duration: 2.8s; }
+@keyframes orn-shimmer { 0%, 72% { transform: translateX(-130%) skewX(-16deg); } 94%, 100% { transform: translateX(260%) skewX(-16deg); } }
+
+/* ULT / AUTO: เรืองหายใจช้า ๆ ตอนว่าง (opacity บนชั้นแยก) */
+#ult-btn::after, body.visor #auto-btn::after { content: ""; position: absolute; inset: 0; z-index: 2; border-radius: 50%; pointer-events: none; opacity: 0;
+  box-shadow: inset 0 0 10px 2px rgba(255, 206, 110, 0.6), 0 0 10px 1px rgba(255, 196, 90, 0.4); animation: orn-breathe 3s ease-in-out infinite; }
+body.visor #auto-btn.on::after { box-shadow: inset 0 0 10px 2px rgba(130, 240, 255, 0.55), 0 0 12px 2px rgba(110, 230, 255, 0.45); animation-duration: 2.2s; }
+#ult-btn.ready::after { display: none; }
+@keyframes orn-breathe { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.85; } }
+
+/* เงินเพิ่ม: เหรียญเด้ง + วาบทอง (ตัวเลขนับขึ้นเองอยู่แล้วใน js/ui.js) */
+#bi-zeny.zup img { animation: orn-coin 280ms var(--u6-ease); }
+@keyframes orn-coin { 0% { transform: scale(1); } 45% { transform: scale(1.32) rotate(-12deg); filter: brightness(1.5) drop-shadow(0 0 5px #ffd86a); } 100% { transform: scale(1); } }
+
+/* ======================= 6) ป้ายเลเวลอัป / เควสต์สำเร็จ: ลายเครือเถาทอง ======================= */
+#lv-banner::after { content: ""; position: absolute; z-index: -1; left: 50%; bottom: -16px; width: 340px; height: 56px; margin-left: -170px; pointer-events: none;
+  background: var(--u6-flourish) center / contain no-repeat; filter: drop-shadow(0 2px 3px rgba(20, 9, 1, 0.7)); opacity: 0; }
+#lv-banner.show::after { animation: orn-unfurl 300ms 110ms var(--u6-ease) both; }
+#lv-banner.job::after { filter: drop-shadow(0 2px 3px rgba(20, 9, 1, 0.7)) hue-rotate(170deg) saturate(0.55) brightness(1.15); }
+@keyframes orn-unfurl { from { opacity: 0; transform: scaleX(0.35); } to { opacity: 1; transform: scaleX(1); } }
+
+#orn-qc { position: fixed; left: 50%; top: 31%; z-index: 40; display: grid; justify-items: center; pointer-events: none; opacity: 0; translate: -50% 0; }
+#orn-qc .orn-fl { display: block; width: 320px; height: 53px; background: var(--u6-flourish) center / contain no-repeat; filter: drop-shadow(0 2px 3px rgba(20, 9, 1, 0.75)); }
+#orn-qc b { margin-top: -6px; padding: 4px 18px 5px; font: 700 13px/1 var(--f-title); letter-spacing: 0.32em; color: #3b2204; text-indent: 0.32em;
+  background: var(--u3-gold) ; border: 0 solid transparent; border-image: var(--u3-gold) 26 fill / 10px / 0 stretch; text-shadow: 0 1px 0 rgba(255, 246, 210, 0.8);
+  filter: drop-shadow(0 3px 4px rgba(20, 9, 1, 0.6)); }
+#orn-qc.show { animation: orn-qc 1.9s var(--u6-ease) both; }
+#orn-qc.show .orn-fl { animation: orn-unfurl 300ms 60ms var(--u6-ease) both; }
+#hud:has(#lv-banner.show) #orn-qc { top: calc(22% + 128px); }
+@keyframes orn-qc { 0% { opacity: 0; translate: -50% 10px; } 12% { opacity: 1; translate: -50% 0; } 82% { opacity: 1; translate: -50% 0; } 100% { opacity: 0; translate: -50% -8px; } }
+
+/* ป้ายประกาศ (ได้ของ/บอส ฯลฯ): หมุดอัญมณีสองข้าง */
+body.visor #announce:not(:empty)::before, body.visor #announce:not(:empty):not(.r-epic):not(.r-legend)::after { content: ""; position: absolute; top: 50%; width: 12px; height: 12px; margin-top: -6px; pointer-events: none;
+  background: var(--u6-gem) center / 100% 100% no-repeat; filter: drop-shadow(0 1px 1px rgba(20, 9, 1, 0.6)); }
+body.visor #announce:not(:empty)::before { left: -6px; } body.visor #announce:not(:empty):not(.r-epic):not(.r-legend)::after { right: -6px; }
+
+/* ======================= 7) ประหยัดเครื่อง / ลดการเคลื่อนไหว / จอเล็ก ======================= */
+body.fx-low .orn-k, body.fx-low .win:not(.gc-art) .win-title::before, body.fx-low #orn-dust,
+body.fx-low #quest-track::before, body.fx-low #chat::before { display: none !important; }
+body.fx-low :is(.win, .win > .orn-k::after, #lv-banner::after, #orn-qc, #orn-qc .orn-fl, .islot::before, #ult-btn::after, #auto-btn::after, .tab, .pill, .rb-tab, .qt-tab, .seg button, .tab::before, .pill::before, .rb-tab::before, .qt-tab::before, #bi-zeny img) { animation: none !important; }
+body.fx-low .win > .orn-k::after, body.fx-low .islot:is(.r-epic, .r-legend)::before, body.fx-low :is(#ult-btn, #auto-btn)::after { display: none; }
+body.fx-low #lv-banner.show::after, body.fx-low #orn-qc.show .orn-fl { opacity: 1; }
+body.fx-low #orn-qc.show { opacity: 1; translate: -50% 0; }
+body.fx-low .win { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  body.visor .win:not(.hidden), .win > .orn-k::after, .islot::before, #ult-btn::after, #auto-btn::after, #bi-zeny img,
+  :is(.tab, .pill, .rb-tab, .qt-tab, .seg button), :is(.tab, .pill, .rb-tab, .qt-tab, .seg button)::before, #lv-banner::after, #orn-qc .orn-fl { animation: none !important; }
+  .win > .orn-k::after, .islot:is(.r-epic, .r-legend)::before, #orn-dust { display: none; }
+  #lv-banner.show::after, #orn-qc.show .orn-fl { opacity: 1; }
+  #orn-qc.show { animation-name: orn-qc-calm; }
+  body.visor .win, .islot, body.visor:not(.pad-mode) #dock #hotbar .hb { transition: none; }
+  .islot:not(.empty):hover, body.visor:not(.pad-mode) #dock #hotbar .hb:hover { transform: none; }
+}
+@keyframes orn-qc-calm { 0%, 100% { opacity: 0; } 6%, 88% { opacity: 1; } }
+
+@media (max-width: 760px), (max-height: 520px) {
+  :root { --u6-k: 60px; --u6-out: -8px; }
+  body.visor .win:not(.gc-art) > .orn-k::after { -webkit-mask-box-image: var(--u3-frame) 96 / 36px round; }
+  body.visor .win:not(.gc-art) .win-title::before { height: 11px; margin-top: -5.5px; border-width: 0 11px; border-image-width: 0 11px; right: 48px; }
+  body.visor #quest-track.qt-tabbed:not([hidden])::before, body.visor #chat:not(.folded)::before { inset: -6px -9px; border-width: 9px 15px; border-image-width: 9px 15px; }
+  .dsec-h::after { background-size: 28px 10px, calc(50% - 17px) 2px, calc(50% - 17px) 2px; }
+  #lv-banner::after { width: 260px; height: 43px; margin-left: -130px; bottom: -12px; }
+  #orn-qc .orn-fl { width: 240px; height: 40px; }
+  #orn-qc b { font-size: 11px; }
+}
+/* มือถือแนวตั้ง: หน้าต่างเต็มจอ → มุมลายถักเล็กลง ไม่บังหัว */
+@media (max-width: 760px) and (orientation: portrait) {
+  body.visor .win:not(.gc-art) .win-title::before { display: none; }
+}

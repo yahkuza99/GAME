@@ -246,7 +246,7 @@ const Quest = {
     addFx({ type: 'buff', ref: p, dur: 1.2 });
     Sound.play('quest');
     if (this.current()) setTimeout(() => Sound.play('quest_new'), 900);
-    UI.msg(L(`📜 เควสต์สำเร็จ: ${q.title} — รางวัล ${this.rewardText(q)}`, `📜 Quest complete: ${q.title} — Reward: ${this.rewardText(q)}`), 'lvl');
+    UI.msg(L(`📜 เควสต์สำเร็จ: ${q.title} — รางวัล ${this.rewardText(q)}`, `📜 Quest complete: ${q.title} — Reward: ${this.rewardText(q)}`), 'lvl'); if (typeof Ornate !== 'undefined') Ornate.questDone(); // ป้ายเควสต์สำเร็จ (ตกแต่งล้วน)
     if (q.done) { UI.msg(`📖 ${q.done}`, 'map'); setTimeout(() => { if (G.started) UI.announce(q.done); }, 1500); } // บรรทัดเล่าเรื่อง (หลัง QUEST CLEAR)
     const nx = this.current();
     if (nx) UI.msg(L(`📜 เควสต์ใหม่: ${nx.title} — ${nx.desc}`, `📜 New quest: ${nx.title} — ${nx.desc}`), 'info');
@@ -476,7 +476,7 @@ const Side = {
       addFloater(p.x, p.y - 1.8, 'QUEST CLEAR!', '#ffd34a', true);
       addFx({ type: 'buff', ref: p, dur: 1.2 });
       Sound.play('quest');
-      UI.msg(L(`📜 เควสต์เสริมสำเร็จ: ${q.title} — รางวัล ${Quest.rewardText(q)}`, `📜 Side quest complete: ${q.title} — Reward: ${Quest.rewardText(q)}`), 'lvl');
+      UI.msg(L(`📜 เควสต์เสริมสำเร็จ: ${q.title} — รางวัล ${Quest.rewardText(q)}`, `📜 Side quest complete: ${q.title} — Reward: ${Quest.rewardText(q)}`), 'lvl'); if (typeof Ornate !== 'undefined') Ornate.questDone();
       if (q.done) UI.msg(`📖 ${q.done}`, 'map');
     }
     this.changed(); saveGame();
