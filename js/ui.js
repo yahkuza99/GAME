@@ -173,6 +173,9 @@ const UI = {
     log.scrollTop = log.scrollHeight;
   },
   announce(text) {
+    // ป้ายชื่อแผนที่ยังแสดงอยู่ (ตำแหน่งเดียวกัน) → รอให้ป้ายหายก่อนค่อยประกาศ ไม่ซ้อนทับกัน
+    const wait = (this._bannerUntil || 0) - performance.now();
+    if (wait > 0) { clearTimeout(this._annT); this._annQ = (this._annQ || []).concat(text).slice(-3); this._annT = setTimeout(() => { const q = this._annQ; this._annQ = []; q.forEach((t, i) => setTimeout(() => this.announce(t), i * 2200)); }, wait + 150); return; }
     const el = $('#announce');
     el.textContent = text;
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
