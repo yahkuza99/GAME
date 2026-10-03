@@ -115,7 +115,7 @@ const Pad = {
     if (drop && !(p.target && !p.target.dead)) { p.pickTarget = drop; p.path = []; return; }
     if (p.target && !p.target.dead && U.dist(p.x, p.y, p.target.x, p.target.y) < 14) { p.repathAt = 0; return; }
     const m = this.nearestMob();
-    if (m) { p.target = m; p.pickTarget = null; p.npcTarget = null; p.repathAt = 0; }
+    if (m) { p.target = m; p.oneHit = p.options.noCtrl === false ? m : null; p.pickTarget = null; p.npcTarget = null; p.repathAt = 0; } // /nc ปิด = กดปุ่มตี 1 ที
     else if (npc) { p.npcTarget = npc; p.path = []; }
     else UI.msg(L('ไม่มีเป้าหมายใกล้ ๆ — เดินออกไปหามอนสเตอร์ก่อน', 'No target nearby — go find some monsters first'), 'info');
   },

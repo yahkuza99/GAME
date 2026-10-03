@@ -186,11 +186,13 @@ const UI = {
       else if (cmd === 'where') this.msg(`${G.map.def.name} (${Math.floor(p.x)}, ${Math.floor(p.y)})`, 'info');
       else if (cmd === 'save') saveGame(false);
       else if (cmd === 'autoloot') { p.options.autoLoot = !p.options.autoLoot; this.msg(`Auto Loot: ${p.options.autoLoot ? 'On' : 'Off'}`, 'info'); }
+      else if (cmd === 'nc' || cmd === 'noctrl') { p.options.noCtrl = p.options.noCtrl === false; saveGame(); this.msg(p.options.noCtrl ? L('/nc เปิด — คลิกมอนแล้วตีต่อเนื่อง', '/noctrl On — click a monster to keep attacking') : L('/nc ปิด — คลิกตี 1 ที (กด Ctrl ค้างตอนคลิก = ตีต่อเนื่อง)', '/noctrl Off — one hit per click (Ctrl+click to keep attacking)'), 'info'); this.dirty(); }
+      else if (cmd === 'ns' || cmd === 'noshift') { p.options.noShift = !p.options.noShift; saveGame(); this.msg(p.options.noShift ? L('/ns เปิด — กดสกิลแล้วยิงใส่เป้าหมายปัจจุบันทันที', '/noshift On — skills fire at your current target instantly') : L('/ns ปิด — กดสกิลแล้วคลิกเลือกเป้า', '/noshift Off — press a skill, then click a target'), 'info'); this.dirty(); }
       else if (cmd === 'help') this.open('w-help');
       else if (cmd === 'emote' || cmd === 'e') this.toggle('w-emote');
       else if (/^trade(\s|$)/.test(cmd)) Trade.command(text.slice(6));
       else if (Emote.fromChat(cmd)) { /* อีโมต */ }
-      else this.msg(L(`คำสั่ง: /sit /where /save /autoloot /help /emote • ปาร์ตี้: /party create /invite ชื่อ /leave /p ข้อความ • อีโมต: ${EMOTES.map(e => '/' + e.k).join(' ')}`, `Commands: /sit /where /save /autoloot /help /emote • Party: /party create /invite name /leave /p message • Emotes: ${EMOTES.map(e => '/' + e.k).join(' ')}`), 'info');
+      else this.msg(L(`คำสั่ง: /sit /where /save /autoloot /nc /ns /help /emote • ปาร์ตี้: /party create /invite ชื่อ /leave /p ข้อความ • อีโมต: ${EMOTES.map(e => '/' + e.k).join(' ')}`, `Commands: /sit /where /save /autoloot /nc /ns /help /emote • Party: /party create /invite name /leave /p message • Emotes: ${EMOTES.map(e => '/' + e.k).join(' ')}`), 'info');
       return;
     }
     this.msg(`${p.name} : ${text}`, 'say');
@@ -2018,6 +2020,8 @@ const UI = {
         chk('autoLoot', L('เก็บไอเทมอัตโนมัติ (Auto Loot)', 'Auto Loot')),
         h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.autoCounter !== false ? 'checked' : false, onchange: e => { o.autoCounter = e.target.checked; saveGame(); } }), L(' โจมตีกลับอัตโนมัติเมื่อถูกโจมตี', ' Auto counter-attack when hit')),
         h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.skillAim !== false ? 'checked' : false, onchange: e => { o.skillAim = e.target.checked; G.pendingSkill = null; saveGame(); } }), L(' กดสกิลแล้วคลิกเลือกเป้า (แบบ RO) — ปิด = ใช้ใส่เป้าปัจจุบันทันที', ' Click a target after pressing a skill (RO-style) — off = cast on current target')),
+        h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.noCtrl !== false ? 'checked' : false, onchange: e => { o.noCtrl = e.target.checked; saveGame(); } }), L(' /nc — คลิกมอนแล้วตีต่อเนื่อง (ปิด = ตี 1 ที, Ctrl+คลิก = ต่อเนื่อง)', ' /nc — Click a monster to keep attacking (off = one hit, Ctrl+click = keep attacking)')),
+        h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.noShift ? 'checked' : false, onchange: e => { o.noShift = e.target.checked; G.pendingSkill = null; saveGame(); } }), L(' /ns — มีเป้าหมายอยู่แล้ว กดสกิลยิงทันที ไม่ต้องคลิกเล็ง', ' /ns — With a target, skills fire instantly (no aim click)')),
         chk('expMsg', L('แสดงข้อความ EXP ในแชท', 'Show EXP messages in chat'))),
       sec('bag', L('ยาอัตโนมัติ', 'Auto-potion'),
         ...this.autoPotControls(full => { if (full) this.renderOptions(true); else body.dataset.key = this.optKey(); })),

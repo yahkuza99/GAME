@@ -90,7 +90,9 @@ function updateHover() {
   else if (G.hover) cur = G.hover.kind === 'mob' ? 'crosshair' : 'pointer';
   if (R.cv.style.cursor !== cur) R.cv.style.cursor = cur;
 }
-function handleClick() {
+// /nc (/noctrl) แบบ RO: เปิด (ค่าเริ่ม) = คลิกมอนแล้วตีต่อเนื่อง + ใช้สกิลใส่มอนแล้วตีต่อ • ปิด = คลิกตี 1 ที (กด Ctrl ค้างตอนคลิก = ตีต่อเนื่อง)
+function ncOn(ev) { return G.player.options.noCtrl !== false || !!(ev && ev.ctrlKey); }
+function handleClick(ev) {
   const p = G.player;
   if (!G.started || p.dead) return;
   updateHover();
@@ -104,14 +106,14 @@ function handleClick() {
       m = G.mobs.filter(x => !x.dead && U.dist(x.x, x.y, wx, wy) < 1.6).sort((a, b) => U.dist(a.x, a.y, wx, wy) - U.dist(b.x, b.y, wx, wy))[0] || null;
     }
     G.pendingSkill = null;
-    if (m) { p.target = m; p.repathAt = 0; beginSkill(id, skillLv(id), m); }
+    if (m) { p.target = ncOn(ev) ? m : null; p.oneHit = null; p.repathAt = 0; beginSkill(id, skillLv(id), m); }
     else UI.msg(L('ยกเลิกการใช้สกิล', 'Skill cancelled.'), 'info');
     return;
   }
   if (p.cast) { p.cast = null; UI.msg(L('ยกเลิกการร่ายเวท', 'Cast cancelled.'), 'info'); }
   p.target = null; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null;
   p.sitting = false;
-  if (hv && hv.kind === 'mob') { p.target = hv.ref; p.repathAt = 0; Bot.userTarget(hv.ref); return; }
+  if (hv && hv.kind === 'mob') { p.target = hv.ref; p.oneHit = ncOn(ev) ? null : hv.ref; p.repathAt = 0; Bot.userTarget(hv.ref); return; }
   if (hv && hv.kind === 'npc') { Bot.manualOverride(); p.npcTarget = hv.ref; p.path = []; return; }
   if (hv && hv.kind === 'drop') { Bot.manualOverride(); p.pickTarget = hv.ref; p.path = []; return; }
   const tx = Math.floor(R.mouse.wx / TILE), ty = Math.floor(R.mouse.wy / TILE);
@@ -136,7 +138,7 @@ function bindInput() {
     if (e.pointerType !== 'mouse' && typeof UnitCard !== 'undefined' && UnitCard.pressStart(e)) return; // มือถือ: นิ้วลงบนยูนิต → แตะค้าง 0.5 วิ = การ์ดข้อมูล (แตะสั้นทำงานตอนยกนิ้ว)
     R.mouse.down = true;
     R.mouse.holdAt = G.time + 0.35;
-    handleClick();
+    handleClick(e);
   });
   cv.addEventListener('pointermove', e => {
     if (touches.has(e.pointerId)) touches.set(e.pointerId, { x: e.clientX, y: e.clientY });

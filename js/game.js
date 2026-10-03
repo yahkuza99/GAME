@@ -1080,7 +1080,8 @@ function useSkill(id) {
   if (s.target === 'enemy') {
     const cur = p.target && !p.target.dead ? p.target : (G.hover && G.hover.kind === 'mob' ? G.hover.ref : null);
     // แบบ RO: กดสกิล → โหมดเล็ง → คลิก/แตะมอน • กดปุ่มเดิมซ้ำ = ใช้กับเป้าปัจจุบัน (หรือตัวใกล้สุด)
-    if (p.options.skillAim !== false && G.pendingSkill !== id) {
+    const quick = p.options.noShift && p.target && !p.target.dead; // /ns: มีเป้าอยู่แล้ว = ยิงใส่เป้าทันที ไม่ต้องคลิกเล็ง
+    if (p.options.skillAim !== false && G.pendingSkill !== id && !quick) {
       if (G.time < p.skillReadyAt) { skillDelayHint(); return; }
       if (skillCdLeft(id) > 0) { skillCdHint(id); return; }
       G.pendingSkill = id; G.pendingAt = G.time; Sound.play('click');
@@ -1187,7 +1188,7 @@ function executeSkill(id, lv, tgt) {
   if (s.special) runSpecialSkill(s.special, s, lv);
   const runeDone = typeof Runes !== 'undefined' && Runes.onCast(s, lv, tgt); // รูนที่เปลี่ยนวิธีทำดาเมจทั้งหมด (เช่น ดีเลย์ตกจากฟ้า) คืน true
   if (s.dmg && !runeDone) skillDamage(s, lv, tgt);
-  if (s.chain && tgt && !tgt.dead) { p.target = tgt; p.nextAttack = Math.max(p.nextAttack, G.time + 0.35); }
+  if (s.chain && tgt && !tgt.dead && (p.options.noCtrl !== false || Bot.on)) { p.target = tgt; p.nextAttack = Math.max(p.nextAttack, G.time + 0.35); }
 }
 
 function skillDamage(s, lv, tgt) {
@@ -1542,7 +1543,7 @@ function updatePlayer(dt) {
       if (inRange) {
         p.path = [];
         faceTo(p, m.x, m.y);
-        if (G.time >= p.nextAttack) playerAttack(m);
+        if (G.time >= p.nextAttack) { playerAttack(m); if (p.oneHit === m && !Bot.on) { p.target = null; p.oneHit = null; } }
       } else if (G.time >= p.repathAt) {
         p.path = findPath(G.map, Math.floor(p.x), Math.floor(p.y), Math.floor(m.x), Math.floor(m.y), 1500);
         p.repathAt = G.time + 0.3;
