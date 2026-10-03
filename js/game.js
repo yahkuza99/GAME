@@ -901,6 +901,7 @@ function stunBlocked() {
   if (p.stunMsg !== p.stunAt) { p.stunMsg = p.stunAt; UI.msg(L('มึนอยู่ ทำอะไรไม่ได้ชั่วครู่', 'You are stunned and cannot act!'), 'err'); }
   return true;
 }
+const FLINCH = { chance: 0.4, dur: 0.3, cd: 1.6 }; // โอกาสกระตุก / หยุดเดินกี่วิ / คูลดาวน์ก่อนกระตุกได้อีก
 function damagePlayer(dmg, color = '#ff5050') {
   const p = G.player;
   if (p.dead) return;
@@ -910,6 +911,10 @@ function damagePlayer(dmg, color = '#ff5050') {
   p.sitting = false; p.combatAt = G.time;
   addFloater(p.x, p.y - 1.2, dmg, color);
   p.hurtFlash = 0.15;
+  // กระตุกตอนเดิน (เจ้าของ 2026-10-03): โดนตีระหว่างเดินมีโอกาสสะดุดหยุดเดินสั้น ๆ • มีคูลดาวน์ เดินฝ่าได้ ไม่โดนล็อกจนขยับไม่ได้
+  if (p.path.length && G.time >= (p.flinchCd || 0) && dmg >= Math.max(1, p.d.maxHp * 0.01) && Math.random() < FLINCH.chance) {
+    p.flinchUntil = G.time + FLINCH.dur; p.flinchCd = G.time + FLINCH.cd; p.hurtFlash = FLINCH.dur;
+  }
   Sound.play('hurt');
   if (p.hp <= 0) playerDie();
 }
@@ -1480,6 +1485,7 @@ function updatePlayer(dt) {
     p.sp = Math.min(p.d.maxSp, p.sp + amt);
   }
   if (p.stunUntil > G.time) { p.moving = false; p.path = []; return; }
+  if (p.flinchUntil > G.time) { p.moving = false; return; } // กระตุก: หยุดชั่วครู่ แล้วเดินต่อตามทางเดิม
   if (p.cast) {
     p.moving = false;
     if (p.cast.target && p.cast.target.dead) { p.cast = null; return; }
