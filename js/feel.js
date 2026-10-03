@@ -185,6 +185,7 @@ const Feel = (() => {
     b.title = L('ไม้ตาย (T) — ตีและฆ่ามอนเพื่อเติมเกจ', 'Ultimate (T) — hit and kill monsters to charge');
     b.innerHTML = '<i></i><b>ULT</b><small>0%</small>';
     b.onclick = () => F.ultFire();
+    if (typeof UI !== 'undefined' && UI.altPress) UI.altPress(b, () => F.ultPick()); // คลิกขวา / กดค้าง = เลือกไม้ตาย (แม้เกจเต็ม)
     const dock = document.getElementById('dock'), auto = document.getElementById('auto-btn');
     if (dock && auto) auto.after(b); else document.body.appendChild(b);
     return (F.ub = b);
@@ -194,7 +195,7 @@ const Feel = (() => {
     const b = F.ultBtn(), v = G.player.ult || 0, k = v / ULT_MAX;
     b.style.setProperty('--k', k); b.style.setProperty('--uc', F.ultCol());
     b.querySelector('small').textContent = v >= ULT_MAX ? 'READY' : Math.floor(k * 100) + '%';
-    b.title = `${F.ULTS[F.ultKind()].name} — ${F.ULTS[F.ultKind()].desc}\n` + L('เกจไม่เต็ม: กดเพื่อเลือกไม้ตาย • เต็ม: กด T หรือปุ่มนี้', 'Not full: click to choose • Full: press T or this button');
+    b.title = `${F.ULTS[F.ultKind()].name} — ${F.ULTS[F.ultKind()].desc}\n` + L('คลิกขวา/กดค้าง: เลือกไม้ตาย • เกจเต็ม: กด T หรือปุ่มนี้', 'Right-click/hold: choose ultimate • Full: press T or this button');
     b.classList.toggle('ready', v >= ULT_MAX);
   };
   // ไม้ตายแบบบัฟ ให้ผู้เล่นเลือกเอง (เจ้าของ: เน้นบัฟพื้นฐาน — ไม้ตายโจมตี RAGNARÖK/METEOR ถูกถอด 2026-10-02) (กดปุ่ม ULT ตอนเกจยังไม่เต็ม = เปิดตัวเลือก) • บันทึกใน p.ultKind

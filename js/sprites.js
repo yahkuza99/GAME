@@ -843,7 +843,7 @@ Sprites.drawMob = (g, m, t) => {
     const base = { hop: 40, fly: 40, crawl: 34, sway: 50, float: 52, walk: d.sprite === 'quad' ? 44 : 60 }[motion];
     const tr = Anim.track(m, t, m.atkAnim || 0, m.hitFlash > 0, !!m.dead);
     const mo = (motion === 'hop' || motion === 'fly' || motion === 'float') && !m.dead ? Sprites.motion(m, t, motion) : null; // ภาพวาดเท้าแตะพื้นทุกเฟรม เกมยกตัวให้เอง
-    Anim.draw(g, x, y, ak, { facing: m.facing || 1, dir: m.dir, moving: m.moving, atk: tr.atk, hurt: tr.hurt, dead: m.dead, deathT: m.deathT, seed: m.x * 0.37, raise: mo ? Math.max(0, mo.lift) : 0, filter: flash }, t, base * (d.scale || 1) * (d.size || 1));
+    Anim.draw(g, x, y, ak, { facing: m.facing || 1, dir: m.dir, moving: m.moving, atk: tr.atk, hurt: tr.hurt, dead: m.dead, deathT: m.deathT, seed: m.x * 0.37, outline: !d.dummy, raise: mo ? Math.max(0, mo.lift) : 0, filter: flash }, t, base * (d.scale || 1) * (d.size || 1));
   }
   else if (art) Sprites.mobImage(g, x, y, m, t, art);
   else switch (m.def.sprite) {

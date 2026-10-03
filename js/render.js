@@ -331,7 +331,7 @@ R.render = () => {
       let ty = y + 26; const py = P(p.y * TILE) + 28;
       if (Math.abs(x - p.x * TILE) < 110 && Math.abs(ty - py) < 22) ty = Math.max(ty, py) + 22;
       R.name(g, x, ty, m.def.name, 'mob', { dot: m.def.aggro ? '#ff6b7d' : '#8fe3a8', lv: `Lv ${m.def.lv}`, lvCol: R.lvColor(m.def.lv, p.baseLv || 1) });
-    }
+    } else if (!m.def.dummy) R.name(g, x, y + (m.hp < m.maxHp ? 21 : 15), m.def.name, 'mobsoft'); // มอนทั่วไป: ชื่อบาง ๆ ใต้ตัวเสมอ (ชี้/ล็อกเป้า = ป้ายเต็ม)
     if (m.emoteUntil > G.time) R.emote(g, x + 12, y - 44 * s, '!');
     if (m.speech && m.speech.until > G.time) R.speech(g, x, y - 44 * s - 12, m.speech.text, true); // บอสตะโกน (เรียกลูกสมุน/คลั่ง — js/bosskit.js)
   }
@@ -757,29 +757,30 @@ R.tagRaw = (g, x, y, text, color, dot) => {
 R.NAME_STYLE = {
   self: { fill: '#fffaf0', size: 13, glow: 'rgba(255,214,120,0.55)' }, player: { fill: '#fff1cc', size: 12 }, party: { fill: '#9dffe0', size: 12, glow: 'rgba(61,255,200,0.35)' },
   npc: { fill: '#ffe6a6', size: 12 }, mob: { fill: '#ffffff', size: 12 }, mvp: { fill: '#ffd98a', size: 13, glow: 'rgba(255,90,70,0.7)' }, hint: { fill: '#fff3c4', size: 11 },
+  mobsoft: { fill: 'rgba(255,255,255,0.82)', size: 9, weight: 500, stroke: 2.4, ink: 'rgba(20,12,6,0.62)', flat: true }, // ชื่อมอนทั่วไปแบบบาง ๆ (เจ้าของ 2026-10-03)
 };
 R.name = (g, x, y, text, kind, o = {}) => {
   const st = R.NAME_STYLE[kind] || R.NAME_STYLE.player, fill = o.fill || st.fill;
-  g.font = `700 ${st.size}px ${R.FONT}`;
+  g.font = `${st.weight || 700} ${st.size}px ${R.FONT}`;
   const key = `N|${kind}|${text}|${fill}|${o.crest || ''}|${o.dot || ''}|${o.lv || ''}|${o.lvCol || ''}`;
   const box = () => { const w = R.nameW(g, text, kind, o); return { x: -w / 2 - 4, y: -12, w: w + 8, h: 26 }; };
   if (R.cached(g, key, x, y, box, c => R.nameRaw(c, 0, 0, text, kind, o))) return;
   R.nameRaw(g, x, y, text, kind, o);
 };
 R.nameW = (g, text, kind, o) => {
-  const st = R.NAME_STYLE[kind] || R.NAME_STYLE.player; g.font = `700 ${st.size}px ${R.FONT}`;
+  const st = R.NAME_STYLE[kind] || R.NAME_STYLE.player; g.font = `${st.weight || 700} ${st.size}px ${R.FONT}`;
   let w = g.measureText(text).width;
-  if (o.lv) { g.font = `700 ${st.size - 2}px ${R.FONT}`; w += g.measureText(o.lv).width + 5; g.font = `700 ${st.size}px ${R.FONT}`; }
+  if (o.lv) { g.font = `${st.weight || 700} ${st.size - 2}px ${R.FONT}`; w += g.measureText(o.lv).width + 5; g.font = `${st.weight || 700} ${st.size}px ${R.FONT}`; }
   if (o.crest || o.dot || kind === 'npc' || kind === 'mvp') w += 13;
   return w;
 };
 R.nameRaw = (g, x, y, text, kind, o = {}) => {
   const st = R.NAME_STYLE[kind] || R.NAME_STYLE.player, fill = o.fill || st.fill;
   const W = R.nameW(g, text, kind, o), icon = o.crest || o.dot || kind === 'npc' || kind === 'mvp' ? 13 : 0;
-  g.font = `700 ${st.size}px ${R.FONT}`;
+  g.font = `${st.weight || 700} ${st.size}px ${R.FONT}`;
   const tw = g.measureText(text).width, x0 = x - W / 2, tx = x0 + icon + tw / 2;
   g.save(); g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
-  const ink = 'rgba(24,14,6,0.95)';
+  const ink = st.ink || 'rgba(24,14,6,0.95)';
   // ไอคอนหน้าชื่อ
   const ix = x0 + 5, iy = y;
   if (o.crest) { // โล่สี Class
@@ -792,11 +793,11 @@ R.nameRaw = (g, x, y, text, kind, o = {}) => {
     g.fillStyle = '#ffcf4a'; g.fill(); g.lineWidth = 1.5; g.strokeStyle = ink; g.stroke();
   } else if (o.dot) { g.beginPath(); g.arc(ix, iy, 3.2, 0, 7); g.fillStyle = o.dot; g.fill(); g.lineWidth = 1.5; g.strokeStyle = ink; g.stroke(); }
   // ชื่อ: ขอบเข้ม + เงา/เรือง
-  g.shadowColor = st.glow || 'rgba(0,0,0,0.55)'; g.shadowBlur = st.glow ? 8 : 3; g.shadowOffsetY = st.glow ? 0 : 1;
-  g.lineWidth = 3.5; g.strokeStyle = ink; g.strokeText(text, tx, y);
+  g.shadowColor = st.glow || 'rgba(0,0,0,0.55)'; g.shadowBlur = st.flat ? 0 : st.glow ? 8 : 3; g.shadowOffsetY = st.glow || st.flat ? 0 : 1;
+  g.lineWidth = st.stroke || 3.5; g.strokeStyle = ink; g.strokeText(text, tx, y);
   g.shadowBlur = 0; g.shadowOffsetY = 0; g.fillStyle = fill; g.fillText(text, tx, y);
   if (o.lv) { // ป้าย Lv ตัวเล็กท้ายชื่อ (สีตามความยาก)
-    g.font = `700 ${st.size - 2}px ${R.FONT}`; const lw = g.measureText(o.lv).width, lx = x0 + icon + tw + 5 + lw / 2;
+    g.font = `${st.weight || 700} ${st.size - 2}px ${R.FONT}`; const lw = g.measureText(o.lv).width, lx = x0 + icon + tw + 5 + lw / 2;
     g.lineWidth = 3; g.strokeStyle = ink; g.strokeText(o.lv, lx, y + 1); g.fillStyle = o.lvCol || '#e8eef5'; g.fillText(o.lv, lx, y + 1);
   }
   if (kind === 'npc') { // เส้นทองจางใต้ชื่อ
