@@ -117,12 +117,13 @@ const BossKit = (() => {
     const n = K.ancient(m) ? 5 : 3;
     cue(m, name, col);
     say(m, L(`${m.def.name} ${th}`, `${m.def.name} ${en}`));
-    for (let i = 0; i < n; i++) later(i * 0.55, () => {
+    const drop = () => {
       if (m.dead || p.dead) return;
       const x = p.x, y = p.y;
       telegraph(m, { shape: 'circle', x, y, r: 1.5, dur: 1.1 }, () => damagePlayer(bossDmg(m, 1.1, true), col),
         () => fx === 'fire' ? addFx({ type: 'firering', x, y, dur: 0.5, r: 1.6 }) : addFx({ type: 'ring', x, y, dur: 0.5, r: 1.8, color: '255,236,160', waves: 2 }));
-    });
+    };
+    drop(); for (let i = 1; i < n; i++) later(i * 0.55, drop);
   };
   BOSS_SKILLS.halodrops = barrage('halodrops', 'HALO RAIN', 'โปรยวงแสงตามรอยเท้าเจ้า! เดินไปเรื่อย ๆ อย่าหยุด!', 'rains halos where you stand! Keep moving!', '#ffe27a', 'holy');
   BOSS_SKILLS.foxfire = barrage('foxfire', 'FOXFIRE', 'ปล่อยไฟจิ้งจอกตามรอยเท้าเจ้า! เดินไปเรื่อย ๆ อย่าหยุด!', 'drops foxfire where you stand! Keep moving!', '#ff8040', 'fire');
@@ -180,7 +181,8 @@ const BossKit = (() => {
     const p = G.player; if (p.dead) return;
     cue(m, "HEL'S HUNT", '#ff5a3a');
     say(m, L(`${m.def.name} ออกล่า! ตะครุบไล่ 3 ครั้ง — วิ่งอย่าหยุด!`, `${m.def.name} begins HEL'S HUNT — three pounces in a row! Keep running!`));
-    for (let i = 0; i < 3; i++) later(i * 1.15, () => { if (!m.dead && !p.dead) pounceAt(m, p.x, p.y, 1.1, 1.5); });
+    const jump = () => { if (!m.dead && !p.dead) pounceAt(m, p.x, p.y, 1.1, 1.5); };
+    jump(); later(1.15, jump); later(2.3, jump);
   };
 
   // ---------- เรียกลูกสมุน ----------
@@ -292,14 +294,15 @@ const BossKit = (() => {
       }
       if (!m.def.boss || m.def.dummy) continue;
       K.init(m);
+      const A = K.ancient(m);
+      if (A) { // ช่วงคลั่งตามเลือดร่วม: กำลังสู้ = ฉากคลั่งเต็ม (ประกาศ + ชั้นยอด) • ไม่ได้สู้อยู่ (คนอื่นตีจนข้ามเส้น) = เปลี่ยนช่วงเงียบ ๆ
+        const k = m.hp / m.maxHp, want = k <= 0.2 ? 2 : k <= 0.5 ? 1 : 0;
+        if (want > (m.phase || 0)) { if (m.state === 'chase') K.enrage(m, want); else K.setPhase(m, want); }
+      }
       if (m.state !== 'chase') { if (!m.calmAt) m.calmAt = G.time; continue; }
       m.calmAt = 0;
-      const A = K.ancient(m);
       if (!m.engaged) { m.engaged = true; m.nextSummon = Math.max(m.nextSummon || 0, G.time + (A ? 7 : 10)); }
       if (A) {
-        const k = m.hp / m.maxHp;
-        if ((m.phase || 0) < 1 && k <= 0.5) K.enrage(m, k <= 0.2 ? 2 : 1);
-        else if (m.phase < 2 && k <= 0.2) K.enrage(m, 2);
         if (m.phase && vis() && G.time >= (m.auraAt || 0)) { m.auraAt = G.time + 0.7; addFx({ type: 'ring', x: m.x, y: m.y, dur: 0.7, r: 1.6 * Math.sqrt(m.def.scale || 1), color: m.phase >= 2 ? '255,40,30' : '255,110,50' }); }
       }
       // เรียกลูกสมุน: ห่างจากท่าที่เพิ่งร่ายอย่างน้อย 1.5 วิ (ไม่ซ้อนป้ายจนอ่านไม่ทัน)
