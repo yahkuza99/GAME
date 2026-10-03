@@ -429,7 +429,7 @@ LOOT.setBonus = p => {
 LOOT.lastShout = 0;
 LOOT.announce = id => {
   const p = G.player, it = ITEMS[id];
-  UI.announce(L(`★ ${p.name} ได้รับ ${it.name}! ★`, `★ ${p.name} obtained ${it.name}! ★`), typeof itemIconUrl === 'function' ? itemIconUrl(id) : null);
+  UI.announce(L(`★ ${p.name} ได้รับ ${it.name}! ★`, `★ ${p.name} obtained ${it.name}! ★`));
   UI.msg(L(`★ ${p.name} ได้รับ ${it.name}! (${LOOT.label(id)})`, `★ ${p.name} obtained ${it.name}! (${LOOT.label(id)})`), 'mvp');
   // ออนไลน์: บอกคนอื่นในแผนที่ด้วย (ไม่เกิน 1 ครั้งต่อ 30 วินาที)
   if (typeof Online !== 'undefined' && Online.online && typeof Online.sendChat === 'function' && performance.now() - LOOT.lastShout > 30000) {
