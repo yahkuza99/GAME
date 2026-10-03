@@ -659,6 +659,7 @@ function faceTo(e, tx, ty) {
 function moveEntity(e, dt, speed) {
   let step = speed * dt;
   e.moving = false;
+  if (e.flinchUntil > G.time) return; // กระตุก (โดนตีตอนเดิน): หยุดแค่การเดิน — ตี/ร่าย/ใช้สกิลได้ตามปกติ แล้วเดินต่อทางเดิม
   while (step > 0 && e.path.length) {
     const n = e.path[0];
     const tx = n.x + 0.5, ty = n.y + 0.5;
@@ -1491,7 +1492,6 @@ function updatePlayer(dt) {
     p.sp = Math.min(p.d.maxSp, p.sp + amt);
   }
   if (p.stunUntil > G.time) { p.moving = false; p.path = []; return; }
-  if (p.flinchUntil > G.time) { p.moving = false; return; } // กระตุก: หยุดชั่วครู่ แล้วเดินต่อตามทางเดิม
   if (p.cast) {
     p.moving = false;
     if (p.cast.target && p.cast.target.dead) { p.cast = null; return; }
@@ -1594,7 +1594,6 @@ function updateMob(m, dt) {
     if (m.dead) return;
   }
   if (m.stunUntil > G.time) { m.moving = false; return; }
-  if (m.flinchUntil > G.time) { m.moving = false; return; } // กระตุกชั่วครู่ แล้วเดินต่อ
   const alive = !p.dead;
   const hidden = p.stealthUntil > G.time;
   const dist = U.dist(m.x, m.y, p.x, p.y);
