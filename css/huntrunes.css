@@ -1,0 +1,83 @@
+/* =====================================================================
+   Hunt Rune (js/huntrunes.js) — หน้าต่าง #w-hrunes + การ์ดในหน้าต่าง Status (.hr-st) + แท็บในเตา Brokk/กระเป๋า + ธาตุ/เผ่าในแถบเป้าหมาย (#tg-er)
+   ใช้ค่าจาก css/tokens.css (กระดาษครีม ขอบทอง ไม้เข้ม) • ทุกกฎอยู่ใต้ #w-hrunes / .hr-* / #tg-er — ไม่แตะหน้าต่างอื่น
+   ===================================================================== */
+#w-hrunes .win-body { min-height: 0; }
+#w-hrunes .hr { display: flex; flex-direction: column; gap: var(--s3); font-family: var(--f-body); color: var(--c-ink); }
+#w-hrunes .hr-intro { margin: 0; font-size: var(--fs-s); line-height: 1.5; color: var(--c-ink-2); }
+#w-hrunes .hr-busy { margin: 0; padding: var(--s2) var(--s3); border-radius: var(--rad-m); font-weight: 600; font-size: var(--fs-s);
+  color: var(--c-bad); background: rgba(179, 50, 31, 0.08); border: 1px solid rgba(179, 50, 31, 0.35); }
+
+/* ---------- 2 ช่อง ---------- */
+#w-hrunes .hr-socks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s2); }
+#w-hrunes .hr-sock-card { position: relative; display: flex; align-items: center; gap: var(--s2); min-width: 0; padding: var(--s2) var(--s3);
+  background: var(--c-card); border: 1px solid var(--c-line-2); border-radius: var(--rad-m); box-shadow: var(--sh-1); }
+#w-hrunes .hr-sock-card.on { background: var(--c-card-hi); border-color: var(--c-gold); box-shadow: var(--glow-gold); }
+#w-hrunes .hr-sock-card.empty { border-style: dashed; box-shadow: none; background: rgba(140, 100, 45, 0.05); }
+#w-hrunes .hr-sock-card.lock { opacity: 0.75; border-style: dashed; box-shadow: none; background: rgba(60, 40, 20, 0.06); }
+#w-hrunes .hr-num { position: absolute; left: -6px; top: -8px; display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 4px; border-radius: 11px;
+  font: 700 var(--fs-xs)/1 var(--f-title); color: #fbe6b2; background: radial-gradient(circle at 50% 35%, #7f5532, #3f2613 75%); border: 1px solid var(--c-gold); }
+#w-hrunes .hr-sock-card.on .hr-num { color: #3b2204; background: linear-gradient(180deg, #ffe69c, #edba50); border-color: #b5802a; }
+#w-hrunes .hr-stone { flex: none; width: 44px; height: 44px; border-radius: 10px; }
+#w-hrunes .hr-stone.empty { border: 2px dashed var(--c-line-2); background: rgba(140, 100, 45, 0.06); box-sizing: border-box; }
+#w-hrunes .hr-stone.lock { display: grid; place-items: center; color: var(--c-ink-3); border: 1px solid var(--c-line-2); box-sizing: border-box; }
+#w-hrunes .hr-stone.lock svg { width: 20px; height: 20px; fill: currentColor; }
+#w-hrunes .hr-sock-t { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+#w-hrunes .hr-sock-t b { font-weight: 600; font-size: var(--fs-s); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#w-hrunes .hr-sock-t small { font-size: var(--fs-xs); color: var(--c-ink-3); line-height: 1.35; }
+#w-hrunes .hr-rm { flex: none; }
+
+/* ---------- รูนที่มี ---------- */
+#w-hrunes .hr-sec-t { margin: 0; padding-top: var(--s2); border-top: 1px dashed var(--c-line-2); font: 600 var(--fs-m)/1.2 var(--f-title); color: var(--c-gold-ink); }
+#w-hrunes .hr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s1); max-height: 230px; overflow-y: auto; padding: 2px; }
+#w-hrunes .hr-tile { position: relative; display: flex; align-items: center; gap: var(--s2); min-width: 0; padding: var(--s1) var(--s2); text-align: left; cursor: pointer;
+  background: var(--c-paper-2); border: 1px solid var(--c-line); border-radius: var(--rad-s); color: var(--c-ink); font: inherit; }
+#w-hrunes .hr-tile:hover { border-color: var(--c-gold); }
+#w-hrunes .hr-tile.sel { background: var(--c-card-hi); border-color: var(--c-gold); box-shadow: var(--glow-gold); }
+#w-hrunes .hr-tile img { flex: none; width: 30px; height: 30px; }
+#w-hrunes .hr-tile-t { display: flex; flex-direction: column; min-width: 0; }
+#w-hrunes .hr-tile-t b { font-size: var(--fs-xs); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#w-hrunes .hr-tile-t small { font-size: var(--fs-2xs); color: var(--c-ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#w-hrunes .hr-tag { position: absolute; right: 4px; top: 3px; padding: 0 5px; border-radius: 8px; font: 700 10px/16px var(--f-title); font-style: normal;
+  color: #3b2204; background: linear-gradient(180deg, #ffe69c, #edba50); border: 1px solid #b5802a; }
+#w-hrunes .hr-det { display: flex; flex-direction: column; gap: var(--s2); padding: var(--s3); border-radius: var(--rad-m); background: var(--c-card); border: 1px solid var(--c-gold); box-shadow: var(--sh-2); }
+#w-hrunes .hr-det-h { display: flex; align-items: center; gap: var(--s2); }
+#w-hrunes .hr-det-h img { width: 40px; height: 40px; }
+#w-hrunes .hr-det-h div { display: flex; flex-direction: column; }
+#w-hrunes .hr-det-h small { font-size: var(--fs-xs); color: var(--c-ink-3); }
+#w-hrunes .hr-det-d { margin: 0; font-size: var(--fs-s); line-height: 1.5; color: var(--c-ink-2); }
+#w-hrunes .hr-acts { display: flex; flex-wrap: wrap; gap: var(--s1); }
+#w-hrunes .hr-acts .btn { flex: 1 1 auto; }
+
+/* ---------- เตา Brokk / กระเป๋า ---------- */
+.hr-filter { margin-top: calc(-1 * var(--s1)); }
+.hr-price { flex: none; font: 600 var(--fs-xs)/1 var(--f-num, inherit); color: var(--c-gold-ink); white-space: nowrap; }
+.hr-price::after { content: " ◎"; color: #c9a24a; }
+.hr-price.bad { color: var(--c-bad); }
+.hr-owned { flex: none; font-size: var(--fs-xs); font-weight: 600; color: var(--c-ok); white-space: nowrap; }
+.hr-sec .kv b { text-align: right; }
+
+/* ---------- การ์ดในหน้าต่าง Status ---------- */
+.hr-st { display: flex; align-items: center; gap: var(--s2); margin-top: var(--s2); padding: var(--s2) var(--s3); flex-wrap: wrap;
+  border-radius: var(--rad-m); border: 1px dashed var(--c-line-2, rgba(140, 100, 45, 0.38)); font-size: var(--fs-s); }
+.hr-st-t { font-weight: 600; color: var(--c-gold-ink); flex: none; }
+.hr-st-s { display: inline-flex; align-items: center; gap: 4px; min-width: 0; max-width: 40%; padding: 1px var(--s2) 1px 2px; border-radius: var(--rad-pill);
+  background: var(--c-paper-2); border: 1px solid var(--c-line); font-size: var(--fs-xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hr-st-s img { width: 20px; height: 20px; flex: none; }
+.hr-st-s.empty, .hr-st-s.lock { color: var(--c-ink-3); padding-left: var(--s2); }
+.hr-st .btn { flex: none; margin-left: auto; }
+
+/* ---------- แถบเป้าหมาย: ธาตุ · เผ่า ---------- */
+#tg-er:empty { display: none; }
+#target #tg-er { margin-top: 2px; font: 500 10px/1.25 var(--f-body, sans-serif); color: #f3dcb0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; text-shadow: 0 1px 2px #000; }
+#tg-er[data-el="fire"] { color: #ff9a5a; } #tg-er[data-el="water"] { color: #7ec8ff; } #tg-er[data-el="wind"] { color: #8ff0c8; }
+#tg-er[data-el="earth"] { color: #e0b878; } #tg-er[data-el="holy"] { color: #fff0a0; } #tg-er[data-el="shadow"] { color: #c8a8ff; }
+#tg-er[data-el="undead"] { color: #a8e8e0; } #tg-er[data-el="poison"] { color: #d0a0ff; } #tg-er[data-el="ghost"] { color: #d8d8ff; }
+
+/* ---------- มือถือ ---------- */
+@media (max-width: 760px) {
+  #w-hrunes .hr-socks { grid-template-columns: minmax(0, 1fr); }
+  #w-hrunes .hr-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); max-height: 200px; }
+  #w-hrunes .hr-acts .btn, #w-hrunes .hr-rm { min-height: 40px; }
+  .hr-st-s { max-width: 100%; }
+}

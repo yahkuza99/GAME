@@ -166,12 +166,14 @@ const Bot = {
   physEst(m, mult, el) {
     const d = G.player.d, md = m.def;
     const atk = d.statusAtk + d.weaponAtk * 0.9 + d.atkBonus;
-    return Math.max(1, atk * mult * elemMod(el || 'neutral', md.element) * (1 + d.atkPct / 100) * (1 - md.def / 100) - md.vit * 0.43);
+    return Math.max(1, atk * mult * this.elemK(m, el) * (1 + d.atkPct / 100) * (1 - md.def / 100) - md.vit * 0.43);
   },
   magicEst(m, mult, el) {
     const d = G.player.d, md = m.def;
-    return Math.max(1, (d.matkMin + d.matkMax) / 2 * mult * elemMod(el || 'neutral', md.element) * (1 - md.mdef / 100) - md.lv / 4);
+    return Math.max(1, (d.matkMin + d.matkMax) / 2 * mult * this.elemK(m, el) * (1 - md.mdef / 100) - md.lv / 4);
   },
+  // ธาตุ × Hunt Rune (js/huntrunes.js: Endow เปลี่ยนธาตุของตีปกติ/สกิลไม่มีธาตุ + โบนัสตามเงื่อนไข) — ไม่มีไฟล์นั้น = ธาตุอย่างเดียว
+  elemK(m, el) { return typeof HuntRunes !== 'undefined' ? HuntRunes.estMul(m, el) : elemMod(el || 'neutral', m.def.element); },
   basicEst(m) { return this.physEst(m, masteryMul('attack')); },
   basicDps(m) {
     const d = G.player.d;

@@ -8,11 +8,12 @@
 //  • Build Code: IV-BUILD:<base64url> = Class + รูน + Passive + Battle Script (ไม่บังคับ) + id อุปกรณ์ (แค่แสดง)
 //    ไม่มี uid / ชื่อ / ข้อมูลระบุตัวตน • ตรวจเข้มแบบ whitelist ไม่ eval ไม่แตะ prototype
 //  ข้อความในโค้ด (ก่อน base64):  1|<class>|<rune,rune>|<node,node>|<item×8 ตามช่อง EQUIP_SLOTS>|<ข้อความกฎ Battle Script>
+//    มี Hunt Rune (js/huntrunes.js) = รุ่น 2:  2|<class>|<rune>|<node>|<item×8>|<hunt I,hunt II>|<script>  (ไม่มี Hunt Rune = ยังส่งรุ่น 1 → โค้ดเดิมใช้ได้ตลอด)
 //  หน้าต่าง "Builds" (#w-builds) — CSS อยู่ที่ css/loadouts.css
 // ============================================================
 
 const LO_SLOTS = 3, LO_NAME_MAX = 16, LO_PREFIX = 'IV-BUILD:', LO_MAX_CODE = 3600, LO_MAX_TEXT = 2600;
-const LO_RX = { job: /^[a-z][a-z0-9_]{0,23}$/, rune: /^[a-z][a-z0-9_]{0,31}\.[a-z][a-z0-9_]{0,23}$/, node: /^[a-z0-9]{1,8}$/, item: /^[a-z][a-z0-9_]{0,39}$/ };
+const LO_RX = { hrune: /^hr_[a-z_]{1,24}$/, job: /^[a-z][a-z0-9_]{0,23}$/, rune: /^[a-z][a-z0-9_]{0,31}\.[a-z][a-z0-9_]{0,23}$/, node: /^[a-z0-9]{1,8}$/, item: /^[a-z][a-z0-9_]{0,39}$/ };
 
 const Loadouts = {
   draft: '', lastCode: '', preview: null, withScript: true, _busy: null, _left: -1, _defer: false,
@@ -81,6 +82,7 @@ const Loadouts = {
     const b = o.bot && typeof o.bot === 'object' ? o.bot : {};
     const text = typeof b.text === 'string' && typeof BotScript !== 'undefined' && !BotScript.parseText(b.text).err ? b.text : '1:';
     s.bot = { adv: b.adv === true, text, preset: Number.isInteger(b.preset) && b.preset >= 0 && b.preset < 3 ? b.preset : -1 };
+    s.hrunes = Array.isArray(o.hrunes) && typeof HuntRunes !== 'undefined' ? HuntRunes.cleanSlots(o.hrunes, null) : null; // Hunt Rune: ชุดเก่าไม่มี = ไม่แตะของที่ใส่อยู่
     return s;
   },
 
@@ -102,15 +104,15 @@ const Loadouts = {
       job: p.job, passives: Passive.list(p).slice(), runes: this.cleanRunes(p.runes), equip,
       hotbar: p.hotbar.slice(0, 8).map(x => (x && x.t === 'skill' && p.skills[x.id] ? { t: 'skill', id: x.id } : null)), // สกิลที่ยังไม่เรียน = ช่องว่าง (แบบเดียวกับแถบลัด)
       potbar: p.potbar.slice(0, 4).map(x => (x && x.t === 'item' ? { t: 'item', id: x.id } : null)),
-      bot,
+      bot, hrunes: typeof HuntRunes !== 'undefined' ? HuntRunes.slots(p).slice() : null,
     };
   },
   // เทียบชุดกับสภาพตอนนี้ (ไม่สนชื่อ/เวลา และลำดับการเปิด Passive)
   sig(s) {
     const r = Object.keys(s.runes).sort().map(k => s.runes[k]);
-    return JSON.stringify([s.passives.slice().sort(), r, EQUIP_SLOTS.map(k => (s.equip[k] ? s.equip[k].uid : 0)), s.hotbar.map(x => x && x.id), s.potbar.map(x => x && x.id), s.bot.adv, s.bot.text]);
+    return JSON.stringify([s.passives.slice().sort(), r, EQUIP_SLOTS.map(k => (s.equip[k] ? s.equip[k].uid : 0)), s.hotbar.map(x => x && x.id), s.potbar.map(x => x && x.id), s.bot.adv, s.bot.text, s.hrunes || null]);
   },
-  matches(i) { const s = this.st().slots[i]; return !!s && this.sig(s) === this.sig(this.snapshot()); },
+  matches(i) { const s = this.st().slots[i]; if (!s) return false; const n = this.snapshot(); if (!s.hrunes) n.hrunes = null; return this.sig(s) === this.sig(n); },
 
   save(i, name) {
     const L0 = this.st(), old = L0.slots[i];
@@ -202,9 +204,10 @@ const Loadouts = {
     this.applyRunes(s.runes, false);
     this.applyBars(s);
     this.applyBot(s.bot);
+    const hrSkip = s.hrunes && typeof HuntRunes !== 'undefined' ? HuntRunes.applyList(s.hrunes) : 0;
     L0.cur = i;
     recalc(); saveGame(); UI.dirty();
-    return Object.assign({ ok: true, passErr }, eq);
+    return Object.assign({ ok: true, passErr, hrSkip }, eq);
   },
   // ข้อความสรุปหลังสลับ (บอกชิ้นที่ข้ามชัดเจน)
   report(s, r) {
@@ -216,6 +219,7 @@ const Loadouts = {
     }
     if (r.failed.length) UI.msg(L(`สวมไม่ได้ (Class/เลเวล): ${r.failed.map(m => ITEMS[m.id].name).join(', ')}`, `Can't equip (Class/level): ${r.failed.map(m => ITEMS[m.id].name).join(', ')}`), 'err');
     if (r.passErr) UI.msg(r.passErr, 'err');
+    if (r.hrSkip) UI.msg(L(`ข้าม Hunt Rune ${r.hrSkip} อัน (ยังไม่มี / ช่องยังไม่ปลด)`, `Skipped ${r.hrSkip} Hunt Rune(s) (not owned / slot locked)`), 'err');
     if (typeof Sound !== 'undefined') Sound.play('equip');
     if (typeof addFloater === 'function') addFloater(G.player.x, G.player.y - 1.8, `⚙ ${s.name}`, '#ffe08a', true);
   },
@@ -235,9 +239,13 @@ const Loadouts = {
     let text = s.bot && s.bot.adv ? s.bot.text : ''; // Battle Script ใส่เฉพาะตอนเปิดโหมดขั้นสูงอยู่
     if (text && src && s.bot.preset >= 0 && typeof Bot !== 'undefined') { const pre = Bot.cfg().presets; if (Array.isArray(pre) && typeof pre[s.bot.preset] === 'string') text = pre[s.bot.preset]; }
     const script = withScript && text && text !== '1:' ? text : '';
-    return { job, runes, passives: s.passives.slice(), equip: EQUIP_SLOTS.map(k => (s.equip[k] ? s.equip[k].id : '')), script };
+    const hr = (s.hrunes || [null, null]).map(x => x || '');
+    return { job, runes, passives: s.passives.slice(), equip: EQUIP_SLOTS.map(k => (s.equip[k] ? s.equip[k].id : '')), hrunes: hr, script };
   },
-  encode(b) { return LO_PREFIX + this.b64e(['1', b.job, b.runes.join(','), b.passives.join(','), b.equip.join(','), b.script || ''].join('|')); },
+  encode(b) {
+    const hr = (b.hrunes || []).some(Boolean); // ไม่มี Hunt Rune = รุ่น 1 เดิมทุกตัวอักษร
+    return LO_PREFIX + this.b64e([hr ? '2' : '1', b.job, b.runes.join(','), b.passives.join(','), b.equip.join(','), ...(hr ? [b.hrunes.map(x => x || '').join(',')] : []), b.script || ''].join('|'));
+  },
   exportCode(src, withScript = true) { return this.encode(this.buildFrom(src, withScript)); },
   // ตรวจโค้ดแบบ whitelist ทุกช่อง: ผิดแม้แต่ตัวเดียว = ปฏิเสธทั้งโค้ด (ยกเว้นกฎ Battle Script ที่ใช้สกิลที่ไม่รู้จัก = ข้ามกฎนั้น)
   decode(str) {
@@ -248,8 +256,22 @@ const Loadouts = {
     const txt = this.b64d(str.slice(LO_PREFIX.length));
     if (txt == null || txt.length > LO_MAX_TEXT || !/^[\x20-\x7e]*$/.test(txt)) return bad();
     const f = txt.split('|');
-    if (f.length !== 6 || f[0] !== '1') return bad(L('รุ่นโค้ดไม่รู้จัก', 'unknown version'));
+    if (!((f[0] === '1' && f.length === 6) || (f[0] === '2' && f.length === 7))) return bad(L('รุ่นโค้ดไม่รู้จัก', 'unknown version'));
+    const hs = f[0] === '2' ? f.splice(5, 1)[0] : '';
     const [, job, rs, ps, es, sc] = f;
+    // Hunt Rune (รุ่น 2): ช่อง I,II — id ที่มีจริง ไม่ซ้ำ Endow ไม่เกิน 1
+    const hrunes = [null, null];
+    if (hs) {
+      const hl = hs.split(','), HR = typeof HuntRunes !== 'undefined' ? HuntRunes : null;
+      if (!HR || hl.length > 2) return bad('Hunt Rune');
+      let endow = 0;
+      for (let k = 0; k < hl.length; k++) {
+        const id = hl[k]; if (!id) continue;
+        if (!LO_RX.hrune.test(id) || !this.own(HR.DEFS, id) || hrunes.includes(id)) return bad('Hunt Rune');
+        if (HR.DEFS[id].kind === 'endow' && ++endow > 1) return bad('Hunt Rune');
+        hrunes[k] = id;
+      }
+    }
     if (!LO_RX.job.test(job) || !this.own(JOBS, job)) return bad('Class');
     const skills = this.lineSkills(job), runes = [], rskill = new Set();
     const rl = rs ? rs.split(',') : [];
@@ -278,13 +300,15 @@ const Loadouts = {
       if (r.err) return bad('Battle Script');
       script = { text: BotScript.toText(r.rules), rules: r.rules, dropped: r.dropped };
     }
-    return { build: { job, runes, passives: pl, equip: el, script } };
+    return { build: { job, runes, passives: pl, equip: el, hrunes, script } };
   },
   // ใช้ได้แค่ไหนกับตัวละครนี้: Class ต้องตรง (หรือเป็น Class แม่ของเรา) ไม่งั้นดูอย่างเดียว
   check(b) {
     const p = G.player, classOk = this.line(p.job).includes(b.job), tot = Passive.total(p);
     const runeOk = b.runes.filter(rid => (p.skills[Runes.BY_ID[rid].skill] || 0) >= Runes.UNLOCK).length;
-    return { classOk, passOk: classOk && b.passives.length <= tot, passNeed: b.passives.length, passHave: tot, runeOk: classOk ? runeOk : 0, runeAll: b.runes.length, scriptOk: classOk && !!b.script };
+    const hl = (b.hrunes || []).filter(Boolean), hrOk = typeof HuntRunes !== 'undefined' ? hl.filter(id => HuntRunes.owns(id)).length : 0;
+    return { classOk, passOk: classOk && b.passives.length <= tot, passNeed: b.passives.length, passHave: tot, runeOk: classOk ? runeOk : 0, runeAll: b.runes.length, scriptOk: classOk && !!b.script,
+      hrOk: classOk ? hrOk : 0, hrAll: hl.length };
   },
   // parts = { runes, passives, script } — คืน { ok, err?, done[], skipped }
   applyBuild(b, parts) {
@@ -305,10 +329,12 @@ const Loadouts = {
     if (parts.script && b.script) {
       const cf = Bot.cfg(); BotScript.normalize(cf); BotScript.setRules(cf, b.script.rules); cf.adv = true; BotScript.restIdx = -1; done.push('script');
     }
+    let hrSkipped = 0;
+    if (parts.hrunes && c.hrAll && typeof HuntRunes !== 'undefined') { hrSkipped = HuntRunes.applyList(b.hrunes); done.push('hrunes'); } // ยังไม่มี/ช่องยังล็อก = ข้าม
     if (!done.length) return { ok: false, err: L('ยังไม่ได้เลือกส่วนที่จะใช้', 'Nothing selected to apply') };
     this.st().cur = -1;
     recalc(); saveGame(); UI.dirty();
-    return { ok: true, done, skipped };
+    return { ok: true, done, skipped, hrSkipped };
   },
 
   // ---------- หน้าต่าง Builds ----------
@@ -344,6 +370,7 @@ const Loadouts = {
         this.chip('Class', s.job ? JOBS[s.job].name : '—', s.job && s.job !== G.player.job ? 'warn' : ''),
         this.chip('Passive', `${s.passives.length}${ks.length ? ' • ' + ks.join(', ') : ''}`),
         this.chip('Rune', String(Object.keys(s.runes).length)),
+        s.hrunes ? this.chip('Hunt', String(s.hrunes.filter(Boolean).length)) : null,
         this.chip(L('อุปกรณ์', 'Gear'), `${eqN}/${EQUIP_SLOTS.length}`, miss.length ? 'warn' : ''),
         this.chip('AUTO', this.botLabel(s.bot))));
       if (miss.length) card.append(h('p', { class: 'lo-warn' }, '⚠ ', L('ไม่มีในกระเป๋าแล้ว (จะข้าม): ', 'Missing (will be skipped): '),
@@ -392,27 +419,31 @@ const Loadouts = {
     const big = b.passives.filter(id => PTREE[id].kind !== 'small').map(id => PTREE[id].name);
     const sum = Object.keys(bonus).filter(k => bonus[k] && PSTAT[k]).map(k => PSTAT_FMT(k, Math.round(bonus[k] * 10) / 10));
     const eq = b.equip.map((id, k) => id ? `${SLOT_THAI[EQUIP_SLOTS[k]]}: ${ITEMS[id].name}` : null).filter(Boolean);
+    const hl = (b.hrunes || []).filter(Boolean), HR = typeof HuntRunes !== 'undefined' ? HuntRunes : null;
     box.append(
       h('div', { class: 'lo-pv-sec' }, h('h5', {}, `ᚱ Rune Paths (${b.runes.length})`), rl),
+      hl.length && HR ? h('div', { class: 'lo-pv-sec' }, h('h5', {}, `Hunt Rune (${hl.length})`), h('ul', { class: 'lo-pv-list' }, hl.map(id => h('li', { class: HR.owns(id) ? '' : 'dim' }, h('b', {}, HR.DEFS[id].name),
+        HR.owns(id) ? null : h('small', {}, L(' (ยังไม่มี — Brokk ตีให้)', ' (not owned — Brokk forges it)')))))) : null,
       h('div', { class: 'lo-pv-sec' }, h('h5', {}, L(`Passive (${b.passives.length} แต้ม • Base Lv ${b.passives.length + 1}+)`, `Passive (${b.passives.length} pts • Base Lv ${b.passives.length + 1}+)`)),
         big.length ? h('p', { class: 'lo-pv-big' }, big.join(' • ')) : null, h('p', { class: 'lo-pv-sum' }, sum.join(', ') || '—')),
       h('div', { class: 'lo-pv-sec' }, h('h5', {}, L('อุปกรณ์ (ข้อมูลเท่านั้น)', 'Equipment (info only)')), h('p', { class: 'lo-pv-sum' }, eq.join(' • ') || '—')),
       h('div', { class: 'lo-pv-sec' }, h('h5', {}, 'Battle Script'), h('p', { class: 'lo-pv-sum' },
         b.script ? L(`${b.script.rules.length} กฎ${b.script.dropped ? ` (ข้าม ${b.script.dropped} กฎที่ไม่รู้จัก)` : ''}`, `${b.script.rules.length} rules${b.script.dropped ? ` (${b.script.dropped} unknown skipped)` : ''}`) : L('ไม่มี', 'None'))));
     if (!c.classOk) { box.append(h('p', { class: 'hint' }, L(`Build นี้เป็นของ Class ${JOBS[b.job].name} — ดูเป็นไอเดียได้ แต่ใช้กับตัวละคร ${JOBS[p.job].name} ไม่ได้`, `This build is for ${JOBS[b.job].name} — browse it for ideas, but it can't be applied to your ${JOBS[p.job].name}`))); return box; }
-    const sel = pv.sel || (pv.sel = { runes: c.runeOk > 0, passives: c.passOk, script: c.scriptOk });
+    const sel = pv.sel || (pv.sel = { runes: c.runeOk > 0, passives: c.passOk, script: c.scriptOk, hrunes: c.hrOk > 0 });
     const opt = (k, label, can, why) => h('label', { class: 'lo-opt' + (can ? '' : ' off') },
       h('input', { type: 'checkbox', checked: can && sel[k] ? 'checked' : false, disabled: can ? false : 'disabled', onchange: e => { sel[k] = e.target.checked; } }), ' ', label, why ? h('small', {}, ' — ' + why) : null);
     box.append(h('div', { class: 'lo-opts' },
       opt('runes', L(`Rune Paths (${c.runeOk}/${c.runeAll})`, `Rune Paths (${c.runeOk}/${c.runeAll})`), c.runeOk > 0, c.runeAll && c.runeOk < c.runeAll ? L('บางสกิลยังไม่ถึง Lv ปลดรูน', 'some skills are below the rune level') : !c.runeAll ? L('ไม่มีรูน', 'none') : ''),
       opt('passives', 'Passive', c.passOk, c.passOk ? L('ฟรี (แทนที่ของเดิม)', 'free (replaces current)') : L(`ต้องใช้ ${c.passNeed} แต้ม มี ${c.passHave}`, `needs ${c.passNeed} pts, you have ${c.passHave}`)),
-      opt('script', 'Battle Script', c.scriptOk, c.scriptOk ? L('แทนกฎ AUTO ปัจจุบัน', 'replaces your AUTO rules') : L('ไม่มี', 'none'))));
+      opt('script', 'Battle Script', c.scriptOk, c.scriptOk ? L('แทนกฎ AUTO ปัจจุบัน', 'replaces your AUTO rules') : L('ไม่มี', 'none')),
+      c.hrAll ? opt('hrunes', `Hunt Rune (${c.hrOk}/${c.hrAll})`, c.hrOk > 0, c.hrOk < c.hrAll ? L('บางอันยังไม่มี (ข้าม)', 'some not owned (skipped)') : '') : null));
     const busy = !this.canSwitch();
     box.append(h('div', { class: 'lo-acts' }, h('button', { type: 'button', class: 'btn primary lo-apply', disabled: busy ? 'disabled' : false, onclick: async () => {
       if (typeof UI.confirm === 'function' && !(await UI.confirm(L('ใช้ส่วนที่เลือกกับตัวละครนี้? (บันทึก Build เดิมไว้ในช่องก่อนได้)', 'Apply the selected parts to this character? (save your current build to a slot first if you want to keep it)')))) return;
       const r = this.applyBuild(b, sel);
       if (!r.ok) UI.msg(r.err, 'err');
-      else { UI.msg(L(`ใช้ Build แล้ว${r.skipped ? ` (ข้าม ${r.skipped} รูนที่ยังไม่ปลด)` : ''}`, `Build applied${r.skipped ? ` (${r.skipped} locked runes skipped)` : ''}`), 'sys'); this.preview = null; this.draft = ''; if (typeof Sound !== 'undefined') Sound.play('buff'); }
+      else { UI.msg(L(`ใช้ Build แล้ว${r.skipped ? ` (ข้าม ${r.skipped} รูนที่ยังไม่ปลด)` : ''}${r.hrSkipped ? ` (ข้าม Hunt Rune ${r.hrSkipped})` : ''}`, `Build applied${r.skipped ? ` (${r.skipped} locked runes skipped)` : ''}${r.hrSkipped ? ` (${r.hrSkipped} Hunt Rune skipped)` : ''}`), 'sys'); this.preview = null; this.draft = ''; if (typeof Sound !== 'undefined') Sound.play('buff'); }
       this.render();
     } }, busy ? this.busyMsg() : L('ใช้ส่วนที่เลือก', 'Apply selected'))));
     return box;

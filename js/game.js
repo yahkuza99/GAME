@@ -11,7 +11,7 @@ const G = {
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
 const SAVE_FIELDS = ['pvp', 'mvpAt', 'job1Lv', 'name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
-  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery', 'story', 'daily', 'gacha', 'runes', 'loadouts'];
+  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery', 'story', 'daily', 'gacha', 'runes', 'loadouts', 'hrunes', 'hrunesOwn'];
 
 // ------------------------------------------------------------
 //  สร้าง / บันทึก / โหลด
@@ -20,7 +20,7 @@ function newPlayer(name, gender, hair, look) {
   const p = {
     name, gender, hair, look: Object.assign({ head: gender === 'f' ? 'long' : 'spiky', color: '#e6e9ef', glow: '#7ad8ff', visor: 'band' }, look || {}), job: 'novice', baseLv: 1, jobLv: 1, baseExp: 0, jobExp: 0,
     stats: { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 }, statPoints: 48, skillPoints: 0,
-    skills: { first_aid: 1 }, passives: [], runes: {}, zeny: 500, inventory: [],
+    skills: { first_aid: 1 }, passives: [], runes: {}, hrunes: [null, null], hrunesOwn: [], zeny: 500, inventory: [],
     equip: { head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null, acc2: null },
     hotbar: [null, null, null, null, null, null, null, null], potbar: [null, null, null, null],
     map: HOME_MAP, x: 20.5, y: 24.5, save: { map: HOME_MAP, x: 20.5, y: 24.5 },
@@ -175,6 +175,7 @@ function loadGameFrom(data) {
   // สกิลที่ไม่มีอยู่แล้ว (เช่น ถูกลบออกจาก data.js) คืนแต้มให้
   for (const id in p.skills) if (!SKILLS[id]) { if (!SKILLS.first_aid || id !== 'first_aid') p.skillPoints += p.skills[id]; delete p.skills[id]; }
   p.runes = typeof Runes !== 'undefined' ? Runes.sanitize(p.runes) : {}; // Rune Paths: เซฟเก่าไม่มี = ไม่มีรูน (สกิลแบบเดิม) • รูน/สกิลที่ไม่มีแล้วถูกตัดทิ้ง
+  if (typeof HuntRunes !== 'undefined') HuntRunes.sanitize(p); // Hunt Rune (js/huntrunes.js): เซฟเก่าไม่มี = ว่าง • id ที่ไม่มี/ไม่ได้ซื้อ/Endow ซ้ำ ถูกตัดทิ้ง
   if (typeof Loadouts !== 'undefined') p.loadouts = Loadouts.sanitize(p.loadouts); // Loadouts (js/loadouts.js): เซฟเก่าไม่มี = 3 ช่องว่าง • ข้อมูลเสียถูกตัดทิ้ง
   fixSkillPoints(p, true); // เซฟเก่าที่แต้มสกิลเกิน (แต้ม Novice ค้างข้าม Class) → ปรับให้ถูกต้อง
   // แถบสกิล (8 ช่อง) แยกจากแถบไอเทม (4 ช่อง) — เซฟเก่าที่ปนกันจะถูกย้ายไอเทมไปแถบไอเทม
@@ -688,18 +689,21 @@ function physHit(m, mult = 1, opts = {}) {
   if (!crit && !opts.sureHit && !d.resolute && !U.chance(hitRate / 100)) return { miss: true };
   let atk = d.statusAtk + d.weaponAtk * (crit ? 1 : U.rand(0.8, 1.0)) + d.atkBonus + (opts.flatAtk || 0);
   if (d.rage) atk *= 1 + (1 - p.hp / d.maxHp) * d.rage / 100;
-  const em = elemMod(opts.element || 'neutral', md.element);
-  let dmg = atk * mult * em * (1 + d.atkPct / 100);
+  // Hunt Rune (js/huntrunes.js): Endow = ธาตุของตีปกติ/สกิลที่ไม่มีธาตุ • hr.k = โบนัสตามเงื่อนไข (คูณ, เพดาน +45%) • ไม่ใส่ = เหมือนเดิมทุกอย่าง
+  const hr = typeof HuntRunes !== 'undefined' ? HuntRunes.hit(m, opts.element) : null;
+  const em = elemMod(hr ? hr.el : (opts.element || 'neutral'), md.element);
+  let dmg = atk * mult * em * (1 + d.atkPct / 100) * (hr ? hr.k : 1);
   if (crit) dmg *= d.critMul;
   else dmg = dmg * (1 - md.def / 100) - md.vit * 0.5 * U.rand(0.7, 1);
-  return { dmg: em === 0 ? 0 : Math.max(1, Math.round(dmg)), crit, phys: true };
+  return { dmg: em === 0 ? 0 : Math.max(1, Math.round(dmg)), crit, phys: true, em, hr: hr && hr.tags, endow: hr && hr.endow };
 }
-function magicHit(m, mult = 1, element = 'neutral') {
+function magicHit(m, mult = 1, element = null) {
   const d = G.player.d, md = m.def;
   const matk = U.randi(d.matkMin, Math.max(d.matkMin, d.matkMax));
-  const em = elemMod(element, md.element);
-  const dmg = matk * mult * em * (1 - md.mdef / 100) - md.lv / 4;
-  return { dmg: em === 0 ? 0 : Math.max(1, Math.round(dmg)) };
+  const hr = typeof HuntRunes !== 'undefined' ? HuntRunes.hit(m, element) : null; // Hunt Rune: เหมือน physHit
+  const em = elemMod(hr ? hr.el : (element || 'neutral'), md.element);
+  const dmg = matk * mult * em * (hr ? hr.k : 1) * (1 - md.mdef / 100) - md.lv / 4;
+  return { dmg: em === 0 ? 0 : Math.max(1, Math.round(dmg)), em, hr: hr && hr.tags, endow: hr && hr.endow };
 }
 function applyHit(m, r, opts = {}) {
   if (m.dead) return;
@@ -710,6 +714,7 @@ function applyHit(m, r, opts = {}) {
     return;
   }
   damageMob(m, r.dmg, Object.assign({ crit: r.crit }, opts));
+  if (typeof HuntRunes !== 'undefined') HuntRunes.feedback(m, r); // หินรูนกะพริบเมื่อ Hunt Rune ทำงาน • Weak!/Resist ตามธาตุ (แบบ RO)
   // ดูดเลือด (ต้นไม้พาสซีฟ): ดาเมจกายภาพส่วนหนึ่งกลับมาเป็น HP แบบเงียบ ๆ
   const p = G.player;
   if (r.phys && p.d.leech && !p.dead && !m.def.dummy && p.hp < p.d.maxHp) {

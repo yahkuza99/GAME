@@ -354,6 +354,8 @@ const UI = {
     el.classList.toggle('boss', !!t.isMvp);
     $('#tg-name').textContent = t.def.name;
     $('#tg-lv').textContent = `Lv ${t.def.lv}`;
+    const er = $('#tg-er'), ert = typeof HuntRunes !== 'undefined' ? HuntRunes.targetTag(t) : ''; // ธาตุ + เผ่า (เลือก Hunt Rune ได้)
+    if (er && er.textContent !== ert) { er.textContent = ert; er.dataset.el = t.def.element || ''; }
     $('#tg-hp').style.width = (t.hp / t.maxHp * 100) + '%';
     $('#tg-hp-t').textContent = `${Math.max(0, Math.ceil(t.hp))} / ${t.maxHp}`;
     const cv = $('#tg-cv');
@@ -904,6 +906,7 @@ const UI = {
     if (this.isOpen('w-tree')) this.renderTree();
     if (this.isOpen('w-bot')) this.renderBot();
     if (this.isOpen('w-builds') && typeof Loadouts !== 'undefined') Loadouts.render(); // Loadouts + Build Code (js/loadouts.js)
+    if (this.isOpen('w-hrunes') && typeof HuntRunes !== 'undefined') HuntRunes.render(); // Hunt Rune (js/huntrunes.js)
     if (this.isOpen('w-map')) $('#w-map .win-title span').textContent = `Map — ${G.map.def.name}`;
     if (this.isOpen('w-shop') && this.shop) this.renderShop();
     if (this.isOpen('w-forge') && this.forge) this.renderForge();
@@ -981,6 +984,7 @@ const UI = {
         h('div', { class: 'st-col' }, card('req', 'Offense', atkRows), card('gem', 'Defense', defRows))),
       extra.length || ks.length ? card('info', 'Bonuses', [h('div', { class: 'st-bon' }, ...extra), ...ks], 'st-bonus') : null,
       typeof Loadouts !== 'undefined' ? Loadouts.statusEntry() : null, // Builds (js/loadouts.js)
+      typeof HuntRunes !== 'undefined' ? HuntRunes.statusEntry() : null, // Hunt Rune (js/huntrunes.js)
     );
   },
 
@@ -1059,6 +1063,7 @@ const UI = {
     if (it.type === 'weapon') return `Weapon · ${EN(WTYPE_THAI[it.wtype]) || it.wtype}`;
     if (it.type === 'armor') return it.slot === 'armor' ? 'Armor' : `Armor · ${SLOT_THAI[it.slot] || it.slot}`;
     if (it.type === 'card') return `Chip · fits ${SLOT_THAI[it.slot] || 'any slot'}`;
+    if (it.type === 'hrune') return `Hunt Rune · ${typeof HuntRunes !== 'undefined' && HuntRunes.def(it.id) ? HuntRunes.kindLabel(HuntRunes.def(it.id)) : 'Rune'}`;
     if (it.type === 'use') return 'Consumable';
     return 'Material';
   },
@@ -1239,14 +1244,18 @@ const UI = {
   bookBack(fn) { return h('button', { type: 'button', class: 'book-back', onclick: fn }, this.ico('back'), L('กลับ', 'Back')); },
   renderInv() {
     const p = G.player, body = $('#w-inv .win-body');
-    const tabs = [['use', 'Usable'], ['equip', 'Equip'], ['card', 'Chips'], ['etc', 'Etc']];
+    const HR = typeof HuntRunes !== 'undefined' ? HuntRunes : null; // แท็บ Runes = Hunt Rune ที่ซื้อแล้ว (ไม่ใช่ของในกระเป๋า — js/huntrunes.js)
+    const tabs = [['use', 'Usable'], ['equip', 'Equip'], ['card', 'Chips'], ['etc', 'Etc'], ...(HR ? [['hrune', 'Runes']] : [])];
+    if (!HR && this.invTab === 'hrune') this.invTab = 'use';
     const tabType = e => { const t = ITEMS[e.id].type; return t === 'use' ? 'use' : t === 'card' ? 'card' : isEquipType(ITEMS[e.id]) ? 'equip' : 'etc'; };
-    const list = p.inventory.filter(e => tabType(e) === this.invTab);
+    const owned = HR ? HR.entries() : [], tabCount = k => k === 'hrune' ? owned.length : p.inventory.filter(x => tabType(x) === k).length;
+    const list = this.invTab === 'hrune' ? owned : p.inventory.filter(e => tabType(e) === this.invTab);
     if (this.selItem && !list.includes(this.selItem)) { this.selItem = null; this.bookDet = false; }
     const e = this.selItem || (this.narrow() ? null : list[0]) || null;
     const pick = x => { this.selItem = x; this.bookDet = true; this.renderInv(); };
     const rows = list.map(x => {
       const row = this.itemRow(x, x === e, pick);
+      if (ITEMS[x.id].type === 'hrune') { row.draggable = false; const at = HR.slots().indexOf(x.id); const q = row.querySelector('.iqty'); if (q && at >= 0) q.textContent = `✓ ${HR.slotName(at)}`; else if (q) q.remove(); const sm = row.querySelector('.isum'); if (sm) sm.textContent = HR.rowSum(x.id); return row; }
       this.tipFor(row, x);
       const it = ITEMS[x.id];
       if (it.type === 'use' || isEquipType(it)) this.markBind(row, 'item', x.id);
@@ -1256,8 +1265,10 @@ const UI = {
     });
     const left = [
       h('div', { class: 'pills' }, tabs.map(([k, l]) => h('button', { type: 'button', class: 'pill' + (this.invTab === k ? ' on' : ''),
-        onclick: () => { this.invTab = k; this.selItem = null; this.bookDet = false; this.renderInv(); } }, l, h('small', {}, String(p.inventory.filter(x => tabType(x) === k).length))))),
-      h('div', { class: 'irows' }, rows.length ? rows : h('div', { class: 'book-empty' }, this.invTab === 'card'
+        onclick: () => { this.invTab = k; this.selItem = null; this.bookDet = false; this.renderInv(); } }, l, h('small', {}, String(tabCount(k)))))),
+      h('div', { class: 'irows' }, rows.length ? rows : h('div', { class: 'book-empty' }, this.invTab === 'hrune'
+        ? L('ยังไม่มี Hunt Rune — Brokk Forge-Bot ใน Neo Eldheim ตีให้ (แท็บ Hunt Rune ในเตา)', 'No Hunt Runes yet — Brokk Forge-Bot in Neo Eldheim forges them (Hunt Rune tab at his forge)')
+        : this.invTab === 'card'
         ? L(`ยังไม่มีชิป — ล่ามอนชนิดเดียวกันครบ ${CHIP_KILLS} ตัวได้ชิปของมัน 1 ชิ้น (MVP ได้ตั้งแต่ครั้งแรก)`, `No chips yet — defeat ${CHIP_KILLS} of one monster type to earn its chip (MVPs give one on the first kill)`)
         : L('ยังไม่มีของในแท็บนี้', 'Nothing in this tab yet'))),
       h('div', { class: 'book-foot' },
@@ -1266,7 +1277,8 @@ const UI = {
         h('span', { class: 'coin-pill' }, h('i', { class: 'coin' }), U.fmt(p.zeny))),
     ];
     let right;
-    if (e) {
+    if (e && ITEMS[e.id].type === 'hrune') right = HR.invDetail(e, this.bookBack(() => { this.bookDet = false; this.selItem = null; this.renderInv(); }));
+    else if (e) {
       const it = ITEMS[e.id], acts = [];
       if (it.type === 'use') acts.push(h('button', { class: 'btn big primary', onclick: () => useItem(e) }, 'Use'));
       if (isEquipType(it)) acts.push(h('button', { class: 'btn big primary', disabled: !canEquip(it, false), onclick: () => useItem(e) }, 'Equip'));
@@ -2196,12 +2208,13 @@ const UI = {
     const n = f.npc; // เดินห่างจาก Brokk เกิน 6 ช่อง / ย้ายแมพ = ปิด
     if (n && n.x != null && (!G.npcs.includes(n) || U.dist(p.x, p.y, n.x, n.y) > 6)) { this.close('w-forge'); return; }
     const narrow = this.narrow();
-    const tabs = h('div', { class: 'pills' }, [['refine', 'Refine', 'hammer'], ['chips', 'Chips', 'chips']].map(([k, l, ic]) =>
+    const tabs = h('div', { class: 'pills' }, [['refine', 'Refine', 'hammer'], ['chips', 'Chips', 'chips'], ...(typeof HuntRunes !== 'undefined' ? [['hrune', 'Hunt Rune', 'hrune']] : [])].map(([k, l, ic]) =>
       h('button', { type: 'button', class: 'pill' + (f.tab === k ? ' on' : ''), disabled: f.busy ? 'disabled' : false, onclick: () => { f.tab = k; f.det = false; f.last = null; this.renderForge(); } }, ivIconEl(ic), l)));
     const foot = (txt) => h('div', { class: 'book-foot' }, h('span', { class: 'bf-count' }, txt), h('span', { class: 'coin-pill' }, h('i', { class: 'coin' }), U.fmt(p.zeny)));
     const back = this.bookBack(() => { if (f.busy) return; f.det = false; this.renderForge(); });
     let left, right, det = false;
-    if (f.tab === 'refine') {
+    if (f.tab === 'hrune' && typeof HuntRunes !== 'undefined') ({ left, right, det } = HuntRunes.forgeTab(f, tabs, foot, back)); // Hunt Rune (js/huntrunes.js)
+    else if (f.tab === 'refine') {
       const slots = EQUIP_SLOTS.filter(s => p.equip[s]);
       if (f.sel && !p.equip[f.sel]) { f.sel = null; f.det = false; }
       const cur = f.cur = f.sel || (narrow ? null : (slots.includes('weapon') ? 'weapon' : slots[0])) || null;
