@@ -62,16 +62,16 @@ const MAP_DEFS = {
 const HOME_MAP = 'eldheim';
 // ลายพื้นทุ่งตามภูมิภาค (def.ground → GameMap.paintGrass / organicMask / js/flora.js Flora.bake) — แบบภาพวาด ไม่เห็นลายซ้ำ
 // สีหญ้า: base พื้น • lush หย่อมเขียวชุ่ม • sun หย่อมแดดอุ่น • dry หย่อมแห้งอมเหลือง • damp ริมน้ำ • shade ใต้ต้นไม้ • litter ใบไม้ร่วง (ป่า)
-// worn = หญ้าโดนเหยียบริมทางดิน • dirt = ย้อมทางดิน (multiply) • dirtSat = ลดความสดของดิน (ป่า = ดินฮิวมัสหม่น ไม่ส้ม) • hl/sh = ตัวคูณ [R,G,B] ไฮไลต์/เงาของลายหญ้า (sh R มาก = เงาเขียวมรกตไม่อมมะกอก • B น้อย = ฟ้าไม่ขึ้นตามแสง สีอิ่มไม่เทา — เทียบลายภาพหญ้าเดิม) • tex = ความคมลาย
+// worn = หญ้าโดนเหยียบริมทางดิน • dirt = ย้อมทางดิน (multiply) • dirtSat = ลดความสดของดิน (ป่า = ดินฮิวมัสน้ำตาลอุ่น ไม่เทาไม่ส้ม) • hl/sh = ตัวคูณ [R,G,B] ไฮไลต์/เงาของลายหญ้า (sh R มาก = เงาเขียวมรกตไม่อมมะกอก • B น้อย = ฟ้าไม่ขึ้นตามแสง สีอิ่มไม่เทา — เทียบลายภาพหญ้าเดิม) • tex = ความคมลาย
 // dryAt/dryAmt = จุดเริ่ม/ความแรงหย่อมแห้ง • light = ความแรงแสงหย่อมใหญ่ (lightVariation) • patches/patchTone/patchA = จำนวน/สี/ความทึบหย่อมดิน • tuft = สีหญ้ากระจุก [เข้ม, สว่าง] • sand = ดินชื้นริมน้ำ • ที่เหลือ = ของจิ๋วบนพื้น (flora.js)
 const GROUND_STYLE = {
-  meadow: { base: '#56a61e', lush: '#309824', sun: '#90bc28', dry: '#b4aa38', damp: '#288a3a', shade: '#227822', worn: '#a8a24c', dirt: '#f4ead8', dirtSat: 0.08,
+  meadow: { base: '#5aad20', lush: '#329e26', sun: '#96c22a', dry: '#b8ae3a', damp: '#2a903c', shade: '#247e24', worn: '#a8a24c', dirt: '#f4ead8', dirtSat: 0.08,
     hl: [1.0, 1.0, 0.3], sh: [1.45, 0.95, 0.3], tex: 1.75, light: 0.45, dryAmt: 0.3, dryAt: 0.62, tuft: ['#3f7a2c', '#a6c85a'], sand: [118, 104, 70], reeds: 0.35,
     patches: 0.25, patchTone: 'rgba(80,60,30,0.08)', clover: 1, flowers: 1, dew: 0 },
-  lake: { base: '#3ca63a', lush: '#248c46', sun: '#7aba36', dry: '#8aa844', damp: '#1e7e56', shade: '#247444', worn: '#8aa45a', dirt: '#dcd8cc', dirtSat: 0.18,
+  lake: { base: '#40ac3a', lush: '#268e46', sun: '#80c038', dry: '#8aa844', damp: '#1e7e56', shade: '#247444', worn: '#8aa45a', dirt: '#dcd8cc', dirtSat: 0.18,
     hl: [0.98, 1.0, 0.35], sh: [1.35, 0.95, 0.6], tex: 1.6, light: 0.4, dryAmt: 0.3, dryAt: 0.6, tuft: ['#2f7048', '#8cc278'], sand: [88, 92, 70],
     patches: 0.2, patchTone: 'rgba(60,50,30,0.08)', reeds: 1, flowers: 0.55, dew: 1 },
-  forest: { base: '#4cb226', lush: '#2e9c2c', sun: '#84bc2e', dry: '#80a034', damp: '#28884a', shade: '#26782a', litter: '#9c7032', worn: '#7e8e44', dirt: '#d4c2a8', dirtSat: 0.2,
+  forest: { base: '#50b628', lush: '#2e9c2c', sun: '#84bc2e', dry: '#80a034', damp: '#28884a', shade: '#26782a', litter: '#9c7032', worn: '#7e8e44', dirt: '#e4cfb2', dirtSat: 0.12,
     hl: [1.0, 1.0, 0.4], sh: [1.45, 0.95, 0.4], tex: 1.7, light: 0.5, dryAmt: 0.25, dryAt: 0.6, litterAmt: 0.35, tuft: ['#2c5e2a', '#80b04c'], sand: [80, 72, 52],
     patches: 0.22, patchTone: 'rgba(50,34,12,0.1)', patchA: 0.62, leaves: 1, roots: 1, reeds: 0.25, flowers: 0.3, dew: 0 },
 };
