@@ -972,7 +972,7 @@ const UI = {
       [L('ต้านมึน (VIT+พาสซีฟ)', 'Stun resist'), d.unshaken ? 100 : Math.round((1 - (1 - Math.min(0.9, d.vit / 100)) * (1 - d.stunRes / 100)) * 100), '%'], ['SP cost', d.spCostPct, '%'], [L('HP ฟื้นต่อรอบ', 'HP regen per tick'), d.regenPct, '%'],
       [L('ATK ตาม HP ที่เสีย', 'ATK per missing HP'), d.rage, '%'], [L('โอกาสติดพิษ', 'Poison chance'), d.venom, '%'],
     ].filter(([, v]) => v).map(([k, v, u]) => h('div', { class: 'st-row2' }, h('span', {}, k), h('b', {}, `${v > 0 ? '+' : ''}${Math.round(v * 10) / 10}${u}`)));
-    const ks = Passive.list(p).filter(x => PTREE[x].kdesc).map(x => h('div', { class: 'st-ks' }, h('b', {}, PTREE[x].name), ' — ', PTREE[x].kdesc));
+    const ks = Passive.list(p).filter(x => PTREE[x].fdesc).map(x => h('div', { class: 'st-ks' }, h('b', {}, PTREE[x].name), ' — ', PTREE[x].fdesc)); // Keystone + Notable แบบมีเงื่อนไข
     const card = (ic, title, kids, cls) => h('div', { class: 'st-card' + (cls ? ' ' + cls : '') }, h('div', { class: 'dsec-h' }, this.ico(ic), title), ...kids);
     const body = $('#w-status .win-body');
     body.innerHTML = '';
@@ -1580,10 +1580,14 @@ const UI = {
       body.dataset.built = '1'; body.innerHTML = '';
       const cv = h('canvas', { class: 'pt-cv' });
       const zoom = k => () => { T.z = U.clamp(T.z * k, 0.25, 1.8); this.drawTree(); };
-      body.append(h('div', { class: 'pt-head' }, h('span', { id: 'pt-pts' }), h('span', { class: 'pt-zoom' },
+      // รีเซ็ตฟรี 1 ครั้ง (ต้นไม้เปลี่ยนเป็นแบบ D) — โชว์เฉพาะตอนมีสิทธิ์
+      const reset = h('button', { class: 'btn pt-reset', type: 'button', id: 'pt-reset', onclick: () => {
+        const e = Passive.resetAll(p); UI.msg(e || L('รีเซ็ตต้นไม้แล้ว — แต้มคืนครบ (ฟรี)', 'Tree reset — all points refunded (free)'), e ? 'err' : 'sys'); T.sel = null; this.renderTree(); } }, L('รีเซ็ตฟรี', 'Free reset'));
+      body.append(h('div', { class: 'pt-head' }, h('span', { id: 'pt-pts' }), reset, h('span', { class: 'pt-zoom' },
         h('button', { class: 'btn', type: 'button', onclick: zoom(1 / 1.25) }, '−'), h('button', { class: 'btn', type: 'button', onclick: zoom(1.25) }, '+'),
         h('button', { class: 'btn', type: 'button', onclick: () => { T.x = 0; T.y = 0; T.z = this.treeFit(cv); this.drawTree(); } }, L('กลาง', 'Center')),
         h('button', { class: 'btn', type: 'button', onclick: () => { T.sum = !T.sum; this.renderTree(); } }, L('สรุปโบนัส', 'Summary')))),
+        h('div', { class: 'pt-caps', id: 'pt-caps' }), // เมเตอร์เพดาน (ATK% 7/20 …) — เติมใน renderTree
         h('div', { class: 'pt-wrap' }, cv, h('div', { class: 'pt-info', id: 'pt-info' })),
         this.treeLegend(),
         h('div', { class: 'hint' }, L('ลากเพื่อเลื่อน • ล้อเมาส์/สองนิ้วเพื่อซูม • แตะจุดเพื่อดูรายละเอียด • ได้ 1 แต้มต่อ 1 Base Level', 'Drag to pan • wheel/pinch to zoom • tap a node for details • 1 point per Base Level')));
@@ -1593,13 +1597,15 @@ const UI = {
     }
     const free = Passive.free(p);
     $('#pt-pts').innerHTML = L(`แต้มพาสซีฟ <b>${free}</b> / ${Passive.total(p)}`, `Passive points <b>${free}</b> / ${Passive.total(p)}`);
+    $('#pt-reset').hidden = !(p.ptReset > 0 && Passive.list(p).length);
+    this.treeCaps(p);
     const info = $('#pt-info'), id = T.hover || T.sel;
     // สร้างกล่องรายละเอียดใหม่เฉพาะเมื่อข้อมูลเปลี่ยน (ไม่งั้นปุ่มถูกแทนที่ระหว่างกด)
     const ikey = [id, free, Passive.list(p).length, p.zeny, T.sum].join('|');
     if (info.dataset.key === ikey) { this.drawTree(); return; }
     info.dataset.key = ikey; info.innerHTML = ''; info.style.removeProperty('--pc');
     if (T.sum && !id) {
-      const b = Passive.bonus(p), ks = Passive.list(p).filter(x => PTREE[x].kdesc).map(x => `${PTREE[x].name}: ${PTREE[x].kdesc}`);
+      const b = Passive.sum(p), ks = Passive.list(p).filter(x => PTREE[x].fdesc).map(x => `${PTREE[x].name}: ${PTREE[x].fdesc}`);
       info.append(h('b', {}, L('โบนัสรวมจากต้นไม้', 'Total tree bonuses')),
         ...(Object.keys(b).length ? Object.entries(b).map(([k, v]) => h('div', { class: 'pt-i-row' }, this.treeSvg(PGLYPH[k] || 'sparkle', 14), PSTAT_FMT(k, Math.round(v * 10) / 10))) : [h('div', { class: 'dim' }, L('ยังไม่ได้เปิดจุดไหน', 'No nodes allocated yet'))]),
         ...ks.map(t => h('div', { class: 'ks' }, t)));
@@ -1614,7 +1620,11 @@ const UI = {
         h('div', { class: 'pt-i-t' }, h('b', {}, n.name), h('small', {}, kindTh + (where ? ` • ${where}` : ''))),
         st ? h('em', { class: 'pt-i-st ' + st[1] }, st[0]) : null));
       for (const [k, v] of Object.entries(n.b)) info.append(h('div', { class: 'pt-i-row' }, this.treeSvg(PGLYPH[k] || 'sparkle', 14), PSTAT_FMT(k, v)));
-      if (n.kdesc) info.append(h('div', { class: 'ks' }, n.kdesc));
+      // ผลมีเงื่อนไข / กติกา Keystone: บรรทัดละผล + ไอคอน (เงื่อนไขก่อน ":" ตัวหนา)
+      if (n.fx) for (const [k, t] of Object.keys(n.fx).map((k, i) => [k, pfxLines(n)[i]])) {
+        const ci = t.indexOf(': ');
+        info.append(h('div', { class: 'pt-i-row pt-fx' + (n.kind === 'key' ? ' ks' : '') }, this.treeSvg(PFX[k].g, 14), ci > 0 ? h('span', {}, h('b', {}, t.slice(0, ci + 1)), t.slice(ci + 1)) : t));
+      }
       if (id === 'core') info.append(h('div', { class: 'dim' }, L('ทุกคนเริ่มจากตรงนี้', 'Everyone starts here')));
       else if (have) {
         const cost = Passive.refundCost(p), ok = Passive.canRefund(p, id);
@@ -1636,8 +1646,24 @@ const UI = {
     path.setAttribute('d', PGLYPH_PATH[name] || PGLYPH_PATH.sparkle); s.append(path);
     return s;
   },
+  // เมเตอร์เพดาน (Passive แบบ D): ชิปเล็ก "ATK% ▰▰▱ 7/20" ต่อค่าที่มี — เต็มเพดาน = ทอง • ค่าที่ทะลุเพดานไม่มีผล (ชี้ค้าง = บอก)
+  // ATK%/MATK%/ASPD/ฮีล: ช่องที่เหลือใต้เพดานคือที่ให้ผลมีเงื่อนไขเติม
+  treeCaps(p) {
+    const box = $('#pt-caps'); if (!box) return;
+    const use = Passive.capUse(p), key = use.map(u => u.k + u.raw).join(',');
+    if (box.dataset.key === key) return;
+    box.dataset.key = key; box.innerHTML = '';
+    const fx = { atkPct: 1, matkPct: 1, aspdPct: 1, healPct: 1 };
+    for (const u of use.slice(0, 8)) {
+      const pct = /Pct$|^leech$|^stunRes$|^venom$/.test(u.k), lab = (PSHORT[u.k] || u.k) + (pct ? '%' : ''), v = Math.abs(Math.round(u.v * 10) / 10), cap = Math.abs(u.cap);
+      const over = Math.abs(u.raw) > cap ? L(` • เกินเพดาน ${Math.round((Math.abs(u.raw) - cap) * 10) / 10} (ไม่มีผล)`, ` • ${Math.round((Math.abs(u.raw) - cap) * 10) / 10} over cap (no effect)`) : '';
+      const tip = L(`${lab}: ${v} / เพดาน ${cap}${fx[u.k] ? ' (ที่เหลือ = ผลมีเงื่อนไขใช้เติม)' : ''}`, `${lab}: ${v} / cap ${cap}${fx[u.k] ? ' (room left is filled by conditional effects)' : ''}`) + over;
+      box.append(h('span', { class: 'pt-cap' + (u.full ? ' full' : ''), 'data-k': u.k, title: tip },
+        this.treeSvg(PGLYPH[u.k] || 'sparkle', 12), h('em', {}, lab), h('i', {}, h('b', { style: `width:${Math.min(100, v / cap * 100)}%` })), h('span', {}, `${v}/${cap}`)));
+    }
+  },
   treeLegend() {
-    const kinds = [['small', L('จุดเล็ก', 'Minor')], ['notable', 'Notable'], ['key', 'Keystone']].map(([k, l]) => h('span', { class: 'pt-lg pt-lg-' + k }, h('i', {}), l));
+    const kinds = [['small', L('จุดเล็ก', 'Minor')], ['notable', 'Notable'], ['fx', L('มีเงื่อนไข', 'Conditional')], ['key', 'Keystone']].map(([k, l]) => h('span', { class: 'pt-lg pt-lg-' + k }, h('i', {}), l));
     return h('div', { class: 'pt-legend' }, ...kinds, h('span', { class: 'pt-lg-sep' }), ...PGLYPH_LEGEND.map(([g, l]) => h('span', { class: 'pt-lg' }, this.treeSvg(g, 13), l)));
   },
   // เส้นทางสั้นที่สุดจากจุดที่เปิดแล้วไปยัง id (ไม่รวมจุดที่เปิดแล้ว)
@@ -1820,7 +1846,9 @@ const UI = {
       // วงแหวนรอบนอกของ Notable / Keystone
       if (n.kind === 'notable' || n.kind === 'key') {
         if (n.kind === 'key') this.treeHex(g, n.x, n.y, r + 6); else { g.beginPath(); g.arc(n.x, n.y, r + 5, 0, Math.PI * 2); }
-        g.lineWidth = 2; g.strokeStyle = on ? rgba(c, 0.9) : inPath ? 'rgba(159,240,255,.8)' : rgba(c, can ? 0.6 : 0.3); g.stroke();
+        g.lineWidth = 2; g.strokeStyle = on ? rgba(c, 0.9) : inPath ? 'rgba(159,240,255,.8)' : rgba(c, can ? 0.6 : 0.3);
+        if (n.fx && n.kind === 'notable') g.setLineDash([6, 4]); // Notable มีเงื่อนไข = วงนอกเส้นประ (ดูจากภาพก็รู้ว่าเป็นลูกเล่น ไม่ใช่ +% เฉย ๆ)
+        g.stroke(); g.setLineDash([]);
       }
       // ตัวจุด
       shape();

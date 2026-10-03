@@ -415,7 +415,7 @@ const Loadouts = {
     }
     if (!b.runes.length) rl.append(h('li', { class: 'dim' }, L('ไม่ใส่รูน', 'No runes')));
     // Passive: จุดเด่น + ผลรวม
-    const bonus = {}; for (const id of b.passives) for (const k in PTREE[id].b) bonus[k] = (bonus[k] || 0) + PTREE[id].b[k];
+    const bonus = Passive.sum({ passives: b.passives.slice(), baseLv: 999 }); // หลังเพดาน (เหมือนในเกม)
     const big = b.passives.filter(id => PTREE[id].kind !== 'small').map(id => PTREE[id].name);
     const sum = Object.keys(bonus).filter(k => bonus[k] && PSTAT[k]).map(k => PSTAT_FMT(k, Math.round(bonus[k] * 10) / 10));
     const eq = b.equip.map((id, k) => id ? `${SLOT_THAI[EQUIP_SLOTS[k]]}: ${ITEMS[id].name}` : null).filter(Boolean);

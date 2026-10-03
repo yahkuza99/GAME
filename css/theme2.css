@@ -419,6 +419,25 @@ body.visor #w-tree .pt-lg-key i { border-color: #c48a1c; background: #ffe69c; }
 body.visor #w-tree .pt-lg-sep { background: var(--c-line-2); }
 body.visor #w-tree .hint { margin: 0; font: 400 var(--fs-2xs)/1.5 var(--f-body); color: var(--c-ink-3); }
 body.visor #w-tree .pt-info { border: 1px solid var(--c-gold); box-shadow: 0 0 0 2px rgba(64, 41, 20, 0.6), var(--sh-2); }
+/* Passive แบบ D: เมเตอร์เพดาน (ชิปเล็กแถวเดียว เลื่อนข้างได้บนมือถือ) • เต็มเพดาน = ทอง • ปุ่มรีเซ็ตฟรี (ปุ่มแบบ A จาก theme7) */
+#w-tree .pt-caps { flex: none; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 1px 0; }
+#w-tree .pt-caps:empty { display: none; }
+#w-tree .pt-caps::-webkit-scrollbar { display: none; }
+#w-tree .pt-cap { flex: none; display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px 3px 6px; border-radius: 7px; background: var(--c-card, rgba(255, 255, 255, 0.06)); border: 1px solid var(--c-line, rgba(255, 255, 255, 0.14)); color: var(--c-ink-2, #d5deea); font: 500 11px/1.2 var(--f-body, sans-serif); white-space: nowrap; }
+#w-tree .pt-cap svg { color: #b07a1c; flex: none; }
+#w-tree .pt-cap em { font-style: normal; font-weight: 600; letter-spacing: 0.02em; }
+#w-tree .pt-cap i { display: block; width: 34px; height: 5px; border-radius: 3px; background: rgba(120, 90, 50, 0.22); overflow: hidden; }
+#w-tree .pt-cap i b { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #8fb6d8, #5b8fc0); }
+#w-tree .pt-cap > span { font: 600 11px/1 var(--f-num, monospace); color: var(--c-ink-3, #a9b4c4); }
+#w-tree .pt-cap.full { border-color: #c48a1c; background: linear-gradient(180deg, #fff3cf, #ffe39a); color: #5a3a0a; }
+#w-tree .pt-cap.full i b { background: linear-gradient(90deg, #f0c040, #d8901c); }
+#w-tree .pt-cap.full > span { color: #7a4a08; }
+#w-tree .pt-reset { min-height: 30px; padding: 0 12px; font-size: 12px; }
+#w-tree .pt-reset[hidden] { display: none; }
+#w-tree .pt-info .pt-fx { align-items: flex-start; line-height: 1.35; }
+#w-tree .pt-info .pt-fx svg { margin-top: 2px; flex: none; }
+#w-tree .pt-info .pt-fx b { font-size: inherit; font-weight: 700; }
+#w-tree .pt-lg-fx i { border-style: dashed !important; }
 /* กาชา (โหมดฉากเต็มจอ): แผงข้อมูล/ปุ่ม/แท็บเป็นแผ่นไม้ขอบทอง • (โหมดหน้าต่าง) ใช้กระดาษ */
 #w-gacha.gc-art .gc-tabs { padding: var(--s1); gap: var(--s1); border-radius: var(--rad-pill); background: linear-gradient(180deg, rgba(64, 41, 20, 0.88), rgba(36, 23, 11, 0.86)) !important; border: 1px solid var(--c-hud-line); box-shadow: var(--sh-hud); }
 #w-gacha.gc-art .gc-tabs .tab { min-height: 34px; border-radius: var(--rad-pill); border: 0; background: none; color: var(--c-hud-ink-2); font: 600 var(--fs-s)/1 var(--f-body); }

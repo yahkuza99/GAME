@@ -138,7 +138,7 @@ const ok = (name, cond, info = '') => { checks.push([name, !!cond, info]); };
       const jump = Passive.alloc(pl, '1e'); ['1a', '1b', '1c', '1e'].forEach(id => Passive.alloc(pl, id));
       return { jump, n: pl.passives.length, gain: pl.d.str - s0, free: Passive.free(pl) };
     });
-    ok(`${name}: passive tree`, !pt.jump && pt.n === 4 && pt.gain === 14 && pt.free === 5, JSON.stringify(pt));
+    ok(`${name}: passive tree`, !pt.jump && pt.n === 4 && pt.gain === 4 && pt.free === 5, JSON.stringify(pt));
     // save/continue
     await p.evaluate(() => saveGame(true, true)); await p.reload(); await p.waitForTimeout(1500);
     await p.click('#au-offline'); await p.click('#btn-continue'); await p.waitForTimeout(1200);
