@@ -116,7 +116,7 @@ const Bot = {
   // ใช้สกิลได้ไหม (slack = ยอมให้ดีเลย์/คูลดาวน์เหลืออีกไม่เกินกี่วินาที — ใช้ตอน "รอสกิล" ไม่ได้ร่ายจริง)
   // raw = ไม่สนค่าตั้งแบบง่าย (ติ๊กสกิล / เงื่อนไข HP รายสกิล) — Battle Script สั่งสกิลเองตรง ๆ
   canCast(id, slack = 0, raw = false) {
-    const p = G.player, s = SKILLS[id], lv = skillLv(id);
+    const p = G.player, s = skillDef(id), lv = skillLv(id);
     if (!lv || !s || s.type !== 'active') return false;
     if (!raw) {
       const c = this.cfg();
@@ -131,14 +131,15 @@ const Bot = {
   },
   // สกิลที่แลก HP (hpCost): ไม่ใช้ถ้าใช้แล้ว HP จะเหลือต่ำกว่า 35% (เสี่ยงตาย) หรือต่ำกว่าจุดปั๊มยา (จ่ายเลือดเพื่อให้ไปกินยา = เปลืองยา)
   hpCostOk(id) {
-    const s = SKILLS[id];
+    const s = skillDef(id);
     if (!s.hpCost) return true;
     const ap = typeof autoPotCfg === 'function' ? autoPotCfg() : null;
     return this.hpPct() * (1 - s.hpCost(skillLv(id)) / 100) >= Math.max(35, ap && ap.on && this.findItem(HP_POTS) ? ap.hp + 2 : 0);
   },
   // บทบาทของสกิลสำหรับบอท (อ่านจากฟิลด์ใน SKILLS ล้วน ๆ)
   role(id) {
-    const s = SKILLS[id];
+    const s = skillDef(id);
+    if (s.rune && s.rune.role) return s.rune.role; // รูนที่เปลี่ยนบทบาทสกิล (เช่น Smoke Bomb = วางที่เท้าแบบกับดัก)
     if (s.heal) return 'heal';
     if (s.special === 'summon_wolf') return 'summon';
     if (s.special === 'stealth') return 'opener';
@@ -177,15 +178,17 @@ const Bot = {
     return this.basicEst(m) * U.clamp(80 + d.hit - m.def.flee, 5, 100) / 100 * 1000 / d.aspdDelay;
   },
   skillEst(id, m) {
-    const s = SKILLS[id], D = s.dmg, lv = skillLv(id);
+    const s = skillDef(id), D = s.dmg, lv = skillLv(id);
     const mult = (D.multAware && m.state === 'chase' ? D.multAware(lv) : D.mult(lv)) * masteryMul(id);
     const hits = typeof D.hits === 'function' ? D.hits(lv) : (D.hits || 1);
-    return hits * (D.type === 'magic' ? this.magicEst(m, mult, D.element) : this.physEst(m, mult, D.element)) * (D.status ? 1.15 : 1);
+    return hits * (D.type === 'magic' ? this.magicEst(m, mult, D.element) : this.physEst(m, mult, D.element)) * (D.status ? 1.15 : 1) * (typeof Runes !== 'undefined' ? Runes.estMul(s) : 1); // รูนหลายลูก/ตีดีเลย์: ตัวคูณเฉลี่ยต่อเป้า
   },
-  castSec(id) { const s = SKILLS[id], p = G.player; return (s.cast ? s.cast(skillLv(id)) : 0) * p.d.castMul * Math.max(0, 1 - p.d.dex / 150) / 1000; },
+  castSec(id) { const s = skillDef(id), p = G.player; return (s.cast ? s.cast(skillLv(id)) : 0) * p.d.castMul * Math.max(0, 1 - p.d.dex / 150) / 1000; },
   // ตัวที่จะโดนสกิลนี้ (เลียนแบบ skillDamage)
   victims(s, t) {
     const p = G.player, D = s.dmg;
+    const rv = typeof Runes !== 'undefined' && Runes.victims(s, t); // รูนที่เลือกเป้าเอง (แตกลูก/เด้ง/พัด)
+    if (rv) return rv;
     if (s.target !== 'enemy' && !D.area) return []; // สกิลใส่ตัวเองที่ไม่มีวง = ไม่โดนใคร
     if (D.area) {
       const self = D.at === 'self' || s.target !== 'enemy';
@@ -207,7 +210,7 @@ const Bot = {
     const p = G.player;
     let best = this.basicDps(m);
     if (this.cfg().style !== 'basic') for (const id in p.skills) {
-      const s = SKILLS[id];
+      const s = skillDef(id);
       if (s.type !== 'active' || !s.dmg || this.cfg().skills[id] === false || (s.bow && weaponType() !== 'bow')) continue;
       best = Math.max(best, this.skillEst(id, m) / (this.castSec(id) + Math.max(s.cd || 0, (typeof s.delay === 'function' ? s.delay(skillLv(id)) : (s.delay || 500)) / 1000)));
     }
@@ -287,7 +290,7 @@ const Bot = {
     if (c.style !== 'basic') {
       const id = this.pickSkill(t, threats, hpPct, spPct);
       if (id) {
-        if (SKILLS[id].target === 'enemy') beginSkill(id, skillLv(id), t); else useSkill(id);
+        if (skillDef(id).target === 'enemy') beginSkill(id, skillLv(id), t); else useSkill(id);
         this.progAt = Math.max(this.progAt, G.time - 1.5);
         return;
       }
@@ -319,20 +322,20 @@ const Bot = {
     const p = G.player;
     for (const id in p.skills) {
       if (this.role(id) !== 'heal' || !this.canCast(id)) continue;
-      if (SKILLS[id].heal(skillLv(id), p.d, p) < p.d.maxHp * 0.08) continue; // ฮีลน้อยเกินไป ไม่คุ้มดีเลย์
+      if (skillDef(id).heal(skillLv(id), p.d, p) < p.d.maxHp * 0.08) continue; // ฮีลน้อยเกินไป ไม่คุ้มดีเลย์
       useSkill(id); return true;
     }
     return false;
   },
   healSoon() {
     const p = G.player;
-    for (const id in p.skills) if (this.role(id) === 'heal' && this.canCast(id, 2) && SKILLS[id].heal(skillLv(id), p.d, p) >= p.d.maxHp * 0.08) return true;
+    for (const id in p.skills) if (this.role(id) === 'heal' && this.canCast(id, 2) && skillDef(id).heal(skillLv(id), p.d, p) >= p.d.maxHp * 0.08) return true;
     return false;
   },
   castBuff(c, threats, hpPct) {
     const p = G.player;
     for (const id in p.skills) {
-      const r = this.role(id), s = SKILLS[id];
+      const r = this.role(id), s = skillDef(id);
       if (r === 'buff' && s.target !== 'enemy') {
         const b = p.buffs[id];
         if (b && b.until - G.time > 5) continue;
@@ -490,7 +493,7 @@ const Bot = {
     const cand = [];
     for (const id in p.skills) {
       if (!this.canCast(id)) continue;
-      const r = this.role(id), s = SKILLS[id];
+      const r = this.role(id), s = skillDef(id);
       if (r === 'trap') { if (dist < 2.5 && G.traps.length < 3) return id; continue; }
       // หายตัว: เปิดฉากใส่ตัวที่ยังไม่รู้ตัว • หรือกลางไฟต์ตอน SP เหลือ ≥ ครึ่งและเป้ายังอึด (มอนลืมเรา → ตีลอบ/แทงข้างหลังแรงขึ้น ตัวอื่นก็เลิกไล่)
       if (r === 'opener') { if ((t.state !== 'chase' && dist < 6 && !threats.length) || (t.state === 'chase' && spPct >= 50 && t.hp > this.basicEst(t) * 4)) return id; continue; }
@@ -508,10 +511,10 @@ const Bot = {
     }
     for (const k of cand) {
       // สกิลวงกว้างกับศัตรูตัวเดียว: ใช้เมื่อไม่มีสกิลเดี่ยวพร้อม และ SP ยังเหลือเยอะ (ยกเว้นสกิลที่ทำให้มึน = กันดาเมจได้ด้วย)
-      const stun = (SKILLS[k.id].dmg.status || {}).kind === 'stun';
+      const stun = (skillDef(k.id).dmg.status || {}).kind === 'stun';
       if (k.area && k.n < 2 && (spPct < 50 || (hasSingle && !stun))) continue;
       // สกิลที่แรงไม่ต่างจากตีปกติ ไม่คุ้มดีเลย์
-      if (k.n < 2 && k.eff < this.basicEst(t) * 1.2 && !SKILLS[k.id].dmg.status) continue;
+      if (k.n < 2 && k.eff < this.basicEst(t) * 1.2 && !skillDef(k.id).dmg.status) continue;
       // SP เหลือน้อยกว่าครึ่ง: เลือกสกิลที่คุ้ม SP ที่สุด (ดาเมจต่อ SP) แทนแรงสุด
       const sc = (k.eff / (k.sec + 0.6)) * (spPct < 50 ? 30 / Math.max(5, k.cost) : 1);
       if (sc > bestSc) { bestSc = sc; best = k.id; }
@@ -523,7 +526,7 @@ const Bot = {
   casterish() {
     const p = G.player, c = this.cfg();
     if (c.style === 'basic') return false;
-    for (const id in p.skills) { const s = SKILLS[id]; if (s.type === 'active' && s.dmg && s.target === 'enemy' && c.skills[id] !== false && skillRange(s) >= 5 && !(s.bow && weaponType() !== 'bow')) return true; }
+    for (const id in p.skills) { const s = skillDef(id); if (s.type === 'active' && s.dmg && s.target === 'enemy' && c.skills[id] !== false && skillRange(s) >= 5 && !(s.bow && weaponType() !== 'bow')) return true; }
     return false;
   },
   // สกิลโจมตีระยะไกล (≥5 ช่อง) ที่จะพร้อมภายใน slack วิ — คืนระยะที่ไกลสุด
@@ -531,7 +534,7 @@ const Bot = {
     const p = G.player;
     let r = 0;
     for (const id in p.skills) {
-      const s = SKILLS[id];
+      const s = skillDef(id);
       if (this.role(id) !== 'attack' || s.target !== 'enemy' || !this.canCast(id, slack)) continue;
       const rg = skillRange(s);
       if (rg >= 5 && (!t || this.skillEst(id, t) > this.basicEst(t) * 1.5)) r = Math.max(r, rg);

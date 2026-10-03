@@ -7,10 +7,11 @@ const G = {
   time: 0, map: null, mapCache: {}, player: null,
   mobs: [], drops: [], npcs: [], fx: [], floaters: [], timers: [], respawns: [], allies: [], traps: [],
   mvpNext: {}, pendingSkill: null, hover: null, uid: 1, started: false,
+  zones: [], // พื้นที่ค้างบนพื้นจาก Rune Paths (js/runes.js) — ล้างตอนเปลี่ยนแมพ
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
 const SAVE_FIELDS = ['pvp', 'mvpAt', 'job1Lv', 'name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
-  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery', 'story', 'daily', 'gacha'];
+  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery', 'story', 'daily', 'gacha', 'runes'];
 
 // ------------------------------------------------------------
 //  สร้าง / บันทึก / โหลด
@@ -19,7 +20,7 @@ function newPlayer(name, gender, hair, look) {
   const p = {
     name, gender, hair, look: Object.assign({ head: gender === 'f' ? 'long' : 'spiky', color: '#e6e9ef', glow: '#7ad8ff', visor: 'band' }, look || {}), job: 'novice', baseLv: 1, jobLv: 1, baseExp: 0, jobExp: 0,
     stats: { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 }, statPoints: 48, skillPoints: 0,
-    skills: { first_aid: 1 }, passives: [], zeny: 500, inventory: [],
+    skills: { first_aid: 1 }, passives: [], runes: {}, zeny: 500, inventory: [],
     equip: { head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null, acc2: null },
     hotbar: [null, null, null, null, null, null, null, null], potbar: [null, null, null, null],
     map: HOME_MAP, x: 20.5, y: 24.5, save: { map: HOME_MAP, x: 20.5, y: 24.5 },
@@ -173,6 +174,7 @@ function loadGameFrom(data) {
   if (!p.save || !MAP_DEFS[p.save.map]) p.save = { map: HOME_MAP, x: 20.5, y: 24.5 };
   // สกิลที่ไม่มีอยู่แล้ว (เช่น ถูกลบออกจาก data.js) คืนแต้มให้
   for (const id in p.skills) if (!SKILLS[id]) { if (!SKILLS.first_aid || id !== 'first_aid') p.skillPoints += p.skills[id]; delete p.skills[id]; }
+  p.runes = typeof Runes !== 'undefined' ? Runes.sanitize(p.runes) : {}; // Rune Paths: เซฟเก่าไม่มี = ไม่มีรูน (สกิลแบบเดิม) • รูน/สกิลที่ไม่มีแล้วถูกตัดทิ้ง
   fixSkillPoints(p, true); // เซฟเก่าที่แต้มสกิลเกิน (แต้ม Novice ค้างข้าม Class) → ปรับให้ถูกต้อง
   // แถบสกิล (8 ช่อง) แยกจากแถบไอเทม (4 ช่อง) — เซฟเก่าที่ปนกันจะถูกย้ายไอเทมไปแถบไอเทม
   const oldBar = (p.hotbar || []).filter(h => h && ((h.t === 'skill' && SKILLS[h.id]) || (h.t === 'item' && ITEMS[h.id])));
@@ -196,6 +198,8 @@ function deleteSave() { if (Acct.data) Acct.remove(Acct.data.active); }
 //  ค่าสถานะที่คำนวณได้
 // ------------------------------------------------------------
 function skillLv(id) { return (G.player.skills[id] || 0); }
+// ข้อมูลสกิลที่ใช้จริง = SKILLS[id] + รูนที่เลือก (Rune Paths, js/runes.js) • ไม่มีรูน = SKILLS[id] ตัวเดิม
+function skillDef(id) { return typeof Runes !== 'undefined' ? Runes.def(id) : SKILLS[id]; }
 function weaponType() {
   const w = G.player.equip.weapon;
   return w ? ITEMS[w.id].wtype : 'none';
@@ -217,14 +221,15 @@ function recalc() {
   }
   // สกิลติดตัว (passive) และบัฟ — อ่านจากข้อมูลใน SKILLS
   for (const id in p.skills) {
-    const sk = SKILLS[id];
+    const sk = SKILLS[id] && skillDef(id);
     if (sk && sk.passive) add(sk.passive(p.skills[id]));
   }
   add(j.bonus); // Class ขั้น 2: พลังตื่นแม่พิมพ์ (ATK/MATK +10%, HIT +10, MaxHP +10%)
   add(Passive.bonus(p)); // ต้นไม้พาสซีฟ
+  if (typeof Runes !== 'undefined') add(Runes.bonus(p)); // บัฟชั่วคราวจากรูน (เช่น ฆ่าแล้วเร็วขึ้น)
   const bf = p.buffs;
   for (const id in bf) {
-    const sk = SKILLS[id];
+    const sk = SKILLS[id] && skillDef(id);
     if (sk && sk.buff) add(sk.buff.stats(bf[id].lv));
   }
 
@@ -264,6 +269,7 @@ function recalc() {
   d.range = d.ranged ? 5 + b.range : 1.5;
   d.speed = 4.6 * (1 + (b.speedPct || 0) / 100);
   d.atkDisplay = `${d.statusAtk} + ${d.weaponAtk + d.atkBonus}`;
+  d.rf = {}; for (const k in b) if (k.startsWith('r_')) d.rf[k] = b[k]; // ค่าพิเศษจากรูน (Rune Paths) เช่น r_echo
   p.d = d;
   p.hp = Math.min(p.hp, d.maxHp);
   p.sp = Math.min(p.sp, d.maxSp);
@@ -580,7 +586,7 @@ function changeMap(id, x, y, opts = {}) {
   p.map = id;
   teleportPlayer(x, y);
   G.mapEntry = { map: id, x, y };
-  G.mobs = []; G.drops = []; G.fx = []; G.floaters = []; G.timers = []; G.respawns = []; G.traps = [];
+  G.mobs = []; G.drops = []; G.fx = []; G.floaters = []; G.timers = []; G.respawns = []; G.traps = []; G.zones = [];
   for (const a of G.allies) { a.x = x + 0.7; a.y = y; a.path = []; a.target = null; }
   G.npcs = (map.def.npcs || []).map(n => Object.assign({}, n));
   for (const [mid, n] of map.def.spawns) for (let i = 0; i < n; i++) spawnMob(mid);
@@ -711,6 +717,8 @@ function aggroMob(m) {
 }
 function damageMob(m, dmg, opts = {}) {
   if (m.dead) return;
+  if (G.player) G.player.combatAt = G.time; // ตีโดน = อยู่ในการต่อสู้ (เปลี่ยนรูนไม่ได้ 5 วิ)
+  if (typeof G.onDmg === 'function') G.onDmg(m, dmg, opts); // ตัวนับดาเมจ (เทสต์จำลอง DPS)
   if (m.isPlayer) { // PvP: ดาเมจลด 40% ให้สู้ได้นานขึ้น • คู่ต่อสู้เป็นคนหักเลือดเอง
     dmg = Math.max(1, Math.round(dmg * 0.6));
     addFloater(m.x, m.y - 1.2, dmg, opts.color || (opts.crit ? '#ffe040' : '#ffffff'), opts.crit);
@@ -735,7 +743,7 @@ function damageMob(m, dmg, opts = {}) {
   const big = !m.def.dummy && dmg >= m.maxHp * 0.25;
   const sfx = opts.crit ? 'crit' : (m.def.boss || m.isMvp) ? 'hit_boss' : big ? 'hit_big' : opts.sfx === undefined ? 'hit' : opts.sfx;
   if (sfx) Sound.play(sfx);
-  if (m.hp <= 0) killMob(m);
+  if (m.hp <= 0) { m.killSrc = opts.src || null; killMob(m); }
 }
 // Zeny ที่ได้ทันทีเมื่อฆ่า: ตั้งเองได้ด้วย MOBS[id].zeny = [min, max] ไม่งั้น (Lv+2) ถึง 2×(Lv+2) × 30% (Lv ≤ 8 = 60%) • MVP ×40–60
 function mobZeny(d) {
@@ -766,6 +774,7 @@ function killMob(m) {
   m.dead = true; m.deathT = 0; m.hp = 0; m.path = []; m.moving = false;
   if (p.target === m) p.target = null;
   Bot.onKill(m);
+  if (typeof Runes !== 'undefined') Runes.onKill(m);
   // ลูกสมุนที่บอสเรียก (js/bosskit.js): ไม่มี EXP / Zeny / ของดรอป / ไม่นับชิป-เควสต์-ภารกิจรายวัน-สมุดมอน — กันฟาร์มลูกสมุน
   if (m.minion) { Sound.play('kill'); return; }
   Quest.onKill(d.id);
@@ -827,9 +836,11 @@ function playerAttack(m) {
   if (ambush) { p.stealthUntil = 0; addFloater(p.x, p.y - 1.6, 'Ambush!', '#d0a0ff'); }
   const doHit = () => {
     if (m.dead) return;
-    const r = physHit(m, masteryMul('attack'), { forceCrit: ambush });
+    const rk = typeof Runes !== 'undefined' ? Runes.basicMul(m) : 1; // รูน: ตีปกติครั้งที่ N แรงขึ้น/คริแน่นอน • รอยรูนแบบตีปกติ
+    const r = physHit(m, masteryMul('attack') * rk, { forceCrit: ambush || (typeof Runes !== 'undefined' && Runes.takeCrit()) });
     // ตีธรรมดา: ประชิด = เสียงฟัน (มีด/ดาบ/ขวาน) หรือทุบ (กระบอง/คทา/มือเปล่า) • ธนู = เสียงยิงตอนปล่อย ตอนโดนไม่ซ้อนอีก
-    applyHit(m, r, { sfx: p.d.ranged ? '' : (['dagger', 'sword', 'axe'].includes(weaponType()) ? 'slash' : 'smash') });
+    applyHit(m, r, { sfx: p.d.ranged ? '' : (['dagger', 'sword', 'axe'].includes(weaponType()) ? 'slash' : 'smash'), src: 'attack' });
+    if (typeof Runes !== 'undefined') Runes.afterBasic(m, r);
     if (!r.miss && !m.def.dummy) addMastery('attack');
     if (!r.miss && p.d.venom && !m.def.boss) applyStatus(m, { kind: 'poison', chance: () => p.d.venom, dur: () => 8 }, 1);
   };
@@ -847,13 +858,16 @@ function mobAttack(m) {
   m.atkAnim = 1;
   faceTo(m, p.x, p.y);
   autoCounter(m);
-  if (U.chance(d.pdodge / 100)) { addFloater(p.x, p.y - 1.2, 'Lucky!', '#a0ffa0'); return; }
+  const RU = typeof Runes !== 'undefined' ? Runes : null; // รูนที่ทำงานตอนโดนโจมตี (สวนกลับ/ภาพติดตา/โล่ดูดซับ)
+  if (U.chance(d.pdodge / 100)) { addFloater(p.x, p.y - 1.2, 'Lucky!', '#a0ffa0'); if (RU) RU.onAttacked(m, false); return; }
   const hitRate = U.clamp(80 + md.hit - d.flee, 5, 95);
-  if (!U.chance(hitRate / 100)) { addFloater(p.x, p.y - 1.2, 'Miss', '#a0c0ff'); return; }
+  if (!U.chance(hitRate / 100)) { addFloater(p.x, p.y - 1.2, 'Miss', '#a0c0ff'); if (RU) RU.onAttacked(m, false); return; }
   let dmg = U.randi(md.atk[0], md.atk[1]);
   dmg = Math.max(1, Math.round(dmg * (1 - d.def / 100) - d.softDef * U.rand(0.7, 1)));
   if (md.boss) dmg = Math.min(dmg, Math.round(d.maxHp * BOSS_HIT_CAP)); // บอส (รวม Ancient ATK ×3): ตีปกติครั้งเดียวไม่เกิน 60% MaxHP — ไม่มีฆ่าในทีเดียวจากเลือดเต็ม
+  if (RU) dmg = RU.onHurt(m, dmg);
   damagePlayer(dmg);
+  if (RU) RU.onAttacked(m, true);
   if (md.stun && !d.unshaken && U.chance(md.stun[0] / 100 * (1 - Math.min(0.9, d.vit / 100)) * (1 - d.stunRes / 100))) stunPlayer(md.stun[1]);
 }
 // โจมตีกลับอัตโนมัติ (ตั้งค่าได้): ยืนเฉย ๆ / นั่งพัก แล้วโดนตี → หันไปตีตัวที่ตีเรา
@@ -885,9 +899,10 @@ function stunBlocked() {
 function damagePlayer(dmg, color = '#ff5050') {
   const p = G.player;
   if (p.dead) return;
+  if (dmg <= 0) { p.combatAt = G.time; addFloater(p.x, p.y - 1.2, 'Block', '#9fc8ff'); return; } // ดูดซับหมด (เกราะรูน/เปลือกแสง)
   if (p.d.mom) { const s = Math.min(Math.floor(p.sp), Math.floor(dmg * 0.3)); p.sp -= s; p.hp -= dmg - s; if (s > 0) addFloater(p.x + 0.4, p.y - 1.7, L(`SP ดูดซับ ${s}`, `SP absorbed ${s}`), '#8fb8ff'); } // Mind over Matter
   else p.hp -= dmg;
-  p.sitting = false;
+  p.sitting = false; p.combatAt = G.time;
   addFloater(p.x, p.y - 1.2, dmg, color);
   p.hurtFlash = 0.15;
   Sound.play('hurt');
@@ -968,7 +983,7 @@ function addMastery(id) {
   UI.dirty();
 }
 function skillCost(id, lv) {
-  const s = SKILLS[id], d = G.player.d;
+  const s = skillDef(id), d = G.player.d;
   return s.sp ? Math.max(1, Math.round(s.sp(lv) * (1 + ((d && d.spCostPct) || 0) / 100))) : 0;
 }
 // Blood Circuit (ต้นไม้พาสซีฟ): จ่ายค่าสกิลด้วย HP แทน SP (ต้องเหลือ HP มากกว่าค่าสกิล)
@@ -1010,7 +1025,7 @@ function skillRange(s) {
 function useSkill(id) {
   const p = G.player;
   if (p.dead) return;
-  const lv = skillLv(id), s = SKILLS[id];
+  const lv = skillLv(id), s = SKILLS[id] && skillDef(id);
   if (!lv || !s) return;
   if (s.type === 'passive') { UI.msg(L(`${s.name} เป็นสกิลติดตัว ทำงานอัตโนมัติ`, `${s.name} is a passive skill and works automatically.`), 'info'); return; }
   if (p.cast) return;
@@ -1053,7 +1068,7 @@ function skillDelayHint() {
   addFloater(p.x, p.y - 1.6, L(`ดีเลย์ ${Math.max(0.1, p.skillReadyAt - G.time).toFixed(1)}s`, `Delay ${Math.max(0.1, p.skillReadyAt - G.time).toFixed(1)}s`), '#9fb8d8');
 }
 function beginSkill(id, lv, tgt) {
-  const p = G.player, s = SKILLS[id];
+  const p = G.player, s = SKILLS[id] && skillDef(id);
   G.pendingSkill = null;
   // ตรวจซ้ำที่นี่ด้วย: ทางคลิกเล็ง/ปุ่มบนจอ/บอท เรียก beginSkill ตรง ๆ ไม่ผ่าน useSkill
   if (p.dead || !lv || !s || (s.bow && weaponType() !== 'bow')) return;
@@ -1072,7 +1087,7 @@ function beginSkill(id, lv, tgt) {
   }
   p.sitting = false; p.path = []; p.skillIntent = null;
   let castMs = s.cast ? s.cast(lv) : 0;
-  castMs *= p.d.castMul * Math.max(0, 1 - p.d.dex / 150);
+  castMs *= p.d.castMul * Math.max(0, 1 - p.d.dex / 150) * (typeof Runes !== 'undefined' ? Runes.castMul(id) : 1);
   if (castMs > 50) {
     p.cast = { id, lv, target: tgt, start: G.time, end: G.time + castMs / 1000 };
     addFx({ type: 'castcircle', ref: p, dur: castMs / 1000, color: s.icon });
@@ -1083,11 +1098,12 @@ function beginSkill(id, lv, tgt) {
 
 // ทำงานของสกิลตามข้อมูลใน SKILLS (ดูคำอธิบายรูปแบบใน data.js)
 function executeSkill(id, lv, tgt) {
-  const p = G.player, s = SKILLS[id];
+  const p = G.player, s = skillDef(id);
   if (tgt && tgt.dead) return;
   const cost = skillCost(id, lv);
   if (!canPaySkill(cost)) { UI.msg(L(`${p.d.bloodmagic ? 'HP' : 'SP'} ไม่เพียงพอ`, `Not enough ${p.d.bloodmagic ? 'HP' : 'SP'}.`), 'err'); return; }
   paySkill(cost);
+  if (typeof Runes !== 'undefined') Runes.preCast(s, lv, tgt);
   if (s.type === 'active') addMastery(id);
   if (s.hpCost) {
     const hc = Math.floor(p.hp * s.hpCost(lv) / 100);
@@ -1129,12 +1145,14 @@ function executeSkill(id, lv, tgt) {
     for (const m of G.mobs) if (!m.dead && U.dist(m.x, m.y, p.x, p.y) <= s.aggro) aggroMob(m);
   }
   if (s.special) runSpecialSkill(s.special, s, lv);
-  if (s.dmg) skillDamage(s, lv, tgt);
+  const runeDone = typeof Runes !== 'undefined' && Runes.onCast(s, lv, tgt); // รูนที่เปลี่ยนวิธีทำดาเมจทั้งหมด (เช่น ดีเลย์ตกจากฟ้า) คืน true
+  if (s.dmg && !runeDone) skillDamage(s, lv, tgt);
   if (s.chain && tgt && !tgt.dead) { p.target = tgt; p.nextAttack = Math.max(p.nextAttack, G.time + 0.35); }
 }
 
 function skillDamage(s, lv, tgt) {
   const p = G.player, D = s.dmg;
+  if (s.rune && typeof Runes !== 'undefined' && Runes.damage(s, lv, tgt)) return; // รูนเลือกเป้าเอง (แตกลูก/กระโดด/ทิ้งพื้น)
   let targets;
   if (D.area) {
     const cx = D.at === 'self' || !tgt ? p.x : tgt.x, cy = D.at === 'self' || !tgt ? p.y : tgt.y;
@@ -1155,19 +1173,25 @@ function skillDamage(s, lv, tgt) {
     for (let i = 0; i < hits; i++) later(i * 0.15 + ti * 0.04, () => skillHitOne(s, lv, m));
   });
 }
-function skillHitOne(s, lv, m) {
+// ดาเมจสกิล 1 ครั้งลงเป้า (ไม่มีภาพ) — k = ตัวคูณเพิ่มจากรูน (แตกลูก/กระโดด ฯลฯ)
+function skillDeliver(s, lv, m, k = 1) {
+  const p = G.player, D = s.dmg;
+  if (m.dead) return null;
+  const RU = typeof Runes !== 'undefined' ? Runes : null;
+  const mult = (D.multAware && m.state === 'chase' ? D.multAware(lv) : D.mult(lv)) * masteryMul(s.id) * k * (RU ? RU.hitMul(s, lv, m) : 1); // รอยรูนบนเป้า (ใช้แล้วหาย)
+  const r = D.type === 'magic' ? magicHit(m, mult, D.element) : physHit(m, mult, { skill: true, element: D.element, sureHit: D.sureHit, forceCrit: RU ? RU.takeCrit() : false });
+  applyHit(m, r, { element: D.element, src: s.id });
+  if (!r.miss && !m.dead) {
+    applyStatus(m, D.status, lv, r.dmg);
+    if (D.knockback && !m.def.boss) knockback(m, p.x, p.y, D.knockback);
+  }
+  if (RU) RU.afterHit(s, lv, m, r);
+  return r;
+}
+function skillHitOne(s, lv, m, k = 1) {
   const p = G.player, D = s.dmg;
   if (m.dead) return;
-  const mult = (D.multAware && m.state === 'chase' ? D.multAware(lv) : D.mult(lv)) * masteryMul(s.id);
-  const deliver = () => {
-    if (m.dead) return;
-    const r = D.type === 'magic' ? magicHit(m, mult, D.element) : physHit(m, mult, { skill: true, element: D.element, sureHit: D.sureHit });
-    applyHit(m, r, { element: D.element });
-    if (!r.miss && !m.dead) {
-      applyStatus(m, D.status, lv, r.dmg);
-      if (D.knockback && !m.def.boss) knockback(m, p.x, p.y, D.knockback);
-    }
-  };
+  const deliver = () => skillDeliver(s, lv, m, k);
   const fx = s.fx;
   if (s.vfx && typeof FX2 !== 'undefined' && FX2.hit(s, lv, m, deliver)) return;
   if (fx === 'arrow' && !D.line) {
@@ -1198,7 +1222,7 @@ function runSpecialSkill(kind, s, lv) {
     UI.msg(L(`หมาป่าคู่ใจมาช่วยสู้ ${s.dur(lv)} วินาที!`, `Your loyal wolf joins the fight for ${s.dur(lv)}s!`), 'sys');
   } else if (kind === 'trap') {
     if (G.traps.length >= 3) G.traps.shift();
-    G.traps.push({ x: p.x, y: p.y, lv, until: G.time + 40, armed: G.time + 0.6, mul: masteryMul(s.id) });
+    G.traps.push({ x: p.x, y: p.y, lv, until: G.time + 40, armed: G.time + 0.6, mul: masteryMul(s.id), rune: s.rune || null });
   } else if (kind === 'stealth') {
     p.stealthUntil = G.time + s.dur(lv) * masteryMul(s.id);
     p.target = null;
@@ -1226,11 +1250,11 @@ function updateAllies(dt) {
     a.atkAnim = Math.max(0, a.atkAnim - dt * 3);
     let t = a.target && !a.target.dead && G.mobs.includes(a.target) ? a.target : null;
     if (!t) {
-      t = p.target && !p.target.dead ? p.target : null;
+      t = p.target && !p.target.dead && !a.split ? p.target : null; // a.split = หมาป่าตัวที่สอง (รูน Twin Wolves) เลือกเป้าอื่น
       if (!t) {
         let best = 7;
         for (const m of G.mobs) {
-          if (m.dead || m.state !== 'chase') continue;
+          if (m.dead || m.state !== 'chase' || (a.split && m === p.target && G.mobs.some(o => !o.dead && o !== m && o.state === 'chase'))) continue;
           const d = U.dist(m.x, m.y, p.x, p.y);
           if (d < best) { best = d; t = m; }
         }
@@ -1244,8 +1268,9 @@ function updateAllies(dt) {
         a.path = []; a.moving = false; faceTo(a, t.x, t.y);
         if (G.time >= a.nextAtk) {
           a.nextAtk = G.time + 1.0; a.atkAnim = 1;
-          const dmg = Math.max(1, Math.round((p.d.statusAtk * 0.5 + p.d.weaponAtk * 0.5 + a.lv * 12) * U.rand(0.85, 1.1) * (1 - t.def.def / 100)));
-          damageMob(t, dmg, { color: '#c0e0ff' });
+          const dmg = Math.max(1, Math.round((p.d.statusAtk * 0.5 + p.d.weaponAtk * 0.5 + a.lv * 12) * (a.pow || 1) * U.rand(0.85, 1.1) * (1 - t.def.def / 100)));
+          damageMob(t, dmg, { color: '#c0e0ff', src: 'wolf_companion' });
+          if (typeof Runes !== 'undefined') Runes.afterWolf(a, t, dmg);
         }
       } else {
         if (G.time >= a.repathAt || !a.path.length) { a.path = findPath(G.map, Math.floor(a.x), Math.floor(a.y), Math.floor(t.x), Math.floor(t.y), 600); a.repathAt = G.time + 0.4; }
@@ -1269,14 +1294,18 @@ function updateTraps() {
     if (G.time < t.armed) continue;
     if (!G.mobs.some(m => !m.dead && U.dist(m.x, m.y, t.x, t.y) < 1.0)) continue;
     G.traps.splice(i, 1);
-    addFx({ type: 'firering', x: t.x, y: t.y, dur: 0.5, r: 1.5 });
+    const tr = t.rune && typeof Runes !== 'undefined' ? Runes.trapMod(t) : null; // รูน: รัศมี/ตัวคูณ/ผลพิเศษของกับดัก
+    const rad = tr ? tr.r : 1.5;
+    addFx({ type: 'firering', x: t.x, y: t.y, dur: 0.5, r: rad });
     Sound.play('crit');
     for (const m of G.mobs) {
-      if (m.dead || U.dist(m.x, m.y, t.x, t.y) > 1.5) continue;
+      if (m.dead || U.dist(m.x, m.y, t.x, t.y) > rad) continue;
       const base = (p.d.dex * 3 + p.baseLv * 2 + p.d.statusAtk * 0.5) * (0.6 + 0.2 * t.lv);
-      const dmg = Math.max(1, Math.round(base * (t.mul || 1) * U.rand(0.9, 1.1) * elemMod('fire', m.def.element)));
-      damageMob(m, dmg, { color: '#ffb060' });
+      const dmg = Math.max(1, Math.round(base * (t.mul || 1) * (tr ? tr.k : 1) * U.rand(0.9, 1.1) * elemMod('fire', m.def.element)));
+      damageMob(m, dmg, { color: '#ffb060', src: 'blast_trap' });
+      if (tr && tr.after) tr.after(m, dmg);
     }
+    if (tr && tr.done) tr.done(t);
   }
 }
 
@@ -1369,6 +1398,7 @@ function updateGame(dt) {
   updatePlayer(dt);
   updateAllies(dt);
   updateTraps();
+  if (typeof Runes !== 'undefined') Runes.update(dt);
   for (const m of G.mobs) updateMob(m, dt);
   if (typeof BossKit !== 'undefined') BossKit.update(dt); // บอส: เรียกลูกสมุน / ช่วงคลั่ง (Ancient) / ลูกสมุนหายเมื่อบอสตายหรือรีเซ็ต
   G.mobs = G.mobs.filter(m => !(m.dead && m.deathT > 0.8));
@@ -1539,11 +1569,11 @@ function updateMob(m, dt) {
   if (m.poisonUntil > G.time && G.time >= m.poisonTick) {
     m.poisonTick = G.time + 1;
     const dmg = Math.max(1, Math.floor(m.maxHp * 0.015));
-    if (m.hp - dmg >= 1) { m.hp -= dmg; addFloater(m.x, m.y - 1, dmg, '#c080ff'); }
+    if (m.hp - dmg >= 1) { m.hp -= dmg; addFloater(m.x, m.y - 1, dmg, '#c080ff'); if (typeof G.onDmg === 'function') G.onDmg(m, dmg, { src: 'poison' }); }
   }
   if (m.burnUntil > G.time && G.time >= m.burnTick) {
     m.burnTick = G.time + 1;
-    damageMob(m, m.burnDmg, { color: '#ff9040' });
+    damageMob(m, m.burnDmg, { color: '#ff9040', src: 'burn' });
     if (m.dead) return;
   }
   if (m.stunUntil > G.time) { m.moving = false; return; }

@@ -13,6 +13,21 @@ globalThis.EXTRA = async (A, B, ok) => {
   const hp1 = await B.evaluate(() => G.player.hp);
   ok('B โดนตีเลือดลด', hp1 < hp0, `${hp0} → ${hp1}`);
   ok('B โจมตีกลับอัตโนมัติ', await B.evaluate(() => !!(G.player.target && G.player.target.isPlayer)));
+  // Rune Paths ใน PvP: สกิลที่ใส่รูน (Shield Throw "Boomerang" ตี 2 ครั้ง) ส่งดาเมจข้ามเครือข่าย • ผู้เล่นไม่ถูกรูนดึงตำแหน่ง
+  //   และรูนสวนกลับของฝั่งที่โดนตี (Iron Body "Retaliate") ตีกลับผ่านเครือข่ายด้วย
+  await B.evaluate(() => { const pl = G.player; pl.target = null; pl.options.autoCounter = false; pl.skills.iron_body = 5; pl.runes = { iron_body: 'iron_body.retaliate' }; recalc(); pl.hp = pl.d.maxHp; });
+  const rb0 = await B.evaluate(() => G.player.hp), ra0 = await A.evaluate(() => { const pl = G.player; pl.target = null; pl.skills.shield_slam = 5; pl.skills.shield_throw = 5; pl.runes = { shield_throw: 'shield_throw.boomerang' }; recalc(); pl.hp = pl.d.maxHp; return pl.hp; });
+  const bx0 = await B.evaluate(() => G.player.x);
+  await A.evaluate(() => { const pl = G.player, m = G.mobs.find(x => x.isPlayer); pl.sp = pl.d.maxSp; pl.skillReadyAt = 0; pl.cds = {}; executeSkill('shield_throw', 5, m); });
+  await B.waitForFunction(h => G.player.hp < h, rb0, { timeout: 15000 }).catch(() => {});
+  await B.waitForTimeout(1500);
+  const rb1 = await B.evaluate(() => ({ hp: G.player.hp, x: G.player.x }));
+  ok('PvP: rune skill (Boomerang) damages the other player', rb1.hp < rb0, `${rb0} → ${rb1.hp}`);
+  ok('PvP: runes never drag another player', Math.abs(rb1.x - bx0) < 0.01);
+  await A.waitForFunction(h => G.player.hp < h, ra0, { timeout: 15000 }).catch(() => {});
+  ok('PvP: Retaliate rune strikes back over the network', await A.evaluate(h => G.player.hp < h, ra0), `${ra0} → ${await A.evaluate(() => G.player.hp)}`);
+  await A.evaluate(() => { G.player.runes = {}; G.player.target = null; recalc(); });
+  await B.evaluate(() => { G.player.runes = {}; recalc(); });
   // ให้ B เลือดเหลือน้อยแล้วโดนตีจนล้ม
   await B.evaluate(() => { G.player.hp = 5; G.player.target = null; G.player.options.autoCounter = false; });
   await A.evaluate(() => { G.player.target = G.mobs.find(m => m.isPlayer) || null; });

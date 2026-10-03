@@ -996,7 +996,7 @@ const UI = {
   skillTipFor(el, id) { el.classList.add('has-tip'); el._tip = { skill: id }; el.removeAttribute('title'); return el; },
   // การ์ดรายละเอียดสกิล (เมาส์ชี้): SP / คูลดาวน์ / ร่าย / ระยะ / ความชำนาญ / ค่าติดตัวที่ได้จริง
   skillTipBody(id) {
-    const s = SKILLS[id], p = G.player, lv = skillLv(id), show = Math.max(1, lv), d = p.d || {};
+    const s = skillDef(id), p = G.player, lv = skillLv(id), show = Math.max(1, lv), d = p.d || {};
     const lines = [], add = (k, v) => lines.push(h('div', { class: 'tip-line' }, h('span', { class: 'tip-k' }, k + ' '), v));
     if (s.type === 'active') {
       const cost = skillCost(id, show); if (cost) add('SP', String(cost));
@@ -1012,6 +1012,7 @@ const UI = {
     return [
       h('div', { class: 'tip-head' }, this.skillIcon(id), h('div', {}, h('b', {}, s.name), h('small', {}, `${s.type === 'passive' ? 'Passive' : 'Active'} • Lv ${lv}/${s.max}${lv ? '' : L(' (ยังไม่เรียน)', ' (not learned)')}`))),
       s.desc ? h('div', { class: 'tip-desc' }, s.desc) : null,
+      s.rune ? h('div', { class: 'tip-desc rn-tip' }, h('b', {}, `ᚱ ${s.rune.name}: `), s.rune.desc()) : null, // รูนที่ใส่อยู่ (js/runes.js)
       ...lines,
       pas && typeof PSTAT !== 'undefined' ? h('div', { class: 'tip-bon' }, ...Object.entries(pas).filter(([k]) => PSTAT[k]).map(([k, v]) => h('span', {}, PSTAT_FMT(k, Math.round(v * 10) / 10)))) : null,
       s.buff ? h('div', { class: 'tip-line' }, L(`นาน ${Math.round(s.buff.dur(show) * masteryMul(id))} วิ`, `Lasts ${Math.round(s.buff.dur(show) * masteryMul(id))}s`)) : null,
@@ -1395,6 +1396,7 @@ const UI = {
           lv && s.type === 'active' ? lv && s.type === 'active' ? h('button', { class: 'btn small sk-equip' + (p.hotbar.some(x => x && x.id === id) ? ' on' : ''), title: L('ติดตั้งลงช่องสกิล (คอม: ชี้ที่สกิลแล้วกด 1–8 ได้)', 'Equip to a skill slot (PC: hover and press 1–8)'), onclick: () => this.startEquip('skill', id) }, p.hotbar.some(x => x && x.id === id) ? 'Move' : 'Equip') : null : null,
           h('button', { class: 'btn small sk-info-btn', title: L('รายละเอียด', 'Details'), 'aria-label': L('รายละเอียด', 'Details'), onclick: e => { e.stopPropagation(); this.skillDetail(id, e.currentTarget); } }, 'ⓘ'))), id));
       if (lv && s.type === 'active') this.markBind(list.lastElementChild, 'skill', id);
+      if (typeof Runes !== 'undefined') Runes.skillRow(list, id); // Rune Paths (js/runes.js + css/runes.css)
     }
     body.append(list);
     if (SECOND_JOBS[p.job] && tab === p.job) body.append(h('div', { class: 'hint' }, L(`Class ขั้น 2 (เลือก 1 สาย: ${SECOND_JOBS[p.job].map(j => JOBS[j].name).join(' / ')}): Base Lv ${SECOND_JOB_REQ.base} และ Job Lv ${SECOND_JOB_REQ.job} แล้วคุยกับ Mimir AI ในนีโอเอลด์ไฮม์`, `2nd class (choose one: ${SECOND_JOBS[p.job].map(j => JOBS[j].name).join(' / ')}): reach Base Lv ${SECOND_JOB_REQ.base} and Job Lv ${SECOND_JOB_REQ.job}, then talk to Mimir AI in Neo Eldheim`)));

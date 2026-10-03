@@ -310,7 +310,7 @@ const BotScript = {
     return false;
   },
   doSkill(id, t, c, threats, hpPct) {
-    const B = Bot, s = SKILLS[id];
+    const B = Bot, s = SKILLS[id] && skillDef(id); // รวมรูนที่เลือก (Rune Paths)
     if (!s || !B.canCast(id, 0, true)) return false; // สั่งเองตรง ๆ: ไม่สนติ๊กสกิล/เงื่อนไขแบบง่าย
     if (s.target === 'enemy') {
       const tg = this.aim(t, c, threats, hpPct);
