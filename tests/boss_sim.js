@@ -5,6 +5,8 @@
 //  ปาร์ตี้ N คน (เฉพาะ Ancient ที่เลือดใช้ร่วมกัน): เพื่อนตีแรงเท่าเรา → ดาเมจของเรา × N • บอสในเครื่องเราตีแต่เรา (เหมือนเกมจริง: มอนจำลองในเครื่องใครเครื่องมัน)
 //  ตาย = ฟื้นตรงนั้นหลังรอ 15 วิ (เดินกลับมา) นับจำนวนตาย
 //  รัน:  NODE_PATH=$(npm root -g) node tests/boss_sim.js [Class,Class] [วิเฉพาะฟาร์ม]   • MVPONLY=1 = เฉพาะระดับ 1 • NOKIT=1 = เทียบของเดิม (ไม่มีชุดท่า/ลูกสมุน)
+//        BOSSES=garmr,nidhogg = เลือกบอส • GEAR=lv = ใส่ของดรอปตามเลเวล (common/uncommon Lv ≤ เรา, อาวุธตามสาย — เหมือน CURVE=1 ใน balance_sim) แทนของร้าน
+//        MVP ปาร์ตี้ 3 (เพื่อนตีแรงเท่าเรา) แสดงด้วยทุกครั้ง
 // ============================================================
 const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
@@ -28,7 +30,7 @@ const serve = () => new Promise(res => {
   await p.waitForFunction(() => G.started, null, { timeout: 15000 });
   const jobs = (process.argv[2] || 'einherjar,runecaster,wildhunter').split(',');
   const FARM = +process.argv[3] || 300;
-  const res = await p.evaluate(async ({ jobs, FARM, NOKIT, MVPONLY }) => {
+  const res = await p.evaluate(async ({ jobs, FARM, NOKIT, MVPONLY, BOSSES, GEAR }) => {
     if (NOKIT) { BossKit.summon = () => false; BossKit.rotation = () => null; BossKit.enrage = () => {}; } // เทียบกับของเดิม (ก่อนมีชุดท่า/ลูกสมุน)
     G.player.options.sound = false; UI.msg = () => {}; UI.announce = () => {}; UI.splash = () => {}; saveGame = () => {}; WB.tick = () => {};
     const pathTo = (pl, id) => { const pr = { [id]: null }, q = [id]; while (q.length) { const c = q.shift(); if (Passive.has(pl, c)) { const o = []; for (let x = pr[c]; x; x = pr[x]) o.push(x); return o; } for (const l of PTREE[c].links) if (!(l in pr)) { pr[l] = c; q.push(l); } } return []; };
@@ -45,10 +47,19 @@ const serve = () => new Promise(res => {
       const home = PSECT.findIndex(S => S.job === job);
       const own = Object.values(PTREE).filter(n => n.sect === home && n.kind !== 'key').sort((a, b) => Math.hypot(a.x, a.y) - Math.hypot(b.x, b.y));
       for (const n of own) { if (Passive.free(pl) <= 0) break; for (const id of pathTo(pl, n.id)) Passive.alloc(pl, id); }
-      // ของจากร้าน (ดีที่สุดที่ใส่ได้ในแต่ละช่อง)
-      const best = {};
-      for (const id of [...SHOPS.weapon, ...SHOPS.armor]) { const it = ITEMS[id]; if (!it || !canEquip(it)) continue; const s = it.slot; if (!best[s] || score(it) > score(ITEMS[best[s]])) best[s] = id; }
-      for (const s in best) { addItem(best[s], 1, true); equipItem(pl.inventory.find(x => x.id === best[s]), true); }
+      // ของจากร้าน (ดีที่สุดที่ใส่ได้ในแต่ละช่อง) • GEAR=lv: ของดรอป common/uncommon ที่ Lv ≤ เรา อาวุธตามสาย Class
+      if (GEAR === 'lv') {
+        for (const s in pl.equip) pl.equip[s] = null; pl.inventory = [];
+        const wt = { einherjar: 'sword', runecaster: 'rod', wildhunter: 'bow', volva: 'rod', trickster: 'dagger', berserker: 'axe' }[jobRoot(job)], magic = main[0] === 'int';
+        const sc = it => (magic ? (it.matk || 0) * 1.5 + (it.atk || 0) * 0.2 : (it.atk || 0)) + (it.def || 0) * 4 + (it.mdef || 0) * 2 + Object.entries(it.b || {}).reduce((a, [k, v]) => a + (+v || 0) * (/^(hp|sp)$/.test(k) ? 0.04 : /Pct$/.test(k) ? 3 : 1.5), 0);
+        const by = {};
+        for (const it of Object.values(ITEMS)) if (isEquipType(it) && !it.quest && ['common', 'uncommon', undefined].includes(it.rarity) && (!it.lv || it.lv <= lv) && canJobUse(it.jobs, pl.job) && (it.slot !== 'weapon' || it.wtype === wt) && !(it.slot === 'shield' && wt === 'bow')) (by[it.slot] = by[it.slot] || []).push(it);
+        for (const s in by) for (const it of by[s].sort((a, b) => sc(b) - sc(a)).slice(0, s === 'acc' ? 2 : 1)) { addItem(it.id, 1, true); equipItem(pl.inventory.find(x => x.id === it.id), true); }
+      } else {
+        const best = {};
+        for (const id of [...SHOPS.weapon, ...SHOPS.armor]) { const it = ITEMS[id]; if (!it || !canEquip(it)) continue; const s = it.slot; if (!best[s] || score(it) > score(ITEMS[best[s]])) best[s] = id; }
+        for (const s in best) { addItem(best[s], 1, true); equipItem(pl.inventory.find(x => x.id === best[s]), true); }
+      }
       for (const e of [['white_potion', 60], ['orange_potion', 60], ['blue_potion', 30]]) addItem(e[0], e[1], true);
       recalc(); pl.hp = pl.d.maxHp; pl.sp = pl.d.maxSp;
       pl.options.bot = Object.assign(Bot.defaults(), { returnHome: false, avoidMvp: false, rest: false });
@@ -116,12 +127,36 @@ const serve = () => new Promise(res => {
       G.fastSim = false; Bot.toggle(false);
       return { map, expPerHour: Math.round(expSum / secs * 3600), deaths };
     };
+    // ท่าบอสถ้า "ยืนนิ่งไม่หลบ" (เราอยู่ห่างบอส 2 ช่อง ตรงจุดที่ท่าเล็ง): ดาเมจต่อท่าเป็น % MaxHP (เฉลี่ย/สูงสุด) + มึนกี่วิ
+    // ป้ายที่ไม่ทับตัวเรา (วงนอกของคลื่นกระแทก / แถบข้าง ๆ ของตาข่าย) ไม่นับ — ตรวจด้วย teleInside เหมือนเกมจริง • ตีปกติ = ดาเมจตีธรรมดา 1 ครั้ง
+    const skillHits = bossId => {
+      const d = MOBS[bossId], base = d.worldBoss ? d.base : d.id, map = Object.keys(MAP_DEFS).find(k => MAP_DEFS[k].mvp === base);
+      changeMap(map, 20.5, 20.5); G.mobs = []; G.respawns = []; G.fx = []; G.timers = [];
+      const pl = G.player, m = spawnMob(bossId, { x: pl.x - 2, y: pl.y });
+      if (d.worldBoss) { m.isWB = true; m.maxHp = d.hp; m.hp = d.hp; } else m.isMvp = true;
+      BossKit.onSpawn(m); m.x = pl.x - 2; m.y = pl.y;
+      const k = BossKit.kit(m), list = [...new Set(d.worldBoss ? k.wbRot : k.rot)];
+      const tg = telegraph, lt = later, sp = stunPlayer, mx0 = m.x, my0 = m.y, px = pl.x, py = pl.y;
+      let stun = 0;
+      telegraph = (mm, shape, onHit, boom) => { const f = Object.assign({ type: 'tele' }, shape), sc = mm.teleScale || 1; for (const q of ['r', 'r0', 'len', 'w']) if (f[q] != null) f[q] *= sc; if (teleInside(f, pl.x, pl.y)) onHit(); return f; };
+      later = (t, fn) => fn(); stunPlayer = t => { stun = Math.max(stun, t); };
+      const row = {};
+      const one = fn => { let sum = 0, mx = 0; stun = 0; for (let i = 0; i < 40; i++) { m.x = mx0; m.y = my0; m.hp = m.maxHp; pl.x = px; pl.y = py; pl.dead = false; pl.poisonUntil = 0; const big = pl.d.maxHp * 100; pl.hp = big; fn(); const dmg = (big - pl.hp) / pl.d.maxHp * 100; sum += dmg; mx = Math.max(mx, dmg); } return { avg: Math.round(sum / 40), max: Math.round(mx), stun: +stun.toFixed(1) }; };
+      try {
+        row.attack = one(() => { const md = m.def, dd = pl.d; let dmg = U.randi(md.atk[0], md.atk[1]); dmg = Math.max(1, Math.round(dmg * (1 - dd.def / 100) - dd.softDef * U.rand(0.7, 1))); dmg = Math.min(dmg, Math.round(dd.maxHp * BOSS_HIT_CAP)); damagePlayer(dmg); });
+        for (const id of list) if (BOSS_SKILLS[id]) row[id] = one(() => BOSS_SKILLS[id](m));
+      } finally { telegraph = tg; later = lt; stunPlayer = sp; G.mobs = []; G.fx = []; G.timers = []; }
+      pl.hp = pl.d.maxHp; pl.dead = false;
+      return row;
+    };
     const out = [];
-    const PLAN = [['seraph_pudding', 27, 'mistlake'], ['kitsura', 47, 'helcave'], ['garmr', 60, 'roots']];
+    const PLAN = [['seraph_pudding', 27, 'mistlake'], ['kitsura', 47, 'helcave'], ['garmr', 60, 'roots'], ['nidhogg', 70, 'abyss']].filter(x => !BOSSES || BOSSES.includes(x[0]));
     for (const job of jobs) for (const [boss, lv, map] of PLAN) {
       const row = { job, boss, lv };
+      build(job, lv); row.hitsT1 = skillHits(boss); row.hitsT2 = skillHits('wb_' + boss);
       build(job, lv); row.mvp = fight(boss, 1, 900, true);
       build(job, lv); row.mvpNoDodge = fight(boss, 1, 900, false);
+      build(job, lv); row.mvp3 = fight(boss, 3, 900, true);
       build(job, lv); expSum = 0; row.farm = farm(map, FARM);
       // ระดับ 2 ที่เลเวลเดียวกัน (ปาร์ตี้ 1 / 3 / 5) และที่เลเวลของ Ancient (+10)
       if (!MVPONLY) {
@@ -135,12 +170,16 @@ const serve = () => new Promise(res => {
       out.push(row);
     }
     return out;
-  }, { jobs, FARM, NOKIT: !!process.env.NOKIT, MVPONLY: !!process.env.MVPONLY });
+  }, { jobs, FARM, NOKIT: !!process.env.NOKIT, MVPONLY: !!process.env.MVPONLY, BOSSES: process.env.BOSSES ? process.env.BOSSES.split(',') : null, GEAR: process.env.GEAR || '' });
   for (const r of res) {
     console.log(`\n=== ${r.job} Lv${r.lv} vs ${r.boss} ===`);
     const f = x => `${x.killed ? 'KILL' : 'fail'} ${String(x.sec).padStart(4)}s${x.killed ? '' : ` (HP left ${x.hpLeft}%)`} deaths ${x.deaths} pots ${x.pots} dmgTaken/min ${x.dmgTakenPerMin} (maxHP ${x.maxHp}) maxHit ${x.maxHitPct}% minions ${x.minions}${Object.keys(x.phaseAt).length ? ' phases@' + JSON.stringify(x.phaseAt) : ''}`;
+    const hf = h => Object.entries(h).map(([k, v]) => `${k} ${v.avg}%${v.max > v.avg + 5 ? `(max ${v.max})` : ''}${v.stun ? ` stun ${v.stun}s` : ''}`).join(' • ');
+    console.log('  ยืนรับท่า T1 (%MaxHP):', hf(r.hitsT1));
+    if (r.hitsT2) console.log('  ยืนรับท่า T2 (%MaxHP):', hf(r.hitsT2));
     console.log('  T1 MVP   solo dodge  ', f(r.mvp));
     console.log('  T1 MVP   solo no-dodge', f(r.mvpNoDodge));
+    console.log('  T1 MVP   party3 dodge', f(r.mvp3));
     if (r.wb1) {
     console.log('  T2 Anc   party1 dodge', f(r.wb1));
     console.log('  T2 Anc   party3 dodge', f(r.wb3));
