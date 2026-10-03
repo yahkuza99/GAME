@@ -2,6 +2,7 @@
 // ============================================================
 //  เรื่องราว (docs/STORY.md → ในเกม): บทนำครั้งแรก, บรรทัดตำนานตอนเข้าแผนที่, บรรทัด MVP, บทพูด Mimir ต่อ Class
 //  สถานะเก็บใน p.story = { prologue: 1, eirScan, eirMask, helMet, helEnd, core: 'gave'|'kept', ... } (อยู่ใน SAVE_FIELDS)
+//    บทที่ 4: sigrunMet, sigrunAsk (Sigrún) • loptWood (Lopt ปากป่า) • eirAsh • mimirKitsura — ดู js/npc.js
 //  ไม่มีระบบใหม่ — ใช้กล่องบทสนทนา แบนเนอร์ ประกาศ และแชตที่มีอยู่แล้ว
 // ============================================================
 
@@ -23,12 +24,20 @@ const Story = {
     mistlake: L('ทูตคนสุดท้ายของ Odin บินวนในหมอกมาหลายสิบปี — รอใครบางคน', 'Odin\'s last envoy has circled in the mist for decades — waiting for someone.'),
     wolfwood: L('ไส้กรองเถ้ายังอุ่น... ไฟเพิ่งผ่านไป และมันเดินลงไปทางใต้', 'The ash filters are still warm... the fire just passed, and it walked south.'),
     helcave: L('รากบางจนใบไม้มาช้า — ประกายนับพันส่องแสงเบา ๆ บนชั้นวาง', 'The roots run so thin the leaves come late — a thousand sparks glow softly on the shelves.'),
+    archive: L('ชั้นวางล่างสุดของคลังประกาย — สนิมเริ่มลามขึ้นมาจากข้างล่าง', 'The lowest shelves of the spark archive — rust is creeping up from below.'),
+    roots: L('รากของ Yggdrasil ถูกแทะจากข้างล่าง — เสียงแทะไม่เคยหยุด', 'The roots of Yggdrasil are being gnawed from below — the gnawing never stops.'),
   },
-  // หลังปราบ MVP ของแผนที่นั้นแล้ว บรรทัดเปลี่ยน
+  // หลังปราบ MVP ของแผนที่นั้นแล้ว บรรทัดเปลี่ยน • แผนที่ที่ไม่มี MVP: เปลี่ยนเมื่อผ่านเควสต์ใน MAP_AFTER_QUEST
   MAP_LINES_AFTER: {
+    eldheim: L('รากใหญ่ยังมีน้ำเลี้ยงไหล — และมีคนรอเจ้ากลับมาที่นี่เสมอ', 'The great root still runs with sap — and someone here is always waiting for you to come back.'),
+    meadow: L('โดรนสงบลงแล้ว... แต่รอยเท้าของใครบางคนยังมุ่งไปทางตะวันออก', 'The drones have calmed... but someone\'s footprints still lead east.'),
     mistlake: L('หมอกเงียบลงแล้ว — ข้อความของ Odin ถูกส่งถึงมือผู้ถือกุญแจราก', 'The mist has gone quiet — Odin\'s message has reached the Bearer of the Root Key.'),
+    wolfwood: L('เถ้าเย็นลงแล้ว รอยไหม้ยังชี้ลงไปทางโพรง — และไฟตัวนั้นมีชื่อ: Kitsura', 'The ash has cooled, but the scorch marks still point down toward the Hollow — and that fire has a name: Kitsura.'),
     helcave: L('ไฟดับแล้ว ชั้นวางประกายยังส่องแสง — และเสียงแทะดังมาจากข้างล่าง', 'The fire is out. The spark shelves still glow — and a gnawing sound rises from below.'),
+    archive: L('ประกายที่ขึ้นสนิมถูกส่งขึ้นไปให้ Eir ตรวจแล้ว — ชั้นวางล่างสุดยังเรืองแสงสีสนิม', 'The rusted sparks have gone up to Eir for analysis — the lowest shelves still glow the color of rust.'),
+    roots: L('Garmr ล้มลงแล้ว ประตูรากเงียบ — แต่เสียงแทะยังดังมาจากที่ลึกกว่านั้น', 'Garmr has fallen and the root gate is silent — yet the gnawing still echoes from somewhere deeper.'),
   },
+  MAP_AFTER_QUEST: { eldheim: 'lv30', meadow: 'buzz', wolfwood: 'ch4_lopt', archive: 'ch6_eir' },
 
   // ---------- MVP: บรรทัดตอนเกิด (ใต้ชื่อในฉากเปิดตัว) / แชต / ตอนล้ม ----------
   MVP: {
@@ -79,8 +88,9 @@ const Story = {
   },
   mapLine(id) {
     const p = G.player, k = (p && p.kills) || {};
-    const mvp = MAP_DEFS[id] && MAP_DEFS[id].mvp;
-    if (mvp && k[mvp] && this.MAP_LINES_AFTER[id]) return this.MAP_LINES_AFTER[id];
+    const mvp = MAP_DEFS[id] && MAP_DEFS[id].mvp, q = this.MAP_AFTER_QUEST[id];
+    const after = q ? !!p && typeof Quest !== 'undefined' && Quest.passed(q) : !!(mvp && k[mvp]);
+    if (after && this.MAP_LINES_AFTER[id]) return this.MAP_LINES_AFTER[id];
     return this.MAP_LINES[id] || '';
   },
   mvpSub(id) { const m = this.MVP[id]; return m ? m.sub : ''; },
