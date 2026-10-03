@@ -1463,10 +1463,16 @@ function drawIconShape(g, spec, S) {
   }
   g.restore();
 }
+// ไอคอน Hunt Rune 3D (tools/rune3d.py → assets/rune_<id>.webp, โหลดเมื่อขอ) • ไม่ใช่ Hunt Rune = null
+function runeArtKey(id) { return ITEMS[id] && ITEMS[id].type === 'hrune' ? 'rune_' + String(id).replace(/[^A-Za-z0-9_]/g, '_') : null; }
 function itemIconCanvas(id, S = 24) {
   const key = id + '@' + S;
   if (_iconCache[key]) return _iconCache[key];
   const c = document.createElement('canvas'); c.width = S; c.height = S;
+  const rk = runeArtKey(id), rim = rk && (Art.need(rk), Art.get(rk));
+  if (rim) { c.getContext('2d').drawImage(rim, 0, 0, S, S); _iconCache[key] = c; return c; }
+  // ภาพ 3D ยังโหลดไม่เสร็จ (หรือ manifest ยังไม่มา): วาดแบบเดิมไปก่อน ไม่จำแคช (ครั้งหน้าได้ภาพจริง) • ไม่มีไฟล์/โหลดพลาด = แบบเดิมถาวร
+  if (rk && (Art.url(rk) || !Art._probe)) { drawIconShape(c.getContext('2d'), ITEMS[id].icon, S); return c; }
   const ak = Art.itemKey(id);
   if (ak) { const im = Art.get(ak), k = S / Math.max(im.width, im.height); c.getContext('2d').drawImage(im, (S - im.width * k) / 2, (S - im.height * k) / 2, im.width * k, im.height * k); }
   else drawIconShape(c.getContext('2d'), ITEMS[id].icon, S);
@@ -1509,6 +1515,8 @@ function chipCardCanvas(id, S) {
   return c;
 }
 function itemIconUrl(id) {
+  const rk = runeArtKey(id), ru = rk && Art.url(rk);
+  if (ru) return ru;
   if (ITEMS[id] && ITEMS[id].type === 'card' && !Art.imgs['item_' + id]) {
     if (_iconUrl[id]) return _iconUrl[id];
     const cv = chipCardCanvas(id, 96);

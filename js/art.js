@@ -32,10 +32,11 @@ const Art = {
     // manifest ห้ามใช้แคช: มีรหัสเวอร์ชันของภาพทุกไฟล์ (ภาพชื่อเดิมที่แก้ใหม่จะได้โหลดใหม่)
     fetch('assets/manifest.json', { cache: 'no-store' }).then(r => (r.ok ? r.json() : Promise.reject()))
       .then(m => {
-        const list = Array.isArray(m) ? m : m.files; ver = (m && m.v) || {};
+        const list = Array.isArray(m) ? m : m.files; ver = (m && m.v) || {}; this.ver = ver;
         // bake_*: ภาพอบ 3D ขนาดใหญ่ของแมพเดียว — ไม่โหลดตอนเปิดเกม รอ Art.need() ตอนเข้าแมพนั้น
         //   (arena_ground = ภาพลานประลองรุ่นแรก — ทางสำรองของ bake_arena_ground โหลดเมื่อจำเป็นเท่านั้น)
-        list.filter(f => !/\.(ogg|mp3|wav)$/.test(f)).forEach(f => (f.startsWith('bake_') || f.startsWith('arena_ground.') ? this.lazy.set(f.replace(/\.(webp|png)$/, ''), f) : probe(f)));
+        //   rune_*: ไอคอนรูน 3D (tools/rune3d.py) 90 ไฟล์ — โหลดเมื่อหน้าต่าง/เอฟเฟกต์ขอใช้ (Art.url สำหรับ <img>, Art.need/get สำหรับผ้าใบ)
+        list.filter(f => !/\.(ogg|mp3|wav)$/.test(f)).forEach(f => (f.startsWith('bake_') || f.startsWith('rune_') || f.startsWith('arena_ground.') ? this.lazy.set(f.replace(/\.(webp|png)$/, ''), f) : probe(f)));
         this._probe = probe;
         for (const k of this.wanted) this.need(k);
         if (typeof Sound !== 'undefined') Sound.register(list, ver); // ไฟล์เสียงจริง (sfx_*, bgm_*)
@@ -54,6 +55,13 @@ const Art = {
   },
   // คืนหน่วยความจำภาพ bake_* ที่วาดลงผ้าใบพื้นแล้ว (ภาพถอดรหัสเต็มแมพหลายสิบ MB) • need() ครั้งหน้าโหลดใหม่ได้ (จากแคชเบราว์เซอร์)
   free(k) { delete this.imgs[k]; if (this._asked) this._asked.delete(k); },
+  // ที่อยู่ไฟล์ของภาพโหลดตามต้องการ (ใส่ใน <img src> ได้ตรง ๆ — เบราว์เซอร์โหลดเอง) • ไม่มีใน manifest / manifest ยังไม่มา = null (ใช้ทางสำรอง)
+  ver: {},
+  url(k) {
+    if (this.imgs[k]) return this.imgs[k].src;
+    const f = this.lazy.get(k);
+    return f && !this.missed.has(k) ? `assets/${f}` + (this.ver[f] ? `?v=${this.ver[f]}` : '') : null;
+  },
   // ไอคอนไอเทม: ภาพเฉพาะชิ้น > ชิปการ์ดรวม > วาดด้วยโค้ด
   itemKey(id) {
     if (this.imgs['item_' + id]) return 'item_' + id;
