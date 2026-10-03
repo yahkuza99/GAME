@@ -133,6 +133,7 @@ function bindInput() {
     Sound.ensure();
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     updateMouse(e);
+    if (e.pointerType !== 'mouse' && typeof UnitCard !== 'undefined' && UnitCard.pressStart(e)) return; // มือถือ: นิ้วลงบนยูนิต → แตะค้าง 0.5 วิ = การ์ดข้อมูล (แตะสั้นทำงานตอนยกนิ้ว)
     R.mouse.down = true;
     R.mouse.holdAt = G.time + 0.35;
     handleClick();
@@ -146,7 +147,11 @@ function bindInput() {
   const up = e => { touches.delete(e.pointerId); if (touches.size < 2) R.pinch = null; R.mouse.down = false; };
   window.addEventListener('pointerup', up);
   window.addEventListener('pointercancel', up);
-  cv.addEventListener('contextmenu', e => { e.preventDefault(); if (G.pendingSkill) { G.pendingSkill = null; UI.msg(L('ยกเลิกการใช้สกิล', 'Skill cancelled.'), 'info'); } });
+  cv.addEventListener('contextmenu', e => { // คลิกขวา: มีสกิลรอเล็ง = ยกเลิก • ไม่งั้นที่ยูนิต = การ์ดข้อมูล (js/unitcard.js)
+    e.preventDefault();
+    if (G.pendingSkill) { G.pendingSkill = null; UI.msg(L('ยกเลิกการใช้สกิล', 'Skill cancelled.'), 'info'); return; }
+    if (typeof UnitCard !== 'undefined') UnitCard.onContext(e);
+  });
   cv.addEventListener('wheel', e => {
     e.preventDefault();
     R.zoom = U.clamp(R.zoom * (e.deltaY > 0 ? 0.9 : 1.1), R.ZMIN, R.ZMAX);

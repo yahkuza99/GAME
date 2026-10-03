@@ -1,0 +1,152 @@
+/* =====================================================================
+   การ์ดรายละเอียดยูนิต (js/unitcard.js) — คลิกขวา / แตะค้างที่ยูนิต
+   โทนกระดาษครีม ขอบไม้+ทอง เหมือนหน้าต่าง (css/tokens.css) • มือถือ = แผ่นล่างจอ (.uc-sheet)
+   ===================================================================== */
+#unit-card {
+  position: fixed; z-index: 4500; width: 320px; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: auto;
+  padding: var(--s3) var(--s3) var(--s3); border-radius: var(--rad-l); box-sizing: border-box;
+  background: radial-gradient(130% 70% at 50% 0%, #fffaf0 0%, rgba(255, 250, 240, 0) 62%), linear-gradient(180deg, var(--c-paper), var(--c-paper-2));
+  border: 1px solid var(--c-gold-lo); outline: 1px solid rgba(212, 163, 71, 0.55); outline-offset: -5px;
+  box-shadow: 0 0 0 3px var(--c-wood), 0 0 0 4px var(--c-gold), var(--sh-win);
+  color: var(--c-ink); font: 400 var(--fs-s)/1.4 var(--f-body); text-align: left;
+  scrollbar-width: thin; scrollbar-color: #c9a464 transparent; animation: uc-in 0.14s ease-out;
+}
+#unit-card[hidden] { display: none; }
+@keyframes uc-in { from { opacity: 0; transform: translateY(4px) scale(0.98); } to { opacity: 1; transform: none; } }
+#unit-card .uc-x {
+  position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; padding: 0; border-radius: 50%; z-index: 1;
+  border: 2px solid var(--c-gold); background: radial-gradient(circle at 50% 35%, #7f5532, #3f2613 75%); color: #fbe6b2;
+  font: 400 17px/1 var(--f-body); display: grid; place-items: center; cursor: pointer; }
+#unit-card .uc-x:hover { background: radial-gradient(circle at 50% 35%, #c2533a, #6e1c10 75%); color: #fff; }
+
+/* หัว: รูปหน้าในจานทอง + ชื่อ + ป้าย */
+#unit-card .uc-head { display: flex; gap: var(--s3); align-items: flex-start; padding-right: 28px; }
+#unit-card .uc-ptw { flex: none; width: 64px; height: 64px; border-radius: var(--rad-m); overflow: hidden;
+  border: 2px solid #a9792e; box-shadow: 0 0 0 1px rgba(255, 240, 200, 0.6), var(--sh-2);
+  background: radial-gradient(circle at 50% 40%, #4a3020, #1c120a 80%); }
+#unit-card .uc-pt { width: 100%; height: 100%; display: block; }
+#unit-card .uc-id { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; }
+#unit-card .uc-name { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+#unit-card .uc-name b { font: 700 var(--fs-l)/1.15 var(--f-body); color: var(--c-ink); word-break: break-word; }
+#unit-card .uc-tag { padding: 1px 7px; border-radius: var(--rad-pill); font: 700 var(--fs-2xs)/1.5 var(--f-num); letter-spacing: 0.06em;
+  border: 1px solid #b5802a; background: linear-gradient(180deg, #ffe69c, #edba50); color: #3b2204; }
+#unit-card .uc-tag.ancient { background: linear-gradient(180deg, #ffd08a, #e0662a); border-color: #9a3a10; color: #fff6e0; text-shadow: 0 1px 0 #6a2005; }
+#unit-card .uc-tag.mvp { background: linear-gradient(180deg, #ff9a8a, #c8322a); border-color: #8a1a10; color: #fff; text-shadow: 0 1px 0 #6a1008; }
+#unit-card .uc-tag.pvp { background: linear-gradient(180deg, #ffb0a0, #d24a3a); border-color: #8a1a10; color: #fff; }
+#unit-card .uc-tag.npc { background: var(--c-paper-2); border-color: var(--c-line-2); color: var(--c-gold-ink); }
+#unit-card .uc-tag.minion, #unit-card .uc-tag.dummy { background: var(--c-paper-2); border-color: var(--c-line-2); color: var(--c-ink-2); }
+#unit-card .uc-meta { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; color: var(--c-ink-2); font-size: var(--fs-xs); }
+#unit-card .uc-meta > span + span::before { content: "•"; margin-right: 6px; color: var(--c-ink-3); }
+#unit-card .uc-lv { padding: 1px 7px; border-radius: var(--rad-pill); background: linear-gradient(180deg, #5b3a1f, #2e1c0d); border: 1px solid var(--c-gold);
+  font: 700 var(--fs-xs)/1.4 var(--f-num); text-shadow: 0 1px 1px #000; }
+#unit-card .uc-el { font-weight: 600; color: var(--c-gold-ink); }
+#unit-card .uc-cls { font-weight: 600; color: var(--c-ink); }
+#unit-card .uc-cls::after { content: ""; display: inline-block; width: 8px; height: 8px; margin-left: 5px; border-radius: 2px; transform: rotate(45deg); background: var(--c); box-shadow: 0 0 0 1px rgba(60, 30, 5, 0.4); }
+#unit-card .uc-sub { color: var(--c-ink-3); font-size: var(--fs-xs); }
+#unit-card .uc-aggro { font-size: var(--fs-xs); font-weight: 600; }
+#unit-card .uc-aggro.bad { color: var(--c-bad); } #unit-card .uc-aggro.ok { color: var(--c-ok); }
+#unit-card .uc-party { font-size: var(--fs-xs); color: var(--c-ink-3); }
+#unit-card .uc-party.in { color: #1d7a70; font-weight: 600; }
+#unit-card .uc-role { color: var(--c-gold-ink); font-weight: 600; }
+
+/* HP */
+#unit-card .uc-hp { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; margin-top: var(--s3); }
+#unit-card .uc-hp > span { font: 700 var(--fs-2xs)/1 var(--f-num); color: var(--c-ink-2); letter-spacing: 0.05em; }
+#unit-card .uc-bar { height: 10px; border-radius: var(--rad-pill); background: #e4d3ae; box-shadow: inset 0 1px 2px rgba(80, 50, 15, 0.35); overflow: hidden; }
+#unit-card .uc-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(180deg, var(--c-hp-2), var(--c-hp)); transition: width 0.2s; }
+#unit-card .uc-bar i.low { background: linear-gradient(180deg, #ff6a5a, #a8201a); }
+#unit-card .uc-hp em { font: 600 var(--fs-xs)/1 var(--f-num); font-style: normal; color: var(--c-ink); white-space: nowrap; }
+
+/* ค่าพลัง */
+#unit-card .uc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: var(--s2); }
+#unit-card .uc-kv { display: flex; flex-direction: column; align-items: center; padding: 4px 2px; border-radius: var(--rad-s); background: var(--c-card); border: 1px solid var(--c-line); }
+#unit-card .uc-kv span { font: 600 var(--fs-2xs)/1.2 var(--f-num); color: var(--c-ink-3); letter-spacing: 0.05em; }
+#unit-card .uc-kv b { font: 700 var(--fs-m)/1.2 var(--f-num); color: var(--c-ink); }
+
+/* หมวด */
+#unit-card .uc-sec { margin-top: var(--s3); }
+#unit-card .uc-h { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; font: 600 var(--fs-xs)/1 var(--f-title); color: var(--c-gold-ink); letter-spacing: 0.03em; }
+#unit-card .uc-h::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--c-line-2), transparent); }
+#unit-card .uc-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+#unit-card .uc-ech { padding: 2px 8px; border-radius: var(--rad-pill); font-size: var(--fs-xs); font-weight: 600; border: 1px solid; }
+#unit-card .uc-ech.weak { color: #8a4a00; border-color: #e0a850; background: #fff1d0; }
+#unit-card .uc-ech.res { color: #4a5a6a; border-color: #b8c4cf; background: #eef2f5; }
+#unit-card .uc-hr { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 3px; border-radius: var(--rad-pill);
+  border: 1px solid var(--c-line-2); background: var(--c-card); font-size: var(--fs-xs); }
+#unit-card .uc-hr img { width: 20px; height: 20px; }
+#unit-card .uc-hr b { font-weight: 600; color: var(--c-ink); }
+#unit-card .uc-hr em { font: 700 var(--fs-xs)/1 var(--f-num); font-style: normal; color: var(--c-ok); }
+#unit-card .uc-hr i { font-style: normal; font-size: var(--fs-2xs); color: var(--c-ink-3); }
+#unit-card .uc-hr.own { border-color: #7cc98a; }
+#unit-card .uc-hr.on { border-color: #b5802a; background: linear-gradient(180deg, #fff6d8, #f6e2a8); }
+#unit-card .uc-hr.on i { color: var(--c-gold-ink); font-weight: 700; }
+#unit-card .uc-warn { margin-top: 4px; color: var(--c-bad); font-size: var(--fs-xs); }
+#unit-card .uc-dim { color: var(--c-ink-3); font-size: var(--fs-xs); }
+#unit-card .uc-note { margin-top: 6px; }
+
+/* ของดรอป / ของที่สวม */
+#unit-card .uc-drops { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 4px; }
+#unit-card .uc-drop, #unit-card .uc-eqr { display: flex; align-items: center; gap: 5px; min-width: 0; padding: 3px 5px 3px 3px; border-radius: var(--rad-s); background: var(--c-card); border: 1px solid var(--c-line); }
+#unit-card .uc-drop { padding: 2px 6px 2px 2px; }
+#unit-card .uc-plate { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 40%, #fffdf6, #efdcb2); border: 1.5px solid var(--r-common-ring); }
+#unit-card .uc-plate.r-uncommon { border-color: var(--r-uncommon-ring); } #unit-card .uc-plate.r-rare { border-color: var(--r-rare-ring); }
+#unit-card .uc-plate.r-epic { border-color: var(--r-epic-ring); } #unit-card .uc-plate.r-legend { border-color: var(--r-legend-ring); }
+#unit-card .uc-plate img { width: 22px; height: 22px; object-fit: contain; }
+#unit-card .uc-dn { flex: 1; min-width: 0; font-size: var(--fs-xs); line-height: 1.2; color: var(--c-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#unit-card .uc-drop em { flex: none; font: 700 var(--fs-2xs)/1.2 var(--f-num); font-style: normal; color: var(--c-gold-ink); }
+#unit-card .uc-eq { display: flex; flex-direction: column; gap: 4px; }
+#unit-card .uc-eqr > span:last-child { display: flex; flex-direction: column; min-width: 0; }
+#unit-card .uc-eqr b { font-size: var(--fs-s); }
+#unit-card .uc-eqr small { color: var(--c-ink-3); font-size: var(--fs-2xs); }
+
+/* ชิป */
+#unit-card .uc-chip { display: grid; grid-template-columns: 30px 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; margin-top: var(--s3);
+  padding: 5px 8px 6px 5px; border-radius: var(--rad-m); background: var(--c-card); border: 1px dashed #c9a464; }
+#unit-card .uc-chip img { grid-row: 1 / span 2; width: 30px; height: 30px; object-fit: contain; }
+#unit-card .uc-chip-t { display: flex; justify-content: space-between; gap: 6px; align-items: baseline; min-width: 0; }
+#unit-card .uc-chip-t b { font-size: var(--fs-xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#unit-card .uc-chip-t small { font: 600 var(--fs-2xs)/1 var(--f-num); color: var(--c-ink-2); white-space: nowrap; }
+#unit-card .uc-chip.got { border-style: solid; border-color: #b5802a; background: linear-gradient(180deg, #fff6d8, #f6e2a8); }
+#unit-card .uc-chip.got small { color: var(--c-gold-ink); }
+#unit-card .uc-chip-bar { height: 5px; margin-top: 3px; border-radius: var(--rad-pill); background: #e4d3ae; overflow: hidden; }
+#unit-card .uc-chip-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--c-gold), var(--c-gold-hi)); }
+
+/* ปุ่ม (ใช้หน้าตา .btn ของหน้าต่าง) */
+#unit-card .uc-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--s3); }
+#unit-card .btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 30px; padding: 0 var(--s3); flex: 1 1 auto;
+  border-radius: var(--rad-s); border: 1px solid #c9a464; background: linear-gradient(180deg, #fffdf6, #f2e2bf); color: var(--c-ink);
+  font: 600 var(--fs-xs)/1.1 var(--f-body); white-space: nowrap; cursor: pointer; box-shadow: 0 2px 0 #d6b97f, var(--sh-1); }
+#unit-card .btn:hover:not(:disabled) { border-color: var(--c-gold); box-shadow: 0 2px 0 #d6b97f, var(--glow-gold); }
+#unit-card .btn.primary { background: linear-gradient(180deg, #ffe699, #f2c056 55%, #e3a43a); border-color: #b5802a; color: #3b2204; box-shadow: 0 2px 0 #a4701c; }
+#unit-card .btn:disabled { background: #ebe4d4; border-color: #d6ccb6; color: #a89b84; box-shadow: none; cursor: default; }
+#unit-card .btn .ivi { display: inline-flex; width: 15px; height: 15px; }
+#unit-card .btn .ivi svg { width: 100%; height: 100%; }
+
+/* มือถือ / จอแคบ: แผ่นล่างจอ */
+#unit-card.uc-sheet {
+  left: 0 !important; right: 0; top: auto !important; bottom: 0; width: auto; max-width: 560px; margin: 0 auto; max-height: min(72vh, 560px);
+  border-radius: var(--rad-xl) var(--rad-xl) 0 0; padding: var(--s4) var(--s4) calc(var(--s4) + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 0 0 3px var(--c-wood), 0 0 0 4px var(--c-gold), 0 -18px 40px -12px rgba(25, 12, 2, 0.7);
+  animation: uc-up 0.18s ease-out; }
+#unit-card.uc-sheet::before { content: ""; display: block; width: 44px; height: 4px; margin: -6px auto 10px; border-radius: 4px; background: #c9a464; }
+#unit-card.uc-sheet .uc-x { top: 12px; right: 12px; width: 32px; height: 32px; }
+#unit-card.uc-sheet .btn { min-height: 40px; font-size: var(--fs-s); }
+#unit-card.uc-sheet .uc-drops { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+@keyframes uc-up { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* วงกดค้าง (มือถือ) */
+.uc-press { position: fixed; z-index: 4400; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%; pointer-events: none;
+  border: 3px solid rgba(246, 217, 138, 0.95); box-shadow: 0 0 12px rgba(242, 170, 60, 0.8);
+  animation: uc-hold 0.5s linear forwards; }
+@keyframes uc-hold { from { transform: scale(1.5); opacity: 0.2; } to { transform: scale(0.75); opacity: 1; } }
+
+/* สมุดมอนสเตอร์ (#w-mob): Hunt Rune ที่ช่วย */
+#w-mob .uc-mbx { margin-top: 6px; }
+#w-mob .uc-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+#w-mob .uc-hr { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 3px; border-radius: 999px; border: 1px solid var(--c-line-2); background: var(--c-card); font-size: var(--fs-xs); }
+#w-mob .uc-hr img { width: 20px; height: 20px; }
+#w-mob .uc-hr em { font-style: normal; font-weight: 700; color: var(--c-ok); }
+#w-mob .uc-hr i { font-style: normal; font-size: var(--fs-2xs); color: var(--c-ink-3); }
+#w-mob .uc-hr.on { border-color: #b5802a; background: linear-gradient(180deg, #fff6d8, #f6e2a8); }
