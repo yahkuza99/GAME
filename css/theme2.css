@@ -596,3 +596,26 @@ body.visor.pad-mode #menubar:not(.folded) { grid-auto-rows: 44px; }
   /* แถบเป้าหมาย: แทนที่การ์ดเควสต์ (ซ่อนตอนล็อกเป้า) ระหว่างปุ่มซ่อน HUD กับแถบเงิน */
   body.visor #target { left: calc(var(--sl) + 286px) !important; right: auto !important; transform: none !important; width: min(200px, calc(100vw - 650px)) !important; }
 }
+/* มือถือแนวตั้ง (เจ้าของ 2026-10-03: "ทำปุ่มดีกว่า … ดึงหน้าจอเต็มจอไปเลย ไม่รก"):
+   การ์ดเควสต์บนจอซ่อน → ปุ่ม Quest ใต้การ์ดตัวละคร (ตัวเลข = Daily ที่เหลือ • ! = ส่ง/รับหีบได้) → สมุดเควสต์เต็มจอ */
+#qt-btn { display: none; }
+@media (max-width: 760px) and (orientation: portrait) {
+  body.pad-mode #hud #quest-track { display: none !important; }
+  body.pad-mode #qt-btn { position: fixed; z-index: 19; left: calc(var(--s2) + var(--sl)); top: calc(var(--s2) + var(--st) + 128px);
+    display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px 0 9px; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+    --ch: 6px; clip-path: var(--chamfer); border: 0; color: #fff1d2; font: 700 var(--fs-s)/1 var(--f-disp); letter-spacing: 0.04em; text-shadow: 0 1px 0 #1a0c02;
+    background: var(--iv-wood-bg, linear-gradient(180deg, #6b4423, #3d2410));
+    box-shadow: inset 0 0 0 1px #c99a46, inset 0 0 0 2px rgba(22, 11, 2, 0.85), inset 0 2px 0 rgba(255, 228, 170, 0.35); }
+  body.pad-mode #qt-btn:active { filter: brightness(1.15); }
+  body.pad-mode #qt-btn .ico svg { width: 17px; height: 17px; fill: #f2cf80; }
+  body.pad-mode #qt-btn .qt-badge { position: static; min-width: 18px; height: 18px; padding: 0 4px; display: grid; place-items: center; margin-left: 2px;
+    font: 700 11px/1 var(--f-disp); font-style: normal; color: #3a2003; background: linear-gradient(180deg, #ffe699, #e3a43a); border-radius: 2px; box-shadow: 0 0 0 1px #6b410b; }
+  body.pad-mode #qt-btn .qt-badge.ready { color: #fff; background: linear-gradient(180deg, #ff8a6a, #c8341c); animation: iv-glint 1.4s ease-in-out infinite; }
+  body.pad-mode #qt-btn .qt-badge[hidden] { display: none; }
+  body.pad-mode #hud.hud-min #qt-btn, body.pad-mode #hud:has(#menubar:not(.folded)) #qt-btn { display: none; }
+  /* สมุดเควสต์เต็มจอ */
+  body.pad-mode #w-quest.win { left: 0 !important; top: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100dvh !important;
+    max-width: none !important; max-height: none !important; border-radius: 0 !important; transform: none !important;
+    padding-top: var(--st); padding-bottom: var(--sb); padding-left: var(--sl); padding-right: var(--sr); box-sizing: border-box; }
+  body.pad-mode #w-quest .win-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+}

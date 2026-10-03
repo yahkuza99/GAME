@@ -63,7 +63,26 @@ const UIKit = {
     el.onclick = () => { if (this.qtTab() === 'daily' && typeof Daily !== 'undefined') Daily.openTab(); else Quest.go(); };
     const rt = Quest.renderTracker;
     Quest.renderTracker = function (...a) { const r = rt.apply(this, a); try { UIKit.paintQt(); } catch (e) { console.error(e); } return r; };
-    setInterval(() => { if (G.started) { try { this.paintQt(); } catch (e) { /* ไม่เป็นไร */ } } }, 1000);
+    setInterval(() => { if (G.started) { try { this.paintQt(); this.paintQtBtn(); } catch (e) { /* ไม่เป็นไร */ } } }, 1000);
+    // มือถือแนวตั้ง: การ์ดเควสต์ซ่อน → ปุ่ม Quest เล็ก (css/theme2.css) แตะแล้วเปิดสมุดเควสต์เต็มจอ
+    const btn = h('button', { type: 'button', id: 'qt-btn', 'aria-label': 'Quest', onclick: e => { e.stopPropagation(); this.openQuestBook(); } },
+      ivIconEl('quest'), h('span', {}, 'Quest'), h('i', { class: 'qt-badge', hidden: '' }));
+    el.after(btn);
+  },
+  openQuestBook() {
+    const D = typeof Daily !== 'undefined' ? Daily : null, s = D ? D.state() : null;
+    if (s && D.canClaim(s)) { D.openTab(); return; }
+    UI.open('w-quest'); Sound.play('click');
+  },
+  paintQtBtn() {
+    const b = document.getElementById('qt-btn'); if (!b || !G.player) return;
+    const D = typeof Daily !== 'undefined' ? Daily : null, s = D ? D.state() : null;
+    const q = Quest.current(), [a, n] = q ? Quest.progress(q) : [0, 0];
+    const ready = (s && D.canClaim(s)) || (q && n > 0 && a >= n), left = s && !s.claimed ? D.left(s) : 0;
+    const txt = ready ? '!' : left ? String(left) : '', i = b.querySelector('.qt-badge');
+    b.classList.toggle('no-q', !q && !s);
+    if (i.textContent !== txt) i.textContent = txt;
+    i.hidden = !txt; i.classList.toggle('ready', !!ready);
   },
 
   // ---------- 3) สมุดเปิดบนคอม: แชท/การ์ดเควสต์จางลง ----------
