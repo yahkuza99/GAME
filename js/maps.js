@@ -84,7 +84,11 @@ const PORTAL_SIDE = {
 };
 const OPP_SIDE = { E: 'W', W: 'E', N: 'S', S: 'N' };
 // ตำแหน่งประตูของแมพ (def) ด้าน side — ปกติกลางขอบ • def.gate = { W: 0.8 } เลื่อนไปตามขอบ (สัดส่วน) ให้แมพขนาดต่างกันวางชิดกันได้ไม่ซ้อนทับ (js/world.js)
+// def.portalAt = { S: [x, y, ax, ay] } = ประตู "ด้านใน" (เช่น ประตูรากของ Garmr ใน Gnawed Roots → Nidhogg's Hollow): วางบนช่องที่เดินได้อยู่แล้ว
+//   ไม่เจาะทาง (ไม่กินเลขสุ่ม → ผังเดิม/ภาพอบ 3D ของแมพไม่เปลี่ยน) ไม่มีซุ้ม 3D (ใช้ซุ้มในภาพของแมพเอง) • ax, ay = จุดโผล่เมื่อเดินทางกลับมา
 function portalPos(def, side) {
+  const at = def.portalAt && def.portalAt[side];
+  if (at) return { x: at[0], y: at[1], ax: at[2], ay: at[3], inner: true };
   const p = PORTAL_SIDE[side](def.w, def.h), f = def.gate && def.gate[side];
   if (f != null) { if (side === 'E' || side === 'W') p.y = p.ay = Math.round((def.h - 1) * f); else p.x = p.ax = Math.round((def.w - 1) * f); }
   return p;
@@ -120,7 +124,7 @@ class GameMap {
     this.rng = U.seeded(def.seed);
     for (const side in def.links) {
       const p = portalPos(def, side);
-      this.portals.push({ x: p.x, y: p.y, ax: p.ax, ay: p.ay, to: def.links[side], toSide: OPP_SIDE[side] });
+      this.portals.push({ x: p.x, y: p.y, ax: p.ax, ay: p.ay, to: def.links[side], toSide: OPP_SIDE[side], inner: !!p.inner, side });
     }
     if (def.kind === 'town') this.genTown();
     else if (def.pvp) this.genArena();
@@ -231,7 +235,7 @@ class GameMap {
       if (this.tile(x, y) === T.GRASS && R() < (d.flowers || 0.04)) this.set(x, y, T.FLOWER);
     this.seamTransitions('before');
     const cx = w >> 1, cy = h >> 1;
-    for (const p of this.portals) this.carvePath(p.x, p.y, cx, cy, T.DIRT, 1);
+    for (const p of this.portals) if (!p.inner) this.carvePath(p.x, p.y, cx, cy, T.DIRT, 1);
     this.disc(cx + 0.5, cy + 0.5, 3.5, T.GRASS, 10, [T.TREE, T.WATER, T.FLOWER]);
     for (const p of this.portals) { this.set(p.x, p.y, T.DIRT); this.set(p.ax, p.ay, T.DIRT); }
     this.seamTransitions('after');
@@ -266,7 +270,7 @@ class GameMap {
       this.tiles = next;
     }
     const cx = w >> 1, cy = h >> 1;
-    for (const p of this.portals) this.carvePath(p.x, p.y, cx, cy, T.CAVE, 1);
+    for (const p of this.portals) if (!p.inner) this.carvePath(p.x, p.y, cx, cy, T.CAVE, 1);
     // ทางเชื่อมเพิ่มเติมไปยังมุมต่าง ๆ ให้ถ้ำกว้างขึ้น
     for (const [ox, oy] of [[8, 8], [w - 9, 8], [8, h - 9], [w - 9, h - 9]]) this.carvePath(cx, cy, ox, oy, T.CAVE, 1);
     this.disc(cx + 0.5, cy + 0.5, 4, T.CAVE, 10, [T.ROCK]);
@@ -297,7 +301,7 @@ class GameMap {
   // ถ้ำ→ทุ่ง = แสงแดด/มอสส่องเข้ามาที่ปากทาง (วาดตอนเรนเดอร์) • ทุ่ง↔ทุ่ง = ต้นไม้พันธุ์ของแมพข้าง ๆ ปนมากขึ้นเมื่อใกล้ขอบ (flora.js)
   seamTransitions(phase) {
     for (const p of this.portals) {
-      const nd = MAP_DEFS[p.to]; if (!nd) continue;
+      const nd = MAP_DEFS[p.to]; if (!nd || p.inner) continue;
       const side = typeof WORLD !== 'undefined' ? WORLD.sideOf(this, p) : OPP_SIDE[p.toSide];
       const dx = Math.sign(p.ax - p.x), dy = Math.sign(p.ay - p.y), qx = -dy, qy = dx;
       const kind = this.def.kind;

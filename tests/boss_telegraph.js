@@ -47,7 +47,7 @@ const ok = (name, cond, info) => { if (cond) { pass++; console.log('✔', name, 
     stunPlayer = () => {};
     window.__run = (mobId, skill, px, py, plan) => {
       G.mobs = []; G.respawns = []; G.fx = []; G.timers = []; window.__hits = [];
-      const pl = G.player; teleportPlayer(px, py); pl.dead = false; pl.stunUntil = 0;
+      const pl = G.player; teleportPlayer(px, py); pl.dead = false; pl.stunUntil = 0; pl.poisonUntil = 0; // พิษจากลมหายใจสนิม (Nidhogg) ไม่ค้างข้ามรอบ
       const m = spawnMob(mobId, { x: 25, y: 28 }); // บอสยืนกลางช่อง (25.5, 28.5)
       if (MOBS[mobId].worldBoss) { m.isWB = true; m.maxHp = MOBS[mobId].hp; m.hp = m.maxHp; } else m.isMvp = true;
       m.stunUntil = 1e12; m.nextBossSkill = 1e12; BossKit.init(m); // Ancient: ป้ายใหญ่ขึ้น/เร็วขึ้นตั้งแต่ท่าแรก
@@ -83,6 +83,13 @@ const ok = (name, cond, info) => { if (cond) { pass++; console.log('✔', name, 
     ['Ancient กังหันไฟ (pinwheel)', 'wb_kitsura', 'pinwheel', [28.5, 28.5], [[0.15, 36, 28]]],          // ช่องว่างระลอกแรก แล้ววิ่งออกนอกระยะ
     ['Ancient ล่าของเฮล (hunt)', 'wb_garmr', 'hunt', [28.5, 28.5], [[0.1, 38, 28], [1.6, 38, 38]]],      // ตะครุบไล่ 3 ครั้ง → วิ่งไม่หยุด
     ['Ancient ทุบแนวตรง (slam ใหญ่ขึ้น)', 'wb_garmr', 'slam', [29.5, 28.5], [[0.15, 29, 32]]],
+    // Nidhogg (js/content_ch7.js)
+    ['ลมหายใจสนิม (rustbreath)', 'nidhogg', 'rustbreath', [28.5, 28.5], [[0.15, 33, 28]]],          // กรวยยาว 6.5 → ถอยออกนอกระยะ
+    ['มุดราก (burrow)', 'nidhogg', 'burrow', [28.5, 28.5], [[0.15, 29, 32]]],                          // แนวราก + วงใต้เท้า → ก้าวออกด้านข้าง
+    ['แทะ 2 จังหวะ (gnaw)', 'nidhogg', 'gnaw', [28.5, 28.5], [[0.1, 33, 28]]],                         // กรวยสั้น 2 ครั้ง → ถอยออกนอกระยะ
+    ['ตาข่ายราก (rootlattice)', 'nidhogg', 'rootlattice', [28.5, 28.5], [[0.15, 30, 28]]],            // แถบขนาน → ยืนในช่อง
+    ['Ancient ตาข่ายราก 2 ระลอก (rootlattice)', 'wb_nidhogg', 'rootlattice', [28.5, 28.5], [[0.15, 30, 28], [1.3, 31, 28]]], // ช่องว่าง แล้วก้าวเข้าแถบที่ระเบิดแล้ว
+    ['Ancient กลืนกิน (devour)', 'wb_nidhogg', 'devour', [30.5, 28.5], [[0.1, 28, 28], [1.15, 30, 28]]], // เข้าวงใน แล้วออกนอกก่อนปากหุบ
   ];
   for (const [name, mob, sk, [px, py], plan] of cases) {
     const still = await p.evaluate(([mob, sk, px, py]) => __run(mob, sk, px, py, []), [mob, sk, px, py]);

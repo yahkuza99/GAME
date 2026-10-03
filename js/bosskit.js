@@ -68,6 +68,8 @@ const BossKit = (() => {
     garmr: { col: '230,70,50', hex: '#ff5a3a', rot: ['rootquake', 'slam', 'shockwave', 'pounce', 'maw'], wbRot: ['rootquake', 'hunt', 'maw', 'pounce', 'shockwave', 'slam'], ult: 'hunt',
       minions: ['mn_whelp', 'mn_chained'], elite: 'mn_whelp', cry: L('อาวู้ววว — ฝูงของข้า!', 'AWOOOO — to me, pack!') },
   };
+  // ชุดท่าจากไฟล์เนื้อหา (เช่น js/content_ch7.js — Nidhogg): window.BOSSKIT_EXTRA = [(K, addMinion) => { ... K.KITS.<id> = {...} }]
+  for (const f of (typeof window !== 'undefined' && window.BOSSKIT_EXTRA) || []) f(K, addMinion);
   // บอสในอนาคตที่ยังไม่มีชุดท่า: ใช้ท่ากลาง + ลูกสมุนจากมอนในแผนที่ของมันเอง (สร้างรุ่นเบาให้อัตโนมัติ)
   K.autoKit = d => {
     const id = d.id, map = Object.keys(MAP_DEFS).find(k => MAP_DEFS[k].mvp === id);

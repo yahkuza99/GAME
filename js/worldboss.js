@@ -13,7 +13,7 @@
 // ============================================================
 const WB = {
   PERIOD: 60 * 60e3, WINDOW: 40 * 60e3, MULT: 5,
-  MAPS: { mistlake: { mvp: 'seraph_pudding', off: 0 }, helcave: { mvp: 'kitsura', off: 20 }, roots: { mvp: 'garmr', off: 40 } },
+  MAPS: { mistlake: { mvp: 'seraph_pudding', off: 0 }, helcave: { mvp: 'kitsura', off: 20 }, roots: { mvp: 'garmr', off: 40 }, abyss: { mvp: 'nidhogg', off: 50 } }, // abyss = js/content_ch7.js (ไม่มี MOBS.nidhogg = ถูกลบใน init)
   st: {}, saveAt: 0, nextTick: 0,
 
   id(map) { return 'wb_' + this.MAPS[map].mvp; },

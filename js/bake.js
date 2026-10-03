@@ -204,7 +204,7 @@ const Bake = {
     map.extraLights = (map.extraLights || []).filter(l => !l.pgate);
     const th = typeof GATE_BAKE !== 'undefined' && !map.def.pvp && GATE_BAKE[map.def.kind];
     if (th) for (const p of map.portals) {
-      if (map.ridgeGate && map.ridgeGate.portal === p) continue;
+      if ((map.ridgeGate && map.ridgeGate.portal === p) || p.inner) continue; // ประตูด้านใน (def.portalAt) ใช้ซุ้มในภาพของแมพเอง
       const v = p.y <= 1 ? 'n' : p.y >= map.h - 2 ? 's' : p.x <= 1 ? 'w' : 'e', d = th[v];
       if (!d) continue;
       const cx = p.x + 0.5, cy = p.y + 0.5, s = GATE_BAKE.s;

@@ -200,7 +200,7 @@ const Quest = {
     if (q.done) { UI.msg(`📖 ${q.done}`, 'map'); setTimeout(() => { if (G.started) UI.announce(q.done); }, 1500); } // บรรทัดเล่าเรื่อง (หลัง QUEST CLEAR)
     const nx = this.current();
     if (nx) UI.msg(L(`📜 เควสต์ใหม่: ${nx.title} — ${nx.desc}`, `📜 New quest: ${nx.title} — ${nx.desc}`), 'info');
-    else UI.msg(L('📜 จบเนื้อเรื่องที่มีตอนนี้แล้ว — บทที่ 6 "รากที่ถูกแทะ" เร็ว ๆ นี้ ขอให้สนุกกับการผจญภัยใน IRON VALHALLA', '📜 You\'ve reached the end of the story so far — Chapter 6, "The Gnawed Root," is coming soon. Enjoy your adventures in IRON VALHALLA!'), 'lvl');
+    else UI.msg(L('📜 จบเนื้อเรื่องที่มีตอนนี้แล้ว — ภาคต่อเร็ว ๆ นี้ ขอให้สนุกกับการผจญภัยใน IRON VALHALLA', '📜 You\'ve reached the end of the story so far — more is coming soon. Enjoy your adventures in IRON VALHALLA!'), 'lvl');
     UI.dirty(); this.dirty = true;
     saveGame();
   },

@@ -42,7 +42,7 @@ const WORLD = {
     return out;
   },
   // ด้านที่ประตูอยู่ (จากตำแหน่งประตูในแมพ)
-  sideOf(m, p) { return p.x <= 1 ? 'W' : p.x >= m.w - 2 ? 'E' : p.y <= 1 ? 'N' : 'S'; },
+  sideOf(m, p) { return p.inner && p.side ? p.side : p.x <= 1 ? 'W' : p.x >= m.w - 2 ? 'E' : p.y <= 1 ? 'N' : 'S'; },
 };
 // กันพลาด: แมพที่ไม่มี kind/seed (เช่นคอมเมนต์ // กลางบรรทัดกินค่าไป) จะสร้างผิดแบบเงียบ ๆ → เตือนตั้งแต่โหลด
 for (const [id, d] of Object.entries(MAP_DEFS)) if (!d.kind || d.seed == null || !d.w || !d.h) console.warn(`MAP_DEFS.${id}: ขาด kind/seed/w/h`);
