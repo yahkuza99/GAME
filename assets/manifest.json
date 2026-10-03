@@ -751,7 +751,20 @@
 "skill_wolf_blood.webp",
 "skill_wolf_companion.webp",
 "skill_wyrd_thread.webp",
-"skill_zen_body.webp"
+"skill_zen_body.webp",
+"ui3d_btn.webp",
+"ui3d_btn_gold.webp",
+"ui3d_close.webp",
+"ui3d_frame.webp",
+"ui3d_hud.webp",
+"ui3d_niche.webp",
+"ui3d_paper.webp",
+"ui3d_plaque.webp",
+"ui3d_ring.webp",
+"ui3d_slot.webp",
+"ui3d_tab.webp",
+"ui3d_tab_on.webp",
+"ui3d_wood.webp"
 ],
 "v": {
 "anim_berserker_f_attack.webp": "ac0ba7b4",
@@ -1505,6 +1518,19 @@
 "skill_wolf_blood.webp": "a24756f3",
 "skill_wolf_companion.webp": "13308a4b",
 "skill_wyrd_thread.webp": "6bc7088a",
-"skill_zen_body.webp": "19f435e0"
+"skill_zen_body.webp": "19f435e0",
+"ui3d_btn.webp": "9deb8334",
+"ui3d_btn_gold.webp": "4492239a",
+"ui3d_close.webp": "ca414b4f",
+"ui3d_frame.webp": "e1f244f3",
+"ui3d_hud.webp": "f8a5f5a3",
+"ui3d_niche.webp": "a1a78a99",
+"ui3d_paper.webp": "70b9f58f",
+"ui3d_plaque.webp": "095cc91f",
+"ui3d_ring.webp": "089f2380",
+"ui3d_slot.webp": "9506908a",
+"ui3d_tab.webp": "4bd3dd66",
+"ui3d_tab_on.webp": "4b128781",
+"ui3d_wood.webp": "eae62798"
 }
 }

@@ -1114,43 +1114,61 @@ const UI = {
     row.addEventListener('keydown', ev => { if (ev.key === 'Enter') onPick(e); });
     return row;
   },
-  // หน้าขวาของสมุด: ภาพใหญ่บนจานเรือง • ป้ายความหายาก • ค่าพลัง • เงื่อนไข • ปุ่มใหญ่
-  // opt: { noPrice: ไม่แสดงราคาขาย, cmp: เทียบกับของที่สวมแม้ไม่ได้อยู่ในกระเป๋า (ร้านค้า), lead: [โหนดใต้ภาพใหญ่], extra: [โหนดก่อนหมายเหตุ] }
+  // หน้าขวาของสมุด (แบบ MINIMAL — เจ้าของ 2026-10-03 "ไม่ต้องแสดงรายละเอียดเยอะ เน้น visual"):
+  //   ซุ้มโชว์ภาพใหญ่ (+ตีบวก / [ช่องชิป]) → ชื่อสีตามความหายาก + อัญมณีเล็ก → แถวชิปค่าหลัก → เทียบของที่สวม → บรรทัดแดงถ้าใช้ไม่ได้ → ปุ่ม
+  //   ที่เหลือ (คำอธิบาย ตารางค่า เงื่อนไข ช่อง ชุด แหล่งดรอป ราคาขาย หมายเหตุ) อยู่ใน "Details" พับไว้ (ยังอยู่ใน DOM)
+  // opt: { noPrice: ไม่แสดงราคาขาย, cmp: เทียบกับของที่สวมแม้ไม่ได้อยู่ในกระเป๋า (ร้านค้า), lead: [โหนดใต้ภาพใหญ่ — .hr-sec เข้า Details], extra: [โหนดใน Details] }
   itemDetail(e, acts, note, opt = {}) {
     const it = ITEMS[e.id], r = this.rarOf(e.id), p = G.player, eq = isEquipType(it);
     const kv = (k, v, cls) => h('div', { class: 'kv' + (cls ? ' ' + cls : '') }, h('span', {}, k), h('b', {}, v));
     const sec = (ic, title, rows) => rows.length ? h('div', { class: 'dsec' }, h('div', { class: 'dsec-h' }, this.ico(ic), title), ...rows) : null;
-    const stats = [], req = [];
+    const stats = [], req = [], chips = [];
+    const stat = (k, v) => { stats.push(kv(k, v)); chips.push([k, v]); };
     const rf = e.refine || 0;
-    if (it.type === 'weapon') { stats.push(kv('ATK', String((it.atk || 0) + rf * 3))); if (it.matk || rf) stats.push(kv('MATK', String((it.matk || 0) + rf * 2))); }
-    if (it.type === 'armor') { if (it.def || rf) stats.push(kv('DEF', String((it.def || 0) + rf))); if (it.mdef) stats.push(kv('MDEF', String(it.mdef))); }
-    for (const [k, v] of this.itemBon(e)) { const s = this.enStat(k, v), m = s.match(/^(.*?) ([+−-]?\d.*)$/); stats.push(m ? kv(m[1], m[2]) : kv('Bonus', s)); }
-    if (it.heal) stats.push(kv('Restores HP', `${it.heal[0]}~${it.heal[1]}`));
-    if (it.spHeal) stats.push(kv('Restores SP', `${it.spHeal[0]}~${it.spHeal[1]}`));
+    if (it.type === 'weapon') { stat('ATK', String((it.atk || 0) + rf * 3)); if (it.matk || rf) stat('MATK', String((it.matk || 0) + rf * 2)); }
+    if (it.type === 'armor') { if (it.def || rf) stat('DEF', String((it.def || 0) + rf)); if (it.mdef) stat('MDEF', String(it.mdef)); }
+    for (const [k, v] of this.itemBon(e)) { const s = this.enStat(k, v), m = s.match(/^(.*?) ([+−-]?\d.*)$/); m ? stat(m[1], m[2]) : stat('Bonus', s); }
+    if (it.heal) stat('HP', `+${it.heal[0]}~${it.heal[1]}`);
+    if (it.spHeal) stat('SP', `+${it.spHeal[0]}~${it.spHeal[1]}`);
+    const warn = [];
     if (eq) {
-      const okJob = canJobUse(it.jobs, p.job);
-      req.push(kv('Class', it.jobs === 'all' ? 'All Classes' : it.jobs.map(j => EN(JOBS[j].name)).join(', '), okJob ? 'ok' : 'bad'));
+      const okJob = canJobUse(it.jobs, p.job), cls = it.jobs === 'all' ? 'All Classes' : it.jobs.map(j => EN(JOBS[j].name)).join(', ');
+      req.push(kv('Class', cls, okJob ? 'ok' : 'bad'));
       if (it.lv) req.push(kv('Base Lv', `${it.lv}+`, p.baseLv >= it.lv ? 'ok' : 'bad'));
       req.push(kv('Slot', SLOT_THAI[it.slot] || it.slot));
       if (it.slots) req.push(kv('Chip slots', `${(e.cards || []).length}/${it.slots}` + ((e.cards || []).length ? ` · ${e.cards.map(c => ITEMS[c] ? ITEMS[c].name : c).join(', ')}` : '')));
+      if (!okJob) warn.push(`Class: ${cls}`);
+      if (it.lv && p.baseLv < it.lv) warn.push(`Base Lv ${it.lv} required`);
     }
     if (it.type === 'card') req.push(kv('Fits', SLOT_THAI[it.slot] || 'Any slot'));
-    const main = this.itemMain(e);
-    return [
-      h('div', { class: 'det-top' }, h('h3', { class: 'dname r-' + r }, itemDisplayName(e)), h('small', {}, this.itemKind(it))),
-      h('div', { class: 'det-hero r-' + r }, this.plate(e.id, true),
-        h('div', { class: 'det-side' }, h('span', { class: 'rbadge r-' + r }, this.itemRarity(e.id)), main ? h('b', { class: 'det-main' }, main) : null,
-          e.qty > 1 ? h('small', {}, `Owned ×${U.fmt(e.qty)}`) : null)),
-      ...(opt.lead || []),
+    const lead = opt.lead || [], leadMore = lead.filter(n => n && n.classList && n.classList.contains('hr-sec')), leadTop = lead.filter(n => !leadMore.includes(n));
+    const hr = it.type === 'hrune' && typeof HuntRunes !== 'undefined' ? HuntRunes.def(e.id) : null;
+    const plate = this.plate(e.id, true);
+    if (rf) plate.append(h('i', { class: 'rf' }, '+' + rf));
+    if (it.slots) plate.append(h('i', { class: 'det-slots' }, `[${(e.cards || []).length}/${it.slots}]`));
+    if (e.qty > 1) plate.append(h('i', { class: 'det-qty' }, '×' + U.fmt(e.qty)));
+    const rar = this.itemRarity(e.id);
+    const more = [
       it.desc ? h('p', { class: 'det-desc' }, EN(it.desc)) : null,
+      ...leadMore,
       sec('stats', 'Stats', stats),
       sec('req', 'Requirements', req),
-      eq && (opt.cmp || p.inventory.includes(e)) ? this.compareLine(e) : null,
       typeof LOOT !== 'undefined' ? LOOT.setTip(e.id) : null,
       this.dropSources(e.id),
       opt.noPrice ? null : h('div', { class: 'det-price' }, h('span', {}, 'Sell price'), h('b', {}, `${U.fmt(Math.floor(it.price / 2))} ${CUR}`)),
       ...(opt.extra || []),
       note ? h('div', { class: 'det-note' }, this.ico('info'), h('span', {}, note)) : null,
+    ].filter(Boolean);
+    return [
+      h('div', { class: 'det-hero r-' + r }, plate),
+      h('div', { class: 'det-top' }, h('h3', { class: 'dname r-' + r }, h('i', { class: 'rgem r-' + r, title: rar, 'aria-hidden': 'true' }), itemDisplayName(e)),
+        h('small', {}, this.itemKind(it) + (r !== 'common' ? ` · ${rar}` : ''))),
+      hr ? h('p', { class: 'det-short' }, hr.short) : null,
+      chips.length ? h('div', { class: 'det-chips' }, chips.slice(0, 5).map(([k, v]) => h('span', { class: 'dchip' }, h('i', {}, k), h('b', {}, v)))) : null,
+      ...leadTop,
+      eq && (opt.cmp || p.inventory.includes(e)) ? this.compareLine(e, true) : null,
+      warn.length ? h('div', { class: 'det-warn' }, warn.join(' · ')) : null,
+      more.length ? h('details', { class: 'det-more', open: this.detOpen ? '' : false, ontoggle: ev => { this.detOpen = ev.target.open; } }, h('summary', {}, 'Details'), ...more) : null,   // เปิด/พับค้างไว้ข้ามการเลือกชิ้นอื่น
       acts && acts.length ? h('div', { class: 'det-acts' }, acts) : null,
     ].filter(Boolean);
   },
