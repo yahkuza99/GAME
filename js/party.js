@@ -74,6 +74,7 @@ const Party = {
     ch.on('broadcast', { event: 'kick' }, ({ payload }) => this.onKick(payload));
     ch.on('broadcast', { event: 'chat' }, ({ payload }) => this.onChat(payload));
     ch.on('broadcast', { event: 'pexp' }, ({ payload }) => this.onExp(payload));
+    ch.on('broadcast', { event: 'wcry' }, ({ payload }) => { if (payload && this.has(payload.id) && typeof Feel !== 'undefined') Feel.warCryRecv(payload); }); // ไม้ตาย WAR CRY ของเพื่อน (js/feel.js)
     ch.subscribe(st => {
       if (ch !== this.ch) return;
       if (st === 'SUBSCRIBED') this.heartbeat(true);

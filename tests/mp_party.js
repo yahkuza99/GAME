@@ -91,10 +91,20 @@ const chatLog = p => p.evaluate(() => [...document.querySelectorAll('#chat-log .
   const after = await B.evaluate(() => ({ e: G.player.baseExp, lv: G.player.baseLv }));
   ok('B ได้เท่ากับส่วนแบ่ง', after.lv > before.lv || after.e - before.e === share, `+${after.e - before.e} คาด ${share}`);
 
+  // ---- ไม้ตาย WAR CRY: บัฟทั้งปาร์ตี้ในระยะ 8 ช่อง (ส่งผ่านช่องปาร์ตี้ 'wcry') ----
+  const spd0 = await B.evaluate(() => G.player.d.speed);
+  await A.evaluate(() => { const p = G.player; p.ultKind = 'warcry'; p.ult = 100; Feel.ultFire(); });
+  ok('WAR CRY: A ได้บัฟเอง', await A.evaluate(() => G.player.warcryUntil > G.time && G.player.d.atkPct >= 15));
+  ok('WAR CRY: B (ห่าง 2 ช่อง) ได้บัฟด้วย', await until(B, s0 => G.player.warcryUntil > G.time && G.player.d.speed > s0 * 1.2, spd0), String(spd0));
+
   // ---- ไกลเกิน 25 ช่อง: ไม่แบ่ง ----
   await B.evaluate(() => { const m = G.map; let best = null; for (let y = 1; y < m.h - 1; y++) for (let x = 1; x < m.w - 1; x++) if (m.walkable(x, y) && U.dist(x, y, 28, 28) > 34 && (!best || U.dist(x, y, 28, 28) > U.dist(best.x, best.y, 28, 28))) best = { x, y }; teleportPlayer(best.x + 0.5, best.y + 0.5); Party.heartbeat(true); Online.sendPos(true); });
   ok('A เห็น B อยู่ไกล', await until(A, () => Party.eligible().length === 0), await A.evaluate(() => JSON.stringify([...Party.party.members.values()].map(m => [m.x, m.y]))));
   const far0 = await B.evaluate(() => G.player.baseExp);
+  await B.evaluate(() => { G.player.warcryUntil = 0; recalc(); });
+  await A.evaluate(() => { const p = G.player; p.ult = 100; Feel.ultFire(); });
+  await B.waitForTimeout(1200);
+  ok('WAR CRY: คนที่อยู่ไกลเกิน 8 ช่องไม่ได้บัฟ', await B.evaluate(() => !(G.player.warcryUntil > G.time)));
   const solo = await A.evaluate(() => { const p = G.player, e0 = p.baseExp, lv0 = p.baseLv, m = spawnMob('pudding', { x: Math.floor(p.x) + 1, y: Math.floor(p.y) }); killMob(m); return p.baseLv === lv0 ? p.baseExp - e0 : null; });
   ok('ไกลเกิน: A ได้ EXP เต็ม', solo === kill.exp, `${solo}`);
   await B.waitForTimeout(700);

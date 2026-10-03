@@ -612,6 +612,15 @@ function spawnMob(id, pos) {
   G.mobs.push(m);
   return m;
 }
+// จุดเกิดบอสประจำแผนที่: MAP_DEFS[id].mvpAt = [x, y] (เช่น Garmr หน้าประตูราก) — ช่องเดินไม่ได้ = หาช่องว่างใกล้สุด • ไม่ตั้ง = สุ่มทั้งแผนที่
+// คืนพิกัดช่อง (จำนวนเต็ม) ให้ spawnMob • บอสที่มีจุดเกิดจะเดินเล่นวนแถวนั้น (m.home)
+function mvpSpawnPos(map) {
+  const at = map && map.def.mvpAt; if (!at) return undefined;
+  const fx = Math.floor(at[0]), fy = Math.floor(at[1]);
+  if (map.walkable(fx, fy)) return { x: fx, y: fy };
+  const q = map.nearestWalkable(at[0], at[1]);
+  return { x: Math.floor(q.x), y: Math.floor(q.y) };
+}
 // คูลดาวน์บอส: เก็บเป็นเวลาจริง (ms) ลงเซฟ → ปิดเกมเปิดใหม่ไม่รีเซ็ต ฟาร์มบอสด้วยการรีโหลดไม่ได้
 function mvpLeft(mapId) {
   const at = ((G.player && G.player.mvpAt) || {})[mapId] || 0, d = MAP_DEFS[mapId], mv = d && d.mvp && MOBS[d.mvp];
@@ -619,8 +628,9 @@ function mvpLeft(mapId) {
   return mv ? Math.min(left, mv.respawn / 1000) : left; // นาฬิกาเครื่องเพี้ยนไปอนาคต ไม่ทำให้บอสหายนานเกินเวลาเกิดจริง
 }
 function spawnMvp(id) {
-  const m = spawnMob(id);
+  const m = spawnMob(id, mvpSpawnPos(G.map));
   m.isMvp = true;
+  if (typeof BossKit !== 'undefined') BossKit.onSpawn(m);
   UI.announce(L(`⚠ ${MOBS[id].name} (MVP) ได้ปรากฏตัวขึ้นใน ${G.map.def.name}!`, `⚠ ${MOBS[id].name} (MVP) has appeared in ${G.map.def.name}!`));
   if (!G.fastSim) UI.splash(`mvp_${id}`, MOBS[id].name, (typeof Story !== 'undefined' && Story.mvpSub(id)) || 'MVP BOSS APPEARED');
   UI.msg(L(`[MVP] ${MOBS[id].name} ปรากฏตัวแล้ว!`, `[MVP] ${MOBS[id].name} has appeared!`), 'mvp');
@@ -756,6 +766,8 @@ function killMob(m) {
   m.dead = true; m.deathT = 0; m.hp = 0; m.path = []; m.moving = false;
   if (p.target === m) p.target = null;
   Bot.onKill(m);
+  // ลูกสมุนที่บอสเรียก (js/bosskit.js): ไม่มี EXP / Zeny / ของดรอป / ไม่นับชิป-เควสต์-ภารกิจรายวัน-สมุดมอน — กันฟาร์มลูกสมุน
+  if (m.minion) { Sound.play('kill'); return; }
   Quest.onKill(d.id);
   Bounty.onKill(d.id);
   p.kills = p.kills || {}; p.kills[d.id] = (p.kills[d.id] || 0) + 1; // สมุดมอนสเตอร์: จำนวนที่ล่าได้
@@ -840,6 +852,7 @@ function mobAttack(m) {
   if (!U.chance(hitRate / 100)) { addFloater(p.x, p.y - 1.2, 'Miss', '#a0c0ff'); return; }
   let dmg = U.randi(md.atk[0], md.atk[1]);
   dmg = Math.max(1, Math.round(dmg * (1 - d.def / 100) - d.softDef * U.rand(0.7, 1)));
+  if (md.boss) dmg = Math.min(dmg, Math.round(d.maxHp * BOSS_HIT_CAP)); // บอส (รวม Ancient ATK ×3): ตีปกติครั้งเดียวไม่เกิน 60% MaxHP — ไม่มีฆ่าในทีเดียวจากเลือดเต็ม
   damagePlayer(dmg);
   if (md.stun && !d.unshaken && U.chance(md.stun[0] / 100 * (1 - Math.min(0.9, d.vit / 100)) * (1 - d.stunRes / 100))) stunPlayer(md.stun[1]);
 }
@@ -1357,6 +1370,7 @@ function updateGame(dt) {
   updateAllies(dt);
   updateTraps();
   for (const m of G.mobs) updateMob(m, dt);
+  if (typeof BossKit !== 'undefined') BossKit.update(dt); // บอส: เรียกลูกสมุน / ช่วงคลั่ง (Ancient) / ลูกสมุนหายเมื่อบอสตายหรือรีเซ็ต
   G.mobs = G.mobs.filter(m => !(m.dead && m.deathT > 0.8));
   // เกิดใหม่
   for (let i = G.respawns.length - 1; i >= 0; i--) {
@@ -1555,7 +1569,7 @@ function updateMob(m, dt) {
     if (!alive || dist > 11) { m.state = 'idle'; m.path = []; m.moving = false; return; } // หนีพ้นได้เมื่อห่าง 11 ช่อง
     // สกิลบอส
     if (md.boss && G.time >= m.nextBossSkill && dist < 8) {
-      m.nextBossSkill = G.time + U.rand(8, 12);
+      m.nextBossSkill = G.time + U.rand(8, 12) * (m.castMul || 1); // castMul < 1 = ร่ายถี่ขึ้น (Ancient / ช่วงคลั่ง)
       bossSkill(m);
     }
     if (dist <= (md.range || 1) + 0.5) {
@@ -1575,7 +1589,8 @@ function updateMob(m, dt) {
       m.moving = false;
       if (G.time >= m.nextWander) {
         m.nextWander = G.time + U.rand(2, 6);
-        const tx = Math.floor(m.x) + U.randi(-4, 4), ty = Math.floor(m.y) + U.randi(-4, 4);
+        const ox = m.home ? m.home.x : m.x, oy = m.home ? m.home.y : m.y; // มีจุดประจำ (บอสหน้าประตู) = วนแถวนั้น
+        const tx = Math.floor(ox) + U.randi(-4, 4), ty = Math.floor(oy) + U.randi(-4, 4);
         if (G.map.walkable(tx, ty) && !G.map.portalAt(tx, ty)) m.path = findPath(G.map, Math.floor(m.x), Math.floor(m.y), tx, ty, 200);
       }
     }
@@ -1586,8 +1601,16 @@ function updateMob(m, dt) {
 const BOSS_SKILLS = {};
 // MVP แต่ละตัวสลับท่าตามลำดับนี้ (ใช้ชื่อ bossSkill ในข้อมูลมอนเป็นกุญแจ) • World Boss ใช้ชุดเดียวกับร่างต้นแบบ
 const BOSS_ROTATION = { heal: ['shockwave', 'heal'], firestorm: ['firestorm', 'slam', 'shockwave'], rootquake: ['rootquake', 'slam', 'shockwave'] };
+// ดาเมจท่าบอสต่อผู้เล่น: ATK บอส × mult × ตัวคูณช่วงคลั่ง (m.dmgMul) หัก DEF (กายภาพ) หรือ MDEF (เวท)
+// เพดาน: ท่าเดียวแรงไม่เกิน BOSS_HIT_CAP ของ MaxHP — ไม่มีท่าไหนฆ่าในทีเดียวจากเลือดเต็ม (หลบได้ทุกท่าอยู่แล้ว แต่พลาดครั้งเดียวต้องไม่จบ)
+const BOSS_HIT_CAP = 0.6;
+function bossDmg(m, mult, magic) {
+  const d = G.player.d, raw = U.randi(m.def.atk[0], m.def.atk[1]) * mult * (m.dmgMul || 1);
+  const v = magic ? raw * (1 - d.mdef / 100) - d.softMdef : raw * (1 - d.def / 100) - d.softDef;
+  return Math.max(1, Math.min(Math.round(v), Math.round(d.maxHp * BOSS_HIT_CAP)));
+}
 function bossSkill(m) {
-  const p = G.player, list = BOSS_ROTATION[m.def.bossSkill] || [m.def.bossSkill];
+  const p = G.player, list = (typeof BossKit !== 'undefined' && BossKit.rotation(m)) || BOSS_ROTATION[m.def.bossSkill] || [m.def.bossSkill];
   const i = m.bossSeq || 0; m.bossSeq = i + 1;
   const k = list[i % list.length];
   if (BOSS_SKILLS[k]) return BOSS_SKILLS[k](m);
@@ -1601,7 +1624,7 @@ function bossSkill(m) {
     const x = m.x, y = m.y;
     UI.msg(L(`${m.def.name} กำลังร่ายเวทไฟ! ถอยออกจากวงแดง!`, `${m.def.name} is casting a fire spell! Get out of the red circle!`), 'mvp');
     telegraph(m, { shape: 'circle', x, y, r: 3, dur: 1.1 }, () => {
-      damagePlayer(Math.max(1, Math.round(U.randi(m.def.atk[0], m.def.atk[1]) * 1.3 * (1 - p.d.mdef / 100) - p.d.softMdef)), '#ff8040');
+      damagePlayer(bossDmg(m, 1.3, true), '#ff8040');
     }, () => addFx({ type: 'firering', x, y, dur: 0.6, r: 3 }));
   }
 }
@@ -1621,6 +1644,10 @@ function teleInside(f, x, y) {
 // onHit = ดาเมจต่อผู้เล่น (เรียกเมื่อยังอยู่ในพื้นที่) • boom = เอฟเฟกต์ตอนระเบิด (เรียกเสมอ)
 function telegraph(m, shape, onHit, boom) {
   const p = G.player;
+  // Ancient (Tier 2): ป้ายใหญ่ขึ้น (m.teleScale) และเร็วขึ้น (m.teleDur) แต่ไม่ต่ำกว่า 1 วินาที — ยังอ่านทันเสมอ
+  const sc = m.teleScale || 1, ds = m.teleDur || 1;
+  if (sc !== 1) { shape = Object.assign({}, shape); for (const k of ['r', 'r0', 'len', 'w']) if (shape[k] != null) shape[k] *= sc; }
+  if (ds !== 1) shape = Object.assign({}, shape, { dur: Math.max(1, (shape.dur || 1.1) * ds) });
   m.nextAtk = Math.max(m.nextAtk || 0, G.time + 0.9); // ระหว่างร่าย บอสไม่ตีปกติซ้อน (ไม่โดนมึนกลางวงจนหนีไม่ทัน)
   const f = addFx(Object.assign({ type: 'tele', dur: 1.1 }, shape, {
     owner: m,
@@ -1640,8 +1667,7 @@ BOSS_SKILLS.slam = m => {
   faceTo(m, p.x, p.y);
   UI.msg(L(`${m.def.name} ง้างตัวจะทุบพื้นเป็นแนวตรง! ก้าวหลบออกด้านข้าง!`, `${m.def.name} rears up for a line slam! Step to the side!`), 'mvp');
   telegraph(m, { shape: 'line', x, y, a, len: 8, w: 1.8, dur: 1.1 }, () => {
-    const d = p.d;
-    damagePlayer(Math.max(1, Math.round(U.randi(m.def.atk[0], m.def.atk[1]) * 1.5 * (1 - d.def / 100) - d.softDef)), '#ff5a3a');
+    damagePlayer(bossDmg(m, 1.5), '#ff5a3a');
     R.kick(6, 0.2);
   }, () => { m.atkAnim = 1; for (let i = 1; i <= 4; i++) addFx({ type: 'ring', x: x + Math.cos(a) * i * 1.9, y: y + Math.sin(a) * i * 1.9, dur: 0.45, r: 1.1, color: '255,120,80' }); });
 };
@@ -1651,7 +1677,6 @@ BOSS_SKILLS.shockwave = m => {
   const x = m.x, y = m.y;
   UI.msg(L(`${m.def.name} ปล่อยคลื่นกระแทก 3 วง! วงในระเบิดก่อน — ถอยออกนอกวง หรือก้าวเข้าวงที่ระเบิดไปแล้ว!`, `${m.def.name} unleashes a 3-ring shockwave! The inner ring bursts first — get outside, or step into a ring that has already burst!`), 'mvp');
   for (const [r0, r, dur] of [[0, 2.2, 1.1], [2.2, 4.2, 1.6], [4.2, 6.2, 2.1]]) telegraph(m, { shape: 'ring', x, y, r0, r, dur }, () => {
-    const d = p.d;
-    damagePlayer(Math.max(1, Math.round(U.randi(m.def.atk[0], m.def.atk[1]) * (1 - d.def / 100) - d.softDef)), '#ff7050');
+    damagePlayer(bossDmg(m, 1), '#ff7050');
   }, () => addFx({ type: 'ring', x, y, dur: 0.5, r, color: '255,110,70', waves: 2 }));
 };
