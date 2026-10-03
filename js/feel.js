@@ -172,7 +172,7 @@ const Feel = (() => {
   // ดาเมจ = ตีแรง 3 เท่าของการตีปกติ (เลือกกายภาพหรือเวท ที่แรงกว่า) ใส่มอนทุกตัวในวง • ไม่ใช้ในลานประลอง/ตอนตาย • บอทไม่กดให้
   const ULT_MAX = 100, ULT_R = 5;
   const ULT_COL = { einherjar: '#ff6a5a', runecaster: '#6ec8ff', wildhunter: '#8cff7a', volva: '#ffd76e', trickster: '#c88aff', berserker: '#ff9a3a', novice: '#bff4ff' };
-  F.ultCol = () => { const p = G.player, b = (JOBS[p.job] && JOBS[p.job].parent) || p.job; return ULT_COL[b] || '#ffd76e'; };
+  F.ultCol = () => { const p = G.player, b = JOBS[p.job] && typeof jobRoot === 'function' ? jobRoot(p.job) : p.job; return ULT_COL[b] || '#ffd76e'; };
   F.ultGain = n => {
     const p = G.player; if (!p || p.dead || F.ultBusy || performance.now() < (F.ultQuiet || 0)) return; // ไม้ตายเอง (และศพที่ตายตามมา) ไม่เติมเกจ
     const was = p.ult || 0; p.ult = Math.min(ULT_MAX, was + n);
@@ -222,10 +222,12 @@ const Feel = (() => {
     if (!(Math.hypot((+pl.x || 0) - p.x, (+pl.y || 0) - p.y) <= WARCRY_R + 0.5)) return;
     F.warCryApply(String(pl.name || '?').slice(0, 24), '#ffb060');
   };
-  F.ultKind = () => { const k = G.player && G.player.ultKind; return F.ULTS[k] ? k : 'fury'; };
+  // ตัวเลือกที่ใช้ได้: ไม้ตายกลาง 3 แบบ + ตัวที่ผูก Class (ULTS[k].job — Class 3 ตัวเลือกที่ 4, js/class3.js)
+  F.ultKeys = () => { const j = G.player && G.player.job; return Object.keys(F.ULTS).filter(k => !F.ULTS[k].job || F.ULTS[k].job === j); };
+  F.ultKind = () => { const k = G.player && G.player.ultKind; return F.ULTS[k] && F.ultKeys().includes(k) ? k : 'fury'; };
   F.ultPick = () => {
     if (typeof UI === 'undefined' || !UI.menu) return;
-    const keys = Object.keys(F.ULTS);
+    const keys = F.ultKeys();
     UI.menu(L('เลือกไม้ตาย', 'Choose Ultimate'), L('เลือกไม้ตายที่จะใช้ตอนเกจเต็ม (เปลี่ยนได้ตลอด)', 'Pick the ultimate you will unleash when the gauge is full (change anytime)'),
       [...keys.map(k => `${k === F.ultKind() ? '✔ ' : ''}${F.ULTS[k].name} — ${F.ULTS[k].desc}`), 'Cancel']).then(i => {
       if (i >= 0 && i < keys.length) { G.player.ultKind = keys[i]; F.ultDraw(); if (typeof saveGame === 'function') saveGame(); }
@@ -260,7 +262,7 @@ const Feel = (() => {
         if (Sound.ctx && p.options.sound) { Sound.tone(98, 0.9, 'sawtooth', 0.05, 30); Sound.tone(147, 0.8, 'sawtooth', 0.035, 45, 0.05); Sound.noise(0.5, 0.03, 300); }
       }
       if (typeof Party !== 'undefined' && Party.party && Party.send) Party.send('wcry', { id: Party.me(), name: p.name, map: G.map.id, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10 });
-    }
+    } else if (U2.fire) U2.fire(p, col); // ไม้ตายเฉพาะ Class (Class 3: js/class3.js)
   };
   // ---------- 7) vibe เมาส์: เคอร์เซอร์ธีมนอร์ส + วงกระเพื่อมตอนคลิกพื้น ----------
   const svgCur = (svg, hx, hy, fb) => `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}") ${hx} ${hy}, ${fb}`;

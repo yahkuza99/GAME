@@ -10,8 +10,8 @@ const G = {
   zones: [], // พื้นที่ค้างบนพื้นจาก Rune Paths (js/runes.js) — ล้างตอนเปลี่ยนแมพ
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
-const SAVE_FIELDS = ['pvp', 'mvpAt', 'job1Lv', 'name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
-  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery', 'story', 'daily', 'gacha', 'runes', 'loadouts', 'hrunes', 'hrunesOwn', 'ptV', 'ptReset'];
+const SAVE_FIELDS = ['pvp', 'mvpAt', 'job1Lv', 'job2Lv', 'name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
+  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery', 'story', 'daily', 'gacha', 'runes', 'loadouts', 'hrunes', 'hrunesOwn', 'ptV', 'ptReset', 'ultKind'];
 
 // ------------------------------------------------------------
 //  สร้าง / บันทึก / โหลด
@@ -1371,8 +1371,9 @@ function changeJob(job) {
     const cur = p.skills.basic_training || 0, add = Math.min(p.skillPoints, SKILLS.basic_training.max - cur);
     if (add > 0) { p.skills.basic_training = cur + add; UI.msg(L(`ใส่แต้มสกิล Novice ที่เหลือ ${add} แต้มให้ Basic Training อัตโนมัติ (ATK +${2 * add}, MaxHP +${2 * add}%)`, `${add} leftover Novice skill point(s) auto-assigned to Basic Training (ATK +${2 * add}, MaxHP +${2 * add}%).`), 'sys'); }
   }
-  const second = JOBS[job].tier === 2;
-  if (second) p.job1Lv = p.jobLv; // จำ Job Lv ของ Class แรกไว้ (แต้มสกิล Class แรกที่ยังไม่ใช้ ยกมาใช้ต่อได้)
+  const tier = JOBS[job].tier || 1, second = tier >= 2, third = tier === 3;
+  if (tier === 2) p.job1Lv = p.jobLv; // จำ Job Lv ของ Class แรกไว้ (แต้มสกิล Class แรกที่ยังไม่ใช้ ยกมาใช้ต่อได้)
+  if (third) p.job2Lv = p.jobLv; // Class 3 (js/class3.js): จำ Job Lv ของ Class 2 — แต้มที่ยังไม่ใช้ยกมาเหมือนกัน
   p.skillPoints = 0;
   p.job = job; p.jobLv = 1; p.jobExp = 0;
   if (second) p.skillPoints = Math.max(0, totalSkillPoints(p) - lineSkillsSpent(p));
@@ -1390,15 +1391,23 @@ function changeJob(job) {
   addFx({ type: 'upgrade', ref: p, dur: 3.2, col: `${(gn >> 16) & 255},${(gn >> 8) & 255},${gn & 255}` });
   later(2.2, () => addFloater(p.x, p.y - 1.5, `UPGRADE: ${JOBS[job].name}`, JOBS[job].glow || '#7ad8ff', true));
   UI.announce(L(`⚙ ${p.name} อัปเกรดร่างเป็น Class ${JOBS[job].name} (${JOBS[job].thai}) สำเร็จ!`, `⚙ ${p.name} has upgraded into the ${JOBS[job].name} class!`));
-  UI.splash(Art.jobKey(job, p.gender), `${JOBS[job].name}`, second ? 'SECOND CLASS AWAKENED' : 'BODY UPGRADE COMPLETE', 'upgrade');
-  if (second) UI.msg(L(`✦ ปลดล็อกสกิล Class ขั้น 2 แล้ว — กด S เพื่อดูสกิลใหม่ (ใช้สกิลและอาวุธของ ${JOBS[JOBS[job].parent].name} ได้ต่อ)`, `✦ Second-class skills unlocked — press S to view them (${JOBS[JOBS[job].parent].name} skills and weapons remain usable).`), 'sys');
+  UI.splash(Art.jobKey(job, p.gender), `${JOBS[job].name}`, third ? 'THIRD CLASS ASCENDED' : second ? 'SECOND CLASS AWAKENED' : 'BODY UPGRADE COMPLETE', 'upgrade');
+  if (third) UI.msg(L(`✦ ปลดล็อกสกิล Class 3 แล้ว — กด S เพื่อดูสกิลใหม่ (ใช้สกิลและอาวุธของ ${JOBS[JOBS[job].parent].name} และ ${JOBS[jobRoot(job)].name} ได้ต่อ) • Oath = รูนของสกิลติดตัว (Shift+R)`, `✦ Third-class skills unlocked — press S to view them (${JOBS[JOBS[job].parent].name} and ${JOBS[jobRoot(job)].name} skills and weapons remain usable) • Oaths are runes on the passive (Shift+R).`), 'sys');
+  else if (second) UI.msg(L(`✦ ปลดล็อกสกิล Class ขั้น 2 แล้ว — กด S เพื่อดูสกิลใหม่ (ใช้สกิลและอาวุธของ ${JOBS[JOBS[job].parent].name} ได้ต่อ)`, `✦ Second-class skills unlocked — press S to view them (${JOBS[JOBS[job].parent].name} skills and weapons remain usable).`), 'sys');
   else UI.msg(L('🔓 ปลดล็อกบอท AUTO แล้ว — กด B หรือปุ่ม AUTO เพื่อให้ล่าอัตโนมัติ', '🔓 AUTO bot unlocked — press B or the AUTO button to hunt automatically.'), 'sys');
   Sound.play('levelup');
   saveGame();
 }
 // แต้มสกิลที่ถูกต้อง = (Job Lv − 1) − แต้มที่ใช้ไปในสกิลของ Class ปัจจุบัน (ได้ 1 แต้มต่อ Job Lv)
 // onLoad: เซฟเก่าที่แต้ม Novice ยกข้าม Class → แปลงส่วนเกินเป็น Basic Training (ไม่ลบทิ้งเฉย ๆ)
-function totalSkillPoints(p) { return (p.jobLv - 1) + (JOBS[p.job].tier === 2 ? Math.max(0, (p.job1Lv || JOBS[JOBS[p.job].parent].jobMax) - 1) : 0); }
+// Class 2: + แต้มของ Class แรก (job1Lv) • Class 3: + แต้มของ Class 2 (job2Lv) ด้วย — เซฟเก่าไม่มีค่า = ถือว่าเต็ม (jobMax)
+function totalSkillPoints(p) {
+  const J = JOBS[p.job], t = J.tier || 1, par = J.parent && JOBS[J.parent];
+  let n = p.jobLv - 1;
+  if (t === 2) n += Math.max(0, (p.job1Lv || par.jobMax) - 1);
+  if (t === 3) n += Math.max(0, (p.job2Lv || par.jobMax) - 1) + Math.max(0, (p.job1Lv || JOBS[par.parent].jobMax) - 1);
+  return n;
+}
 function lineSkillsSpent(p) { return jobLine(p.job).flatMap(j => JOBS[j].skills).filter(id => SKILLS[id] && !SKILLS[id].noLearn).reduce((a, id) => a + (p.skills[id] || 0), 0); }
 function fixSkillPoints(p, onLoad) {
   const spent = lineSkillsSpent(p);

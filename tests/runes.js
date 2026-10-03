@@ -220,11 +220,11 @@ const BAND = 12, CAP = 15, MEAN = 7, CLASS_MEAN = 5;
         if (!['single', 'pack', 'both'].includes(r.intent)) bad.push('intent ' + r.id);
       }
     }
-    ok('data: 72 runes, 2 per Class 1 skill, Thai+English text', n === 72 && Object.keys(Runes.BY_ID).length === 72 && !bad.length, bad.join(' '));
+    ok('data: 72 runes, 2 per Class 1 skill, Thai+English text', n === 72 && Object.values(Runes.BY_ID).filter(r => FIRST_JOBS.some(j => JOBS[j].skills.includes(r.skill))).length === 72 && !bad.length, bad.join(' ')); // + รูน/Oath ของ Class 3 (tests/class3.js)
     // สรุป 1 บรรทัด (UI แบบ minimal): ทุกรูน (Skill 72 + Hunt 18) มี short ภาษาอังกฤษ ไม่ว่าง ≤ 60 ตัวอักษร
     const shorts = [...Object.values(Runes.BY_ID), ...(typeof HuntRunes !== 'undefined' ? HuntRunes.LIST : [])];
     const badShort = shorts.filter(r => typeof r.short !== 'string' || !r.short.trim() || r.short.length > 60 || /[฀-๿]/.test(r.short) || /undefined|NaN/.test(r.short)).map(r => r.id);
-    ok('data: every rune (72 Skill + 18 Hunt) has an English short ≤ 60 chars', shorts.length === 90 && !badShort.length && Runes.shortOf(Runes.BY_ID['iron_body.retaliate']) === Runes.BY_ID['iron_body.retaliate'].short, { n: shorts.length, badShort });
+    ok('data: every rune (72 Skill + 18 Hunt) has an English short ≤ 60 chars', shorts.length === Object.keys(Runes.BY_ID).length + 18 && !badShort.length && Runes.shortOf(Runes.BY_ID['iron_body.retaliate']) === Runes.BY_ID['iron_body.retaliate'].short, { n: shorts.length, badShort });
     // 2) เซฟ/โหลด: เซฟเก่าไม่มี runes = ว่าง • ค่าเสียถูกตัด • ไม่แตะ SAVE_KEY
     ok('save: runes in persisted fields', SAVE_FIELDS.includes('runes') && SAVE_KEY === 'ragnarok_web_save_v2');
     const old = loadGameFrom({ name: 'Old', gender: 'm', hair: '#ccc', job: 'einherjar', baseLv: 20, jobLv: 20, skills: { shield_slam: 5 }, stats: { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 } });

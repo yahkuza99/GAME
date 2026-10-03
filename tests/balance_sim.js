@@ -11,6 +11,10 @@
 //       – เส้นมอน "เลเวลเท่าเรา" ทุกแมพ Lv 36–69 + มอน Nidhogg's Hollow ทั้ง 5 ที่ Lv 58/64/70
 //    2) ฟาร์ม: บอทล่าในแมพ (ตามตาราง FARM) → EXP/ชม. • ชม./เลเวล • Zeny/ชม. (เงินจากมอน + ราคาขายครึ่งหนึ่งของของที่เก็บได้)
 //    CURVE=1 [FARM=วินาที] [DUEL=ตัวต่อมอน] [ONLY=duel|farm] NODE_PATH=$(npm root -g) node tests/balance_sim.js . 0 [Class,Class]
+//
+//  โหมด Class 3 (C3=1): Class 3 เทียบ Class 2 ต้นสาย ที่เลเวล/ของ/สเตตัสเท่ากัน (Job 26 ทั้งคู่ • Class 3 ลงแต้ม 25 ตาม Class Book)
+//    ดวลเดี่ยวมอนบทที่ 7 (เลือด ×HPX=4 ให้ไฟต์ยาวพอวัด) + ฝูง 4 ตัวพร้อมกัน (×HPX/2) ที่ Lv 70/80/90 → เวลาฆ่า (เป้า: Class 3 เร็วขึ้น 15–25% — docs/CLASS3_DESIGN.md §4)
+//    C3=1 [DUEL=ตัวต่อมอน] [C3LV=70,80,90] NODE_PATH=$(npm root -g) node tests/balance_sim.js
 // ============================================================
 const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
@@ -33,7 +37,7 @@ const serve = () => new Promise(res => {
   await p.goto(url); await p.waitForTimeout(1000);
   await p.click('#au-offline'); await p.click('#btn-new'); await p.fill('#cr-name', 'Sim'); await p.click('#cr-start');
   await p.waitForFunction(() => G.started, null, { timeout: 15000 }); await p.waitForTimeout(500);
-  if (process.env.CURVE) await curve(p); else await keystones(p);
+  if (process.env.C3) await c3mode(p); else if (process.env.CURVE) await curve(p); else await keystones(p);
   console.log('errors:', errs.slice(0, 5)); await b.close(); if (srv) srv.close();
 })();
 
@@ -133,11 +137,35 @@ async function curve(p) {
   }
   if (process.env.JSON) fs.writeFileSync(process.env.JSON, JSON.stringify(out, null, 1));
 }
+// ------------------------------------------------------------
+//  โหมด Class 3 (C3=1)
+// ------------------------------------------------------------
+async function c3mode(p) {
+  const pairs = (process.env.C3PAIRS || 'galdr:runelord,warlord:packlord').split(',').map(x => x.split(':'));
+  const lvs = (process.env.C3LV || '70,80,90').split(',').map(Number);
+  const cfg = { FARM_SECS: 0, DUEL_N: +process.env.DUEL || 4, ONLY: 'duel', C3: 1, HPX: +process.env.HPX || 4, C3LVS: lvs, CURVE_MOBS: [], CH7_LVS: lvs, CH7_MOBS: ['rust_bloom', 'nid_spawn', 'rootbound_guard', 'rot_colossus'], PACK: ['nid_spawn', 'rust_bloom'], FARM: [] };
+  const res = {};
+  for (const [c2, c3] of pairs) for (const job of [c2, c3]) { res[job] = await p.evaluate(simCurve, { job, cfg }); printJob(res[job]); }
+  const avg = a => a.reduce((x, y) => x + y, 0) / Math.max(1, a.length);
+  console.log('\n===== Class 3 vs Class 2 (Lv/ของ/สเตตัสเท่ากัน • Job 26 ทั้งคู่) — เวลาฆ่า (วินาที) ยิ่งน้อยยิ่งดี =====');
+  for (const [c2, c3] of pairs) {
+    console.log(`\n${c2} → ${c3}`);
+    for (const lv of lvs) {
+      const pick = (r, pre) => Object.entries(r).filter(([k]) => k.startsWith(`Lv${lv} `) && k.includes(pre)).map(([, v]) => v);
+      const s2 = pick(res[c2].duelCh7, 'vs'), s3 = pick(res[c3].duelCh7, 'vs'), k2 = pick(res[c2].duelPack, 'pack'), k3 = pick(res[c3].duelPack, 'pack');
+      const t2 = avg(s2.map(x => x.ttk)), t3 = avg(s3.map(x => x.ttk)), q2 = avg(k2.map(x => x.ttk)), q3 = avg(k3.map(x => x.ttk));
+      const d2 = avg(s2.map(x => x.dmgPctKill)), d3 = avg(s3.map(x => x.dmgPctKill));
+      console.log(`  Lv${lv}  single TTK ${t2.toFixed(1)}s → ${t3.toFixed(1)}s (${((t3 / t2 - 1) * 100).toFixed(0)}%)   pack(4) clear ${q2.toFixed(1)}s → ${q3.toFixed(1)}s (${((q3 / q2 - 1) * 100).toFixed(0)}%)   dmg taken/kill ${d2.toFixed(0)}% → ${d3.toFixed(0)}% HP`);
+    }
+  }
+  if (process.env.JSON) fs.writeFileSync(process.env.JSON, JSON.stringify(res, null, 1));
+}
 function printJob(r) {
   console.log(`\n=== ${r.job} ===`);
   const line = (k, x) => console.log(`  ${k.padEnd(28)} TTK ${x.ttk.toFixed(1).padStart(5)}s  dmg ${String(x.dmgPctMin).padStart(4)}%HP/min  ${String(x.dmgPctKill).padStart(3)}%HP/kill  hit ${x.hitPct}%  deaths ${x.deaths}  (HP ${x.maxHp} ATK ${x.atk} MATK ${x.matk} DEF ${x.def} FLEE ${x.flee})`);
   for (const k in r.duelCurve) line(k, r.duelCurve[k]);
   for (const k in r.duelCh7) line(k, r.duelCh7[k]);
+  for (const k in r.duelPack || {}) line(k, r.duelPack[k]);
   for (const k in r.farm) { const x = r.farm[k]; console.log(`  farm ${k.padEnd(12)} EXP/h ${String(x.expH).padStart(8)}  ${x.hPerLv.toFixed(2)} h/lv  kills/h ${x.killsH}  deaths/h ${x.deathsH.toFixed(1)}  zeny/h ${x.zenyH} (etc ${x.zenyEtcH}, gear ${x.zenyGearH}, kill ${x.zenyKillH})  pots/h ${x.potsH}  dmgTaken ${x.dmgPctMin}%HP/min`); }
 }
 
@@ -145,13 +173,13 @@ function printJob(r) {
 async function simCurve({ job, cfg }) {
   G.player.options.sound = false; UI.msg = () => {}; UI.announce = () => {}; UI.splash = () => {}; saveGame = () => {};
   if (typeof WB !== 'undefined') WB.tick = () => {};
-  const root = jobRoot(job), tier2 = root !== job;
+  const root = jobRoot(job), tier = JOBS[job].tier || 1, c2 = tier === 3 ? JOBS[job].parent : tier === 2 ? job : null, tier2 = !!c2;
   const pathTo = (pl, id) => { const pr = { [id]: null }, q = [id]; while (q.length) { const c = q.shift(); if (Passive.has(pl, c)) { const o = []; for (let x = pr[c]; x; x = pr[x]) o.push(x); return o; } for (const l of PTREE[c].links) if (!(l in pr)) { pr[l] = c; q.push(l); } } return []; };
   // สเตตัส/อาวุธตามสาย (สาย Class 2 ที่สไตล์ต่างจาก Class แรกตาม tests/job2_audit.js)
   const PLAN = { einherjar: ['str', 'vit'], runecaster: ['int', 'dex'], wildhunter: ['dex', 'agi'], volva: ['int', 'vit'], trickster: ['agi', 'str'], berserker: ['str', 'agi'], gythja: ['str', 'vit'], ullr: ['dex', 'luk'], skald: ['agi', 'dex'], jotun: ['str', 'vit'] };
-  const plan = PLAN[job] || PLAN[root];
+  const plan = PLAN[job] || PLAN[c2] || PLAN[root];
   const WT = { einherjar: 'sword', runecaster: 'rod', wildhunter: 'bow', volva: 'rod', trickster: 'dagger', berserker: 'axe', gythja: 'mace' };
-  const wtype = WT[job] || WT[root], magic = plan[0] === 'int';
+  const wtype = WT[job] || WT[c2] || WT[root], magic = plan[0] === 'int';
   const RANK = { common: 0, uncommon: 1, rare: 2, epic: 3, legend: 4 };
   const bScore = b => Object.entries(b || {}).reduce((a, [k, v]) => a + (+v || 0) * (/^(hp|sp)$/.test(k) ? 0.04 : /Pct$/.test(k) ? 3 : 1.5), 0);
   const score = it => (magic ? (it.matk || 0) * 1.5 + (it.atk || 0) * 0.2 : (it.atk || 0)) + (it.def || 0) * 4 + (it.mdef || 0) * 2 + bScore(it.b);
@@ -163,9 +191,15 @@ async function simCurve({ job, cfg }) {
     pl.baseLv = lv; pl.jobLv = 10; pl.skillPoints = 0; changeJob(root); pl.jobLv = 26; pl.skillPoints = 25;
     for (const id of JOBS[root].skills) while (canLearn(id)) learnSkill(id);
     if (tier2) {
-      changeJob(job); pl.jobLv = j2lv(lv); pl.skillPoints = Math.max(0, totalSkillPoints(pl) - lineSkillsSpent(pl));
-      for (const id of JOBS[job].skills) while (canLearn(id)) learnSkill(id);
+      changeJob(c2); pl.jobLv = cfg.C3 ? 26 : j2lv(lv); pl.skillPoints = Math.max(0, totalSkillPoints(pl) - lineSkillsSpent(pl));
+      for (const id of JOBS[c2].skills) while (canLearn(id)) learnSkill(id);
       for (const id of JOBS[root].skills) while (canLearn(id)) learnSkill(id);
+    }
+    if (tier === 3) { // Class 3: Job 26 = 25 แต้มสำหรับ 6 สกิล — ลงตามลำดับใน Class Book (ต้องเลือก ไม่ได้ครบทุกตัว)
+      changeJob(job); pl.jobLv = 26; pl.skillPoints = Math.max(0, totalSkillPoints(pl) - lineSkillsSpent(pl));
+      const order = (typeof CLASSBOOK !== 'undefined' && CLASSBOOK[job] && CLASSBOOK[job].build) || JOBS[job].skills.map(id => [id, 5]);
+      for (const [id, n] of order) while (canLearn(id) && (pl.skills[id] || 0) < n) learnSkill(id);
+      for (const id of JOBS[job].skills) while (canLearn(id)) learnSkill(id);
     }
     pl.statPoints = statPts(lv); let k = 0, guard = 0;
     while (guard++ < 3000) { const s = k % 5 === 4 ? 'vit' : plan[k % 2]; k++; if (pl.statPoints < statCost(pl.stats[s])) { if (pl.statPoints < 2) break; continue; } raiseStat(s); }
@@ -213,7 +247,7 @@ async function simCurve({ job, cfg }) {
     for (let i = 0; i < cfg.DUEL_N; i++) {
       G.mobs = []; G.respawns = []; pl.hp = pl.d.maxHp; pl.sp = pl.d.maxSp; pl.poisonUntil = 0; pl.buffs = pl.buffs || {};
       teleportPlayer(sp[0] + 0.5, sp[1] + 0.5);
-      const m = spawnMob(mobId, { x: sp[0] + 3.5, y: sp[1] + 0.5 }); m.state = 'chase';
+      const m = spawnMob(mobId, { x: sp[0] + 3.5, y: sp[1] + 0.5 }); m.state = 'chase'; if (cfg.HPX) m.hp = m.maxHp = Math.round(m.maxHp * cfg.HPX); // C3: เลือดหนาขึ้น (ไฟต์ยาวพอวัด)
       Bot.toggle(true); T.on = true; T.dmg = 0;
       let t = 0; G.fastSim = true;
       while (t < 90 && !m.dead) {
@@ -254,10 +288,31 @@ async function simCurve({ job, cfg }) {
       zenyGearH: Math.round(T.lootGear / h), zenyKillH: Math.round(zk / h), potsH: Math.round((p0 - potsOf()) / h), dmgPctMin: Math.round(T.dmg / pl.d.maxHp * 100 / secs * 60) };
   };
 
-  const res = { job, duelCurve: {}, duelCh7: {}, farm: {} };
+  // ฝูง: มอน n ตัวพร้อมกันรอบตัว → เวลาล้างทั้งฝูง
+  const duelPack = (lv, mobId, n) => {
+    const pl = build(lv), map = mapOfMob(mobId);
+    changeMap(map, 1, 1); G.mobs = []; G.respawns = []; G.drops = [];
+    const sp = spotOf(); let time = 0, dmg = 0, deaths = 0, kills = 0;
+    for (let k = 0; k < Math.max(1, cfg.DUEL_N >> 1); k++) {
+      G.mobs = []; G.respawns = []; G.allies = []; G.zones = []; pl.hp = pl.d.maxHp; pl.sp = pl.d.maxSp; pl.poisonUntil = 0; pl.cds = {}; pl.buffs = {};
+      teleportPlayer(sp[0] + 0.5, sp[1] + 0.5);
+      const ms = []; for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; const m = spawnMob(mobId, { x: Math.floor(sp[0] + 0.5 + Math.cos(a) * 2.5), y: Math.floor(sp[1] + 0.5 + Math.sin(a) * 2.5) }); m.state = 'chase'; if (cfg.HPX) m.hp = m.maxHp = Math.round(m.maxHp * cfg.HPX * 0.5); ms.push(m); }
+      Bot.toggle(true); T.on = true; T.dmg = 0;
+      let t = 0; G.fastSim = true;
+      while (t < 150 && ms.some(m => !m.dead)) { updateGame(1 / 15); t += 1 / 15; G.respawns = []; if (pl.dead) { deaths++; break; } if (!Bot.on) Bot.toggle(true); }
+      G.fastSim = false; T.on = false; Bot.toggle(false);
+      if (pl.dead) { respawnPlayer(true); pl.hp = pl.d.maxHp; }
+      kills += ms.filter(m => m.dead).length; time += t; dmg += T.dmg;
+    }
+    const d = pl.d, runs = Math.max(1, cfg.DUEL_N >> 1);
+    return { ttk: time / runs, dmgPctMin: Math.round(dmg / d.maxHp * 100 / Math.max(1, time) * 60), dmgPctKill: Math.round(dmg / d.maxHp * 100 / Math.max(1, kills)), hitPct: Math.round(T.hits / Math.max(1, T.hits + T.miss) * 100), deaths, kills,
+      maxHp: d.maxHp, atk: d.statusAtk + d.weaponAtk, matk: d.matkMax, def: d.def, flee: d.flee, gear: pl._gear.join(' ') };
+  };
+  const res = { job, duelCurve: {}, duelCh7: {}, duelPack: {}, farm: {} };
   if (cfg.ONLY !== 'farm') {
     for (const id of cfg.CURVE_MOBS) { const lv = MOBS[id].lv; res.duelCurve[`Lv${lv} vs ${id}`] = duel(lv, id); }
     for (const lv of cfg.CH7_LVS) for (const id of cfg.CH7_MOBS) res.duelCh7[`Lv${lv} vs ${id}(${MOBS[id].lv})`] = duel(lv, id);
+    for (const lv of cfg.PACK ? cfg.CH7_LVS : []) for (const id of cfg.PACK) res.duelPack[`Lv${lv} pack4 ${id}(${MOBS[id].lv})`] = duelPack(lv, id, 4);
   }
   if (cfg.ONLY !== 'duel') for (const [lv, map] of cfg.FARM) res.farm[`Lv${lv} ${map}`] = farm(lv, map, cfg.FARM_SECS);
   // คืนฟังก์ชันเดิม (รัน Class ถัดไปในหน้าเดียวกันจะห่อซ้ำ)

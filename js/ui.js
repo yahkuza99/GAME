@@ -1428,7 +1428,7 @@ const UI = {
     if (tabs.length > 1) body.append(h('div', { class: 'tabs sk-tabs' }, ...tabs.map((j, i) => {
       const left = JOBS[j].skills.filter(k => canLearn(k)).length;
       return h('button', { type: 'button', class: 'tab' + (j === tab ? ' on' : ''), onclick: () => { this.skTab = j; this.renderSkills(); } },
-        h('small', {}, i === 0 ? 'NOVICE' : i === 1 ? L('Class 1', 'CLASS 1') : L('Class 2', 'CLASS 2')), h('b', {}, i === 0 ? 'Basic' : JOBS[j].name), left ? h('i', { class: 'sk-tab-dot' }) : null);
+        h('small', {}, i === 0 ? 'NOVICE' : i === 1 ? L('Class 1', 'CLASS 1') : i === 2 ? L('Class 2', 'CLASS 2') : L('Class 3', 'CLASS 3')), h('b', {}, i === 0 ? 'Basic' : JOBS[j].name), left ? h('i', { class: 'sk-tab-dot' }) : null);
     })));
     const list = h('div', { class: 'sk-list' });
     // ความชำนาญ: แถบความคืบหน้าถึง Lv ถัดไป

@@ -144,8 +144,9 @@ const Anim = {
   playerKey(job, gender) {
     const g = gender === 'm' ? 'm' : 'f', own = `${job}_${g}`;
     if (this.has(own)) return own;
-    const par = typeof JOBS !== 'undefined' && JOBS[job] && JOBS[job].parent;
-    return par && this.has(`${par}_${g}`) ? `${par}_${g}` : own;
+    // ยังไม่มีภาพของ Class นี้ → ใช้ภาพของ Class แม่ไล่ขึ้นไปตามสาย (Class 3 → Class 2 → Class 1)
+    for (let j = typeof JOBS !== 'undefined' && JOBS[job] && JOBS[job].parent, n = 0; j && n < 4; j = JOBS[j] && JOBS[j].parent, n++) if (this.has(`${j}_${g}`)) return `${j}_${g}`;
+    return own;
   },
 
   // เลือกท่าและเฟรมจากสถานะตัวละคร

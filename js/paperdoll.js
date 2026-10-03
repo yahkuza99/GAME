@@ -67,6 +67,7 @@ const Paperdoll = {
   baseJob(job) {
     if (this.CLASS_WEAPON[job]) return job;
     if (typeof SECOND_JOBS !== 'undefined') for (const b in SECOND_JOBS) if (SECOND_JOBS[b].includes(job)) return b;
+    if (typeof jobRoot === 'function' && JOBS[job] && this.CLASS_WEAPON[jobRoot(job)]) return jobRoot(job); // Class 3: อาวุธประจำ Class แรกของสาย (จนกว่าจะมี cweapon ของตัวเอง)
     return null;
   },
   classWeapon(job) {

@@ -835,6 +835,7 @@ function baseExpNeed(lv) { return Math.floor(3 * Math.pow(lv, 3)) + 40; }
 function jobExpNeed(job, jl) {
   if (job === 'novice') return Math.floor(5 * Math.pow(jl, 1.5)) + 5;
   if (JOBS[job] && JOBS[job].tier === 2) return Math.floor(70 * jl * jl); // Class ขั้น 2 เก็บ Job ช้ากว่า
+  if (JOBS[job] && JOBS[job].tier === 3) return Math.floor(100 * jl * jl); // Class 3 (js/class3_data.js) ช้ากว่าอีกขั้น
   return Math.floor(40 * jl * jl);
 }
 function statCost(v) { return Math.floor((v - 1) / 10) + 2; }
