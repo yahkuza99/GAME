@@ -51,6 +51,10 @@
     linear-gradient(180deg, rgba(46, 27, 12, 0.56), rgba(22, 12, 4, 0.7));
   --g5-tint-solid: linear-gradient(155deg, rgba(255, 222, 160, 0.12), rgba(255, 222, 160, 0) 50%), linear-gradient(180deg, rgba(48, 29, 13, 0.94), rgba(24, 13, 5, 0.96));
   --g5-filter: blur(7px) saturate(1.45) brightness(0.92);
+  /* แผง HUD: กระจกใสกว่า (เห็นโลกเกมชัด) — ตัวอักษรอ่านได้ด้วยเงาตัวอักษร */
+  --g5-hud: linear-gradient(155deg, rgba(255, 226, 170, 0.2) 0%, rgba(255, 226, 170, 0.05) 30%, rgba(255, 226, 170, 0) 50%),
+    linear-gradient(180deg, rgba(40, 22, 8, 0.2), rgba(20, 10, 3, 0.34));
+  --g5-hud-filter: blur(5px) saturate(1.6) brightness(0.94) contrast(0.92);
   --g5-edge: inset 1px 1px 0 rgba(255, 238, 200, 0.34), inset -1px -1px 0 rgba(0, 0, 0, 0.45), inset 0 10px 18px -12px rgba(255, 230, 180, 0.32), inset 0 -14px 20px -14px rgba(0, 0, 0, 0.55);
   /* ไม้เข้ม (theme3 ใช้ตัวแปรนี้กับป้ายเงิน/ประกาศ/ป้ายอาชีพ) */
   --iv-wood-bg: linear-gradient(180deg, rgba(70, 42, 18, 0.18), rgba(0, 0, 0, 0.32)), var(--ui-bg-wood);
@@ -206,10 +210,18 @@ body.visor :is(#basic-info, #quest-track, #minimap:not(.folded), #menubar:not(.f
   border-image: var(--u3-hud) 48 / 24px / 3px round !important; box-shadow: 8px 14px 22px -10px rgba(5, 2, 0, 0.6) !important; }
 body.visor :is(#basic-info, #quest-track, #target, #chat)::after, body.visor :is(#minimap:not(.folded), #menubar:not(.folded))::before, body.visor:not(.pad-mode) #dock::before {
   content: ""; display: block; position: absolute; z-index: -1; inset: 4px; left: 4px; right: 4px; top: 4px; bottom: 4px; width: auto; height: auto; pointer-events: none; opacity: 1;
-  background: var(--g5-tint); -webkit-backdrop-filter: var(--g5-filter); backdrop-filter: var(--g5-filter); box-shadow: var(--g5-edge);
+  background: var(--g5-hud); -webkit-backdrop-filter: var(--g5-hud-filter); backdrop-filter: var(--g5-hud-filter); box-shadow: var(--g5-edge);
   -webkit-mask: none; mask: none; transform: none; }
 body.visor #chat { background: none !important; }
-body.visor #chat::after { background: linear-gradient(155deg, rgba(255, 222, 160, 0.1), rgba(255, 222, 160, 0) 50%), linear-gradient(180deg, rgba(36, 21, 9, 0.42), rgba(18, 10, 3, 0.55)); }
+body.visor #chat::after { background: linear-gradient(155deg, rgba(255, 222, 160, 0.12), rgba(255, 222, 160, 0) 50%), linear-gradient(180deg, rgba(30, 16, 6, 0.2), rgba(16, 8, 2, 0.34)); }
+/* ตัวอักษรบนกระจกใส: เงาเข้มรอบตัว (อ่านได้บนพื้นสว่างของโลกเกม) */
+body.visor :is(#basic-info, #quest-track, #menubar, #chat-log, #target, #minimap .mm-head, #minimap .mm-sub) { text-shadow: 0 0 2px rgba(10, 4, 0, 0.95), 0 1px 2px rgba(10, 4, 0, 0.9), 0 0 6px rgba(10, 4, 0, 0.55); }
+body.visor #menubar button:not(.on) span { color: #f6e4bd; }
+body.visor :is(#basic-info .pt, #quest-track .qt-tab.on, #menubar button.on) { text-shadow: 0 1px 0 rgba(255, 246, 210, 0.7); }
+/* แถบมืดบน/ล่างจอบางลง → โลกเกมหลังกระจก HUD สว่างพอให้เห็นชัด */
+body.visor #hud::before { background: linear-gradient(180deg, rgba(20, 12, 4, 0.16), rgba(20, 12, 4, 0)); }
+body.visor #hud::after { background: linear-gradient(0deg, rgba(20, 12, 4, 0.2), rgba(20, 12, 4, 0)); }
+body.visor #basic-info .xrow label, body.visor #basic-info .xrow > span { color: #e9d3a8; }
 body.visor #chat-input { background: rgba(8, 4, 0, 0.45); border: 1px solid rgba(201, 154, 70, 0.45); color: #fff1d2; }
 /* มินิแมพ: วงทองเหลืองเรนเดอร์ (ขีดองศา + อักษรทิศแกะ) แทนหน้าปัด SVG */
 body.visor .mm-ring { box-shadow: 0 0 0 1px rgba(20, 9, 1, 0.8), 4px 7px 12px -3px rgba(0, 0, 0, 0.65); }
@@ -260,5 +272,82 @@ body.fx-low .win:not(.gc-art) .win-title, body.fx-low .win.book-win::before { ba
   body.visor .win:not(.gc-art) .win-title span, body.visor .win.book-win .win-title span, body.visor #w-equip .win-title span { height: 34px; border-image-width: 0 34px; border-width: 0 13px; }
   body.visor .win:not(.gc-art) .win-x, body.visor.pad-mode .win:not(.gc-art) .win-x, body.visor #w-equip .win-x { width: 32px; height: 32px; }
   body.visor :is(#basic-info, #quest-track, #minimap:not(.folded), #menubar:not(.folded), #target, #chat), body.visor:not(.pad-mode) #dock { border-image-width: 18px !important; }
-  .det-hero::before { left: calc(var(--s2) + 48px - 80px); width: 160px; height: 160px; margin-top: -80px; }
+}
+
+/* ======================= 7) หน้ารายละเอียดแบบ MINIMAL (เจ้าของ: "ไม่ต้องแสดงรายละเอียดเยอะ เน้น visual") =======================
+   js/ui.js UI.itemDetail: ซุ้มโชว์ใหญ่กลางหน้า → ชื่อ (สีความหายาก + อัญมณี) → ชิปค่าหลัก 1 แถว → เทียบ → บรรทัดแดงถ้าใช้ไม่ได้ → Details (พับ) → ปุ่ม */
+.book-r { gap: var(--s2); }
+.det-hero { justify-content: center; padding: var(--s2) 0 0; gap: 0; }
+.det-hero::before { left: 50%; top: calc(50% + 4px); width: 250px; height: 220px; margin: -110px 0 0 -125px; }
+.det-hero .plate.big { width: 164px; height: 164px; }
+.det-hero .plate.big img { width: 58%; height: 58%; margin-top: -8%; }
+.det-hero .plate.big .rf, .det-hero .plate.big .det-slots, .det-hero .plate.big .det-qty {
+  position: absolute; z-index: 2; padding: 1px 6px; border-radius: 0 !important; font: 700 var(--fs-xs)/1.4 var(--f-disp); font-style: normal; letter-spacing: 0.02em;
+  --ch: 4px; clip-path: var(--chamfer); box-shadow: none; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.8); }
+.det-hero .plate.big .rf { right: 12px; top: 12px; bottom: auto; background: linear-gradient(180deg, #8a5a1c, #4a2c0c); color: #ffe39a; }
+.det-hero .plate.big .det-slots { left: 12px; bottom: 12px; background: rgba(12, 6, 2, 0.78); color: color-mix(in srgb, var(--rr, #e8d6b0) 55%, #f3e3c0); }
+.det-hero .plate.big .det-qty { right: 12px; bottom: 12px; background: rgba(12, 6, 2, 0.78); color: #fff1d2; }
+#w-runes .det-hero .plate.big { width: 132px; height: 132px; }   /* Runes: ช่องรูนอยู่ด้านบนแล้ว → ซุ้มเล็กลงหน่อย */
+#w-runes .det-hero::before { width: 210px; height: 180px; margin: -90px 0 0 -105px; }
+.det-top { align-items: center; text-align: center; gap: 1px; }
+.det-top .dname { display: inline-flex; align-items: center; justify-content: center; gap: 7px; max-width: 100%; font-size: var(--fs-l); text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75); }
+.det-top small { font-size: var(--fs-xs); letter-spacing: 0.02em; }
+/* อัญมณีความหายาก (แทนป้าย Common/Rare) */
+.rgem { flex: none; width: 10px; height: 10px; transform: rotate(45deg); border-radius: 1px;
+  background: radial-gradient(circle at 32% 30%, #fff 0 14%, var(--rr, #cdb68a) 48%, color-mix(in srgb, var(--rr, #cdb68a) 55%, #000) 100%);
+  box-shadow: 0 0 0 1px rgba(60, 34, 8, 0.75), 0 0 6px var(--rg, transparent); }
+.rgem.r-common { --rr: #b9a37a; }
+.det-short { margin: 0; text-align: center; font: 600 var(--fs-s)/1.4 var(--f-body); color: #6a4416; }
+/* ชิปค่าหลัก: ป้ายไม้เข้มตัดมุม */
+.det-chips { flex: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+.dchip { display: inline-flex; align-items: baseline; gap: 5px; padding: 3px 9px 4px; --ch: 5px; clip-path: var(--chamfer);
+  background: linear-gradient(180deg, rgba(255, 230, 170, 0.12), rgba(0, 0, 0, 0.18)), var(--ui-bg-wood), #3a2410; box-shadow: inset 0 1px 0 rgba(255, 230, 170, 0.25); }
+body.visor .win .dchip i { font: 600 var(--fs-2xs)/1 var(--f-disp); font-style: normal; letter-spacing: 0.06em; color: #d9b878; text-transform: uppercase; }
+body.visor .win .dchip b { font: 700 var(--fs-s)/1 var(--f-disp); color: #fff1d2; }
+/* เทียบของที่สวม: แถวชิปบรรทัดเดียวตรงกลาง */
+.book-r .cmp-row.compact { justify-content: center; border-top: 0; padding: 0; }
+.book-r .cmp-row.compact .cmp-h { justify-content: center; }
+.book-r .cmp-row.compact:has(.cmp-v.eq) { display: none; }   /* ไม่มีค่าเปลี่ยน = ไม่ต้องโชว์ */
+/* ใช้ไม่ได้: บรรทัดแดงสั้น ๆ */
+.det-warn { flex: none; text-align: center; font: 700 var(--fs-xs)/1.35 var(--f-body); color: #b0281a; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6); }
+.det-warn::before { content: "⚠ "; }
+/* Details (พับไว้) */
+.det-more { flex: none; display: flex; flex-direction: column; gap: var(--s2); }
+.det-more > summary { align-self: center; list-style: none; cursor: pointer; padding: 3px 12px; font: 600 var(--fs-xs)/1.4 var(--f-body); letter-spacing: 0.04em; color: #7a5022;
+  border-top: 1px solid rgba(150, 105, 45, 0.3); border-bottom: 1px solid rgba(150, 105, 45, 0.3); -webkit-user-select: none; user-select: none; }
+.det-more > summary::-webkit-details-marker { display: none; }
+.det-more > summary::after { content: " ▾"; }
+.det-more[open] > summary::after { content: " ▴"; }
+.det-more > summary:hover { color: #4a2c0c; background: rgba(255, 230, 170, 0.35); }
+.det-more > :not(summary) { margin: 0; }
+/* ราคาในร้าน / ฝากคลัง: แถวเดียวกะทัดรัด (ไม่มีหัวกล่อง • "You have" แสดงเฉพาะเงินไม่พอ) */
+.book-r .pricebox { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2px var(--s3); padding: var(--s1) var(--s2); background: rgba(255, 248, 230, 0.55); }
+.book-r .pricebox .dsec-h { display: none; }
+.book-r .pricebox .kv { min-height: 30px; padding: 0; gap: 6px; border: 0; background: none; }
+.book-r .pricebox .kv span { font-size: var(--fs-xs); }
+.book-r .pricebox .kv.ok:last-child { display: none; }
+.book-r .pricebox .kv.total { background: none; }
+/* Runes: การ์ด Skill Rune ที่ไม่ได้เลือก = คำอธิบาย 1 บรรทัด (เลือกแล้ว = เต็ม) • ไม่มีแถบวิธีใช้ใต้การ์ด */
+.rb-card:not(.sel) .rb-card-d { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; overflow: hidden; }
+.rb-cards ~ .det-note:not(.rb-lock-note):not(.rb-busy) { display: none; }
+.rb-card { row-gap: 2px; }
+/* การ์ดไอเทมตอนชี้เมาส์: กระชับ — ไม่แสดงคำบรรยาย/แหล่งดรอป (ยังอยู่ใน Details ของหน้าต่าง) */
+#item-tip .tip-desc:not(.rn-tip), #item-tip .tip-src { display: none; }
+
+@media (max-width: 760px), (max-height: 520px) {
+  .det-hero .plate.big { width: 132px; height: 132px; }
+  .det-hero::before { width: 210px; height: 180px; margin: -90px 0 0 -105px; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .det-hero { padding-top: 0; }
+  .det-hero .plate.big { width: 104px; height: 104px; }
+  .det-hero::before { width: 170px; height: 140px; margin: -70px 0 0 -85px; }
+  .det-hero .plate.big :is(.rf, .det-slots, .det-qty) { font-size: 10px; padding: 0 4px; }
+  .det-hero .plate.big .rf { right: 7px; top: 7px; } .det-hero .plate.big .det-slots { left: 7px; bottom: 7px; } .det-hero .plate.big .det-qty { right: 7px; bottom: 7px; }
+  /* Runes บนจอเตี้ย: เบ้ารูนกะทัดรัด (ไม่มีบรรทัดรอง) ให้ภาพรูนเห็นเต็มเหนือปุ่ม */
+  #w-runes .rb-socks { padding-top: 16px; padding-bottom: 8px; }
+  #w-runes .rb-stone.rb-ic { --s: 48px; }
+  #w-runes .rb-sock-t small { display: none; }
+  #w-runes .det-hero .plate.big { width: 92px; height: 92px; }
+  #w-runes .det-hero::before { width: 150px; height: 120px; margin: -60px 0 0 -75px; }
 }
