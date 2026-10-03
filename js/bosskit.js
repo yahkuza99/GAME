@@ -3,13 +3,13 @@
 //  ชุดสกิลบอส (Boss Kit) — บอสทุกตัวมีท่าชุดของตัวเอง + เรียกลูกสมุน • บอส 2 ระดับ
 //  โหลดหลัง js/worldboss.js (ต้องมี MOBS ของ World Boss แล้ว) • เกี่ยวเข้าเกมผ่าน BossKit.update / rotation / onSpawn (js/game.js)
 //
-//  ระดับ 1 = MVP ประจำแผนที่ (ความแรงเดิม) — ท่าสลับ 4–5 ท่า (ทุกท่ามีป้ายแดงเตือน ≥ 1 วิ หลบได้หมด) + เรียกลูกสมุนทุก ~25 วิ
+//  ระดับ 1 = MVP ประจำแผนที่ (ความแรงเดิม) — ท่าสลับ 4–5 ท่า (ทุกท่ามีป้ายแดงเตือน ≥ 1 วิ หลบได้หมด) + เรียกลูกสมุนทีละ 2 (คูลดาวน์ 40 วิ หรือทันทีเมื่อเลือดผ่าน 75/50/25% • ค้างได้สูงสุด 3 อยู่ได้ 30 วิ)
 //  ระดับ 2 = Ancient (World Boss, worldboss.js: HP ×5, ATK ×3 ตามที่เจ้าของกำหนด — ไม่แตะตัวคูณนี้)
 //     • ป้ายใหญ่ขึ้น 25% / ร่ายเร็วขึ้น (ป้ายสั้นลง 10% แต่ไม่ต่ำกว่า 1 วิ) / ร่ายถี่ขึ้น 15% • มีท่าเฉพาะ Ancient 1 ท่า
-//     • ลูกสมุนแรงขึ้น เรียกทีละ 3 ตัว ทุก ~20 วิ (ค้างได้สูงสุด 6)
-//     • คลั่ง 2 ช่วง (ตามเลือดที่ใช้ร่วมกันทั้งแผนที่): 50% → ดาเมจ +20% ร่ายถี่ขึ้น + ลูกสมุนชั้นยอด 2 ตัว
-//                                                  20% → ดาเมจ +35% ร่ายถี่สุด + ชั้นยอด 3 ตัว + ใช้ท่าไม้ตายทันที
-//  ความยุติธรรม: ท่าเดียวแรงไม่เกิน 60% MaxHP (bossDmg ใน game.js) • ไม่มีท่าที่หลบไม่ได้ • ลูกสมุนไม่มีรางวัล (killMob ใน game.js)
+//     • ลูกสมุนแรงขึ้น เรียกทีละ 3 ตัว ทุก ~20 วิ (ค้างได้สูงสุด 6 อยู่ได้ 45 วิ)
+//     • คลั่ง 2 ช่วง (ตามเลือดที่ใช้ร่วมกันทั้งแผนที่): 50% → ท่าแรงขึ้น 20% ร่ายถี่ขึ้น + ลูกสมุนชั้นยอด 2 ตัว
+//                                                  20% → ท่าแรงขึ้น 35% ร่ายถี่สุด + ชั้นยอด 3 ตัว + ใช้ท่าไม้ตายทันที
+//  ความยุติธรรม: ท่า/ตีปกติของบอสครั้งเดียวแรงไม่เกิน 60% MaxHP (bossDmg / mobAttack ใน game.js) • ไม่มีท่าที่หลบไม่ได้ • ลูกสมุนไม่มีรางวัล (killMob ใน game.js)
 //  ออนไลน์: มอนทุกตัว (รวมบอสโลก) จำลองในเครื่องใครเครื่องมัน มีแค่ "เลือดบอสโลก" ที่ส่งหากัน → ลูกสมุนเป็นของในเครื่องล้วน ๆ
 //     ไม่ส่งผ่านเครือข่าย ไม่ทำให้ข้อมูลเพี้ยน • ช่วงคลั่งคิดจากเลือดร่วม จึงเริ่มพร้อม ๆ กันทุกเครื่อง • เข้ามากลางศึก = เข้าช่วงที่ถูกต้องเงียบ ๆ
 // ============================================================
@@ -42,19 +42,19 @@ const BossKit = (() => {
     for (const k of [id, id + '_a', id + '_e']) MOBS[k].id = k;
   };
   // Seraph Core (Lv 25, Mistlake): ก้อนเจลเทวดา + ภูตวงแหวน
-  addMinion('mn_cherub', 'moss_pudding', { name: 'Cherub Gel', lv: 22, hp: 400, atk: [40, 55], def: 5, mdef: 20, vit: 15, flee: 30, hit: 55, speed: 1.8, element: 'holy', race: 'angel',
+  addMinion('mn_cherub', 'moss_pudding', { name: 'Cherub Gel', lv: 22, hp: 220, atk: [30, 40], def: 5, mdef: 20, vit: 15, flee: 30, hit: 55, speed: 1.8, element: 'holy', race: 'angel',
     scale: 0.85, hue: 25, sat: 0.55, bri: 1.25, tint: ['#ffe27a', 0.35] });
-  addMinion('mn_halo', 'buzzfly', { name: 'Halo Sprite', lv: 22, hp: 280, atk: [45, 58], def: 0, mdef: 15, vit: 10, flee: 50, hit: 60, speed: 2.6, element: 'holy', race: 'angel',
+  addMinion('mn_halo', 'buzzfly', { name: 'Halo Sprite', lv: 22, hp: 150, atk: [32, 42], def: 0, mdef: 15, vit: 10, flee: 50, hit: 60, speed: 2.6, element: 'holy', race: 'angel',
     hue: 15, sat: 0.6, bri: 1.4, tint: ['#fff3c4', 0.4] });
   // Kitsura EX (Lv 45, Hel's Hollow): วิญญาณจิ้งจอกไฟ + สาวใช้แห่งเฮล
-  addMinion('mn_foxfire', 'ashtail', { name: 'Foxfire Spirit', lv: 40, hp: 1000, atk: [100, 125], def: 10, mdef: 15, vit: 30, flee: 70, hit: 100, speed: 2.4, element: 'fire', race: 'demon',
+  addMinion('mn_foxfire', 'ashtail', { name: 'Foxfire Spirit', lv: 40, hp: 480, atk: [70, 88], def: 10, mdef: 15, vit: 30, flee: 70, hit: 100, speed: 2.4, element: 'fire', race: 'demon',
     hue: -170, sat: 2.2, bri: 1.2, tint: ['#ff7a1a', 0.55] });
-  addMinion('mn_handmaiden', 'hel_maiden', { name: 'Hel Handmaiden', lv: 40, hp: 1400, atk: [105, 130], def: 20, mdef: 30, vit: 30, flee: 60, hit: 100, speed: 1.6, element: 'undead', race: 'undead',
+  addMinion('mn_handmaiden', 'hel_maiden', { name: 'Hel Handmaiden', lv: 40, hp: 650, atk: [72, 90], def: 20, mdef: 30, vit: 30, flee: 60, hit: 100, speed: 1.6, element: 'undead', race: 'undead',
     hue: -150, sat: 1.4, tint: ['#e8602a', 0.3] });
   // Garmr (Lv 60, Gnawed Roots): ลูกหมาป่าของ Garmr + ศพล่ามโซ่
-  addMinion('mn_whelp', 'fenrir_pup', { name: 'Garmr Whelp', lv: 54, hp: 1800, atk: [170, 210], def: 20, mdef: 25, vit: 45, flee: 90, hit: 140, speed: 2.6, element: 'shadow', race: 'brute',
+  addMinion('mn_whelp', 'fenrir_pup', { name: 'Garmr Whelp', lv: 54, hp: 800, atk: [115, 140], def: 20, mdef: 25, vit: 45, flee: 90, hit: 140, speed: 2.6, element: 'shadow', race: 'brute',
     scale: 0.85, hue: 180, bri: 0.7, tint: ['#6a0a0a', 0.4] });
-  addMinion('mn_chained', MOBS.rust_draugr ? 'rust_draugr' : 'draugr', { name: 'Chained Draugr', lv: 54, hp: 2400, atk: [180, 220], def: 25, mdef: 20, vit: 50, flee: 60, hit: 130, speed: 1.2, element: 'undead', race: 'undead',
+  addMinion('mn_chained', MOBS.rust_draugr ? 'rust_draugr' : 'draugr', { name: 'Chained Draugr', lv: 54, hp: 1100, atk: [120, 145], def: 25, mdef: 20, vit: 50, flee: 60, hit: 130, speed: 1.2, element: 'undead', race: 'undead',
     hue: 150, sat: 0.8, bri: 0.75, tint: ['#5a1008', 0.35] });
 
   // ---------- ชุดท่าของบอสแต่ละตัว ----------
@@ -189,7 +189,7 @@ const BossKit = (() => {
   K.minionsOf = m => G.mobs.filter(x => x.minion && x.master === m && !x.dead);
   K.summon = (m, elite) => {
     const k = K.kit(m), A = K.ancient(m); if (!k || !k.minions.length) return false;
-    const alive = K.minionsOf(m), cap = A ? 6 : 4;
+    const alive = K.minionsOf(m), cap = A ? 6 : 3;
     let n = elite ? (m.phase >= 2 ? 3 : 2) : Math.min(A ? 3 : 2, cap - alive.filter(x => !x.def.elite).length);
     if (n <= 0) return false;
     const pos = [], a0 = Math.random() * Math.PI * 2;
@@ -217,6 +217,7 @@ const BossKit = (() => {
       pos.forEach((q, i) => {
         const mm = spawnMob(ids[i], q);
         mm.minion = true; mm.master = m; mm.state = 'chase'; mm.emoteUntil = G.time + 0.6; mm.nextAtk = G.time + 0.9; mm.facing = q.x + 0.5 < G.player.x ? 1 : -1;
+        mm.expireAt = elite ? 1e12 : G.time + (A ? 45 : 30); // ลูกสมุนธรรมดาอยู่ได้ชั่วคราว (ชั้นยอดอยู่จนบอสตาย)
         addFx({ type: 'ring', x: mm.x, y: mm.y, dur: 0.5, r: 1.3, color: k.col, waves: 2 });
       });
     });
@@ -238,11 +239,11 @@ const BossKit = (() => {
     const k = K.kit(m) || {};
     K.setPhase(m, ph);
     m.nextBossSkill = Math.min(m.nextBossSkill, G.time + (ph >= 2 ? 1.6 : 3));
-    m.nextSummon = G.time + 22 * 0.8;
+    m.nextSummon = G.time + 20 * 0.8; // ลูกสมุนธรรมดารอบถัดไปหลังชั้นยอด
     const pct = ph >= 2 ? 20 : 50;
-    UI.announce(ph >= 2 ? L(`☠ ${m.def.name} คลั่งถึงขีดสุด! (เลือด ${pct}%) ดาเมจ +35% ร่ายถี่ขึ้น — ระวังท่าไม้ตาย!`, `☠ ${m.def.name} is in a LAST-STAND FRENZY! (HP ${pct}%) +35% damage, faster casts — brace for its ultimate!`)
-      : L(`🔥 ${m.def.name} เดือดดาล! (เลือด ${pct}%) ดาเมจ +20% และเรียกลูกสมุนชั้นยอด!`, `🔥 ${m.def.name} is ENRAGED! (HP ${pct}%) +20% damage and it calls its elite guard!`));
-    UI.msg(L(`[ANCIENT] ช่วงคลั่ง ${ph}/2 — ดาเมจ ×${m.dmgMul} ร่ายถี่ขึ้น`, `[ANCIENT] Enrage phase ${ph}/2 — damage ×${m.dmgMul}, faster casting`), 'mvp');
+    UI.announce(ph >= 2 ? L(`☠ ${m.def.name} คลั่งถึงขีดสุด! (เลือด ${pct}%) ท่าแรงขึ้น 35% ร่ายถี่สุด — ระวังท่าไม้ตาย!`, `☠ ${m.def.name} is in a LAST-STAND FRENZY! (HP ${pct}%) skills hit 35% harder and come faster — brace for its ultimate!`)
+      : L(`🔥 ${m.def.name} เดือดดาล! (เลือด ${pct}%) ท่าแรงขึ้น 20% ร่ายถี่ขึ้น และเรียกลูกสมุนชั้นยอด!`, `🔥 ${m.def.name} is ENRAGED! (HP ${pct}%) skills hit 20% harder, cast faster, and it calls its elite guard!`));
+    UI.msg(L(`[ANCIENT] ช่วงคลั่ง ${ph}/2 — ท่าแรง ×${m.dmgMul} ร่ายถี่ขึ้น`, `[ANCIENT] Enrage phase ${ph}/2 — skill damage ×${m.dmgMul}, faster casting`), 'mvp');
     m.speech = { text: ph >= 2 ? L('ข้าจะไม่ล้มลงคนเดียว!', 'I will not fall alone!') : L('พวกเจ้า... ทำให้ข้าโกรธแล้ว!', 'Now... you have made me ANGRY!'), until: G.time + 2.5 };
     if (vis()) {
       if (typeof Feel !== 'undefined' && Feel.banner) Feel.banner(ph >= 2 ? 'FRENZY' : 'ENRAGED', m.def.name.toUpperCase(), false);
@@ -289,7 +290,7 @@ const BossKit = (() => {
       if (m.minion) { // ลูกสมุน: บอสตาย/หายไป/รีเซ็ตเกิน 4 วิ หรือหลุดการไล่เกิน 6 วิ → สลายตัว
         const b = m.master, gone = !b || b.dead || !G.mobs.includes(b);
         if (m.state === 'chase') m.calmAt = 0; else if (!m.calmAt) m.calmAt = G.time;
-        if (gone || (b.calmAt && G.time - b.calmAt > 4) || (m.calmAt && G.time - m.calmAt > 6)) K.poof(m);
+        if (gone || (b.calmAt && G.time - b.calmAt > 4) || (m.calmAt && G.time - m.calmAt > 6) || G.time >= (m.expireAt || 1e12)) K.poof(m);
         continue;
       }
       if (!m.def.boss || m.def.dummy) continue;
@@ -301,14 +302,18 @@ const BossKit = (() => {
       }
       if (m.state !== 'chase') { if (!m.calmAt) m.calmAt = G.time; continue; }
       m.calmAt = 0;
-      if (!m.engaged) { m.engaged = true; m.nextSummon = Math.max(m.nextSummon || 0, G.time + (A ? 7 : 10)); }
+      if (!m.engaged) { m.engaged = true; m.nextSummon = Math.max(m.nextSummon || 0, G.time + (A ? 7 : 12)); }
       if (A) {
         if (m.phase && vis() && G.time >= (m.auraAt || 0)) { m.auraAt = G.time + 0.7; addFx({ type: 'ring', x: m.x, y: m.y, dur: 0.7, r: 1.6 * Math.sqrt(m.def.scale || 1), color: m.phase >= 2 ? '255,40,30' : '255,110,50' }); }
       }
-      // เรียกลูกสมุน: ห่างจากท่าที่เพิ่งร่ายอย่างน้อย 1.5 วิ (ไม่ซ้อนป้ายจนอ่านไม่ทัน)
-      if (G.time >= (m.nextSummon || 0) && !p.dead && U.dist(m.x, m.y, p.x, p.y) < 10 && G.time - (m.lastCast || -9) > 1.5) {
-        const cd = (A ? 20 : 25) * (m.phase ? 0.8 : 1);
-        m.nextSummon = G.time + (K.summon(m) ? cd : 3);
+      // เรียกลูกสมุน: คูลดาวน์ (MVP 40 วิ / Ancient 20 วิ) • MVP: เลือดลดผ่าน 75% / 50% / 25% = เรียกทันที (ห่างครั้งก่อน ≥ 8 วิ)
+      //   → จำนวนลูกสมุนผูกกับความคืบหน้าของการสู้ ไม่ท่วมคนที่ตีช้า • ห่างจากท่าที่เพิ่งร่ายอย่างน้อย 1.5 วิ (ป้ายไม่ซ้อนจนอ่านไม่ทัน)
+      const k = m.hp / m.maxHp, mark = A ? 0 : [0.75, 0.5, 0.25].filter(x => k <= x).length;
+      const due = G.time >= (m.nextSummon || 0) || (mark > (m.summonMark || 0) && G.time - (m.summonAt || -99) >= 8);
+      if (due && !p.dead && U.dist(m.x, m.y, p.x, p.y) < 10 && G.time - (m.lastCast || -9) > 1.5) {
+        const cd = (A ? 20 : 40) * (m.phase ? 0.8 : 1), okS = K.summon(m);
+        m.nextSummon = G.time + (okS ? cd : 3); m.summonMark = mark;
+        if (okS) m.summonAt = G.time;
       }
     }
   };

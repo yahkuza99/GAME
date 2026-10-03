@@ -86,7 +86,7 @@ const WB = {
   },
   // ประกาศกลางจอเมื่อ Ancient ตื่น / เตือนล่วงหน้า 2 นาที (ทุกแผนที่ • ครั้งเดียวต่อรอบ • เฉพาะตัวที่เลเวลพอสู้ได้)
   herald() {
-    const now = Date.now(), lv = G.player.baseLv, seen = this.seen || (this.seen = {});
+    const now = Date.now(), lv = G.player.baseLv, seen = this.seen || (this.seen = {}), fresh = [];
     for (const map in this.MAPS) {
       const cy = this.cycleOf(map, now), id = this.id(map), B = MOBS[id], nm = MAP_DEFS[map] ? MAP_DEFS[map].name : map;
       if (lv < B.lv - 20) continue;
@@ -94,13 +94,18 @@ const WB = {
       if (now < cy.end && !this.state(map).dead && seen[map] !== 'on' + cy.c) {
         seen[map] = 'on' + cy.c;
         if (!here) {
-          UI.announce(L(`☠ ${B.name} (Lv ${B.lv}) ตื่นแล้วที่ ${nm}! บอสระดับ 2 แข็งกว่า MVP 5 เท่า — รวมทีมไปปราบ (แตะป้ายใต้มินิแมพเพื่อนำทาง)`, `☠ ${B.name} (Lv ${B.lv}) has awakened in ${nm}! A Tier-2 boss, 5× an MVP — gather a party (tap the minimap tag to navigate)`));
+          fresh.push(map);
           UI.msg(L(`[ANCIENT] ${B.name} ตื่นที่ ${nm} — อยู่ 40 นาทีหรือจนกว่าจะถูกปราบ`, `[ANCIENT] ${B.name} is awake in ${nm} — it stays 40 minutes or until defeated`), 'mvp');
         }
       } else if (now >= cy.next - 120e3 && now < cy.next && seen[map] !== 'warn' + cy.c) {
         seen[map] = 'warn' + cy.c;
         UI.msg(L(`[ANCIENT] อีก 2 นาที ${B.name} จะตื่นที่ ${nm} — เตรียมยาและชวนเพื่อน!`, `[ANCIENT] ${B.name} awakens in ${nm} in 2 minutes — stock potions and call your friends!`), 'mvp');
       }
+    }
+    // ประกาศกลางจอครั้งเดียว: ตัวที่เหมาะกับเลเวลเราที่สุด (ตื่นพร้อมกันหลายตัว = ที่เหลืออยู่ในแชต)
+    if (fresh.length) {
+      const r = this.pick(), map = r && fresh.includes(r.map) ? r.map : fresh[0], B = MOBS[this.id(map)], nm = MAP_DEFS[map] ? MAP_DEFS[map].name : map;
+      UI.announce(L(`☠ ${B.name} (Lv ${B.lv}) ตื่นแล้วที่ ${nm}! บอสระดับ 2 แข็งกว่า MVP 5 เท่า — รวมทีมไปปราบ (แตะป้ายใต้มินิแมพเพื่อนำทาง)`, `☠ ${B.name} (Lv ${B.lv}) has awakened in ${nm}! A Tier-2 boss, 5× an MVP — gather a party (tap the minimap tag to navigate)`));
     }
   },
   pill(map) {
@@ -119,8 +124,8 @@ const WB = {
         const B = MOBS[this.id(r.map)], nm = MAP_DEFS[r.map].name, left = Math.max(0, r.at - Date.now()) / 1000;
         el.dataset.map = r.map;
         el.title = L(`Ancient ${B.name} (บอสระดับ 2, Lv ${B.lv}) ที่ ${nm} — แตะเพื่อนำทาง`, `Ancient ${B.name} (Tier-2 boss, Lv ${B.lv}) in ${nm} — tap to navigate`);
-        if (r.on) { alive = true; t = L(`☠ ${B.name} ตื่นแล้ว · ${nm}`, `☠ ${B.name} awake · ${nm}`); }
-        else if (left < 15 * 60) t = L(`☠ ${B.name} · ${nm} · อีก ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')}`, `☠ ${B.name} · ${nm} · in ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')}`);
+        if (r.on) { alive = true; t = L(`☠ ${B.name} ตื่นแล้ว!`, `☠ ${B.name} awake!`); } // ชื่อแผนที่อยู่ในป้ายลอย (title) + ประกาศ — ป้ายนี้แคบ
+        else if (left < 15 * 60) t = L(`☠ ${B.name} · อีก ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')}`, `☠ ${B.name} · in ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2, '0')}`);
       }
     } else if (map) {
       const live = this.live(), cy = this.cycleOf(map);

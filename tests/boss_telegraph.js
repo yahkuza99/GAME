@@ -134,7 +134,7 @@ const ok = (name, cond, info) => { if (cond) { pass++; console.log('✔', name, 
     r.left = G.mobs.filter(x => x.minion && !x.dead).length;
     return r;
   });
-  ok('ลูกสมุน: ค้างพร้อมกันไม่เกิน 4 ตัว (MVP)', minion.n >= 2 && minion.n <= 4, JSON.stringify(minion));
+  ok('ลูกสมุน: ค้างพร้อมกันไม่เกิน 3 ตัว (MVP)', minion.n >= 2 && minion.n <= 3, JSON.stringify(minion));
   ok('ลูกสมุน: ไม่มี EXP / Zeny / ดรอป / ไม่นับชิป / ไม่เติมเกจไม้ตาย', minion.exp === 0 && minion.zeny === 0 && minion.drops === 0 && minion.kills === 0 && minion.ult === 0, JSON.stringify(minion));
   ok('บอสตาย = ลูกสมุนสลายทันที', minion.left === 0, String(minion.left));
   const anc = await p.evaluate(() => {
