@@ -5,7 +5,7 @@
 //  1) เควสต์เสริม 22 อัน (SIDE_EXTRA ใน js/quest.js — ระบบ Side เดิม: รับ/ส่งกับ NPC แสดงในหน้าต่างเควสต์)
 //     ขั้นใหม่ 2 แบบ: visit (ไปตรวจดูจุดตำนาน) • lore (ค้นพบตำนานครบ N เรื่อง)
 //  2) ชีวิต NPC: บทพูดหมุนเวียน (idle) + บทตามบทเนื้อเรื่อง ของ NPC ทุกตัว — ฟองคำพูดเหนือหัวเมื่อเดินใกล้ (bark)
-//     และบรรทัดเล็กใต้กล่องคุยแรก • NPC ใหม่ 6 ตัว (ใช้ภาพเดิมย้อมสี ไม่ต้องวาดใหม่)
+//     (ปิดได้ในตั้งค่า) • NPC ใหม่ 6 ตัว (ใช้ภาพเดิมย้อมสี ไม่ต้องวาดใหม่)
 //  3) จุดตำนาน 23 จุด (หินรูน ซากร่าง ศาลเจ้า สมุดบันทึก) — ตรวจดูแล้วบันทึกลง Codex (แท็บ Lore ในสมุดเควสต์)
 //     เซฟใน p.lore = { v: 1, found: { [id]: เวลา } } (ฟิลด์ใหม่ใน SAVE_FIELDS — เซฟเก่าไม่มี = ว่าง)
 //  4) Elite หายาก 1 ตัวต่อทุ่ง (Meadow / Mistlake / Wolfwood): เกิดเป็นครั้งคราว (ไม่อยู่ในตาราง spawns → ไม่กระทบบอร์ดค่าหัว/ภารกิจรายวัน/ตารางดรอปของแมพ)
@@ -335,7 +335,7 @@ const WorldPack = (() => {
 
   // ===================== บทพูดหมุนเวียน (Chatter) + ฟองคำพูด (barks) =====================
   // idle = บทพูดประจำ (หมุนวนตามลำดับ) • t[0..3] = บทเพิ่มตามบทเนื้อเรื่อง: 0 ต้นเรื่อง • 1 หลังปราบ Seraph Core • 2 หลังจบบทที่ 5 • 3 หลังจบภาค 1
-  // บรรทัดสั้น (ฟองคำพูดกว้างไม่เกิน ~220px) • ใช้ทั้งฟองเหนือหัวและบรรทัดเล็กใต้กล่องคุยแรกของ NPC เดิม
+  // บรรทัดสั้น (ฟองคำพูดกว้างไม่เกิน ~220px) • ใช้ในฟองคำพูดเหนือหัว (ปิดได้ในตั้งค่า) — ไม่มีบรรทัดใต้กล่องคุยแล้ว
   const C = (th, en) => L(th, en);
   const CHATTER = W.CHATTER = {
     bifrost: { idle: [C('ข้าจดจำ... ใบไม้ 41 ใบออกไปเมื่อคืน', 'I remember... 41 leaves went out last night.'), C('ข้าจดจำทุกปลายทาง ไม่เคยลืมสักแห่ง', 'I remember every destination. Not one forgotten.'),
@@ -444,7 +444,6 @@ const WorldPack = (() => {
     },
     pool(id) { const c = CHATTER[this.key(id)]; if (!c) return []; return [...((c.t || {})[this.tier()] || []), ...c.idle]; },
     next(id) { const k = this.key(id), pool = this.pool(k); if (!pool.length) return ''; const i = this.i[k] || 0; this.i[k] = i + 1; return pool[i % pool.length]; },
-    arm: null, // บรรทัดเล็กที่จะต่อใต้กล่องคุยแรกของ NPC (ตั้งตอนเริ่มสคริปต์ NPC เดิม)
     nextBark: 0,
     tick() {
       if (!vis() || !G.started || !G.player || NPC.busy || G.time < this.nextBark) return;
@@ -483,27 +482,7 @@ const WorldPack = (() => {
     const npc0 = Sprites.drawNpc;
     Sprites.drawNpc = (g, n, t) => (LORE_BY[n.id] ? Lore.draw(g, n, t) : npc0(g, n, t));
   }
-  // บรรทัดเล็กใต้กล่องคุยแรกของ NPC เดิม (ไม่เพิ่มกล่อง ไม่เปลี่ยนลำดับตัวเลือก)
-  {
-    const aside = name => {
-      const a = Chatter.arm; if (!a || a.name !== name || !a.line) return;
-      Chatter.arm = null;
-      const b = document.querySelector('#w-dialog .win-body'); if (!b) return;
-      const at = b.querySelector(':scope > .dlg-menu, :scope > .dlg-btns');
-      const el = h('div', { class: 'dlg-aside' }, `“${a.line}”`);
-      if (at) b.insertBefore(el, at); else b.append(el);
-    };
-    const say0 = UI.say, menu0 = UI.menu;
-    UI.say = function (name, text) { const r = say0.apply(this, arguments); try { aside(name); } catch (e) { /* ไม่มีกล่อง */ } return r; };
-    UI.menu = function (name, text, options) { const r = menu0.apply(this, arguments); try { aside(name); } catch (e) { /* ไม่มีกล่อง */ } return r; };
-    for (const id of ['bifrost', 'jobmaster', 'tool', 'weapon', 'armor', 'refine', 'nurse', 'guide', 'storage', 'norn', 'lopt', 'lopt_wood', 'sigrun', 'hel', 'loki']) {
-      const run = NPC.scripts[id]; if (!run) continue;
-      NPC.scripts[id] = async n => {
-        Chatter.arm = { name: `[${n.name}]`, line: Chatter.next(id) };
-        try { return await run(n); } finally { Chatter.arm = null; }
-      };
-    }
-  }
+  // (เดิมมีบรรทัดเล็กตัวเอียงใต้กล่องคุยแรกของ NPC — ตัดออก 2026-10-03 เพราะบางทีซ้ำความหมายกับคำทัก • บทพูดหมุนเวียนเหลือในฟองคำพูดเหนือหัว)
 
   // ===================== สคริปต์ NPC ใหม่ =====================
   const nmOf = n => `[${n.name}]`;
@@ -527,14 +506,14 @@ const WorldPack = (() => {
       return;
     }
   };
-  // Bragi: เพลงหกวีรชน (STORY.md §6) + ท่อนตามบท
+  // Bragi: เพลงหกวีรชน (STORY.md §6) + ท่อนตามบท • ท่อนที่หก (Trickster) ร้องท้ายสุดและยังเว้นว่าง — เงาของ Loki (STORY.md §4)
   const SONGS = [
     L('♪ คนแรกแบกประตูทั้งบาน ยืนหน้าเมืองจนรุ่งสาง ♪<br>(Einherjar — ผู้ยอมเป็นคนที่โดนก่อนเสมอ)', '♪ The first bore the whole gate and stood before the town till dawn ♪<br>(Einherjar — the one who always takes the first blow.)'),
     L('♪ นางเขียนรูนจนกำแพงร้อน สนิมไม่กล้าแตะ ♪<br>(Rune Caster — ไฟ น้ำแข็ง สายฟ้า สามภาษาแรกของต้นไม้)', '♪ She wrote runes till the wall burned hot, and the rust dared not touch ♪<br>(Rune Caster — fire, ice and lightning, the Tree\'s first three tongues.)'),
     L('♪ นักล่ากับหมาป่าตัวเดียวที่เลือกเชื่อใจ ♪<br>(Wildhunter — สองเงาที่ไม่เคยทิ้งกัน)', '♪ A hunter, and the one wolf that chose to trust ♪<br>(Wildhunter — two shadows that never parted.)'),
     L('♪ นางฟัง Odin เป็นคนสุดท้าย แล้วส่งแสงไปถึงกำแพง ♪<br>(Völva — ผู้ปล่อยสิ่งที่ควรได้พัก)', '♪ She was the last to hear Odin, and sent her light to the wall ♪<br>(Völva — who releases what deserves rest.)'),
-    L('♪ ใครเดินเข้าออกกำแพงโดยไม่มีใครเห็น? ข้าไม่รู้ — ท่อนนี้ยังว่าง ♪<br>(Trickster — แม่พิมพ์ที่ไม่มีใครรู้ว่าใครฝาก)', '♪ Who walked through the wall unseen? I do not know — this verse is blank ♪<br>(Trickster — the mold no one knows who left.)'),
     L('♪ เขาถอดตัวจำกัด แลกตัวเองกับหนึ่งชั่วโมง ♪<br>(Berserker — คุณยอมแลกตัวเองเท่าไหร่?)', '♪ He tore out his limiter and traded himself for one more hour ♪<br>(Berserker — how much of yourself would you give?)'),
+    L('♪ ใครเดินเข้าออกกำแพงโดยไม่มีใครเห็น? ข้าไม่รู้ — ท่อนนี้ยังว่าง ♪<br>(Trickster — แม่พิมพ์ที่ไม่มีใครรู้ว่าใครฝาก)', '♪ Who walked through the wall unseen? I do not know — this verse is blank ♪<br>(Trickster — the mold no one knows who left.)'),
   ];
   let songI = 0;
   NPC.scripts.bragi = async n => {
@@ -565,7 +544,7 @@ const WorldPack = (() => {
     L('พี่! ถ้าใบไม้พาเรากลับมาทุกครั้ง ทำไมทุกคนยังกลัวล้มล่ะ?<br>...เพราะลืมของสำคัญเหรอ งั้นข้าจะจดทุกอย่างลงมือเลย!', 'Hey! If the leaves always bring us back, why is everyone scared of falling?<br>...Because you forget important stuff? Then I\'ll write everything on my hand!'),
     L('Eir บอกว่าข้าเป็นประกายเก่าในร่างเล็ก เพราะร่างใหญ่หมดตอนข้าตื่น<br>แต่ข้าว่าข้าตัวพอดีแล้ว ลอดใต้โต๊ะ Brokk ได้ด้วย!', 'Eir says I\'m an old spark in a small frame, \'cause the big ones ran out when I woke.<br>But I think I\'m just the right size. I can crawl under Brokk\'s table!'),
     L('พี่วิเซอร์สว่างกว่าทุกคนเลย ทำไมล่ะ?<br>...ไม่รู้เหมือนกันเหรอ งั้นเราไม่รู้ด้วยกันนะ!', 'Your visor\'s brighter than everyone\'s. Why?<br>...You don\'t know either? Then we can not-know together!'),
-    L('Bragi สอนข้าร้องเพลงหกวีรชน แต่ข้าร้องท่อนห้าไม่ได้ มันว่าง<br>ข้าเลยแต่งเอง: "♪ คนที่ห้าซ่อนเก่งมาก จนเพลงก็หาไม่เจอ ♪"', 'Bragi\'s teaching me the song of the Six, but I can\'t sing verse five — it\'s blank.<br>So I made one up: "♪ The fifth one hid so well, even the song can\'t find them ♪"'),
+    L('Bragi สอนข้าร้องเพลงหกวีรชน แต่ข้าร้องท่อนที่หกไม่ได้ มันว่าง<br>ข้าเลยแต่งเอง: "♪ คนที่หกซ่อนเก่งมาก จนเพลงก็หาไม่เจอ ♪"', 'Bragi\'s teaching me the song of the Six, but I can\'t sing verse six — it\'s blank.<br>So I made one up: "♪ The sixth one hid so well, even the song can\'t find them ♪"'),
   ];
   let tokiI = 0;
   NPC.scripts.toki = async n => {
@@ -838,8 +817,7 @@ const WorldPack = (() => {
   }
   if (typeof document !== 'undefined') {
     const st = document.createElement('style'); st.id = 'world-pack-css';
-    st.textContent = '#w-dialog .dlg-aside{margin:2px 0 8px;padding:3px 9px;font-size:12.5px;font-style:italic;line-height:1.45;color:inherit;opacity:.78;border-left:3px solid rgba(214,160,40,.7)}'
-      + '#w-dialog .lore-new{display:inline-block;margin-top:6px;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700;color:#6a3cc8;background:rgba(160,120,255,.14);border:1px solid rgba(130,90,230,.45)}'
+    st.textContent = '#w-dialog .lore-new{display:inline-block;margin-top:6px;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700;color:#6a3cc8;background:rgba(160,120,255,.14);border:1px solid rgba(130,90,230,.45)}'
       + '#w-quest .lw-head,#w-quest .lw-map{flex-shrink:0}#w-quest .lw-head .dsec-h{display:flex;align-items:center;gap:6px}#w-quest .lw-n{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums}'
       + '#w-quest .lw-bar{display:block;margin:8px 12px 2px}#w-quest .lw-bar i{background:linear-gradient(90deg,#a080ff,#e0a830)}'
       + '#w-quest .lw-map{padding:8px 12px}#w-quest .lw-map.full{box-shadow:inset 0 0 0 1px rgba(224,168,48,.6)}'

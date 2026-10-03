@@ -155,14 +155,11 @@ const HuntRunes = {
       m._hrFx = G.time + 0.22;
       G.fx.push({ type: 'hrune', hrune: 1, ref: m, x: m.x, y: m.y, t: 0, dur: 0.7, ids: tags.map(d => d.id), s });
     }
-    if (r.em != null && r.em !== 1 && (m._hrEm || 0) <= G.time) {
-      m._hrEm = G.time + 0.7;
-      addFloater(m.x + 0.8, m.y - 0.8 * s - 0.1, r.em > 1 ? 'Weak!' : 'Resist', r.em > 1 ? '#ffb347' : '#a9bccf');
-    }
+    // แพ้/ต้านธาตุ: ไม่มีป้าย Weak!/Resist แล้ว — เป็นสัญลักษณ์ ▲/▼ เล็ก ๆ ติดตัวเลขดาเมจ (applyHit → js/juice.js)
   },
   drawFx(g, f) {
     const k = Math.min(1, f.t / f.dur), o = f.ref && !f.ref.dead ? f.ref : f;
-    // ข้างซ้ายของมอน ระดับอก (ตัวเลขดาเมจลอยตรงกลาง / Weak! อยู่ขวา — ไม่ทับกัน)
+    // ข้างซ้ายของมอน ระดับอก (ตัวเลขดาเมจลอยตรงกลาง — ไม่ทับกัน)
     const n = f.ids.length, S = 22, sz = f.s || 1, X = o.x * TILE - 24 * sz - S / 2, Y = o.y * TILE * R.K - 30 * sz - 12 * k;
     const a = k < 0.15 ? k / 0.15 : 1 - Math.max(0, (k - 0.55) / 0.45);
     g.save(); g.globalAlpha = Math.max(0, a);

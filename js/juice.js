@@ -574,6 +574,10 @@ const Juice = (() => {
       else if (c.dot) { f.js = 'dot'; f.dur = 0.85; }
       else { f.js = 'normal'; f.dur = 1.05; f.color = color || '#ffffff'; }
       if (c.boss && f.js !== 'dot') f.bossHit = true;
+      // แพ้/ต้านธาตุ (Q12): สัญลักษณ์เล็กติดตัวเลขแทนป้าย Weak!/Resist • มอนตัวเดียวกันโชว์ได้ทุก 0.3 วิ (สกิลหลายฮิตไม่ติดทุกตัว)
+      if (c.em != null && c.em !== 1 && f.js !== 'dot' && c.m && (c.m._emMark || 0) <= G.time) {
+        c.m._emMark = G.time + 0.3; f.em = c.em > 1 ? 1 : -1; f.emCol = EL_COL[c.emEl] || '#ffb347';
+      }
       // เทียบกับ "ปกติของฉัน" (มัธยฐาน 20 ฮิตล่าสุด): แรงกว่า 2 เท่า = ใหญ่ขึ้น+เรือง, 4 เท่า = ใหญ่กว่าอีก+สั่น (GAME_FEEL ข้อ 11)
       const v = +String(txt).replace(/[^0-9]/g, '');
       if (v > 0 && f.js !== 'dot') {
@@ -618,6 +622,32 @@ const Juice = (() => {
     return [-up, dir * side * easeOut(p), 1 - 0.14 * Math.max(0, Math.min(1, (t - RO_T1) / (RO_TF - RO_T1)))];
   };
   const pop = (t, peak, d = 0.06, back = 0.14) => (t < d ? 0.5 + (peak - 0.5) * (t / d) : t < d + back ? peak + (1 - peak) * easeOut((t - d) / back) : 1);
+  // สัญลักษณ์แพ้/ต้านธาตุ ติดมุมขวาบนของตัวเลข (วาดในพิกัดของตัวเลข — ขยับ/จาง/ย่อไปพร้อมกัน)
+  // ▲ สีธาตุ + เรืองนุ่ม = แพ้ธาตุ (แรงขึ้น) • ▼ เทาเล็ก = ต้าน • ตอนเกิดเด้งขึ้นจากเล็ก • fx ต่ำ = ไม่มีเรือง
+  J.emMark = (g, f, size, t) => {
+    const weak = f.em > 0, w = g.measureText(f.text).width;
+    const r = size * (weak ? 0.25 : 0.19), x = w / 2 + r * 0.8 + 2, y = -size * (weak ? 0.42 : 0.36); // ยกขึ้นแบบตัวยก ไม่เบียดตัวเลข
+    const p = Math.min(1, (t - 0.03) / 0.12), s = p < 1 ? 0.4 + 0.9 * easeOut(p) - 0.3 * p * p : 1; // เด้งเกินนิดแล้วเข้าที่
+    g.save(); g.translate(x, y); g.scale(s, s);
+    const tri = () => {
+      g.beginPath();
+      if (weak) { g.moveTo(0, -r * 1.05); g.lineTo(r, r * 0.72); g.lineTo(-r, r * 0.72); }
+      else { g.moveTo(0, r * 1.05); g.lineTo(r, -r * 0.72); g.lineTo(-r, -r * 0.72); }
+      g.closePath();
+    };
+    if (weak && !low()) { // เรืองนุ่มสีธาตุ
+      const gl = g.createRadialGradient(0, 0, 0, 0, 0, r * 2.6);
+      gl.addColorStop(0, rgba(f.emCol, 0.7)); gl.addColorStop(0.45, rgba(f.emCol, 0.3)); gl.addColorStop(1, rgba(f.emCol, 0));
+      g.fillStyle = gl; g.beginPath(); g.arc(0, 0, r * 2.6, 0, TAU); g.fill();
+    }
+    tri(); g.lineJoin = 'round'; g.lineWidth = weak ? 3 : 2.5; g.strokeStyle = weak ? 'rgba(20,10,0,.9)' : 'rgba(10,14,24,.8)'; g.stroke();
+    if (weak) {
+      const gr = g.createLinearGradient(0, -r, 0, r); gr.addColorStop(0, '#fffbe8'); gr.addColorStop(0.45, f.emCol); gr.addColorStop(1, f.emCol);
+      g.fillStyle = gr;
+    } else g.fillStyle = '#9aa6b6';
+    g.fill();
+    g.restore();
+  };
   J.drawFloater = (base, g, f) => {
     const s = f.js;
     if (!s) return base(g, f);
@@ -660,6 +690,7 @@ const Juice = (() => {
     if (f.bossHit && s !== 'crit') { g.lineWidth = lw + 3; g.strokeStyle = 'rgba(255,200,80,.55)'; g.strokeText(f.text, 0, 0); }
     g.lineWidth = lw; g.strokeStyle = stroke; g.strokeText(f.text, 0, 0);
     g.fillStyle = fill; g.fillText(f.text, 0, 0);
+    if (f.em && t > 0.03) J.emMark(g, f, size, t);
     if (s === 'crit' && t > 0.05) {
       g.font = `800 9px ${FONT}`; g.lineWidth = 3; g.strokeStyle = '#3a1000';
       g.strokeText('CRITICAL', 0, -19); g.fillStyle = '#fff3c0'; g.fillText('CRITICAL', 0, -19);
@@ -677,7 +708,7 @@ const Juice = (() => {
       if (!m || m.dead) return dm0(m, dmg, opts);
       const kind = 'element' in opts ? 'skill' : (!('sfx' in opts) && opts.color) ? 'dot' : 'hit';
       const prev = J.ctx;
-      J.ctx = { kind: 'mob', crit: !!opts.crit, skill: kind === 'skill', dot: kind === 'dot', el: opts.element || 'neutral', boss: isBoss(m) };
+      J.ctx = { kind: 'mob', crit: !!opts.crit, skill: kind === 'skill', dot: kind === 'dot', el: opts.element || 'neutral', boss: isBoss(m), m, em: opts.em, emEl: opts.emEl };
       const hp0 = m.hp;
       m._over = Math.max(0, (dmg - hp0) / Math.max(1, m.maxHp));
       try { dm0(m, dmg, opts); } finally { J.ctx = prev; }

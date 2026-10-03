@@ -696,19 +696,19 @@ function physHit(m, mult = 1, opts = {}) {
   if (d.rage) atk *= 1 + (1 - p.hp / d.maxHp) * d.rage / 100;
   // Hunt Rune (js/huntrunes.js): Endow = ธาตุของตีปกติ/สกิลที่ไม่มีธาตุ • hr.k = โบนัสตามเงื่อนไข (คูณ, เพดาน +45%) • ไม่ใส่ = เหมือนเดิมทุกอย่าง
   const hr = typeof HuntRunes !== 'undefined' ? HuntRunes.hit(m, opts.element) : null;
-  const em = elemMod(hr ? hr.el : (opts.element || 'neutral'), md.element);
+  const el = hr ? hr.el : (opts.element || 'neutral'), em = elemMod(el, md.element);
   let dmg = atk * mult * em * (1 + d.atkPct / 100) * (hr ? hr.k : 1);
   if (crit) dmg *= d.critMul;
   else dmg = dmg * (1 - md.def / 100) - md.vit * 0.5 * U.rand(0.7, 1);
-  return { dmg: em === 0 ? 0 : Math.max(1, Math.round(dmg)), crit, phys: true, em, hr: hr && hr.tags, endow: hr && hr.endow };
+  return { dmg: em === 0 ? 0 : Math.max(1, Math.round(dmg)), crit, phys: true, em, el, hr: hr && hr.tags, endow: hr && hr.endow };
 }
 function magicHit(m, mult = 1, element = null) {
   const d = G.player.d, md = m.def;
   const matk = U.randi(d.matkMin, Math.max(d.matkMin, d.matkMax));
   const hr = typeof HuntRunes !== 'undefined' ? HuntRunes.hit(m, element) : null; // Hunt Rune: เหมือน physHit
-  const em = elemMod(hr ? hr.el : (element || 'neutral'), md.element);
+  const el = hr ? hr.el : (element || 'neutral'), em = elemMod(el, md.element);
   const dmg = matk * mult * em * (hr ? hr.k : 1) * (1 - md.mdef / 100) - md.lv / 4;
-  return { dmg: em === 0 ? 0 : Math.max(1, Math.round(dmg)), em, hr: hr && hr.tags, endow: hr && hr.endow };
+  return { dmg: em === 0 ? 0 : Math.max(1, Math.round(dmg)), em, el, hr: hr && hr.tags, endow: hr && hr.endow };
 }
 function applyHit(m, r, opts = {}) {
   if (m.dead) return;
@@ -718,8 +718,9 @@ function applyHit(m, r, opts = {}) {
     aggroMob(m);
     return;
   }
-  damageMob(m, r.dmg, Object.assign({ crit: r.crit }, opts));
-  if (typeof HuntRunes !== 'undefined') HuntRunes.feedback(m, r); // หินรูนกะพริบเมื่อ Hunt Rune ทำงาน • Weak!/Resist ตามธาตุ (แบบ RO)
+  // ธาตุแพ้/ต้าน (em ≠ 1) ติดไปกับตัวเลขดาเมจเป็นสัญลักษณ์เล็ก ▲/▼ (js/juice.js) — ไม่มีป้าย Weak!/Resist แยกแล้ว
+  damageMob(m, r.dmg, Object.assign({ crit: r.crit }, r.em != null && r.em !== 1 ? { em: r.em, emEl: r.el } : null, opts));
+  if (typeof HuntRunes !== 'undefined') HuntRunes.feedback(m, r); // หินรูนกะพริบเมื่อ Hunt Rune ทำงาน
   // ดูดเลือด (ต้นไม้พาสซีฟ): ดาเมจกายภาพส่วนหนึ่งกลับมาเป็น HP แบบเงียบ ๆ
   const p = G.player;
   if (r.phys && p.d.leech && !p.dead && !m.def.dummy && p.hp < p.d.maxHp) {

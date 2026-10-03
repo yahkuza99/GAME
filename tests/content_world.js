@@ -213,16 +213,16 @@ async function settle(p) {
   ok('ambient bark: a nearby NPC speaks a speech bubble', !!talk.bark && !!talk.bark.text && talk.drawOk === true, JSON.stringify(talk.bark) + ' ' + talk.drawOk);
   ok('undiscovered lore points show a gold marker and stay out of the Navi list', talk.marks && talk.navHidden);
 
-  // บรรทัดเล็กใต้กล่องคุยแรก (หน้าต่างจริง) — คุยสองครั้งได้คนละบรรทัด
+  // กล่องคุยแรก (หน้าต่างจริง): ไม่มีบรรทัดเล็กใต้กล่องแล้ว (PENDING ข้อ 17 — ซ้ำกับคำทัก) • บทพูดหมุนเวียนอยู่ในฟองคำพูดเหนือหัวเท่านั้น
   await p.evaluate(() => ST.unstub());
   const asides = [];
   for (let k = 0; k < 2; k++) {
     await p.evaluate(() => { UI.dlgClose(); NPC.busy = false; const n = G.npcs.find(n => n.id === 'guide'); NPC.talk(n); });
     await p.waitForTimeout(400);
-    asides.push(await p.evaluate(() => { const a = document.querySelector('#w-dialog .dlg-aside'); return a ? a.textContent : null; }));
+    asides.push(await p.evaluate(() => ({ open: !!document.querySelector('#w-dialog .dlg-text'), aside: !!document.querySelector('#w-dialog .dlg-aside') })));
     if (k === 0) await p.screenshot({ path: path.join(SHOTS, 'npc_dialogue_rolf.png') });
   }
-  ok('first dialog box shows a rotating aside line (different each talk)', asides.every(Boolean) && asides[0] !== asides[1], asides.join(' / '));
+  ok('first dialog box has no aside line under it (chatter stays in over-head bubbles)', asides.every(a => a.open && !a.aside), JSON.stringify(asides));
   await p.evaluate(() => { UI.dlgClose(); NPC.busy = false; const n = G.npcs.find(n => n.id === 'saga'); NPC.talk(n); });
   await p.waitForTimeout(500);
   const sagaTxt = await p.evaluate(() => document.querySelector('#w-dialog .dlg-text').innerHTML);

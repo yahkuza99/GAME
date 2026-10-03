@@ -263,10 +263,11 @@ async function start(browser, port, vp, mobile) {
     const bug = spawnMob('leafworm', { x: Math.floor(pl.x) + 2, y: Math.floor(pl.y) }); bug.hp = bug.maxHp = 1e7;
     G.floaters.length = 0; const fx0 = G.fx.length;
     const rb = physHit(bug, 1, { skill: true, sureHit: true }); applyHit(bug, rb, { src: 'test' });
-    ok('feedback: rune glyph flash + "Weak!" on a fire-endowed hit vs Earth insect', G.fx.slice(fx0).some(f => f.hrune && f.ids.includes('hr_slay_insect') && f.ids.includes('hr_endow_fire')) && G.floaters.some(f => f.text === 'Weak!'), G.floaters.map(f => f.text));
-    pl.combatAt = -99; clear(); HR.set(0, 'hr_endow_earth', true); bug.hp = bug.maxHp; bug._hrEm = 0; G.floaters.length = 0;
+    const fl = () => G.floaters.map(f => `${f.text}${f.em ? (f.em > 0 ? '▲' : '▼') : ''}`);
+    ok('feedback: rune glyph flash + ▲ weak mark on the damage number (fire-endowed hit vs Earth insect, no "Weak!" floater)', G.fx.slice(fx0).some(f => f.hrune && f.ids.includes('hr_slay_insect') && f.ids.includes('hr_endow_fire')) && G.floaters.some(f => f.num && f.em === 1 && f.emCol) && !G.floaters.some(f => f.text === 'Weak!'), fl());
+    pl.combatAt = -99; clear(); HR.set(0, 'hr_endow_earth', true); bug.hp = bug.maxHp; bug._emMark = 0; G.floaters.length = 0;
     const rr2 = physHit(bug, 1, { skill: true, sureHit: true }); applyHit(bug, rr2, { src: 'test' });
-    ok('feedback: "Resist" when the element is resisted (earth vs earth ×0.25)', G.floaters.some(f => f.text === 'Resist'), G.floaters.map(f => f.text));
+    ok('feedback: ▼ resist mark on the damage number when the element is resisted (earth vs earth ×0.25, no "Resist" floater)', G.floaters.some(f => f.num && f.em === -1) && !G.floaters.some(f => f.text === 'Resist'), fl());
     const cIns = BotScript.cleanCond({ t: 'race', v: 'insect' }), cEarth = BotScript.cleanCond({ t: 'elem', v: 'earth' }), cFire = BotScript.cleanCond({ t: 'elem', v: 'fire' });
     ok('Battle Script: target race / element conditions see the same race + element', BotScript.cond(cIns, bug) && BotScript.cond(cEarth, bug) && !BotScript.cond(cFire, bug));
     // แถบเป้าหมาย: ธาตุ + เผ่า
