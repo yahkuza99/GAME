@@ -467,8 +467,9 @@ const Flora = {
           const c = cls(xx, yy); if (c === 'water' || c === 'stone' || c === 'dirt' || m.tile(xx, yy) === T.HOUSE) { ok = false; break; }
         }
         if (!ok || m.portals.some(p => Math.hypot(p.x - tx, p.y - ty) < 2.5) || placed.some(q => Math.hypot(q[0] - tx, q[1] - ty) < q[2] + R0 + 1.2)) continue;
-        if (GS) { // ทุ่งตามภูมิภาค: ดินโล่งเฉพาะใกล้ต้นไม้/ทางดิน (กลางทุ่งโล่งเป็นหญ้า)
-          let nearT = false; const rr = Math.ceil(R0 + 2.5);
+        if (GS) { // ทุ่งตามภูมิภาค: ดินโล่งเฉพาะชิดต้นไม้/ทางดิน (กลางทุ่งโล่งเป็นหญ้า) • ไม่มีใกล้จุดเกิดหน้าประตูแมพ
+          if (m.portals.some(p => Math.hypot(p.ax - tx, p.ay - ty) < 6)) continue;
+          let nearT = false; const rr = Math.ceil(R0 + 1.5);
           for (let yy = ty - rr; yy <= ty + rr && !nearT; yy++) for (let xx = tx - rr; xx <= tx + rr; xx++) { const q = m.tile(xx, yy); if ((q === T.TREE && xx > 1 && yy > 1 && xx < W - 2 && yy < Hh - 2) || q === T.DIRT) { nearT = true; break; } }
           if (!nearT) continue;
         }
@@ -566,7 +567,7 @@ const Flora = {
     for (let j = 0; j < n; j++) {
       const cx = x + (hh(tx, ty, 110 + j) - 0.5) * 16, cy = y + (hh(tx, ty, 120 + j) - 0.5) * 10, s = 0.8 + hh(tx, ty, 130 + j) * 0.5, rot = hh(tx, ty, 140 + j) * 6.28;
       g.fillStyle = 'rgba(30,60,25,0.25)'; g.beginPath(); g.ellipse(cx + 0.8, cy + 1.2, 3.6 * s, 1.8 * s, 0, 0, 7); g.fill();
-      g.fillStyle = hh(tx, ty, 150 + j) < 0.5 ? '#6c9a4a' : '#83ad58';
+      g.fillStyle = hh(tx, ty, 150 + j) < 0.5 ? '#4f9a30' : '#6eb23c'; // เขียวสดเข้ากับหญ้า (ไม่อมเทา)
       for (let p = 0; p < 3; p++) { const a = rot + p * 2.094; g.beginPath(); g.arc(cx + Math.cos(a) * 1.6 * s, cy + Math.sin(a) * 1.6 * s / k * 0.76, 1.5 * s, 0, 7); g.fill(); }
       g.fillStyle = 'rgba(230,240,200,0.35)'; g.beginPath(); g.arc(cx - 0.6 * s, cy - 0.8 * s, 0.8 * s, 0, 7); g.fill();
       if (hh(tx, ty, 160 + j) < 0.18) { g.fillStyle = 'rgba(250,246,236,0.95)'; for (let p = 0; p < 5; p++) { g.beginPath(); g.arc(cx + 3 * s + Math.cos(p * 1.26) * 1.1, cy - 3 * s + Math.sin(p * 1.26) * 1.1, 0.9, 0, 7); g.fill(); } g.fillStyle = 'rgba(240,190,200,0.8)'; g.beginPath(); g.arc(cx + 3 * s, cy - 3 * s, 0.8, 0, 7); g.fill(); }

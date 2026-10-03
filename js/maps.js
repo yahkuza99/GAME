@@ -62,17 +62,17 @@ const MAP_DEFS = {
 const HOME_MAP = 'eldheim';
 // ลายพื้นทุ่งตามภูมิภาค (def.ground → GameMap.paintGrass / organicMask / js/flora.js Flora.bake) — แบบภาพวาด ไม่เห็นลายซ้ำ
 // สีหญ้า: base พื้น • lush หย่อมเขียวชุ่ม • sun หย่อมแดดอุ่น • dry หย่อมแห้งอมเหลือง • damp ริมน้ำ • shade ใต้ต้นไม้ • litter ใบไม้ร่วง (ป่า)
-// worn = หญ้าโดนเหยียบริมทางดิน • dirt = ย้อมทางดิน (multiply) • dirtSat = ลดความสดของดิน (ป่า = ดินฮิวมัสหม่น ไม่ส้ม) • hl/sh = ตัวคูณสีไฮไลต์/เงาของลายหญ้า (sh: B น้อย = เงาอมฟ้าเย็น • B มาก = เงาเขียวเข้มอิ่ม) • tex = ความคมลาย
+// worn = หญ้าโดนเหยียบริมทางดิน • dirt = ย้อมทางดิน (multiply) • dirtSat = ลดความสดของดิน (ป่า = ดินฮิวมัสหม่น ไม่ส้ม) • hl/sh = ตัวคูณ [R,G,B] ไฮไลต์/เงาของลายหญ้า (sh R มาก = เงาเขียวมรกตไม่อมมะกอก • B น้อย = ฟ้าไม่ขึ้นตามแสง สีอิ่มไม่เทา — เทียบลายภาพหญ้าเดิม) • tex = ความคมลาย
 // dryAt/dryAmt = จุดเริ่ม/ความแรงหย่อมแห้ง • light = ความแรงแสงหย่อมใหญ่ (lightVariation) • patches/patchTone/patchA = จำนวน/สี/ความทึบหย่อมดิน • tuft = สีหญ้ากระจุก [เข้ม, สว่าง] • sand = ดินชื้นริมน้ำ • ที่เหลือ = ของจิ๋วบนพื้น (flora.js)
 const GROUND_STYLE = {
-  meadow: { base: '#74ba28', lush: '#42a22a', sun: '#aec834', dry: '#c0b03c', damp: '#3a9240', shade: '#33822a', worn: '#aca452', dirt: '#f4ead8', dirtSat: 0.08,
-    hl: [1.1, 1.02, 0.5], sh: [0.98, 0.9, 1.1], tex: 1.3, light: 0.3, dryAmt: 0.3, dryAt: 0.62, tuft: ['#3f7a2c', '#a6c85a'], sand: [118, 104, 70], reeds: 0.35,
-    patches: 0.35, patchTone: 'rgba(80,60,30,0.08)', clover: 1, flowers: 1, dew: 0 },
-  lake: { base: '#46b44a', lush: '#2c9852', sun: '#80c240', dry: '#90b450', damp: '#227a56', shade: '#2a724a', worn: '#88a458', dirt: '#dcd8cc', dirtSat: 0.3,
-    hl: [0.96, 1.02, 0.86], sh: [1.05, 0.94, 0.85], tex: 1.15, light: 0.28, dryAmt: 0.3, dryAt: 0.6, tuft: ['#2f7048', '#8cc278'], sand: [88, 92, 70],
-    patches: 0.3, patchTone: 'rgba(40,50,40,0.16)', reeds: 1, flowers: 0.55, dew: 1 },
-  forest: { base: '#6cb83a', lush: '#48a238', sun: '#92be40', dry: '#869a3e', damp: '#3a8454', shade: '#38763a', litter: '#9c7c3c', worn: '#7a8c46', dirt: '#b4ab9c', dirtSat: 0.35,
-    hl: [1.04, 1.0, 0.62], sh: [1.0, 0.92, 1.0], tex: 1.3, light: 0.45, dryAmt: 0.25, dryAt: 0.6, litterAmt: 0.5, tuft: ['#2c5e2a', '#80b04c'], sand: [80, 72, 52],
+  meadow: { base: '#56a61e', lush: '#309824', sun: '#90bc28', dry: '#b4aa38', damp: '#288a3a', shade: '#227822', worn: '#a8a24c', dirt: '#f4ead8', dirtSat: 0.08,
+    hl: [1.0, 1.0, 0.3], sh: [1.45, 0.95, 0.3], tex: 1.75, light: 0.45, dryAmt: 0.3, dryAt: 0.62, tuft: ['#3f7a2c', '#a6c85a'], sand: [118, 104, 70], reeds: 0.35,
+    patches: 0.25, patchTone: 'rgba(80,60,30,0.08)', clover: 1, flowers: 1, dew: 0 },
+  lake: { base: '#3ca63a', lush: '#248c46', sun: '#7aba36', dry: '#8aa844', damp: '#1e7e56', shade: '#247444', worn: '#8aa45a', dirt: '#dcd8cc', dirtSat: 0.18,
+    hl: [0.98, 1.0, 0.35], sh: [1.35, 0.95, 0.6], tex: 1.6, light: 0.4, dryAmt: 0.3, dryAt: 0.6, tuft: ['#2f7048', '#8cc278'], sand: [88, 92, 70],
+    patches: 0.2, patchTone: 'rgba(60,50,30,0.08)', reeds: 1, flowers: 0.55, dew: 1 },
+  forest: { base: '#4cb226', lush: '#2e9c2c', sun: '#84bc2e', dry: '#80a034', damp: '#28884a', shade: '#26782a', litter: '#9c7032', worn: '#7e8e44', dirt: '#d4c2a8', dirtSat: 0.2,
+    hl: [1.0, 1.0, 0.4], sh: [1.45, 0.95, 0.4], tex: 1.7, light: 0.5, dryAmt: 0.25, dryAt: 0.6, litterAmt: 0.35, tuft: ['#2c5e2a', '#80b04c'], sand: [80, 72, 52],
     patches: 0.22, patchTone: 'rgba(50,34,12,0.1)', patchA: 0.62, leaves: 1, roots: 1, reeds: 0.25, flowers: 0.3, dew: 0 },
 };
 
@@ -793,7 +793,7 @@ class GameMap {
     out[0] = C.base[0]; out[1] = C.base[1]; out[2] = C.base[2];
     const t = (n1 - 0.5) * 3.6;
     if (t > 0) mix(C.lush, t * 0.9); else mix(C.sun, -t * 0.85);
-    const dz = Math.min(1, Math.max(0, (n2 - S.dryAt) / 0.1)); // หย่อมแห้งเล็ก ๆ เฉพาะยอดนอยส์ mix(C.dry, dz * dz * (3 - 2 * dz) * S.dryAmt);
+    const dz = Math.min(1, Math.max(0, (n2 - S.dryAt) / 0.1)); mix(C.dry, dz * dz * (3 - 2 * dz) * S.dryAmt); // หย่อมแห้งเล็ก ๆ เฉพาะยอดนอยส์
     if (C.litter) { const lz = Math.min(1, Math.max(0, (n5 - 0.5) / 0.16)); mix(C.litter, lz * lz * (3 - 2 * lz) * S.litterAmt * (0.45 + td * 0.55)); }
     mix(C.worn, rd * 0.3);
     mix(C.damp, wd * 0.8);
