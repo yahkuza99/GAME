@@ -37,12 +37,16 @@ const MAP_DEFS = {
     name: 'Mistlake Plains', thai: L('ที่ราบทะเลสาบหมอก', 'Plains of the Misty Lake'), w: 96, h: 80, kind: 'field', seed: 303, // ที่ราบปลายทางตะวันออก (+9% พื้นที่ มอน +9%)
     links: { W: 'meadow' }, level: '8-16 (MVP: Seraph Core)',
     spawns: [['fiddlehopper', 29], ['stumpling', 24], ['capshroom', 24], ['moss_pudding', 24]], mvp: 'seraph_pudding',
+    npcs: [{ id: 'lopt', name: 'Lopt', x: 6, y: 37, look: 'merchant' }], // พ่อค้าเร่ที่ปากทางจากทุ่ง (หน้ากากของ Loki — docs/STORY.md) เหนือถนนดิน ไม่ทับน้ำ/ซาก 3D (hash ผังน้ำไม่เปลี่ยน)
     grass: '#86b04a', trees: 0.8, ponds: 8, flowers: 0.08, treeHue: '#5f9a3a', flora: 'lake', ground: 'lake',
   },
   wolfwood: {
     name: 'Wolfwood Forest', thai: L('ป่าหมาป่า', 'Forest of the Wolves'), w: 68, h: 104, kind: 'field', seed: 404, // ป่ายาวเหนือ-ใต้ (เมือง → ปากถ้ำ) พื้นที่เท่าเดิม
     links: { N: 'eldheim', S: 'helcave' }, level: '18-30',
     spawns: [['ashtail', 29], ['fenrir_pup', 25], ['mossback', 18], ['tuskboar', 14]], // tuskboar ตีก่อน: เพิ่มน้อย กันโดนรุม
+    // บทที่ 4: Sigrún ริมถนนดินช่วงเหนือ • Lopt ปากป่าด้านใต้ (เหนือแถบสันหิน RIDGE_BAKE y0=92) — นอกกรอบต้นหมาป่าเก่า [20,44,39,64]
+    // NPC ไม่แก้ชนิดช่อง (แค่ช่องชน) → hash ผังของภาพอบไม่เปลี่ยน
+    npcs: [{ id: 'sigrun', name: 'Sigrún', x: 38, y: 22, look: 'guide' }, { id: 'lopt_wood', name: 'Lopt', x: 38, y: 89, look: 'merchant' }],
     grass: '#4f8a3a', trees: 1.7, ponds: 2, flowers: 0.02, pine: true, ground: 'forest',
     dark: 'rgba(6,14,38,0.62)', nightLight: 5, // กลางคืนแสงจันทร์ (ตามภาพประกอบแผนที่) — เห็ดเรืองแสงเป็นแหล่งแสง
   },

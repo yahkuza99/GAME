@@ -185,6 +185,10 @@ const ok = (name, cond, info) => { if (cond) { pass++; console.log('✔', name, 
   const old = await p.evaluate(() => ({ ok: G.started && G.player.name === 'Rooted', q: Quest.current() && Quest.current().id, ch: Quest.chapterText(), map: G.map.id,
     nav: (Quest.navTarget() || {}).npcId }));
   ok('เซฟเก่าที่จบบท 6 โหลดได้ → เควสต์ถัดไป ch7_gate (บทที่ 7) นำทางไปหา Hel', old.ok && old.q === 'ch7_gate' && /7/.test(old.ch) && old.nav === 'hel', JSON.stringify(old));
+  // เซฟรุ่นแรก (ไม่มี v — ดัชนีเลยท้ายสายเดิม = จบบท 6 ก่อนมีบท 7) → แปลงแล้วต่อที่ ch7_gate
+  const v1 = await p.evaluate(() => { const s = { i: typeof QUEST_ORDER_V1 !== 'undefined' ? QUEST_ORDER_V1.length : QUESTS.findIndex(q => q.id === 'ch7_gate'), n: 0, done: [] };
+    const keep = G.player.quests; G.player.quests = s; const id = Quest.current() && Quest.current().id; G.player.quests = keep; return id; });
+  ok('เซฟรุ่นแรก (ไม่มี v) ที่จบบท 6 → ต่อที่ ch7_gate', v1 === 'ch7_gate', String(v1));
 
   // ---------- 6) ตะขอเรื่องราว: ตำนานมอน / การ์ดยูนิต / Brokk / Mimir Class 2 / Ancient ----------
   const hooks = await p.evaluate(async () => {
