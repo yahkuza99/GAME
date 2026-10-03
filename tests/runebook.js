@@ -119,7 +119,7 @@ async function start(browser, port, vp, mobile) {
     r.rows = [...W().querySelectorAll('.rb-row')].map(x => x.dataset.skill);
     r.lockedRow = W().querySelector('.rb-row[data-skill="shield_slam"]');
     r.locked = !!r.lockedRow && r.lockedRow.classList.contains('locked') && /Skill Lv 4/.test(r.lockedRow.textContent); delete r.lockedRow;
-    r.steps = W().querySelectorAll('.rb-steps .rb-step').length;
+    r.noSteps = !W().querySelector('.rb-steps, .rb-step') && !/How it works|วิธีใช้/.test(W().textContent); // เจ้าของ: "Rune ไม่ต้องใส่วิธีใช้"
     r.dot = !!W().querySelector('.rb-tab[data-tab="skill"] .rb-dot'); // ปลดแล้วยังไม่เลือก = จุดแจ้งเตือน
     // ผ่านหน้าต่าง Skills (ทางเดิม)
     UI.skTab = 'einherjar'; UI.open('w-skills'); await wait(30);
@@ -163,7 +163,7 @@ async function start(browser, port, vp, mobile) {
     UI.close('w-runes');
     return r;
   });
-  ok('skill tab: lists the Class skills that have runes, steps strip, "to do" dot', sk.rows.length === 6 && sk.rows.includes('whirlwind') && sk.steps === 3 && sk.dot, sk.rows);
+  ok('skill tab: lists the Class skills that have runes, no how-to strip, "to do" dot', sk.rows.length === 6 && sk.rows.includes('whirlwind') && sk.noSteps && sk.dot, sk.rows);
   ok('skill tab: locked skill shows "Skill Lv 4"', sk.locked);
   ok('skill tab: None + 2 rune cards; tapping a card only stages it', JSON.stringify(sk.cards) === '["","whirlwind.vortex","whirlwind.bladestorm"]' && sk.stagedOnly, sk.cards);
   ok('skill tab: Choose changes p.runes exactly like the Skills window (incl. buff reset)', sk.viaBook === sk.viaSkills && sk.viaBook === '{"whirlwind":"whirlwind.vortex"}' && sk.buffBook === sk.buffSkills && sk.def === 'whirlwind.vortex', sk);
@@ -181,26 +181,26 @@ async function start(browser, port, vp, mobile) {
     const z0 = pl.zeny;
     Runebook.filter = 'all';
     Runebook.open('hunt'); await wait(50);
-    r.rows = W().querySelectorAll('.irow[data-hr]').length;
-    r.ownedFirst = [...W().querySelectorAll('.irow[data-hr]')].slice(0, 2).map(x => x.dataset.hr).sort().join();
+    r.rows = W().querySelectorAll('.rb-tile[data-hr]').length;
+    r.ownedFirst = [...W().querySelectorAll('.rb-tile[data-hr]')].slice(0, 2).map(x => x.dataset.hr).sort().join();
     r.sockets = W().querySelectorAll('.rb-sock').length;
     r.lock2 = W().querySelector('.rb-sock[data-slot="1"]').classList.contains('lock') && /Base Lv 35/.test(W().querySelector('.rb-sock[data-slot="1"]').textContent);
     r.open1 = !W().querySelector('.rb-sock[data-slot="0"]').classList.contains('lock');
     // ใส่ช่อง I
-    W().querySelector('.irow[data-hr="hr_exec"]').click(); await wait(30);
+    W().querySelector('.rb-tile[data-hr="hr_exec"]').click(); await wait(30);
     r.english = /Executioner Rune/.test(W().querySelector('.book-r .dname').textContent) && /Conditional/.test(W().querySelector('.book-r').textContent);
     const b1 = W().querySelector('.rb-sock-btn[data-slot="1"]');
     r.slot2Btn = !!b1 && b1.disabled && /Lv 35/.test(b1.textContent);
     W().querySelector('.rb-sock-btn[data-slot="0"]').click(); await wait(30);
-    r.socketed = pl.hrunes[0] === 'hr_exec' && /Executioner/.test(W().querySelector('.rb-sock[data-slot="0"]').textContent) && /✓ I/.test(W().querySelector('.irow[data-hr="hr_exec"]').textContent);
+    r.socketed = pl.hrunes[0] === 'hr_exec' && /Executioner/.test(W().querySelector('.rb-sock[data-slot="0"]').textContent) && /✓ I/.test(W().querySelector('.rb-tile[data-hr="hr_exec"]').textContent);
     r.active = HR.active().map(d => d.id).join();
     // อีกตัวลงช่องเดียวกัน = แทนที่
-    W().querySelector('.irow[data-hr="hr_slay_brute"]').click(); await wait(30);
+    W().querySelector('.rb-tile[data-hr="hr_slay_brute"]').click(); await wait(30);
     W().querySelector('.rb-sock-btn[data-slot="0"]').click(); await wait(30);
     r.replaced = pl.hrunes[0] === 'hr_slay_brute';
     // ปลดช่อง II ที่ Lv 35 → ใส่ได้
     pl.baseLv = 35; Runebook.render(true);
-    W().querySelector('.irow[data-hr="hr_exec"]').click(); await wait(30);
+    W().querySelector('.rb-tile[data-hr="hr_exec"]').click(); await wait(30);
     W().querySelector('.rb-sock-btn[data-slot="1"]').click(); await wait(30);
     r.two = JSON.stringify(pl.hrunes);
     // ล็อกระหว่างต่อสู้: ปุ่มใส่/ถอดใช้ไม่ได้ ช่องไม่เปลี่ยน
@@ -219,7 +219,7 @@ async function start(browser, port, vp, mobile) {
     pl.baseLv = 35;
     // ตัวกรอง
     W().querySelector('.rb-filter .pill[data-f="endow"]').click(); await wait(30);
-    r.endow = [...W().querySelectorAll('.irow[data-hr]')].every(x => HR.def(x.dataset.hr).kind === 'endow') && W().querySelectorAll('.irow[data-hr]').length === 6;
+    r.endow = [...W().querySelectorAll('.rb-tile[data-hr]')].every(x => HR.def(x.dataset.hr).kind === 'endow') && W().querySelectorAll('.rb-tile[data-hr]').length === 6;
     W().querySelector('.rb-filter .pill[data-f="all"]').click(); await wait(30);
     // ยังไม่มี: ไม่มีปุ่มซื้อ/ใส่ • ปุ่มไป Brokk (ไกล = นำทาง)
     changeMap('meadow', 28.5, 28.5); await wait(200);
@@ -287,9 +287,9 @@ async function start(browser, port, vp, mobile) {
     const fits = () => { const b = W().getBoundingClientRect(); return b.left >= -1 && b.right <= innerWidth + 1 && document.documentElement.scrollWidth <= innerWidth + 1; };
     // Skill
     UI.open('w-runes'); Runebook.setTab('skill'); await wait(60);
-    r.sList = !W().querySelector('.book.det') && vis(W().querySelector('.book-l')) && !vis(W().querySelector('.book-r')) && vis(W().querySelector('.rb-steps')) && fits();
+    r.sList = !W().querySelector('.book.det') && vis(W().querySelector('.book-l')) && !vis(W().querySelector('.book-r')) && fits();
     W().querySelector('.rb-row[data-skill="iron_body"]').click(); await wait(60);
-    r.sDet = !!W().querySelector('.book.det') && vis(W().querySelector('.book-r')) && !vis(W().querySelector('.book-l')) && vis(W().querySelector('.book-back')) && !vis(W().querySelector('.rb-steps'))
+    r.sDet = !!W().querySelector('.book.det') && vis(W().querySelector('.book-r')) && !vis(W().querySelector('.book-l')) && vis(W().querySelector('.book-back'))
       && W().querySelectorAll('.rb-card').length === 3 && fits();
     W().querySelector('.rb-card[data-rune="' + Runes.list('iron_body')[1].id + '"]').click(); await wait(30);
     W().querySelector('.rb-choose').click(); await wait(30);
@@ -298,15 +298,15 @@ async function start(browser, port, vp, mobile) {
     r.sBack = !W().querySelector('.book.det') && vis(W().querySelector('.book-l'));
     // Hunt
     W().querySelector('.rb-tab[data-tab="hunt"]').click(); await wait(60);
-    r.hList = Runebook.tab === 'hunt' && !W().querySelector('.book.det') && W().querySelectorAll('.irow[data-hr]').length === 18 && fits();
-    W().querySelector('.irow[data-hr="hr_exec"]').click(); await wait(60);
+    r.hList = Runebook.tab === 'hunt' && !W().querySelector('.book.det') && W().querySelectorAll('.rb-tile[data-hr]').length === 18 && fits();
+    W().querySelector('.rb-tile[data-hr="hr_exec"]').click(); await wait(60);
     r.hDet = !!W().querySelector('.book.det') && vis(W().querySelector('.rb-socks')) && W().querySelectorAll('.rb-sock-btn').length === 2 && fits();
     W().querySelector('.rb-sock-btn[data-slot="0"]').click(); await wait(30);
     r.hSock = pl.hrunes[0] === 'hr_exec';
     W().querySelector('.book-back').click(); await wait(60);
     r.hBack = !W().querySelector('.book.det');
     // เปิดใหม่ = หน้ารายการเสมอ
-    W().querySelector('.irow[data-hr="hr_exec"]').click(); await wait(30); UI.close('w-runes'); UI.open('w-runes'); await wait(40);
+    W().querySelector('.rb-tile[data-hr="hr_exec"]').click(); await wait(30); UI.close('w-runes'); UI.open('w-runes'); await wait(40);
     r.reopenList = !W().querySelector('.book.det');
     UI.close('w-runes');
     return r;
@@ -317,7 +317,7 @@ async function start(browser, port, vp, mobile) {
       await m.evaluate(x => { Runebook.open(x, x === 'skill' ? 'whirlwind' : 'hr_exec'); }, t); await m.waitForTimeout(250); await m.screenshot({ path: path.join(SHOTS, `phone_${t}_detail.png`) });
     }
   }
-  ok('phone: Skill tab list → detail (back button, steps hidden) → Choose → back', mob.sList && mob.sDet && mob.sChose && mob.sBack, mob);
+  ok('phone: Skill tab list → detail (back button) → Choose → back', mob.sList && mob.sDet && mob.sChose && mob.sBack, mob);
   ok('phone: Hunt tab list → detail (sockets) → Socket → back', mob.hList && mob.hDet && mob.hSock && mob.hBack, mob);
   ok('phone: reopening starts on the list; window fits 390 px', mob.reopenList);
   ok('no page errors', !p._errors.length && !m._errors.length, [...p._errors, ...m._errors].slice(0, 3).join(' | '));

@@ -297,7 +297,7 @@ body.visor .win:not(.gc-art) input[type=range] { -webkit-appearance: none; appea
 body.visor .win:not(.gc-art) input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: var(--rad-pill); background: linear-gradient(90deg, #e3a43a, #f6d98a); box-shadow: inset 0 1px 2px rgba(80, 50, 15, 0.3); }
 body.visor .win:not(.gc-art) input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -6px; border-radius: 50%; border: 2px solid #a4701c;
   background: radial-gradient(circle at 40% 35%, #fff6d8, #f2c056); box-shadow: 0 1px 3px rgba(60, 30, 5, 0.5); }
-body.visor .win:not(.gc-art) input[type=range]::-moz-range-track { height: 6px; border-radius: 999px; background: linear-gradient(90deg, #e3a43a, #f6d98a); }
+body.visor .win:not(.gc-art) input[type=range]::-moz-range-track { height: 6px; border-radius: var(--rad-pill, 4px); background: linear-gradient(90deg, #e3a43a, #f6d98a); }
 body.visor .win:not(.gc-art) input[type=range]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #a4701c; background: #f6d98a; }
 body.visor .win:not(.gc-art) input[type=range]:disabled { opacity: 0.45; }
 body.visor .win .bot-row { grid-template-columns: minmax(0, 1fr) minmax(90px, 1.1fr) minmax(44px, auto); gap: var(--s2); min-height: 36px; padding: 0; font-size: var(--fs-s); color: var(--c-ink); }

@@ -1,107 +1,154 @@
 /* =====================================================================
    Runes (js/runebook.js) — หน้าต่างเดียวสำหรับ Skill Runes + Hunt Runes (#w-runes)
-   สมุดเปิด (UI.book / css/theme.css) + แท็บบน + แถบ "วิธีใช้" 3 ขั้น • ใช้ token จาก css/tokens.css เท่านั้น (ไม่ใส่สีตายตัว)
-   สีของรูนแต่ละตัว (--rc) มาจากข้อมูลรูน — วางบนพื้นไม้เข้มให้อ่านออก
+   รอบ 2 (เจ้าของ 2026-10-03 "Rune ไม่รอด"): ลดการ์ดซ้อนการ์ด • ลำดับชัด: แท็บป้าย → สมุด (ไม่มีแถบวิธีใช้ — เจ้าของสั่ง)
+   • ตัวเลือกรูน = แผ่นหินแกะสลัก (ช่องไอคอน 72px ซ้าย สำหรับภาพหินรูน 3D) • ช่อง Hunt Rune = เบ้าหินแกะบนแผ่นหินใหญ่
+   • ไม่มีทรงแคปซูล: ตัดมุมด้วย clip-path (--chamfer จาก css/theme4.css) • สีรูนแต่ละตัว (--rc) มาจากข้อมูลรูน
+   • หิน: ตัวแปร --st-* (css/theme4.css) • ไม่มีแอนิเมชันต่อเฟรม (มีแค่ transform ตอนชี้)
    ===================================================================== */
 .rb { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: var(--s2); }
 .rb > .book { flex: 1; min-height: 0; }
 
-/* ---------- แท็บบน ---------- */
-.rb-tabs { flex: none; display: flex; gap: var(--s2); margin: 0; }
-.rb-tabs .rb-tab { position: relative; flex: 1 1 0; min-width: 0; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: var(--s2); }
+/* ---------- แท็บบน: ป้ายใหญ่ (รูปทรงจาก theme4: ป้ายปลายแหลม) ---------- */
+.rb-tabs { flex: none; display: flex; gap: 4px; margin: 0; }
+body.visor .win .rb-tabs .rb-tab { --pq: 14px; position: relative; flex: 1 1 0; min-width: 0; min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: var(--s2); }
 .rb-tab .ivi { width: 18px; height: 18px; }
-.rb-tab b { font: 600 var(--fs-m)/1.2 var(--f-body); white-space: nowrap; }
-.rb-tab small { min-width: 22px; padding: 1px 6px; border-radius: var(--rad-pill); background: color-mix(in srgb, var(--c-ink) 10%, transparent); font: 600 var(--fs-2xs)/1.3 var(--f-num); }
-.rb-dot { position: absolute; top: 5px; right: 7px; width: 9px; height: 9px; border-radius: 50%; background: var(--c-bad); box-shadow: 0 0 0 2px var(--c-paper); }
+.rb-tab b { font: 700 var(--fs-m)/1.2 var(--f-title); letter-spacing: 0.03em; white-space: nowrap; }
+.rb-tab small { min-width: 22px; padding: 1px 6px; background: rgba(60, 35, 8, 0.14); font: 700 var(--fs-2xs)/1.3 var(--f-disp); }
+.rb-dot { position: absolute; top: 4px; right: 18px; width: 8px; height: 8px; transform: rotate(45deg); background: var(--c-bad); box-shadow: 0 0 0 2px #fff2cf, 0 0 6px rgba(179, 50, 31, 0.8); }
 
-/* ---------- แถบ "วิธีใช้" 3 ขั้น ---------- */
-.rb-steps { flex: none; list-style: none; margin: 0; padding: var(--s2) var(--s3); display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); align-items: center; gap: var(--s2) var(--s3);
-  background: var(--c-paper); border: 1px solid var(--c-line-2); border-radius: var(--rad-m); color: var(--c-ink); box-shadow: var(--sh-1); }
-.rb-steps-h { display: flex; align-items: center; gap: var(--s1); font: 600 var(--fs-s)/1.2 var(--f-body); color: var(--c-gold-ink); white-space: nowrap; }
-.rb-steps-h .ivi { width: 18px; height: 18px; }
-.rb-step { display: flex; align-items: center; gap: var(--s2); min-width: 0; }
-.rb-step-n { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 700 var(--fs-xs)/1 var(--f-num); font-style: normal;
-  background: var(--c-paper-2); border: 1px solid var(--c-gold); color: var(--c-gold-ink); }
-.rb-step.ok .rb-step-n { background: var(--c-ok); border-color: var(--c-ok); color: var(--c-card); }
-.rb-step > span { min-width: 0; display: flex; flex-direction: column; }
-.rb-step b { font: 600 var(--fs-s)/1.25 var(--f-body); color: var(--c-ink); }
-.rb-step small { font: 400 var(--fs-2xs)/1.3 var(--f-body); color: var(--c-ink-3); }
-.rb-step.ok b { color: var(--c-ink-2); }
+/* ---------- ช่องไอคอนรูน (ใช้ทุกที่): สี่เหลี่ยมหินเว้าลึก — ภาพหินรูน 3D หรือตัวอักษรรูนเรือง ---------- */
+.rb-ic { --s: 72px; position: relative; flex: none; width: var(--s); height: var(--s); display: grid; place-items: center; overflow: hidden;
+  --ch: 7px; clip-path: var(--chamfer);
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--rc, #f2c96c) 22%, #2c2a25), #1a1916 72%);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.75), inset 0 -1px 0 rgba(255, 255, 255, 0.18), inset 0 0 0 1px rgba(0, 0, 0, 0.6); }
+.rb-ic img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6)); }
+.rb-glyph { font: 400 calc(var(--s) * 0.5)/1 var(--f-body); font-style: normal; color: var(--rc, #f2c96c); text-shadow: 0 0 10px currentColor, 0 0 2px rgba(0, 0, 0, 0.8); }
+.rb-ic.none { background: radial-gradient(circle at 50% 40%, #3a3832, #24221e 72%); }
+.rb-ic.none .rb-glyph { color: #9a958a; text-shadow: none; }
+.rb-ic.sm { --s: 34px; --ch: 4px; }
 
-/* ---------- หน้าซ้าย: รายการ ---------- */
-.rb-list .rb-row .sicon { width: 44px; height: 44px; border-radius: var(--rad-s); font-size: 20px; box-shadow: 0 0 0 2px var(--c-paper-3); }
+/* ---------- หน้าซ้าย Skill: รายการสกิลแบบบรรทัดบนกระดาษ (ไม่มีการ์ดซ้อน) ---------- */
+.rb-list { gap: 0 !important; }
+.rb-row { position: relative; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: var(--s3); min-height: 60px; padding: var(--s2) var(--s2) var(--s2) var(--s3);
+  cursor: pointer; border-bottom: 1px solid rgba(150, 105, 45, 0.22); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6); transition: background 0.15s; outline: none; }
+.rb-row:last-child { border-bottom: 0; box-shadow: none; }
+.rb-row:hover { background: rgba(255, 240, 200, 0.45); }
+.rb-row.sel { background: linear-gradient(90deg, rgba(242, 201, 108, 0.55), rgba(242, 201, 108, 0.12) 70%, transparent); }
+.rb-row.sel::before { content: ""; position: absolute; left: 0; top: 6px; bottom: 6px; width: 4px; background: var(--m-gold); box-shadow: 0 0 6px rgba(255, 190, 80, 0.8); }
+.rb-row:focus-visible { background: rgba(255, 240, 200, 0.7); }
+.rb-row .sicon { width: 44px; height: 44px; border-radius: var(--rad-s); font-size: 20px; box-shadow: 0 0 0 1px #6b410b, 0 0 0 2px #e6bb5e; }
 .rb-row.locked .sicon { filter: grayscale(0.85); opacity: 0.55; }
-.rb-row.locked .iname { color: var(--c-ink-3); }
-.rb-row .iname em { color: var(--c-ink-3); }
-.rb-mark { flex: none; min-width: 34px; height: 30px; padding: 0 var(--s2); display: grid; place-items: center; border-radius: var(--rad-pill); font: 600 var(--fs-xs)/1 var(--f-body); }
-.rb-mark.on { font-size: var(--fs-l); color: var(--rc, var(--c-gold-hi)); background: var(--c-wood-2); box-shadow: 0 0 0 1px var(--c-gold); text-shadow: 0 0 6px currentColor; }
-.rb-mark.new { color: var(--c-gold-ink); background: color-mix(in srgb, var(--c-gold-hi) 45%, var(--c-card)); border: 1px solid var(--c-gold); }
-.rb-mark.lock { width: 34px; padding: 0; border-radius: var(--rad-s); background: var(--c-paper-2); border: 1px solid var(--c-line); color: var(--c-gold-lo); }
-.rb-mark.lock .ico svg { width: 16px; height: 16px; fill: currentColor; }
-.rb-sec { flex: none; padding: var(--s2) var(--s1) 0; font: 600 var(--fs-xs)/1.2 var(--f-body); color: var(--c-gold-ink); letter-spacing: 0.02em; }
-.rb-sec:first-child { padding-top: 0; }
-.rb-none { flex: none; padding: var(--s2) var(--s3); border: 1px dashed var(--c-line-2); border-radius: var(--rad-m); font-size: var(--fs-xs); line-height: 1.45; color: var(--c-ink-3); }
-.rb-shop .plate img { opacity: 0.8; }
-.rb-in { padding: 3px 8px; border-radius: var(--rad-pill); font: 600 var(--fs-xs)/1.2 var(--f-num); white-space: nowrap; color: var(--c-ok);
-  background: color-mix(in srgb, var(--c-ok) 12%, var(--c-card)); border: 1px solid color-mix(in srgb, var(--c-ok) 45%, transparent); }
-.rb-filter .pill { white-space: nowrap; }
-.rb-busy-pill { margin-left: auto; padding: 3px 8px; border-radius: var(--rad-pill); font: 600 var(--fs-xs)/1.2 var(--f-num); color: var(--c-bad);
-  background: color-mix(in srgb, var(--c-bad) 10%, var(--c-card)); border: 1px solid color-mix(in srgb, var(--c-bad) 40%, transparent); }
+.rb-row-t { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.rb-row-t b { font: 700 var(--fs-m)/1.25 var(--f-body); color: var(--c-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rb-row-t b em { font: 500 var(--fs-xs)/1 var(--f-disp); font-style: normal; color: var(--c-ink-3); margin-left: 4px; }
+.rb-row-t small { font: 400 var(--fs-xs)/1.3 var(--f-body); color: var(--c-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rb-row.locked .rb-row-t b { color: var(--c-ink-3); }
+.rb-row.has .rb-row-t small { color: var(--c-gold-ink); font-weight: 600; }
+/* เบ้ารูนเล็กขวาแถว */
+.rb-mark { flex: none; display: grid; place-items: center; }
+.rb-mark.lock { width: 34px; height: 34px; --ch: 4px; clip-path: var(--chamfer); background: linear-gradient(160deg, #d9c9a5, #bfa97c); color: #7a5a28; }
+.rb-mark.lock .ico svg { width: 15px; height: 15px; fill: currentColor; }
+.rb-mark.new { height: 30px; padding: 0 var(--s3); --pq: 8px; clip-path: var(--plaque); background: var(--m-gold); color: #3a2003; font: 700 var(--fs-xs)/30px var(--f-body); }
+.rb-mark.on .rb-ic { box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.7), inset 0 0 0 1px color-mix(in srgb, var(--rc, #f2c96c) 60%, transparent); }
 
-/* ---------- หน้าขวา: Skill Runes ---------- */
-.det-top.rb-sk-top { flex-direction: row; align-items: center; gap: var(--s3); }
-.rb-sk-top .sicon { width: 56px; height: 56px; border-radius: var(--rad-m); font-size: 26px; box-shadow: 0 0 0 2px var(--c-gold), var(--sh-2); }
+/* ---------- หน้าขวา Skill: หัวสกิล + แผ่นหินตัวเลือก ---------- */
+.det-top.rb-sk-top { flex-direction: row; align-items: center; gap: var(--s3); padding-bottom: var(--s2); border-bottom: 1px solid rgba(150, 105, 45, 0.25); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7); }
+.rb-sk-top .sicon { width: 56px; height: 56px; border-radius: var(--rad-s); font-size: 26px; box-shadow: 0 0 0 1px #6b410b, 0 0 0 3px #e6bb5e, 0 0 0 4px #6b410b, var(--sh-2); }
 .rb-sk-top > div { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.rb-cards { flex: none; display: flex; flex-direction: column; gap: var(--s2); }
-.rb-card { display: grid; grid-template-columns: 52px minmax(0, 1fr); grid-template-areas: "g t" "g d"; column-gap: var(--s3); row-gap: var(--s1); align-items: center;
-  width: 100%; padding: var(--s3); text-align: left; cursor: pointer; font: inherit; color: var(--c-ink);
-  border-radius: var(--rad-m); border: 1px solid var(--c-line-2); background: var(--c-card); box-shadow: var(--sh-1); transition: border-color 0.15s, box-shadow 0.15s, background 0.15s; }
-.rb-card:hover { border-color: var(--c-gold); }
-.rb-card.sel { border: 2px solid var(--c-gold); padding: calc(var(--s3) - 1px); background: var(--c-card-hi); box-shadow: var(--glow-gold); }
-.rb-card:focus-visible { outline: 2px solid var(--c-gold); outline-offset: 2px; }
+.rb-sk-top .dname { font-family: var(--f-title); letter-spacing: 0.02em; }
+.rb-cards { flex: none; display: flex; flex-direction: column; gap: var(--s2); filter: drop-shadow(0 3px 3px rgba(60, 35, 10, 0.4)); }
+/* แผ่นหิน: ขอบ = ชั้นนอก (ตัดมุม) • เนื้อหิน = ::before ย่อเข้า 2px • เลือกอยู่ = ขอบทอง + แสงด้านใน */
+.rb-card { --ch: 10px; position: relative; isolation: isolate; display: grid; grid-template-columns: 72px minmax(0, 1fr); grid-template-areas: "ic t" "ic d"; column-gap: var(--s3); row-gap: 4px; align-items: start;
+  width: 100%; min-height: 96px; padding: 12px var(--s3) 12px 12px; text-align: left; cursor: pointer; font: inherit; border: 0; border-radius: 0;
+  clip-path: var(--chamfer); background: linear-gradient(160deg, #3f3c35, #24221e); color: var(--st-ink); transition: transform 0.12s; }
+.rb-card::before { content: ""; position: absolute; inset: 2px; z-index: -1; --ch: 9px; clip-path: var(--chamfer); pointer-events: none;
+  background: radial-gradient(120% 90% at 20% 0%, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 60%), var(--tx-grain) 0 0 / 256px 256px, linear-gradient(165deg, var(--st-1), var(--st-2) 45%, var(--st-3));
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.28), inset 0 -3px 0 rgba(0, 0, 0, 0.3); }
+.rb-card > .rb-ic { grid-area: ic; }
+.rb-card:hover:not(.off) { transform: translateY(-1px); }
+.rb-card:hover:not(.off)::before { background: radial-gradient(120% 90% at 20% 0%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 60%), var(--tx-grain) 0 0 / 256px 256px, linear-gradient(165deg, #9a958a, #79756a 45%, #57534b); }
+.rb-card.sel { background: linear-gradient(160deg, #fff0bf, #e0aa48 40%, #8d5a18 70%, #f2c96c); }
+.rb-card.sel::before { box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3), inset 0 0 22px -4px color-mix(in srgb, var(--rc, #f2c96c) 75%, transparent), inset 0 0 0 1px rgba(255, 220, 140, 0.5); }
+.rb-card:focus-visible { outline: none; }
+.rb-card:focus-visible::before { box-shadow: inset 0 0 0 2px #fff3c8; }
+.rb-card.none::before { background: var(--tx-grain) 0 0 / 256px 256px, linear-gradient(165deg, #a7a194, #858073 50%, #6a665c); }
 .rb-card.off { cursor: default; }
-.rb-cards.off .rb-card { background: var(--c-paper-2); }
-.rb-cards.off .rb-card-g { filter: grayscale(0.6); }
-.rb-card-g { grid-area: g; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; font-size: 26px; line-height: 1; font-style: normal;
-  color: var(--rc, var(--c-gold-hi)); text-shadow: 0 0 8px currentColor;
-  background: radial-gradient(circle at 50% 36%, var(--c-wood), var(--c-wood-3)); box-shadow: 0 0 0 2px var(--c-gold), var(--sh-2); }
-.rb-card.none .rb-card-g { color: var(--c-ink-3); text-shadow: none; background: var(--c-paper-2); box-shadow: 0 0 0 2px var(--c-line-2); }
-.rb-card-t { grid-area: t; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s1) var(--s2); }
-.rb-card-t b { font: 700 var(--fs-l)/1.2 var(--f-body); color: var(--c-ink); }
-.rb-card-d { grid-area: d; font: 400 var(--fs-s)/1.5 var(--f-body); color: var(--c-ink-2); }
-.rb-cur { font-style: normal; padding: 2px 8px; border-radius: var(--rad-pill); background: var(--c-ok); color: var(--c-card); font: 600 var(--fs-2xs)/1.3 var(--f-body); }
-.rb-tag-none { display: inline-block; padding: 0 6px; border-radius: 8px; border: 1px solid var(--c-line-2); color: var(--c-ink-3); font: 700 9.5px/15px var(--f-body); }
+.rb-cards.off .rb-card::before { background: var(--tx-grain) 0 0 / 256px 256px, linear-gradient(165deg, #8a877f, #6f6c65); }
+.rb-cards.off .rb-ic { filter: grayscale(0.7) brightness(0.85); }
+.rb-card-t { grid-area: t; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px var(--s2); padding-right: 56px; }
+.rb-card-t b { font: 700 var(--fs-l)/1.2 var(--f-title); letter-spacing: 0.02em; color: #fff6e0; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6), 0 -1px 0 rgba(0, 0, 0, 0.25); }
+.rb-card-d { grid-area: d; font: 400 var(--fs-s)/1.5 var(--f-body); color: var(--st-ink); text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45); }
+.rb-card .rn-tag { margin: 0; border-color: currentColor; background: rgba(20, 18, 15, 0.55); font-weight: 700; }
+.rb-card .rn-tag.single { color: #ffb07a; } .rb-card .rn-tag.pack { color: #8fd4ff; } .rb-card .rn-tag.both { color: #a8e29a; }
+.rb-tag-none { display: inline-block; padding: 0 6px; border: 1px solid rgba(255, 255, 255, 0.4); color: #ece6d8; background: rgba(20, 18, 15, 0.35); font: 700 9.5px/15px var(--f-body); }
+/* ตรา "ใช้อยู่" (มุมขวาบน) / ✓ ที่แตะเลือก */
+.rb-cur, .rb-pick { position: absolute; right: 12px; top: 12px; font-style: normal; }
+.rb-cur { padding: 3px 8px; --ch: 4px; clip-path: var(--chamfer); background: linear-gradient(180deg, #4f9a58, #24582b); color: #eaffea; font: 700 var(--fs-2xs)/1.2 var(--f-body); letter-spacing: 0.04em; }
+.rb-pick { width: 24px; height: 24px; display: grid; place-items: center; --ch: 5px; clip-path: var(--chamfer); background: var(--m-gold); color: #3a2003; font: 700 13px/1 var(--f-body); }
+.rb-card.cur .rb-pick { display: none; }
 .det-note.rb-busy { color: var(--c-bad); background: color-mix(in srgb, var(--c-bad) 8%, var(--c-card)); border-color: color-mix(in srgb, var(--c-bad) 35%, transparent); }
 .det-note.rb-lock-note { background: color-mix(in srgb, var(--c-gold-hi) 25%, var(--c-card)); border-color: var(--c-gold); color: var(--c-ink); }
 .det-note .ico svg { fill: var(--c-gold); }
 
-/* ---------- หน้าขวา: Hunt Runes (ช่อง I / II) ---------- */
-.rb-socks { flex: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3) var(--s2); padding-top: var(--s2); }
-.rb-sock { position: relative; min-width: 0; min-height: 64px; display: flex; align-items: center; gap: var(--s2); padding: var(--s2) var(--s2) var(--s2) var(--s2);
-  border-radius: var(--rad-m); border: 1px solid var(--c-line-2); background: var(--c-card); box-shadow: var(--sh-1); }
+/* ---------- หน้าซ้าย Hunt: หัวหมวดแกะ + แผ่นหินรูน 2 คอลัมน์ ---------- */
+.rb-sec { flex: none; display: flex; align-items: center; gap: var(--s2); padding: var(--s3) 0 var(--s2); font: 700 var(--fs-2xs)/1.2 var(--f-title); letter-spacing: 0.12em; text-transform: uppercase; color: var(--c-gold-ink); }
+.rb-sec::before, .rb-sec::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(150, 105, 45, 0.5)); }
+.rb-sec::after { background: linear-gradient(90deg, rgba(150, 105, 45, 0.5), transparent); }
+.rb-sec:first-child { padding-top: 0; }
+.rb-none { flex: none; padding: var(--s2) var(--s3); border: 1px dashed var(--c-line-2); border-radius: var(--rad-s); font-size: var(--fs-xs); line-height: 1.45; color: var(--c-ink-3); }
+.rb-tiles { flex: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s2); padding: 2px; filter: drop-shadow(0 2px 2px rgba(60, 35, 10, 0.4)); }
+.rb-tile { --ch: 8px; position: relative; isolation: isolate; display: grid; grid-template-columns: 64px minmax(0, 1fr); grid-template-areas: "ic st" "t t"; align-items: start; gap: var(--s2);
+  padding: 10px; cursor: pointer; clip-path: var(--chamfer); background: linear-gradient(160deg, #3f3c35, #24221e); color: var(--st-ink); outline: none; transition: transform 0.12s; }
+.rb-tile::before { content: ""; position: absolute; inset: 2px; z-index: -1; --ch: 7px; clip-path: var(--chamfer); pointer-events: none;
+  background: radial-gradient(120% 90% at 20% 0%, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 60%), var(--tx-grain) 0 0 / 256px 256px, linear-gradient(165deg, var(--st-1), var(--st-2) 45%, var(--st-3));
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.28), inset 0 -3px 0 rgba(0, 0, 0, 0.3); }
+.rb-tile > .rb-ic { --s: 64px; grid-area: ic; }
+.rb-tile > :is(.rb-in, .hr-owned, .ipr) { grid-area: st; justify-self: end; align-self: start; }
+.rb-tile-t { grid-area: t; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.rb-tile-t b { font: 700 var(--fs-s)/1.25 var(--f-title); letter-spacing: 0.01em; color: #fff6e0; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6); }
+.rb-tile-t small { font: 400 var(--fs-2xs)/1.35 var(--f-body); color: var(--st-ink-2); text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.rb-tile:hover { transform: translateY(-1px); }
+.rb-tile.sel { background: linear-gradient(160deg, #fff0bf, #e0aa48 40%, #8d5a18 70%, #f2c96c); }
+.rb-tile.sel::before { box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3), inset 0 0 20px -4px rgba(255, 200, 90, 0.8); }
+.rb-tile:focus-visible::before { box-shadow: inset 0 0 0 2px #fff3c8; }
+.rb-tile.rb-shop::before { background: var(--tx-grain) 0 0 / 256px 256px, linear-gradient(165deg, #7f7b72, #5f5c55 50%, #4a4741); }
+.rb-tile.rb-shop .rb-ic img { opacity: 0.75; filter: grayscale(0.3) drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6)); }
+.rb-tile .rb-ic { --rc: #9fe6ff; }
+.rb-in { padding: 3px 7px; font: 700 var(--fs-xs)/1.2 var(--f-disp); white-space: nowrap; color: #eaffea; background: linear-gradient(180deg, #4f9a58, #24582b); --ch: 4px; clip-path: var(--chamfer); }
+.rb-tile .hr-owned { padding: 3px 7px; font: 700 var(--fs-2xs)/1.2 var(--f-body); color: #3a2003; background: var(--m-gold); --ch: 4px; clip-path: var(--chamfer); }
+.rb-tile .ipr { min-height: 24px; padding: 0 6px 0 3px; font-size: var(--fs-xs); }
+.rb-tile .ipr .coin { width: 15px; height: 15px; }
+.rb-filter .pill { white-space: nowrap; }
+.rb-busy-pill { margin-left: auto; padding: 3px 8px; border-radius: 2px; font: 600 var(--fs-xs)/1.2 var(--f-num); color: var(--c-bad);
+  background: color-mix(in srgb, var(--c-bad) 10%, var(--c-card)); border: 1px solid color-mix(in srgb, var(--c-bad) 40%, transparent); }
+
+/* ---------- หน้าขวา Hunt: แผ่นหินใหญ่ + เบ้าแกะ I / II ---------- */
+.rb-socks { --ch: 12px; flex: none; position: relative; isolation: isolate; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3);
+  padding: 22px var(--s3) var(--s3); clip-path: var(--chamfer); background: linear-gradient(160deg, #3f3c35, #1f1d1a); }
+.rb-socks::before { content: ""; position: absolute; inset: 2px; z-index: -1; --ch: 11px; clip-path: var(--chamfer); pointer-events: none;
+  background: radial-gradient(90% 70% at 50% 0%, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 65%), var(--tx-grain) 0 0 / 256px 256px, linear-gradient(170deg, var(--st-2), var(--st-3) 60%, var(--st-4));
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.22), inset 0 -3px 0 rgba(0, 0, 0, 0.35); }
+.rb-sock { position: relative; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; color: var(--st-ink); outline: none; }
 .rb-sock[role="button"] { cursor: pointer; }
-.rb-sock.on { border-color: var(--c-gold); }
-.rb-sock.sel { box-shadow: var(--glow-gold); background: var(--c-card-hi); }
-.rb-sock.empty { border-style: dashed; background: color-mix(in srgb, var(--c-card) 55%, transparent); box-shadow: none; }
-.rb-sock.lock { background: var(--c-paper-2); box-shadow: none; }
-.rb-sock-n { position: absolute; top: -9px; left: var(--s2); padding: 0 7px; border-radius: var(--rad-pill); background: var(--c-wood); color: var(--c-gold-hi);
-  font: 700 var(--fs-2xs)/17px var(--f-title); box-shadow: 0 0 0 1px var(--c-gold); }
-.rb-stone { flex: none; width: 44px; height: 44px; border-radius: var(--rad-s); display: grid; place-items: center; }
-img.rb-stone { object-fit: contain; }
-.rb-stone.empty { border: 2px dashed var(--c-line-2); }
-.rb-stone.lock { background: var(--c-paper-3); color: var(--c-ink-3); }
-.rb-stone.lock .ico svg { width: 18px; height: 18px; fill: currentColor; }
-.rb-sock-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-.rb-sock-t b { font: 600 var(--fs-s)/1.25 var(--f-body); color: var(--c-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rb-sock-t small { font: 400 var(--fs-2xs)/1.3 var(--f-body); color: var(--c-ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rb-sock.lock .rb-sock-t b { color: var(--c-ink-3); }
-.rb-sock { flex-wrap: wrap; }
-.rb-sock .rb-rm { flex: none; width: 100%; } /* ถอด: เต็มแถวใต้ชื่อ (ชื่อรูนไม่โดนบีบ) */
+.rb-sock-n { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); z-index: 1; min-width: 30px; padding: 0 10px; --pq: 7px; clip-path: var(--plaque);
+  background: var(--m-gold); color: #3a2003; font: 700 var(--fs-xs)/16px var(--f-title); }
+/* เบ้า: ขอบนูนรอบช่องเว้า */
+.rb-stone.rb-ic { --s: 72px; --ch: 10px; box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.85), inset 0 -1px 0 rgba(255, 255, 255, 0.2), inset 0 0 0 2px rgba(0, 0, 0, 0.5), inset 0 0 0 3px rgba(255, 255, 255, 0.08); }
+.rb-sock.on .rb-stone { background: radial-gradient(circle at 50% 45%, rgba(127, 232, 255, 0.35), #1a1916 70%); }
+.rb-sock.sel .rb-stone { box-shadow: inset 0 0 0 2px #f2c96c, inset 0 0 18px rgba(255, 200, 90, 0.55), inset 0 4px 10px rgba(0, 0, 0, 0.6); }
+.rb-stone.empty .rb-glyph { color: rgba(255, 255, 255, 0.25); text-shadow: none; font-size: 30px; }
+.rb-stone.lock { background: radial-gradient(circle at 50% 40%, #3a3832, #1c1b18 72%); color: #a39d90; }
+.rb-stone.lock .ico svg { width: 22px; height: 22px; fill: currentColor; }
+.rb-sock-t { width: 100%; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.rb-sock-t b { font: 700 var(--fs-s)/1.25 var(--f-title); color: #fff6e0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6); }
+.rb-sock-t small { font: 400 var(--fs-2xs)/1.3 var(--f-body); color: var(--st-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rb-sock.lock .rb-sock-t b { color: #c9c2b3; }
+body.visor .win .rb-sock .rb-rm { flex: none; width: 100%; min-height: 26px; }
 .rb-brokk .ivi { margin-right: var(--s1); }
 
 /* ---------- ลิงก์จากที่อื่น: แท็บ Runes ในกระเป๋า / หน้าต่าง Skills ---------- */
 .rb-link { flex: none; width: 100%; display: flex; align-items: center; gap: var(--s2); padding: var(--s2) var(--s3); text-align: left; cursor: pointer; font: inherit; color: var(--c-ink);
-  border-radius: var(--rad-m); border: 1px solid var(--c-gold); background: color-mix(in srgb, var(--c-gold-hi) 30%, var(--c-card)); box-shadow: var(--sh-1); }
+  border-radius: var(--rad-s); border: 1px solid var(--c-gold); background: color-mix(in srgb, var(--c-gold-hi) 30%, var(--c-card)); box-shadow: var(--sh-1); }
 .rb-link:hover { box-shadow: var(--glow-gold); }
 .rb-link .ivi { width: 22px; height: 22px; color: var(--c-gold-ink); }
 .rb-link > span { flex: 1; min-width: 0; display: flex; flex-direction: column; }
@@ -114,24 +161,28 @@ img.rb-stone { object-fit: contain; }
 @media (min-width: 761px) and (min-height: 521px) {
   body.visor #w-runes.win.book-win { height: min(660px, calc(100dvh - 110px)); }
 }
-/* มือถือแนวตั้ง: หน้าเดียว รายการ → รายละเอียด → กลับ • แถบวิธีใช้ 3 ช่อง (ซ่อนตอนอยู่หน้ารายละเอียด) */
+/* มือถือแนวตั้ง: หน้าเดียว รายการ → รายละเอียด → กลับ */
 @media (max-width: 760px) {
-  .rb-tabs .rb-tab { min-height: 38px; gap: var(--s1); padding: 0 var(--s2); }
+  body.visor .win .rb-tabs .rb-tab { --pq: 10px; min-height: 38px; gap: var(--s1); }
   .rb-tab b { font-size: var(--fs-s); }
-  .rb-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: var(--s2); gap: var(--s2); }
-  .rb-steps-h { display: none; }
-  .rb-step { flex-direction: column; align-items: flex-start; gap: var(--s1); }
-  .rb-step-n { width: 20px; height: 20px; }
-  .rb-step b { font-size: var(--fs-xs); }
-  .rb.rb-det .rb-steps { display: none; }
-  .rb-socks { gap: var(--s3) var(--s2); }
-  .rb-card { grid-template-columns: 44px minmax(0, 1fr); padding: var(--s2) var(--s3); }
-  .rb-card.sel { padding: calc(var(--s2) - 1px) calc(var(--s3) - 1px); }
-  .rb-card-g { width: 44px; height: 44px; font-size: 22px; }
-  .rb-filter .pill { padding: 0 var(--s1); font-size: var(--fs-xs); }
+  .rb-dot { right: 11px; top: 3px; }
+  .rb-card { grid-template-columns: 64px minmax(0, 1fr); padding: 10px var(--s2) 10px 10px; min-height: 84px; }
+  .rb-card > .rb-ic { --s: 64px; }
+  .rb-card-t { padding-right: 50px; }
+  .rb-cur, .rb-pick { right: 10px; top: 10px; }
+  .rb-tile { grid-template-columns: 56px minmax(0, 1fr); padding: 8px; }
+  .rb-tile > .rb-ic { --s: 56px; }
+  .rb-stone.rb-ic { --s: 64px; }
+  body.visor .win .rb-filter .pill { --pq: 6px; padding-left: 10px; padding-right: 10px; font-size: var(--fs-xs); }
 }
-/* แนวนอนจอเตี้ย: ซ่อนบรรทัดรองของแถบวิธีใช้ */
+/* แนวนอนจอเตี้ย: แท็บเตี้ยลง • ไอคอนเล็กลง */
 @media (max-height: 520px) {
-  .rb-step small, .rb-steps-h { display: none; }
-  .rb-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: var(--s1) var(--s2); }
+  body.visor .win .rb-tabs .rb-tab { min-height: 32px; }
+  .rb-card { grid-template-columns: 64px minmax(0, 1fr); min-height: 80px; padding: 8px var(--s2) 8px 8px; }
+  .rb-card > .rb-ic { --s: 64px; }
+  .rb-tile { grid-template-columns: 56px minmax(0, 1fr); padding: 8px; }
+  .rb-tile > .rb-ic { --s: 56px; }
+  .rb-stone.rb-ic { --s: 64px; }
+  .rb-socks { padding-top: 20px; }
 }
+@media (prefers-reduced-motion: reduce) { .rb-card, .rb-tile { transition: none; } .rb-card:hover, .rb-tile:hover { transform: none !important; } }

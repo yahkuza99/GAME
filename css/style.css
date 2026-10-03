@@ -811,7 +811,7 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
 .hunt-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .hunt-n { font-weight: 600; font-size: 13.5px; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hunt-s { font-size: 11px; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hunt-tag { font-size: 9.5px; font-weight: 600; padding: 1px 7px; border-radius: 999px; }
+.hunt-tag { font-size: 9.5px; font-weight: 600; padding: 1px 7px; border-radius: var(--rad-pill, 4px); }
 .hunt-tag.bad { color: #ffb3bd; background: rgba(255,79,106,.16); border: 1px solid rgba(255,79,106,.35); }
 .hunt-r { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 1px; font-variant-numeric: tabular-nums; }
 .hunt-r b { font-size: 12.5px; font-weight: 600; }
@@ -823,12 +823,12 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
 .cmp-row { flex-direction: column; align-items: stretch; gap: 6px; padding: 8px 10px; margin: 4px 0; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); }
 .cmp-row .cmp-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 11.5px; }
 .cmp-row .cmp-h span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cmp-v { flex: none; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; }
+.cmp-v { flex: none; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: var(--rad-pill, 4px); }
 .cmp-v.up { color: #0b2a17; background: #7dffb4; } .cmp-v.down { color: #3a0a12; background: #ff8a99; }
 .cmp-v.mix { color: #2e2207; background: #ffd56a; } .cmp-v.eq { color: var(--ink-dim); background: rgba(255,255,255,.08); }
 .cmp-v.no { color: #ffb3bd; background: rgba(255,79,106,.16); border: 1px solid rgba(255,79,106,.4); }
 .cmp-chips { display: flex; flex-wrap: wrap; gap: 4px; }
-.cmp-chips .cmp { display: inline-flex; align-items: baseline; gap: 4px; font: 600 11.5px var(--mono, monospace); padding: 2px 8px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+.cmp-chips .cmp { display: inline-flex; align-items: baseline; gap: 4px; font: 600 11.5px var(--mono, monospace); padding: 2px 8px; border-radius: var(--rad-pill, 4px); font-variant-numeric: tabular-nums; }
 .cmp-chips .cmp i { font-style: normal; font-weight: 500; opacity: .75; font-size: 10px; }
 .cmp-chips .cmp small { font-weight: 500; opacity: .7; }
 .cmp-chips .cmp.up { color: #9dffc6; background: rgba(125,255,180,.1); }
@@ -864,13 +864,13 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
 .hb.aiming { outline: 2px solid #ffe078; outline-offset: 1px; box-shadow: 0 0 16px rgba(255,224,120,.55) !important; animation: aimPulse 1s ease-in-out infinite; }
 @keyframes aimPulse { 50% { outline-color: rgba(255,224,120,.35); } }
 #skill-aim { position: fixed; left: 50%; top: calc(64px + var(--st, 0px)); transform: translateX(-50%); z-index: 30; display: flex; align-items: center; gap: 10px;
-  padding: 6px 8px 6px 6px; border-radius: 999px; background: rgba(10,16,26,.78); border: 1px solid rgba(255,224,120,.55); color: var(--ink);
+  padding: 6px 8px 6px 6px; border-radius: var(--rad-pill, 4px); background: rgba(10,16,26,.78); border: 1px solid rgba(255,224,120,.55); color: var(--ink);
   -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: 0 10px 26px -12px rgba(0,0,0,.9); max-width: calc(100vw - 24px); }
 #skill-aim[hidden] { display: none; }
 #skill-aim .sa-ic .sicon { width: 30px; height: 30px; border-radius: 50%; }
 #skill-aim .sa-t { font-size: 12.5px; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 #skill-aim .sa-t b { color: #ffe9a8; margin-right: 6px; }
-#skill-aim #sa-x { flex: none; border-radius: 999px; padding: 5px 12px; font-size: 12px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); color: var(--ink); cursor: pointer; }
+#skill-aim #sa-x { flex: none; border-radius: var(--rad-pill, 4px); padding: 5px 12px; font-size: 12px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); color: var(--ink); cursor: pointer; }
 @media (max-width: 760px) { #skill-aim { top: calc(132px + var(--st, 0px)); } #skill-aim .sa-t { font-size: 11.5px; white-space: normal; } }
 
 /* ---------------- บทสนทนา: ใช้คีย์บอร์ดได้ ---------------- */
@@ -884,11 +884,11 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
 /* บอท: เงื่อนไขใช้สกิลรายตัว */
 .bot-skill-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .bot-skill-row .bot-skill { flex: 1; min-width: 0; }
-.bot-gate { flex: none; font: 500 12px var(--font, inherit); color: var(--ink); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.16); border-radius: 999px; padding: 4px 10px; }
+.bot-gate { flex: none; font: 500 12px var(--font, inherit); color: var(--ink); background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.16); border-radius: var(--rad-pill, 4px); padding: 4px 10px; }
 
 /* ---------------- ลานประลอง PvP ---------------- */
 #pvp-hud { position: fixed; left: 50%; top: calc(8px + var(--st, 0px)); transform: translateX(-50%); z-index: 25; display: flex; align-items: center; gap: 12px;
-  padding: 6px 14px; border-radius: 999px; background: rgba(40, 10, 18, .72); border: 1px solid rgba(255, 107, 125, .45); color: var(--ink);
+  padding: 6px 14px; border-radius: var(--rad-pill, 4px); background: rgba(40, 10, 18, .72); border: 1px solid rgba(255, 107, 125, .45); color: var(--ink);
   -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); font-size: 12.5px; white-space: nowrap; pointer-events: none; }
 #pvp-hud[hidden] { display: none; }
 #pvp-hud b { color: #ffb3bd; font-weight: 600; }
@@ -899,10 +899,10 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
 .sk-mas-help { font-size: 12px; line-height: 1.5; color: var(--ink-dim); padding: 8px 12px; margin: 0 0 8px; border-radius: 14px; background: rgba(111,243,255,.07); border: 1px solid rgba(111,243,255,.2); }
 .sk-mas-help b { color: var(--cy); }
 .inv-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.inv-foot .inv-sort { border-radius: 999px; padding: 4px 14px; }
+.inv-foot .inv-sort { border-radius: var(--rad-pill, 4px); padding: 4px 14px; }
 
 /* คูลดาวน์บอส (ใต้มินิแมพ) */
-#mm-mvp { margin-top: 4px; max-width: 100%; padding: 2px 10px; border-radius: 999px; font: 600 10.5px var(--mono, monospace); color: #ffd98a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+#mm-mvp { margin-top: 4px; max-width: 100%; padding: 2px 10px; border-radius: var(--rad-pill, 4px); font: 600 10.5px var(--mono, monospace); color: #ffd98a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   background: rgba(40, 26, 8, .66); border: 1px solid rgba(255, 208, 90, .4); font-variant-numeric: tabular-nums; }
 #mm-mvp[hidden] { display: none; }
 #mm-mvp.alive { color: #ffb3bd; background: rgba(60, 10, 20, .7); border-color: rgba(255, 107, 125, .55); animation: mvpPulse 1.2s ease-in-out infinite; }
@@ -936,7 +936,7 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
 .pl-dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.16); transition: background .4s, box-shadow .4s; }
 .pl-dots i.on { background: var(--cy); box-shadow: 0 0 8px var(--cy); }
 .pl-hint { position: relative; font: 500 11.5px/1 var(--mono, ui-monospace, monospace); letter-spacing: .14em; color: var(--ink-dim); animation: plHint 2.6s ease-in-out infinite; }
-.pl-skip { position: absolute; right: calc(16px + var(--sr)); top: calc(14px + var(--st)); z-index: 2; padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,.16);
+.pl-skip { position: absolute; right: calc(16px + var(--sr)); top: calc(14px + var(--st)); z-index: 2; padding: 8px 16px; border-radius: var(--rad-pill, 4px); border: 1px solid rgba(255,255,255,.16);
   background: rgba(255,255,255,.06); color: var(--ink-dim); font: 500 13px/1.2 var(--font); transition: color .15s, border-color .15s, background .15s; }
 .pl-skip::after { content: " ▸"; }
 .pl-skip:hover { color: #fff; border-color: rgba(98,227,255,.5); background: rgba(98,227,255,.1); }
@@ -1057,7 +1057,7 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
 .py-row.off .py-av { filter: grayscale(.6); opacity: .75; }
 .py-row.dead { opacity: .6; }
 .py-n { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.py-n em, .py-lead { flex: none; font: 600 9.5px var(--mono, monospace); font-style: normal; letter-spacing: .06em; padding: 1px 6px; border-radius: 999px; color: var(--cy); background: rgba(98,227,255,.12); }
+.py-n em, .py-lead { flex: none; font: 600 9.5px var(--mono, monospace); font-style: normal; letter-spacing: .06em; padding: 1px 6px; border-radius: var(--rad-pill, 4px); color: var(--cy); background: rgba(98,227,255,.12); }
 .py-lead { color: #ffd34a; background: rgba(255,211,74,.12); }
 .py-bars { display: grid; gap: 3px; margin-top: 4px; }
 .py-bar { display: grid; grid-template-columns: 1fr 62px; align-items: center; gap: 8px; }
@@ -1098,7 +1098,7 @@ input[type=range], input[type=checkbox] { accent-color: var(--cy); }
 }
 @media (max-height: 520px) and (orientation: landscape) { #party-invite { top: calc(56px + var(--st)); } }
 /* World Boss (ใต้ป้าย MVP) */
-#mm-wb { margin-top: 3px; max-width: 100%; padding: 2px 10px; border-radius: 999px; font: 600 10.5px var(--mono, monospace); color: #e6c8ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+#mm-wb { margin-top: 3px; max-width: 100%; padding: 2px 10px; border-radius: var(--rad-pill, 4px); font: 600 10.5px var(--mono, monospace); color: #e6c8ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   background: rgba(30, 14, 46, .7); border: 1px solid rgba(200, 140, 255, .45); font-variant-numeric: tabular-nums; }
 #mm-wb[hidden] { display: none; }
 #mm-wb.alive { color: #ffe08a; background: rgba(70, 30, 6, .78); border-color: rgba(255, 200, 80, .7); animation: mvpPulse 1.2s ease-in-out infinite; }

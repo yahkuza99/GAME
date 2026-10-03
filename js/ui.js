@@ -1229,13 +1229,40 @@ const UI = {
   narrow() { return innerWidth <= 760; },
   // วาดใหม่ทั้งหน้าต่างทุกครั้งที่ข้อมูลเปลี่ยน → จำตำแหน่งเลื่อนของรายการไว้
   keepScroll(body, fn) {
-    const sc = $$('.irows, .book-r', body).map(el => el.scrollTop);
+    const sc = $$('.irows, .igrid, .book-r', body).map(el => el.scrollTop);
     fn();
-    $$('.irows, .book-r', body).forEach((el, i) => { if (sc[i]) el.scrollTop = sc[i]; });
+    $$('.irows, .igrid, .book-r', body).forEach((el, i) => { if (sc[i]) el.scrollTop = sc[i]; });
   },
-  book(win, left, right, det) {
+  // opt.sheet = มือถือแนวตั้ง: หน้ารายละเอียดเลื่อนขึ้นเป็นแผ่น (sheet) ทับตารางช่อง • แตะพื้นมืดด้านบน = กลับ (opt.back)
+  book(win, left, right, det, opt = {}) {
     $('#' + win).classList.add('book-win');
-    return h('div', { class: 'book' + (det ? ' det' : '') }, h('div', { class: 'book-page book-l' }, left), h('i', { class: 'book-spine', 'aria-hidden': 'true' }), h('div', { class: 'book-page book-r' }, right));
+    const b = h('div', { class: 'book' + (det ? ' det' : '') + (opt.sheet ? ' sheet' : '') }, h('div', { class: 'book-page book-l' }, left), h('i', { class: 'book-spine', 'aria-hidden': 'true' }), h('div', { class: 'book-page book-r' }, right));
+    if (opt.sheet && opt.back) b.addEventListener('click', ev => { if (ev.target === b && b.classList.contains('det')) opt.back(); });
+    return b;
+  },
+  // ---------- ช่องกระเป๋าแบบตาราง (สไตล์ RO — เจ้าของ 2026-10-03: "หน้า Inven เอาแบบช่องเหมือนเดิมดีกว่า") ----------
+  // ช่องสี่เหลี่ยม: ไอคอน + จำนวน (มุมขวาล่าง) + ตีบวก (มุมขวาบน) + กรอบ/แสงตามความหายาก • ใช้ร่วม: กระเป๋า / คลัง / ขายของ
+  gridCols() { return this.narrow() ? 5 : 6; },
+  gridRows() { return this.narrow() ? 7 : innerHeight <= 520 ? 4 : 7; },
+  qtyShort(q) { return q >= 100000 ? `${Math.floor(q / 1000)}k` : q >= 10000 ? `${+(q / 1000).toFixed(1)}k` : String(q); },
+  itemSlot(e, sel, onPick, opt = {}) {
+    const it = ITEMS[e.id], r = this.rarOf(e.id), eq = isEquipType(it), locked = eq && !canEquip(it, false);
+    const badge = 'badge' in opt ? opt.badge : (e.qty > 1 || !eq ? h('b', { class: 'is-q' }, this.qtyShort(e.qty)) : null);
+    const el = h('div', { class: 'islot r-' + r + (sel ? ' sel' : '') + (locked ? ' locked' : ''), role: 'button', tabindex: '0', draggable: 'true',
+      'aria-label': itemDisplayName(e) + (e.qty > 1 ? ` ×${e.qty}` : ''), 'aria-pressed': sel ? 'true' : 'false' },
+      h('img', { src: itemIconUrl(e.id), alt: '', draggable: 'false' }),
+      e.refine ? h('i', { class: 'is-rf' }, '+' + e.refine) : null,
+      badge,
+      locked ? h('i', { class: 'is-lock', title: 'Cannot equip' }, this.ico('lock')) : null);
+    el.addEventListener('click', () => onPick(e));
+    el.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); onPick(e); } });
+    return el;
+  },
+  // ตารางช่อง: เติมช่องว่างให้เต็มแถว (อย่างน้อย opt.rows แถว) เหมือนกระเป๋า RO • ว่างทั้งหมด = ข้อความแนะนำทับตาราง
+  slotGrid(cells, opt = {}) {
+    const cols = this.gridCols(), n = Math.max(cols * (opt.rows || this.gridRows()), Math.ceil(cells.length / cols) * cols);
+    const pad = []; for (let i = cells.length; i < n; i++) pad.push(h('div', { class: 'islot empty', 'aria-hidden': 'true' }));
+    return h('div', { class: 'igrid' + (cells.length ? '' : ' none'), style: `--cols:${cols}`, role: 'listbox' }, cells, pad, cells.length ? null : opt.empty || null);
   },
   // หน้าว่างแบบเป็นมิตร: ไอคอนในวงกลมเส้นประ + หัวข้อ + คำแนะนำ + ปุ่ม (ถ้ามี)
   emptyState(ic, title, text, btn) {
@@ -1253,31 +1280,38 @@ const UI = {
     if (this.selItem && !list.includes(this.selItem)) { this.selItem = null; this.bookDet = false; }
     const e = this.selItem || (this.narrow() ? null : list[0]) || null;
     const pick = x => { this.selItem = x; this.bookDet = true; this.renderInv(); };
-    const rows = list.map(x => {
-      const row = this.itemRow(x, x === e, pick);
-      if (ITEMS[x.id].type === 'hrune') { row.draggable = false; const at = HR.slots().indexOf(x.id); const q = row.querySelector('.iqty'); if (q && at >= 0) q.textContent = `✓ ${HR.slotName(at)}`; else if (q) q.remove(); const sm = row.querySelector('.isum'); if (sm) sm.textContent = HR.rowSum(x.id); return row; }
-      this.tipFor(row, x);
+    const back = () => { this.bookDet = false; this.selItem = null; this.renderInv(); };
+    // ช่องสี่เหลี่ยม: คลิก = ดูรายละเอียด • ดับเบิลคลิก = ใช้/สวม • ลากไปแถบลัด • ชี้แล้วกด Z C V F = ตั้งปุ่มลัด
+    const cells = list.map(x => {
+      if (ITEMS[x.id].type === 'hrune') {
+        const at = HR.slots().indexOf(x.id);
+        const c = this.itemSlot(x, x === e, pick, { badge: at >= 0 ? h('b', { class: 'is-q is-on' }, `✓ ${HR.slotName(at)}`) : null });
+        c.draggable = false; c.dataset.hr = x.id; c.title = `${itemDisplayName(x)} — ${HR.rowSum(x.id)}`;
+        return c;
+      }
+      const c = this.itemSlot(x, x === e, pick);
+      this.tipFor(c, x);
       const it = ITEMS[x.id];
-      if (it.type === 'use' || isEquipType(it)) this.markBind(row, 'item', x.id);
-      row.addEventListener('dblclick', () => useItem(x));
-      row.addEventListener('dragstart', ev => ev.dataTransfer.setData('text/plain', JSON.stringify({ t: 'item', id: x.id })));
-      return row;
+      if (it.type === 'use' || isEquipType(it)) this.markBind(c, 'item', x.id);
+      c.addEventListener('dblclick', () => useItem(x));
+      c.addEventListener('dragstart', ev => ev.dataTransfer.setData('text/plain', JSON.stringify({ t: 'item', id: x.id })));
+      return c;
     });
     const left = [
       h('div', { class: 'pills' }, tabs.map(([k, l]) => h('button', { type: 'button', class: 'pill' + (this.invTab === k ? ' on' : ''),
         onclick: () => { this.invTab = k; this.selItem = null; this.bookDet = false; this.renderInv(); } }, l, h('small', {}, String(tabCount(k)))))),
-      h('div', { class: 'irows' }, rows.length ? rows : h('div', { class: 'book-empty' }, this.invTab === 'hrune'
+      this.slotGrid(cells, { empty: h('div', { class: 'book-empty igrid-msg' }, this.invTab === 'hrune'
         ? L('ยังไม่มี Hunt Rune — Brokk Forge-Bot ใน Neo Eldheim ตีให้ (แท็บ Hunt Rune ในเตา)', 'No Hunt Runes yet — Brokk Forge-Bot in Neo Eldheim forges them (Hunt Rune tab at his forge)')
         : this.invTab === 'card'
         ? L(`ยังไม่มีชิป — มอนทุกตัวมีโอกาสดรอปชิปของมัน ${+(CHIP_DROP * 100).toFixed(2)}% (MVP ${CHIP_DROP_BOSS * 100}%) ดรอปซ้ำได้`, `No chips yet — every monster has a ${+(CHIP_DROP * 100).toFixed(2)}% chance to drop its chip (MVP ${CHIP_DROP_BOSS * 100}%), repeats allowed`)
-        : L('ยังไม่มีของในแท็บนี้', 'Nothing in this tab yet'))),
+        : L('ยังไม่มีของในแท็บนี้', 'Nothing in this tab yet')) }),
       h('div', { class: 'book-foot' },
         h('button', { class: 'btn small inv-sort', type: 'button', onclick: () => { sortItems(p.inventory); saveGame(); this.renderInv(); Sound.play('click'); } }, 'Sort'),
         h('span', { class: 'bf-count' }, `${p.inventory.length} ${L('ชิ้น', 'items')}`),
         h('span', { class: 'coin-pill' }, h('i', { class: 'coin' }), U.fmt(p.zeny))),
     ];
     let right;
-    if (e && ITEMS[e.id].type === 'hrune') right = HR.invDetail(e, this.bookBack(() => { this.bookDet = false; this.selItem = null; this.renderInv(); }));
+    if (e && ITEMS[e.id].type === 'hrune') right = HR.invDetail(e, this.bookBack(back));
     else if (e) {
       const it = ITEMS[e.id], acts = [];
       if (it.type === 'use') acts.push(h('button', { class: 'btn big primary', onclick: () => useItem(e) }, 'Use'));
@@ -1285,10 +1319,10 @@ const UI = {
       if (it.type === 'card') acts.push(h('button', { class: 'btn big primary', onclick: () => useItem(e) }, 'Insert'));
       if (it.type === 'use' || isEquipType(it)) acts.push(h('button', { class: 'btn big', onclick: () => this.startEquip('item', e.id) }, L('ตั้งปุ่มลัด', 'Hotkey')));
       acts.push(h('button', { class: 'btn big danger', onclick: () => this.discard(e) }, 'Drop'));
-      right = [this.bookBack(() => { this.bookDet = false; this.selItem = null; this.renderInv(); }),
-        ...this.itemDetail(e, acts, this.narrow() ? null : L('ดับเบิลคลิกเพื่อใช้/สวม • ลากไปวางที่แถบลัด หรือชี้แล้วกด Z C V F', 'Double-click to use/equip • drag onto the hotbar, or hover and press Z C V F'))];
-    } else right = h('div', { class: 'book-empty' }, L('เลือกไอเทมทางซ้ายเพื่อดูรายละเอียด', 'Pick an item on the left to see its details'));
-    this.keepScroll(body, () => { body.innerHTML = ''; body.append(this.book('w-inv', left, right, this.bookDet && !!this.selItem)); });
+      right = [this.bookBack(back),
+        ...this.itemDetail(e, acts, this.narrow() ? null : L('ดับเบิลคลิกช่องเพื่อใช้/สวม • ลากไปวางที่แถบลัด หรือชี้แล้วกด Z C V F', 'Double-click a slot to use/equip • drag it onto the hotbar, or hover and press Z C V F'))];
+    } else right = this.emptyState('bag', L('เลือกช่องทางซ้าย', 'Pick a slot on the left'), L('ดูรายละเอียดของชิ้นนั้นที่นี่', 'Its details show up here'));
+    this.keepScroll(body, () => { body.innerHTML = ''; body.append(this.book('w-inv', left, right, this.bookDet && !!this.selItem, { sheet: true, back })); });
   },
   async discard(e) {
     const it = ITEMS[e.id];
@@ -1832,18 +1866,19 @@ const UI = {
     const e = this.stoSel || (this.narrow() ? null : list[0]) || null;
     const pick = x => { this.stoSel = x; this.stoDet = true; this.stoQty = x.qty; this.renderStorage(); };
     const move = (x, q) => { if (bag) storeItem(x, q); else takeItem(x, q); saveGame(); Sound.play('click'); this.renderStorage(); };
-    const rows = list.map(x => {
-      const row = this.itemRow(x, x === e, pick);
-      row.draggable = false;
-      row.addEventListener('dblclick', () => move(x, x.qty)); // ดับเบิลคลิก = ย้ายทั้งกอง
-      return this.tipFor(row, x);
+    const cells = list.map(x => {
+      const c = this.itemSlot(x, x === e, pick);
+      c.draggable = false;
+      c.addEventListener('dblclick', () => move(x, x.qty)); // ดับเบิลคลิก = ย้ายทั้งกอง
+      return this.tipFor(c, x);
     });
+    const back = () => { this.stoDet = false; this.stoSel = null; this.renderStorage(); };
     const left = [
       h('div', { class: 'pills' }, [['bag', 'Bag', 'bag', `${p.inventory.length}`], ['sto', 'Storage', 'storage', `${p.storage.length}/${STORAGE_MAX}`]].map(([k, l, ic, n]) =>
         h('button', { type: 'button', class: 'pill' + ((bag ? 'bag' : 'sto') === k ? ' on' : ''), onclick: () => { this.stoTab = k; this.stoSel = null; this.stoDet = false; this.renderStorage(); } }, ivIconEl(ic), l, h('small', {}, n)))),
-      h('div', { class: 'irows' }, rows.length ? rows : bag
+      this.slotGrid(cells, { empty: bag
         ? this.emptyState('bag', L('กระเป๋าว่าง', 'Your bag is empty'), L('ของที่ถอนจากคลังจะกลับมาอยู่ที่นี่', 'Items you withdraw come back here'))
-        : this.emptyState('storage', L('คลังยังว่าง', 'Storage is empty'), L(`ฝากได้ ${STORAGE_MAX} ช่อง — เลือกของในแท็บ Bag แล้วกด Deposit`, `Holds ${STORAGE_MAX} slots — pick something in the Bag tab and press Deposit`))),
+        : this.emptyState('storage', L('คลังยังว่าง', 'Storage is empty'), L(`ฝากได้ ${STORAGE_MAX} ช่อง — เลือกของในแท็บ Bag แล้วกด Deposit`, `Holds ${STORAGE_MAX} slots — pick something in the Bag tab and press Deposit`)) }),
       h('div', { class: 'book-foot' },
         bag ? h('button', { type: 'button', class: 'btn small', onclick: () => { for (const x of p.inventory.filter(y => ['etc', 'card'].includes(ITEMS[y.id].type))) storeItem(x); saveGame(); this.renderStorage(); } }, L('ฝาก Etc + ชิปทั้งหมด', 'Store all Etc + chips')) : null,
         h('button', { type: 'button', class: 'btn small', onclick: () => { sortItems(p.inventory); sortItems(p.storage); saveGame(); this.renderStorage(); } }, L('จัดเรียง', 'Sort')),
@@ -1859,10 +1894,10 @@ const UI = {
         h('div', { class: 'kv' }, h('span', {}, bag ? 'Stays in bag' : 'Stays in storage'), h('b', {}, `×${U.fmt(max - q)}`))) : null;
       const acts = [h('button', { class: 'btn big primary sto-go', disabled: full ? 'disabled' : false, onclick: () => move(e, q) }, ivIconEl(bag ? 'deposit' : 'withdraw'), (bag ? 'Deposit' : 'Withdraw') + (max > 1 ? ` ×${U.fmt(q)}` : '')),
         max > 1 && q !== max ? h('button', { class: 'btn big', onclick: () => move(e, max) }, `All ×${U.fmt(max)}`) : null].filter(Boolean);
-      right = [this.bookBack(() => { this.stoDet = false; this.stoSel = null; this.renderStorage(); }),
-        ...this.itemDetail(e, acts, full ? L(`คลังเต็มแล้ว (${STORAGE_MAX} ช่อง)`, `Storage is full (${STORAGE_MAX} slots)`) : this.narrow() ? null : L('ดับเบิลคลิกแถวเพื่อย้ายทั้งกองทันที • ของที่สวมอยู่ต้องถอดก่อน', 'Double-click a row to move the whole stack • unequip worn gear first'), { noPrice: true, lead: [box] })];
-    } else right = this.emptyState('storage', L('เลือกไอเทมทางซ้าย', 'Pick an item on the left'), L('ฝากของจากกระเป๋า หรือถอนจากคลัง ด้วยปุ่มใหญ่ด้านล่าง', 'Deposit from your bag or withdraw from storage with the big button'));
-    this.keepScroll(body, () => { body.innerHTML = ''; body.append(this.book('w-storage', left, right, this.stoDet && !!e)); });
+      right = [this.bookBack(back),
+        ...this.itemDetail(e, acts, full ? L(`คลังเต็มแล้ว (${STORAGE_MAX} ช่อง)`, `Storage is full (${STORAGE_MAX} slots)`) : this.narrow() ? null : L('ดับเบิลคลิกช่องเพื่อย้ายทั้งกองทันที • ของที่สวมอยู่ต้องถอดก่อน', 'Double-click a slot to move the whole stack • unequip worn gear first'), { noPrice: true, lead: [box] })];
+    } else right = this.emptyState('storage', L('เลือกช่องทางซ้าย', 'Pick a slot on the left'), L('ฝากของจากกระเป๋า หรือถอนจากคลัง ด้วยปุ่มใหญ่ด้านล่าง', 'Deposit from your bag or withdraw from storage with the big button'));
+    this.keepScroll(body, () => { body.innerHTML = ''; body.append(this.book('w-storage', left, right, this.stoDet && !!e, { sheet: true, back })); });
   },
   renderEmote() {
     const body = $('#w-emote .win-body');
@@ -2139,19 +2174,22 @@ const UI = {
     if (buy) { if (s.sel && !s.list.includes(s.sel)) { s.sel = null; s.det = false; } const id = s.sel || (narrow ? null : items[0] && items[0].id); e = id ? items.find(x => x.id === id) : null; }
     else { if (s.selE && !p.inventory.includes(s.selE)) { s.selE = null; s.det = false; } e = s.selE || (narrow ? null : p.inventory[0]) || null; }
     const pick = x => { if (buy) s.sel = x.id; else s.selE = x; s.det = true; s.qty = 1; this.renderShop(); };
+    // ซื้อ = แถวมีราคา • ขาย = ตารางช่องเหมือนกระเป๋า (ราคาขายอยู่หน้ารายละเอียด)
     const rows = items.map(x => {
-      const it = ITEMS[x.id], price = buy ? it.price : Math.floor(it.price / 2);
-      const tag = h('span', { class: 'ipr' + (buy && price > p.zeny ? ' poor' : '') }, h('i', { class: 'coin' }), U.fmt(price));
-      const row = this.itemRow(x, !!e && (buy ? x.id === e.id : x === e), pick, buy ? tag : h('span', { class: 'ipr-w' }, x.qty > 1 ? h('span', { class: 'iqty' }, '×' + U.fmt(x.qty)) : null, tag));
+      if (!buy) { const c = this.itemSlot(x, x === e, pick); c.draggable = false; return this.tipFor(c, x); }
+      const it = ITEMS[x.id], price = it.price;
+      const tag = h('span', { class: 'ipr' + (price > p.zeny ? ' poor' : '') }, h('i', { class: 'coin' }), U.fmt(price));
+      const row = this.itemRow(x, !!e && x.id === e.id, pick, tag);
       this.tipFor(row, x);
-      if (!buy) row.draggable = false;
       return row;
     });
+    const back = () => { s.det = false; s.sel = null; s.selE = null; this.renderShop(); };
     const etc = p.inventory.filter(x => ITEMS[x.id].type === 'etc' && !ITEMS[x.id].keep);
     const left = [
       h('div', { class: 'pills' }, [['buy', 'Buy', 'shop', s.list.length], ['sell', 'Sell', 'bag', p.inventory.length]].map(([m, l, ic, n]) =>
         h('button', { type: 'button', class: 'pill' + (s.mode === m ? ' on' : ''), onclick: () => { s.mode = m; s.det = false; s.qty = 1; this.renderShop(); } }, ivIconEl(ic), l, h('small', {}, String(n))))),
-      h('div', { class: 'irows' }, rows.length ? rows : this.emptyState('bag', L('ไม่มีไอเทมให้ขาย', 'Nothing to sell'), L('ของที่ล่าได้จะเข้ากระเป๋า แล้วนำมาขายที่นี่ได้', 'Loot from hunting lands in your bag — sell it here'))),
+      buy ? h('div', { class: 'irows' }, rows)
+        : this.slotGrid(rows, { empty: this.emptyState('bag', L('ไม่มีไอเทมให้ขาย', 'Nothing to sell'), L('ของที่ล่าได้จะเข้ากระเป๋า แล้วนำมาขายที่นี่ได้', 'Loot from hunting lands in your bag — sell it here')) }),
       h('div', { class: 'book-foot' },
         !buy && etc.length ? h('button', { type: 'button', class: 'btn small shop-sellall', onclick: () => { for (const x of p.inventory.filter(y => ITEMS[y.id].type === 'etc' && !ITEMS[y.id].keep)) this.sell(x, x.qty, true); Sound.play('buy'); } },
           L(`ขาย Etc ทั้งหมด (${etc.length})`, `Sell all Etc (${etc.length})`))
@@ -2175,10 +2213,10 @@ const UI = {
         : [h('button', { class: 'btn big primary shop-go', onclick: () => this.sell(e, s.qty) }, s.qty > 1 ? `Sell ×${s.qty}` : 'Sell'),
           e.qty > 1 && s.qty !== e.qty ? h('button', { class: 'btn big', onclick: () => this.sell(e, e.qty) }, `Sell all ×${U.fmt(e.qty)}`) : null].filter(Boolean);
       const note = buy && eq && !usable ? L('Class ของคุณใช้ชิ้นนี้ไม่ได้', 'Your Class cannot use this') : !buy && eq && (e.refine || (e.cards || []).length) ? L('ระวัง: ขายแล้วค่าตีบวก/ชิปหายไปด้วย', 'Careful: refines and chips are sold with it') : null;
-      right = [this.bookBack(() => { s.det = false; s.sel = null; s.selE = null; this.renderShop(); }),
+      right = [this.bookBack(back),
         ...this.itemDetail(e, acts, note, { noPrice: true, cmp: buy && eq && usable, lead: [box] })];
-    } else right = this.emptyState(buy ? 'shop' : 'bag', L('เลือกสินค้าทางซ้าย', 'Pick an item on the left'), L('ดูค่าพลังและราคา แล้วกดปุ่มใหญ่ด้านล่างเพื่อซื้อ/ขาย', 'Check its stats and price, then use the big button to buy or sell'));
-    this.keepScroll(body, () => { body.innerHTML = ''; body.append(this.book('w-shop', left, right, s.det && !!e)); });
+    } else right = this.emptyState(buy ? 'shop' : 'bag', buy ? L('เลือกสินค้าทางซ้าย', 'Pick an item on the left') : L('เลือกช่องทางซ้าย', 'Pick a slot on the left'), L('ดูค่าพลังและราคา แล้วกดปุ่มใหญ่ด้านล่างเพื่อซื้อ/ขาย', 'Check its stats and price, then use the big button to buy or sell'));
+    this.keepScroll(body, () => { body.innerHTML = ''; body.append(this.book('w-shop', left, right, s.det && !!e, { sheet: !buy, back })); });
   },
   // ---------------- เตาตีเหล็ก Brokk (สมุดเปิด) — แท็บ ตีบวก / ถอดชิป ----------------
   // ซ้าย = อุปกรณ์ที่สวม (โอกาสสำเร็จขวาแถว) • ขวา = +N → +N+1, ค่าพลังที่จะได้, แถบโอกาส, วัสดุ/ค่าบริการ, เป้าตีต่อเนื่อง, ปุ่มใหญ่

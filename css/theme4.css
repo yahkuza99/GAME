@@ -1,0 +1,151 @@
+/* =====================================================================
+   IRON VALHALLA — UI รอบ 4 "ไม่มีทรงแคปซูล" (โหลดสุดท้าย หลัง theme3.css)
+   เจ้าของ 2026-10-03: "ไม่ชอบทรงแคปซูลยาเลย / หน้า Inven เอาแบบช่องเหมือนเดิมดีกว่า / Rune ไม่รอด"
+   1) รูปทรงนอร์ส/RO: มุมเล็ก (token --rad-* ใน css/tokens.css) • แท็บ = ป้ายปลายแหลม (plaque) • ป้าย/เหรียญ = ตัดมุม (chamfer)
+   2) จานไอเทม = ช่องสี่เหลี่ยมมุมโลหะ (แทนจานกลม)
+   3) ช่องกระเป๋าแบบตาราง (กระเป๋า / คลัง / ขายของ) — js/ui.js UI.slotGrid()
+   งบประสิทธิภาพ: ไม่มี JS ต่อเฟรม • แอนิเมชัน transform/opacity เท่านั้น • fx-low / reduced-motion ปิดหมด
+   ===================================================================== */
+:root {
+  /* ป้ายแท็บ: หกเหลี่ยมแบน (ปลายแหลมซ้าย-ขวา) • --pq = ความยาวปลาย */
+  --plaque: polygon(var(--pq, 9px) 0, calc(100% - var(--pq, 9px)) 0, 100% 50%, calc(100% - var(--pq, 9px)) 100%, var(--pq, 9px) 100%, 0 50%);
+  /* ตัดมุม 4 มุม • --ch = ขนาดมุม */
+  --chamfer: polygon(var(--ch, 6px) 0, calc(100% - var(--ch, 6px)) 0, 100% var(--ch, 6px), 100% calc(100% - var(--ch, 6px)), calc(100% - var(--ch, 6px)) 100%, var(--ch, 6px) 100%, 0 calc(100% - var(--ch, 6px)), 0 var(--ch, 6px));
+  /* มุมโลหะ (ฉากทอง 4 มุม) — ใช้เป็นชั้นพื้นหลังบนช่อง/จาน */
+  --iv-corners:
+    linear-gradient(#f3d27e, #b9852f) left 0 top 0 / 9px 2px no-repeat, linear-gradient(#f3d27e, #b9852f) left 0 top 0 / 2px 9px no-repeat,
+    linear-gradient(#f3d27e, #b9852f) right 0 top 0 / 9px 2px no-repeat, linear-gradient(#f3d27e, #b9852f) right 0 top 0 / 2px 9px no-repeat,
+    linear-gradient(#f3d27e, #b9852f) left 0 bottom 0 / 9px 2px no-repeat, linear-gradient(#f3d27e, #b9852f) left 0 bottom 0 / 2px 9px no-repeat,
+    linear-gradient(#f3d27e, #b9852f) right 0 bottom 0 / 9px 2px no-repeat, linear-gradient(#f3d27e, #b9852f) right 0 bottom 0 / 2px 9px no-repeat;
+  /* หิน (หน้าต่าง Runes) */
+  --st-1: #8d8a80; --st-2: #6f6b61; --st-3: #4d4a43; --st-4: #34322d; --st-ink: #f1e9d6; --st-ink-2: #cfc5ad;
+}
+/* ยูทิลิตี้: ใส่ class ได้เลย */
+.cham { --ch: var(--cham); clip-path: var(--chamfer); }
+.cham-s { --ch: var(--cham-s); clip-path: var(--chamfer); }
+.plaque { clip-path: var(--plaque); }
+
+/* ======================= 1) แท็บ = ป้ายปลายแหลม ======================= */
+/* เทคนิค: ตัวปุ่ม = สีขอบ (clip-path หกเหลี่ยม) • ::before = เนื้อป้าย ย่อเข้า 1px → ได้ขอบรอบทุกด้าน รวมปลายแหลม */
+body.visor .win:not(.gc-art) :is(.tab, .pill), body.visor .win:not(.gc-art) .seg button, .qt-tab {
+  --pq: 9px; position: relative; isolation: isolate; border: 0 !important; border-radius: 0 !important;
+  padding-left: calc(var(--pq) + 5px); padding-right: calc(var(--pq) + 5px);
+  background: linear-gradient(180deg, #c8a061, #94682c) !important; box-shadow: none !important; clip-path: var(--plaque); }
+body.visor .win:not(.gc-art) :is(.tab, .pill)::before, body.visor .win:not(.gc-art) .seg button::before, .qt-tab::before {
+  content: ""; position: absolute; inset: 1px; z-index: -1; clip-path: var(--plaque); pointer-events: none;
+  background: var(--tx-grain) 0 0 / 256px 256px, linear-gradient(180deg, #fbf1da, #ead6ad); }
+body.visor .win:not(.gc-art) :is(.tab, .pill):hover::before, body.visor .win:not(.gc-art) .seg button:hover::before { background: var(--tx-grain) 0 0 / 256px 256px, linear-gradient(180deg, #fffaf0, #f3e3be); }
+body.visor .win:not(.gc-art) :is(.tab, .pill).on, body.visor .win:not(.gc-art) .seg button.on, .qt-tab.on { background: linear-gradient(180deg, #6b410b, #4a2b06) !important; }
+body.visor .win:not(.gc-art) :is(.tab, .pill).on::before, body.visor .win:not(.gc-art) .seg button.on::before, .qt-tab.on::before { background: var(--m-gold); }
+body.visor .win:not(.gc-art) :is(.tab, .pill):focus-visible { outline: none; }
+body.visor .win:not(.gc-art) :is(.tab, .pill):focus-visible::before { background: linear-gradient(180deg, #fff6dc, #f6dc9c); }
+/* ตัวเลขนับในแท็บ: ป้ายเหลี่ยมเล็ก */
+body.visor .win:not(.gc-art) .pill small, .rb-tab small, .qt-badge { border-radius: 2px !important; }
+/* แท็บในการ์ดเควสต์ (HUD): แท็บไม่เลือก = ไม้เข้ม */
+.qt-tabs { border-radius: var(--rad-s) !important; padding: 3px !important; }
+.qt-tab { --pq: 8px; background: linear-gradient(180deg, rgba(201, 154, 70, 0.55), rgba(110, 72, 24, 0.55)) !important; }
+.qt-tab::before { background: linear-gradient(180deg, #3a2614, #24160a); }
+.qt-tab.on::before { background: var(--m-gold); }
+.qt-tab:not(.on) { color: #e4cfa6 !important; }
+/* แถวแท็บ: ปลายแหลมชนกันพอดี (ไม่มีช่องว่างแปลก ๆ) */
+body.visor .win:not(.gc-art) .tabs, .book .pills, body.visor .win:not(.gc-art) .seg { gap: 3px; }
+
+/* ======================= 2) ปุ่ม / ป้าย / เหรียญ: มุมเล็กหรือตัดมุม ======================= */
+body.visor :where(.win, #slot-pick) .btn, body.visor .win .btn.big, body.visor .win .btn.small { border-radius: var(--rad-s); }
+body.visor .win .dlg-opt { border-radius: var(--rad-s); }
+body.visor .win:not(.gc-art) { border-radius: 8px; }
+body.visor .win:not(.gc-art) .win-title span, body.visor .win.book-win .win-title span { border-radius: 3px; }
+@media (max-width: 760px), (max-height: 520px) { body.visor .win:not(.gc-art) { border-radius: 6px; } }
+/* ป้ายเล็ก ๆ: สี่เหลี่ยมมุม 2px (ไม่มีมุมมน) */
+:is(.iqty, .ipr, .rbadge, .rf-chance, .coin-pill, .rb-in, .hr-owned, .cmp-v, .cmp-chips .cmp, .hunt-tag, .rn-tag, .rb-tag-none, .rb-cur, .tag, .pt) { border-radius: 2px !important; }
+/* อัญมณีเลเวล (การ์ดตัวละคร): เพชรสี่เหลี่ยม ไม่ใช่เม็ดยา */
+body.visor .bi-face em { border-radius: 4px !important; }
+.plate .rf { border-radius: 2px !important; }
+.book-back { border-radius: var(--rad-s) !important; }
+/* หลอด HP/SP/EXP: ปลายมนนิดเดียว (ไม่ใช่แคปซูล) */
+body.visor .gauge, body.visor .gauge .fill, body.visor #target .gauge { border-radius: 3px !important; }
+body.visor .gauge.thin, body.visor .gauge.thin .fill { border-radius: 2px !important; }
+/* ป้ายลอยกลางจอ (ได้ของ / ประกาศ / ชื่อแผนที่): แผ่นไม้ตัดมุม */
+body.visor #announce { border-radius: var(--rad-s) !important; }
+body.visor #map-banner, body.visor #map-banner.has-img { border-radius: var(--rad-m) !important; }
+
+/* ======================= 3) จานไอเทม = ช่องสี่เหลี่ยมมุมโลหะ ======================= */
+.plate { border-radius: var(--rad-s);
+  background: var(--iv-corners), radial-gradient(circle at 50% 34%, #fffef8 0%, #f3e6c8 58%, #d9c290 100%); }
+.plate.empty { background: rgba(140, 100, 45, 0.06); }
+.plate:is(.r-uncommon, .r-rare, .r-epic, .r-legend)::after { left: -4px; top: -4px; }
+.plate.big::after { left: -5px; top: -5px; }
+.plate.big { border-radius: var(--rad-m); }
+/* Epic / Legendary: กรอบประกาย (ขอบสี่เหลี่ยม) กะพริบช้า — เดิมหมุนรอบจานกลม */
+.plate:is(.r-epic, .r-legend)::before { inset: -5px; border-radius: 6px; padding: 2px; animation: iv-glint 2.6s ease-in-out infinite;
+  background: conic-gradient(from 45deg, var(--rr), #fff 12%, var(--rr) 25%, transparent 38% 62%, var(--rr) 75%, #fff 87%, var(--rr));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.plate.big:is(.r-epic, .r-legend)::before { inset: -8px; border-radius: 9px; padding: 3px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+@keyframes iv-glint { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+/* ช่องสวมใส่ในหน้าต่างอุปกรณ์ / แถบสินค้า: มุมเล็ก */
+body.visor #w-equip .eq-slot, .irow, .dsec, .det-note, .rb-link { border-radius: var(--rad-s); }
+body.visor #w-equip .eq-job { border-radius: 3px; }
+
+/* ======================= 4) ช่องกระเป๋าแบบตาราง (js/ui.js UI.itemSlot / UI.slotGrid) ======================= */
+/* ถาดไม้ลึก + ช่องกระดาษมุมโลหะ • ขอบ/แสงตามความหายาก • จำนวนมุมขวาล่าง • ตีบวกมุมขวาบน */
+.igrid { position: relative; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #b88c45 transparent;
+  display: grid; grid-template-columns: repeat(var(--cols, 6), minmax(0, 1fr)); grid-auto-rows: max-content; align-content: start; gap: 5px;
+  padding: 7px; border-radius: var(--rad-s); border: 1px solid rgba(90, 58, 18, 0.55);
+  background: var(--tx-wood) 0 0 / 256px 128px, linear-gradient(180deg, #6e4724, #4d2f14);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 220, 150, 0.12), 0 1px 0 rgba(255, 255, 255, 0.6); }
+.islot { position: relative; aspect-ratio: 1; min-width: 0; display: grid; place-items: center; cursor: pointer; outline: none;
+  border: 2px solid var(--rr, #b99760); border-radius: 3px;
+  background: var(--iv-corners), radial-gradient(circle at 50% 36%, #fffdf5 0%, #f2e4c4 58%, #d6bc88 100%);
+  box-shadow: inset 0 2px 5px rgba(110, 72, 24, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.45), 0 1px 0 rgba(0, 0, 0, 0.35);
+  transition: transform 0.1s; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.islot img { width: 74%; height: 74%; object-fit: contain; pointer-events: none; filter: drop-shadow(0 2px 2px rgba(60, 30, 5, 0.45)); }
+.islot.empty { cursor: default; border: 1px solid rgba(20, 10, 2, 0.6); background: linear-gradient(180deg, rgba(30, 18, 8, 0.55), rgba(48, 30, 14, 0.45));
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(255, 220, 150, 0.1); }
+.islot:is(.r-uncommon, .r-rare, .r-epic, .r-legend) {
+  box-shadow: inset 0 2px 5px rgba(110, 72, 24, 0.3), inset 0 0 10px -2px var(--rg), 0 0 8px -1px var(--rg), 0 1px 0 rgba(0, 0, 0, 0.35); }
+/* หมุดอัญมณีความหายาก (มุมซ้ายบน) */
+.islot:is(.r-rare, .r-epic, .r-legend)::after { content: ""; position: absolute; left: 2px; top: 2px; width: 7px; height: 7px; transform: rotate(45deg); pointer-events: none;
+  background: radial-gradient(circle at 32% 30%, #fff 0 14%, var(--rr) 46%, var(--rc) 100%); box-shadow: 0 0 0 1px #5a3510, 0 0 5px var(--rg); }
+/* Epic / Legendary: กรอบประกายกะพริบช้า */
+.islot:is(.r-epic, .r-legend)::before { content: ""; position: absolute; inset: -4px; border-radius: 4px; padding: 2px; pointer-events: none; animation: iv-glint 2.6s ease-in-out infinite;
+  background: conic-gradient(from 45deg, var(--rr), #fff 12%, var(--rr) 25%, transparent 38% 62%, var(--rr) 75%, #fff 87%, var(--rr));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.islot:not(.empty):hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--rr, #b99760) 60%, #fff3c8); }
+.islot.sel { border-color: #ffe08a; transform: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8), inset 0 0 12px -2px rgba(255, 200, 90, 0.9), 0 0 0 2px #7a4c10, 0 0 12px 2px rgba(255, 196, 80, 0.85); }
+.islot:focus-visible { box-shadow: 0 0 0 2px #fff3c8, 0 0 0 4px #7a4c10; }
+.islot.locked img { filter: grayscale(0.6) drop-shadow(0 1px 1px rgba(60, 30, 5, 0.4)); opacity: 0.7; }
+/* จำนวน (ขวาล่าง) / ตีบวก (ขวาบน) / ล็อก (ซ้ายล่าง) */
+.islot .is-q { position: absolute; right: 1px; bottom: 0; padding: 0 2px; font: 700 11px/1.2 var(--f-disp); color: #fff; pointer-events: none;
+  text-shadow: 0 0 2px #000, 0 1px 1px #000, 1px 0 1px #000, -1px 0 1px #000; }
+.islot .is-q.is-on { right: 0; bottom: 0; padding: 0 3px; color: #e9ffe8; background: rgba(32, 96, 40, 0.92); --ch: 3px; clip-path: var(--chamfer); text-shadow: none; font-size: 10px; }
+.islot .is-rf { position: absolute; right: 1px; top: 1px; padding: 0 3px; font: 700 10px/14px var(--f-disp); font-style: normal; color: #ffd98a; background: rgba(46, 28, 13, 0.92);
+  --ch: 3px; clip-path: var(--chamfer); pointer-events: none; }
+.islot .is-lock { position: absolute; left: 1px; bottom: 1px; width: 15px; height: 15px; display: grid; place-items: center; background: rgba(46, 28, 13, 0.85); border-radius: 2px; pointer-events: none; }
+.islot .is-lock .ico svg { width: 10px; height: 10px; fill: #f2b84a; }
+/* ทั้งตารางว่าง: ข้อความแนะนำทับกลางถาด */
+.igrid.none > :not(.islot) { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(300px, calc(100% - 32px)); margin: 0; padding: var(--s4);
+  border-radius: var(--rad-s); background: var(--tx-grain) 0 0 / 256px 256px, linear-gradient(180deg, #fffaf0, #f1e2c2); box-shadow: 0 0 0 1px #8a5a1e, 0 8px 18px -6px rgba(0, 0, 0, 0.7); }
+.igrid.none > .igrid-msg { color: var(--c-ink-2); }
+/* สมุดที่ใช้ตาราง */
+.book.sheet .book-l { gap: var(--s2); }
+
+/* ---------- มือถือแนวตั้ง: รายละเอียดเป็นแผ่นเลื่อนขึ้น (sheet) ทับตาราง + ปุ่มกลับ ---------- */
+@media (max-width: 760px) {
+  .book.sheet { position: relative; grid-template-columns: minmax(0, 1fr); }
+  .book.sheet.det .book-l { display: flex; }
+  .book.sheet.det::after { content: ""; position: absolute; inset: 0; z-index: 3; border-radius: var(--rad-m); background: rgba(24, 12, 2, 0.5); cursor: pointer; }
+  .book.sheet.det .book-r { position: absolute; z-index: 4; left: 0; right: 0; bottom: 0; top: 96px; display: flex;
+    border-radius: var(--rad-l) var(--rad-l) var(--rad-s) var(--rad-s) !important; box-shadow: 0 -2px 0 #c99a46, 0 -14px 30px -6px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+    animation: iv-sheet-up 0.2s cubic-bezier(0.2, 0.9, 0.3, 1); }
+  .book.sheet .igrid { gap: 6px; padding: 6px; }
+  body.visor .book .pills .pill { --pq: 7px; padding-left: 9px; padding-right: 9px; gap: 3px; }
+  .islot .is-q { font-size: 12px; }
+}
+@keyframes iv-sheet-up { from { transform: translateY(40%); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (max-height: 520px) and (orientation: landscape) {
+  .igrid { gap: 4px; padding: 5px; }
+}
+body.fx-low :is(.islot, .plate)::before, body.fx-low .book.sheet .book-r { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { :is(.islot, .plate)::before, .book.sheet .book-r { animation: none !important; } .islot { transition: none; } }
