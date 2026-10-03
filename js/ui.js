@@ -34,6 +34,8 @@ const UI = {
     this.initTip();
     this.initFolds();
     for (const w of $$('.win')) this.makeWindow(w);
+    // กล่องคุย NPC: ลวดลายกลางขอบบน/ล่าง (ข้าวหลามตัด/อีกา — css/ui_art.css) ไม่ยืดตามความกว้างกล่อง
+    $('#w-dialog').append(h('i', { class: 'dlg-orn top', 'aria-hidden': 'true' }), h('i', { class: 'dlg-orn bot', 'aria-hidden': 'true' }), h('i', { class: 'dlg-pic', 'aria-hidden': 'true' }));
     $('#chat-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         const v = e.target.value.trim();
@@ -159,9 +161,12 @@ const UI = {
     while (log.children.length > 120) log.firstChild.remove();
     log.scrollTop = log.scrollHeight;
   },
-  announce(text) {
+  // icon = ภาพไอเทม (ป้ายได้ของ: ช่องสี่เหลี่ยมซ้ายของแผ่นไม้ ui_banner_loot) • ไม่มี = รูนดาว
+  announce(text, icon) {
     const el = $('#announce');
     el.textContent = text;
+    el.prepend(h('i', { class: 'an-ic' }, icon ? h('img', { src: icon, alt: '' }) : null));
+    el.classList.toggle('has-ic', !!icon);
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   },
   chat(text) {
@@ -225,7 +230,7 @@ const UI = {
     $('#bi-hp').classList.toggle('low', p.hp / d.maxHp < 0.25);
     // HUD แบบ Visor: วงแหวน HP/SP รอบรูป + เส้น EXP ล่างจอ
     const ring = (el, r, k) => { const c = 2 * Math.PI * r, v = `${(c * U.clamp(k, 0, 1)).toFixed(1)} ${c.toFixed(1)}`; if (el.getAttribute('stroke-dasharray') !== v) el.setAttribute('stroke-dasharray', v); };
-    ring($('#ring-hp'), 41, p.hp / d.maxHp); ring($('#ring-sp'), 35, p.sp / d.maxSp);
+    ring($('#ring-hp'), 37, p.hp / d.maxHp); ring($('#ring-sp'), 33, p.sp / d.maxSp); // รัศมีตรงร่องของกรอบรูปไม้ (ui_hud_portrait)
     $('#ring-hp').classList.toggle('low', p.hp / d.maxHp < 0.25);
     $('#exp-line-fill').style.width = (bk * 100).toFixed(1) + '%';
     // ใกล้เลเวลแล้ว: แสงกวาดบนแถบ EXP (≥90%) + ป้ายเลเวลเต้น (≥97%) — GAME_FEEL ข้อ 13
@@ -851,7 +856,7 @@ const UI = {
       b.innerHTML = `${icon(ic)}<span>${label}</span><small>${key}</small>`;
       m.append(b);
     }
-    const sit = h('button', { onclick: () => { toggleSit(); if (Pad.enabled()) this.setFold(m, true); }, title: L('นั่งพัก (X)', 'Sit (X)') });
+    const sit = h('button', { onclick: () => { toggleSit(); if (Pad.enabled()) this.setFold(m, true); }, title: L('นั่งพัก (X)', 'Sit (X)'), 'data-ic': 'sit' });
     sit.innerHTML = L(`${icon('sit')}<span>นั่ง</span><small>X</small>`, `${icon('sit')}<span>Sit</span><small>X</small>`);
     m.append(sit);
     document.addEventListener('click', e => {
@@ -1147,7 +1152,7 @@ const UI = {
       if (it.type === 'use' || isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: () => this.startEquip('item', e.id) }, L('ตั้งปุ่มลัด', 'Set hotkey')));
       acts.push(h('button', { class: 'btn danger', onclick: () => this.discard(e) }, 'Drop'));
       det.append(...[
-        h('div', { class: 'det-head' }, h('img', { src: itemIconUrl(e.id), alt: '' }), h('b', { class: rarCls(e.id) }, itemDisplayName(e)), e.qty > 1 ? ` ×${e.qty}` : ''),
+        h('div', { class: 'det-head' }, h('img', { src: itemIconUrl(e.id), alt: '', class: 'slotic rarc-' + rarCls(e.id).slice(4) }), h('b', { class: rarCls(e.id) }, itemDisplayName(e)), e.qty > 1 ? ` ×${e.qty}` : ''),
         h('div', { class: 'det-desc' }, it.desc || ''),
         ...this.itemTooltip(e).map(l => h('div', { class: 'det-line' }, l)),
         this.compareLine(e),
@@ -1181,7 +1186,7 @@ const UI = {
       const e = p.equip[s];
       // ช่องละบรรทัดเดียวแบบ RO: ไอคอน + ชื่อไอเทม • ช่องว่างแสดงชื่อช่อง (ชื่อช่องของชิ้นที่สวมอยู่ดูใน tooltip)
       const el = h('div', { class: 'eq-slot' + (e ? '' : ' empty'), title: e ? null : SLOT_THAI[s], onclick: () => e && unequip(s) },
-        e ? h('img', { src: itemIconUrl(e.id), alt: '' }) : h('span', { class: 'eq-ph eq-ph-' + s }),
+        e ? h('img', { src: itemIconUrl(e.id), alt: '', class: 'slotic rarc-' + rarCls(e.id).slice(4) }) : h('span', { class: 'eq-ph eq-ph-' + s }),
         h('span', { class: 'eq-i ' + (e ? rarCls(e.id) : '') }, e ? itemDisplayName(e) + (e.cards && e.cards.length ? ` ◆${e.cards.length}` : '') : SLOT_THAI[s]));
       return e ? this.tipFor(el, e, true) : el;
     };
@@ -1679,7 +1684,7 @@ const UI = {
     const pane = (title, list, onPick, cap) => {
       const grid = h('div', { class: 'inv-grid st-pane' });
       for (const e of list) {
-        const cell = h('div', { class: 'inv-cell', title: L(`${itemDisplayName(e)}${e.qty > 1 ? ' ×' + e.qty : ''} — แตะเพื่อย้าย`, `${itemDisplayName(e)}${e.qty > 1 ? ' ×' + e.qty : ''} — tap to move`) },
+        const cell = h('div', { class: 'inv-cell rarc-' + rarCls(e.id).slice(4), title: L(`${itemDisplayName(e)}${e.qty > 1 ? ' ×' + e.qty : ''} — แตะเพื่อย้าย`, `${itemDisplayName(e)}${e.qty > 1 ? ' ×' + e.qty : ''} — tap to move`) },
           h('img', { src: itemIconUrl(e.id), alt: '' }),
           e.qty > 1 || !isEquipType(ITEMS[e.id]) ? h('span', { class: 'q' }, String(e.qty)) : null,
           e.refine ? h('span', { class: 'rf' }, '+' + e.refine) : null);
@@ -1907,6 +1912,8 @@ const UI = {
   illust(key) {
     const el = $('#illust');
     const img = key && Art.get(key);
+    // มือถือ: ภาพประกอบใหญ่ถูกกล่องคุยบัง → แสดงหน้า NPC ในกรอบโค้ง (ui_dlg_portrait) ในกล่องคุยแทน
+    const dw = $('#w-dialog'); dw.classList.toggle('has-pic', !!img); if (img) dw.style.setProperty('--npc-pic', `url("${img.src}")`);
     if (!img) { el.classList.remove('show'); return; }
     if (el.dataset.key !== key) { el.innerHTML = ''; el.append(Object.assign(new Image(), { src: img.src, alt: '' })); el.dataset.key = key; }
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
@@ -1929,6 +1936,19 @@ const UI = {
     el.classList.toggle('upgrade', !boss);
     el.classList.toggle('boss', boss);
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  },
+
+  // ป้ายเล็กกลางบน (ไม่บังตัวละคร กดทะลุได้): 'quest' = ตราเควสต์สำเร็จ (ui_banner_quest) • 'chapter' = การ์ดบทใหม่ (ui_banner_chapter)
+  seal(kind, title, sub) {
+    if (typeof G !== 'undefined' && G.fastSim) return;
+    let el = $('#seal-pop');
+    if (!el) { el = h('div', { id: 'seal-pop', 'aria-hidden': 'true' }); ($('#hud') || document.body).append(el); }
+    el.innerHTML = '';
+    el.className = kind;
+    if (kind === 'quest') el.append(h('i', { class: 'sl-art' }), h('small', {}, 'QUEST COMPLETE'), h('b', {}, title || ''));
+    else el.append(h('div', { class: 'sl-card' }, h('small', {}, 'CHAPTER'), h('b', {}, title || ''), sub ? h('span', {}, sub) : null));
+    void el.offsetWidth; el.classList.add('show');
+    clearTimeout(this._sealT); this._sealT = setTimeout(() => el.classList.remove('show'), kind === 'quest' ? 2600 : 4200);
   },
 
   // ---------------- ร้านค้า ----------------
@@ -1954,7 +1974,7 @@ const UI = {
         const qty = h('input', { type: 'number', min: 1, max: 999, value: 1, class: 'qty' });
         if (isEquipType(it)) qty.style.visibility = 'hidden';
         list.append(h('div', { class: 'shop-row' + (usable ? '' : ' dim') },
-          this.tipFor(h('img', { src: itemIconUrl(id), alt: '' }), { id, refine: 0, cards: [] }),
+          this.tipFor(h('img', { src: itemIconUrl(id), alt: '', class: 'slotic rarc-' + rarCls(id).slice(4) }), { id, refine: 0, cards: [] }),
           h('div', { class: 'shop-n' }, h('b', { class: rarCls(id) }, it.name + (it.slots ? ` [${it.slots}]` : '')), h('small', {}, it.desc + (it.lv ? ` (Lv ${it.lv}+)` : '')), isEquipType(it) && usable ? this.compareLine({ id, refine: 0, cards: [] }, true) : null),
           h('span', { class: 'shop-p' + (it.price > p.zeny ? ' poor' : '') }, U.fmt(it.price) + ' ' + CUR),
           qty,
@@ -1967,7 +1987,7 @@ const UI = {
         const it = ITEMS[e.id];
         const price = Math.floor(it.price / 2);
         list.append(h('div', { class: 'shop-row' },
-          this.tipFor(h('img', { src: itemIconUrl(e.id), alt: '' }), e),
+          this.tipFor(h('img', { src: itemIconUrl(e.id), alt: '', class: 'slotic rarc-' + rarCls(e.id).slice(4) }), e),
           h('div', { class: 'shop-n' }, h('b', { class: rarCls(e.id) }, itemDisplayName(e)), h('small', {}, L(`มี ${e.qty} ชิ้น`, `Owned: ${e.qty}`))),
           h('span', { class: 'shop-p' }, U.fmt(price) + ' ' + CUR),
           h('button', { class: 'btn small', onclick: () => this.sell(e, 1) }, 'Sell 1'),

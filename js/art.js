@@ -34,7 +34,8 @@ const Art = {
       .then(m => {
         const list = Array.isArray(m) ? m : m.files; ver = (m && m.v) || {};
         // bake_*: ภาพอบ 3D ขนาดใหญ่ของแมพเดียว — ไม่โหลดตอนเปิดเกม รอ Art.need() ตอนเข้าแมพนั้น
-        list.filter(f => !/\.(ogg|mp3|wav)$/.test(f)).forEach(f => (f.startsWith('bake_') ? this.lazy.set(f.replace(/\.(webp|png)$/, ''), f) : probe(f)));
+        // ui_*: ภาพ UI (tools/ui_slice.py) ใช้ผ่าน css/ui_art.css เท่านั้น — ไม่ต้องโหลดเป็นภาพของ Art
+        list.filter(f => !/\.(ogg|mp3|wav)$/.test(f) && !f.startsWith('ui_')).forEach(f => (f.startsWith('bake_') ? this.lazy.set(f.replace(/\.(webp|png)$/, ''), f) : probe(f)));
         this._probe = probe;
         for (const k of this.wanted) this.need(k);
         if (typeof Sound !== 'undefined') Sound.register(list, ver); // ไฟล์เสียงจริง (sfx_*, bgm_*)
