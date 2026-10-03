@@ -92,6 +92,16 @@ const Runes = {
 
   // ---------- ตัวช่วยเลือกเป้า ----------
   foes(x, y, r, except) { return G.mobs.filter(m => !m.dead && m !== except && U.dist(m.x, m.y, x, y) <= r); },
+  // รูนสตัน (เจ้าของ 2026-10-03): ไม่ติดแน่นอน — โอกาสพื้นฐาน 1% ก่อนหักค่าต้านของอีกฝ่าย (ต่างเลเวล lvChanceMul) • บอส/ผู้เล่นไม่มึน
+  STUN_CH: 0.01,
+  tryStun(o, dur) {
+    if (!o || o.dead || o.isPlayer || o.def.boss || o.isMvp || o.isWB) return false;
+    const lv = G.player ? G.player.baseLv : 1, mul = typeof lvChanceMul === 'function' ? lvChanceMul(lv, o.def.lv) : 1;
+    if (!U.chance(this.STUN_CH * mul)) return false;
+    o.stunUntil = Math.max(o.stunUntil || 0, G.time + dur); o.path = []; o.moving = false;
+    addFloater(o.x, o.y - 1.5, 'Stun!', '#ffe080');
+    return true;
+  },
   nearest(x, y, r, skip) {
     let best = null, bd = r;
     for (const m of G.mobs) { if (m.dead || (skip && skip.includes(m))) continue; const d = U.dist(m.x, m.y, x, y); if (d <= bd) { bd = d; best = m; } }
@@ -653,15 +663,15 @@ Runes.watchCombat = function () {
   ]);
   Runes.add('runic_ward', [
     { id: 'runic_ward.barrier', name: 'Rune Barrier', intent: 'both', glyph: 'ᛉ', col: '#7ab0ff',
-      desc: () => L(`MaxHP เพิ่มแค่ 2%×Lv แต่ทุก ${K.rw_bar_cd} วิ จะมีเกราะรูนกันการโดนตี 1 ครั้งเต็ม ๆ — เกราะแตกแล้วคลื่นรูนทำให้ศัตรูรอบตัว 2 ช่องมึน ${K.rw_stun} วิ`,
-        `MaxHP only +2%×Lv, but every ${K.rw_bar_cd}s a rune barrier fully blocks one hit — when it breaks, a rune pulse stuns enemies within 2 cells for ${K.rw_stun}s.`),
+      desc: () => L(`MaxHP เพิ่มแค่ 2%×Lv แต่ทุก ${K.rw_bar_cd} วิ จะมีเกราะรูนกันการโดนตี 1 ครั้งเต็ม ๆ — เกราะแตกแล้วคลื่นรูนซัดศัตรูรอบตัว 2 ช่อง (โอกาส 1% มึน ${K.rw_stun} วิ)`,
+        `MaxHP only +2%×Lv, but every ${K.rw_bar_cd}s a rune barrier fully blocks one hit — when it breaks, a rune pulse hits enemies within 2 cells (1% chance to stun for ${K.rw_stun}s).`),
       mod: () => ({ passive: lv => ({ hpPct: 2 * lv, spPct: 4 * lv, mdef: 2 * lv }) }),
       tick() { const p = P(); p.rc = p.rc || {}; if (!p.rc.barrier && G.time >= (p.rc.barAt || 0)) { p.rc.barrier = 1; aura('120,170,255'); } },
       onHurt(m, dmg) {
         const p = P(); if (!p.rc || !p.rc.barrier) return dmg;
         p.rc.barrier = 0; p.rc.barAt = G.time + K.rw_bar_cd;
         ring(p.x, p.y, 2, '120,170,255', 3, 0.5); say(p, 'BARRIER!', '#9fc8ff');
-        for (const o of Runes.foes(p.x, p.y, 2)) if (!o.isPlayer && !o.def.boss) { o.stunUntil = Math.max(o.stunUntil || 0, G.time + K.rw_stun); o.path = []; }
+        for (const o of Runes.foes(p.x, p.y, 2)) Runes.tryStun(o, K.rw_stun);
         return 0;
       } },
     { id: 'runic_ward.feedback', name: 'Feedback', intent: 'both', glyph: 'ϟ', col: '#b0d0ff',
@@ -732,14 +742,14 @@ Runes.watchCombat = function () {
         `The trap bursts into shrapnel over 2.3 cells (normally 1.5) at ${pc(K.bt_sh)}% power — catches the whole chasing pack.`),
       trap: () => ({ r: 2.3, k: K.bt_sh, done: t => { for (let i = 0; i < 3; i++) { const a = i * 2.1; if (!fast()) addFx({ type: 'firering', x: t.x + Math.cos(a) * 1.1, y: t.y + Math.sin(a) * 1.1, dur: 0.45, r: 0.9 }); } } }) },
     { id: 'blast_trap.hurl', name: 'Hurl', intent: 'single', glyph: '➶', col: '#ff9040',
-      desc: () => L(`โยนกับดักไปใต้เท้าเป้า (ไกลสุด 6 ช่อง) ติดทันที ระเบิดวงเล็ก 1.4 ช่อง แรง ${pc(K.bt_hurl)}% และตรึงมึน 1.2 วิ`,
-        `Hurls the trap under your target (up to 6 cells); it arms at once, blasts a small 1.4-cell area for ${pc(K.bt_hurl)}% and pins (stuns) for 1.2s.`),
+      desc: () => L(`โยนกับดักไปใต้เท้าเป้า (ไกลสุด 6 ช่อง) ติดทันที ระเบิดวงเล็ก 1.4 ช่อง แรง ${pc(K.bt_hurl)}% (โอกาส 1% มึน 1.2 วิ)`,
+        `Hurls the trap under your target (up to 6 cells); it arms at once, blasts a small 1.4-cell area for ${pc(K.bt_hurl)}% (1% chance to stun for 1.2s).`),
       cast() {
         const p = P(), t = G.traps[G.traps.length - 1], m = curTgt(6);
         if (t && m && U.dist(p.x, p.y, m.x, m.y) <= 6.3) { Runes.fly(p.x, p.y, { x: m.x, y: m.y }, 0.25, '255,150,60', () => {}, { size: 8, arc: 30 }); t.x = m.x; t.y = m.y; t.armed = G.time + 0.3; }
         return false;
       },
-      trap: () => ({ r: 1.4, k: K.bt_hurl, after: m => { if (!m.dead && !m.def.boss && !m.isPlayer) { m.stunUntil = G.time + 1.2; m.path = []; } } }) },
+      trap: () => ({ r: 1.4, k: K.bt_hurl, after: m => { Runes.tryStun(m, 1.2); } }) },
   ]);
   Runes.add('charge_arrow', [
     { id: 'charge_arrow.harpoon', name: 'Harpoon', intent: 'single', glyph: '⥂', col: '#d0b080',
@@ -796,12 +806,12 @@ Runes.watchCombat = function () {
   ]);
   Runes.add('light_of_freyja', [
     { id: 'light_of_freyja.dazzle', name: 'Dazzle', intent: 'both', glyph: '✹', col: '#a0ffa0',
-      desc: () => L(`ฮีลเหลือ 60% แต่แสงวาบออกรอบตัว 2.5 ช่อง ศัตรูตาพร่ามึน ${K.lf_daze} วิ และถูกผลักถอย (ไม่ใช่บอส) — ฮีลกลางวงล้อมได้ปลอดภัย`,
-        `Heals only 60%, but the light flashes out (2.5 cells): enemies are dazzled (stunned) for ${K.lf_daze}s and pushed back (not bosses) — a safe heal in the middle of a mob.`),
-      mod: base => ({ heal: (lv, d, p) => Math.floor(base.heal(lv, d, p) * 0.6) }),
+      desc: () => L(`ฮีลเหลือ 80% แต่แสงวาบออกรอบตัว 2.5 ช่อง ผลักศัตรูถอย (ไม่ใช่บอส) โอกาส 1% ตาพร่ามึน ${K.lf_daze} วิ — ฮีลกลางวงล้อมได้ปลอดภัย`,
+        `Heals only 80%, but the light flashes out (2.5 cells): enemies are pushed back (not bosses) with a 1% chance to be dazzled (stunned) for ${K.lf_daze}s — a safe heal in the middle of a mob.`),
+      mod: base => ({ heal: (lv, d, p) => Math.floor(base.heal(lv, d, p) * 0.8) }),
       cast() {
         const p = P(); ring(p.x, p.y, 2.5, '255,240,150', 3, 0.6);
-        for (const o of Runes.foes(p.x, p.y, 2.5)) { if (o.isPlayer || o.def.boss) continue; o.stunUntil = Math.max(o.stunUntil || 0, G.time + K.lf_daze); o.path = []; knockback(o, p.x, p.y, 1); say(o, 'Dazzled', '#fff0a0'); }
+        for (const o of Runes.foes(p.x, p.y, 2.5)) { if (o.isPlayer || o.def.boss) continue; knockback(o, p.x, p.y, 1); if (Runes.tryStun(o, K.lf_daze)) say(o, 'Dazzled', '#fff0a0'); }
         return false;
       } },
     { id: 'light_of_freyja.favor', name: "Freyja's Favor", intent: 'single', glyph: '❦', col: '#ffe0a0',
