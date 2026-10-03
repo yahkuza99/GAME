@@ -370,7 +370,7 @@ def materials():
         'cream': plain('cream', S(236, 222, 188), 0.6), 'leather': plain('leather', S(110, 64, 34), 0.6),
         'green_l': plain('green_l', S(80, 170, 60), 0.6), 'apple': plain('apple', S(210, 40, 30), 0.3, coat=0.5),
         'bread': plain('bread', S(206, 146, 70), 0.7), 'coal': plain('coal', (0.02, 0.018, 0.016), 0.8),
-        'plaque': plain('plaque', (0.02, 0.028, 0.05), 0.35, 0.3),     # แผ่นป้ายเข้ม (เกมเขียนชื่อทับ)
+        'plaque': plain('plaque', (0.02, 0.028, 0.05), 0.35, 0.3),     # แผ่นป้ายเข้ม (เกมวาดป้ายไม้ Sprites.shopSign ทับ — js/bake.js)
         'copper': bronze('copper', S(200, 112, 64), 0.04),
         'verd': plain('verd', S(96, 170, 150), 0.5, 0.2),
         'hay': plain('hay', S(222, 180, 96), 0.9),
