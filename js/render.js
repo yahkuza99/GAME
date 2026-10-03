@@ -280,7 +280,8 @@ R.render = () => {
     list.push({ y: ly, f: () => Sprites.drawGateLabel(g, gt, ly) });
   }
   if (map.fountainImg) list.push({ y: map.fountain.y + 1.2, f: () => Sprites.drawFountainImg(g, map.fountain, t) });
-  // คบเพลิงลานประลอง: อยู่ในรายการเรียงความลึก (ตัวละครเดินหน้า/หลังคบเพลิงได้ถูกต้อง)
+  // คบเพลิงลานประลอง: อยู่ในรายการเรียงความลึก (ตัวละครเดินหน้า/หลังคบเพลิงได้ถูกต้อง • โคลอสเซียม v2: เสา+ชามเป็นชั้นหน้า js/bake.js เรียงก่อนเปลวไฟ)
+  //   (วาร์ปใต้ซุ้มประตูใต้ยังวาดก่อนตัวละครแบบเดิม — ซุ้มชั้นหน้าทับขอบบนม่านวาร์ป = ม่านอยู่ในอุโมงค์ • ถ้าเรียงวาร์ปทับตัวละคร แสง lighter จะกลบผู้เล่นที่ยืนหน้าประตู)
   if (map.torches && map.arenaImg) for (const tc of map.torches) list.push({ y: tc.y, f: () => Sprites.drawTorch(g, tc, t) });
   for (const n of G.npcs) list.push({ y: n.y + 0.5, f: () => Sprites.drawNpc(g, n, t) });
   for (const m of G.mobs) if (!m.isPlayer && m.x > VL && m.x < Rr && m.y > Tp && m.y < B) list.push({ y: m.y, f: () => Sprites.drawMob(g, m, t) });

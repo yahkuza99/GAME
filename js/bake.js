@@ -23,6 +23,9 @@
 //    free = รัศมี (ช่อง) รอบจุดยึดที่เอาของประดับ (ผลึก/หิน) ออก
 //    ชนตาม block • จางเหลือ ~35% เมื่อผู้เล่น/เป้าหมายอยู่หลัง • ประกายโหลกะพริบ (lighter) • แสงตัดความมืดถ้ำ (map.extraLights)
 //  ทุกอย่างกำหนดตายตัวจากข้อมูล (ไม่สุ่ม) → ทุกเครื่องเห็น/ชนเหมือนกัน
+//  • arena (js/bake_data_arena.js, tools/arena3d.py --install: โคลอสเซียม v2): ภาพพื้นทั้งแมพ (Bake.arena — maps.js renderGround) + ชั้นหน้าฝั่งใต้
+//    (pieces arena: ใช้เฉพาะตอนภาพพื้น v2 แสดงอยู่ • fadeAll = จางเมื่อผู้เล่นคนใดก็ได้อยู่หลัง • dup = ภาพซ้ำกับภาพพื้น วาดเฉพาะกรอบรอบตัวที่อยู่หลัง)
+//    + ชีตผู้ชม 4 เฟรม (Bake.crowd → feel.js F.drawCrowd)
 //  ใช้: maps.js (constructor → Bake.layout, renderGround → Bake.ground / Bake.props / Bake.gates), sprites.js drawProp → Bake.draw
 //  ซุ้มประตูวาร์ปทุกประตู (GATE_BAKE ใน maps.js, tools/gate3d.py): Bake.gates → map.portalGates → render.js เรียงความลึก + Sprites.drawGate*
 // ============================================================
@@ -98,6 +101,26 @@ const Bake = {
     return pts.every(([x, y]) => seen[map.idx(x, y)]);
   },
 
+  // โคลอสเซียม v2: ภาพพื้นทั้งแมพ (ผังตรง + โหลดแล้ว) → ภาพ • กำลังโหลด → null + จด map.arenaWait (art.js onLoad → usesBake → วาดพื้นใหม่)
+  //   โหลดไม่ได้ (Art.missed) / ผังไม่ตรง (Bake.data เตือนครั้งเดียว) / ไม่มีข้อมูล → null = maps.js ใช้ภาพรุ่นแรก arena_ground
+  arena(map) {
+    map.arenaWait = undefined;
+    const d = this.data(map), k = d && d.arena && d.arena.img;
+    if (!k || typeof Art === 'undefined' || Art.missed.has(k)) return null;
+    Art.need(k); const img = Art.get(k);
+    if (!img) { map.arenaWait = k; return null; }
+    for (const pc of d.pieces || []) Art.need(pc.img);   // ชั้นหน้า (วาดทุกเฟรม — มาช้าก็แค่ยังไม่บัง)
+    if (d.crowd) Art.need(d.crowd.img);                  // ชีตผู้ชม
+    return img;
+  },
+  // ชีตผู้ชม (feel.js F.drawCrowd) — เฉพาะตอนภาพพื้น v2 แสดงอยู่ (ผู้ชมในชีตตรงกับผู้ชมท่านั่งในภาพนั้นพอดี)
+  crowd(map) {
+    const d = map.arenaV2 && this.data(map), c = d && d.crowd;
+    if (!c) return null;
+    const img = Art.get(c.img);
+    return img ? { c, img } : null;
+  },
+
   // น้ำพุคริสตัล 3D (Neo Eldheim): ผังตรง + ภาพครบทุกไฟล์ → true • ยังไม่ครบ = เริ่มโหลด (Art.need) แล้วใช้สระโค้ด + ภาพวาดเดิมไปก่อน
   //   (Bake.ground จดภาพที่รอไว้ใน map.bakeWait → art.js onLoad วาดพื้นใหม่ → สลับเป็น 3D ทั้งชุดพร้อมกัน ไม่มีช่วงสระว่าง)
   //   ปิดทั้งชุด (FOUNTAIN_3D = false ใน js/townmap.js) หรือผังรอบสระเปลี่ยน (Bake.rectOk) = ภาพวาดเดิม • ชุดอื่นในเมือง (Bifrost) ไม่เกี่ยว
@@ -157,7 +180,7 @@ const Bake = {
   // แบบ B: เพิ่มเป็น prop ชนิด 'bake' (เรียงความลึกใน render.js ด้วย y = จุดยึด) + เอาของประดับที่ทับแท่น/ชิ้นออก + แสง
   props(map) {
     const d = this.data(map); if (!d) return;
-    const live = d.pieces.filter(pc => (!map.bakeSkip || !map.bakeSkip.has(pc.id)) && (!pc.fountain || map.fountain3d)), c = d.clear, fr = live.length && d.free; // น้ำพุ 3D: ภาพครบเท่านั้น
+    const live = d.pieces.filter(pc => (!map.bakeSkip || !map.bakeSkip.has(pc.id)) && (!pc.fountain || map.fountain3d) && (!pc.arena || map.arenaV2)), c = d.clear, fr = live.length && d.free; // น้ำพุ 3D: ภาพครบเท่านั้น • ชั้นหน้าโคลอสเซียม: เฉพาะภาพพื้น v2
     const near = (x, y) => (c && Math.hypot(x - c.x, y - c.y) < 4) || (fr && Math.hypot(x - fr.x, y - fr.y) < fr.r)
       || live.some(pc => (pc.free && Math.hypot(x - pc.x, y - pc.y) < pc.free) || pc.block.some(([bx, by]) => Math.abs(bx + 0.5 - x) < 1.1 && Math.abs(by + 0.5 - y) < 1.1));
     map.props = map.props.filter(o => !near(o.x, o.y));
@@ -315,7 +338,9 @@ const Bake = {
     // ผู้เล่น/เป้าหมายอยู่หลังชิ้นนี้ (y น้อยกว่า) และตัวทับภาพ → จางลง (แบบยอดไม้ใน flora.js)
     let target = 1;
     const p = typeof G !== 'undefined' && G.player, fb = pc.fb || [56, 16];
-    if (p) for (const q of [p, p.target]) {
+    const qs = [p, p && p.target];
+    if (pc.fadeAll && typeof Online !== 'undefined') for (const q of Online.others.values()) qs.push(q); // ชั้นหน้าโคลอสเซียม: ไม่บังผู้เล่นคนไหนเลย
+    if (p) for (const q of qs) {
       if (!q || q.dead || q.x == null || q.y >= pc.y) continue;
       const qx = q.x * TILE, fy = q.y * TILE * R.K - pc.y * TILE * (R.K - 1); // เท้าของ q ในกรอบ upright ของชิ้นนี้
       if (pc.mask ? this.behind(pc.mask, (qx - L) / s, (fy - fb[0] - Tp) / s, (fy - fb[1] - Tp) / s, 12 / s)
@@ -326,15 +351,35 @@ const Bake = {
     }
     const dt = Math.min(0.1, Math.max(0, t - o.lt)); o.lt = t;
     o.fa += (target - o.fa) * Math.min(1, dt * 8);
+    let box = null;
+    if (pc.dup) { box = this.dupBox(pc, L, Tp, s, fw, fh); if (!box) return; } // ชั้นหน้าที่ซ้ำกับภาพพื้น: ไม่มีใครอยู่หลัง = ไม่ต้องวาด
     g.save();
     if (o.fa < 0.995) g.globalAlpha *= o.fa;
     if (pc.sway) { g.translate(x, y); g.transform(1, 0, Math.sin(t * 0.7 + o.r * 10) * pc.sway, 1, 0, 0); g.translate(-x, -y); } // ไหวลมช้า ๆ (โคนนิ่ง ยอดเอนไม่กี่ px)
     if (pc.frames) { // น้ำไหลวนเป็นลูป: เฟรมตามเวลา (ทุกเครื่องเห็นจังหวะเดียวกันโดยไม่ต้องซิงก์ — ของประดับล้วน)
       const fi = Math.floor(t * pc.fps) % pc.frames;
       g.drawImage(img, (fi % pc.cols) * fw, Math.floor(fi / pc.cols) * fh, fw, fh, L, Tp, W, H);
-    } else g.drawImage(img, L, Tp, W, H);
+    } else if (box) g.drawImage(img, box[0], box[1], box[2] - box[0], box[3] - box[1], L + box[0] * s, Tp + box[1] * s, (box[2] - box[0]) * s, (box[3] - box[1]) * s);
+    else g.drawImage(img, L, Tp, W, H);
     if (pc.jars.length && R.quality !== 'low') this.sparks(g, o, t, L, Tp, s);
     g.restore();
+  },
+  // ชั้นหน้าโคลอสเซียม (pc.dup — ภาพตัดจากภาพพื้นพอดี): กรอบภาพ (px ของภาพ) ที่ต้องวาดทับ = รวมกรอบตัวละครทุกตัวที่อยู่หลังชิ้นนี้และทับส่วนทึบ
+  //   ไม่มีใคร → null (ไม่วาดเลย — ภาพพื้นมีอยู่แล้ว) • ประหยัดกว่าวาดภาพกว้างทั้งแผ่นทุกเฟรม (มือถือ/แคนวาสซอฟต์แวร์)
+  dupBox(pc, L, Tp, s, fw, fh) {
+    const K = R.K, qs = [G.player].concat(G.mobs || [], G.allies || []);
+    if (typeof Online !== 'undefined') for (const q of Online.others.values()) qs.push(q);
+    let b = null;
+    for (const q of qs) {
+      if (!q || q.dead || q.x == null || q.y >= pc.y) continue;
+      const qx = q.x * TILE, fy = q.y * TILE * K - pc.y * TILE * (K - 1), sc = (q.def && q.def.scale) || 1;
+      const x0 = (qx - 34 * sc - L) / s, x1 = (qx + 34 * sc - L) / s, y0 = (fy - 110 * sc - Tp) / s, y1 = (fy + 6 - Tp) / s;
+      if (x1 < 0 || x0 > fw || y1 < 0 || y0 > fh || (pc.mask && !this.behind(pc.mask, (qx - L) / s, y0, y1, 34 * sc / s))) continue;
+      b = b ? [Math.min(b[0], x0), Math.min(b[1], y0), Math.max(b[2], x1), Math.max(b[3], y1)] : [x0, y0, x1, y1];
+    }
+    if (!b) return null;
+    b = [Math.max(0, Math.floor(b[0])), Math.max(0, Math.floor(b[1])), Math.min(fw, Math.ceil(b[2])), Math.min(fh, Math.ceil(b[3]))];
+    return b[2] > b[0] && b[3] > b[1] ? b : null;
   },
   // ประกายโหลกะพริบ (บวกแสง) ที่ตำแหน่ง jars ของชิ้น — L, Tp = มุมซ้ายบนของภาพ (หรือจุดยึดของชิ้นไม่มีภาพ), s = สเกลพิกัด jars
   sparks(g, o, t, L, Tp, s) {
