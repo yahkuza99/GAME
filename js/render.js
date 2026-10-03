@@ -310,9 +310,10 @@ R.render = () => {
   const qt = G.started && Quest.current() ? Quest.current().obj : null, qNpc = qt && (qt.type === 'talk' || qt.type === 'event' || qt.type === 'job') ? qt.npc : null;
   // NPC ที่อยู่ใกล้พอจะคุย (ระยะเดียวกับปุ่ม Space/ปุ่มโจมตีบนจอ): ป้ายบอกปุ่มใต้ชื่อ
   const talkN = G.started && !p.dead && !NPC.busy ? G.npcs.filter(n => U.dist(p.x, p.y, n.x + 0.5, n.y + 0.5) < 2.6).sort((a, b) => U.dist(p.x, p.y, a.x + 0.5, a.y + 0.5) - U.dist(p.x, p.y, b.x + 0.5, b.y + 0.5))[0] : null;
+  R._slots = []; // ป้ายชื่อหลบกัน (จองใหม่ทุกเฟรม)
   for (const n of G.npcs) {
-    R.tag(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 14, n.name, '#d6f6ff', '#6ff3ff');
-    if (n === talkN) R.tag(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 34, Pad.enabled() ? L('แตะปุ่มโจมตีเพื่อคุย', 'Tap Attack to talk') : L('Space · คุย', 'Space · Talk'), '#fff3c4', '#ffd56a');
+    { const nx = n.x * TILE + TILE / 2, ny = R.tagSlot(nx, P((n.y + 0.5) * TILE + 10) + 14, R.nameW(g, n.name, 'npc', {})); R.name(g, nx, ny, n.name, 'npc'); }
+    if (n === talkN) R.name(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 32, Pad.enabled() ? L('แตะปุ่มโจมตีเพื่อคุย', 'Tap Attack to talk') : L('Space · คุย', 'Space · Talk'), 'hint');
     if (n.id === qNpc) R.questMark(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) - 92, t); // เครื่องหมายเควสต์เหนือหัว NPC
     else if (n.emote && n.emote.until > G.time) Emote.draw(g, n.x * TILE + TILE / 2 + 4, P((n.y + 0.5) * TILE + 10) - 96, n.emote, t);
   }
@@ -321,12 +322,12 @@ R.render = () => {
     const x = m.x * TILE, y = P(m.y * TILE), s = (m.def.scale || 1);
     if (m.isPlayer) { R.bar(g, x, y + 10, 40, m.hp / Math.max(1, m.maxHp), '#ff4f6a'); continue; } // คู่ต่อสู้ PvP: แถบเลือดแดง (ชื่อวาดโดยระบบผู้เล่นอื่น)
     if (m.hp < m.maxHp || m.isMvp) R.bar(g, x, y + 10, m.isMvp ? 64 : 38, m.hp / m.maxHp, m.isMvp ? '#ff4f6a' : '#ff6b7d');
-    if (m.isMvp) R.tag(g, x, y + 26, `MVP · ${m.def.name}`, '#ffd98a', '#ff6b7d');
+    if (m.isMvp) R.name(g, x, y + 26, `MVP · ${m.def.name}`, 'mvp');
     else if ((G.hover && G.hover.ref === m) || (p.target === m && !(Pad.enabled() && innerHeight > innerWidth))) { // มือถือแนวตั้ง: ชื่อเป้าหมายอยู่ในแถบบนแล้ว ไม่ต้องซ้ำในฉาก
       // ยืนชิดผู้เล่น: ป้ายชื่อมอนจะทับชื่อผู้เล่น → เลื่อนลงไปใต้ป้ายผู้เล่น
       let ty = y + 26; const py = P(p.y * TILE) + 28;
       if (Math.abs(x - p.x * TILE) < 110 && Math.abs(ty - py) < 22) ty = Math.max(ty, py) + 22;
-      R.tag(g, x, ty, `${m.def.name} · Lv ${m.def.lv}`, '#ffffff', m.def.aggro ? '#ff6b7d' : '#8fe3a8');
+      R.name(g, x, ty, m.def.name, 'mob', { dot: m.def.aggro ? '#ff6b7d' : '#8fe3a8', lv: `Lv ${m.def.lv}`, lvCol: R.lvColor(m.def.lv, p.baseLv || 1) });
     }
     if (m.emoteUntil > G.time) R.emote(g, x + 12, y - 44 * s, '!');
   }
@@ -334,8 +335,9 @@ R.render = () => {
     if (o.stealth) continue;
     const x = o.x * TILE, y = P(o.y * TILE), pm = Party.member(o.id); // สมาชิกปาร์ตี้: ป้ายสีเขียวฟ้า + หลอด HP/SP
     if (pm) R.bar(g, x, y + 10, 40, pm.hp / pm.maxHp, pm.hp / pm.maxHp < 0.25 ? '#ff4f6a' : '#5fe08a', pm.sp / pm.maxSp);
-    R.tag(g, x, y + (pm ? 28 : 26), o.name, pm ? '#8dffdd' : '#fff3c8', pm ? '#3dffc8' : '#ffd34a');
-    R.label(g, x, y + (pm ? 43 : 41), `${JOBS[o.job].name} Lv ${o.baseLv}${o.bot ? ' · AUTO' : ''}`, pm ? '#a8f0dc' : '#c8d4e8');
+    const oy = R.tagSlot(x, y + (pm ? 28 : 26), R.nameW(g, o.name, pm ? 'party' : 'player', { crest: '#888' }));
+    R.name(g, x, oy, o.name, pm ? 'party' : 'player', { crest: (JOBS[o.job] || JOBS.novice).glow });
+    R.label(g, x, oy + 15, `${JOBS[o.job].name} Lv ${o.baseLv}${o.bot ? ' · AUTO' : ''}`, pm ? '#a8f0dc' : '#c8d4e8');
     if (o.speech) R.speech(g, x, y - 92, o.speech.text, false);
     if (o.emote && o.emote.until > G.time) Emote.draw(g, x + 2, y - (o.speech ? 122 : 84), o.emote, t);
   }
@@ -348,8 +350,8 @@ R.render = () => {
   // ผู้เล่น
   {
     const x = p.x * TILE, y = P(p.y * TILE);
-    R.tag(g, x, y + 28, p.name, '#ffffff');
-    if (Bot.on) R.tag(g, x, y - 60, Bot.resting ? L('AUTO · พัก', 'AUTO · Resting') : 'AUTO', '#d8ffe8', '#7dffb4');
+    R.name(g, x, y + 28, p.name, 'self', { crest: (JOBS[p.job] || JOBS.novice).glow });
+    if (Bot.on) R.name(g, x, y - 60, Bot.resting ? L('AUTO · พัก', 'AUTO · Resting') : 'AUTO', 'hint', { fill: '#c8ffe0', dot: '#7dffb4' });
     if (Nav.target) Nav.draw(g, t);
     R.bar(g, x, y + 10, 40, p.hp / p.d.maxHp, p.hp / p.d.maxHp < 0.25 ? '#ff4f6a' : '#5fe08a', p.sp / p.d.maxSp);
     if (p.cast) {
@@ -745,6 +747,73 @@ R.tagRaw = (g, x, y, text, color, dot) => {
   g.fillStyle = color; g.fillText(text, x + dw / 2, y + 0.5);
   g.restore();
 };
+// ป้ายชื่อแบบตัวอักษรขอบเข้ม (สไตล์ Ragnarok: ไม่มีกล่อง) — ภาษาภาพแยกตามประเภท
+//   kind: 'self' ตัวเรา (ขาว เรืองทอง + โล่สี Class) • 'player' ผู้เล่นอื่น (ครีม) • 'party' ปาร์ตี้ (มิ้นต์) • 'npc' (ทองอุ่น + เพชรรูน + เส้นทองใต้ชื่อ)
+//   'mob' (ขาว + จุดก้าวร้าว/สงบ) • 'mvp' (ทองแดง เรือง + มงกุฎ) • 'hint' (คำแนะนำปุ่มตัวเล็ก) • crest = สี Class ของโล่หน้าชื่อ • lv/lvCol = ป้าย Lv ท้ายชื่อ
+R.NAME_STYLE = {
+  self: { fill: '#fffaf0', size: 13, glow: 'rgba(255,214,120,0.55)' }, player: { fill: '#fff1cc', size: 12 }, party: { fill: '#9dffe0', size: 12, glow: 'rgba(61,255,200,0.35)' },
+  npc: { fill: '#ffe6a6', size: 12 }, mob: { fill: '#ffffff', size: 12 }, mvp: { fill: '#ffd98a', size: 13, glow: 'rgba(255,90,70,0.7)' }, hint: { fill: '#fff3c4', size: 11 },
+};
+R.name = (g, x, y, text, kind, o = {}) => {
+  const st = R.NAME_STYLE[kind] || R.NAME_STYLE.player, fill = o.fill || st.fill;
+  g.font = `700 ${st.size}px ${R.FONT}`;
+  const key = `N|${kind}|${text}|${fill}|${o.crest || ''}|${o.dot || ''}|${o.lv || ''}|${o.lvCol || ''}`;
+  const box = () => { const w = R.nameW(g, text, kind, o); return { x: -w / 2 - 4, y: -12, w: w + 8, h: 26 }; };
+  if (R.cached(g, key, x, y, box, c => R.nameRaw(c, 0, 0, text, kind, o))) return;
+  R.nameRaw(g, x, y, text, kind, o);
+};
+R.nameW = (g, text, kind, o) => {
+  const st = R.NAME_STYLE[kind] || R.NAME_STYLE.player; g.font = `700 ${st.size}px ${R.FONT}`;
+  let w = g.measureText(text).width;
+  if (o.lv) { g.font = `700 ${st.size - 2}px ${R.FONT}`; w += g.measureText(o.lv).width + 5; g.font = `700 ${st.size}px ${R.FONT}`; }
+  if (o.crest || o.dot || kind === 'npc' || kind === 'mvp') w += 13;
+  return w;
+};
+R.nameRaw = (g, x, y, text, kind, o = {}) => {
+  const st = R.NAME_STYLE[kind] || R.NAME_STYLE.player, fill = o.fill || st.fill;
+  const W = R.nameW(g, text, kind, o), icon = o.crest || o.dot || kind === 'npc' || kind === 'mvp' ? 13 : 0;
+  g.font = `700 ${st.size}px ${R.FONT}`;
+  const tw = g.measureText(text).width, x0 = x - W / 2, tx = x0 + icon + tw / 2;
+  g.save(); g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
+  const ink = 'rgba(24,14,6,0.95)';
+  // ไอคอนหน้าชื่อ
+  const ix = x0 + 5, iy = y;
+  if (o.crest) { // โล่สี Class
+    g.beginPath(); g.moveTo(ix, iy - 6); g.lineTo(ix + 5, iy - 3.5); g.lineTo(ix + 5, iy + 1.5); g.lineTo(ix, iy + 6); g.lineTo(ix - 5, iy + 1.5); g.lineTo(ix - 5, iy - 3.5); g.closePath();
+    g.fillStyle = o.crest; g.fill(); g.lineWidth = 1.6; g.strokeStyle = ink; g.stroke(); g.fillStyle = 'rgba(255,255,255,0.65)'; g.fillRect(ix - 1, iy - 3.5, 2, 6.5);
+  } else if (kind === 'npc') { // เพชรรูน
+    g.save(); g.translate(ix, iy); g.rotate(Math.PI / 4); g.fillStyle = '#6fe6ff'; g.fillRect(-3, -3, 6, 6); g.lineWidth = 1.5; g.strokeStyle = ink; g.strokeRect(-3, -3, 6, 6); g.restore();
+  } else if (kind === 'mvp') { // มงกุฎ
+    g.beginPath(); g.moveTo(ix - 6, iy + 4); g.lineTo(ix - 6, iy - 3); g.lineTo(ix - 3, iy); g.lineTo(ix, iy - 5); g.lineTo(ix + 3, iy); g.lineTo(ix + 6, iy - 3); g.lineTo(ix + 6, iy + 4); g.closePath();
+    g.fillStyle = '#ffcf4a'; g.fill(); g.lineWidth = 1.5; g.strokeStyle = ink; g.stroke();
+  } else if (o.dot) { g.beginPath(); g.arc(ix, iy, 3.2, 0, 7); g.fillStyle = o.dot; g.fill(); g.lineWidth = 1.5; g.strokeStyle = ink; g.stroke(); }
+  // ชื่อ: ขอบเข้ม + เงา/เรือง
+  g.shadowColor = st.glow || 'rgba(0,0,0,0.55)'; g.shadowBlur = st.glow ? 8 : 3; g.shadowOffsetY = st.glow ? 0 : 1;
+  g.lineWidth = 3.5; g.strokeStyle = ink; g.strokeText(text, tx, y);
+  g.shadowBlur = 0; g.shadowOffsetY = 0; g.fillStyle = fill; g.fillText(text, tx, y);
+  if (o.lv) { // ป้าย Lv ตัวเล็กท้ายชื่อ (สีตามความยาก)
+    g.font = `700 ${st.size - 2}px ${R.FONT}`; const lw = g.measureText(o.lv).width, lx = x0 + icon + tw + 5 + lw / 2;
+    g.lineWidth = 3; g.strokeStyle = ink; g.strokeText(o.lv, lx, y + 1); g.fillStyle = o.lvCol || '#e8eef5'; g.fillText(o.lv, lx, y + 1);
+  }
+  if (kind === 'npc') { // เส้นทองจางใต้ชื่อ
+    const lw = tw * 0.5, gr = g.createLinearGradient(tx - lw, 0, tx + lw, 0);
+    gr.addColorStop(0, 'rgba(255,214,120,0)'); gr.addColorStop(0.5, 'rgba(255,214,120,0.85)'); gr.addColorStop(1, 'rgba(255,214,120,0)');
+    g.fillStyle = gr; g.fillRect(tx - lw, y + 9, lw * 2, 1.2);
+  }
+  g.restore();
+};
+// สี Lv มอนตามความยากเทียบเลเวลเรา (เทา ง่ายมาก / เขียว ง่าย / ขาว พอดี / ส้ม ยาก / แดง อันตราย)
+R.lvColor = (lv, me) => { const d = lv - me; return d <= -6 ? '#b4bcc6' : d <= -2 ? '#9be38f' : d <= 2 ? '#f2f5f8' : d <= 5 ? '#ffb34a' : '#ff6b6b'; };
+// ป้ายหลบกัน: จองพื้นที่ต่อเฟรม ถ้าทับป้ายที่วางแล้วเลื่อนลงทีละขั้น (สูงสุด 2 ขั้น)
+R.tagSlot = (x, y, w) => {
+  const L = R._slots || (R._slots = []);
+  for (let k = 0; k < 3; k++) {
+    const yy = y + k * 15, hit = L.some(r => Math.abs(r.x - x) < (r.w + w) / 2 + 4 && Math.abs(r.y - yy) < 14);
+    if (!hit || k === 2) { L.push({ x, y: yy, w }); return yy; }
+  }
+  return y;
+};
+
 // หลอด HP (และ SP) เหนือ/ใต้ตัว: แคปซูลมน พื้นเข้มโปร่ง ไล่สีอ่อน ๆ
 R.barGrads = {};
 R.bar = (g, x, y, w, k, color, k2) => {
