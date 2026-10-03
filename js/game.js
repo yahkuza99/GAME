@@ -892,7 +892,7 @@ function mobAttack(m) {
   if (!U.chance(hitRate / 100)) { addFloater(p.x, p.y - 1.2, 'Miss', '#a0c0ff'); if (RU) RU.onAttacked(m, false); return; }
   let dmg = U.randi(md.atk[0], md.atk[1]);
   dmg = Math.max(1, Math.round(dmg * (1 - d.def / 100) - d.softDef * U.rand(0.7, 1)));
-  if (md.boss) dmg = Math.min(dmg, Math.round(d.maxHp * BOSS_HIT_CAP)); // บอส (รวม Ancient ATK ×3): ตีปกติครั้งเดียวไม่เกิน 60% MaxHP — ไม่มีฆ่าในทีเดียวจากเลือดเต็ม
+  if (md.boss) dmg = Math.min(dmg, Math.round(d.maxHp * BOSS_HIT_CAP)); // บอส (รวม Ancient ATK ×1.5–2): ตีปกติครั้งเดียวไม่เกิน 60% MaxHP — ไม่มีฆ่าในทีเดียวจากเลือดเต็ม
   if (RU) dmg = RU.onHurt(m, dmg);
   damagePlayer(dmg, undefined, { lv: md.lv });
   if (RU) RU.onAttacked(m, true);

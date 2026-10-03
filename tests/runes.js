@@ -11,7 +11,9 @@
 //  • สุ่มแบบมีเมล็ด (16 เมล็ด × 100 วิ เหมือนกันทุกตัวเลือก) • โอกาสต่าง ๆ ใช้ตัวสะสมแทนการทอยลูกเต๋า (ได้ค่าคาดหมาย ไม่ใช่ดวง)
 //    • มอนเกิดรอบจุดกลางลาน และตัวเราไม่ไหลออกจากลาน (ผลไม่แกว่งตามเส้นทางที่เดิน)
 //  ตัวเลขรูนทั้งหมดอยู่ใน Runes.K (js/runes.js) — ปรับแล้วรันไฟล์นี้ซ้ำ
-//  เกณฑ์: ทุกรูนต้องห่างจาก "ไม่มีรูน" ไม่เกิน ±5% ในฉากที่ตั้งใจ (intent) และไม่เกิน +15% ในทุกฉาก
+//  เกณฑ์ (Claude ตัดสินแทนเจ้าของ 2026-10-03: ขยาย ±5% → ±12% ให้รูนสายฝูง/สายเป้าเดี่ยวต่างกันชัดในฉากของมัน):
+//  • ทุกรูนห่างจาก "ไม่มีรูน" ไม่เกิน ±12% ในฉากที่ตั้งใจ (intent) และไม่เกิน +15% ในทุกฉาก
+//  • ความแรงรวมเท่าเดิม: ค่าเฉลี่ย (เดี่ยว+ฝูง)/2 ของแต่ละรูนไม่เกิน +7% (ไม่มีรูนที่ดีกว่าทุกฉาก) และเฉลี่ยทั้ง Class (12 รูน) อยู่ใน ±5%
 // ============================================================
 const http = require('http'), fs = require('fs'), path = require('path');
 const { chromium } = require('playwright');
@@ -32,7 +34,7 @@ function serve() {
 const SECS = +process.argv[2] || 100;
 const ONLY = (process.argv[3] || '').split(',').filter(Boolean);
 const SEEDS = [11, 23, 37, 41, 53, 67, 71, 83, 97, 101, 113, 127, 131, 149, 157, 163];
-const BAND = 5, CAP = 15;
+const BAND = 12, CAP = 15, MEAN = 7, CLASS_MEAN = 5;
 
 (async () => {
   const srv = await serve();
@@ -185,11 +187,17 @@ const BAND = 5, CAP = 15;
       const s1 = await sim(job, { [sk.id]: r.id }, 1), s5 = await sim(job, { [sk.id]: r.id }, 5);
       const d1 = (s1.dps / b1.dps - 1) * 100, d5 = (s5.dps / b5.dps - 1) * 100;
       const inten = r.intent === 'single' ? [d1] : r.intent === 'pack' ? [d5] : [d1, d5];
-      const pass = inten.every(d => Math.abs(d) <= BAND) && d1 <= CAP && d5 <= CAP;
+      const pass = inten.every(d => Math.abs(d) <= BAND) && d1 <= CAP && d5 <= CAP && (d1 + d5) / 2 <= MEAN;
       rows.push({ job, skill: sk.id, rune: r.id, name: r.name, intent: r.intent, s1: s1.dps, s5: s5.dps, d1, d5, pass });
       console.log(`   ${pass ? '✔' : '✘'} ${sk.id.padEnd(16)} ${r.name.padEnd(16)} ${r.intent.padEnd(6)} single ${s1.dps.toFixed(1).padStart(7)} (${(d1 >= 0 ? '+' : '') + d1.toFixed(1)}%)  pack ${s5.dps.toFixed(1).padStart(7)} (${(d5 >= 0 ? '+' : '') + d5.toFixed(1)}%)`);
       ok(`balance ${job}/${r.id}`, pass, `${r.intent} single ${d1.toFixed(1)}% pack ${d5.toFixed(1)}%`);
     }
+  }
+  // ความแรงรวมต่อ Class: เฉลี่ย (เดี่ยว+ฝูง)/2 ของทุกรูนใน Class ห่างจากไม่มีรูนไม่เกิน ±CLASS_MEAN%
+  for (const job of [...new Set(rows.map(r => r.job))]) {
+    const rs = rows.filter(r => r.job === job), m = rs.reduce((a, r) => a + (r.d1 + r.d5) / 2, 0) / rs.length;
+    console.log(`   ${job} overall (single+pack)/2 avg ${(m >= 0 ? '+' : '') + m.toFixed(1)}%`);
+    ok(`balance ${job}: overall power of its runes ≈ no rune (±${CLASS_MEAN}%)`, Math.abs(m) <= CLASS_MEAN, `${m.toFixed(1)}%`);
   }
   console.log(`\n(sim ${((Date.now() - t0) / 1000).toFixed(0)}s)`);
   fs.writeFileSync(path.join(process.env.RUNE_OUT || '/tmp', 'rune_dps.json'), JSON.stringify(rows, null, 1));
