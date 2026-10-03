@@ -115,12 +115,14 @@ const ok = (name, cond, info = '') => { checks.push([name, !!cond, info]); };
       return out.join(' ');
     });
     ok(`${name}: job change + skills`, !/:0/.test(jobs), jobs);
-    // chip at 50 kills (no random card drops)
+    // chip = random % drop (owner 2026-10-03): 0.2% normal / 2% MVP, repeats allowed • not in the regular drop tables
     const ch = await p.evaluate(() => { const pl = G.player, has = () => countItem('pudding_card');
       const noDrop = Object.values(MOBS).every(m => !m.drops.some(([id]) => ITEMS[id].type === 'card'));
-      pl.kills.pudding = 48; pl.chips = []; killMob(spawnMob('pudding', { x: pl.x + 2, y: pl.y })); const before = has();
-      killMob(spawnMob('pudding', { x: pl.x + 2, y: pl.y })); return { noDrop, before, after: has() }; });
-    ok(`${name}: chip at 50 kills`, ch.noDrop && ch.after === ch.before + 1, JSON.stringify(ch));
+      const R0 = Math.random; pl.chips = []; const b0 = has();
+      Math.random = () => 0.99; killMob(spawnMob('pudding', { x: pl.x + 2, y: pl.y })); const miss = has() - b0;
+      Math.random = () => 0.0001; killMob(spawnMob('pudding', { x: pl.x + 2, y: pl.y })); killMob(spawnMob('pudding', { x: pl.x + 2, y: pl.y })); const hit = has() - b0;
+      Math.random = R0; return { noDrop, miss, hit, rate: CHIP_DROP, boss: CHIP_DROP_BOSS, known: pl.chips.includes('pudding') }; });
+    ok(`${name}: chip % drop (repeatable)`, ch.noDrop && ch.miss === 0 && ch.hit === 2 && ch.known && ch.rate === 0.002 && ch.boss === 0.02, JSON.stringify(ch));
     // mastery: uses level a skill up and raise its power
     const ms = await p.evaluate(() => { const pl = G.player; pl.mastery = { attack: 0 }; const before = masteryMul('attack');
       for (let i = 0; i < masteryNeed(1, 'attack'); i++) addMastery('attack'); return { lv: masteryLv('attack'), before, after: masteryMul('attack') }; });

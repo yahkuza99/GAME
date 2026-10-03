@@ -240,8 +240,8 @@ const UnitCard = {
   pct(ch) { return `${ch >= 0.1 ? Math.round(ch * 100) : (ch * 100).toFixed(ch < 0.01 ? 2 : 1)}%`; },
   chip(d) {
     const id = MOB_CHIP[d.id]; if (!id || !ITEMS[id]) return null;
-    const p = G.player, got = (p.chips || []).includes(d.id), need = typeof chipNeed === 'function' ? chipNeed(d) : CHIP_KILLS, k = Math.min(need, (p.kills || {})[d.id] || 0);
-    return { id, got, need, k };
+    const p = G.player, got = (p.chips || []).includes(d.id), ch = typeof chipChance === 'function' ? chipChance(d) : 0.002;
+    return { id, got, ch };
   },
 
   // ---------------- วาดรูปหน้า ----------------
@@ -315,8 +315,7 @@ const UnitCard = {
     const c = this.chip(d);
     if (c) out.push(h('div', { class: 'uc-chip' + (c.got ? ' got' : ''), 'data-chip': c.id }, h('img', { src: itemIconUrl(c.id), alt: '' }),
       h('span', { class: 'uc-chip-t' }, h('b', {}, EN(ITEMS[c.id].name)),
-        h('small', {}, c.got ? L('✦ ได้แล้ว', '✦ Obtained') : L(`ล่า ${c.k}/${c.need} ตัว`, `Hunted ${c.k}/${c.need}`))),
-      c.got ? null : h('span', { class: 'uc-chip-bar' }, h('i', { style: `width:${(c.k / c.need * 100).toFixed(1)}%` }))));
+        h('small', {}, (c.got ? L('✦ เคยได้แล้ว • ', '✦ Obtained before • ') : '') + L(`โอกาสดรอป ${this.pct(c.ch)}`, `${this.pct(c.ch)} drop chance`)))));
     const btns = [];
     btns.push(h('button', { type: 'button', class: 'btn small primary', 'data-act': 'attack', onclick: () => { this.attack(m); } }, ivIconEl('sword'), L('โจมตี', 'Attack')));
     if (MOBS[d.id] && !m.isPlayer) btns.push(h('button', { type: 'button', class: 'btn small', 'data-act': 'book', onclick: () => { this.close(); UI.showMob(d.id); } }, ivIconEl('mob'), L('สมุดมอนสเตอร์', 'Monster Book')));

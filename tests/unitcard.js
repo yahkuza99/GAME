@@ -88,7 +88,7 @@ const frames = (p, n = 4) => p.evaluate(n => new Promise(r => { let k = 0; const
   ok('card: drop list = MOBS drops (with icons)', c1 && JSON.stringify(c1.drops) === JSON.stringify(c1.want2), c1 && c1.drops);
   ok('card: element weakness from ELEM_TABLE (water → weak to wind ×1.5)', c1 && c1.weak.length === 1 && /^wind.*×1\.5/.test(c1.weak[0]), c1 && c1.weak);
   ok('card: Hunt Rune hints (Mech Plant Slayer owned ✓, Wind Endow)', c1 && c1.hr.includes('hr_slay_plant+own') && c1.hr.includes('hr_endow_wind') && !c1.hr.some(x => /hr_giant/.test(x)), c1 && c1.hr);
-  ok('card: chip progress 7/50', c1 && /7\/50/.test(c1.chip), c1 && c1.chip);
+  ok('card: chip shows % drop chance', c1 && /0\.20%/.test(c1.chip), c1 && c1.chip);
   ok('right-click does not attack or walk', c1 && !c1.target && c1.path === 0);
   ok('desktop: floating card on screen (not a bottom sheet)', c1 && !c1.sheet && c1.r.left >= 0 && c1.r.top >= 0 && c1.r.right <= 1100 && c1.r.bottom <= 720, c1 && c1.r);
   await shot(p, 'desktop_mob');

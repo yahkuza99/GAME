@@ -45,7 +45,7 @@
     // ของ MVP
     garmr_collar:   { name: 'Garmr Collar',   type: 'armor', slot: 'acc', price: 70000, slots: 0, jobs: 'all', icon: { s: 'ring', c: '#d03030' },
       b: { str: 2, agi: 2, vit: 2, hp: 200 }, desc: L('[MVP] ปลอกคอสุนัขเฝ้าประตูราก STR +2 AGI +2 VIT +2 MaxHP +200', '[MVP] Collar of the hound that guards the root gate. STR +2 AGI +2 VIT +2 MaxHP +200') },
-    // ชิปประจำมอน (ได้เมื่อล่าครบ CHIP_KILLS ตัว / MVP ตัวแรก)
+    // ชิปประจำมอน (ดรอปสุ่ม % — CHIP_DROP / MVP CHIP_DROP_BOSS)
     rustsap_card:   { name: 'Rust Sap Chip',        type: 'card', slot: 'armor',   price: 20, b: { hp: 300, luk: 1 }, icon: { s: 'card', c: '#b0602a' }, desc: L('ชิปเสริม — ใส่ชุดเกราะ: MaxHP +300, LUK +1', 'Augment chip — Armor slot: MaxHP +300, LUK +1') },
     awarden_card:   { name: 'Archive Warden Chip',  type: 'card', slot: 'weapon',  price: 20, b: { atk: 15, hit: 5 }, icon: { s: 'card', c: '#5ac8d0' }, desc: L('ชิปเสริม — ใส่อาวุธ: ATK +15, HIT +5', 'Augment chip — Weapon slot: ATK +15, HIT +5') },
     rustmine_card:  { name: 'Rust Mine Chip',       type: 'card', slot: 'head',    price: 20, b: { vit: 2, def: 1 }, icon: { s: 'card', c: '#d07a30' }, desc: L('ชิปเสริม — ใส่หมวก: VIT +2, DEF +1', 'Augment chip — Headgear slot: VIT +2, DEF +1') },

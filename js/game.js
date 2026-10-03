@@ -818,15 +818,17 @@ function killMob(m) {
   Sound.play('kill');
 }
 
-// ชิปประจำมอน: ล่าครบ CHIP_KILLS ตัว (MVP ตัวแรก) ได้แน่นอน 1 ชิ้น — ไม่ต้องฟาร์มดรอป
-function chipNeed(d) { return d.boss ? 1 : CHIP_KILLS; }
+// ชิปประจำมอน: ดรอปแบบสุ่ม % ทุกครั้งที่ฆ่า (ดรอปซ้ำได้) — p.chips = รายชื่อมอนที่เคยได้ชิปแล้ว (สมุดมอน/การ์ดยูนิต)
+function chipChance(d) { return d.boss ? CHIP_DROP_BOSS : CHIP_DROP; }
+function chipNeed(d) { return 0; } // (เลิกใช้ระบบล่าครบ N ตัว — คงชื่อไว้ให้โค้ดเก่าเรียกได้)
 function grantChip(d, m) {
   const p = G.player, chip = MOB_CHIP[d.id];
   p.chips = p.chips || [];
-  if (!chip || p.chips.includes(d.id) || (p.kills[d.id] || 0) < chipNeed(d)) return;
-  p.chips.push(d.id); addItem(chip, 1, true);
+  if (!chip || !ITEMS[chip] || !U.chance(chipChance(d))) return;
+  if (!p.chips.includes(d.id)) p.chips.push(d.id);
+  addItem(chip, 1, true);
   addFx({ type: 'beam', x: m.x, y: m.y, dur: 2.6 });
-  UI.announce(L(`✦ ล่า ${d.name} ครบ ${chipNeed(d)} ตัว — ได้รับ ${ITEMS[chip].name}! ✦`, `✦ ${chipNeed(d)} ${d.name} hunted — obtained ${ITEMS[chip].name}! ✦`));
+  UI.announce(L(`✦ โชคดี! ${d.name} ดรอป ${ITEMS[chip].name}! ✦`, `✦ Lucky! ${d.name} dropped ${ITEMS[chip].name}! ✦`));
   UI.msg(L(`✦ ได้รับ ${ITEMS[chip].name} — ${ITEMS[chip].desc}`, `✦ Obtained ${ITEMS[chip].name} — ${ITEMS[chip].desc}`), 'lvl');
   Sound.play('refine_ok');
 }

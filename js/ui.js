@@ -1040,11 +1040,11 @@ const UI = {
       if (typeof MOB_CHIP !== 'undefined' && MOB_CHIP[mid] === id) src.push([m, -1]);
     }
     if (!src.length) return null;
-    src.sort((a, b) => (b[1] < 0 ? 1 : b[1]) - (a[1] < 0 ? 1 : a[1]));
+    src.sort((a, b) => (b[1] < 0 ? chipChance(b[0]) : b[1]) - (a[1] < 0 ? chipChance(a[0]) : a[1]));
     const where = mid => { const k = Object.keys(MAP_DEFS).find(k => (MAP_DEFS[k].spawns || []).some(s => s[0] === mid) || MAP_DEFS[k].mvp === mid); return k ? EN(MAP_DEFS[k].name) : ''; };
     const pct = c => c >= 0.1 ? `${Math.round(c * 100)}%` : `${+(c * 100).toFixed(2)}%`;
     return h('div', { class: 'tip-src' }, h('b', {}, 'Dropped by'),
-      ...src.slice(0, 5).map(([m, c]) => h('div', {}, `${EN(m.name)}${m.boss ? ' (MVP)' : ''} · Lv ${m.lv}`, h('small', {}, ` ${where(m.id)}${where(m.id) ? ' · ' : ''}${c < 0 ? `defeat ${chipNeed(m)}` : pct(c)}`))),
+      ...src.slice(0, 5).map(([m, c]) => h('div', {}, `${EN(m.name)}${m.boss ? ' (MVP)' : ''} · Lv ${m.lv}`, h('small', {}, ` ${where(m.id)}${where(m.id) ? ' · ' : ''}${c < 0 ? pct(chipChance(m)) : pct(c)}`))),
       src.length > 5 ? h('small', {}, `and ${src.length - 5} more`) : null);
   },
   hideTip() { const t = $('#item-tip'); if (t) t.hidden = true; this._tipEl = null; },
@@ -1269,7 +1269,7 @@ const UI = {
       h('div', { class: 'irows' }, rows.length ? rows : h('div', { class: 'book-empty' }, this.invTab === 'hrune'
         ? L('ยังไม่มี Hunt Rune — Brokk Forge-Bot ใน Neo Eldheim ตีให้ (แท็บ Hunt Rune ในเตา)', 'No Hunt Runes yet — Brokk Forge-Bot in Neo Eldheim forges them (Hunt Rune tab at his forge)')
         : this.invTab === 'card'
-        ? L(`ยังไม่มีชิป — ล่ามอนชนิดเดียวกันครบ ${CHIP_KILLS} ตัวได้ชิปของมัน 1 ชิ้น (MVP ได้ตั้งแต่ครั้งแรก)`, `No chips yet — defeat ${CHIP_KILLS} of one monster type to earn its chip (MVPs give one on the first kill)`)
+        ? L(`ยังไม่มีชิป — มอนทุกตัวมีโอกาสดรอปชิปของมัน ${+(CHIP_DROP * 100).toFixed(2)}% (MVP ${CHIP_DROP_BOSS * 100}%) ดรอปซ้ำได้`, `No chips yet — every monster has a ${+(CHIP_DROP * 100).toFixed(2)}% chance to drop its chip (MVP ${CHIP_DROP_BOSS * 100}%), repeats allowed`)
         : L('ยังไม่มีของในแท็บนี้', 'Nothing in this tab yet'))),
       h('div', { class: 'book-foot' },
         h('button', { class: 'btn small inv-sort', type: 'button', onclick: () => { sortItems(p.inventory); saveGame(); this.renderInv(); Sound.play('click'); } }, 'Sort'),
@@ -1806,8 +1806,8 @@ const UI = {
         h('div', { class: 'mb-sub' }, L(`Lv ${d.lv} • ธาตุ${ELEM_THAI[d.element] || d.element} • ${RACE[d.race] || d.race}`, `Lv ${d.lv} • ${ELEM_THAI[d.element] || d.element} • ${RACE[d.race] || d.race}`)),
         h('div', { class: 'mb-sub ' + (d.aggro ? 'bad' : 'ok') }, d.aggro ? L('⚠ โจมตีก่อน (Aggressive)', '⚠ Aggressive') : L('ไม่โจมตีก่อน (Passive)', 'Passive (non-aggressive)')),
         h('div', { class: 'mb-sub' }, L(`ล่าแล้ว: ${U.fmt((G.player.kills || {})[d.id] || 0)} ตัว`, `Defeated: ${U.fmt((G.player.kills || {})[d.id] || 0)}`)),
-        MOB_CHIP[d.id] ? h('div', { class: 'mb-sub' }, (G.player.chips || []).includes(d.id) ? L(`✦ ได้ ${ITEMS[MOB_CHIP[d.id]].name} แล้ว`, `✦ ${ITEMS[MOB_CHIP[d.id]].name} obtained`)
-          : L(`✦ ${ITEMS[MOB_CHIP[d.id]].name}: ล่าอีก ${Math.max(0, chipNeed(d) - ((G.player.kills || {})[d.id] || 0))} ตัว`, `✦ ${ITEMS[MOB_CHIP[d.id]].name}: ${Math.max(0, chipNeed(d) - ((G.player.kills || {})[d.id] || 0))} more to go`)) : null,
+        MOB_CHIP[d.id] ? h('div', { class: 'mb-sub' }, (G.player.chips || []).includes(d.id) ? L(`✦ เคยได้ ${ITEMS[MOB_CHIP[d.id]].name} แล้ว (โอกาสดรอป ${+(chipChance(d) * 100).toFixed(2)}%)`, `✦ ${ITEMS[MOB_CHIP[d.id]].name} obtained before (${+(chipChance(d) * 100).toFixed(2)}% drop chance)`)
+          : L(`✦ ${ITEMS[MOB_CHIP[d.id]].name}: โอกาสดรอป ${+(chipChance(d) * 100).toFixed(2)}%`, `✦ ${ITEMS[MOB_CHIP[d.id]].name}: ${+(chipChance(d) * 100).toFixed(2)}% drop chance`)) : null,
         weak.length ? h('div', { class: 'mb-sub' }, L(`แพ้ธาตุ: ${weak.slice(0, 3).map(([e, m]) => `${ELEM_THAI[e]} ×${m}`).join(', ')}`, `Weak to: ${weak.slice(0, 3).map(([e, m]) => `${ELEM_THAI[e]} ×${m}`).join(', ')}`)) : null)),
       h('div', { class: 'mb-grid' }, row('HP', U.fmt(d.hp)), row('ATK', `${d.atk[0]}–${d.atk[1]}`), row('DEF', d.def), row('MDEF', d.mdef),
         row('HIT', d.hit), row('FLEE', d.flee), row('Base EXP', (() => { const em = expLevelMul(d.lv, G.player.baseLv); return `${U.fmt(Math.round(d.exp * em))}${em !== 1 ? ` (${Math.round(em * 100)}%)` : ''}`; })()), row('Job EXP', U.fmt(Math.round(d.jexp * expLevelMul(d.lv, G.player.baseLv)))), row(CUR, `${U.fmt(mobZeny(d)[0])}–${U.fmt(mobZeny(d)[1])}`)),
