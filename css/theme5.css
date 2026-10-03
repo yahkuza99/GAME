@@ -205,10 +205,10 @@ body.visor .win:not(.gc-art) .win-x:active { transform: translateY(1px) scale(0.
 
 /* ======================= 5) HUD: กระจกอำพันในกรอบไม้-ทองเหลือง ======================= */
 /* กรอบ 9-slice (โปร่งตรงกลาง) บนตัวแผง • กระจกเบลอโลกเกมอยู่ใน pseudo (z -1) ด้านใต้ข้อความ */
-body.visor :is(#basic-info, #quest-track, #minimap:not(.folded), #menubar:not(.folded), #target, #chat), body.visor:not(.pad-mode) #dock {
+body.visor :is(#basic-info, #quest-track, #minimap:not(.folded), #menubar:not(.folded), #target, #chat:not(.folded)), body.visor:not(.pad-mode) #dock {
   border: 2px solid transparent !important; border-radius: 0 !important; background: none !important; isolation: isolate;
   border-image: var(--u3-hud) 48 / 24px / 3px round !important; box-shadow: 8px 14px 22px -10px rgba(5, 2, 0, 0.6) !important; }
-body.visor :is(#basic-info, #quest-track, #target, #chat)::after, body.visor :is(#minimap:not(.folded), #menubar:not(.folded))::before, body.visor:not(.pad-mode) #dock::before {
+body.visor :is(#basic-info, #quest-track, #target, #chat:not(.folded))::after, body.visor :is(#minimap:not(.folded), #menubar:not(.folded))::before, body.visor:not(.pad-mode) #dock::before {
   content: ""; display: block; position: absolute; z-index: -1; inset: 4px; left: 4px; right: 4px; top: 4px; bottom: 4px; width: auto; height: auto; pointer-events: none; opacity: 1;
   background: var(--g5-hud); -webkit-backdrop-filter: var(--g5-hud-filter); backdrop-filter: var(--g5-hud-filter); box-shadow: var(--g5-edge);
   -webkit-mask: none; mask: none; transform: none; }
@@ -256,7 +256,7 @@ body.visor .win:not(.gc-art) :is(.tab, .pill).on::after, body.visor .win .rb-tab
 body.fx-low :is(.tab, .pill, .rb-tab, .seg button).on::after { animation: none !important; display: none; }
 body.fx-low .det-hero::before { animation: none !important; }
 body.fx-low :is(.win-title, .win::before, .win.book-win::before),
-body.fx-low :is(#basic-info, #quest-track, #target, #chat)::after, body.fx-low :is(#minimap, #menubar)::before, body.fx-low #dock::before {
+body.fx-low :is(#basic-info, #quest-track, #target, #chat:not(.folded))::after, body.fx-low :is(#minimap, #menubar)::before, body.fx-low #dock::before {
   -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
 body.fx-low :is(#basic-info, #quest-track, #target)::after, body.fx-low :is(#minimap, #menubar)::before, body.fx-low:not(.pad-mode) #dock::before,
 body.fx-low .win:not(.gc-art) .win-title, body.fx-low .win.book-win::before { background: var(--g5-tint-solid) !important; }
@@ -271,7 +271,7 @@ body.fx-low .win:not(.gc-art) .win-title, body.fx-low .win.book-win::before { ba
   body.visor .win:not(.gc-art)::after, body.visor #w-equip.win::after { inset: -8px; border-width: 36px; border-image-width: 36px; }
   body.visor .win:not(.gc-art) .win-title span, body.visor .win.book-win .win-title span, body.visor #w-equip .win-title span { height: 34px; border-image-width: 0 34px; border-width: 0 13px; }
   body.visor .win:not(.gc-art) .win-x, body.visor.pad-mode .win:not(.gc-art) .win-x, body.visor #w-equip .win-x { width: 32px; height: 32px; }
-  body.visor :is(#basic-info, #quest-track, #minimap:not(.folded), #menubar:not(.folded), #target, #chat), body.visor:not(.pad-mode) #dock { border-image-width: 18px !important; }
+  body.visor :is(#basic-info, #quest-track, #minimap:not(.folded), #menubar:not(.folded), #target, #chat:not(.folded)), body.visor:not(.pad-mode) #dock { border-image-width: 18px !important; }
 }
 
 /* ======================= 7) หน้ารายละเอียดแบบ MINIMAL (เจ้าของ: "ไม่ต้องแสดงรายละเอียดเยอะ เน้น visual") =======================
