@@ -138,7 +138,7 @@ const ok = (name, cond, info) => { if (cond) { pass++; console.log('✔', name, 
       const pl = G.player; __log.length = 0; __splash.length = 0;
       pl.story = { prologue: 1, helMet: 1, helEnd: 1, helMask: coreChoice === 'gave' ? 1 : 0 }; if (coreChoice) pl.story.core = coreChoice;
       const i0 = QUESTS.findIndex(q => q.id === 'ch7_gate');
-      pl.quests = { i: i0, n: 0, done: QUESTS.slice(0, i0).map(q => q.id) };
+      pl.quests = { v: 2, id: 'ch7_gate', i: i0, n: 0, done: QUESTS.slice(0, i0).map(q => q.id) }; // v2 (ค้นด้วย id) + i (รูปแบบเดิม) — ใช้ได้ทั้งสองรุ่นของ js/quest.js
       const npc = id => { for (const m in MAP_DEFS) { const n = (MAP_DEFS[m].npcs || []).find(x => x.id === id); if (n) return n; } return null; };
       const talk = async id => { NPC.busy = false; await NPC.talk(Object.assign({}, npc(id))); };
       const got = { exp: 0, zeny: pl.zeny, items: {} }, steps = [];
@@ -179,7 +179,7 @@ const ok = (name, cond, info) => { if (cond) { pass++; console.log('✔', name, 
     localStorage.setItem(SAVE_KEY, JSON.stringify({ name: 'Rooted', gender: 'f', hair: '#ccc', job: 'volva', baseLv: 60, jobLv: 20, baseExp: 0, jobExp: 0,
       stats: { str: 1, agi: 1, vit: 40, int: 60, dex: 20, luk: 1 }, statPoints: 0, skillPoints: 0, skills: {}, zeny: 1000, inventory: [], equip: {}, hotbar: [],
       map: 'roots', x: 83.5, y: 41.5, save: { map: 'eldheim', x: 20.5, y: 24.5 }, hp: 100, sp: 50, options: { sound: false }, uidSeq: 10,
-      quests: { i, n: 0, done: QUESTS.slice(0, i).map(q => q.id) }, story: { prologue: 1, helMet: 1, helEnd: 1, core: 'kept' } })); });
+      quests: { v: 2, id: 'ch7_gate', i, n: 0, done: QUESTS.slice(0, i).map(q => q.id) }, story: { prologue: 1, helMet: 1, helEnd: 1, core: 'kept' } })); });
   await p.reload(); await p.waitForTimeout(1500);
   await p.click('#au-offline'); await p.click('#btn-continue'); await p.waitForTimeout(1500);
   const old = await p.evaluate(() => ({ ok: G.started && G.player.name === 'Rooted', q: Quest.current() && Quest.current().id, ch: Quest.chapterText(), map: G.map.id,

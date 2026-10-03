@@ -85,7 +85,7 @@ const KILLS_PER_HOUR = 600;
       const it = ITEMS[id];
       if (!RARITY[it.rarity]) out.rarityBad.push(id);
       if (!isEq(it)) continue;
-      const basic = shop.has(id) || Object.values(JOB_STARTER).includes(id);
+      const basic = shop.has(id) || Object.values(JOB_STARTER).includes(id) || it.quest; // it.quest = รางวัลเควสต์เรื่องราว (เช่น Badge of the First Leaf)
       if (!basic && !(src[id] || []).some(m => !MOBS[m].worldBoss)) out.noSource.push(id);
       if (shop.has(id) && (it.rarity !== 'common' || (it.lv || 0) > 10)) out.shopBad.push(id);
       out.items[id] = { slot: it.slot, wtype: it.wtype || '', lv: it.lv || 0, rarity: it.rarity, slots: it.slots || 0, isNew: !!LOOT.SETS && !!it.desc, basic };

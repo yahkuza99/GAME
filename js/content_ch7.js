@@ -41,6 +41,7 @@
     const st = statText(b);
     it.desc = L(th, en) + (st ? ' ' + st : '');
     if (st && LANG !== 'en') L_EN.set(it.desc, en + ' ' + statTextEn(b));
+    if (s.quest) it.quest = true;
     ITEMS[id] = it;
     if (s.art) Art.alias('item_' + id, 'item_' + s.art, { hue: s.hue || 0, sat: 1.1, tint: [s.c, s.tk != null ? s.tk : 0.42] });
   };
@@ -96,8 +97,8 @@
     'รากที่ Nidhogg แทะจนเหลือแต่แกน น้ำเลี้ยงสีเขียวยังไหลอยู่ข้างใน', 'A root Nidhogg gnawed down to its core. Green sap still runs inside.');
   eq('nid_heart', 'Heart of the Gnawer', 'acc', 70, 'legend', { slots: 1, b: { str: 3, agi: 3, vit: 3, int: 3, dex: 3, luk: 3, hpPct: 5, spPct: 5 }, c: '#9aff5a', art: 'earring' },
     'หัวใจของมังกรไร้หัว ยังเต้นอยู่ — และยังหิว', 'The heart of the headless dragon. It still beats — and it is still hungry.');
-  // รางวัลเรื่องราว (จบภาค 1)
-  eq('first_leaf', 'Badge of the First Leaf', 'acc', 1, 'rare', { price: 2, b: { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1, hp: 100 }, c: '#9aff9a', art: 'clip', tk: 0.55 },
+  // รางวัลเรื่องราว (จบภาค 1) — ไม่ดรอปจากมอน (quest: true)
+  eq('first_leaf', 'Badge of the First Leaf', 'acc', 1, 'rare', { price: 2, quest: true, b: { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1, hp: 100 }, c: '#9aff9a', art: 'clip', tk: 0.55 },
     'ใบไม้เรืองแสงที่ Mimir บันทึกชื่อเจ้าไว้ — หลักฐานว่าต้นไม้ยังงอกได้', 'A glowing leaf on which Mimir recorded your name — proof that the Tree can still grow.');
 
   // ---------- ชิป (ดรอปสุ่ม % — CHIP_DROP / MVP CHIP_DROP_BOSS) ----------
@@ -141,7 +142,7 @@
       aggro: true, stun: [12, 2], element: 'poison', race: 'dragon', scale: 2.4, boss: true, respawn: 900000, bossSkill: 'rustbreath',
       hue: 110, sat: 1.1, bri: 0.75, tint: ['#1a4a10', 0.42],
       lore: L('สิ่งที่ทุกคนเรียกว่า "สนิม" Fenrir กลืนไปแค่หัว ร่างที่เหลือแทะรากใต้คลังของ Hel มาสามสิบปี — มันไม่ได้หิวน้ำเลี้ยง มันหิวประกาย', 'What everyone called "the Rust." Fenrir swallowed only its head; the body has gnawed the roots beneath Hel\'s vault for thirty years — hungry not for sap, but for sparks.'),
-      drops: [['nid_scale', 0.08], ['nid_fang', 0.08], ['nid_wings', 0.08], ['nid_rotstaff', 0.08], ['nid_heart', 0.0005], ['wyrm_scale', 0.8], ['rune_alloy', 0.7], ['volt_ore', 0.7], ['yggdrasil_shard', 0.25]] }),
+      drops: [['nid_scale', 0.08], ['nid_fang', 0.08], ['nid_wings', 0.08], ['nid_rotstaff', 0.08], ['nid_heart', 0.0005], ['wyrm_scale', 0.8], ['rune_alloy', 0.7], ['yggdrasil_shard', 0.25]] }),
   });
   for (const id of ['rust_bloom', 'hollow_shell', 'nid_spawn', 'rootbound_guard', 'rot_colossus', 'nidhogg']) MOBS[id].id = id;
   Object.assign(MOB_CHIP, { rust_bloom: 'rustbloom_card', hollow_shell: 'hshell_card', nid_spawn: 'nidspawn_card', rootbound_guard: 'rbguard_card', rot_colossus: 'rcolossus_card', nidhogg: 'nidhogg_card' });
