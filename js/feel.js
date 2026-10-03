@@ -167,7 +167,7 @@ const Feel = (() => {
     }
   };
 
-  // ---------- 6) ไม้ตาย RAGNARÖK (เกจ) ----------
+  // ---------- 6) ไม้ตาย (เกจ): BERSERK FURY / VALKYRIE AEGIS / WAR CRY ----------
   // ตีโดน +2 • ฆ่า +5 (CHAIN 5 ขึ้นไป +2 เพิ่ม) → เต็ม 100 กดปุ่ม/คีย์ T: คัตอินชื่อ Class + สโลว์ + คลื่นกระแทกรัศมี 5 ช่อง
   // ดาเมจ = ตีแรง 3 เท่าของการตีปกติ (เลือกกายภาพหรือเวท ที่แรงกว่า) ใส่มอนทุกตัวในวง • ไม่ใช้ในลานประลอง/ตอนตาย • บอทไม่กดให้
   const ULT_MAX = 100, ULT_R = 5;
@@ -185,6 +185,7 @@ const Feel = (() => {
     b.title = L('ไม้ตาย (T) — ตีและฆ่ามอนเพื่อเติมเกจ', 'Ultimate (T) — hit and kill monsters to charge');
     b.innerHTML = '<i></i><b>ULT</b><small>0%</small>';
     b.onclick = () => F.ultFire();
+    if (typeof UI !== 'undefined' && UI.altPress) UI.altPress(b, () => F.ultPick()); // คลิกขวา / กดค้าง = เลือกไม้ตาย (แม้เกจเต็ม)
     const dock = document.getElementById('dock'), auto = document.getElementById('auto-btn');
     if (dock && auto) auto.after(b); else document.body.appendChild(b);
     return (F.ub = b);
@@ -194,13 +195,32 @@ const Feel = (() => {
     const b = F.ultBtn(), v = G.player.ult || 0, k = v / ULT_MAX;
     b.style.setProperty('--k', k); b.style.setProperty('--uc', F.ultCol());
     b.querySelector('small').textContent = v >= ULT_MAX ? 'READY' : Math.floor(k * 100) + '%';
-    b.title = `${F.ULTS[F.ultKind()].name} — ${F.ULTS[F.ultKind()].desc}\n` + L('เกจไม่เต็ม: กดเพื่อเลือกไม้ตาย • เต็ม: กด T หรือปุ่มนี้', 'Not full: click to choose • Full: press T or this button');
+    b.title = `${F.ULTS[F.ultKind()].name} — ${F.ULTS[F.ultKind()].desc}\n` + L('คลิกขวา/กดค้าง: เลือกไม้ตาย • เกจเต็ม: กด T หรือปุ่มนี้', 'Right-click/hold: choose ultimate • Full: press T or this button');
     b.classList.toggle('ready', v >= ULT_MAX);
   };
   // ไม้ตายแบบบัฟ ให้ผู้เล่นเลือกเอง (เจ้าของ: เน้นบัฟพื้นฐาน — ไม้ตายโจมตี RAGNARÖK/METEOR ถูกถอด 2026-10-02) (กดปุ่ม ULT ตอนเกจยังไม่เต็ม = เปิดตัวเลือก) • บันทึกใน p.ultKind
   F.ULTS = {
     fury: { name: 'BERSERK FURY', th: L('โหมดคลั่ง', 'Fury'), desc: L('10 วินาที: ATK/MATK +25% ตีเร็วขึ้น 30%', '10s: ATK/MATK +25%, attack speed +30%') },
     aegis: { name: 'VALKYRIE AEGIS', th: L('โล่วาลคิรี', 'Aegis'), desc: L('ฟื้น HP/SP เต็ม + อมตะ 4 วินาที', 'Full HP/SP + invulnerable for 4s') },
+    warcry: { name: 'WAR CRY', th: L('เสียงคำรามศึก', 'War Cry'), desc: L(`10 วินาที: ตัวเราและปาร์ตี้ในระยะ ${8} ช่อง ATK/MATK +15% เดินเร็วขึ้น 25%`, `10s: you and party members within ${8} cells get ATK/MATK +15% and +25% move speed`) },
+  };
+  // WAR CRY: บัฟทั้งปาร์ตี้รอบตัว (ส่งผ่านช่องปาร์ตี้ 'wcry' — js/party.js) • คนรับต้องอยู่แผนที่เดียวกัน ห่างไม่เกิน WARCRY_R ช่อง และไม่ใช่ลานประลอง
+  const WARCRY_R = 8, WARCRY_SEC = 10;
+  F.warCryApply = (from, col) => {
+    const p = G.player; if (!p || p.dead || !G.map || G.map.def.pvp) return;
+    p.warcryUntil = G.time + WARCRY_SEC; recalc();
+    addFloater(p.x, p.y - 2.2, from ? L(`WAR CRY! ← ${from}`, `WAR CRY! ← ${from}`) : 'WAR CRY!', col || '#ff9a3a', true);
+    if (vis()) {
+      [0, 160].forEach((d, i) => setTimeout(() => { if (G.player === p) G.fx.push({ type: 'feel_nova', feel: true, t: 0, dur: 0.6, ref: p, x: p.x, y: p.y, col: col || '#ff9a3a', rad: 1.4 + i }); }, d));
+      if (typeof Juice !== 'undefined') Juice.sparks({ x: p.x, y: p.y, def: {} }, col || '#ff9a3a', 14, 55);
+      Sound.play('buff');
+    }
+    clearTimeout(F.wcT); F.wcT = setTimeout(() => { if (G.player === p) { recalc(); if (typeof UI !== 'undefined') UI.dirty(); } }, WARCRY_SEC * 1000 + 100);
+  };
+  F.warCryRecv = pl => { // จากเพื่อนร่วมปาร์ตี้
+    const p = G.player; if (!pl || !p || !G.map || pl.map !== G.map.id) return;
+    if (!(Math.hypot((+pl.x || 0) - p.x, (+pl.y || 0) - p.y) <= WARCRY_R + 0.5)) return;
+    F.warCryApply(String(pl.name || '?').slice(0, 24), '#ffb060');
   };
   F.ultKind = () => { const k = G.player && G.player.ultKind; return F.ULTS[k] ? k : 'fury'; };
   F.ultPick = () => {
@@ -225,7 +245,7 @@ const Feel = (() => {
       if (typeof Juice !== 'undefined') { Juice.flash('gold', 0.8); Juice.shake(4, 0.45); } // ไม่สโลว์: ผู้เล่นคนอื่นเห็นตัวเราเดินตามปกติ
       F.nova(col, ULT_R); setTimeout(() => F.nova('#ffffff', ULT_R * 0.7), 120); setTimeout(() => F.nova(col, ULT_R * 1.2), 240);
       [262, 330, 392, 523, 659, 784].forEach((f2, i) => chime(f2, i * 0.045, 0.05, 0.9));
-      Sound.play(kind === 'aegis' ? 'heal' : 'crit');
+      Sound.play(kind === 'aegis' ? 'heal' : kind === 'warcry' ? 'buff' : 'crit');
     }
     if (kind === 'fury') {
       p.ultBuffUntil = G.time + 10; recalc(); addFloater(p.x, p.y - 2, 'FURY!', col, true);
@@ -233,6 +253,13 @@ const Feel = (() => {
     } else if (kind === 'aegis') {
       p.hp = p.d.maxHp; p.sp = p.d.maxSp; p.invulnUntil = G.time + 4;
       addFloater(p.x, p.y - 2, 'AEGIS!', '#fff1a8', true);
+    } else if (kind === 'warcry') {
+      F.warCryApply(null, col);
+      if (vis()) { // คำรามศึก: แตรต่ำ 2 ชั้น + คลื่นวงกว้างเท่ารัศมีบัฟ (ไม่สโลว์ — คนอื่นเห็นเราเคลื่อนไหวตามปกติ)
+        G.fx.push({ type: 'feel_nova', feel: true, t: 0, dur: 0.9, ref: p, x: p.x, y: p.y, col, rad: WARCRY_R });
+        if (Sound.ctx && p.options.sound) { Sound.tone(98, 0.9, 'sawtooth', 0.05, 30); Sound.tone(147, 0.8, 'sawtooth', 0.035, 45, 0.05); Sound.noise(0.5, 0.03, 300); }
+      }
+      if (typeof Party !== 'undefined' && Party.party && Party.send) Party.send('wcry', { id: Party.me(), name: p.name, map: G.map.id, x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10 });
     }
   };
   // ---------- 7) vibe เมาส์: เคอร์เซอร์ธีมนอร์ส + วงกระเพื่อมตอนคลิกพื้น ----------
@@ -293,7 +320,7 @@ const Feel = (() => {
         const r = k0.apply(this, arguments);
         try {
           F.onKill(m);
-          if (m.def && !m.def.dummy) F.ultGain(5 + (F.chain >= 5 ? 2 : 0));
+          if (m.def && !m.def.dummy && !m.minion) F.ultGain(5 + (F.chain >= 5 ? 2 : 0)); // ลูกสมุนบอสไม่เติมเกจ (กันปั่นไม้ตาย)
           const boss = m.def && (m.def.boss || m.isMvp || m.isWB);
           if (m.def && !m.def.dummy) F.orbs(m.x, m.y, boss ? 10 : 2 + (Math.random() < 0.5 ? 1 : 0), '#7fd4ff');
         } catch (e) { /* ภาพล้วน ไม่ให้กระทบเกม */ }
@@ -339,6 +366,9 @@ const Feel = (() => {
         if (d && p.ultBuffUntil > G.time) { // โหมดคลั่ง (ไม้ตาย fury)
           d.atkPct += 25; d.matkMin = Math.floor(d.matkMin * 1.25); d.matkMax = Math.floor(d.matkMax * 1.25);
           d.aspdDelay = Math.max(200, Math.floor(d.aspdDelay * 0.7)); d.aspd = Math.floor(200 - d.aspdDelay / 10);
+        }
+        if (d && p.warcryUntil > G.time && !(G.map && G.map.def.pvp)) { // เสียงคำรามศึก (ไม้ตาย warcry ของเราหรือของเพื่อนร่วมปาร์ตี้)
+          d.atkPct += 15; d.matkMin = Math.floor(d.matkMin * 1.15); d.matkMax = Math.floor(d.matkMax * 1.15); d.speed *= 1.25;
         }
         return res;
       };
@@ -408,10 +438,56 @@ const Feel = (() => {
         if (typeof Sound !== 'undefined' && Sound.ctx && G.player.options.sound) { Sound.hiss({ ft: 'bandpass', f: 900, to: 600, q: 0.6, dur: 1.6, vol: 0.05 }); Sound.hiss({ ft: 'lowpass', f: 500, dur: 1.8, vol: 0.05 }); }
       }
     };
+    // ผู้ชมคนอื่นในลานตีกัน (เราไม่ได้เกี่ยว) / มีคนล้ม → ผู้ชมฮือเหมือนกัน (event 'hit' / 'kill' ของ Online ส่งถึงทุกคนในลาน)
+    if (typeof Online !== 'undefined' && !Online._feelCrowd) {
+      Online._feelCrowd = true;
+      const h0 = Online.onHit, k0 = Online.onKill;
+      Online.onHit = function (s) {
+        try { if (s && G.map && G.map.arena && G.map.def.pvp && !(this.user && s.to === this.user.id)) F.cheer(s.crit ? 0.35 : 0.15); } catch (e) { /* ภาพล้วน */ }
+        return h0.apply(this, arguments);
+      };
+      Online.onKill = function (s) {
+        try { if (s && G.map && G.map.arena && G.map.def.pvp) F.cheer(1.2); } catch (e) { /* ภาพล้วน */ }
+        return k0.apply(this, arguments);
+      };
+    }
+    // ผู้ชมเรนเดอร์ 3D ขยับ (ชีต 4 เฟรมจาก tools/arena3d.py — วาดทับคนท่านั่งในภาพพื้น เฉพาะช่อง 64 px ที่อยู่ในจอและกำลังเปลี่ยนท่า)
+    //   เงียบ = บางกลุ่มขยับเล็กน้อย (f1 ยกมือข้างเดียว) • ตื่นเต้น = ยิ่งตื่นเต้นยิ่งหลายกลุ่มเชียร์ สลับ ฐาน→f2→ฐาน→f3 เร็วขึ้นตามความตื่นเต้น
+    //   คลื่นเชียร์ = โซนที่คลื่นผ่านลุกยืนชูมือโบกผ้า (f4) • ต่อเฟรม = drawImage เท่าจำนวนช่องที่เปลี่ยนท่าในจอ (ไม่วาดทีละคน)
+    F.crowdFrames = (g, map, cs, t, C) => {
+      const d = cs.c, n = d.gw * d.gh, A = map.arena, TAU = Math.PI * 2;
+      let L = d._lut;
+      if (!L) { // ช่อง → ตำแหน่งในชีตต่อเฟรม + มุมรอบลาน + เฟสสุ่มคงที่ (คำนวณครั้งเดียว)
+        L = d._lut = { slot: d.cells.map(() => new Int16Array(n).fill(-1)), list: [], ang: new Float32Array(n), ph: new Float32Array(n), ph2: new Float32Array(n) };
+        const seen = new Set();
+        d.cells.forEach((arr, k) => { for (let i = 0; i < arr.length; i += 2) { L.slot[k][arr[i]] = arr[i + 1]; seen.add(arr[i]); } });
+        L.list = [...seen].sort((a, b) => a - b);
+        const cx = A.cx * TILE, cy = A.cy * TILE * R.K;
+        for (const c of L.list) {
+          const x = (c % d.gw + 0.5) * d.cell, y = (Math.floor(c / d.gw) + 0.5) * d.cell;
+          L.ang[c] = Math.atan2((y - cy) / R.K, x - cx); L.ph[c] = U.hash2(c, 7, 3); L.ph2[c] = U.hash2(c, 11, 5);
+        }
+      }
+      const vw = R.W / R.zoom, vh = R.H / R.zoom, x0 = R.camX - d.cell, x1 = R.camX + vw, y0 = R.camY - d.cell, y1 = R.camY + vh;
+      const e = Math.min(1, C.e), wk = (performance.now() / 1000 - C.wave) / 1.4, wa = -Math.PI / 2 + wk * TAU, S2 = d.cell + 2;
+      for (const c of L.list) {
+        const gx = c % d.gw, gy = (c - gx) / d.gw, px = gx * d.cell, py = gy * d.cell;
+        if (px < x0 || px > x1 || py < y0 || py > y1) continue;
+        let f = 0;
+        if (wk >= 0 && wk < 1 && Math.abs(((L.ang[c] - wa) % TAU + TAU + Math.PI) % TAU - Math.PI) < 0.34) f = 4;
+        if (!f && e > 0.06 && L.ph2[c] < 0.12 + e * 0.88) { const k = Math.floor(t * (2.2 + 4.5 * e) + L.ph[c] * 4) & 3; f = k === 1 ? 2 : k === 3 ? 3 : 0; }
+        if (!f && (t * 0.42 + L.ph[c] * 3.7) % 1 < 0.28) f = 1;
+        const sl = f ? L.slot[f - 1][c] : -1;
+        if (sl < 0) continue;
+        g.drawImage(cs.img, (sl % d.ac) * S2 + 1, Math.floor(sl / d.ac) * S2 + 1, d.cell, d.cell, px, py, d.cell, d.cell);
+      }
+    };
     F.drawCrowd = (g, map, t) => {
       const C = F.crowd, A = map.arena; if (!A) return;
       const dt = Math.min(0.1, t - (C.last || t)); C.last = t;
       C.e = Math.max(0, C.e - dt * 0.18);
+      const cs = typeof Bake !== 'undefined' && Bake.crowd(map);
+      if (cs) F.crowdFrames(g, map, cs, t, C);
       const K = R.K, cx = A.cx * TILE, cy = A.cy * TILE;
       // ฮือเบา ๆ ตามความตื่นเต้น (ทุก ~0.6 วิ)
       if (C.e > 0.2 && Math.random() < dt * 1.6 && typeof Sound !== 'undefined' && Sound.ctx && G.player.options.sound) Sound.hiss({ ft: 'bandpass', f: 700 + Math.random() * 300, q: 0.5, dur: 0.5, vol: 0.012 * C.e });
@@ -432,7 +508,7 @@ const Feel = (() => {
       const wk = (performance.now() / 1000 - C.wave) / 1.4;
       if (wk >= 0 && wk < 1) {
         const a0 = -Math.PI / 2 + wk * Math.PI * 2;
-        g.globalAlpha = 0.5 * Math.sin(wk * Math.PI); g.globalCompositeOperation = 'lighter';
+        g.globalAlpha = (cs ? 0.22 : 0.5) * Math.sin(wk * Math.PI); g.globalCompositeOperation = 'lighter'; // มีผู้ชมขยับจริงแล้ว = แสงกวาดแค่เสริม
         g.translate(cx, cy * K); g.scale(1, K);
         const gr = g.createConicGradient ? g.createConicGradient(a0 - 0.45, 0, 0) : null;
         if (gr) { gr.addColorStop(0, 'rgba(255,230,160,0)'); gr.addColorStop(0.06, 'rgba(255,230,160,0.55)'); gr.addColorStop(0.14, 'rgba(255,230,160,0)'); gr.addColorStop(1, 'rgba(255,230,160,0)'); g.fillStyle = gr; }

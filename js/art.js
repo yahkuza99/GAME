@@ -23,7 +23,7 @@ const Art = {
       const tryAt = i => {
         const img = new Image();
         img.onload = () => { this.imgs[k] = img; this.onLoad(k); };
-        img.onerror = () => { if (i + 1 < exts.length) tryAt(i + 1); };
+        img.onerror = () => { if (i + 1 < exts.length) tryAt(i + 1); else if (this.lazy.has(k)) { this.missed.add(k); this.onLoad(k); } }; // ภาพตามแมพโหลดไม่ได้ → จดไว้ ให้แมพวาดพื้นใหม่ด้วยทางสำรอง
         img.src = `assets/${f}${exts[i]}` + (ver[f] ? `?v=${ver[f]}` : '');
       };
       tryAt(0);
@@ -34,8 +34,8 @@ const Art = {
       .then(m => {
         const list = Array.isArray(m) ? m : m.files; ver = (m && m.v) || {};
         // bake_*: ภาพอบ 3D ขนาดใหญ่ของแมพเดียว — ไม่โหลดตอนเปิดเกม รอ Art.need() ตอนเข้าแมพนั้น
-        // ui_*: ภาพ UI (tools/ui_slice.py) ใช้ผ่าน css/ui_art.css เท่านั้น — ไม่ต้องโหลดเป็นภาพของ Art
-        list.filter(f => !/\.(ogg|mp3|wav)$/.test(f) && !f.startsWith('ui_')).forEach(f => (f.startsWith('bake_') ? this.lazy.set(f.replace(/\.(webp|png)$/, ''), f) : probe(f)));
+        //   (arena_ground = ภาพลานประลองรุ่นแรก — ทางสำรองของ bake_arena_ground โหลดเมื่อจำเป็นเท่านั้น)
+        list.filter(f => !/\.(ogg|mp3|wav)$/.test(f)).forEach(f => (f.startsWith('bake_') || f.startsWith('arena_ground.') ? this.lazy.set(f.replace(/\.(webp|png)$/, ''), f) : probe(f)));
         this._probe = probe;
         for (const k of this.wanted) this.need(k);
         if (typeof Sound !== 'undefined') Sound.register(list, ver); // ไฟล์เสียงจริง (sfx_*, bgm_*)
@@ -43,7 +43,7 @@ const Art = {
       .catch(() => ART_KEYS.forEach(probe));
   },
   // โหลดภาพตามต้องการ (bake_* — js/maps.js renderGround) • เรียกก่อน manifest มาถึงได้ (จำไว้แล้วโหลดทีหลัง) • โหลดเสร็จ → onLoad วาดพื้นใหม่
-  lazy: new Map(), wanted: new Set(),
+  lazy: new Map(), wanted: new Set(), missed: new Set(), // missed = ภาพตามแมพที่โหลดไม่สำเร็จ (ใช้ทางสำรอง)
   need(k) {
     if (this.imgs[k] || this.wanted.has(k) && this._asked && this._asked.has(k)) return;
     this.wanted.add(k);
@@ -149,7 +149,7 @@ const Art = {
   },
   onLoad(k) {
     if (k === 'keyart' || k === 'logo' || k.startsWith('job_')) applyTitleArt();
-    if ((k.startsWith('ground_') || k.startsWith('prop_') || k === 'arena_ground' || (k.startsWith('bake_') && typeof G !== 'undefined' && G.map && G.map.usesBake && G.map.usesBake(k))) && typeof G !== 'undefined' && G.map) { // ภาพพื้น/ของประดับโหลดเสร็จช้า → วาดพื้นใหม่
+    if ((k.startsWith('ground_') || k.startsWith('prop_') || (k === 'arena_ground' && typeof G !== 'undefined' && G.map && G.map.arena) || (k.startsWith('bake_') && typeof G !== 'undefined' && G.map && G.map.usesBake && G.map.usesBake(k))) && typeof G !== 'undefined' && G.map) { // ภาพพื้น/ของประดับโหลดเสร็จช้า → วาดพื้นใหม่
       clearTimeout(this._regen);
       this._regen = setTimeout(() => {
         for (const id in G.mapCache || {}) if (G.mapCache[id] !== G.map) delete G.mapCache[id];

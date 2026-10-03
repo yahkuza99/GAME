@@ -38,7 +38,7 @@ const Bot = {
     // ช่วงแรกให้เล่นเอง: บอทปลดล็อกเมื่ออัปเกรด Class แรกแล้ว
     if (want && !this.unlocked()) { UI.msg(L(`🔒 บอท AUTO ปลดล็อกเมื่ออัปเกรด Class แรก (Job Lv ${JOB_CHANGE_LV} แล้วคุยกับ Mimir AI)`, `🔒 The AUTO bot unlocks with your first class (reach Job Lv ${JOB_CHANGE_LV}, then talk to Mimir AI)`), 'err'); return; }
     this.on = want;
-    this.resting = false; this.pauseUntil = 0; this.warnedTown = false;
+    this.resting = false; this.pauseUntil = 0; this.warnedTown = false; this.manual = false; this.userTgt = null;
     this.reset();
     if (want) {
       this.setAnchor(true);
@@ -73,11 +73,25 @@ const Bot = {
     return this.anchor && { x: this.anchor.x, y: this.anchor.y, r: c.radius };
   },
   // ผู้เล่นสั่งเดินเอง → หยุดบอทชั่วคราว
+  // ผู้เล่นสั่งเอง (เดิน/แตะ/คุย/เก็บของ) ระหว่าง AUTO → ฟังผู้เล่นก่อนเสมอ (เจ้าของ 2026-10-03):
+  //   บอทหยุดคิดจนกว่าคำสั่งนั้นจะจบ (เดินถึง / คุยเสร็จ / เก็บของแล้ว / มอนที่เลือกตาย) แล้วรออีก 3 วิ ค่อยกลับมาล่าต่อ
+  //   ถ้าเปิดขอบเขตการล่า (leash) → ใช้ตำแหน่งที่ผู้เล่นพาไปเป็นศูนย์กลางใหม่ (ไม่เดินย้อนกลับที่เดิม)
+  manual: false, userTgt: null,
   manualOverride() {
     if (!this.on) return;
-    this.pauseUntil = G.time + 4;
+    this.manual = true; this.userTgt = null;
+    this.pauseUntil = G.time + 3;
     this.resting = false;
     this.tgt = null;
+  },
+  userTarget(m) { // ผู้เล่นแตะเลือกมอนเอง: ตีตัวนี้จนตาย บอทไม่เปลี่ยนเป้า
+    if (!this.on) return;
+    this.manual = true; this.userTgt = m; this.tgt = m;
+    this.pauseUntil = G.time + 0.5; this.resting = false;
+  },
+  manualBusy() {
+    const p = G.player;
+    return p.path.length > 0 || !!p.npcTarget || !!p.pickTarget || !!p.cast || !!p.skillIntent || (this.userTgt && !this.userTgt.dead && p.target === this.userTgt);
   },
   onKill(m) {
     if (this.on && this.stats) this.stats.kills++;
@@ -100,14 +114,17 @@ const Bot = {
     return null;
   },
   // ใช้สกิลได้ไหม (slack = ยอมให้ดีเลย์/คูลดาวน์เหลืออีกไม่เกินกี่วินาที — ใช้ตอน "รอสกิล" ไม่ได้ร่ายจริง)
-  canCast(id, slack = 0) {
+  // raw = ไม่สนค่าตั้งแบบง่าย (ติ๊กสกิล / เงื่อนไข HP รายสกิล) — Battle Script สั่งสกิลเองตรง ๆ
+  canCast(id, slack = 0, raw = false) {
     const p = G.player, s = skillDef(id), lv = skillLv(id);
     if (!lv || !s || s.type !== 'active') return false;
-    const c = this.cfg();
-    if (c.skills[id] === false) return false;
-    // ตั้งรายสกิล: ใช้เฉพาะตอน HP ต่ำกว่า X% (0 = ใช้ได้ตลอด)
-    const hpGate = (c.skillHp || {})[id];
-    if (hpGate && p.hp / p.d.maxHp * 100 >= hpGate) return false;
+    if (!raw) {
+      const c = this.cfg();
+      if (c.skills[id] === false) return false;
+      // ตั้งรายสกิล: ใช้เฉพาะตอน HP ต่ำกว่า X% (0 = ใช้ได้ตลอด)
+      const hpGate = (c.skillHp || {})[id];
+      if (hpGate && p.hp / p.d.maxHp * 100 >= hpGate) return false;
+    }
     if (p.skillReadyAt - G.time > slack || p.cast || skillCdLeft(id) > slack || isStunned()) return false;
     if (s.bow && weaponType() !== 'bow') return false;
     return canPaySkill(skillCost(id, lv)) && (!p.d.bloodmagic || p.hp - skillCost(id, lv) > p.d.maxHp * 0.4);
@@ -204,6 +221,10 @@ const Bot = {
     const p = G.player, c = this.cfg();
     if (!this.on || p.dead || G.time < this.nextThink) return;
     this.nextThink = G.time + 0.2;
+    if (this.manual) {
+      if (this.manualBusy()) this.pauseUntil = Math.max(this.pauseUntil, G.time + (this.userTgt ? 0.4 : 3));
+      else if (G.time >= this.pauseUntil) { this.manual = false; this.userTgt = null; if (c.leash) this.setAnchor(true); }
+    }
     if (G.time < this.pauseUntil || NPC.busy) return;
     if (G.map.def.pvp) { if (!this.warnedPvp) { this.warnedPvp = true; UI.msg(L('บอทไม่ทำงานในลานประลอง PvP', 'The bot does not work in the PvP Arena'), 'info'); } return; }
     this.warnedPvp = false;
@@ -219,6 +240,10 @@ const Bot = {
     if (U.dist(p.x, p.y, this.lastX, this.lastY) > 0.15 || p.cast || isStunned()) this.stillAt = G.time;
     this.lastX = p.x; this.lastY = p.y;
     for (const [m, until] of this.blacklist) if (until <= G.time || m.dead) this.blacklist.delete(m);
+
+    // 0) Battle Script (โหมดขั้นสูง js/botscript.js): กฎของผู้เล่นมาก่อน • ไม่มีกฎไหนทำงาน = ทำตามค่าตั้งแบบง่ายด้านล่างเหมือนเดิมทุกอย่าง
+    if (typeof BotScript !== 'undefined' && BotScript.active(c) && !p.cast && !p.skillIntent && !(G.time < this.kiteUntil && p.path.length && !isStunned())
+      && BotScript.run(c, threats, hpPct, spPct)) return;
 
     // 1) ฟื้นฟู: สกิลฮีล (ยาใช้ระบบปั๊มยาอัตโนมัติร่วมกับการเล่นเอง — autoPotTick)
     if (hpPct < c.healAt && this.castHeal()) return;

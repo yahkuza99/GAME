@@ -199,11 +199,35 @@ const Anim = {
     const row = s.dirs === 8 ? dir : 0;
     // ท่าเดิน: ยกตัวขึ้นเล็กน้อยตอนก้าวผ่าน ลงตอนเหยียบ (ขั้นละเฟรม ตามจังหวะขาในภาพ) ให้เห็นการก้าวชัดขึ้น
     let lift = 0;
-    if (s.action === 'walk' && action === 'walk') { const fr = this.feet(s.img, s.n)[row]; lift = fr && Math.max(0, f) % 2 === fr.pass ? 3 : 0; }
+    // ภาพเดิน 8 เฟรม (เรนเดอร์ 3D มีการโยกตัวในภาพอยู่แล้ว) ไม่ต้องยกเพิ่ม — ยกสลับเฟรมทำให้ตัวกระตุก (berserker_f เดินหน้าตรง)
+    if (s.action === 'walk' && action === 'walk' && s.n <= 4) { const fr = this.feet(s.img, s.n)[row]; lift = fr && Math.max(0, f) % 2 === fr.pass ? 3 : 0; }
     return { img: s.img, f: Math.max(0, f), row, flip: s.dirs === 8 ? false : st.facing > 0, lift, breathe: s.action === 'idle' && s.n === 1, action: s.action, n: s.n };
   },
 
   // วาดที่ตำแหน่งเท้า (x, y), ตัวสูงราว H px, facing>0 = หันขวา (ภาพต้นฉบับหันซ้าย)
+  // เส้นขอบเข้มรอบตัว (มอนเด่นจากฉาก — เจ้าของ 2026-10-03): สร้างครั้งเดียวต่อชีต ตอนเครื่องว่าง แล้วใช้ซ้ำ
+  //   ขยายเงาทึบ 8 ทิศ (OUTLINE_PX พิกเซลภาพต้นฉบับ ≈ 1–1.5 px บนจอ) แล้ววางภาพจริงทับ — ระหว่างรอสร้างวาดภาพปกติ
+  OUTLINE_PX: 3.5, _ol: new WeakMap(),
+  outlined(img) {
+    let e = this._ol.get(img);
+    if (e) return e.cv;
+    this._ol.set(img, e = { cv: null });
+    const make = () => {
+      const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+      const g = c.getContext('2d'), r = this.OUTLINE_PX;
+      const ring = (rad, col) => { // เงาทึบขยาย rad px ทาสี col (ทำบนแคนวาสแยก แล้วซ้อนลงมา)
+        const t = document.createElement('canvas'); t.width = c.width; t.height = c.height; const q = t.getContext('2d');
+        for (let i = 0; i < 12; i++) { const a = i * Math.PI / 6; q.drawImage(img, Math.round(Math.cos(a) * rad), Math.round(Math.sin(a) * rad)); }
+        q.globalCompositeOperation = 'source-in'; q.fillStyle = col; q.fillRect(0, 0, t.width, t.height); g.drawImage(t, 0, 0);
+      };
+      ring(r * 2.2, 'rgba(255,246,220,0.16)'); // ขอบแสงจางด้านนอก (แยกตัวออกจากพื้นมืด)
+      ring(r, 'rgba(18,10,24,0.88)');          // เส้นขอบเข้ม
+      g.filter = 'saturate(1.18) contrast(1.06) brightness(1.04)'; g.drawImage(img, 0, 0); g.filter = 'none'; // สีตัวสดกว่าฉากเล็กน้อย (อบไว้ ไม่เสียแรงต่อเฟรม)
+      e.cv = c;
+    };
+    (typeof requestIdleCallback === 'function' ? requestIdleCallback : f => setTimeout(f, 30))(make);
+    return null;
+  },
   draw(g, x, y, key, st, t, H = 66) {
     const p = this.pick(key, st, t); if (!p) return false;
     const k = H / this.STD_H, C = this.CELL;
@@ -230,7 +254,7 @@ const Anim = {
       fg.clearRect(0, 0, C, C); fg.filter = st.filter;
       fg.drawImage(p.img, p.f * C, p.row * C, C, C, 0, 0, C, C); fg.filter = 'none';
       g.drawImage(fc, 0, 0, C, C, -this.CX, -this.GROUND, C, C);
-    } else g.drawImage(p.img, p.f * C, p.row * C, C, C, -this.CX, -this.GROUND, C, C);
+    } else g.drawImage((st.outline && this.outlined(p.img)) || p.img, p.f * C, p.row * C, C, C, -this.CX, -this.GROUND, C, C);
     if (st.over) { g.filter = 'none'; st.over(g, p); } // ชั้นหน้าตัว (อาวุธในมือ/หมวก)
     g.restore();
     return true;

@@ -7,7 +7,26 @@
 //  ค่าเริ่มต้น: ไทย (เปลี่ยนได้ที่หน้าแรกและหน้าตั้งค่า)
 // ============================================================
 const LANG = (() => { try { return localStorage.getItem('nm_lang') === 'en' ? 'en' : 'th'; } catch (e) { return 'th'; } })();
-function L(th, en) { return LANG === 'en' && en != null && en !== '' ? en : th; }
+// ข้อความที่แปลไว้ตอนโหลดไฟล์ (ข้อมูลไอเทม/สเตตัส ฯลฯ) เก็บคู่ ไทย → อังกฤษ ไว้ด้วย → EN() ดึงฉบับอังกฤษได้แม้เล่นภาษาไทย
+// (เก็บเฉพาะช่วงโหลดหน้า ข้อความที่สร้างระหว่างเล่นไม่ถูกเก็บ — หน่วยความจำไม่โต)
+const L_EN = new Map();
+function L(th, en) {
+  if (en != null && en !== '' && typeof th === 'string' && (typeof document === 'undefined' || document.readyState === 'loading')) L_EN.set(th, en);
+  return LANG === 'en' && en != null && en !== '' ? en : th;
+}
+// รายละเอียดไอเทมเป็นภาษาอังกฤษเสมอ (เจ้าของสั่ง 2026-10-03): ชื่อ/ค่าพลัง/คำอธิบาย/ความหายาก/เงื่อนไข
+// ข้อความที่ต่อท้ายหลังแปล (เช่น คำอธิบายไอเทม + ค่าพลัง) → แปลส่วนหน้าที่ยาวที่สุดที่รู้จัก แล้วคงส่วนท้ายไว้ (จำผลไว้)
+const EN_CACHE = new Map();
+function EN(s) {
+  if (LANG === 'en' || typeof s !== 'string' || !s) return s;
+  const hit = L_EN.get(s); if (hit != null) return hit;
+  if (EN_CACHE.has(s)) return EN_CACHE.get(s);
+  let best = '';
+  for (const k of L_EN.keys()) if (k.length > best.length && s.startsWith(k)) best = k;
+  const out = best ? L_EN.get(best) + s.slice(best.length) : s;
+  EN_CACHE.set(s, out);
+  return out;
+}
 function setLang(l) {
   if (l === LANG) return;
   try { localStorage.setItem('nm_lang', l); } catch (e) { /* โหมดส่วนตัว */ }

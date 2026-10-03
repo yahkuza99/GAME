@@ -17,6 +17,20 @@ globalThis.EXTRA = async (A, B, ok) => {
   await B.waitForFunction(() => WB.live() && WB.live().hp <= WB.live().maxHp - 21000, null, { timeout: 8000 }).catch(() => {});
   const [ha, hb] = [await A.evaluate(() => WB.live().hp), await B.evaluate(() => WB.live().hp)];
   ok('เลือดบอสตรงกันทั้งสองเครื่อง', ha === hb && ha === max - 21000, `${ha} / ${hb}`);
+  // บอสระดับ 2: ช่วงคลั่งคิดจากเลือดร่วม → ทั้งสองเครื่องอยู่ช่วงเดียวกัน (เลือด < 50%) • ลูกสมุนเป็นของในเครื่อง ไม่ถูกส่งไปอีกเครื่อง
+  await A.waitForFunction(() => WB.live() && WB.live().phase >= 1, null, { timeout: 4000 }).catch(() => {});
+  await B.waitForFunction(() => WB.live() && WB.live().phase >= 1, null, { timeout: 4000 }).catch(() => {});
+  const [pa, pb] = [await A.evaluate(() => WB.live().phase), await B.evaluate(() => WB.live().phase)];
+  ok('Ancient: ช่วงคลั่งตรงกันทั้งสองเครื่อง', pa === pb && pa === 1, `${pa} / ${pb}`);
+  await A.evaluate(() => { // ตีกลับอัตโนมัติปิดไว้ระหว่างนี้ (ไม่ให้ A ตีบอสเองจนเลือดร่วมเปลี่ยน)
+    const m = WB.live(), pl = G.player; pl.options.autoCounter = false; pl.target = null;
+    teleportPlayer(m.x + 2, m.y); m.state = 'chase'; m.calmAt = 0; BossKit.summon(m); for (let i = 0; i < 25; i++) updateGame(0.05);
+  });
+  const [ma, mb] = [await A.evaluate(() => G.mobs.filter(m => m.minion && !m.dead).length), await B.evaluate(() => G.mobs.filter(m => m.minion && !m.dead).length)];
+  ok('Ancient: ลูกสมุนอยู่เฉพาะเครื่องที่เรียก (ไม่ทำให้เครือข่ายเพี้ยน)', ma > 0 && mb === 0, `${ma} / ${mb}`);
+  await A.evaluate(() => { for (const m of G.mobs) if (m.minion) damageMob(m, 1e9); G.player.target = null; teleportPlayer(20, 20); G.player.options.autoCounter = true; });
+  await A.waitForTimeout(600);
+  ok('ตีลูกสมุนไม่หักเลือดบอสร่วม', (await B.evaluate(() => WB.live().hp)) === hb, String(await B.evaluate(() => WB.live().hp)));
   // ตารางดาเมจ: ทั้งสองเครื่องเห็นอันดับเดียวกัน (Alice 20000 > Bobby 1000) + ป้าย Top damage แสดงอยู่
   const topOf = P => P.evaluate(() => { WB.tick(); const el = document.getElementById('wb-top');
     return { top: WB.top('mistlake').map(r => `${r.rank}.${r.n}:${r.d}`).join(','), me: (WB.top('mistlake').find(r => r.me) || {}).n, shown: !!el && !el.hidden && /Alice/.test(el.textContent) }; });
