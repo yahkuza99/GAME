@@ -721,6 +721,7 @@ function aggroMob(m) {
   if (m.dead) return;
   if (m.state !== 'chase') { m.state = 'chase'; m.emoteUntil = G.time + 0.9; m.path = []; }
 }
+const MOB_FLINCH = { chance: 0.12, dur: 0.25, cd: 2.5 }; // มอน: โอกาสกระตุกน้อยกว่าผู้เล่น (FLINCH)
 function damageMob(m, dmg, opts = {}) {
   if (m.dead) return;
   if (G.player) G.player.combatAt = G.time; // ตีโดน = อยู่ในการต่อสู้ (เปลี่ยนรูนไม่ได้ 5 วิ)
@@ -735,6 +736,10 @@ function damageMob(m, dmg, opts = {}) {
   }
   m.hp -= dmg;
   m.hitFlash = 0.12;
+  // มอนกระตุกตอนเดิน (เจ้าของ 2026-10-03: "โอกาสน้อย") • บอส/MVP/Ancient ไม่กระตุก • มีคูลดาวน์
+  if (m.moving && !m.def.dummy && !m.def.boss && !m.isMvp && !m.isWB && G.time >= (m.flinchCd || 0) && dmg >= Math.max(1, m.maxHp * 0.01) && Math.random() < MOB_FLINCH.chance) {
+    m.flinchUntil = G.time + MOB_FLINCH.dur; m.flinchCd = G.time + MOB_FLINCH.cd;
+  }
   if (m.def.dummy) { // หุ่นฝึก: จดดาเมจไว้คิด DPS และไม่มีวันตาย (เลือดเต็มใหม่เมื่อหมด)
     (m.dmgLog || (m.dmgLog = [])).push([G.time, dmg]);
     Quest.onHitDummy();
@@ -1589,6 +1594,7 @@ function updateMob(m, dt) {
     if (m.dead) return;
   }
   if (m.stunUntil > G.time) { m.moving = false; return; }
+  if (m.flinchUntil > G.time) { m.moving = false; return; } // กระตุกชั่วครู่ แล้วเดินต่อ
   const alive = !p.dead;
   const hidden = p.stealthUntil > G.time;
   const dist = U.dist(m.x, m.y, p.x, p.y);

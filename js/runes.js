@@ -355,9 +355,9 @@ Runes.watchCombat = function () {
   const K = Runes.K = {
     // Einherjar
     ib_ret_ch: 1, ib_ret: 0.248, ib_jug: 1.4,
-    ss_main: 0.85, ss_shock: 0.268, ss_charge: 1.07,
+    ss_main: 0.85, ss_shock: 0.245, ss_charge: 1.07,
     cry_mark: 1.3,
-    ww_vortex: 0.955, ww_storm_hit: 0.4, ww_storm_tick: 0.185,
+    ww_vortex: 0.955, ww_storm_hit: 0.4, ww_storm_tick: 0.17,
     st_main: 0.85, st_bounce: 0.195, st_boom: 0.623,
     vo_echo: 0.517, vo_res: 0.51,
     // Rune Caster
