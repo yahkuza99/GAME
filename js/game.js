@@ -581,6 +581,11 @@ function getMap(id) {
 function changeMap(id, x, y, opts = {}) {
   const p = G.player;
   const map = getMap(id);
+  // ออกจากลานประลอง v2: คืนหน่วยความจำชีตผู้ชม (~8.7 MB) + ชั้นหน้า — กลับเข้ามา Art.need โหลดจากแคชเบราว์เซอร์อีกครั้ง
+  if (G.map && G.map.arenaV2 && G.map !== map && typeof Bake !== 'undefined' && typeof Art !== 'undefined') {
+    const d = Bake.data(G.map);
+    if (d) { if (d.crowd) Art.free(d.crowd.img); for (const pc of d.pieces || []) Art.free(pc.img); }
+  }
   if (!map.walkable(Math.floor(x), Math.floor(y))) ({ x, y } = map.nearestWalkable(x, y)); // เซฟเก่า/พิกัดที่กลายเป็นลำต้นไม้
   G.map = map;
   p.map = id;
