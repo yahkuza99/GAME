@@ -222,6 +222,7 @@ const Online = {
     ch.on('broadcast', { event: 'pos' }, ({ payload }) => this.onPos(payload));
     ch.on('broadcast', { event: 'say' }, ({ payload }) => this.onSay(payload));
     ch.on('broadcast', { event: 'hit' }, ({ payload }) => this.onHit(payload));
+    ch.on('broadcast', { event: 'stun' }, ({ payload }) => this.onStun(payload));
     ch.on('broadcast', { event: 'kill' }, ({ payload }) => this.onKill(payload));
     ch.on('broadcast', { event: 'wb' }, ({ payload }) => { if (typeof WB !== 'undefined') WB.onNet(payload); }); // World Boss: เลือดร่วมกันทั้งแผนที่
     ch.on('broadcast', { event: 'emote' }, ({ payload }) => { const o = payload && this.others.get(payload.id); if (o && EMOTE_BY[payload.k]) Emote.play(payload.k, o); });
@@ -347,6 +348,21 @@ const Online = {
   sendHit(m, dmg, crit) {
     if (!this.mapChannel || !G.map.def.pvp) return;
     this.mapChannel.send({ type: 'broadcast', event: 'hit', payload: { from: this.user.id, fn: G.player.name, to: m.ref.id, dmg, crit } });
+  },
+  // รูนสตันใน PvP (js/runes.js Runes.tryStun): ผู้ตีทอยโอกาส 1% แล้วส่ง 'stun' • ผู้ถูกตีหักค่าต้านของตัวเอง (VIT/ต้านมึน/ไม่สะทกสะท้าน) แล้วค่อยมึน
+  sendStun(m, dur) {
+    if (!this.mapChannel || !G.map.def.pvp || !m || !m.ref) return;
+    this.mapChannel.send({ type: 'broadcast', event: 'stun', payload: { from: this.user.id, to: m.ref.id, dur } });
+  },
+  onStun(s) {
+    const p = G.player, d = p && p.d;
+    if (!s || !this.user || s.to !== this.user.id || !G.map.def.pvp || p.dead || d.unshaken) return;
+    const atk = this.others.get(s.from);
+    if (!atk || atk.dead || U.dist(atk.x, atk.y, p.x, p.y) > 16) return;
+    const now = performance.now(); if (now - (this.stunAt || 0) < 3000) return; // กันส่งรัว: มึนจากคนอื่นได้ทุก 3 วิ
+    if (!U.chance((1 - Math.min(0.9, d.vit / 100)) * (1 - d.stunRes / 100))) return;
+    this.stunAt = now;
+    stunPlayer(U.clamp(+s.dur || 0, 0.3, 2));
   },
   onHit(s) {
     const p = G.player;
