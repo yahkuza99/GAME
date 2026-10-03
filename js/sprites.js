@@ -1052,15 +1052,43 @@ Sprites.drawBuildingImg = (g, b, t) => {
   if (b.kind === 'castle') { H = Math.min(H, b.h * TILE * 2.4); W = H * img.width / img.height; }
   Sprites.shadow(g, cx + 8, by - 4, W * 0.44, W * 0.1, 0.16);
   g.drawImage(img, cx - W / 2, by - H + 6, W, H);
-  if (b.label) {
-    const ly = by - H + 6 - 14;
-    g.font = '700 13px Kanit, "Noto Sans Thai", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-    const w = g.measureText(b.label).width + 18;
-    g.fillStyle = 'rgba(6,12,24,0.82)'; g.fillRect(cx - w / 2, ly - 10, w, 20);
-    g.save(); g.shadowColor = b.roof || '#6ad8ff'; g.shadowBlur = 8 + Math.sin(t * 3) * 3;
-    g.strokeStyle = b.roof || '#6ad8ff'; g.lineWidth = 1.5; g.strokeRect(cx - w / 2, ly - 10, w, 20);
-    g.fillStyle = '#fff'; g.fillText(b.label, cx, ly + 1); g.restore();
-  }
+  if (b.label) Sprites.shopSign(g, cx, b.kind === 'castle' ? by - H + 6 - 16 : by - H * 0.36, b.label, b.roof); // ร้าน: ป้ายติดผนังเหนือประตู (ไม่ลอยเหนือหลังคาไปทับคน/NPC)
+};
+// ป้ายชื่ออาคาร: แผ่นไม้ขอบทอง + จานไอคอนสีประจำร้าน (เข้าชุด UI ครีม/ทอง) — ไม่ใช่ป้ายนีออน
+Sprites.SIGN_ICON = { SUPPLY: 'potion', ARMORY: 'shield', PLATING: 'drop', FORGE: 'anvil', 'CENTRAL CORE': 'crystal' };
+Sprites.shopSign = (g, cx, cy, label, accent) => {
+  g.save();
+  g.font = '700 12px Cinzel, Kanit, serif'; g.textAlign = 'left'; g.textBaseline = 'middle';
+  const tw = g.measureText(label).width, h = 24, w = tw + 46, x0 = cx - w / 2, y0 = cy - h / 2;
+  const box = () => ({ x: x0 - 6, y: y0 - 4, w: w + 12, h: h + 8 });
+  const draw = c => {
+    const rr = (x, y, ww, hh, r) => { c.beginPath(); c.roundRect(x, y, ww, hh, r); };
+    c.save(); c.shadowColor = 'rgba(20,10,0,0.45)'; c.shadowBlur = 5; c.shadowOffsetY = 2;
+    rr(x0, y0, w, h, 6); const gr = c.createLinearGradient(0, y0, 0, y0 + h);
+    gr.addColorStop(0, '#8a5a31'); gr.addColorStop(0.55, '#6a4122'); gr.addColorStop(1, '#4b2c15');
+    c.fillStyle = gr; c.fill(); c.restore();
+    c.strokeStyle = '#2b170a'; c.lineWidth = 1.5; rr(x0, y0, w, h, 6); c.stroke();
+    c.strokeStyle = 'rgba(232,196,110,0.95)'; c.lineWidth = 1; rr(x0 + 2.5, y0 + 2.5, w - 5, h - 5, 4); c.stroke();
+    c.strokeStyle = 'rgba(255,225,170,0.12)'; c.beginPath(); c.moveTo(x0 + 22, y0 + 8); c.lineTo(x0 + w - 8, y0 + 8); c.moveTo(x0 + 22, y0 + 16); c.lineTo(x0 + w - 8, y0 + 16); c.stroke(); // ลายไม้
+    for (const sx of [x0, x0 + w]) { c.fillStyle = '#e8c46e'; c.beginPath(); c.moveTo(sx, cy - 4); c.lineTo(sx + 4, cy); c.lineTo(sx, cy + 4); c.lineTo(sx - 4, cy); c.closePath(); c.fill(); c.strokeStyle = '#5a3a10'; c.stroke(); }
+    const ix = x0 + 14, col = accent || '#6ad8ff';
+    const pg = c.createRadialGradient(ix - 2, cy - 3, 1, ix, cy, 9); pg.addColorStop(0, '#fff8e6'); pg.addColorStop(0.35, col); pg.addColorStop(1, '#2a1a0c');
+    c.fillStyle = pg; c.beginPath(); c.arc(ix, cy, 8.5, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = '#e8c46e'; c.lineWidth = 1.2; c.stroke();
+    c.fillStyle = '#fffaf0'; c.strokeStyle = '#fffaf0'; c.lineWidth = 1.4; c.lineJoin = 'round';
+    const k = Sprites.SIGN_ICON[label];
+    c.beginPath();
+    if (k === 'potion') { c.rect(ix - 1.5, cy - 6, 3, 3); c.arc(ix, cy + 1.5, 4, 0, Math.PI * 2); c.fill(); }
+    else if (k === 'shield') { c.moveTo(ix - 4.5, cy - 4.5); c.lineTo(ix + 4.5, cy - 4.5); c.lineTo(ix + 4, cy + 1); c.quadraticCurveTo(ix + 2, cy + 4.5, ix, cy + 6); c.quadraticCurveTo(ix - 2, cy + 4.5, ix - 4, cy + 1); c.closePath(); c.fill(); }
+    else if (k === 'drop') { c.moveTo(ix, cy - 6); c.quadraticCurveTo(ix + 5, cy, ix + 4, cy + 2.5); c.arc(ix, cy + 2, 4, 0.1, Math.PI - 0.1); c.quadraticCurveTo(ix - 5, cy, ix, cy - 6); c.fill(); }
+    else if (k === 'anvil') { c.moveTo(ix - 6, cy - 3); c.lineTo(ix + 5, cy - 3); c.lineTo(ix + 3, cy); c.lineTo(ix + 1.5, cy); c.lineTo(ix + 3, cy + 4); c.lineTo(ix - 3, cy + 4); c.lineTo(ix - 1.5, cy); c.lineTo(ix - 3, cy); c.closePath(); c.fill(); }
+    else { c.moveTo(ix, cy - 6); c.lineTo(ix + 4, cy); c.lineTo(ix, cy + 6); c.lineTo(ix - 4, cy); c.closePath(); c.fill(); }
+    c.font = '700 12px Cinzel, Kanit, serif'; c.textAlign = 'left'; c.textBaseline = 'middle';
+    c.fillStyle = 'rgba(30,14,2,0.8)'; c.fillText(label, x0 + 28, cy + 2);
+    c.fillStyle = '#fff1d0'; c.fillText(label, x0 + 28, cy + 1);
+  };
+  if (!R.cached(g, `SIGN|${label}|${accent}|${cx | 0},${cy | 0}`, 0, 0, box, draw)) draw(g);
+  g.restore();
 };
 // ซุ้มปากถ้ำ 3D (tools/ridge3d.py, RIDGE_BAKE ใน maps.js): วาด 1:1 ตามจุดยึด (ax, ay = ขอบหน้าเสากลางซุ้มบนพื้น = y ที่ใช้เรียงความลึก)
 // ผู้เล่น/เป้าหมายที่อยู่หลังซุ้ม (y น้อยกว่า) แล้วถูกเนื้อหินในภาพบัง → จางลงแบบยอดไม้ (Flora.drawObj) — เช็กจากหน้ากากความทึบของภาพ ไม่ใช่กรอบสี่เหลี่ยม
