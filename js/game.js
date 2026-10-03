@@ -722,7 +722,7 @@ function aggroMob(m) {
   if (m.dead) return;
   if (m.state !== 'chase') { m.state = 'chase'; m.emoteUntil = G.time + 0.9; m.path = []; }
 }
-const MOB_FLINCH = { chance: 0.12, dur: 0.25, cd: 2.5 }; // มอน: โอกาสกระตุกน้อยกว่าผู้เล่น (FLINCH)
+const MOB_FLINCH = { chance: 0.12, dur: 0.25, cd: 2.5, lvGap: 10 }; // มอน: โอกาสกระตุกน้อยกว่าผู้เล่น (FLINCH)
 function damageMob(m, dmg, opts = {}) {
   if (m.dead) return;
   if (G.player) G.player.combatAt = G.time; // ตีโดน = อยู่ในการต่อสู้ (เปลี่ยนรูนไม่ได้ 5 วิ)
@@ -738,7 +738,7 @@ function damageMob(m, dmg, opts = {}) {
   m.hp -= dmg;
   m.hitFlash = 0.12;
   // มอนกระตุกตอนเดิน (เจ้าของ 2026-10-03: "โอกาสน้อย") • บอส/MVP/Ancient ไม่กระตุก • มีคูลดาวน์
-  if (m.moving && !m.def.dummy && !m.def.boss && !m.isMvp && !m.isWB && G.time >= (m.flinchCd || 0) && dmg >= Math.max(1, m.maxHp * 0.01) && Math.random() < MOB_FLINCH.chance) {
+  if (m.moving && !m.def.dummy && !m.def.boss && !m.isMvp && !m.isWB && opts.src !== 'burn' && G.player && G.player.baseLv >= m.def.lv - MOB_FLINCH.lvGap && G.time >= (m.flinchCd || 0) && dmg >= Math.max(1, m.maxHp * 0.01) && Math.random() < MOB_FLINCH.chance * lvChanceMul(G.player.baseLv, m.def.lv)) {
     m.flinchUntil = G.time + MOB_FLINCH.dur; m.flinchCd = G.time + MOB_FLINCH.cd;
   }
   if (m.def.dummy) { // หุ่นฝึก: จดดาเมจไว้คิด DPS และไม่มีวันตาย (เลือดเต็มใหม่เมื่อหมด)
@@ -826,11 +826,15 @@ function grantChip(d, m) {
   Sound.play('refine_ok');
 }
 
+// จำกัดของ "โกง ๆ" ตามเลเวล (เจ้าของ 2026-10-03): มึน/ช้า/กระตุก — ผู้ทำเลเวลต่ำกว่าเป้าหมาย โอกาสลดลง 5%/เลเวล (ต่ำสุด ×0.1)
+//   ไม่เพิ่มโอกาสเมื่อเลเวลสูงกว่า (ไม่ทำให้ฟาร์มแมพเก่าง่ายขึ้นอีก) • ต่างเกิน 10 เลเวลขึ้นไป = กระตุกไม่ได้เลย (FLINCH.lvGap)
+function lvChanceMul(atkLv, defLv) { const d = (atkLv || 1) - (defLv || 1); return d >= 0 ? 1 : Math.max(0.1, 1 + d * 0.05); }
 // สถานะผิดปกติของมอนสเตอร์: stun (มึน), slow (ช้า), burn (ไหม้), poison (พิษ)
 function applyStatus(m, st, lv, lastDmg = 0) {
   if (!st || m.dead || m.isPlayer) return;
   if (m.def.boss && st.kind === 'stun') return;
-  if (!U.chance(st.chance(lv) / 100)) return;
+  const lvMul = st.kind === 'stun' || st.kind === 'slow' ? lvChanceMul(G.player && G.player.baseLv, m.def.lv) : 1; // มึน/ช้าใส่มอนเลเวลสูงกว่ายากขึ้น
+  if (!U.chance(st.chance(lv) * lvMul / 100)) return;
   const until = G.time + st.dur(lv);
   const at = (t, c) => addFloater(m.x, m.y - 1.5, t, c);
   if (st.kind === 'stun') { m.stunUntil = until; m.path = []; m.moving = false; at('Stun!', '#ffe080'); }
@@ -878,9 +882,9 @@ function mobAttack(m) {
   dmg = Math.max(1, Math.round(dmg * (1 - d.def / 100) - d.softDef * U.rand(0.7, 1)));
   if (md.boss) dmg = Math.min(dmg, Math.round(d.maxHp * BOSS_HIT_CAP)); // บอส (รวม Ancient ATK ×3): ตีปกติครั้งเดียวไม่เกิน 60% MaxHP — ไม่มีฆ่าในทีเดียวจากเลือดเต็ม
   if (RU) dmg = RU.onHurt(m, dmg);
-  damagePlayer(dmg);
+  damagePlayer(dmg, undefined, { lv: md.lv });
   if (RU) RU.onAttacked(m, true);
-  if (md.stun && !d.unshaken && U.chance(md.stun[0] / 100 * (1 - Math.min(0.9, d.vit / 100)) * (1 - d.stunRes / 100))) stunPlayer(md.stun[1]);
+  if (md.stun && !d.unshaken && U.chance(md.stun[0] / 100 * (1 - Math.min(0.9, d.vit / 100)) * (1 - d.stunRes / 100) * lvChanceMul(md.lv, p.baseLv))) stunPlayer(md.stun[1]);
 }
 // โจมตีกลับอัตโนมัติ (ตั้งค่าได้): ยืนเฉย ๆ / นั่งพัก แล้วโดนตี → หันไปตีตัวที่ตีเรา
 // ไม่แย่งการควบคุม: ถ้ากำลังเดิน, นำทาง, คุย NPC, ร่ายสกิล, มีเป้าอยู่แล้ว หรือบอททำงานอยู่ จะไม่ทำ
@@ -908,8 +912,8 @@ function stunBlocked() {
   if (p.stunMsg !== p.stunAt) { p.stunMsg = p.stunAt; UI.msg(L('มึนอยู่ ทำอะไรไม่ได้ชั่วครู่', 'You are stunned and cannot act!'), 'err'); }
   return true;
 }
-const FLINCH = { chance: 0.4, dur: 0.3, cd: 1.6 }; // โอกาสกระตุก / หยุดเดินกี่วิ / คูลดาวน์ก่อนกระตุกได้อีก
-function damagePlayer(dmg, color = '#ff5050') {
+const FLINCH = { chance: 0.4, dur: 0.3, cd: 1.6, lvGap: 10 }; // โอกาสกระตุก / หยุดเดินกี่วิ / คูลดาวน์ก่อนกระตุกได้อีก
+function damagePlayer(dmg, color = '#ff5050', src = {}) { // src: { lv: เลเวลผู้ตี (จำกัดการกระตุก), dot: ดาเมจต่อเนื่อง (ไม่กระตุก) }
   const p = G.player;
   if (p.dead) return;
   if (dmg <= 0) { p.combatAt = G.time; addFloater(p.x, p.y - 1.2, 'Block', '#9fc8ff'); return; } // ดูดซับหมด (เกราะรูน/เปลือกแสง)
@@ -919,7 +923,8 @@ function damagePlayer(dmg, color = '#ff5050') {
   addFloater(p.x, p.y - 1.2, dmg, color);
   p.hurtFlash = 0.15;
   // กระตุกตอนเดิน (เจ้าของ 2026-10-03): โดนตีระหว่างเดินมีโอกาสสะดุดหยุดเดินสั้น ๆ • มีคูลดาวน์ เดินฝ่าได้ ไม่โดนล็อกจนขยับไม่ได้
-  if (p.path.length && G.time >= (p.flinchCd || 0) && dmg >= Math.max(1, p.d.maxHp * 0.01) && Math.random() < FLINCH.chance) {
+  // จำกัดเลเวล (เจ้าของ 2026-10-03): มอนเลเวลต่ำกว่าเรา โอกาสลดตาม lvChanceMul • ต่ำกว่าเกิน FLINCH.lvGap ทำให้กระตุกไม่ได้ • ดาเมจต่อเนื่อง (พิษ) ไม่กระตุก
+  if (p.path.length && !src.dot && !(src.lv != null && src.lv < p.baseLv - FLINCH.lvGap) && G.time >= (p.flinchCd || 0) && dmg >= Math.max(1, p.d.maxHp * 0.01) && Math.random() < FLINCH.chance * (src.lv != null ? lvChanceMul(src.lv, p.baseLv) : 1)) {
     p.flinchUntil = G.time + FLINCH.dur; p.flinchCd = G.time + FLINCH.cd; p.hurtFlash = FLINCH.dur;
   }
   Sound.play('hurt');
@@ -1548,7 +1553,7 @@ function updatePlayer(dt) {
   // พิษ
   if (p.poisonUntil > G.time && G.time >= (p.poisonTick || 0)) {
     p.poisonTick = G.time + 1.5;
-    if (p.hp > p.d.maxHp * 0.25) damagePlayer(Math.max(1, Math.floor(p.d.maxHp * 0.015)), '#c080ff');
+    if (p.hp > p.d.maxHp * 0.25) damagePlayer(Math.max(1, Math.floor(p.d.maxHp * 0.015)), '#c080ff', { dot: true });
   }
   // วาร์ปพอร์ทัล
   // เข้าวาร์ปได้เมื่อตัวละครอยู่ในรัศมี PORTAL_REACH ช่องจากกลางวาร์ป (จุดเกิดอยู่ห่าง 2 ช่อง จึงไม่เด้งกลับ)
