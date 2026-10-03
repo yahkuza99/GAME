@@ -316,6 +316,15 @@ const Runes = {
 };
 
 // ---------- หน้าต่างสกิล: แถวเลือกรูนใต้สกิล (เรียกจาก UI.renderSkills บรรทัดเดียว) — CSS อยู่ที่ css/runes.css ----------
+// ไอคอนรูน 3D (tools/rune3d.py → assets/rune_<runeId>.webp, '.' → '_') — หินรูนแกะสลัก 1 ชุดต่อ Class + อักษร/สีของรูน + จุดแนวการเล่น
+//   iconUrl → ใส่ <img src> ได้เลย (โหลดเมื่อขอ) • ไม่มีไฟล์/รูนไม่รู้จัก/manifest ยังไม่มา = null (ใช้ glyph ตัวอักษรเดิม)
+//   iconImg → สำหรับวาดลงผ้าใบ: เริ่มโหลด (Art.need) แล้วคืนภาพเมื่อพร้อม ไม่งั้น null
+Runes.artKey = function (rid) { return 'rune_' + String(rid).replace(/[^A-Za-z0-9_]/g, '_'); };
+Runes.iconUrl = function (rid) { return this.BY_ID[rid] && typeof Art !== 'undefined' ? Art.url(this.artKey(rid)) : null; };
+Runes.iconImg = function (rid) {
+  if (!this.BY_ID[rid] || typeof Art === 'undefined') return null;
+  const k = this.artKey(rid); Art.need(k); return Art.get(k) || null;
+};
 Runes.INTENT = { single: () => L('เป้าเดี่ยว', 'Single'), pack: () => L('ฝูง', 'Pack'), both: () => L('รอบด้าน', 'Any') };
 Runes.skillRow = function (list, id) {
   const r2 = this.list(id); if (r2.length < 2 || typeof h !== 'function') return;
