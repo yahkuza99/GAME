@@ -127,7 +127,7 @@ const Bot = {
     }
     if (p.skillReadyAt - G.time > slack || p.cast || skillCdLeft(id) > slack || isStunned()) return false;
     if (s.bow && weaponType() !== 'bow') return false;
-    return canPaySkill(skillCost(id, lv)) && (!p.d.bloodmagic || p.hp - skillCost(id, lv) > p.d.maxHp * 0.4);
+    return canPaySkill(skillCost(id, lv)) && (!p.d.bloodmagic || p.hp - bloodCost(skillCost(id, lv)) > p.d.maxHp * 0.5); // Blood Circuit: เหลือ HP ครึ่งหนึ่งไว้สู้ต่อ
   },
   // สกิลที่แลก HP (hpCost): ไม่ใช้ถ้าใช้แล้ว HP จะเหลือต่ำกว่า 35% (เสี่ยงตาย) หรือต่ำกว่าจุดปั๊มยา (จ่ายเลือดเพื่อให้ไปกินยา = เปลืองยา)
   hpCostOk(id) {

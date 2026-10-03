@@ -11,7 +11,7 @@ const G = {
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
 const SAVE_FIELDS = ['pvp', 'mvpAt', 'job1Lv', 'name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
-  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery', 'story', 'daily', 'gacha', 'runes', 'loadouts', 'hrunes', 'hrunesOwn'];
+  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery', 'story', 'daily', 'gacha', 'runes', 'loadouts', 'hrunes', 'hrunesOwn', 'ptV', 'ptReset'];
 
 // ------------------------------------------------------------
 //  สร้าง / บันทึก / โหลด
@@ -20,7 +20,7 @@ function newPlayer(name, gender, hair, look) {
   const p = {
     name, gender, hair, look: Object.assign({ head: gender === 'f' ? 'long' : 'spiky', color: '#e6e9ef', glow: '#7ad8ff', visor: 'band' }, look || {}), job: 'novice', baseLv: 1, jobLv: 1, baseExp: 0, jobExp: 0,
     stats: { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 }, statPoints: 48, skillPoints: 0,
-    skills: { first_aid: 1 }, passives: [], runes: {}, hrunes: [null, null], hrunesOwn: [], zeny: 500, inventory: [],
+    skills: { first_aid: 1 }, passives: [], ptV: PASSIVE_VER, ptReset: 0, runes: {}, hrunes: [null, null], hrunesOwn: [], zeny: 500, inventory: [],
     equip: { head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null, acc2: null },
     hotbar: [null, null, null, null, null, null, null, null], potbar: [null, null, null, null],
     map: HOME_MAP, x: 20.5, y: 24.5, save: { map: HOME_MAP, x: 20.5, y: 24.5 },
@@ -177,6 +177,7 @@ function loadGameFrom(data) {
   p.runes = typeof Runes !== 'undefined' ? Runes.sanitize(p.runes) : {}; // Rune Paths: เซฟเก่าไม่มี = ไม่มีรูน (สกิลแบบเดิม) • รูน/สกิลที่ไม่มีแล้วถูกตัดทิ้ง
   if (typeof HuntRunes !== 'undefined') HuntRunes.sanitize(p); // Hunt Rune (js/huntrunes.js): เซฟเก่าไม่มี = ว่าง • id ที่ไม่มี/ไม่ได้ซื้อ/Endow ซ้ำ ถูกตัดทิ้ง
   if (typeof Loadouts !== 'undefined') p.loadouts = Loadouts.sanitize(p.loadouts); // Loadouts (js/loadouts.js): เซฟเก่าไม่มี = 3 ช่องว่าง • ข้อมูลเสียถูกตัดทิ้ง
+  Passive.migrate(p, data); // ต้นไม้ Passive แบบ D: id เดิมใช้ต่อ • id เสีย/ต่อแกนไม่ถึงถูกตัด (แต้มคืน) • เซฟก่อนรุ่นนี้ได้รีเซ็ตฟรี 1 ครั้ง
   fixSkillPoints(p, true); // เซฟเก่าที่แต้มสกิลเกิน (แต้ม Novice ค้างข้าม Class) → ปรับให้ถูกต้อง
   // แถบสกิล (8 ช่อง) แยกจากแถบไอเทม (4 ช่อง) — เซฟเก่าที่ปนกันจะถูกย้ายไอเทมไปแถบไอเทม
   const oldBar = (p.hotbar || []).filter(h => h && ((h.t === 'skill' && SKILLS[h.id]) || (h.t === 'item' && ITEMS[h.id])));
@@ -255,11 +256,15 @@ function recalc() {
   // ต้นไม้พาสซีฟ: ค่าเปอร์เซ็นต์ + Keystone
   d.atkPct = b.atkPct || 0; d.critMul = 1.4 + (b.critDmgPct || 0) / 100; d.leech = b.leech || 0;
   d.healPct = b.healPct || 0; d.stunRes = Math.min(90, b.stunRes || 0); d.spCostPct = Math.max(-50, b.spCostPct || 0);
-  for (const ks of ['unshaken', 'phantom', 'resolute', 'bloodmagic', 'mom']) d[ks] = Passive.keystone(p, ks);
+  for (const ks of ['unshaken', 'phantom', 'resolute', 'bloodmagic', 'mom', 'overclock']) d[ks] = Passive.keystone(p, ks);
+  // Passive แบบ D: ส่วนที่มาจากต้นไม้ (หลังเพดาน) — เงื่อนไขตอนเล่นใช้ "ที่ว่างที่เหลือ" ใต้เพดานเดียวกัน (Passive.dmgMul/aspdAdd/healAdd)
+  const pv = Passive.sum(p);
+  d.pAtkPct = pv.atkPct || 0; d.pMatkPct = pv.matkPct || 0; d.pAspdPct = pv.aspdPct || 0; d.pHealPct = pv.healPct || 0;
+  d.pfx = Passive.fxOf(p);
   d.def = Math.min(90, b.def); d.softDef = Math.floor(d.vit / 2);
   d.mdef = Math.min(90, b.mdef); d.softMdef = Math.floor(d.int / 2);
   d.hit = p.baseLv + d.dex + b.hit;
-  d.flee = d.unshaken ? 0 : Math.floor((p.baseLv + d.agi + b.flee) * (d.phantom ? 1.5 : 1));
+  d.flee = d.unshaken ? 0 : Math.floor((p.baseLv + d.agi + b.flee) * (d.phantom ? (d.pfx && d.pfx.fleeMul) || 1 : 1));
   if (d.phantom) { d.def = Math.floor(d.def / 2); d.softDef = Math.floor(d.softDef / 2); }
   d.pdodge = 1 + Math.floor(d.luk / 10);
   d.crit = 1 + Math.floor(d.luk * 0.3) + b.crit;
@@ -691,13 +696,14 @@ function physHit(m, mult = 1, opts = {}) {
   const p = G.player, d = p.d, md = m.def;
   const crit = !d.resolute && (opts.forceCrit || (!opts.skill && U.chance(Math.max(0, d.crit - md.lv * 0.1) / 100)));
   const hitRate = U.clamp(80 + d.hit + (opts.hitBonus || 0) - md.flee, 5, 100);
-  if (!crit && !opts.sureHit && !d.resolute && !U.chance(hitRate / 100)) return { miss: true };
+  const steady = d.resolute && Passive.far(p); // Resolute Aim: ไม่มีศัตรูในระยะ 2 ช่อง = ตีโดนทุกครั้ง (คริไม่ได้เสมอ)
+  if (!crit && !opts.sureHit && !steady && !U.chance(hitRate / 100)) return { miss: true };
   let atk = d.statusAtk + d.weaponAtk * (crit ? 1 : U.rand(0.8, 1.0)) + d.atkBonus + (opts.flatAtk || 0);
   if (d.rage) atk *= 1 + (1 - p.hp / d.maxHp) * d.rage / 100;
   // Hunt Rune (js/huntrunes.js): Endow = ธาตุของตีปกติ/สกิลที่ไม่มีธาตุ • hr.k = โบนัสตามเงื่อนไข (คูณ, เพดาน +45%) • ไม่ใส่ = เหมือนเดิมทุกอย่าง
   const hr = typeof HuntRunes !== 'undefined' ? HuntRunes.hit(m, opts.element) : null;
   const em = elemMod(hr ? hr.el : (opts.element || 'neutral'), md.element);
-  let dmg = atk * mult * em * (1 + d.atkPct / 100) * (hr ? hr.k : 1);
+  let dmg = atk * mult * em * (1 + d.atkPct / 100) * (hr ? hr.k : 1) * Passive.dmgMul(m, 'phys', em); // Passive แบบมีเงื่อนไข (ใต้เพดาน ATK% เดียวกัน)
   if (crit) dmg *= d.critMul;
   else dmg = dmg * (1 - md.def / 100) - md.vit * 0.5 * U.rand(0.7, 1);
   return { dmg: em === 0 ? 0 : Math.max(1, Math.round(dmg)), crit, phys: true, em, hr: hr && hr.tags, endow: hr && hr.endow };
@@ -707,7 +713,7 @@ function magicHit(m, mult = 1, element = null) {
   const matk = U.randi(d.matkMin, Math.max(d.matkMin, d.matkMax));
   const hr = typeof HuntRunes !== 'undefined' ? HuntRunes.hit(m, element) : null; // Hunt Rune: เหมือน physHit
   const em = elemMod(hr ? hr.el : (element || 'neutral'), md.element);
-  const dmg = matk * mult * em * (hr ? hr.k : 1) * (1 - md.mdef / 100) - md.lv / 4;
+  const dmg = matk * mult * em * (hr ? hr.k : 1) * Passive.dmgMul(m, 'magic', em) * (1 - md.mdef / 100) - md.lv / 4;
   return { dmg: em === 0 ? 0 : Math.max(1, Math.round(dmg)), em, hr: hr && hr.tags, endow: hr && hr.endow };
 }
 function applyHit(m, r, opts = {}) {
@@ -797,6 +803,7 @@ function killMob(m) {
   if (p.target === m) p.target = null;
   Bot.onKill(m);
   if (typeof Runes !== 'undefined') Runes.onKill(m);
+  Passive.onKill(m); // Passive แบบมีเงื่อนไข: ฆ่าแล้ว ASPD/คริ/ฟื้น HP
   // ลูกสมุนที่บอสเรียก (js/bosskit.js): ไม่มี EXP / Zeny / ของดรอป / ไม่นับชิป-เควสต์-ภารกิจรายวัน-สมุดมอน — กันฟาร์มลูกสมุน
   if (m.minion) { Sound.play('kill'); return; }
   Quest.onKill(d.id);
@@ -865,7 +872,7 @@ function playerAttack(m) {
   const doHit = () => {
     if (m.dead) return;
     const rk = typeof Runes !== 'undefined' ? Runes.basicMul(m) : 1; // รูน: ตีปกติครั้งที่ N แรงขึ้น/คริแน่นอน • รอยรูนแบบตีปกติ
-    const r = physHit(m, masteryMul('attack') * rk, { forceCrit: ambush || (typeof Runes !== 'undefined' && Runes.takeCrit()) });
+    const r = physHit(m, masteryMul('attack') * rk, { forceCrit: ambush || (typeof Runes !== 'undefined' && Runes.takeCrit()) || Passive.takeCrit() });
     // ตีธรรมดา: ประชิด = เสียงฟัน (มีด/ดาบ/ขวาน) หรือทุบ (กระบอง/คทา/มือเปล่า) • ธนู = เสียงยิงตอนปล่อย ตอนโดนไม่ซ้อนอีก
     applyHit(m, r, { sfx: p.d.ranged ? '' : (['dagger', 'sword', 'axe'].includes(weaponType()) ? 'slash' : 'smash'), src: 'attack' });
     if (typeof Runes !== 'undefined') Runes.afterBasic(m, r);
@@ -887,9 +894,9 @@ function mobAttack(m) {
   faceTo(m, p.x, p.y);
   autoCounter(m);
   const RU = typeof Runes !== 'undefined' ? Runes : null; // รูนที่ทำงานตอนโดนโจมตี (สวนกลับ/ภาพติดตา/โล่ดูดซับ)
-  if (U.chance(d.pdodge / 100)) { addFloater(p.x, p.y - 1.2, 'Lucky!', '#a0ffa0'); if (RU) RU.onAttacked(m, false); return; }
+  if (U.chance(d.pdodge / 100)) { addFloater(p.x, p.y - 1.2, 'Lucky!', '#a0ffa0'); if (RU) RU.onAttacked(m, false); Passive.onDodge(); return; }
   const hitRate = U.clamp(80 + md.hit - d.flee, 5, 95);
-  if (!U.chance(hitRate / 100)) { addFloater(p.x, p.y - 1.2, 'Miss', '#a0c0ff'); if (RU) RU.onAttacked(m, false); return; }
+  if (!U.chance(hitRate / 100)) { addFloater(p.x, p.y - 1.2, 'Miss', '#a0c0ff'); if (RU) RU.onAttacked(m, false); Passive.onDodge(); return; }
   let dmg = U.randi(md.atk[0], md.atk[1]);
   dmg = Math.max(1, Math.round(dmg * (1 - d.def / 100) - d.softDef * U.rand(0.7, 1)));
   if (md.boss) dmg = Math.min(dmg, Math.round(d.maxHp * BOSS_HIT_CAP)); // บอส (รวม Ancient ATK ×3): ตีปกติครั้งเดียวไม่เกิน 60% MaxHP — ไม่มีฆ่าในทีเดียวจากเลือดเต็ม
@@ -929,7 +936,8 @@ function damagePlayer(dmg, color = '#ff5050', src = {}) { // src: { lv: เล�
   const p = G.player;
   if (p.dead) return;
   if (dmg <= 0) { p.combatAt = G.time; addFloater(p.x, p.y - 1.2, 'Block', '#9fc8ff'); return; } // ดูดซับหมด (เกราะรูน/เปลือกแสง)
-  if (p.d.mom) { const s = Math.min(Math.floor(p.sp), Math.floor(dmg * 0.3)); p.sp -= s; p.hp -= dmg - s; if (s > 0) addFloater(p.x + 0.4, p.y - 1.7, L(`SP ดูดซับ ${s}`, `SP absorbed ${s}`), '#8fb8ff'); } // Mind over Matter
+  if (p.d.pfx) { dmg = Math.max(1, Math.round(dmg * Passive.takenMul())); Passive.onHurt(dmg); } // Passive แบบมีเงื่อนไข: ยืนรับ/โดนรุม/โล่หลังโดนแรง (ลดรวม ≤ 25%)
+  if (p.d.mom) { const s = Math.min(Math.floor(p.sp), Math.floor(dmg * ((p.d.pfx && p.d.pfx.spShield) || 30) / 100)); p.sp -= s; p.hp -= dmg - s; if (s > 0) addFloater(p.x + 0.4, p.y - 1.7, L(`SP ดูดซับ ${s}`, `SP absorbed ${s}`), '#8fb8ff'); } // Mind over Matter
   else p.hp -= dmg;
   p.sitting = false; p.combatAt = G.time;
   addFloater(p.x, p.y - 1.2, dmg, color);
@@ -1020,9 +1028,11 @@ function skillCost(id, lv) {
   const s = skillDef(id), d = G.player.d;
   return s.sp ? Math.max(1, Math.round(s.sp(lv) * (1 + ((d && d.spCostPct) || 0) / 100))) : 0;
 }
-// Blood Circuit (ต้นไม้พาสซีฟ): จ่ายค่าสกิลด้วย HP แทน SP (ต้องเหลือ HP มากกว่าค่าสกิล)
-function canPaySkill(cost) { const p = G.player; return p.d.bloodmagic ? p.hp > cost : p.sp >= cost; }
-function paySkill(cost) { const p = G.player; if (p.d.bloodmagic) p.hp -= cost; else p.sp -= cost; }
+// Blood Circuit (ต้นไม้พาสซีฟ): จ่ายค่าสกิลด้วย HP แทน SP — สัดส่วนเท่ากันของค่าสูงสุด (SP 10% ของ MaxSP = HP 10% ของ MaxHP)
+// ไม่งั้นสาย HP เยอะ (นักรบ) ใช้สกิลไม่อั้นด้วยยา HP ส่วนสาย SP เยอะ (นักเวท) ใช้แทบไม่ได้
+function bloodCost(cost) { const d = G.player.d, fx = d.pfx; return Math.max(1, Math.ceil(cost * d.maxHp / Math.max(1, d.maxSp) * ((fx && fx.hpCost) || 1))); }
+function canPaySkill(cost) { const p = G.player; return p.d.bloodmagic ? p.hp > bloodCost(cost) : p.sp >= cost; }
+function paySkill(cost) { const p = G.player; if (p.d.bloodmagic) p.hp -= bloodCost(cost); else p.sp -= cost; }
 function skillReqMet(id) {
   const req = SKILLS[id].req;
   if (!req) return true;
@@ -1128,7 +1138,7 @@ function beginSkill(id, lv, tgt) {
   }
   p.sitting = false; p.path = []; p.skillIntent = null;
   let castMs = s.cast ? s.cast(lv) : 0;
-  castMs *= p.d.castMul * Math.max(0, 1 - p.d.dex / 150) * (typeof Runes !== 'undefined' ? Runes.castMul(id) : 1);
+  castMs *= p.d.castMul * Math.max(0, 1 - p.d.dex / 150) * (typeof Runes !== 'undefined' ? Runes.castMul(id) : 1) * (castMs > 0 ? Passive.castMul() : 1); // Quick Glyph: ฆ่าแล้วร่ายครั้งถัดไปเร็วขึ้น
   if (castMs > 50) {
     p.cast = { id, lv, target: tgt, start: G.time, end: G.time + castMs / 1000 };
     addFx({ type: 'castcircle', ref: p, dur: castMs / 1000, color: s.icon });
@@ -1490,6 +1500,7 @@ function updatePlayer(dt) {
   p.atkAnim = Math.max(0, p.atkAnim - dt * 4);
   p.hurtFlash = Math.max(0, (p.hurtFlash || 0) - dt);
   if (p.dead) { p.moving = false; return; }
+  Passive.tick(p); // Passive แบบมีเงื่อนไข: จับเวลายืนนิ่ง + ASPD/ฮีลตามเงื่อนไข
   // บัฟหมดเวลา
   let changed = false;
   for (const k in p.buffs) if (p.buffs[k].until <= G.time) { delete p.buffs[k]; changed = true; UI.msg(L(`${SKILLS[k].name} หมดฤทธิ์แล้ว`, `${SKILLS[k].name} has worn off.`), 'info'); }
