@@ -111,9 +111,9 @@ function handleClick() {
   if (p.cast) { p.cast = null; UI.msg(L('ยกเลิกการร่ายเวท', 'Cast cancelled.'), 'info'); }
   p.target = null; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null;
   p.sitting = false;
-  if (hv && hv.kind === 'mob') { p.target = hv.ref; p.repathAt = 0; return; }
-  if (hv && hv.kind === 'npc') { p.npcTarget = hv.ref; p.path = []; return; }
-  if (hv && hv.kind === 'drop') { p.pickTarget = hv.ref; p.path = []; return; }
+  if (hv && hv.kind === 'mob') { p.target = hv.ref; p.repathAt = 0; Bot.userTarget(hv.ref); return; }
+  if (hv && hv.kind === 'npc') { Bot.manualOverride(); p.npcTarget = hv.ref; p.path = []; return; }
+  if (hv && hv.kind === 'drop') { Bot.manualOverride(); p.pickTarget = hv.ref; p.path = []; return; }
   const tx = Math.floor(R.mouse.wx / TILE), ty = Math.floor(R.mouse.wy / TILE);
   Bot.manualOverride(); Nav.cancel(true);
   playerWalkTo(tx, ty);

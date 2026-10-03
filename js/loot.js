@@ -37,6 +37,8 @@ const LOOT = {
   const WTYPES = ['dagger', 'sword', 'axe', 'rod', 'bow', 'mace'];
   const PRICE = { common: lv => 200 + lv * 100, uncommon: lv => 150 + lv * 100, rare: lv => 1000 + lv * 400, epic: lv => 8000 + lv * 1200, legend: () => 150000 }; // ขายได้ครึ่งราคา
   const statText = b => (b && typeof PSTAT_FMT === 'function') ? Object.entries(b).filter(([k]) => PSTAT[k]).map(([k, v]) => PSTAT_FMT(k, v)).join(' ') : '';
+  const statTextEn = b => (b && typeof PSTAT !== 'undefined') ? Object.entries(b).filter(([k]) => PSTAT[k]).map(([k, v]) => {
+    const pct = /Pct$|^leech$|^stunRes$|^rage$|^venom$/.test(k), sg = v > 0 ? '+' : '', n = EN(PSTAT[k]); return pct ? `${sg}${v}${n}` : `${n} ${sg}${v}`; }).join(' ') : '';
   const ART = {}; // id ไอเทม → ภาพต้นแบบ (ย้อมสีจากภาพของไอเทมเดิม)
   // kind = ประเภทอาวุธ (dagger…mace) หรือช่องเกราะ (armor head shield garment shoes acc)
   const eq = (id, name, kind, lv, rarity, s, th, en) => {
@@ -52,6 +54,8 @@ const LOOT = {
     if (b) it.b = b;
     const st = statText(b);
     it.desc = L(th, en) + (st ? ' ' + st : '');
+    // รายละเอียดไอเทมเป็นอังกฤษเสมอ (EN() ใน js/i18n.js): จำคู่คำอธิบายเต็ม ไทย → อังกฤษ (ค่าพลังท้ายประโยคก็เป็นอังกฤษ)
+    if (st && typeof L_EN !== 'undefined' && LANG !== 'en') L_EN.set(it.desc, en + ' ' + statTextEn(b));
     if (s.art) ART[id] = { from: s.art, c: s.c, hue: s.hue, k: s.tk };
     ITEMS[id] = it; LOOT.NEW.push(id);
   };
@@ -429,7 +433,7 @@ LOOT.setBonus = p => {
 LOOT.lastShout = 0;
 LOOT.announce = id => {
   const p = G.player, it = ITEMS[id];
-  UI.announce(L(`★ ${p.name} ได้รับ ${it.name}! ★`, `★ ${p.name} obtained ${it.name}! ★`), typeof itemIconUrl === 'function' ? itemIconUrl(id) : null);
+  UI.announce(L(`★ ${p.name} ได้รับ ${it.name}! ★`, `★ ${p.name} obtained ${it.name}! ★`));
   UI.msg(L(`★ ${p.name} ได้รับ ${it.name}! (${LOOT.label(id)})`, `★ ${p.name} obtained ${it.name}! (${LOOT.label(id)})`), 'mvp');
   // ออนไลน์: บอกคนอื่นในแผนที่ด้วย (ไม่เกิน 1 ครั้งต่อ 30 วินาที)
   if (typeof Online !== 'undefined' && Online.online && typeof Online.sendChat === 'function' && performance.now() - LOOT.lastShout > 30000) {
@@ -498,10 +502,11 @@ LOOT.setTip = id => {
   const p = G.player, n = p ? LOOT.setCount(p, set) : 0;
   const worn = sid => p && EQUIP_SLOTS.some(s => p.equip[s] && p.equip[s].id === sid);
   return h('div', { class: 'tip-set' },
-    h('b', {}, L(`ชุด ${set.name} (${n}/${set.items.length})`, `${set.name} Set (${n}/${set.items.length})`)),
+    // รายละเอียดไอเทมเป็นภาษาอังกฤษเสมอ (เจ้าของสั่ง 2026-10-03)
+    h('b', {}, `${EN(set.name)} Set (${n}/${set.items.length})`),
     h('div', { class: 'ts-items' }, ...set.items.map(sid => h('span', { class: (worn(sid) ? 'on ' : '') + LOOT.cls(sid) }, ITEMS[sid].name))),
     ...Object.entries(set.bonus).map(([tier, b]) => h('div', { class: 'ts-tier' + (n >= +tier ? ' on' : '') },
-      L(`${tier} ชิ้น: `, `${tier} pcs: `), Object.entries(b).map(([k, v]) => PSTAT_FMT(k, v)).join(' · '))));
+      `${tier} pcs: `, Object.entries(b).map(([k, v]) => UI.enStat(k, v)).join(' · '))));
 };
 
 // ---------- สีตามความหายาก ----------

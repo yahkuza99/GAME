@@ -19,6 +19,8 @@ R.init = () => {
   const short = Math.min(window.innerWidth, window.innerHeight);
   R.zoom = short < 500 ? 1.35 : short < 700 ? 1.55 : 1.8;
   if (window.innerHeight > window.innerWidth && short < 500) R.zoom = 1.2; // มือถือแนวตั้ง: จอแคบ ซูมน้อยลงให้เห็นข้าง ๆ พอ
+  // ซูมออกได้ไม่สุดจอ (เจ้าของ 2026-10-03): ต่ำสุด ~78% ของซูมเริ่มต้นของขนาดจอนั้น — ไม่เห็นขอบแมพ/ฉากเล็กจนเสียรายละเอียด
+  R.ZMIN = Math.round(R.zoom * 0.78 * 100) / 100;
   window.addEventListener('resize', R.resize);
   // iOS / เบราว์เซอร์ในแอป (LINE ฯลฯ): ปิดคีย์บอร์ดหรือหมุนจอแล้วบางทีไม่ส่ง resize หรือส่งก่อนขนาดจอจะอัปเดต
   // → แคนวาสค้างขนาดตอนคีย์บอร์ดเปิด (ครึ่งล่างดำ) จึงเช็กซ้ำหลังเหตุการณ์เหล่านี้ และเช็กเบา ๆ ทุก 0.5 วิ
@@ -278,7 +280,8 @@ R.render = () => {
     list.push({ y: ly, f: () => Sprites.drawGateLabel(g, gt, ly) });
   }
   if (map.fountainImg) list.push({ y: map.fountain.y + 1.2, f: () => Sprites.drawFountainImg(g, map.fountain, t) });
-  // คบเพลิงลานประลอง: อยู่ในรายการเรียงความลึก (ตัวละครเดินหน้า/หลังคบเพลิงได้ถูกต้อง)
+  // คบเพลิงลานประลอง: อยู่ในรายการเรียงความลึก (ตัวละครเดินหน้า/หลังคบเพลิงได้ถูกต้อง • โคลอสเซียม v2: เสา+ชามเป็นชั้นหน้า js/bake.js เรียงก่อนเปลวไฟ)
+  //   (วาร์ปใต้ซุ้มประตูใต้ยังวาดก่อนตัวละครแบบเดิม — ซุ้มชั้นหน้าทับขอบบนม่านวาร์ป = ม่านอยู่ในอุโมงค์ • ถ้าเรียงวาร์ปทับตัวละคร แสง lighter จะกลบผู้เล่นที่ยืนหน้าประตู)
   if (map.torches && map.arenaImg) for (const tc of map.torches) list.push({ y: tc.y, f: () => Sprites.drawTorch(g, tc, t) });
   for (const n of G.npcs) list.push({ y: n.y + 0.5, f: () => Sprites.drawNpc(g, n, t) });
   for (const m of G.mobs) if (!m.isPlayer && m.x > VL && m.x < Rr && m.y > Tp && m.y < B) list.push({ y: m.y, f: () => Sprites.drawMob(g, m, t) });
@@ -321,15 +324,17 @@ R.render = () => {
     if (m.dead || m.x < VL || m.x > Rr || m.y < Tp - 1 || m.y > B) continue; // นอกจอ: ไม่ต้องวาดหลอด/ป้าย
     const x = m.x * TILE, y = P(m.y * TILE), s = (m.def.scale || 1);
     if (m.isPlayer) { R.bar(g, x, y + 10, 40, m.hp / Math.max(1, m.maxHp), '#ff4f6a'); continue; } // คู่ต่อสู้ PvP: แถบเลือดแดง (ชื่อวาดโดยระบบผู้เล่นอื่น)
-    if (m.hp < m.maxHp || m.isMvp) R.bar(g, x, y + 10, m.isMvp ? 64 : 38, m.hp / m.maxHp, m.isMvp ? '#ff4f6a' : '#ff6b7d');
-    if (m.isMvp) R.name(g, x, y + 26, `MVP · ${m.def.name}`, 'mvp');
+    const bossTag = m.isMvp || m.isWB; // บอสระดับ 1 (MVP) / ระดับ 2 (Ancient) — หลอดยาว + ป้ายชื่อถาวร
+    if (m.hp < m.maxHp || bossTag) R.bar(g, x, y + 10, m.isWB ? 84 : bossTag ? 64 : 38, m.hp / m.maxHp, bossTag ? '#ff4f6a' : '#ff6b7d');
+    if (bossTag) R.name(g, x, y + 26, m.isWB ? `TIER 2 · ${m.def.name}${m.phase ? (m.phase >= 2 ? ' · FRENZY' : ' · ENRAGED') : ''}` : `MVP · ${m.def.name}`, 'mvp');
     else if ((G.hover && G.hover.ref === m) || (p.target === m && !(Pad.enabled() && innerHeight > innerWidth))) { // มือถือแนวตั้ง: ชื่อเป้าหมายอยู่ในแถบบนแล้ว ไม่ต้องซ้ำในฉาก
       // ยืนชิดผู้เล่น: ป้ายชื่อมอนจะทับชื่อผู้เล่น → เลื่อนลงไปใต้ป้ายผู้เล่น
       let ty = y + 26; const py = P(p.y * TILE) + 28;
       if (Math.abs(x - p.x * TILE) < 110 && Math.abs(ty - py) < 22) ty = Math.max(ty, py) + 22;
       R.name(g, x, ty, m.def.name, 'mob', { dot: m.def.aggro ? '#ff6b7d' : '#8fe3a8', lv: `Lv ${m.def.lv}`, lvCol: R.lvColor(m.def.lv, p.baseLv || 1) });
-    }
+    } else if (!m.def.dummy) R.name(g, x, y + (m.hp < m.maxHp ? 21 : 15), m.def.name, 'mobsoft'); // มอนทั่วไป: ชื่อบาง ๆ ใต้ตัวเสมอ (ชี้/ล็อกเป้า = ป้ายเต็ม)
     if (m.emoteUntil > G.time) R.emote(g, x + 12, y - 44 * s, '!');
+    if (m.speech && m.speech.until > G.time) R.speech(g, x, y - 44 * s - 12, m.speech.text, true); // บอสตะโกน (เรียกลูกสมุน/คลั่ง — js/bosskit.js)
   }
   for (const o of Online.others.values()) {
     if (o.stealth) continue;
@@ -753,29 +758,30 @@ R.tagRaw = (g, x, y, text, color, dot) => {
 R.NAME_STYLE = {
   self: { fill: '#fffaf0', size: 13, glow: 'rgba(255,214,120,0.55)' }, player: { fill: '#fff1cc', size: 12 }, party: { fill: '#9dffe0', size: 12, glow: 'rgba(61,255,200,0.35)' },
   npc: { fill: '#ffe6a6', size: 12 }, mob: { fill: '#ffffff', size: 12 }, mvp: { fill: '#ffd98a', size: 13, glow: 'rgba(255,90,70,0.7)' }, hint: { fill: '#fff3c4', size: 11 },
+  mobsoft: { fill: 'rgba(255,255,255,0.82)', size: 9, weight: 500, stroke: 2.4, ink: 'rgba(20,12,6,0.62)', flat: true }, // ชื่อมอนทั่วไปแบบบาง ๆ (เจ้าของ 2026-10-03)
 };
 R.name = (g, x, y, text, kind, o = {}) => {
   const st = R.NAME_STYLE[kind] || R.NAME_STYLE.player, fill = o.fill || st.fill;
-  g.font = `700 ${st.size}px ${R.FONT}`;
+  g.font = `${st.weight || 700} ${st.size}px ${R.FONT}`;
   const key = `N|${kind}|${text}|${fill}|${o.crest || ''}|${o.dot || ''}|${o.lv || ''}|${o.lvCol || ''}`;
   const box = () => { const w = R.nameW(g, text, kind, o); return { x: -w / 2 - 4, y: -12, w: w + 8, h: 26 }; };
   if (R.cached(g, key, x, y, box, c => R.nameRaw(c, 0, 0, text, kind, o))) return;
   R.nameRaw(g, x, y, text, kind, o);
 };
 R.nameW = (g, text, kind, o) => {
-  const st = R.NAME_STYLE[kind] || R.NAME_STYLE.player; g.font = `700 ${st.size}px ${R.FONT}`;
+  const st = R.NAME_STYLE[kind] || R.NAME_STYLE.player; g.font = `${st.weight || 700} ${st.size}px ${R.FONT}`;
   let w = g.measureText(text).width;
-  if (o.lv) { g.font = `700 ${st.size - 2}px ${R.FONT}`; w += g.measureText(o.lv).width + 5; g.font = `700 ${st.size}px ${R.FONT}`; }
+  if (o.lv) { g.font = `${st.weight || 700} ${st.size - 2}px ${R.FONT}`; w += g.measureText(o.lv).width + 5; g.font = `${st.weight || 700} ${st.size}px ${R.FONT}`; }
   if (o.crest || o.dot || kind === 'npc' || kind === 'mvp') w += 13;
   return w;
 };
 R.nameRaw = (g, x, y, text, kind, o = {}) => {
   const st = R.NAME_STYLE[kind] || R.NAME_STYLE.player, fill = o.fill || st.fill;
   const W = R.nameW(g, text, kind, o), icon = o.crest || o.dot || kind === 'npc' || kind === 'mvp' ? 13 : 0;
-  g.font = `700 ${st.size}px ${R.FONT}`;
+  g.font = `${st.weight || 700} ${st.size}px ${R.FONT}`;
   const tw = g.measureText(text).width, x0 = x - W / 2, tx = x0 + icon + tw / 2;
   g.save(); g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
-  const ink = 'rgba(24,14,6,0.95)';
+  const ink = st.ink || 'rgba(24,14,6,0.95)';
   // ไอคอนหน้าชื่อ
   const ix = x0 + 5, iy = y;
   if (o.crest) { // โล่สี Class
@@ -788,11 +794,11 @@ R.nameRaw = (g, x, y, text, kind, o = {}) => {
     g.fillStyle = '#ffcf4a'; g.fill(); g.lineWidth = 1.5; g.strokeStyle = ink; g.stroke();
   } else if (o.dot) { g.beginPath(); g.arc(ix, iy, 3.2, 0, 7); g.fillStyle = o.dot; g.fill(); g.lineWidth = 1.5; g.strokeStyle = ink; g.stroke(); }
   // ชื่อ: ขอบเข้ม + เงา/เรือง
-  g.shadowColor = st.glow || 'rgba(0,0,0,0.55)'; g.shadowBlur = st.glow ? 8 : 3; g.shadowOffsetY = st.glow ? 0 : 1;
-  g.lineWidth = 3.5; g.strokeStyle = ink; g.strokeText(text, tx, y);
+  g.shadowColor = st.glow || 'rgba(0,0,0,0.55)'; g.shadowBlur = st.flat ? 0 : st.glow ? 8 : 3; g.shadowOffsetY = st.glow || st.flat ? 0 : 1;
+  g.lineWidth = st.stroke || 3.5; g.strokeStyle = ink; g.strokeText(text, tx, y);
   g.shadowBlur = 0; g.shadowOffsetY = 0; g.fillStyle = fill; g.fillText(text, tx, y);
   if (o.lv) { // ป้าย Lv ตัวเล็กท้ายชื่อ (สีตามความยาก)
-    g.font = `700 ${st.size - 2}px ${R.FONT}`; const lw = g.measureText(o.lv).width, lx = x0 + icon + tw + 5 + lw / 2;
+    g.font = `${st.weight || 700} ${st.size - 2}px ${R.FONT}`; const lw = g.measureText(o.lv).width, lx = x0 + icon + tw + 5 + lw / 2;
     g.lineWidth = 3; g.strokeStyle = ink; g.strokeText(o.lv, lx, y + 1); g.fillStyle = o.lvCol || '#e8eef5'; g.fillText(o.lv, lx, y + 1);
   }
   if (kind === 'npc') { // เส้นทองจางใต้ชื่อ
