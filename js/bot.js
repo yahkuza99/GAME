@@ -100,14 +100,17 @@ const Bot = {
     return null;
   },
   // ใช้สกิลได้ไหม (slack = ยอมให้ดีเลย์/คูลดาวน์เหลืออีกไม่เกินกี่วินาที — ใช้ตอน "รอสกิล" ไม่ได้ร่ายจริง)
-  canCast(id, slack = 0) {
+  // raw = ไม่สนค่าตั้งแบบง่าย (ติ๊กสกิล / เงื่อนไข HP รายสกิล) — Battle Script สั่งสกิลเองตรง ๆ
+  canCast(id, slack = 0, raw = false) {
     const p = G.player, s = SKILLS[id], lv = skillLv(id);
     if (!lv || !s || s.type !== 'active') return false;
-    const c = this.cfg();
-    if (c.skills[id] === false) return false;
-    // ตั้งรายสกิล: ใช้เฉพาะตอน HP ต่ำกว่า X% (0 = ใช้ได้ตลอด)
-    const hpGate = (c.skillHp || {})[id];
-    if (hpGate && p.hp / p.d.maxHp * 100 >= hpGate) return false;
+    if (!raw) {
+      const c = this.cfg();
+      if (c.skills[id] === false) return false;
+      // ตั้งรายสกิล: ใช้เฉพาะตอน HP ต่ำกว่า X% (0 = ใช้ได้ตลอด)
+      const hpGate = (c.skillHp || {})[id];
+      if (hpGate && p.hp / p.d.maxHp * 100 >= hpGate) return false;
+    }
     if (p.skillReadyAt - G.time > slack || p.cast || skillCdLeft(id) > slack || isStunned()) return false;
     if (s.bow && weaponType() !== 'bow') return false;
     return canPaySkill(skillCost(id, lv)) && (!p.d.bloodmagic || p.hp - skillCost(id, lv) > p.d.maxHp * 0.4);
@@ -216,6 +219,10 @@ const Bot = {
     if (U.dist(p.x, p.y, this.lastX, this.lastY) > 0.15 || p.cast || isStunned()) this.stillAt = G.time;
     this.lastX = p.x; this.lastY = p.y;
     for (const [m, until] of this.blacklist) if (until <= G.time || m.dead) this.blacklist.delete(m);
+
+    // 0) Battle Script (โหมดขั้นสูง js/botscript.js): กฎของผู้เล่นมาก่อน • ไม่มีกฎไหนทำงาน = ทำตามค่าตั้งแบบง่ายด้านล่างเหมือนเดิมทุกอย่าง
+    if (typeof BotScript !== 'undefined' && BotScript.active(c) && !p.cast && !p.skillIntent && !(G.time < this.kiteUntil && p.path.length && !isStunned())
+      && BotScript.run(c, threats, hpPct, spPct)) return;
 
     // 1) ฟื้นฟู: สกิลฮีล (ยาใช้ระบบปั๊มยาอัตโนมัติร่วมกับการเล่นเอง — autoPotTick)
     if (hpPct < c.healAt && this.castHeal()) return;
