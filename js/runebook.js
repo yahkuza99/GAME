@@ -3,12 +3,14 @@
 //  Runes — หน้าต่างเดียวสำหรับรูนทั้งสองระบบ (เจ้าของ 2026-10-03: "ใส่ตรงไหน ใส่ยังไง ใช้ยังไง งง")
 //  • แท็บ Skill Runes = Rune Paths (js/runes.js, p.runes) • แท็บ Hunt Runes = js/huntrunes.js (p.hrunes / p.hrunesOwn)
 //  • สมุดเปิด (UI.book): หน้าซ้าย = รายการ • หน้าขวา = รายละเอียด + ปุ่ม • มือถือแนวตั้ง = หน้าเดียว รายการ → รายละเอียด → กลับ
-//  • แถบ "วิธีใช้" 3 ขั้นด้านบนของแต่ละแท็บ (ขั้นที่ทำแล้วติด ✓)
+//  • ไม่มีแถบ "วิธีใช้" (เจ้าของ 2026-10-03: "Rune ไม่ต้องใส่วิธีใช้") — จุดแดงบนแท็บ = มีรูนที่ยังใส่ได้
 //  • ใช้ตรรกะเดิมทั้งหมด: Runes.set / HuntRunes.set (ล็อกระหว่างต่อสู้ 5 วิ เหมือนเดิม) — ไม่แตะสมดุล/เซฟ/id
 //  • ซื้อ Hunt Rune ยังซื้อที่ Brokk เท่านั้น — ที่นี่มีปุ่มเปิดเตาของ Brokk (ถ้ายืนใกล้) หรือนำทางไปหา (Nav)
 //  • ทางเข้า: เมนู "Runes" • Shift+R (R = กาชาอยู่แล้ว) • การ์ด Hunt Rune ใน Status • แท็บ Runes ในกระเป๋า • ลิงก์ในหน้าต่าง Skills
 //  • #w-hrunes เดิม (data-open / UI.open / UI.toggle) → เปิดหน้าต่างนี้ที่แท็บ Hunt Runes แทน
 //  หน้าต่าง: #w-runes (index.html) • CSS: css/runebook.css (ใช้ token จาก css/tokens.css)
+//  หน้าตา (เจ้าของ 2026-10-03 "Rune ไม่รอด"): ตัวเลือกรูน = แผ่นหินแกะสลัก (ช่องไอคอน 72px ซ้าย) • ช่อง Hunt Rune = เบ้าหินแกะ
+//  ไอคอนรูน: Hunt Rune = itemIconUrl(id) • Skill Rune = Runes.iconUrl(id) ถ้ามี (ภาพหินรูน 3D) ไม่มี/โหลดไม่ขึ้น = ตัวอักษรรูนเรืองแสงแทน
 // ============================================================
 const Runebook = {
   KEY: 'Shift+R',
@@ -71,7 +73,7 @@ const Runebook = {
     const narrow = UI.narrow();
     const pg = this.tab === 'hunt' && typeof HuntRunes !== 'undefined' ? this.huntPages(narrow) : this.skillPages(narrow);
     const root = h('div', { class: 'rb' + (pg.det ? ' rb-det' : ''), 'data-tab': this.tab },
-      this.tabsBar(), this.steps(), UI.book('w-runes', pg.left, pg.right, pg.det));
+      this.tabsBar(), UI.book('w-runes', pg.left, pg.right, pg.det));
     UI.keepScroll(body, () => { body.innerHTML = ''; body.append(root); });
   },
   tabsBar() {
@@ -83,29 +85,17 @@ const Runebook = {
       tb('skill', 'rune', 'Skill Runes', open.length ? `${chosen.length}/${open.length}` : '', td.sk),
       HR ? tb('hunt', 'hrune', 'Hunt Runes', `${HR.active(p).length}/${[0, 1].filter(i => HR.unlocked(i)).length}`, td.hr) : null);
   },
-  // แถบ "วิธีใช้" 3 ขั้น (ขั้นที่ทำแล้ว = ✓)
-  steps() {
-    const p = G.player, HR = typeof HuntRunes !== 'undefined' ? HuntRunes : null;
-    let S;
-    if (this.tab === 'hunt' && HR) {
-      const u = HR.UNLOCK;
-      S = [
-        [L('ซื้อรูนที่ Brokk', 'Buy a rune at Brokk'), L('Neo Eldheim • ซื้อครั้งเดียวเก็บตลอด', 'Neo Eldheim • buy once, keep it'), HR.own(p).length > 0],
-        [L(`ช่องเปิดที่ Base Lv ${u[0]} / ${u[1]}`, `Sockets open at Base Lv ${u[0]} / ${u[1]}`), L(`ตอนนี้ Lv ${p.baseLv}`, `You are Lv ${p.baseLv}`), HR.unlocked(0, p)],
-        [L('เลือกรูน แล้วกด Socket', 'Pick a rune, press Socket'), L('ทำงานเองทุกครั้งที่ตี', 'Works on its own when you hit'), HR.active(p).length > 0],
-      ];
-    } else {
-      const ids = this.skillIds(), any = ids.some(id => this.skOpen(id)), done = ids.some(id => Runes.chosen(id));
-      S = [
-        [L(`อัปสกิลถึง Lv ${Runes.UNLOCK}`, `Raise a skill to Lv ${Runes.UNLOCK}`), L('ในหน้าต่าง Skills (S)', 'In the Skills window (S)'), any],
-        [L('เลือกสกิลทางซ้าย', 'Pick that skill on the left'), L('สกิลละ 2 แบบ', 'Each skill has 2 runes'), done],
-        [L('เลือกรูน แล้วกด Choose', 'Pick a rune, press Choose'), L('เปลี่ยนฟรี ยกเว้นตอนต่อสู้', 'Free to swap, except in combat'), done],
-      ];
-    }
-    return h('ol', { class: 'rb-steps', 'aria-label': L('วิธีใช้', 'How it works') },
-      h('li', { class: 'rb-steps-h' }, ivIconEl('help'), L('วิธีใช้', 'How it works')),
-      ...S.map(([t, s, ok], i) => h('li', { class: 'rb-step' + (ok ? ' ok' : '') }, h('i', { class: 'rb-step-n' }, ok ? '✓' : String(i + 1)), h('span', {}, h('b', {}, t), h('small', {}, s)))));
+  // ---------- ไอคอนรูน (ช่องสี่เหลี่ยม) ----------
+  // Skill Rune: ภาพจาก Runes.iconUrl (ถ้ามี) • ไม่มี/โหลดไม่ขึ้น = ตัวอักษรรูนเรืองตามสีรูน • r = null → ∅ (ไม่ใส่รูน)
+  runeIcon(r, cls) {
+    const glyph = () => h('i', { class: 'rb-glyph', style: r && r.col ? `--rc:${r.col}` : null }, r ? r.glyph || 'ᚱ' : '∅');
+    const url = r && typeof Runes !== 'undefined' && typeof Runes.iconUrl === 'function' ? Runes.iconUrl(r.id) : null;
+    let inner = glyph();
+    if (url) { inner = h('img', { src: url, alt: '', draggable: 'false' }); inner.addEventListener('error', () => inner.replaceWith(glyph()), { once: true }); }
+    return h('span', { class: 'rb-ic' + (cls ? ' ' + cls : '') + (r ? '' : ' none') }, inner);
   },
+  // Hunt Rune: ภาพไอเทม (itemIconUrl)
+  huntIcon(id, cls) { return h('span', { class: 'rb-ic' + (cls ? ' ' + cls : '') }, h('img', { src: itemIconUrl(id), alt: '', draggable: 'false' })); },
   back() { return UI.bookBack(() => { this.det = false; this.skPick = undefined; this.render(); }); },
   note(text, cls) { return h('div', { class: 'det-note' + (cls ? ' ' + cls : '') }, UI.ico('info'), h('span', {}, text)); },
 
@@ -123,12 +113,13 @@ const Runebook = {
         const s = SKILLS[id], lv = this.skLv(id), open = this.skOpen(id), cur = Runes.chosen(id);
         const sub = !open ? `🔒 Skill Lv ${Runes.UNLOCK}` + (lv ? L(` · ตอนนี้ Lv ${lv}`, ` · now Lv ${lv}`) : L(' · ยังไม่ได้เรียน', ' · not learned'))
           : cur ? `${cur.glyph || 'ᚱ'} ${cur.name}` : L('ปลดแล้ว — ยังไม่ได้เลือกรูน', 'Unlocked — no rune chosen yet');
+        // ขวา: เบ้ารูนเล็ก (รูนที่ใช้อยู่ / แม่กุญแจ / ว่างรอเลือก)
         const mark = !open ? h('span', { class: 'rb-mark lock', title: `Skill Lv ${Runes.UNLOCK}` }, UI.ico('lock'))
-          : cur ? h('span', { class: 'rb-mark on', style: `--rc:${cur.col || 'currentColor'}`, title: cur.name }, cur.glyph || 'ᚱ')
+          : cur ? h('span', { class: 'rb-mark on', title: cur.name }, this.runeIcon(cur, 'sm'))
           : h('span', { class: 'rb-mark new' }, L('เลือก', 'Pick'));
-        const row = h('div', { class: 'irow rb-row' + (id === sel ? ' sel' : '') + (open ? '' : ' locked') + (cur ? ' has' : ''), role: 'button', tabindex: '0', 'data-skill': id },
+        const row = h('div', { class: 'rb-row' + (id === sel ? ' sel' : '') + (open ? '' : ' locked') + (cur ? ' has' : ''), role: 'button', tabindex: '0', 'data-skill': id, 'aria-pressed': id === sel ? 'true' : 'false' },
           UI.skillIcon(id),
-          h('span', { class: 'irow-t' }, h('b', { class: 'iname' }, s.name, h('em', {}, ` · Lv ${lv}/${s.max}`)), h('small', { class: 'isum' }, sub)),
+          h('span', { class: 'rb-row-t' }, h('b', {}, s.name, h('em', {}, ` Lv ${lv}/${s.max}`)), h('small', {}, sub)),
           mark);
         const go = () => { this.skSel = id; this.skPick = undefined; this.det = true; this.render(); };
         row.addEventListener('click', go);
@@ -150,14 +141,15 @@ const Runebook = {
     const pick = this.skPick === undefined ? curId : this.skPick;
     const card = r => {
       const rid = r ? r.id : null, on = pick === rid, isCur = curId === rid;
+      // แผ่นหินแกะ: ช่องไอคอน 72px ซ้าย • ชื่อ + ป้ายแบบ + ตรา "ใช้อยู่" • คำอธิบาย
       return h('button', { type: 'button', class: 'rb-card' + (on ? ' sel' : '') + (isCur ? ' cur' : '') + (r ? '' : ' none') + (open ? '' : ' off'), 'data-rune': rid || '', 'aria-pressed': on ? 'true' : 'false',
-        onclick: () => { if (!open) return; this.skPick = rid; this.render(); } },
-        h('span', { class: 'rb-card-g', style: r && r.col ? `--rc:${r.col}` : null }, r ? r.glyph || 'ᚱ' : '∅'),
+        style: r && r.col ? `--rc:${r.col}` : null, onclick: () => { if (!open) return; this.skPick = rid; this.render(); } },
+        this.runeIcon(r),
         h('span', { class: 'rb-card-t' },
           h('b', {}, r ? r.name : L('ไม่ใส่รูน', 'None')),
-          r ? h('small', { class: 'rn-tag ' + r.intent }, Runes.INTENT[r.intent]()) : h('small', { class: 'rb-tag-none' }, L('สกิลแบบเดิม', 'Original')),
-          isCur ? h('i', { class: 'rb-cur' }, L('ใช้อยู่', 'Current')) : null),
-        h('span', { class: 'rb-card-d' }, r ? r.desc() : L(`${s.name} แบบเดิม ไม่เปลี่ยนวิธีเล่น`, `The original ${s.name}, unchanged.`)));
+          r ? h('small', { class: 'rn-tag ' + r.intent }, Runes.INTENT[r.intent]()) : h('small', { class: 'rb-tag-none' }, L('สกิลแบบเดิม', 'Original'))),
+        h('span', { class: 'rb-card-d' }, r ? r.desc() : L(`${s.name} แบบเดิม ไม่เปลี่ยนวิธีเล่น`, `The original ${s.name}, unchanged.`)),
+        isCur ? h('i', { class: 'rb-cur' }, L('ใช้อยู่', 'Current')) : on ? h('i', { class: 'rb-pick' }, '✓') : null);
     };
     const same = pick === curId;
     const label = !open ? `🔒 Skill Lv ${Runes.UNLOCK}` : same ? (pick ? L('ใช้รูนนี้อยู่ ✓', 'Chosen ✓') : L('ไม่ได้ใส่รูน ✓', 'No rune ✓'))
@@ -185,21 +177,24 @@ const Runebook = {
     if (this.hrSel && !HR.def(this.hrSel)) this.hrSel = null;
     const sel = this.hrSel || (narrow ? null : s.find(Boolean) || (HR.LIST.find(d => HR.owns(d.id)) || HR.LIST[0]).id);
     const pick = id => { this.hrSel = id; this.det = true; this.render(); };
+    // แผ่นหิน: ไอคอนรูน 64px บนซ้าย + สถานะขวาบน (✓ ช่อง / Owned / ราคา) • ชื่อ + ชนิด · ผล
     const row = d => {
-      const at = s.indexOf(d.id), own = HR.owns(d.id);
+      const at = s.indexOf(d.id), own = HR.owns(d.id), r = typeof LOOT !== 'undefined' ? LOOT.rarityOf(d.id) : 'common';
       const extra = at >= 0 ? h('span', { class: 'rb-in' }, `✓ ${HR.slotName(at)}`) : own ? h('span', { class: 'hr-owned' }, 'Owned')
         : h('span', { class: 'ipr' + (p.zeny >= d.price ? '' : ' poor') }, h('i', { class: 'coin' }), U.fmt(d.price));
-      const r = UI.itemRow(HR.entry(d.id), d.id === sel, () => pick(d.id), extra);
-      r.draggable = false; r.dataset.hr = d.id; r.classList.add('rb-hrow'); if (!own) r.classList.add('rb-shop');
-      const sum = r.querySelector('.isum'); if (sum) sum.textContent = HR.rowSum(d.id);
-      return r;
+      const t = h('div', { class: 'rb-tile r-' + r + (d.id === sel ? ' sel' : '') + (own ? ' own' : ' rb-shop') + (at >= 0 ? ' in' : ''), role: 'button', tabindex: '0', 'data-hr': d.id, 'aria-pressed': d.id === sel ? 'true' : 'false' },
+        this.huntIcon(d.id), extra,
+        h('span', { class: 'rb-tile-t' }, h('b', {}, d.name.replace(/ Rune$/, '')), h('small', {}, HR.rowSum(d.id))));
+      t.addEventListener('click', () => pick(d.id));
+      t.addEventListener('keydown', ev => { if (ev.key === 'Enter') pick(d.id); });
+      return t;
     };
     const pills = h('div', { class: 'pills rb-filter' }, [['all', 'All'], ['slayer', 'Slayer'], ['endow', 'Endow'], ['cond', 'Conditional']].map(([k, l]) =>
       h('button', { type: 'button', class: 'pill' + (this.filter === k ? ' on' : ''), 'data-f': k, onclick: () => { this.filter = k; this.render(); } }, l)));
-    const list = [h('div', { class: 'rb-sec' }, L(`รูนของคุณ (${owned.length})`, `Your runes (${owned.length})`)),
-      ...(owned.length ? owned.map(row) : [h('div', { class: 'rb-none' }, L('ยังไม่มีในหมวดนี้ — ซื้อได้ที่ Brokk (รายการด้านล่าง)', 'None here yet — Brokk sells them (list below)'))]),
-      shop.length ? h('div', { class: 'rb-sec' }, L(`ซื้อได้ที่ Brokk Forge-Bot (${shop.length})`, `At Brokk's forge (${shop.length})`)) : null,
-      ...shop.map(row)];
+    const list = [h('div', { class: 'rb-sec' }, h('span', {}, L(`รูนของคุณ (${owned.length})`, `Your runes (${owned.length})`))),
+      owned.length ? h('div', { class: 'rb-tiles' }, owned.map(row)) : h('div', { class: 'rb-none' }, L('ยังไม่มีในหมวดนี้ — ซื้อได้ที่ Brokk (รายการด้านล่าง)', 'None here yet — Brokk sells them (list below)')),
+      shop.length ? h('div', { class: 'rb-sec' }, h('span', {}, L(`ซื้อได้ที่ Brokk Forge-Bot (${shop.length})`, `At Brokk's forge (${shop.length})`))) : null,
+      shop.length ? h('div', { class: 'rb-tiles' }, shop.map(row)) : null];
     const left = [pills, h('div', { class: 'irows rb-list' }, list),
       h('div', { class: 'book-foot' }, h('span', { class: 'bf-count' }, L('ซื้อครั้งเดียวเก็บตลอดไป • ใส่/ถอดฟรี', 'Buy once, keep forever • socketing is free')), h('span', { class: 'coin-pill' }, h('i', { class: 'coin' }), U.fmt(p.zeny)))];
     const right = [this.back(), this.sockets(sel, busy)];
@@ -216,11 +211,12 @@ const Runebook = {
   // ช่องรูน 2 ช่อง (ล็อกตาม Base Lv) — แตะช่องที่มีรูน = เลือกรูนนั้น
   sockets(sel, busy) {
     const HR = HuntRunes, p = G.player, s = HR.slots(p);
+    // แผ่นหินใหญ่ 1 แผ่น มีเบ้าแกะ 2 เบ้า (I / II) • เบ้า = ช่องไอคอน 64px (รูน / แม่กุญแจ / ว่าง)
     return h('div', { class: 'rb-socks' }, [0, 1].map(i => {
       const d = HR.def(s[i]), lock = !HR.unlocked(i, p);
       const el = h('div', { class: 'rb-sock' + (lock ? ' lock' : d ? ' on' : ' empty') + (d && d.id === sel ? ' sel' : ''), 'data-slot': i },
         h('span', { class: 'rb-sock-n' }, HR.slotName(i)),
-        lock ? h('span', { class: 'rb-stone lock' }, UI.ico('lock')) : d ? h('img', { class: 'rb-stone', src: itemIconUrl(d.id), alt: '' }) : h('span', { class: 'rb-stone empty' }),
+        lock ? h('span', { class: 'rb-ic rb-stone lock' }, UI.ico('lock')) : d ? this.huntIcon(d.id, 'rb-stone') : h('span', { class: 'rb-ic rb-stone empty' }, h('i', { class: 'rb-glyph' }, '+')),
         h('span', { class: 'rb-sock-t' },
           h('b', {}, lock ? `Base Lv ${HR.UNLOCK[i]}` : d ? d.name.replace(/ Rune$/, '') : L('ช่องว่าง', 'Empty')),
           h('small', {}, lock ? L(`ล็อก — ตอนนี้ Lv ${p.baseLv}`, `Locked — you are Lv ${p.baseLv}`) : d ? d.short : L('เลือกรูนแล้วกด Socket', 'Pick a rune, then Socket'))),
@@ -253,7 +249,7 @@ const Runebook = {
   invLink() {
     const l = document.querySelector('#w-inv .book-l'); if (!l || l.querySelector('.rb-link')) return;
     const b = h('button', { type: 'button', class: 'rb-link', onclick: () => this.open('hunt', UI.selItem && ITEMS[UI.selItem.id] && ITEMS[UI.selItem.id].type === 'hrune' ? UI.selItem.id : null) },
-      ivIconEl('rune'), h('span', {}, h('b', {}, L(`จัดการรูนทั้งหมดที่ Runes (${this.KEY})`, `Manage all runes in Runes (${this.KEY})`)), h('small', {}, L('Skill Runes + Hunt Runes ที่เดียว • ใส่ช่อง • ดูวิธีใช้', 'Skill Runes + Hunt Runes in one place • sockets • how it works'))), h('i', { class: 'rb-link-go' }, '›'));
+      ivIconEl('rune'), h('span', {}, h('b', {}, L(`จัดการรูนทั้งหมดที่ Runes (${this.KEY})`, `Manage all runes in Runes (${this.KEY})`)), h('small', {}, L('Skill Runes + Hunt Runes ที่เดียว • ใส่ช่อง', 'Skill Runes + Hunt Runes in one place • sockets'))), h('i', { class: 'rb-link-go' }, '›'));
     const pills = l.querySelector('.pills');
     if (pills) pills.after(b); else l.prepend(b);
   },

@@ -145,7 +145,7 @@
 /* สมุดมอนสเตอร์ (#w-mob): Hunt Rune ที่ช่วย */
 #w-mob .uc-mbx { margin-top: 6px; }
 #w-mob .uc-chips { display: flex; flex-wrap: wrap; gap: 4px; }
-#w-mob .uc-hr { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 3px; border-radius: 999px; border: 1px solid var(--c-line-2); background: var(--c-card); font-size: var(--fs-xs); }
+#w-mob .uc-hr { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 3px; border-radius: var(--rad-pill, 4px); border: 1px solid var(--c-line-2); background: var(--c-card); font-size: var(--fs-xs); }
 #w-mob .uc-hr img { width: 20px; height: 20px; }
 #w-mob .uc-hr em { font-style: normal; font-weight: 700; color: var(--c-ok); }
 #w-mob .uc-hr i { font-style: normal; font-size: var(--fs-2xs); color: var(--c-ink-3); }

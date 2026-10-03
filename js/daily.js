@@ -381,12 +381,12 @@ const Daily = {
 // ---------- สไตล์ (โทน Visor: กระจกฝ้า มุมโค้ง ฟ้า/ทอง) ----------
 (() => {
   const css = `
-#menubar button .dl-badge { position: absolute; right: -3px; top: -3px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; font: 700 10px/16px var(--mono, monospace); font-style: normal; color: #04121f; background: #6ff3ff; box-shadow: 0 0 10px rgba(111, 243, 255, .7); pointer-events: none; z-index: 2; }
+#menubar button .dl-badge { position: absolute; right: -3px; top: -3px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: var(--rad-pill, 4px); font: 700 10px/16px var(--mono, monospace); font-style: normal; color: #04121f; background: #6ff3ff; box-shadow: 0 0 10px rgba(111, 243, 255, .7); pointer-events: none; z-index: 2; }
 #menubar button .dl-badge.ready { background: #ffd34a; box-shadow: 0 0 12px rgba(255, 211, 74, .8); animation: dl-pulse 1.4s ease-in-out infinite; }
 #menubar .menu-fold.dl-dot { position: relative; }
 #menubar .menu-fold.dl-dot::after { content: ""; position: absolute; right: 4px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: #ffd34a; box-shadow: 0 0 8px #ffd34a; }
 #menubar:not(.folded) .menu-fold.dl-dot::after { display: none; }
-.dl-chip { display: inline-flex; align-items: center; gap: 6px; margin-top: 5px; padding: 3px 10px 3px 8px; border-radius: 999px; border: 1px solid rgba(255, 224, 138, .45); background: rgba(10, 16, 26, .55); color: #f4f7fb; font: 500 11.5px var(--font, sans-serif); cursor: pointer; text-shadow: none; pointer-events: auto; }
+.dl-chip { display: inline-flex; align-items: center; gap: 6px; margin-top: 5px; padding: 3px 10px 3px 8px; border-radius: var(--rad-pill, 4px); border: 1px solid rgba(255, 224, 138, .45); background: rgba(10, 16, 26, .55); color: #f4f7fb; font: 500 11.5px var(--font, sans-serif); cursor: pointer; text-shadow: none; pointer-events: auto; }
 .dl-chip:hover { border-color: #ffe08a; background: rgba(255, 224, 138, .14); }
 .dl-chip-k { font: 600 9.5px var(--mono, monospace); letter-spacing: .14em; color: #ffe08a; }
 .dl-chip-v { font-family: var(--mono, monospace); }
@@ -396,7 +396,7 @@ const Daily = {
 .pad-mode #quest-track .dl-chip { padding: 2px 8px; gap: 4px; }
 .dl-tabs { margin-bottom: 10px; }
 .dl-tabs .tab { position: relative; }
-.dl-tab-badge { display: inline-block; min-width: 16px; margin-left: 6px; padding: 0 4px; border-radius: 999px; font: 700 10px/16px var(--mono, monospace); font-style: normal; color: #04121f; background: #6ff3ff; vertical-align: 1px; }
+.dl-tab-badge { display: inline-block; min-width: 16px; margin-left: 6px; padding: 0 4px; border-radius: var(--rad-pill, 4px); font: 700 10px/16px var(--mono, monospace); font-style: normal; color: #04121f; background: #6ff3ff; vertical-align: 1px; }
 .dl-tab-badge.ready { background: #ffd34a; }
 .dl-head { padding: 12px; border-radius: 14px; background: var(--fill, rgba(255,255,255,.06)); border: 1px solid var(--edge, rgba(255,255,255,.1)); margin-bottom: 8px; }
 .dl-streak { display: flex; align-items: center; gap: 10px; }
@@ -424,7 +424,7 @@ const Daily = {
 .dl-t { font-weight: 600; font-size: 13.5px; color: #f4f7fb; }
 .dl-task.done .dl-t { color: var(--ink-dim, #c6d0dc); }
 .dl-sub { font-size: 11.5px; color: var(--ink-faint, #8a98aa); margin-top: 1px; }
-.dl-bar { height: 4px; margin-top: 6px; border-radius: 999px; background: rgba(255, 255, 255, .1); overflow: hidden; }
+.dl-bar { height: 4px; margin-top: 6px; border-radius: var(--rad-pill, 4px); background: rgba(255, 255, 255, .1); overflow: hidden; }
 .dl-bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #38b9d2, #6ff3ff); transition: width .3s; }
 .dl-task.done .dl-bar i { background: linear-gradient(90deg, #6ff3ff, #ffe08a); }
 .dl-go { flex: 0 0 auto; white-space: nowrap; }
@@ -435,7 +435,7 @@ const Daily = {
 .dl-chest-h b { font: 600 14.5px var(--display, sans-serif); color: #ffe08a; }
 .dl-chest-ic { font-size: 20px; }
 .dl-rws { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin: 9px 0 10px; }
-.dl-rw { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; font-size: 11.5px; color: #f4f7fb; background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .12); }
+.dl-rw { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: var(--rad-pill, 4px); font-size: 11.5px; color: #f4f7fb; background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .12); }
 .dl-rw img { width: 16px; height: 16px; image-rendering: auto; }
 .dl-rw.rare { color: #ffe08a; border-color: rgba(255, 211, 74, .55); background: rgba(255, 211, 74, .12); }
 .dl-claim { width: 100%; min-height: 42px; }

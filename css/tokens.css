@@ -7,8 +7,11 @@
   /* ---------- ระยะห่าง (ใช้แค่ 5 ค่านี้) ---------- */
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px;
 
-  /* ---------- มุมโค้ง ---------- */
-  --rad-xs: 6px; --rad-s: 8px; --rad-m: 12px; --rad-l: 16px; --rad-xl: 20px; --rad-pill: 999px;
+  /* ---------- มุม (เจ้าของ 2026-10-03: "ไม่ชอบทรงแคปซูลยาเลย") ----------
+     ทรงนอร์ส/RO: สี่เหลี่ยมมุมเล็ก ๆ / ตัดมุม (chamfer) • ห้ามทรงแคปซูล — --rad-pill เหลือ 4px (ชื่อคงไว้ให้กฎเก่าใช้ต่อได้)
+     ตัดมุมด้วย clip-path: --cham (ปุ่ม/การ์ด) • ป้ายแท็บปลายแหลม: --plaque (ดู css/theme4.css) */
+  --rad-xs: 3px; --rad-s: 4px; --rad-m: 6px; --rad-l: 8px; --rad-xl: 10px; --rad-pill: 4px;
+  --cham-s: 4px; --cham: 7px; --cham-l: 12px;
 
   /* ---------- ตัวอักษร ---------- */
   --f-body: "Kanit", "Noto Sans Thai", "IBM Plex Sans Thai", Tahoma, sans-serif;

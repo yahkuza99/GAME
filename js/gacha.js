@@ -855,16 +855,16 @@ Object.assign(Gacha, {
 .gc-pity-w{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:6px 12px;border-radius:14px;background:rgba(255,255,255,.035);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
 .gc-pity-t{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--ink-dim,#c6d0dc)}
 .gc-pity-t b{font:600 12px var(--mono,ui-monospace,monospace);color:#e6c8ff}
-.gc-pity{height:6px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.gc-pity{height:6px;border-radius:var(--rad-pill,4px);background:rgba(255,255,255,.08);overflow:hidden}
 .gc-pity i{display:block;height:100%;transform-origin:0 50%;background:linear-gradient(90deg,#8f6bff,var(--pc));box-shadow:0 0 10px var(--pc);transition:transform .5s}
 .gc-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-#w-gacha .gc-roll{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:50px;padding:6px 8px 6px 18px;border-radius:999px;text-align:left}
+#w-gacha .gc-roll{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:50px;padding:6px 8px 6px 18px;border-radius:var(--rad-pill,4px);text-align:left}
 #w-gacha .gc-roll .gc-bl{display:flex;flex-direction:column;font:600 14.5px/1.15 var(--display,system-ui)}
 #w-gacha .gc-roll .gc-bl small{font:500 10.5px/1.2 var(--font,system-ui);color:#e6c8ff;opacity:.9}
 #w-gacha .gc-ten{background:linear-gradient(180deg,rgba(194,123,255,.28),rgba(111,80,220,.18));border-color:rgba(194,123,255,.55)}
 #w-gacha .gc-ten:hover:not(:disabled){background:linear-gradient(180deg,rgba(194,123,255,.4),rgba(111,80,220,.26));border-color:#c27bff;box-shadow:0 0 24px -6px #c27bff}
 #w-gacha .gc-roll:disabled{opacity:.42;cursor:not-allowed;filter:saturate(.4)}
-.gc-cost{display:inline-flex;align-items:center;gap:4px;padding:4px 10px 4px 5px;border-radius:999px;background:rgba(0,0,0,.35);font:600 13px var(--mono,ui-monospace,monospace);color:#ffe6a6}
+.gc-cost{display:inline-flex;align-items:center;gap:4px;padding:4px 10px 4px 5px;border-radius:var(--rad-pill,4px);background:rgba(0,0,0,.35);font:600 13px var(--mono,ui-monospace,monospace);color:#ffe6a6}
 .gc-cost img{width:20px;height:20px}
 .gc-hint{font-size:11.5px;color:var(--ink-faint,#8a98aa);text-align:center}
 .gc-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
@@ -897,7 +897,7 @@ Object.assign(Gacha, {
 .gc-cic{width:46%;max-width:56px;aspect-ratio:1;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))}
 .gc-cn{font:600 11px/1.2 var(--font,system-ui);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#fff;word-break:break-word}
 .gc-cr{font-size:9.5px;letter-spacing:.06em;color:var(--rc);text-transform:uppercase}
-.gc-q{position:absolute;right:5px;top:5px;font:600 10.5px var(--mono,ui-monospace,monospace);color:#fff;background:rgba(0,0,0,.5);padding:1px 6px;border-radius:999px}
+.gc-q{position:absolute;right:5px;top:5px;font:600 10.5px var(--mono,ui-monospace,monospace);color:#fff;background:rgba(0,0,0,.5);padding:1px 6px;border-radius:var(--rad-pill,4px)}
 .gc-one .gc-cic{width:52%;max-width:72px}
 .gc-one .gc-cn{font-size:14px}
 .gc-one .gc-cr{font-size:11px}
@@ -908,9 +908,9 @@ Object.assign(Gacha, {
 #w-gacha .gc-ok{min-height:42px;padding:0 20px}
 .gc-rates,.gc-hist{display:flex;flex-direction:column;gap:10px}
 .gc-rsum{display:flex;flex-wrap:wrap;gap:6px}
-.gc-rsum span{font-size:11.5px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);color:var(--ink-dim,#c6d0dc)}
+.gc-rsum span{font-size:11.5px;padding:4px 10px;border-radius:var(--rad-pill,4px);background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);color:var(--ink-dim,#c6d0dc)}
 .gc-rsum .gc-rpity{color:#e6c8ff;box-shadow:inset 0 0 0 1px rgba(194,123,255,.4);background:rgba(194,123,255,.1)}
-.gc-tier{display:flex;height:8px;border-radius:999px;overflow:hidden;gap:2px}
+.gc-tier{display:flex;height:8px;border-radius:var(--rad-pill,4px);overflow:hidden;gap:2px}
 .gc-tier i{min-width:4px}
 .gc-tleg{display:flex;flex-wrap:wrap;gap:4px 12px;font:500 11px var(--mono,ui-monospace,monospace);color:var(--ink-dim,#c6d0dc)}
 .gc-tleg span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:5px;vertical-align:0}
