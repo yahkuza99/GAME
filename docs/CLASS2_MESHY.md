@@ -3,14 +3,21 @@
 ทำแบบเดียวกับ Berserker F (Wolf Warrior) ที่อยู่ในเกมแล้ว: โมเดล Meshy → คีย์ 7 ท่า (tools/char3d) → เรนเดอร์ชีต 8 ทิศ → ติดตั้ง
 ระหว่างที่ยังไม่มีภาพ เกมใช้ภาพ Class 1 ต้นสายแทน (Anim.playerKey) — ใส่ทีละตัวได้ ไม่ต้องรอครบ
 
-## ขั้น 0 (สำคัญ): ทำภาพจิบิก่อนเข้า Meshy
-ภาพ `job_*` เป็นตัวสูงสมจริง (~7–8 หัว) → ถ้าใส่ Meshy ตรง ๆ จะได้โมเดลตัวสูง ไม่เข้ากับตัวละครในเกม (จิบิ RO)
-→ ให้ ChatGPT แปลงเป็นจิบิท่ายืน A-pose ก่อน (แนบ `job_<class>_<g>.webp` 1 ภาพต่อแชต):
+## ขั้น 0 (สำคัญ): ทำภาพจิบิก่อนเข้า Meshy — ล็อกสัดส่วนด้วยภาพแม่แบบ
+ภาพ `job_*` เป็นตัวสูงสมจริง (~7–8 หัว) → ใส่ Meshy ตรง ๆ จะได้ตัวสูง ไม่เข้ากับเกม • ให้ GPT แปลงเป็นจิบิก่อน
+กัน "GPT ทำสัดส่วนไม่เท่ากันทุกภาพ": แนบ **3 ไฟล์ทุกแชต** (แชตละ 1 ตัว)
+1. `job_<class>_<m|f>` (ดีไซน์ตัวละคร)
+2. `art/chibi_proportion_guide.png` (หุ่นจิบิ 3 หัว A-pose + เส้นแดง หัว/คาง/สะโพก/เท้า — ตำแหน่งเดียวกันทุกภาพ)
+3. `art/chibi_style_ref_class1.png` (ตัว Class 1 ในเกม = สไตล์/สัดส่วนที่ต้องตรง)
 
 ```
-Redraw this character as a single full-body 3D-model reference for image-to-3D. Cute CHIBI proportions like Ragnarok Online: head about 1/3 of the body height (about 3 heads tall), short limbs, big hands and feet. Standing straight in an A-pose (arms down and slightly away from the body, legs slightly apart), facing the camera, front view, full body visible from head to feet. Keep the exact colors, armor, hair, cape and accessories of the attached design. Android: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Hold the class weapon in the hand as in the design (weapon fully visible, not crossing the body). NO magic effects, NO smoke, NO particles, NO floating objects, NO glow aura. Short stiff cape (not reaching the ground). Plain flat white background, soft even lighting, no shadow on the ground.
+Attached: (1) a character design, (2) a proportion guide mannequin, (3) existing characters from the same game.
+Redraw character (1) as a single full-body 3D-model reference for image-to-3D, in the SAME cute chibi style and proportions as the characters in (3).
+Fill the mannequin in (2) EXACTLY: same canvas size, the top of the head on the HEAD TOP line, the chin on the CHIN line, the hips on the HIP line and the soles of the feet on the FEET line; same head width, same A-pose (arms down and slightly away from the body, legs slightly apart), facing the camera, front view, centered.
+Keep the exact colors, armor, hair, cape and accessories of design (1). Android: smooth faceplate with ONE glowing visor strip, NO eyes, NO mouth. Hold the class weapon as in the design, fully visible, not crossing the body. Horns, hair spikes and helmet crests may go above the HEAD TOP line, but the head itself must not.
+NO magic effects, NO smoke, NO particles, NO floating objects, NO glow aura. Short stiff cape (not reaching the ground). Plain flat white background, soft even lighting, no ground shadow. Do NOT draw the guide lines or labels.
 ```
-แล้วค่อยเอาภาพจิบิที่ได้ไปใส่ Meshy (Image to 3D)
+แล้วค่อยเอาภาพจิบิที่ได้ไปใส่ Meshy (Image to 3D) • สัดส่วนต่างกันเล็กน้อย Claude แก้ตอนคีย์ท่าได้ (ปรับความสูงทั้งตัวให้เท่ากัน + ขยาย/ย่อกระดูกหัวเป็น 1/3)
 
 ## เจ้าของทำ (ต่อ 1 ตัว)
 1. Meshy **Image to 3D** — ใช้ภาพจิบิจากขั้น 0 (ทำจาก `assets/job_<class>_<m|f>.webp`)
