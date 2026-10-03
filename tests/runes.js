@@ -156,7 +156,7 @@ const BAND = 5, CAP = 15;
       } finally { window.executeSkill = ex0; window.addMastery = am0; G.onDmg = null; Math.random = R0; Object.assign(U, U0); }
       const sec = G.time - t0;
       for (const k in by) by[k] = Math.round(by[k] / sec);
-      return { dps: total / sec, by, casts, st: { cast: pl.d.castMul, dex: pl.d.dex, int: pl.d.int, matk: pl.d.matkMin, wpn: pl.equip.weapon && pl.equip.weapon.id, sp: pl.d.maxSp } };
+      return { dps: total / sec, by, casts };
     };
     G.player.options.sound = false; UI.msg = () => {}; UI.announce = () => {}; UI.splash = () => {}; window.saveGame = () => {};
     G.fastSim = true;
