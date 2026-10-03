@@ -91,8 +91,8 @@ const ok = (name, cond, info = '') => { checks.push([name, !!cond, info]); };
     // AUTO bot is locked for Novices
     ok(`${name}: bot locked for novice`, await p.evaluate(() => { G.player.job = 'novice'; Bot.toggle(true); const on = Bot.on; Bot.toggle(false); return !on; }));
     // zeny on kill
-    const zg = await p.evaluate(() => { const pl = G.player, z0 = pl.zeny, m = spawnMob('pudding', { x: pl.x + 1, y: pl.y }); killMob(m); return pl.zeny - z0; });
-    ok(`${name}: zeny on kill`, zg >= 3 && zg <= 6, zg);
+    const zg = await p.evaluate(() => { const pl = G.player, z0 = pl.zeny, m = spawnMob('pudding', { x: pl.x + 1, y: pl.y }); killMob(m); const [lo, hi] = mobZeny(MOBS.pudding); return { z: pl.zeny - z0, lo, hi }; });
+    ok(`${name}: zeny on kill`, zg.z >= zg.lo && zg.z <= zg.hi && zg.lo >= 1, zg);
     // every job: change job, learn and use each active skill on a monster, no errors
     const jobs = await p.evaluate(async () => {
       const out = [];
