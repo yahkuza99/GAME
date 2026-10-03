@@ -81,3 +81,9 @@
   #w-hrunes .hr-acts .btn, #w-hrunes .hr-rm { min-height: 40px; }
   .hr-st-s { max-width: 100%; }
 }
+
+/* มือถือแนวนอน (สูง ≤ 430px): บรรทัด Brokk เล็กลง (js/story_hooks.js ใส่สไตล์เอง → เพิ่ม specificity) • ตัวกรองชิดแท็บ */
+@media (max-height: 430px) and (orientation: landscape) {
+  body.visor .book-l .hr-lore { margin: 0; padding: 4px 8px; font-size: var(--fs-xs); line-height: 1.4; }
+  body.visor .book-l .hr-filter { margin-top: 0; }
+}

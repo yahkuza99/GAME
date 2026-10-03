@@ -77,3 +77,15 @@
   #w-builds .lo-acts .btn, #w-builds .lo-row .btn { min-height: 40px; }
   #w-builds .lo-code { height: 40px; }
 }
+
+/* ---------- มือถือแนวนอน (สูง ≤ 430px เช่น 844×390): หน้าต่างกว้างขึ้น → 3 ช่องเรียงข้างกันอ่านง่าย • ระยะกะทัดรัด • ปุ่ม ≥ 32px ---------- */
+@media (max-height: 430px) and (orientation: landscape) {
+  body.visor #w-builds.win { width: min(760px, calc(100vw - 16px - var(--sl) - var(--sr))) !important; }
+  #w-builds .lo { gap: var(--s2); }
+  #w-builds .lo-intro { font-size: var(--fs-xs); line-height: 1.4; }
+  #w-builds .lo-card { padding: var(--s2); gap: 6px; }
+  #w-builds .lo-name { height: 28px; }
+  #w-builds .lo-acts .btn, #w-builds .lo-row .btn { min-height: 32px; }
+  #w-builds .lo-sec { margin-top: var(--s1); padding-top: var(--s2); font-size: var(--fs-m); }
+  #w-builds .lo-code { height: 34px; }
+}

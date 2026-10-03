@@ -185,4 +185,63 @@ body.visor .win .rb-sock .rb-rm { flex: none; width: 100%; min-height: 26px; }
   .rb-stone.rb-ic { --s: 64px; }
   .rb-socks { padding-top: 20px; }
 }
+/* มือถือแนวนอน (สูง ≤ 430px เช่น 844×390): แท็บขึ้นไปอยู่แถวเดียวกับหัวหน้าต่าง → สมุดสองหน้าได้ความสูงเต็ม
+   • แถว/แผ่นหินกะทัดรัด (ไอคอนหินรูน 3D ยังอยู่ แค่เล็กลง) • ปุ่ม/แท็บสูง ≥ 32px • ทุกหน้าเลื่อนในตัว ปุ่มปิดเห็นเสมอ */
+@media (max-height: 430px) and (orientation: landscape) {
+  /* .win > * เป็น relative (css/visor.css) → วางเทียบ .win-body แล้วยกขึ้นไปแถวหัว (หัวสูง 40px — css/theme4.css §5) */
+  body.visor #w-runes.win .win-body { overflow: visible; }
+  body.visor #w-runes .rb-tabs { position: absolute; z-index: 3; top: -36px; left: 106px; right: 46px; height: 32px; }
+  body.visor .win .rb-tabs .rb-tab { --pq: 12px; min-height: 32px; height: 32px; }
+  .rb-tab b { font-size: var(--fs-s); }
+  .rb-tab .ivi { width: 16px; height: 16px; }
+  .rb-dot { top: 2px; right: 14px; }
+  .rb { gap: 0; }
+  /* หน้าซ้าย Skill: แถวเตี้ย */
+  .rb-row { grid-template-columns: 36px minmax(0, 1fr) auto; gap: var(--s2); min-height: 48px; padding: 5px var(--s1) 5px var(--s2); }
+  .rb-row .sicon { width: 36px; height: 36px; font-size: 17px; }
+  .rb-row-t b { font-size: var(--fs-s); }
+  .rb-row-t small { font-size: var(--fs-2xs); }
+  .rb-mark.lock { width: 32px; height: 32px; }
+  .rb-mark.new { height: 32px; line-height: 32px; }
+  .rb-ic.sm { --s: 32px; }
+  /* หน้าขวา Skill: หัวสกิลเล็ก • แผ่นหินตัวเลือกเตี้ย (ไอคอน 52px) */
+  .det-top.rb-sk-top { gap: var(--s2); padding-bottom: var(--s1); }
+  .rb-sk-top .sicon { width: 40px; height: 40px; font-size: 19px; box-shadow: 0 0 0 1px #6b410b, 0 0 0 2px #e6bb5e, 0 0 0 3px #6b410b; }
+  .rb-sk-top .dname { font-size: var(--fs-l); line-height: 1.15; }
+  .rb-sk-top small { font-size: var(--fs-2xs); }
+  .rb-cards { gap: 6px; }
+  .rb-card { --ch: 8px; grid-template-columns: 52px minmax(0, 1fr); column-gap: var(--s2); row-gap: 2px; min-height: 66px; padding: 7px var(--s2) 7px 7px; }
+  .rb-card::before { --ch: 7px; }
+  .rb-card > .rb-ic { --s: 52px; --ch: 6px; }
+  .rb-card-t { padding-right: 46px; gap: 2px 6px; }
+  .rb-card-t b { font-size: var(--fs-m); }
+  .rb-card-d { font-size: var(--fs-xs); line-height: 1.4; }
+  .rb-cur, .rb-pick { right: 8px; top: 7px; }
+  .rb-cur { padding: 2px 6px; }
+  .rb-pick { width: 20px; height: 20px; font-size: 12px; }
+  /* หน้าซ้าย Hunt: แผ่นหินแนวนอน (ไอคอนซ้าย ชื่อ+สถานะขวา) • ตัวกรอง 32px */
+  .rb-sec { padding: var(--s2) 0 6px; }
+  .rb-tiles { gap: 6px; }
+  .rb-tile { --ch: 7px; grid-template-columns: 46px minmax(0, 1fr); grid-template-areas: "ic t" "ic st"; column-gap: var(--s2); row-gap: 3px; padding: 6px; }
+  .rb-tile::before { --ch: 6px; }
+  .rb-tile > .rb-ic { --s: 46px; --ch: 6px; }
+  .rb-tile > :is(.rb-in, .hr-owned, .ipr) { justify-self: start; align-self: end; }
+  .rb-tile-t { align-self: start; }
+  .rb-tile-t b { font-size: var(--fs-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rb-tile-t small { -webkit-line-clamp: 1; }
+  .rb-in, .rb-tile .hr-owned { padding: 1px 6px; font-size: var(--fs-2xs); }
+  .rb-tile .ipr { min-height: 20px; font-size: var(--fs-2xs); }
+  /* หน้าขวา Hunt: แผ่นหินเบ้า — เบ้า 52px ข้างชื่อ (แนวนอน) ประหยัดความสูง */
+  .rb-socks { --ch: 10px; gap: var(--s2); padding: 18px var(--s2) var(--s2); }
+  .rb-socks::before { --ch: 9px; }
+  .rb-sock { display: grid; grid-template-columns: 52px minmax(0, 1fr); grid-template-areas: "st t" "rm rm"; align-items: center; gap: 6px var(--s2); text-align: left; }
+  .rb-sock > .rb-stone { grid-area: st; }
+  .rb-sock-t { grid-area: t; }
+  .rb-stone.rb-ic { --s: 52px; --ch: 7px; }
+  .rb-stone.empty .rb-glyph { font-size: 24px; }
+  .rb-sock-n { top: -16px; left: 26px; font-size: var(--fs-2xs); line-height: 14px; }
+  .rb-sock-t b { font-size: var(--fs-xs); }
+  body.visor .win .rb-sock .rb-rm { grid-area: rm; min-height: 32px; }
+  body.visor .win .rb-filter .pill { --pq: 6px; min-height: 32px; padding-left: 8px; padding-right: 8px; font-size: var(--fs-xs); }
+}
 @media (prefers-reduced-motion: reduce) { .rb-card, .rb-tile { transition: none; } .rb-card:hover, .rb-tile:hover { transform: none !important; } }

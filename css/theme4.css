@@ -149,3 +149,34 @@ body.visor #w-equip .eq-job { border-radius: 3px; }
 }
 body.fx-low :is(.islot, .plate)::before, body.fx-low .book.sheet .book-r { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { :is(.islot, .plate)::before, .book.sheet .book-r { animation: none !important; } .islot { transition: none; } }
+
+/* ======================= 5) มือถือแนวนอนจอเตี้ย (สูง ≤ 430px เช่น 844×390) ======================= */
+/* หัวหน้าต่างเตี้ยลง (ป้าย 28px • ปุ่มปิด 32px คงเดิม) → เนื้อหาได้ที่เพิ่ม • ตารางกระเป๋า 7 ช่อง/แถว (js/ui.js gridCols) • แท็บป้ายเล็กลง */
+@media (max-height: 430px) and (orientation: landscape) {
+  body.visor .win:not(.gc-art) .win-title, body.visor .win.book-win .win-title { min-height: 40px; padding: 4px 6px 4px var(--s2); }
+  body.visor .win:not(.gc-art) .win-title span, body.visor .win.book-win .win-title span { height: 28px; font-size: var(--fs-m); }
+  body.visor .win:not(.gc-art):not(.book-win) .win-title::after { bottom: 0; height: 6px; background-size: 15px 6px; }
+  body.visor .win.book-win .win-body { padding: 0 var(--s2) var(--s2); }
+  body.visor .win:not(.gc-art):not(.book-win) .win-body { padding: var(--s1) var(--s2) var(--s2); }
+  .book-page { padding: var(--s2) var(--s3); }
+  .book-foot { padding-top: var(--s1); margin-top: 0; }
+  .book.sheet .book-l { gap: 6px; }
+  body.visor .book .pills .pill { --pq: 7px; min-height: 32px; padding-left: 9px; padding-right: 9px; gap: 3px; font-size: var(--fs-xs); }
+  body.visor .book .pills .pill small { padding: 0 4px; }
+  .igrid { gap: 4px; padding: 5px; }
+  .islot .is-q { font-size: 10.5px; }
+  /* รายละเอียดไอเทมทางขวา: หัวกะทัดรัด */
+  .det-hero { padding: var(--s1) var(--s2); gap: var(--s3); }
+  .plate.big { width: 68px; height: 68px; }
+  /* ปุ่มใหญ่ติดล่าง: ขอบชิดตาม padding หน้าใหม่ • สูง 40px (ยังกดง่าย) */
+  .det-acts { bottom: calc(-1 * var(--s2)); margin: auto calc(-1 * var(--s3)) calc(-1 * var(--s2)); padding: var(--s2) var(--s3); }
+  body.visor .win .det-acts .btn.big { min-height: 40px; }
+  /* แถวรายการ (เตา Brokk / ร้านค้าแท็บซื้อ ฯลฯ): จาน 40px แถวสูง 50px */
+  .irows { gap: 6px; }
+  .irow { grid-template-columns: 40px minmax(0, 1fr) auto; gap: var(--s2); min-height: 50px; padding: 5px var(--s2) 5px 6px; }
+  .irow.sel { padding: 4px 7px 4px 5px; }
+  .irow > .plate { width: 40px; height: 40px; }
+  body.visor .win .rf-tg .pill { min-height: 32px; }
+}
+/* จอสัมผัส: ปุ่ม "กลับ" ของสมุด / ปุ่มถอดในเบ้ารูน สูงอย่างน้อย 32px (เดิม 26–30px) */
+@media (pointer: coarse) { .book-back { height: 32px; } body.visor .win .rb-sock .rb-rm { min-height: 32px; } }
