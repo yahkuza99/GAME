@@ -70,11 +70,12 @@ function setupPlayer(mapId) {
   for (const j of [JOBS[job].parent, job]) for (const id of JOBS[j].skills) if (SKILLS[id] && !SKILLS[id].noLearn) pl.skills[id] = SKILLS[id].max;
   pl.stats = { str: 80, agi: 40, vit: 70, int: 10, dex: 40, luk: 10 };
   R.partMap = null; R.grassWind.map = null; R.shakeT = 0;
-  changeMap(mapId, mapId === 'helcave' ? 25.5 : 28.5, mapId === 'helcave' ? 32.5 : 28.5, { quiet: true });
+  const at = { helcave: [25.5, 32.5], eldheim: [20.5, 24.5] }[mapId] || [28.5, 28.5]; // เมือง: จุดเกิดปกติ (ลานกลางเมือง เห็นชาวเมือง)
+  changeMap(mapId, at[0], at[1], { quiet: true });
   recalc(); pl.hp = pl.d.maxHp; pl.sp = pl.d.maxSp; pl.hurtFlash = 0;
-  const ids = G.map.def.spawns.map(s => s[0]);
+  const ids = (G.map.def.spawns || []).map(s => s[0]); // เมือง/ลานประลอง: ไม่มีตารางมอน → ไม่เสกมอน (ฉากชาวเมือง + NPC)
   let k = 0;
-  for (let r = 2; r < 9 && k < 16; r++) for (let a = 0; a < 8 && k < 16; a++) {
+  if (ids.length) for (let r = 2; r < 9 && k < 16; r++) for (let a = 0; a < 8 && k < 16; a++) {
     const x = Math.floor(pl.x + Math.cos(a * 0.785 + r) * r), y = Math.floor(pl.y + Math.sin(a * 0.785 + r) * r * 0.8);
     if (G.map.walkable(x, y)) spawnMob(ids[k++ % ids.length], { x, y });
   }
