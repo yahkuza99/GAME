@@ -225,7 +225,8 @@ const Anim = {
       g.filter = 'saturate(1.18) contrast(1.06) brightness(1.04)'; g.drawImage(img, 0, 0); g.filter = 'none'; // สีตัวสดกว่าฉากเล็กน้อย (อบไว้ ไม่เสียแรงต่อเฟรม)
       e.cv = c;
     };
-    (typeof requestIdleCallback === 'function' ? requestIdleCallback : f => setTimeout(f, 30))(make);
+    // timeout: เครื่องช้า (มือถือ) เฟรมยาวต่อเนื่องจนไม่มีช่วงว่าง → ไม่ใส่ timeout แล้วไม่เคยได้สร้าง (มอนไม่มีเส้นขอบตลอด)
+    if (typeof requestIdleCallback === 'function') requestIdleCallback(make, { timeout: 1500 }); else setTimeout(make, 30);
     return null;
   },
   draw(g, x, y, key, st, t, H = 66) {

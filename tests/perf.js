@@ -7,6 +7,9 @@
 //    PERF_OUT=dir        ที่เก็บผล JSON + ภาพฉากคงที่ (ค่าเริ่มต้น: <tmp>/neo-perf)
 //    PERF_CMP=label      เทียบภาพฉากคงที่กับผลรอบก่อนชื่อนี้ใน PERF_OUT (pixel diff)
 //    PERF_PROFILE=0      ไม่ต้องโปรไฟล์ CPU
+//    PERF_MAPS=a,b       แผนที่ที่วัด (ค่าเริ่มต้น wolfwood,helcave — เช่น wolfwood,meadow)
+//    PERF_SCEN=x,y       เลือกฉาก: desktop, phone (390x844 cpu/4), land (844x390 cpu/5 มือถือแนวนอน),
+//                        landgpu (844x390 แคนวาส GPU ผ่าน SwiftShader — วัดเฉพาะ live)
 //  วัด 3 แบบ:
 //   1) live  — เกมออฟไลน์ ป่าหมาป่า/โพรงเฮล + มอนเพิ่ม + บอทล่าเอง: FPS จริง (ช่วงห่าง rAF), เวลา frame()/R.render
 //              และเวลา CPU ของเธรดหลักต่อเฟรม (ThreadTime รวมการ raster แคนวาสแบบซอฟต์แวร์)
@@ -50,7 +53,8 @@ const SEED_SCRIPT = `(() => {
 async function startGame(p, url) {
   await p.goto(url); await p.waitForTimeout(1200);
   await p.click('#au-offline'); await p.click('#btn-new');
-  await p.fill('#cr-name', 'Perf'); await p.click('#cr-start'); await p.waitForTimeout(1500);
+  await p.fill('#cr-name', 'Perf');
+  await p.evaluate(() => document.querySelector('#cr-start').click()); await p.waitForTimeout(1500); // (คลิกผ่าน JS: โหมด GPU จำลองเริ่มเกมช้า คลิกจริงหมดเวลารอ)
   await p.click('#prologue-skip', { timeout: 3000 }).catch(() => {});
   await p.waitForFunction(() => { const b = document.querySelector('#prologue-skip'); if (b && b.offsetParent) b.click(); return !b || !b.offsetParent; }, null, { timeout: 8000, polling: 250 }).catch(() => {});
   await p.waitForTimeout(500);
@@ -104,7 +108,9 @@ async function measureLive(p, cdp, sec) {
     const pct = (a, q) => { const s = [...a].sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.floor(s.length * q))] || 0; };
     const span = (P.raf[P.raf.length - 1] - P.raf[0]) / 1000;
     window.frame = window.__f0; R.render = R.__r0;
+    const iv = P.raf.slice(1).map((t, i) => t - P.raf[i]); // ช่วงห่างระหว่างเฟรมจริง (frame time ที่ผู้เล่นเห็น)
     return {
+      dt: +avg(iv).toFixed(1), dtP95: +pct(iv, 0.95).toFixed(1),
       frames: P.frame.length, fps: +((P.raf.length - 1) / span).toFixed(1),
       render: +avg(P.render).toFixed(2), renderP95: +pct(P.render, 0.95).toFixed(2),
       frame: +avg(P.frame).toFixed(2), frameP95: +pct(P.frame, 0.95).toFixed(2), mobs: G.mobs.length, dpr: R.dpr,
@@ -201,14 +207,20 @@ async function profile(cdp, p, sec) {
   if (process.env.CHROME) opts.executablePath = process.env.CHROME;
   else if (fs.existsSync('/opt/pw-browsers/chromium')) opts.executablePath = '/opt/pw-browsers/chromium';
   const browser = await chromium.launch(opts);
+  // แคนวาสแบบ GPU (SwiftShader จำลอง GPU บน CPU): ต้นทุนแบบมือถือจริง (เติมพิกเซล/อ่านเท็กซ์เจอร์ในโปรเซส GPU) — วัดแค่ live
+  let gpuBrowser = null;
+  const gpuB = async () => gpuBrowser || (gpuBrowser = await chromium.launch(Object.assign({}, opts, { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--enable-gpu-rasterization'] })));
   const results = { label: LABEL, live: [], bench: [], profile: null, diffs: {} };
   const scenarios = [
     { name: 'desktop 1280x720', tag: 'desktop', w: 1280, h: 720, dsf: 1, mobile: false, throttle: 1 },
     { name: 'phone 390x844 cpu/4', tag: 'phone', w: 390, h: 844, dsf: 3, mobile: true, throttle: 4, profile: 'wolfwood' },
-  ];
+    { name: 'land 844x390 cpu/5', tag: 'land', w: 844, h: 390, dsf: 3, mobile: true, throttle: 5, profile: 'wolfwood', opt: true },
+    { name: 'land-gpu 844x390', tag: 'landgpu', w: 844, h: 390, dsf: 3, mobile: true, throttle: 1, gpu: true, opt: true },
+  ].filter(sc => process.env.PERF_SCEN ? process.env.PERF_SCEN.split(',').includes(sc.tag) : !sc.opt);
+  const MAPS = (process.env.PERF_MAPS || 'wolfwood,helcave').split(',');
   const errors = [];
   for (const sc of scenarios) {
-    const ctx = await browser.newContext({ viewport: { width: sc.w, height: sc.h }, deviceScaleFactor: sc.dsf, isMobile: sc.mobile, hasTouch: sc.mobile });
+    const ctx = await (sc.gpu ? await gpuB() : browser).newContext({ viewport: { width: sc.w, height: sc.h }, deviceScaleFactor: sc.dsf, isMobile: sc.mobile, hasTouch: sc.mobile });
     await ctx.addInitScript(SEED_SCRIPT);
     await ctx.addInitScript(`window.__setupPlayer = ${JSON.stringify(String(setupPlayer))};`);
     const p = await ctx.newPage();
@@ -218,12 +230,12 @@ async function profile(cdp, p, sec) {
     await cdp.send('Performance.enable');
     // 1) เล่นจริง + บอท
     if (sc.throttle > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: sc.throttle });
-    for (const mapId of ['wolfwood', 'helcave']) {
+    for (const mapId of MAPS) {
       await setupLive(p, mapId);
       const r = await measureLive(p, cdp, SEC);
       Object.assign(r, { scenario: sc.name, map: mapId });
       results.live.push(r);
-      console.log(`live  ${sc.name.padEnd(20)} ${mapId.padEnd(9)} fps ${String(r.fps).padStart(5)}  cpu/frame ${String(r.cpuPerFrame).padStart(6)}ms (busy ${r.cpuBusy}%)  frame() ${r.frame}ms p95 ${r.frameP95}  R.render ${r.render}ms p95 ${r.renderP95}  dpr ${r.dpr}`);
+      console.log(`live  ${sc.name.padEnd(20)} ${mapId.padEnd(9)} fps ${String(r.fps).padStart(5)}  dt ${r.dt}ms p95 ${r.dtP95}  cpu/frame ${String(r.cpuPerFrame).padStart(6)}ms (busy ${r.cpuBusy}%)  frame() ${r.frame}ms p95 ${r.frameP95}  R.render ${r.render}ms p95 ${r.renderP95}  dpr ${r.dpr}`);
       if (sc.profile === mapId && process.env.PERF_PROFILE !== '0') {
         results.profile = await profile(cdp, p, Math.min(8, SEC));
         console.log('  top self-time (CDP Profiler, live phone wolfwood):');
@@ -232,8 +244,8 @@ async function profile(cdp, p, sec) {
       await p.evaluate(() => { Bot.toggle(false); clearInterval(window.__immortal); });
     }
     if (sc.throttle > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
-    // 2) + 3) ฉากคงที่
-    for (const mapId of ['wolfwood', 'helcave']) {
+    // 2) + 3) ฉากคงที่ (ไม่ทำในโหมด GPU: getImageData ทุกเฟรมทำให้แคนวาสถูกลดเป็นซอฟต์แวร์)
+    if (!sc.gpu) for (const mapId of MAPS) {
       for (const fight of [true, false]) {
         await p.evaluate(buildStill, [mapId, fight]);
         const r = await bench(p, cdp);
@@ -258,6 +270,6 @@ async function profile(cdp, p, sec) {
   fs.writeFileSync(path.join(OUT, `${LABEL}.json`), JSON.stringify(results, null, 2));
   console.log(`results → ${path.join(OUT, LABEL + '.json')}`);
   if (errors.length) console.log('PAGE ERRORS:\n' + errors.join('\n'));
-  await browser.close(); srv.close();
+  await browser.close(); if (gpuBrowser) await gpuBrowser.close(); srv.close();
   process.exit(errors.length ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(1); });

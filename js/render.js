@@ -64,6 +64,45 @@ R.updateCamera = () => {
   R.camX = Math.round(cx * R.zoom) / R.zoom; R.camY = Math.round(cy * R.zoom) / R.zoom;
 };
 
+// พื้นแมพ: ภาพทั้งแมพถูกย่อ/ขยายลงจอทุกเฟรม (เต็มจอ แคนวาสซอฟต์แวร์บนมือถือแพงมาก)
+// → แคชเป็นแผ่นย่อย 256px ที่ความละเอียดจริงของจอ (ขยายไว้แล้ว) แล้ววางแบบ 1:1 — กล้องปัดพิกัดเป็นพิกเซลจอ (updateCamera)
+//   ตำแหน่งแผ่นจึงตรงพิกเซลพอดี ภาพที่ได้เท่ากับวาดตรงทุกพิกเซล • แผ่นสร้างเมื่อเลื่อนเข้าจอ (ทีละไม่กี่แผ่น) ทิ้งแผ่นที่ไม่ได้ใช้
+//   ซูม/จอสั่น/สเกลจอไม่ลงพิกเซล (dpr เศษ) → วาดตรงแบบเดิม (ซูมนิ่ง 3 เฟรมก่อนเริ่มแคช กันสร้างแผ่นทิ้งทุกเฟรมตอนบีบนิ้ว)
+R.GT = 256;
+R.gtile = { key: '', tiles: new Map(), pool: [], settle: 0, frame: 0 };
+R.drawGround = (g, map, sx, sy, sw, sh) => {
+  const m = g.getTransform(), C = R.gtile, T = R.GT;
+  const ok = !m.b && !m.c && Math.abs(m.e - Math.round(m.e)) < 1e-4 && Math.abs(m.f - Math.round(m.f)) < 1e-4;
+  if (ok) {
+    const key = `${m.a}|${m.d}`;
+    if (key !== C.key || map.ground !== C.ground) { C.key = key; C.ground = map.ground; R.gtileDrop(); C.settle = 3; }
+  }
+  if (!ok || C.settle > 0) { if (ok) C.settle--; g.drawImage(map.ground, sx, sy, sw, sh, sx, sy, sw, sh); return; }
+  const ex = Math.round(m.e), fy = Math.round(m.f), fr = ++C.frame;
+  // ช่วงพิกเซลจอ (สัมบูรณ์ = พิกัดภาพพื้น × สเกล) ที่ต้องวาด = กรอบเดิม sx..sx+sw ตัดด้วยขอบแคนวาส
+  const X0 = Math.max(sx * m.a, -ex), X1 = Math.min((sx + sw) * m.a, R.cv.width - ex);
+  const Y0 = Math.max(sy * m.d, -fy), Y1 = Math.min((sy + sh) * m.d, R.cv.height - fy);
+  if (X1 <= X0 || Y1 <= Y0) return;
+  // จอใหญ่มาก (เดสก์ท็อปความละเอียดสูง) แผ่นเกิน ~70 = หน่วยความจำเกินคุ้ม → วาดตรง
+  if ((Math.ceil(X1 / T) - Math.floor(X0 / T)) * (Math.ceil(Y1 / T) - Math.floor(Y0 / T)) > 70) { g.drawImage(map.ground, sx, sy, sw, sh, sx, sy, sw, sh); return; }
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); // (นอกภาพพื้น แผ่นโปร่งใส = เหมือนวาดตรง ไม่ต้อง clip)
+  for (let j = Math.floor(Y0 / T); j * T < Y1; j++) for (let i = Math.floor(X0 / T); i * T < X1; i++) {
+    const k = i + ',' + j; let tl = C.tiles.get(k);
+    if (!tl) {
+      const c = C.pool.pop() || Object.assign(document.createElement('canvas'), { width: T, height: T }); // ใช้แผ่นเก่าซ้ำ (ไม่สร้างแคนวาสใหม่เรื่อย ๆ)
+      const tg = c.getContext('2d'); tg.setTransform(1, 0, 0, 1, 0, 0); tg.clearRect(0, 0, T, T);
+      tg.setTransform(m.a, 0, 0, m.d, -i * T, -j * T); tg.drawImage(map.ground, 0, 0);
+      C.tiles.set(k, tl = { c, used: fr });
+    }
+    tl.used = fr;
+    g.drawImage(tl.c, ex + i * T, fy + j * T);
+  }
+  g.restore();
+  if (C.tiles.size > 48) for (const [k, tl] of C.tiles) if (fr - tl.used > 90) { C.tiles.delete(k); if (C.pool.length < 16) C.pool.push(tl.c); } // ไม่ได้ใช้ ~1.5 วินาที
+};
+
+R.gtileDrop = () => { const C = R.gtile; for (const tl of C.tiles.values()) if (C.pool.length < 16) C.pool.push(tl.c); C.tiles.clear(); };
+
 // หาสิ่งที่อยู่ใต้เมาส์ (มอนสเตอร์ / NPC / ไอเทม)
 R.pick = (wx, wy) => {
   let best = null, bestD = Infinity;
@@ -89,6 +128,7 @@ R.pick = (wx, wy) => {
 };
 
 // ------------------------------------------------------------
+R.LIGHT_FX = new Set(['firebolt', 'firering', 'lightning', 'holy', 'levelup']); // เอฟเฟกต์ที่ส่องแสงในที่มืด
 R.render = () => {
   const g = R.g, p = G.player, map = G.map, t = G.time;
   g.setTransform(R.dpr, 0, 0, R.dpr, 0, 0);
@@ -117,7 +157,7 @@ R.render = () => {
     gr.addColorStop(0, '#1a2e1c'); gr.addColorStop(0.55, '#33572e'); gr.addColorStop(1, '#4f7d3c');
     g.fillStyle = gr; g.fillRect(0, -mt, map.ground.width, mt);
   }
-  if (sw > 0 && sh > 0) g.drawImage(map.ground, sx, sy, sw, sh, sx, sy, sw, sh);
+  if (sw > 0 && sh > 0) R.drawGround(g, map, sx, sy, sw, sh);
   if (R.quality !== 'low') R.drawGrassWind(g, map, t, sx, sy, sw, sh);
   // น้ำพุมีชีวิต
   g.restore();
@@ -373,15 +413,22 @@ R.render = () => {
   g.restore();
 
   // หมอกระยะไกลด้านบนจอ ช่วยให้รู้สึกถึงความลึกแบบมุมกล้องเฉียง
-  if (map.def.kind !== 'cave' && R.quality !== 'low') {
-    if (!R.haze || R.haze.h !== R.H) {
-      const hz = g.createLinearGradient(0, 0, 0, R.H * 0.42);
+  if (map.def.kind !== 'cave' && R.quality !== 'low') { // (แคชเป็นภาพความละเอียดจริง วางแบบ 1:1 — ไม่ต้องไล่สีใหม่ทุกเฟรม)
+    const cw = R.cv.width, ch = R.cv.height;
+    if (!R.haze || R.haze.w !== cw || R.haze.h !== ch) {
+      const c = document.createElement('canvas'); c.width = cw; c.height = Math.ceil(ch * 0.42);
+      const hg = c.getContext('2d'); hg.scale(cw / R.W, ch / R.H);
+      const hz = hg.createLinearGradient(0, 0, 0, R.H * 0.42);
       hz.addColorStop(0, 'rgba(190,220,255,0.16)'); hz.addColorStop(1, 'rgba(190,220,255,0)');
-      R.haze = { h: R.H, grad: hz };
+      hg.fillStyle = hz; hg.fillRect(0, 0, R.W, R.H * 0.42);
+      R.haze = { w: cw, h: ch, cv: c };
     }
-    g.fillStyle = R.haze.grad; g.fillRect(0, 0, R.W, R.H * 0.42);
+    g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.drawImage(R.haze.cv, 0, 0); g.restore();
   }
-  if (R.quality !== 'low') { R.drawSky(g, map, t); if (!map.def.dark) R.drawAtmosphere(g, map, t); }
+  // สีบรรยากาศ (grade) ท้าย drawAtmosphere ต่อด้วย vignette ทันที (ถ้าไม่มีขอบจอแดง/ตาย คั่น) → รวมเป็นภาพแคชเดียว
+  const hpLow = !p.dead && p.hp / p.d.maxHp < 0.25, atmo = { deferGrade: !hpLow && !p.dead };
+  R._grade = null;
+  if (R.quality !== 'low') { R.drawSky(g, map, t); if (!map.def.dark) R.drawAtmosphere(g, map, t, atmo); }
   // ความมืดในถ้ำ
   if (map.def.dark) {
     const dc = R.dark, dg = dc.getContext('2d');
@@ -393,7 +440,7 @@ R.render = () => {
     if (!map.lightProps) map.lightProps = (map.props || []).filter(q => q.kind === 'mushroom' || q.kind === 'lamp' || q.kind === 'crystal')
       .map(q => ({ x: q.x, y: q.y, lr: q.kind === 'lamp' ? 3 : 1.8, col: q.kind === 'mushroom' ? '140,255,170' : q.kind === 'crystal' ? (map.def.crystalGlow || '200,140,255') : '255,210,140' })).concat(map.extraLights || []); // + แสงแดดที่ปากทางถ้ำ (maps.js seamArt)
     for (const q of map.lightProps) if (Math.abs(q.x - p.x) < 22 && Math.abs(q.y - p.y) < 16) lights.push([q.x, q.y, q.lr]); // เห็ดเรืองแสง/ตะเกียง/คริสตัล ส่องในที่มืด
-    for (const f of G.fx) if (['firebolt', 'firering', 'lightning', 'holy', 'levelup'].includes(f.type)) {
+    for (const f of G.fx) if (R.LIGHT_FX.has(f.type)) {
       const pos = R.fxPos(f); lights.push([pos.x, pos.y, 3]);
     }
     for (const [lx, ly, lr] of lights) {
@@ -403,6 +450,10 @@ R.render = () => {
       grd.addColorStop(0, 'rgba(0,0,0,1)'); grd.addColorStop(1, 'rgba(0,0,0,0)');
       dg.fillStyle = grd; dg.beginPath(); dg.arc(x, y, r, 0, 7); dg.fill();
     }
+    // หมอกลอยต่ำ (Wolfwood): วาดลงชั้นความมืดครึ่งความละเอียดนี้เลย (หมอกนุ่ม ไม่ต้องละเอียด) — เดิมเป็นวงรีไล่สีเต็มจอ 4 ก้อนทุกเฟรม
+    // หมอกทับความมืดในชั้นเดียวกัน = ผลเท่าวาดทีละชั้น • แสงเรืองด้านล่างจึงวาดทีหลังหมอก → หรี่ตามความหนาหมอกตรงนั้นให้เท่าเดิม
+    const fogIn = R.quality !== 'low' && ATMOS[map.id] && ATMOS[map.id].fog;
+    if (fogIn) { dg.globalCompositeOperation = 'source-over'; R.drawFog(dg, t, 0.5); }
     g.drawImage(dc, 0, 0, R.W, R.H);
     // แสงเรืองสีของแหล่งแสง (เห็ดเขียว/คริสตัลม่วง/ตะเกียงส้ม) ทับความมืดแบบบวกแสง
     if (R.quality !== 'low') {
@@ -410,22 +461,22 @@ R.render = () => {
       for (const q of map.lightProps) {
         if (Math.abs(q.x - p.x) > 22 || Math.abs(q.y - p.y) > 16) continue;
         const x = (q.x * TILE - R.camX) * R.zoom, y = (q.y * TILE * R.K - 10 - R.camY) * R.zoom, r = q.lr * TILE * R.zoom * 0.7 * (1 + Math.sin(t * 2 + q.x) * 0.06);
-        const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(${q.col},0.22)`); gr.addColorStop(1, `rgba(${q.col},0)`);
+        const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(${q.col},${fogIn ? 0.22 * R.fogClear(t, x, y) : 0.22})`); gr.addColorStop(1, `rgba(${q.col},0)`);
         g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
       }
       g.restore();
     }
-    if (R.quality !== 'low') R.drawAtmosphere(g, map, t); // ถ้ำมืด: อนุภาคเรืองแสงอยู่เหนือความมืด (มองเห็นในที่มืด)
+    if (R.quality !== 'low') R.drawAtmosphere(g, map, t, Object.assign(atmo, { noFog: fogIn })); // ถ้ำมืด: อนุภาคเรืองแสงอยู่เหนือความมืด (มองเห็นในที่มืด)
   }
   // HP ต่ำ: ขอบจอแดง
-  if (!p.dead && p.hp / p.d.maxHp < 0.25) {
+  if (hpLow) {
     const a = 0.25 + Math.sin(t * 5) * 0.12;
     const grd = g.createRadialGradient(R.W / 2, R.H / 2, Math.min(R.W, R.H) * 0.35, R.W / 2, R.H / 2, Math.max(R.W, R.H) * 0.7);
     grd.addColorStop(0, 'rgba(200,0,0,0)'); grd.addColorStop(1, `rgba(200,0,0,${a})`);
     g.fillStyle = grd; g.fillRect(0, 0, R.W, R.H);
   }
   if (p.dead) { g.fillStyle = 'rgba(40,0,0,0.35)'; g.fillRect(0, 0, R.W, R.H); }
-  R.drawVignette(g);
+  R.drawVignette(g, R._grade);
 };
 
 // ------------------------------------------------------------
@@ -464,12 +515,32 @@ R.drawSky = (g, map, t) => {
     }
   }
   // แสงแดดอุ่นจากมุมซ้ายบน (ค่อย ๆ หายใจ)
-  const a = S.sun * (0.85 + Math.sin(t * 0.25) * 0.15);
-  const col = S.col || '255,226,160', sx = S.from === 'right' ? R.W * 1.1 : -R.W * 0.1;
-  const sg = g.createRadialGradient(sx, -R.H * 0.2, 0, sx, -R.H * 0.2, Math.hypot(R.W, R.H) * 0.9);
-  sg.addColorStop(0, `rgba(${col},${a * 1.6})`); sg.addColorStop(0.5, `rgba(${col},${a * 0.5})`); sg.addColorStop(1, `rgba(${col},0)`);
-  g.globalCompositeOperation = 'lighter'; g.fillStyle = sg; g.fillRect(0, 0, R.W, R.H);
+  // ไล่สีเต็มจอทุกเฟรมแพง (มือถือ) → อบไล่สีที่ความสว่างเต็มลงแคนวาสความละเอียดจริงครั้งเดียว (เฉพาะส่วนที่แสงถึง)
+  // แล้ววางแบบ 1:1 ด้วย globalAlpha = จังหวะหายใจ (โหมดบวกแสง: ภาพ × alpha = ไล่สีที่ alpha นั้น ผลเท่าเดิม)
+  const sun = R.sunLayer(S);
+  if (sun.cv) {
+    g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.85 + Math.sin(t * 0.25) * 0.15;
+    g.drawImage(sun.cv, sun.x, 0);
+  }
   g.restore();
+};
+R.sunLayer = S => {
+  const cw = R.cv.width, ch = R.cv.height, key = `${cw}x${ch}|${S.sun}|${S.col}|${S.from}`;
+  if (R._sun && R._sun.key === key) return R._sun;
+  const a = S.sun, col = S.col || '255,226,160', sx = S.from === 'right' ? R.W * 1.1 : -R.W * 0.1, rad = Math.hypot(R.W, R.H) * 0.9;
+  const kx = cw / R.W, ky = ch / R.H;
+  // ช่วงแนวนอนที่แสงถึง (นอกรัศมีไล่สี = 0 ไม่ต้องวาด) ปัดเป็นพิกเซลจริง
+  const x0 = Math.max(0, Math.floor((sx - rad) * kx)), x1 = Math.min(cw, Math.ceil((sx + rad) * kx));
+  const out = R._sun = { key, x: x0, cv: null };
+  if (x1 <= x0) return out;
+  const c = document.createElement('canvas'); c.width = x1 - x0; c.height = ch;
+  const sg2 = c.getContext('2d');
+  sg2.setTransform(kx, 0, 0, ky, -x0, 0);
+  const sg = sg2.createRadialGradient(sx, -R.H * 0.2, 0, sx, -R.H * 0.2, rad);
+  sg.addColorStop(0, `rgba(${col},${a * 1.6})`); sg.addColorStop(0.5, `rgba(${col},${a * 0.5})`); sg.addColorStop(1, `rgba(${col},0)`);
+  sg2.fillStyle = sg; sg2.fillRect(x0 / kx, 0, (x1 - x0) / kx, R.H);
+  out.cv = c;
+  return out;
 };
 R.spawnPart = (kind, anywhere) => {
   const p = { kind, x: Math.random() * R.W, y: anywhere ? Math.random() * R.H : -10, s: 0.6 + Math.random() * 0.8, ph: Math.random() * 6.28, life: 0 };
@@ -480,7 +551,22 @@ R.spawnPart = (kind, anywhere) => {
     : kind === 'data' ? '255,214,130' : kind === 'spore' ? '255,140,95' : kind === 'ember' ? '255,150,60' : '210,190,255';
   return p;
 };
-R.drawAtmosphere = (g, map, t) => {
+// จุดเรืองกลม: ไล่สีจากกลาง (ทึบ) ถึงขอบ (ใส) ของสี col — ภาพแคชขนาดพอดีความละเอียดจอ วาดย่อ/ขยายตามรัศมีจริง
+R._dots = new Map();
+R.glowDot = col => {
+  const RS = Math.ceil(12 * R.dpr), key = col + '|' + RS;
+  let c = R._dots.get(key);
+  if (!c) {
+    c = document.createElement('canvas'); c.width = c.height = RS * 2;
+    const dg = c.getContext('2d'), gr = dg.createRadialGradient(RS, RS, 0, RS, RS, RS);
+    gr.addColorStop(0, `rgba(${col},1)`); gr.addColorStop(1, `rgba(${col},0)`);
+    dg.fillStyle = gr; dg.fillRect(0, 0, RS * 2, RS * 2);
+    R._dots.set(key, c);
+  }
+  return c;
+};
+// o.noFog = หมอกวาดรวมในชั้นความมืดแล้ว (แผนที่มืด) • o.deferGrade = สีบรรยากาศไปรวมกับ vignette (R.drawVignette)
+R.drawAtmosphere = (g, map, t, o = {}) => {
   const A = ATMOS[map.id];
   const dt = Math.min(0.1, Math.max(0, t - R.lastT)); R.lastT = t;
   if (!A) return;
@@ -498,16 +584,7 @@ R.drawAtmosphere = (g, map, t) => {
     g.restore();
   }
   // หมอกลอยต่ำ
-  if (A.fog) {
-    for (let i = 0; i < 4; i++) {
-      const fx = ((t * (8 + i * 4) + i * 400) % (R.W + 800)) - 400, fy = R.H * (0.2 + i * 0.22);
-      // ไล่สีเป็นวงรีจริง (บีบแกนตั้ง) → ขอบหมอกนุ่ม ไม่เป็นแถบขอบแข็ง
-      g.save(); g.translate(fx, fy); g.scale(1, 0.3);
-      const fg = g.createRadialGradient(0, 0, 10, 0, 0, 420);
-      fg.addColorStop(0, 'rgba(235,245,255,0.16)'); fg.addColorStop(1, 'rgba(235,245,255,0)');
-      g.fillStyle = fg; g.beginPath(); g.arc(0, 0, 420, 0, 7); g.fill(); g.restore();
-    }
-  }
+  if (A.fog && !o.noFog) R.drawFog(g, t, 1);
   for (let i = 0; i < R.parts.length; i++) {
     const p = R.parts[i];
     p.life += dt; p.ph += dt;
@@ -519,11 +596,9 @@ R.drawAtmosphere = (g, map, t) => {
       g.fillStyle = p.col; g.globalAlpha = 0.85;
       g.beginPath(); g.ellipse(0, 0, (p.kind === 'leaf' ? 4 : 3) * p.s, 2 * p.s, 0, 0, 7); g.fill();
       g.restore();
-    } else if (p.kind === 'firefly') {
-      const a = (Math.sin(p.ph * 3) + 1) / 2;
-      const fg = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, 8 * p.s);
-      fg.addColorStop(0, `rgba(230,255,140,${0.9 * a})`); fg.addColorStop(1, 'rgba(230,255,140,0)');
-      g.fillStyle = fg; g.beginPath(); g.arc(p.x, p.y, 8 * p.s, 0, 7); g.fill();
+    } else if (p.kind === 'firefly') { // จุดเรืองไล่สีจากภาพแคช × globalAlpha (= ไล่สีที่ alpha นั้น) — ไม่สร้างไล่สีใหม่ 40 อันทุกเฟรม
+      const a = (Math.sin(p.ph * 3) + 1) / 2, r = 8 * p.s, a0 = g.globalAlpha;
+      g.globalAlpha = a0 * 0.9 * a; g.drawImage(R.glowDot('230,255,140'), p.x - r, p.y - r, r * 2, r * 2); g.globalAlpha = a0;
     } else if (p.kind === 'dust') {
       g.fillStyle = `rgba(${p.col},${0.25 + 0.25 * Math.sin(p.ph * 2)})`;
       g.beginPath(); g.arc(p.x, p.y, 1.3 * p.s, 0, 7); g.fill();
@@ -535,15 +610,42 @@ R.drawAtmosphere = (g, map, t) => {
       if (p.kind === 'data') { g.fillStyle = `rgba(${p.col},${a})`; g.fillRect(p.x - 0.8, p.y - 2.5 * p.s, 1.6, 5 * p.s); }
     }
   }
-  if (A.grade) { g.fillStyle = A.grade; g.fillRect(0, 0, R.W, R.H); }
+  if (A.grade) { if (o.deferGrade) R._grade = A.grade; else { g.fillStyle = A.grade; g.fillRect(0, 0, R.W, R.H); } }
 };
-R.drawVignette = g => {
+// หมอกลอยต่ำ: วงรีไล่สี 4 ก้อน (พิกัดจอ) — k = มาตราส่วนของแคนวาสที่วาดลง (ชั้นความมืดครึ่งความละเอียด = 0.5)
+R.fogX = (t, i) => ((t * (8 + i * 4) + i * 400) % (R.W + 800)) - 400;
+R.drawFog = (g, t, k) => {
+  for (let i = 0; i < 4; i++) {
+    const fx = R.fogX(t, i), fy = R.H * (0.2 + i * 0.22);
+    // ไล่สีเป็นวงรีจริง (บีบแกนตั้ง) → ขอบหมอกนุ่ม ไม่เป็นแถบขอบแข็ง
+    g.save(); g.scale(k, k); g.translate(fx, fy); g.scale(1, 0.3);
+    const fg = g.createRadialGradient(0, 0, 10, 0, 0, 420);
+    fg.addColorStop(0, 'rgba(235,245,255,0.16)'); fg.addColorStop(1, 'rgba(235,245,255,0)');
+    g.fillStyle = fg; g.beginPath(); g.arc(0, 0, 420, 0, 7); g.fill(); g.restore();
+  }
+};
+// ความโปร่งของหมอกทั้ง 4 ก้อนที่จุด (x, y) บนจอ (1 = ไม่มีหมอก) — ใช้หรี่แสงเรืองที่ย้ายไปวาดทับหมอก
+R.fogClear = (t, x, y) => {
+  let c = 1;
+  for (let i = 0; i < 4; i++) {
+    const d = Math.hypot(x - R.fogX(t, i), (y - R.H * (0.2 + i * 0.22)) / 0.3);
+    if (d < 420) c *= 1 - 0.16 * Math.min(1, 1 - (d - 10) / 410);
+  }
+  return c;
+};
+R.drawVignette = (g, grade) => {
   // แคชที่ความละเอียดจริงของแคนวาส แล้ววางแบบ 1:1 (ไม่ต้องขยายภาพเต็มจอทุกเฟรม)
-  const cw = R.cv.width, ch = R.cv.height;
-  if (!R.vig || R.vig.width !== cw || R.vig.height !== ch) {
-    R.vig = document.createElement('canvas'); R.vig.width = cw; R.vig.height = ch;
+  // grade = สีบรรยากาศของแผนที่ (ATMOS.grade) ที่เลื่อนมาวาดรวมในภาพเดียวกัน: สีทึบ → vignette ทับ = ผลเท่าวาดทีละชั้น แต่เติมจอรอบเดียว
+  //   (เก็บ 2 แบบ: มี/ไม่มีสีบรรยากาศ — ตอน HP ต่ำ สีบรรยากาศต้องวาดก่อนขอบจอแดงจึงแยกกัน)
+  const cw = R.cv.width, ch = R.cv.height, key = grade || '';
+  if (!R.vigs || R.vigs.w !== cw || R.vigs.h !== ch) R.vigs = { w: cw, h: ch, c: new Map() };
+  R.vig = R.vigs.c.get(key);
+  if (!R.vig) {
+    if (R.vigs.c.size >= 2) R.vigs.c.delete(R.vigs.c.keys().next().value); // เปลี่ยนแผนที่: ทิ้งของเก่า (ไม่เก็บภาพเต็มจอหลายใบ)
+    R.vig = document.createElement('canvas'); R.vig.width = cw; R.vig.height = ch; R.vigs.c.set(key, R.vig);
     const vg = R.vig.getContext('2d');
     vg.scale(cw / R.W, ch / R.H);
+    if (grade) { vg.fillStyle = grade; vg.fillRect(0, 0, R.W, R.H); }
     const grd = vg.createRadialGradient(R.W / 2, R.H / 2, Math.min(R.W, R.H) * 0.45, R.W / 2, R.H / 2, Math.hypot(R.W, R.H) * 0.6);
     grd.addColorStop(0, 'rgba(10,8,20,0)'); grd.addColorStop(1, 'rgba(10,8,20,0.42)');
     vg.fillStyle = grd; vg.fillRect(0, 0, R.W, R.H);
