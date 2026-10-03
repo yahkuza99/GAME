@@ -408,10 +408,56 @@ const Feel = (() => {
         if (typeof Sound !== 'undefined' && Sound.ctx && G.player.options.sound) { Sound.hiss({ ft: 'bandpass', f: 900, to: 600, q: 0.6, dur: 1.6, vol: 0.05 }); Sound.hiss({ ft: 'lowpass', f: 500, dur: 1.8, vol: 0.05 }); }
       }
     };
+    // ผู้ชมคนอื่นในลานตีกัน (เราไม่ได้เกี่ยว) / มีคนล้ม → ผู้ชมฮือเหมือนกัน (event 'hit' / 'kill' ของ Online ส่งถึงทุกคนในลาน)
+    if (typeof Online !== 'undefined' && !Online._feelCrowd) {
+      Online._feelCrowd = true;
+      const h0 = Online.onHit, k0 = Online.onKill;
+      Online.onHit = function (s) {
+        try { if (s && G.map && G.map.arena && G.map.def.pvp && !(this.user && s.to === this.user.id)) F.cheer(s.crit ? 0.35 : 0.15); } catch (e) { /* ภาพล้วน */ }
+        return h0.apply(this, arguments);
+      };
+      Online.onKill = function (s) {
+        try { if (s && G.map && G.map.arena && G.map.def.pvp) F.cheer(1.2); } catch (e) { /* ภาพล้วน */ }
+        return k0.apply(this, arguments);
+      };
+    }
+    // ผู้ชมเรนเดอร์ 3D ขยับ (ชีต 4 เฟรมจาก tools/arena3d.py — วาดทับคนท่านั่งในภาพพื้น เฉพาะช่อง 64 px ที่อยู่ในจอและกำลังเปลี่ยนท่า)
+    //   เงียบ = บางกลุ่มขยับเล็กน้อย (f1 ยกมือข้างเดียว) • ตื่นเต้น = ยิ่งตื่นเต้นยิ่งหลายกลุ่มเชียร์ สลับ ฐาน→f2→ฐาน→f3 เร็วขึ้นตามความตื่นเต้น
+    //   คลื่นเชียร์ = โซนที่คลื่นผ่านลุกยืนชูมือโบกผ้า (f4) • ต่อเฟรม = drawImage เท่าจำนวนช่องที่เปลี่ยนท่าในจอ (ไม่วาดทีละคน)
+    F.crowdFrames = (g, map, cs, t, C) => {
+      const d = cs.c, n = d.gw * d.gh, A = map.arena, TAU = Math.PI * 2;
+      let L = d._lut;
+      if (!L) { // ช่อง → ตำแหน่งในชีตต่อเฟรม + มุมรอบลาน + เฟสสุ่มคงที่ (คำนวณครั้งเดียว)
+        L = d._lut = { slot: d.cells.map(() => new Int16Array(n).fill(-1)), list: [], ang: new Float32Array(n), ph: new Float32Array(n), ph2: new Float32Array(n) };
+        const seen = new Set();
+        d.cells.forEach((arr, k) => { for (let i = 0; i < arr.length; i += 2) { L.slot[k][arr[i]] = arr[i + 1]; seen.add(arr[i]); } });
+        L.list = [...seen].sort((a, b) => a - b);
+        const cx = A.cx * TILE, cy = A.cy * TILE * R.K;
+        for (const c of L.list) {
+          const x = (c % d.gw + 0.5) * d.cell, y = (Math.floor(c / d.gw) + 0.5) * d.cell;
+          L.ang[c] = Math.atan2((y - cy) / R.K, x - cx); L.ph[c] = U.hash2(c, 7, 3); L.ph2[c] = U.hash2(c, 11, 5);
+        }
+      }
+      const vw = R.W / R.zoom, vh = R.H / R.zoom, x0 = R.camX - d.cell, x1 = R.camX + vw, y0 = R.camY - d.cell, y1 = R.camY + vh;
+      const e = Math.min(1, C.e), wk = (performance.now() / 1000 - C.wave) / 1.4, wa = -Math.PI / 2 + wk * TAU, S2 = d.cell + 2;
+      for (const c of L.list) {
+        const gx = c % d.gw, gy = (c - gx) / d.gw, px = gx * d.cell, py = gy * d.cell;
+        if (px < x0 || px > x1 || py < y0 || py > y1) continue;
+        let f = 0;
+        if (wk >= 0 && wk < 1 && Math.abs(((L.ang[c] - wa) % TAU + TAU + Math.PI) % TAU - Math.PI) < 0.34) f = 4;
+        if (!f && e > 0.06 && L.ph2[c] < 0.12 + e * 0.88) { const k = Math.floor(t * (2.2 + 4.5 * e) + L.ph[c] * 4) & 3; f = k === 1 ? 2 : k === 3 ? 3 : 0; }
+        if (!f && (t * 0.42 + L.ph[c] * 3.7) % 1 < 0.28) f = 1;
+        const sl = f ? L.slot[f - 1][c] : -1;
+        if (sl < 0) continue;
+        g.drawImage(cs.img, (sl % d.ac) * S2 + 1, Math.floor(sl / d.ac) * S2 + 1, d.cell, d.cell, px, py, d.cell, d.cell);
+      }
+    };
     F.drawCrowd = (g, map, t) => {
       const C = F.crowd, A = map.arena; if (!A) return;
       const dt = Math.min(0.1, t - (C.last || t)); C.last = t;
       C.e = Math.max(0, C.e - dt * 0.18);
+      const cs = typeof Bake !== 'undefined' && Bake.crowd(map);
+      if (cs) F.crowdFrames(g, map, cs, t, C);
       const K = R.K, cx = A.cx * TILE, cy = A.cy * TILE;
       // ฮือเบา ๆ ตามความตื่นเต้น (ทุก ~0.6 วิ)
       if (C.e > 0.2 && Math.random() < dt * 1.6 && typeof Sound !== 'undefined' && Sound.ctx && G.player.options.sound) Sound.hiss({ ft: 'bandpass', f: 700 + Math.random() * 300, q: 0.5, dur: 0.5, vol: 0.012 * C.e });
@@ -432,7 +478,7 @@ const Feel = (() => {
       const wk = (performance.now() / 1000 - C.wave) / 1.4;
       if (wk >= 0 && wk < 1) {
         const a0 = -Math.PI / 2 + wk * Math.PI * 2;
-        g.globalAlpha = 0.5 * Math.sin(wk * Math.PI); g.globalCompositeOperation = 'lighter';
+        g.globalAlpha = (cs ? 0.22 : 0.5) * Math.sin(wk * Math.PI); g.globalCompositeOperation = 'lighter'; // มีผู้ชมขยับจริงแล้ว = แสงกวาดแค่เสริม
         g.translate(cx, cy * K); g.scale(1, K);
         const gr = g.createConicGradient ? g.createConicGradient(a0 - 0.45, 0, 0) : null;
         if (gr) { gr.addColorStop(0, 'rgba(255,230,160,0)'); gr.addColorStop(0.06, 'rgba(255,230,160,0.55)'); gr.addColorStop(0.14, 'rgba(255,230,160,0)'); gr.addColorStop(1, 'rgba(255,230,160,0)'); g.fillStyle = gr; }

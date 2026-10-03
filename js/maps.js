@@ -528,9 +528,11 @@ class GameMap {
       this.texClasses.add('stone');
     }
     else if (this.paved.length && typeof TownArt !== 'undefined') { TownArt.pave(this, g); this.texClasses.add('stone'); } // ถนนหินอ่อนต่อจากประตูเมือง
-    if (this.arena) { // โคลอสเซียม: ภาพเรนเดอร์ 3D (tools/arena3d.py — มุมกล้องเดียวกับเกม) • ไม่มีภาพ = วาดด้วยโค้ด
-      const img = typeof Art !== 'undefined' && Art.get('arena_ground');
-      this.arenaImg = !!img;
+    if (this.arena) { // โคลอสเซียม: ภาพเรนเดอร์ 3D (tools/arena3d.py — มุมกล้องเดียวกับเกม) • v2 (bake_arena_ground) ยังไม่มา = วาดด้วยโค้ดชั่วคราว
+      //   v2 โหลดไม่ได้/ผังไม่ตรง = ภาพรุ่นแรก arena_ground • ไม่มีทั้งคู่ = วาดด้วยโค้ด (js/bake.js Bake.arena)
+      const v2 = typeof Bake !== 'undefined' && Bake.arena(this), old = !v2 && typeof Art !== 'undefined' && this.arenaWait === undefined && (Art.need('arena_ground'), Art.get('arena_ground'));
+      const img = v2 || old;
+      this.arenaV2 = !!v2; this.arenaImg = !!img;
       if (img) { g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high'; g.drawImage(img, 0, 0, W, H); }
       else if (typeof TownArt !== 'undefined') TownArt.arena(this, g);
       this.texClasses.add('dirt'); this.texClasses.add('rock');
@@ -1007,7 +1009,7 @@ class GameMap {
     }
     return this._townOk ? tb : null;
   }
-  usesBake(k) { const rb = this.ridgeBake(), db = this.daylightBake(), cb = this.caveBake(), tb = this.def.kind === 'town' && this.townBake(); return (!!rb && rb.img === k && !this.ridgeImg) || (!!db && db.img === k && !this.daylightImg) || (!!cb && cb.img === k && !this.caveWallImg) || (!!tb && tb.img === k && !this.townImg) || !!(this.bakeWait && this.bakeWait.has(k)); } // ภาพพื้นอบที่แมพนี้รออยู่ (art.js onLoad → วาดพื้นใหม่) • ซุ้มวาดทุกเฟรมอยู่แล้ว ไม่ต้องวาดพื้นใหม่
+  usesBake(k) { const rb = this.ridgeBake(), db = this.daylightBake(), cb = this.caveBake(), tb = this.def.kind === 'town' && this.townBake(); return (!!this.arenaWait && this.arenaWait === k) || (!!db && db.img === k && !this.daylightImg) || (!!cb && cb.img === k && !this.caveWallImg) || (!!tb && tb.img === k && !this.townImg) || !!(this.bakeWait && this.bakeWait.has(k)); } // ภาพพื้นอบที่แมพนี้รออยู่ (art.js onLoad → วาดพื้นใหม่) • ซุ้มวาดทุกเฟรมอยู่แล้ว ไม่ต้องวาดพื้นใหม่
   // ภาพรอยต่อ: ปากถ้ำมืดลึก (ทุ่ง) • แสงแดด + มอส + ใบไม้ปลิวเข้ามาที่ปากทางถ้ำ (ถ้ำ) • เสาไฟริมถนนหินอ่อน (ทุ่ง)
   seamArt(g) {
     for (const p of this.caveMouths) {

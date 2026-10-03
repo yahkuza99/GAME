@@ -321,7 +321,7 @@ def build(samples, outdir, ss, preview, only, check_only):
     # ---------- พื้นทราย + ทางอุโมงค์ ----------
     bm = bmesh.new(); bmesh.ops.create_circle(bm, cap_ends=True, radius=R0 + 0.05, segments=200)
     obj('sand', bm, M_SAND, ('plain',))
-    bm = bmesh.new(); box(bm, (GX, -R0 - 4.2, -0.005), (2 * GHALF + 0.8, 8.4, 0.02))
+    bm = bmesh.new(); box(bm, (GX, -R0 - 3.9, -0.005), (2 * GHALF + 0.8, 9.0, 0.02))   # เริ่มเหลื่อมเข้าในวงทราย (ขอบวงโค้ง ไม่เว้นช่องฟ้า)
     obj('gatefloor', bm, M_SAND, ('plain',))
     # เหรียญหินอ่อนกลางลาน + ตราวาลค์นัตทอง/ลงยาแดง (แบนราบ — ไม่บังใคร)
     bm = bmesh.new(); bmesh.ops.create_cone(bm, cap_ends=True, segments=96, radius1=2.35, radius2=2.35, depth=0.03, matrix=Matrix.Translation((0, 0, 0.0)))
@@ -558,8 +558,9 @@ def build(samples, outdir, ss, preview, only, check_only):
     fgate = lambda u, z, s: (GX + u, -R0 + 0.02 - s * 0.6, z)
     arch_panel(bm, fgate, -gw - 0.6, gw + 0.6, 0.0, 2.9, 2 * gw, 0.0, 1.5, n=20, sides=True, rise=1.1)
     obj('gate_arch', bm, M_MARBLE, ('ink', 'f_podium'))
+    bm = bmesh.new(); box(bm, (GX, -R0 - 0.29, 2.97), (2 * gw + 1.45, 0.75, 0.14))   # บัวยอดซุ้ม (หินอ่อน — ทองหน้าบนสะท้อนฟ้าเป็นสีเขียวหม่น)
+    obj('gate_cornice', bm, M_MARBLE, ('ink', 'f_podium'))
     bm = bmesh.new()
-    box(bm, (GX, -R0 - 0.29, 2.97), (2 * gw + 1.45, 0.75, 0.14))         # บัวยอดซุ้ม
     bmesh.ops.create_cone(bm, cap_ends=True, segments=20, radius1=0.32, radius2=0.29, depth=0.08,
                           matrix=Matrix.LocRotScale(Vector((GX, -R0 - 0.3, 3.36)), Euler((math.pi / 2, 0, 0)).to_quaternion(), Vector((1, 1, 1))))  # โล่ทองบนยอดซุ้ม (หันใต้ = หากล้อง)
     obj('gate_gold', bm, M_GOLD, ('ink', 'f_podium'))
@@ -677,7 +678,7 @@ def build(samples, outdir, ss, preview, only, check_only):
     bg = w.node_tree.nodes['Background']; bg.inputs['Color'].default_value = (0.55, 0.70, 1.0, 1); bg.inputs['Strength'].default_value = 0.9
     sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'
     sc.cycles.max_bounces = 4; sc.cycles.diffuse_bounces = 2; sc.cycles.glossy_bounces = 2; sc.cycles.transmission_bounces = 0
-    sc.view_settings.view_transform = 'Standard'; sc.view_settings.look = 'None'; sc.view_settings.exposure = float(os.environ.get('AEXP', -0.05))
+    sc.view_settings.view_transform = 'Standard'; sc.view_settings.look = 'None'; sc.view_settings.exposure = float(os.environ.get('AEXP', -0.6))
     sc.render.image_settings.file_format = 'PNG'; sc.render.image_settings.color_mode = 'RGBA'
     sc.render.use_persistent_data = True
     if os.environ.get('BTHREADS'): sc.render.threads_mode = 'FIXED'; sc.render.threads = int(os.environ['BTHREADS'])
@@ -735,7 +736,9 @@ def build(samples, outdir, ss, preview, only, check_only):
     want = lambda k: not only or k in only
     # ---------- 1) ภาพพื้น (ทุกอย่าง + ผู้ชมท่าฐาน) ----------
     if want('ground'):
-        res(s); border(None); setup(ground_vis, []); sc.render.film_transparent = False
+        res(s); setup(ground_vis, []); sc.render.film_transparent = False
+        crop = os.environ.get('ACROP')   # ดูเฉพาะกรอบ (px ที่ ×s: x0,y0,x1,y1) — ปรับแบบเร็ว ไม่ใช้ติดตั้ง
+        border([float(v) for v in crop.split(',')] if crop else None)
         ink(True, 'ink', s); sc.cycles.samples = 6 if preview else samples; sc.cycles.use_denoising = True
         sc.render.filepath = os.path.join(outdir, 'ground.png')
         bpy.ops.render.render(write_still=True); print('เรนเดอร์ →', sc.render.filepath, flush=True)
@@ -836,7 +839,8 @@ def install(src):
         ay = (MAPW * PX * K * s) / 2 + (gm['y'] - MAPW / 2) * K * PX * s - t
         sc_ = round(1 / s, 4)
         pieces.append({'id': 'arena_' + gname, 'img': key, 'x': round(gm['x'], 3), 'y': round(gm['y'], 3), 'ax': round(ax, 1), 'ay': round(ay, 1),
-                       'scale': sc_, 'block': [], 'jars': [], 'fade': 0.4, 'fadeAll': 1, 'fb': [60, 12], 'arena': 1,
+                       'scale': sc_, 'block': [], 'jars': [], 'fade': 0.4 if gname == 'podium' else 0.7,   # เสาบาง: จางนิดเดียว (บังน้อยอยู่แล้ว ให้ความลึกยังอ่านออก)
+                       'fadeAll': 1, 'dup': 1, 'fb': [60, 12], 'arena': 1,
                        'cull': math.ceil(im.width * sc_ / PX / 2) + 1, 'mask': opacity_mask(im, 16)})
         print('ติดตั้ง', key, im.size, 'จุดยึด', (round(ax, 1), round(ay, 1)), flush=True)
     # ---- ชีตผู้ชม: 4 เฟรม (×1) ตัดเป็นช่อง CELL px เก็บเฉพาะช่องที่มีภาพ + ขอบกันซึม 1 px ----
@@ -845,6 +849,8 @@ def install(src):
         fr = [post(Image.open(os.path.join(src, f'crowd_f{k}.png')).convert('RGBA').convert('RGB')) for k in range(1, 5)]
         al = [Image.open(os.path.join(src, f'crowd_f{k}.png')).getchannel('A') for k in range(1, 5)]
         W, H = fr[0].size
+        if W != MAPW * PX and os.environ.get('ARENA_TRY'):   # ลองระบบในเกมด้วยภาพ --preview (ขยาย ×2 — ไม่ใช่ของจริง)
+            S1 = (MAPW * PX, round(MAPW * PX * K)); fr = [f.resize(S1, Image.LANCZOS) for f in fr]; al = [a.resize(S1, Image.LANCZOS) for a in al]; W, H = S1
         assert W == MAPW * PX, 'ชีตผู้ชมต้องเรนเดอร์ ×1 (ไม่ใช่ --preview)'
         GW, GH = math.ceil(W / CELL), math.ceil(H / CELL)
         cells, slots = [], []
