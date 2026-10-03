@@ -215,7 +215,7 @@ R.render = () => {
 
   // โหมดเล็งสกิล (แบบ RO): วงระยะสกิลรอบตัว + ไฮไลต์มอนที่ชี้/ใกล้นิ้ว
   if (G.pendingSkill && SKILLS[G.pendingSkill]) {
-    const sk = SKILLS[G.pendingSkill], col = sk.icon || '#6ff3ff', rr2 = Math.max(1.5, skillRange(sk)) * TILE;
+    const sk = skillDef(G.pendingSkill), col = sk.icon || '#6ff3ff', rr2 = Math.max(1.5, skillRange(sk)) * TILE;
     g.save(); g.translate(p.x * TILE, p.y * TILE * K);
     g.strokeStyle = col; g.globalAlpha = 0.55; g.lineWidth = 2; g.setLineDash([10, 8]); g.lineDashOffset = -t * 20;
     g.beginPath(); g.ellipse(0, 0, rr2, rr2 * K, 0, 0, 7); g.stroke();

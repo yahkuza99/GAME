@@ -357,12 +357,14 @@ const Online = {
     const now = performance.now(), last = (this.hitRate || (this.hitRate = {}))[s.from] || 0;
     if (now - last < 160) return;
     this.hitRate[s.from] = now;
-    const dmg = U.clamp(Math.round(+s.dmg || 0), 0, Math.max(1, Math.round(p.d.maxHp * 0.6)));
+    let dmg = U.clamp(Math.round(+s.dmg || 0), 0, Math.max(1, Math.round(p.d.maxHp * 0.6)));
     this.lastHitBy = { id: s.from, name: s.fn || atk.name, at: G.time };
     p.sitting = false;
-    damagePlayer(dmg, s.crit ? '#ffe040' : '#ff5050');
-    // โจมตีกลับอัตโนมัติ (ตามตั้งค่า) ใส่คนที่ตีเรา
     const m = G.mobs.find(x => x.isPlayer && x.ref === atk);
+    if (m && typeof Runes !== 'undefined') dmg = Runes.onHurt(m, dmg); // รูนป้องกัน (โล่ดูดซับ) ใช้ใน PvP ด้วย
+    damagePlayer(dmg, s.crit ? '#ffe040' : '#ff5050');
+    if (m && !p.dead && typeof Runes !== 'undefined') Runes.onAttacked(m, true); // รูนสวนกลับ → ดาเมจส่งกลับผ่าน sendHit
+    // โจมตีกลับอัตโนมัติ (ตามตั้งค่า) ใส่คนที่ตีเรา
     if (m && !p.dead && p.options.autoCounter !== false && !(p.target && !p.target.dead) && !p.path.length && !p.cast) { p.target = m; p.repathAt = 0; }
   },
   // เราล้มในลานประลอง (เรียกจาก playerDie)
