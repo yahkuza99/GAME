@@ -93,7 +93,7 @@ function portalPos(def, side) {
 const PROP_ART = { pylon: 'prop_pylon', crate: 'prop_crate', scrap: 'prop_scrap', bush: 'prop_bush', rock: 'prop_rock', mushroom: 'prop_mushroom', crystal: 'prop_crystal' };
 const BUILDING_ART = { SUPPLY: 'prop_bld_shop', ARMORY: 'prop_bld_house', PLATING: 'prop_bld_house', FORGE: 'prop_bld_forge' };
 // อาคาร 3D ทั้งชุดของเมือง (หอคอย + ร้าน 4 ร้าน — tools/bld3d.py, js/bake_data_eldheim_bld.js, js/bake.js Bake.buildings) • false = กลับไปใช้ภาพวาด BUILDING_ART เดิม
-const BUILDING_3D = false;  // 3D v1 ดูเรียบกว่าภาพวาด — ปิดไว้จนกว่า v2 จะชนะภาพวาดในภาพเทียบ
+const BUILDING_3D = true;  // TEMP-V2-TEST
 const propArt = k => !!k && typeof Art !== 'undefined' && Art.has(k);
 // ภาพอบจาก Blender ของรอยต่อทุ่ง→ถ้ำ (tools/ridge3d.py): แถบสันหินแถวล่าง (แบบ A วาดลงพื้นแทน caveWalls) + ซุ้มปากถ้ำ (แบบ B ตั้งตรงเรียงความลึก)
 // hash = ผังช่องแถว y0..ล่างสุดตอนเรนเดอร์ — ผังเปลี่ยน (แก้ seed/ตัวสร้างแมพ) จะไม่ใช้ภาพ กลับไปวาดด้วยโค้ดเหมือนเดิม
