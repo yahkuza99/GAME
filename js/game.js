@@ -727,12 +727,15 @@ function damageMob(m, dmg, opts = {}) {
   if (sfx) Sound.play(sfx);
   if (m.hp <= 0) killMob(m);
 }
-// Zeny ที่ได้ทันทีเมื่อฆ่า: ตั้งเองได้ด้วย MOBS[id].zeny = [min, max] ไม่งั้น (Lv+2) ถึง 2×(Lv+2) • MVP ×40–60
+// Zeny ที่ได้ทันทีเมื่อฆ่า: ตั้งเองได้ด้วย MOBS[id].zeny = [min, max] ไม่งั้น (Lv+2) ถึง 2×(Lv+2) × 30% (Lv ≤ 8 = 60%) • MVP ×40–60
 function mobZeny(d) {
   if (d.zeny) return d.zeny;
   if (d.dummy) return [0, 0];
   const b = d.lv + 2;
-  return d.boss ? [b * 40, b * 60] : [b, b * 2];
+  if (d.boss) return [b * 40, b * 60];
+  // เจ้าของ 2026-10-03: มอนดรอปเงินน้อย ๆ (บอทเล่นข้ามคืนเคยได้ ~1,000,000) → เหลือ 30% (มอน Lv ≤ 8 เหลือ 60% กันผู้เล่นใหม่จน) • เงินหลักมาจากขายของแบบ RO
+  const f = d.lv <= 8 ? 0.6 : 0.3;
+  return [Math.max(1, Math.round(b * f)), Math.max(1, Math.round(b * 2 * f))];
 }
 // EXP ตามส่วนต่างเลเวลแบบ RO (Renewal): มอนเลเวลสูงกว่าได้โบนัส • ยิ่งเราเลเวลสูงกว่ามอนมาก EXP ยิ่งลดลงเรื่อย ๆ
 function expLevelMul(mobLv, myLv) {
