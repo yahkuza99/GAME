@@ -429,7 +429,7 @@ R.render = () => {
     if (o.speech) R.speech(g, x, y - 92, o.speech.text, false);
     if (o.emote && o.emote.until > G.time) Emote.draw(g, x + 2, y - (o.speech ? 122 : 84), o.emote, t);
   }
-  for (const a of G.allies) R.label(g, a.x * TILE, P(a.y * TILE) + 14, `${a.name} ${Math.ceil(a.until - G.time)}s`, '#b8e0ff');
+  for (const a of G.allies) if (!a.quiet) R.label(g, a.x * TILE, P(a.y * TILE) + 14, `${a.name} ${Math.ceil(a.until - G.time)}s`, '#b8e0ff'); // quiet = ฝูงเงาหมาป่า (Class 3) โชว์ป้ายตัวเดียว
   // ชื่อของบนพื้น: ตัวที่เมาส์ชี้ + ของ rare ขึ้นไปแสดงตลอด (สีตามความหายาก)
   for (const d of G.drops) {
     const hov = G.hover && G.hover.kind === 'drop' && G.hover.ref === d, rare = typeof LOOT !== 'undefined' && ITEMS[d.id].type !== 'card' && LOOT.rank(d.id) >= 2;

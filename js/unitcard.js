@@ -341,7 +341,7 @@ const UnitCard = {
     this.refs.party = party;
     const meta = h('div', { class: 'uc-meta' }, h('span', { class: 'uc-lv', style: `color:${R.lvColor(lv, p.baseLv || 1)}` }, `Lv ${lv}`),
       h('span', { class: 'uc-cls', style: `--c:${J.glow || '#d4a347'}` }, par ? `${par.name} → ${J.name}` : J.name), o.bot ? h('span', { class: 'uc-dim' }, 'AUTO') : null);
-    const clsLine = h('div', { class: 'uc-sub' }, par ? L(`Class 2 · สายของ ${par.name}`, `Class 2 · from ${par.name}`) : J.tier === 2 ? 'Class 2' : o.job === 'novice' ? 'Novice' : 'Class 1');
+    const clsLine = h('div', { class: 'uc-sub' }, par && J.tier === 3 ? L(`Class 3 · สายของ ${par.name}`, `Class 3 · from ${par.name}`) : par ? L(`Class 2 · สายของ ${par.name}`, `Class 2 · from ${par.name}`) : J.tier === 2 ? 'Class 2' : o.job === 'novice' ? 'Novice' : 'Class 1');
     const tags = pm ? [['pvp', 'PvP']] : [];
     const out = [this.head({ kind: 'player', ref: o }, o.name || '?', [meta, clsLine, party], tags)];
     if (pm) out.push(this.hpBar(pm.hp, pm.maxHp));

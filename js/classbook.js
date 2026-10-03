@@ -189,7 +189,7 @@ const ClassBook = {
   },
 
   tree() {
-    return [['novice', []], ...FIRST_JOBS.map(j => [j, SECOND_JOBS[j] || []])];
+    return [['novice', []], ...FIRST_JOBS.map(j => [j, (SECOND_JOBS[j] || []).flatMap(k => typeof THIRD_JOBS !== 'undefined' && THIRD_JOBS[k] ? [k, THIRD_JOBS[k]] : [k])])]; // Class 3 ต่อท้าย Class 2 ของมัน
   },
   stars(n) { return '★'.repeat(n) + '☆'.repeat(3 - n); },
   render() {
@@ -204,13 +204,13 @@ const ClassBook = {
       h('i', {}), h('span', {}, JOBS[id].name), id === cur ? h('em', {}, L('คุณ', 'You')) : null);
     toc.append(h('div', { class: 'cb-th' }, 'Contents'));
     toc.append(h('div', { class: 'cb-tg' }, L('เริ่มต้น', 'Starter')), item('novice', 0));
-    toc.append(h('div', { class: 'cb-tg' }, L('Class แรก → Class ขั้น 2', 'First class → Second class')));
-    for (const [j, kids] of this.tree().slice(1)) { toc.append(item(j, 1)); for (const k of kids) toc.append(item(k, 2)); }
+    toc.append(h('div', { class: 'cb-tg' }, L('Class แรก → Class ขั้น 2 → Class 3', 'First → Second → Third class')));
+    for (const [j, kids] of this.tree().slice(1)) { toc.append(item(j, 1)); for (const k of kids) toc.append(item(k, JOBS[k].tier === 3 ? 3 : 2)); }
     // ---- รายละเอียด ----
     const id = this.sel, J = JOBS[id], B = CLASSBOOK[id] || {};
     const det = h('article', { class: 'cb-det', style: `--g:${J.glow || '#7ad8ff'}` });
     const art = Art.jobKey(id, (p && p.gender) || 'f'), em = Art.get('emblem_' + id);
-    const tierTxt = id === 'novice' ? L('ผู้เริ่มต้น', 'Starter') : J.tier === 2 ? L(`Class ขั้น 2 · ต่อจาก ${JOBS[J.parent].name}`, `Second class · from ${JOBS[J.parent].name}`) : L('Class แรก', 'First class');
+    const tierTxt = id === 'novice' ? L('ผู้เริ่มต้น', 'Starter') : J.tier === 3 ? L(`Class 3 · ต่อจาก ${JOBS[J.parent].name}`, `Third class · from ${JOBS[J.parent].name}`) : J.tier === 2 ? L(`Class ขั้น 2 · ต่อจาก ${JOBS[J.parent].name}`, `Second class · from ${JOBS[J.parent].name}`) : L('Class แรก', 'First class');
     det.append(h('header', { class: 'cb-hero' },
       art ? h('img', { class: 'cb-art', src: Art.get(art).src, alt: '' }) : null,
       h('div', { class: 'cb-hd' },
@@ -225,11 +225,13 @@ const ClassBook = {
     if (J.desc) det.append(h('p', { class: 'cb-desc' }, J.desc));
     // วิธีได้ Class นี้
     const how = id === 'novice' ? L('ตัวละครใหม่ทุกตัวเริ่มที่นี่', 'Every new character starts here.')
+      : J.tier === 3 && typeof Class3 !== 'undefined' ? Class3.howText(id)
       : J.tier === 2 ? L(`เป็น ${JOBS[J.parent].name} แล้วมี Base Lv ${SECOND_JOB_REQ.base} + Job Lv ${SECOND_JOB_REQ.job} (อัป Job ของ Class แรกให้เต็มก่อน) แล้วคุยกับ Mimir AI ในนีโอเอลด์ไฮม์ — เลือกได้ 1 จาก 2 สาย`,
         `As a ${JOBS[J.parent].name}, reach Base Lv ${SECOND_JOB_REQ.base} + Job Lv ${SECOND_JOB_REQ.job} (first class must be at max Job), then talk to Mimir AI in Neo Eldheim — pick 1 of 2 branches.`)
         : L(`Novice ที่มี Job Lv ${JOB_CHANGE_LV} คุยกับ Mimir AI ในนีโอเอลด์ไฮม์`, `As a Novice with Job Lv ${JOB_CHANGE_LV}, talk to Mimir AI in Neo Eldheim.`);
     det.append(this.sec(L('วิธีได้ Class นี้', 'How to unlock'), h('p', {}, how)));
-    if (SECOND_JOBS[id]) det.append(this.sec(L('เส้นทางต่อไป', 'Next path'), h('div', { class: 'cb-next' }, ...SECOND_JOBS[id].map(k =>
+    const nextJobs = SECOND_JOBS[id] || (typeof THIRD_JOBS !== 'undefined' && THIRD_JOBS[id] ? [THIRD_JOBS[id]] : null);
+    if (nextJobs) det.append(this.sec(L('เส้นทางต่อไป', 'Next path'), h('div', { class: 'cb-next' }, ...nextJobs.map(k =>
       h('button', { type: 'button', style: `--g:${JOBS[k].glow}`, onclick: () => { this.sel = k; this.render(); } }, h('b', {}, JOBS[k].name), h('small', {}, JOBS[k].role || ''))))));
     // วิธีเล่น + ข้อดีข้อเสีย
     if (B.play) det.append(this.sec('How to play', h('p', {}, B.play),
