@@ -2043,6 +2043,7 @@ const UI = {
         h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.skillAim !== false ? 'checked' : false, onchange: e => { o.skillAim = e.target.checked; G.pendingSkill = null; saveGame(); } }), L(' กดสกิลแล้วคลิกเลือกเป้า (แบบ RO) — ปิด = ใช้ใส่เป้าปัจจุบันทันที', ' Click a target after pressing a skill (RO-style) — off = cast on current target')),
         h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.noCtrl !== false ? 'checked' : false, onchange: e => { o.noCtrl = e.target.checked; saveGame(); } }), L(' /nc — คลิกมอนแล้วตีต่อเนื่อง (ปิด = ตี 1 ที, Ctrl+คลิก = ต่อเนื่อง)', ' /nc — Click a monster to keep attacking (off = one hit, Ctrl+click = keep attacking)')),
         h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.noShift ? 'checked' : false, onchange: e => { o.noShift = e.target.checked; G.pendingSkill = null; saveGame(); } }), L(' /ns — มีเป้าหมายอยู่แล้ว กดสกิลยิงทันที ไม่ต้องคลิกเล็ง', ' /ns — With a target, skills fire instantly (no aim click)')),
+        h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: o.npcBarks !== false ? 'checked' : false, onchange: e => { o.npcBarks = e.target.checked; saveGame(); } }), L(' NPC พูดลอยเหนือหัวเมื่อเดินผ่าน', ' NPC speech bubbles when walking by')),
         chk('expMsg', L('แสดงข้อความ EXP ในแชท', 'Show EXP messages in chat'))),
       sec('bag', L('ยาอัตโนมัติ', 'Auto-potion'),
         ...this.autoPotControls(full => { if (full) this.renderOptions(true); else body.dataset.key = this.optKey(); })),
