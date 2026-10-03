@@ -628,7 +628,7 @@ const Trade = {
       h('img', { src: itemIconUrl(x.id), alt: '' }),
       h('div', { class: 'tr-dt' },
         h('b', {}, itemDisplayName(x), x.qty > 1 ? h('small', {}, ` ×${U.fmt(x.qty)}`) : null),
-        h('small', {}, lines.length ? lines.join(' • ') : (it.desc || ''))),
+        h('small', {}, lines.length ? lines.join(' • ') : EN(it.desc || ''))),
       this.sel.side === 'my' && this.editable() ? h('button', { type: 'button', class: 'btn small tr-rm', onclick: () => this.removeOffer(this.sel.i) }, 'Remove') : null);
   },
   // กระเป๋าของเรา: แตะเพื่อเสนอ (ของกองเลือกจำนวนได้) • ของที่สวมอยู่ไม่อยู่ในกระเป๋า จึงเสนอไม่ได้

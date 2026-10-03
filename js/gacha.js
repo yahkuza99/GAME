@@ -281,7 +281,7 @@ if (MAP_DEFS.eldheim && !MAP_DEFS.eldheim.npcs.some(n => n.id === Gacha.NPC_ID))
     const C = Gacha.C.drop;
     return h('div', { class: 'tip-src' }, h('b', {}, 'Dropped by'),
       ...mvps.map(m => h('div', {}, `${m.name} (MVP) · Lv ${m.lv}`, h('small', {}, ` ${where(m.id)}${where(m.id) ? ' · ' : ''}×${C.mvp} (100%)`))),
-      C.worldBoss > 0 ? h('div', {}, L('World Boss ทุกตัว', 'Every World Boss'), h('small', {}, L(` · ผู้ร่วมตี ×${C.worldBoss} (100%)`, ` · each participant ×${C.worldBoss} (100%)`))) : null);
+      C.worldBoss > 0 ? h('div', {}, 'Every World Boss', h('small', {}, ` · each participant ×${C.worldBoss} (100%)`)) : null); // รายละเอียดไอเทม = อังกฤษเสมอ
   };
   // หน้าต่างข้อมูลมอน: บอสแสดงตราเป็นของดรอปแถวแรก
   const mob0 = UI.renderMob.bind(UI);

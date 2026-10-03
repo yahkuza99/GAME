@@ -34,8 +34,8 @@ const UI = {
     this.initTip();
     this.initFolds();
     for (const w of $$('.win')) this.makeWindow(w);
-    // กล่องคุย NPC: ลวดลายกลางขอบบน/ล่าง (ข้าวหลามตัด/อีกา — css/ui_art.css) ไม่ยืดตามความกว้างกล่อง
-    $('#w-dialog').append(h('i', { class: 'dlg-orn top', 'aria-hidden': 'true' }), h('i', { class: 'dlg-orn bot', 'aria-hidden': 'true' }), h('i', { class: 'dlg-pic', 'aria-hidden': 'true' }));
+    // กล่องคุย NPC: รูปหน้า NPC ในวงกลมขอบทอง (วาดด้วย CSS — css/theme.css)
+    $('#w-dialog').append(h('i', { class: 'dlg-face', 'aria-hidden': 'true' }));
     $('#chat-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         const v = e.target.value.trim();
@@ -89,6 +89,7 @@ const UI = {
   },
   setFold(p, on) {
     p.classList.toggle('folded', on);
+    if (p.id === 'basic-info') this.stackTop();
     const st = this.foldState(); st[p.dataset.fold] = on; this.saveFold(st);
     Sound.play('click');
   },
@@ -126,8 +127,7 @@ const UI = {
   toggle(id) { const w = $('#' + id); if (w.classList.contains('hidden')) this.open(id); else this.close(id); },
   open(id) {
     const w = $('#' + id);
-    // เปิดอุปกรณ์ → เปิดกระเป๋า (แท็บอุปกรณ์) คู่กันเลย (จอกว้างพอวางสองหน้าต่าง)
-    if (id === 'w-equip' && innerWidth > 760 && !this.isOpen('w-inv')) { this.invTab = 'equip'; this.selItem = null; this.pairInv = true; this.open('w-inv'); }
+    if (id === 'w-inv' || id === 'w-equip') { this.bookDet = false; this.eqDet = false; } // สมุดเปิดใหม่ = หน้ารายการ (มือถือ)
     w.classList.remove('hidden'); w.style.zIndex = ++this.z;
     this.dirty(); this.renderWindows(true);
     Sound.play('click');
@@ -136,8 +136,6 @@ const UI = {
     const w = $('#' + id);
     if (!w || w.classList.contains('hidden')) return false;
     w.classList.add('hidden');
-    if (id === 'w-equip' && this.pairInv) { this.pairInv = false; this.close('w-inv'); }
-    if (id === 'w-inv') this.pairInv = false;
     this.hideTip();
     if (id === 'w-dialog' && this.dialog) { const d = this.dialog; this.dialog = null; d.reject('closed'); }
     if (id === 'w-shop') this.shop = null;
@@ -161,12 +159,9 @@ const UI = {
     while (log.children.length > 120) log.firstChild.remove();
     log.scrollTop = log.scrollHeight;
   },
-  // icon = ภาพไอเทม (ป้ายได้ของ: ช่องสี่เหลี่ยมซ้ายของแผ่นไม้ ui_banner_loot) • ไม่มี = รูนดาว
-  announce(text, icon) {
+  announce(text) {
     const el = $('#announce');
     el.textContent = text;
-    el.prepend(h('i', { class: 'an-ic' }, icon ? h('img', { src: icon, alt: '' }) : null));
-    el.classList.toggle('has-ic', !!icon);
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   },
   chat(text) {
@@ -230,7 +225,7 @@ const UI = {
     $('#bi-hp').classList.toggle('low', p.hp / d.maxHp < 0.25);
     // HUD แบบ Visor: วงแหวน HP/SP รอบรูป + เส้น EXP ล่างจอ
     const ring = (el, r, k) => { const c = 2 * Math.PI * r, v = `${(c * U.clamp(k, 0, 1)).toFixed(1)} ${c.toFixed(1)}`; if (el.getAttribute('stroke-dasharray') !== v) el.setAttribute('stroke-dasharray', v); };
-    ring($('#ring-hp'), 37, p.hp / d.maxHp); ring($('#ring-sp'), 33, p.sp / d.maxSp); // รัศมีตรงร่องของกรอบรูปไม้ (ui_hud_portrait)
+    ring($('#ring-hp'), 37, p.hp / d.maxHp); ring($('#ring-sp'), 33, p.sp / d.maxSp);
     $('#ring-hp').classList.toggle('low', p.hp / d.maxHp < 0.25);
     $('#exp-line-fill').style.width = (bk * 100).toFixed(1) + '%';
     // ใกล้เลเวลแล้ว: แสงกวาดบนแถบ EXP (≥90%) + ป้ายเลเวลเต้น (≥97%) — GAME_FEEL ข้อ 13
@@ -269,7 +264,7 @@ const UI = {
     if (p.poisonUntil > G.time) buffs.push(L(`<div class="buff debuff" style="--c:#a050e0" title="ติดพิษ"><span class="bf-ic"><b>✦</b></span><span class="bf-n">ติดพิษ</span><i>${fmtLeft(Math.ceil(p.poisonUntil - G.time))}</i></div>`, `<div class="buff debuff" style="--c:#a050e0" title="Poisoned"><span class="bf-ic"><b>✦</b></span><span class="bf-n">Poisoned</span><i>${fmtLeft(Math.ceil(p.poisonUntil - G.time))}</i></div>`));
     const bh = buffs.join('');
     const be = $('#buffs');
-    if (be.innerHTML !== bh) be.innerHTML = bh;
+    if (be.innerHTML !== bh) { const n0 = be.childElementCount; be.innerHTML = bh; if (n0 !== be.childElementCount && (!n0 || !be.childElementCount)) this.stackTop(); }
     // คูลดาวน์บอสในแมพนี้ (ใต้มินิแมพ): นับถอยหลังจนเกิดใหม่ / เตือนเมื่อบอสอยู่ในแมพ
     const mv = $('#mm-mvp');
     if (mv) {
@@ -1026,7 +1021,7 @@ const UI = {
     box.style.top = Math.max(8, Math.min(innerHeight - bh - 8, r.top - 20)) + 'px';
     setTimeout(() => document.addEventListener('pointerdown', out, true), 0);
   },
-  // ของชิ้นนี้หาได้จากมอนตัวไหน (ตารางดรอป + ชิปประจำมอน) — แสดงในการ์ดไอเทม
+  // ของชิ้นนี้หาได้จากมอนตัวไหน (ตารางดรอป + ชิปประจำมอน) — แสดงในการ์ดไอเทม • รายละเอียดไอเทมเป็นภาษาอังกฤษเสมอ
   dropSources(id) {
     const src = [];
     for (const mid in MOBS) {
@@ -1037,25 +1032,123 @@ const UI = {
     }
     if (!src.length) return null;
     src.sort((a, b) => (b[1] < 0 ? 1 : b[1]) - (a[1] < 0 ? 1 : a[1]));
-    const where = mid => { const k = Object.keys(MAP_DEFS).find(k => (MAP_DEFS[k].spawns || []).some(s => s[0] === mid) || MAP_DEFS[k].mvp === mid); return k ? MAP_DEFS[k].name : ''; };
+    const where = mid => { const k = Object.keys(MAP_DEFS).find(k => (MAP_DEFS[k].spawns || []).some(s => s[0] === mid) || MAP_DEFS[k].mvp === mid); return k ? EN(MAP_DEFS[k].name) : ''; };
     const pct = c => c >= 0.1 ? `${Math.round(c * 100)}%` : `${+(c * 100).toFixed(2)}%`;
     return h('div', { class: 'tip-src' }, h('b', {}, 'Dropped by'),
-      ...src.slice(0, 5).map(([m, c]) => h('div', {}, `${m.name}${m.boss ? ' (MVP)' : ''} · Lv ${m.lv}`, h('small', {}, ` ${where(m.id)}${where(m.id) ? ' · ' : ''}${c < 0 ? L(`ล่าครบ ${chipNeed(m)} ตัว`, `defeat ${chipNeed(m)}`) : pct(c)}`))),
-      src.length > 5 ? h('small', {}, L(`และอีก ${src.length - 5} ตัว`, `and ${src.length - 5} more`)) : null);
+      ...src.slice(0, 5).map(([m, c]) => h('div', {}, `${EN(m.name)}${m.boss ? ' (MVP)' : ''} · Lv ${m.lv}`, h('small', {}, ` ${where(m.id)}${where(m.id) ? ' · ' : ''}${c < 0 ? `defeat ${chipNeed(m)}` : pct(c)}`))),
+      src.length > 5 ? h('small', {}, `and ${src.length - 5} more`) : null);
   },
   hideTip() { const t = $('#item-tip'); if (t) t.hidden = true; this._tipEl = null; },
-  tipBody(entry, worn) {
-    const it = ITEMS[entry.id], bon = {};
-    const add = o => { if (o) for (const k in o) bon[k] = (bon[k] || 0) + o[k]; };
-    add(it.b); for (const c of entry.cards || []) add(ITEMS[c].b);
-    const tag = it.type === 'weapon' ? 'Weapon' : it.type === 'armor' ? (SLOT_THAI[it.slot] || 'Armor') : it.type === 'card' ? 'Chip' : it.type === 'use' ? 'Usable' : 'Misc';
+
+  // ---------- ข้อมูลไอเทม (อังกฤษเสมอ — เจ้าของสั่ง 2026-10-03) ใช้ร่วมกัน: แถวรายการ / หน้ารายละเอียด / การ์ดเมาส์ชี้ ----------
+  enStat(k, v) {
+    const pct = /Pct$|^leech$|^stunRes$|^rage$|^venom$/.test(k), s = v > 0 ? '+' : '', n = EN(PSTAT[k]) || k.toUpperCase();
+    return pct ? `${s}${v}${n}` : `${n} ${s}${v}`;
+  },
+  itemBon(entry) {
+    const it = ITEMS[entry.id], bon = {}, add = o => { if (o) for (const k in o) bon[k] = (bon[k] || 0) + o[k]; };
+    add(it.b); for (const c of entry.cards || []) if (ITEMS[c]) add(ITEMS[c].b);
+    return Object.entries(bon).filter(([k, v]) => v && typeof PSTAT !== 'undefined' && PSTAT[k]);
+  },
+  itemKind(it) {
+    if (it.type === 'weapon') return `Weapon · ${EN(WTYPE_THAI[it.wtype]) || it.wtype}`;
+    if (it.type === 'armor') return it.slot === 'armor' ? 'Armor' : `Armor · ${SLOT_THAI[it.slot] || it.slot}`;
+    if (it.type === 'card') return `Chip · fits ${SLOT_THAI[it.slot] || 'any slot'}`;
+    if (it.type === 'use') return 'Consumable';
+    return 'Material';
+  },
+  itemRarity(id) { return typeof LOOT !== 'undefined' ? EN(LOOT.label(id)) : 'Common'; },
+  rarOf(id) { return typeof LOOT !== 'undefined' ? LOOT.rarityOf(id) : 'common'; },
+  // ค่าหลัก (ตัวใหญ่ข้างภาพ): ATK / DEF / ฟื้น HP
+  itemMain(e) {
+    const it = ITEMS[e.id], rf = e.refine || 0;
+    if (it.type === 'weapon') return `ATK ${(it.atk || 0) + rf * 3}` + (it.matk ? ` · MATK ${it.matk + rf * 2}` : '');
+    if (it.type === 'armor' && (it.def || rf || it.mdef)) return [it.def || rf ? `DEF ${(it.def || 0) + rf}` : '', it.mdef ? `MDEF ${it.mdef}` : ''].filter(Boolean).join(' · ');
+    if (it.heal) return `HP +${it.heal[0]}~${it.heal[1]}`;
+    if (it.spHeal) return `SP +${it.spHeal[0]}~${it.spHeal[1]}`;
+    const b = this.itemBon(e)[0]; if (b) return this.enStat(b[0], b[1]);
+    return '';
+  },
+  // บรรทัดสรุปค่า 1 บรรทัดใต้ชื่อ (แถวรายการ)
+  itemSummary(e) {
+    const it = ITEMS[e.id], out = [];
+    const main = this.itemMain(e); if (main) out.push(main);
+    if (it.heal && it.spHeal) out.push(`SP +${it.spHeal[0]}~${it.spHeal[1]}`);
+    for (const [k, v] of this.itemBon(e)) { const s = this.enStat(k, v); if (s !== main) out.push(s); }
+    if (it.slots) out.push(`${(e.cards || []).length}/${it.slots} slots`);
+    if (!out.length) out.push(it.desc ? EN(it.desc) : it.type === 'etc' ? `Sells for ${U.fmt(Math.floor(it.price / 2))} ${CUR}` : this.itemKind(it));
+    return out.slice(0, 4).join(' · ');
+  },
+  plate(id, big) {
+    return h('span', { class: 'plate r-' + this.rarOf(id) + (big ? ' big' : '') }, h('img', { src: itemIconUrl(id), alt: '', draggable: 'false' }));
+  },
+  icoSvg: {
+    stats: '<svg viewBox="0 0 20 20"><rect x="2" y="11" width="4" height="7" rx="1"/><rect x="8" y="7" width="4" height="11" rx="1"/><rect x="14" y="3" width="4" height="15" rx="1"/></svg>',
+    req: '<svg viewBox="0 0 20 20"><path d="M10 2l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V5z"/></svg>',
+    gem: '<svg viewBox="0 0 20 20"><path d="M5 3h10l3 5-8 10L2 8z"/></svg>',
+    lock: '<svg viewBox="0 0 20 20"><rect x="4" y="9" width="12" height="9" rx="2"/><path d="M7 9V6a3 3 0 016 0v3" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+    info: '<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/><rect x="9" y="8.5" width="2" height="6" rx="1" fill="#fff"/><circle cx="10" cy="5.8" r="1.2" fill="#fff"/></svg>',
+    back: '<svg viewBox="0 0 20 20"><path d="M12.5 4L6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  },
+  ico(k) { return h('i', { class: 'ico ico-' + k, 'aria-hidden': 'true', html: this.icoSvg[k] }); },
+  // แถวไอเทมในหน้าซ้ายของสมุด: ภาพบนจานกลม • ชื่อสีตามความหายาก • ค่าสรุป 1 บรรทัด • ขวา: จำนวน / แม่กุญแจ (ใส่ไม่ได้)
+  itemRow(e, sel, onPick, extra) {
+    const it = ITEMS[e.id], r = this.rarOf(e.id), eq = isEquipType(it), locked = eq && !canEquip(it, false);
+    const row = h('div', { class: 'irow r-' + r + (sel ? ' sel' : '') + (locked ? ' locked' : ''), role: 'button', tabindex: '0', draggable: 'true' },
+      h('span', { class: 'plate r-' + r }, h('img', { src: itemIconUrl(e.id), alt: '', draggable: 'false' }), e.refine ? h('i', { class: 'rf' }, '+' + e.refine) : null),
+      h('span', { class: 'irow-t' }, h('b', { class: 'iname r-' + r }, itemDisplayName(e), h('em', {}, ' · ' + this.itemRarity(e.id))), h('small', { class: 'isum' }, this.itemSummary(e))),
+      extra || (e.qty > 1 || !eq ? h('span', { class: 'iqty' }, '×' + U.fmt(e.qty)) : locked ? h('span', { class: 'ilock', title: 'Cannot equip' }, this.ico('lock')) : null));
+    row.addEventListener('click', () => onPick(e));
+    row.addEventListener('keydown', ev => { if (ev.key === 'Enter') onPick(e); });
+    return row;
+  },
+  // หน้าขวาของสมุด: ภาพใหญ่บนจานเรือง • ป้ายความหายาก • ค่าพลัง • เงื่อนไข • ปุ่มใหญ่
+  itemDetail(e, acts, note) {
+    const it = ITEMS[e.id], r = this.rarOf(e.id), p = G.player, eq = isEquipType(it);
+    const kv = (k, v, cls) => h('div', { class: 'kv' + (cls ? ' ' + cls : '') }, h('span', {}, k), h('b', {}, v));
+    const sec = (ic, title, rows) => rows.length ? h('div', { class: 'dsec' }, h('div', { class: 'dsec-h' }, this.ico(ic), title), ...rows) : null;
+    const stats = [], req = [];
+    const rf = e.refine || 0;
+    if (it.type === 'weapon') { stats.push(kv('ATK', String((it.atk || 0) + rf * 3))); if (it.matk || rf) stats.push(kv('MATK', String((it.matk || 0) + rf * 2))); }
+    if (it.type === 'armor') { if (it.def || rf) stats.push(kv('DEF', String((it.def || 0) + rf))); if (it.mdef) stats.push(kv('MDEF', String(it.mdef))); }
+    for (const [k, v] of this.itemBon(e)) { const s = this.enStat(k, v), m = s.match(/^(.*?) ([+−-]?\d.*)$/); stats.push(m ? kv(m[1], m[2]) : kv('Bonus', s)); }
+    if (it.heal) stats.push(kv('Restores HP', `${it.heal[0]}~${it.heal[1]}`));
+    if (it.spHeal) stats.push(kv('Restores SP', `${it.spHeal[0]}~${it.spHeal[1]}`));
+    if (eq) {
+      const okJob = canJobUse(it.jobs, p.job);
+      req.push(kv('Class', it.jobs === 'all' ? 'All Classes' : it.jobs.map(j => EN(JOBS[j].name)).join(', '), okJob ? 'ok' : 'bad'));
+      if (it.lv) req.push(kv('Base Lv', `${it.lv}+`, p.baseLv >= it.lv ? 'ok' : 'bad'));
+      req.push(kv('Slot', SLOT_THAI[it.slot] || it.slot));
+      if (it.slots) req.push(kv('Chip slots', `${(e.cards || []).length}/${it.slots}` + ((e.cards || []).length ? ` · ${e.cards.map(c => ITEMS[c] ? ITEMS[c].name : c).join(', ')}` : '')));
+    }
+    if (it.type === 'card') req.push(kv('Fits', SLOT_THAI[it.slot] || 'Any slot'));
+    const main = this.itemMain(e);
     return [
-      h('div', { class: 'tip-head' }, h('img', { src: itemIconUrl(entry.id), alt: '' }), h('div', {}, h('b', { class: rarCls(entry.id) }, itemDisplayName(entry)), h('small', {}, tag, typeof LOOT !== 'undefined' && LOOT.rank(entry.id) ? h('span', { class: 'rar-tag ' + rarCls(entry.id) }, ' • ' + LOOT.label(entry.id)) : null, worn ? L(' • สวมอยู่', ' • Equipped') : ''))),
-      it.desc ? h('div', { class: 'tip-desc' }, it.desc) : null,
-      ...this.itemTooltip(entry).map(l => h('div', { class: 'tip-line' }, l)),
-      Object.keys(bon).length ? h('div', { class: 'tip-bon' }, ...Object.entries(bon).filter(([k]) => typeof PSTAT !== 'undefined' && PSTAT[k]).map(([k, v]) => h('span', {}, PSTAT_FMT(k, v)))) : null,
-      it.heal ? h('div', { class: 'tip-line' }, L(`ฟื้น HP ${it.heal[0]}~${it.heal[1]}`, `Restores HP ${it.heal[0]}~${it.heal[1]}`)) : null,
-      it.spHeal ? h('div', { class: 'tip-line' }, L(`ฟื้น SP ${it.spHeal[0]}~${it.spHeal[1]}`, `Restores SP ${it.spHeal[0]}~${it.spHeal[1]}`)) : null,
+      h('div', { class: 'det-top' }, h('h3', { class: 'dname r-' + r }, itemDisplayName(e)), h('small', {}, this.itemKind(it))),
+      h('div', { class: 'det-hero r-' + r }, this.plate(e.id, true),
+        h('div', { class: 'det-side' }, h('span', { class: 'rbadge r-' + r }, this.itemRarity(e.id)), main ? h('b', { class: 'det-main' }, main) : null,
+          e.qty > 1 ? h('small', {}, `Owned ×${U.fmt(e.qty)}`) : null)),
+      it.desc ? h('p', { class: 'det-desc' }, EN(it.desc)) : null,
+      sec('stats', 'Stats', stats),
+      sec('req', 'Requirements', req),
+      eq && p.inventory.includes(e) ? this.compareLine(e) : null,
+      typeof LOOT !== 'undefined' ? LOOT.setTip(e.id) : null,
+      this.dropSources(e.id),
+      h('div', { class: 'det-price' }, h('span', {}, 'Sell price'), h('b', {}, `${U.fmt(Math.floor(it.price / 2))} ${CUR}`)),
+      note ? h('div', { class: 'det-note' }, this.ico('info'), h('span', {}, note)) : null,
+      acts && acts.length ? h('div', { class: 'det-acts' }, acts) : null,
+    ].filter(Boolean);
+  },
+  tipBody(entry, worn) {
+    const it = ITEMS[entry.id], r = this.rarOf(entry.id), main = this.itemMain(entry);
+    const bon = this.itemBon(entry);
+    return [
+      h('div', { class: 'tip-head' }, this.plate(entry.id), h('div', {}, h('b', { class: 'r-' + r }, itemDisplayName(entry)),
+        h('small', {}, this.itemKind(it), ' · ', h('span', { class: 'r-' + r }, this.itemRarity(entry.id)), worn ? ' · Equipped' : ''))),
+      main ? h('div', { class: 'tip-main' }, main) : null,
+      it.desc ? h('div', { class: 'tip-desc' }, EN(it.desc)) : null,
+      ...this.itemReqLines(entry).map(l => h('div', { class: 'tip-line' }, l)),
+      bon.length ? h('div', { class: 'tip-bon' }, ...bon.map(([k, v]) => h('span', {}, this.enStat(k, v)))) : null,
       typeof LOOT !== 'undefined' ? LOOT.setTip(entry.id) : null,
       this.dropSources(entry.id),
       !worn && isEquipType(it) && G.player.inventory.includes(entry) ? this.compareLine(entry, true) : null,
@@ -1079,17 +1172,20 @@ const UI = {
     document.addEventListener('pointerdown', () => this.hideTip(), { passive: true });
   },
 
-  itemTooltip(entry) {
-    const it = ITEMS[entry.id];
-    const lines = [];
-    if (it.type === 'weapon') lines.push(L(`ประเภท: ${WTYPE_THAI[it.wtype]}  ATK ${it.atk}${it.matk ? `  MATK ${it.matk}` : ''}`, `Type: ${WTYPE_THAI[it.wtype]}  ATK ${it.atk}${it.matk ? `  MATK ${it.matk}` : ''}`));
-    if (it.type === 'armor') lines.push(L(`ตำแหน่ง: ${SLOT_THAI[it.slot]}${it.def ? `  DEF ${it.def}` : ''}${it.mdef ? `  MDEF ${it.mdef}` : ''}`, `Slot: ${SLOT_THAI[it.slot]}${it.def ? `  DEF ${it.def}` : ''}${it.mdef ? `  MDEF ${it.mdef}` : ''}`));
-    if (it.type === 'card') lines.push(L(`ใส่ใน: ${SLOT_THAI[it.slot]}`, `Fits: ${SLOT_THAI[it.slot]}`));
+  itemReqLines(entry) {
+    const it = ITEMS[entry.id], lines = [];
+    if (it.type === 'card') lines.push(`Fits: ${SLOT_THAI[it.slot] || 'Any slot'}`);
     if (isEquipType(it)) {
-      lines.push(L(`Class: ${it.jobs === 'all' ? 'ทุก Class' : it.jobs.map(j => JOBS[j].name).join(', ')}${it.lv ? `  |  Lv ${it.lv}+` : ''}`, `Jobs: ${it.jobs === 'all' ? 'All' : it.jobs.map(j => JOBS[j].name).join(', ')}${it.lv ? `  |  Lv ${it.lv}+` : ''}`));
-      if (it.slots) lines.push(L(`ช่องชิป: ${(entry.cards || []).map(c => ITEMS[c].name).join(', ') || '-'} (${(entry.cards || []).length}/${it.slots})`, `Chip slots: ${(entry.cards || []).map(c => ITEMS[c].name).join(', ') || '-'} (${(entry.cards || []).length}/${it.slots})`));
+      lines.push(`Class: ${it.jobs === 'all' ? 'All Classes' : it.jobs.map(j => EN(JOBS[j].name)).join(', ')}${it.lv ? `  |  Base Lv ${it.lv}+` : ''}`);
+      if (it.slots) lines.push(`Chip slots: ${(entry.cards || []).map(c => ITEMS[c] ? ITEMS[c].name : c).join(', ') || '-'} (${(entry.cards || []).length}/${it.slots})`);
     }
     return lines;
+  },
+  itemTooltip(entry) {
+    const it = ITEMS[entry.id], lines = [];
+    if (it.type === 'weapon') lines.push(`Type: ${EN(WTYPE_THAI[it.wtype])}  ATK ${it.atk}${it.matk ? `  MATK ${it.matk}` : ''}`);
+    if (it.type === 'armor') lines.push(`Slot: ${SLOT_THAI[it.slot]}${it.def ? `  DEF ${it.def}` : ''}${it.mdef ? `  MDEF ${it.mdef}` : ''}`);
+    return lines.concat(this.itemReqLines(entry));
   },
 
   // ค่าพลังของอุปกรณ์ 1 ชิ้น (รวมตีบวกและชิป) ตามสูตรใน recalc()
@@ -1110,59 +1206,65 @@ const UI = {
     const chips = pv.diff.map(([k, dv, v]) => h('span', { class: 'cmp ' + (dv > 0 ? 'up' : 'down') },
       h('i', {}, k), `${dv > 0 ? '+' : '−'}${U.fmt(Math.abs(dv))}`, compact ? null : h('small', {}, ` → ${U.fmt(v)}`)));
     const up = pv.diff.filter(x => x[1] > 0).length, down = pv.diff.length - up;
-    const verdict = !ok ? ['no', L('ใส่ไม่ได้', 'Cannot equip')] : !pv.diff.length ? ['eq', 'No change'] : !down ? ['up', 'Better'] : !up ? ['down', 'Worse'] : ['mix', L('ได้อย่างเสียอย่าง', 'Trade-off')];
+    const verdict = !ok ? ['no', 'Cannot equip'] : !pv.diff.length ? ['eq', 'No change'] : !down ? ['up', 'Better'] : !up ? ['down', 'Worse'] : ['mix', 'Trade-off'];
     return h('div', { class: 'det-line cmp-row' + (compact ? ' compact' : '') },
-      h('div', { class: 'cmp-h' }, h('span', {}, cur ? L(`เทียบกับ ${itemDisplayName(cur)}`, `vs. ${itemDisplayName(cur)}`) : L(`ช่อง ${SLOT_THAI[it.slot] || ''} ยังว่าง`, `${SLOT_THAI[it.slot] || 'Slot'} slot is empty`)), h('b', { class: 'cmp-v ' + verdict[0] }, verdict[1])),
-      h('div', { class: 'cmp-chips' }, chips.length ? chips : h('span', { class: 'cmp' }, L('ค่าไม่เปลี่ยน', 'No stat change'))));
+      h('div', { class: 'cmp-h' }, h('span', {}, cur ? `vs. ${itemDisplayName(cur)}` : `${SLOT_THAI[it.slot] || 'Slot'} slot is empty`), h('b', { class: 'cmp-v ' + verdict[0] }, verdict[1])),
+      h('div', { class: 'cmp-chips' }, chips.length ? chips : h('span', { class: 'cmp' }, 'No stat change')));
   },
+  // ---------- สมุดไอเทม (แบบหนังสือเปิด): หน้าซ้าย = แท็บ + รายการ • หน้าขวา = รายละเอียด ----------
+  // มือถือ: หน้าเดียว — แตะแถว = ไปหน้ารายละเอียด, ปุ่ม ‹ = กลับรายการ (UI.bookDet)
+  narrow() { return innerWidth <= 760; },
+  // วาดใหม่ทั้งหน้าต่างทุกครั้งที่ข้อมูลเปลี่ยน → จำตำแหน่งเลื่อนของรายการไว้
+  keepScroll(body, fn) {
+    const sc = $$('.irows, .book-r', body).map(el => el.scrollTop);
+    fn();
+    $$('.irows, .book-r', body).forEach((el, i) => { if (sc[i]) el.scrollTop = sc[i]; });
+  },
+  book(win, left, right, det) {
+    $('#' + win).classList.add('book-win');
+    return h('div', { class: 'book' + (det ? ' det' : '') }, h('div', { class: 'book-page book-l' }, left), h('i', { class: 'book-spine', 'aria-hidden': 'true' }), h('div', { class: 'book-page book-r' }, right));
+  },
+  bookBack(fn) { return h('button', { type: 'button', class: 'book-back', onclick: fn }, this.ico('back'), L('กลับ', 'Back')); },
   renderInv() {
-    const p = G.player;
-    const body = $('#w-inv .win-body');
-    body.innerHTML = '';
+    const p = G.player, body = $('#w-inv .win-body');
     const tabs = [['use', 'Usable'], ['equip', 'Equip'], ['card', 'Chips'], ['etc', 'Etc']];
     const tabType = e => { const t = ITEMS[e.id].type; return t === 'use' ? 'use' : t === 'card' ? 'card' : isEquipType(ITEMS[e.id]) ? 'equip' : 'etc'; };
-    body.append(h('div', { class: 'tabs' }, tabs.map(([k, l]) => h('button', {
-      class: 'tab' + (this.invTab === k ? ' on' : ''), onclick: () => { this.invTab = k; this.selItem = null; this.renderInv(); },
-    }, l))));
-    const grid = h('div', { class: 'inv-grid' });
     const list = p.inventory.filter(e => tabType(e) === this.invTab);
-    for (const e of list) {
-      const cell = h('div', { class: 'inv-cell' + (this.selItem === e ? ' sel' : '') + ' rarc-' + rarCls(e.id).slice(4), title: itemDisplayName(e), draggable: 'true' },
-        h('img', { src: itemIconUrl(e.id), alt: '' }),
-        e.qty > 1 || !isEquipType(ITEMS[e.id]) ? h('span', { class: 'q' }, String(e.qty)) : null,
-        e.refine ? h('span', { class: 'rf' }, '+' + e.refine) : null);
-      this.tipFor(cell, e); cell.removeAttribute('title');
-      if (ITEMS[e.id].type === 'use' || isEquipType(ITEMS[e.id])) this.markBind(cell, 'item', e.id);
-      cell.addEventListener('click', () => { this.selItem = e; this.renderInv(); });
-      cell.addEventListener('dblclick', () => { useItem(e); });
-      cell.addEventListener('dragstart', ev => ev.dataTransfer.setData('text/plain', JSON.stringify({ t: 'item', id: e.id })));
-      grid.append(cell);
-    }
-    for (let i = list.length; i < Math.max(24, Math.ceil(list.length / 6) * 6); i++) grid.append(h('div', { class: 'inv-cell empty' }));
-    if (this.invTab === 'card' && !list.length) body.append(h('div', { class: 'hint' }, L(`ยังไม่มีชิป — ล่ามอนชนิดเดียวกันครบ ${CHIP_KILLS} ตัวได้ชิปของมัน 1 ชิ้น (MVP ได้ตั้งแต่ครั้งแรก)`, `No chips yet — defeat ${CHIP_KILLS} of one monster type to earn its chip (MVPs give one on the first kill)`)));
-    body.append(grid);
-    const det = h('div', { class: 'inv-detail' });
-    const e = this.selItem && p.inventory.includes(this.selItem) ? this.selItem : null;
+    if (this.selItem && !list.includes(this.selItem)) { this.selItem = null; this.bookDet = false; }
+    const e = this.selItem || (this.narrow() ? null : list[0]) || null;
+    const pick = x => { this.selItem = x; this.bookDet = true; this.renderInv(); };
+    const rows = list.map(x => {
+      const row = this.itemRow(x, x === e, pick);
+      this.tipFor(row, x);
+      const it = ITEMS[x.id];
+      if (it.type === 'use' || isEquipType(it)) this.markBind(row, 'item', x.id);
+      row.addEventListener('dblclick', () => useItem(x));
+      row.addEventListener('dragstart', ev => ev.dataTransfer.setData('text/plain', JSON.stringify({ t: 'item', id: x.id })));
+      return row;
+    });
+    const left = [
+      h('div', { class: 'pills' }, tabs.map(([k, l]) => h('button', { type: 'button', class: 'pill' + (this.invTab === k ? ' on' : ''),
+        onclick: () => { this.invTab = k; this.selItem = null; this.bookDet = false; this.renderInv(); } }, l, h('small', {}, String(p.inventory.filter(x => tabType(x) === k).length))))),
+      h('div', { class: 'irows' }, rows.length ? rows : h('div', { class: 'book-empty' }, this.invTab === 'card'
+        ? L(`ยังไม่มีชิป — ล่ามอนชนิดเดียวกันครบ ${CHIP_KILLS} ตัวได้ชิปของมัน 1 ชิ้น (MVP ได้ตั้งแต่ครั้งแรก)`, `No chips yet — defeat ${CHIP_KILLS} of one monster type to earn its chip (MVPs give one on the first kill)`)
+        : L('ยังไม่มีของในแท็บนี้', 'Nothing in this tab yet'))),
+      h('div', { class: 'book-foot' },
+        h('button', { class: 'btn small inv-sort', type: 'button', onclick: () => { sortItems(p.inventory); saveGame(); this.renderInv(); Sound.play('click'); } }, 'Sort'),
+        h('span', { class: 'bf-count' }, `${p.inventory.length} ${L('ชิ้น', 'items')}`),
+        h('span', { class: 'coin-pill' }, h('i', { class: 'coin' }), U.fmt(p.zeny))),
+    ];
+    let right;
     if (e) {
-      const it = ITEMS[e.id];
-      const acts = [];
-      if (it.type === 'use') acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, 'Use'));
-      if (isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, 'Equip'));
-      if (it.type === 'card') acts.push(h('button', { class: 'btn', onclick: () => useItem(e) }, 'Insert'));
-      if (it.type === 'use' || isEquipType(it)) acts.push(h('button', { class: 'btn', onclick: () => this.startEquip('item', e.id) }, L('ตั้งปุ่มลัด', 'Set hotkey')));
-      acts.push(h('button', { class: 'btn danger', onclick: () => this.discard(e) }, 'Drop'));
-      det.append(...[
-        h('div', { class: 'det-head' }, h('img', { src: itemIconUrl(e.id), alt: '', class: 'slotic rarc-' + rarCls(e.id).slice(4) }), h('b', { class: rarCls(e.id) }, itemDisplayName(e)), e.qty > 1 ? ` ×${e.qty}` : ''),
-        h('div', { class: 'det-desc' }, it.desc || ''),
-        ...this.itemTooltip(e).map(l => h('div', { class: 'det-line' }, l)),
-        this.compareLine(e),
-        typeof LOOT !== 'undefined' ? LOOT.setTip(e.id) : null, // ชุดเซ็ต + แหล่งดรอป (มือถือไม่มีการ์ดเมาส์ชี้)
-        this.dropSources(e.id),
-        h('div', { class: 'det-line' }, L(`ราคาขาย: ${U.fmt(Math.floor(it.price / 2))} ${CUR}`, `Sell price: ${U.fmt(Math.floor(it.price / 2))} ${CUR}`)),
-        h('div', { class: 'det-acts' }, acts)].filter(Boolean));
-    } else det.append(h('div', { class: 'hint' }, L('คลิกเพื่อดูรายละเอียด • ดับเบิลคลิกเพื่อใช้/สวมใส่ • ลากไปวางที่ปุ่มลัด หรือชี้แล้วกด Z C V F', 'Click for details • double-click to use/equip • drag onto the hotbar, or hover and press Z C V F')));
-    body.append(det, h('div', { class: 'inv-foot' }, h('button', { class: 'btn small inv-sort', type: 'button', onclick: () => { sortItems(p.inventory); saveGame(); this.renderInv(); Sound.play('click'); } }, 'Sort'),
-      h('span', {}, `${CUR}: `, h('b', {}, U.fmt(p.zeny)))));
+      const it = ITEMS[e.id], acts = [];
+      if (it.type === 'use') acts.push(h('button', { class: 'btn big primary', onclick: () => useItem(e) }, 'Use'));
+      if (isEquipType(it)) acts.push(h('button', { class: 'btn big primary', disabled: !canEquip(it, false), onclick: () => useItem(e) }, 'Equip'));
+      if (it.type === 'card') acts.push(h('button', { class: 'btn big primary', onclick: () => useItem(e) }, 'Insert'));
+      if (it.type === 'use' || isEquipType(it)) acts.push(h('button', { class: 'btn big', onclick: () => this.startEquip('item', e.id) }, L('ตั้งปุ่มลัด', 'Hotkey')));
+      acts.push(h('button', { class: 'btn big danger', onclick: () => this.discard(e) }, 'Drop'));
+      right = [this.bookBack(() => { this.bookDet = false; this.selItem = null; this.renderInv(); }),
+        ...this.itemDetail(e, acts, this.narrow() ? null : L('ดับเบิลคลิกเพื่อใช้/สวม • ลากไปวางที่แถบลัด หรือชี้แล้วกด Z C V F', 'Double-click to use/equip • drag onto the hotbar, or hover and press Z C V F'))];
+    } else right = h('div', { class: 'book-empty' }, L('เลือกไอเทมทางซ้ายเพื่อดูรายละเอียด', 'Pick an item on the left to see its details'));
+    this.keepScroll(body, () => { body.innerHTML = ''; body.append(this.book('w-inv', left, right, this.bookDet && !!this.selItem)); });
   },
   async discard(e) {
     const it = ITEMS[e.id];
@@ -1171,30 +1273,46 @@ const UI = {
     removeEntry(e, e.qty);
     if (isEquipType(it)) G.drops.push({ uid: G.uid++, id: e.id, qty: 1, x: G.player.x + 0.4, y: G.player.y + 0.3, born: G.time });
     else G.drops.push({ uid: G.uid++, id: e.id, qty: e.qty, x: G.player.x + 0.4, y: G.player.y + 0.3, born: G.time });
-    this.selItem = null;
+    this.selItem = null; this.bookDet = false;
   },
 
-  // หน้าต่างอุปกรณ์แบบ RO: ช่องสวมซ้าย/ขวา ตัวละครเคลื่อนไหวตรงกลาง (หมุนดูรอบตัวได้) • โทนหนัง/ทองหม่น
+  // สมุดอุปกรณ์: หน้าซ้าย = ตัวละครเคลื่อนไหว (หมุนได้) + ช่องสวม 8 ช่องรอบตัว • หน้าขวา = ชิ้นที่เลือก (ถอดได้) + ของในกระเป๋าที่ใส่ช่องนี้ได้
   EQ_LEFT: ['head', 'weapon', 'garment', 'acc'],
   EQ_RIGHT: ['armor', 'shield', 'shoes', 'acc2'],
-  eqDir: 2,
+  eqDir: 2, eqSel: 'weapon',
   renderEquip() {
-    const p = G.player;
-    const body = $('#w-equip .win-body');
-    body.innerHTML = '';
+    const p = G.player, body = $('#w-equip .win-body'), cur = this.eqSel || 'weapon';
+    const pick = s => { this.eqSel = s; this.eqDet = true; this.renderEquip(); };
     const slot = s => {
-      const e = p.equip[s];
-      // ช่องละบรรทัดเดียวแบบ RO: ไอคอน + ชื่อไอเทม • ช่องว่างแสดงชื่อช่อง (ชื่อช่องของชิ้นที่สวมอยู่ดูใน tooltip)
-      const el = h('div', { class: 'eq-slot' + (e ? '' : ' empty'), title: e ? null : SLOT_THAI[s], onclick: () => e && unequip(s) },
-        e ? h('img', { src: itemIconUrl(e.id), alt: '', class: 'slotic rarc-' + rarCls(e.id).slice(4) }) : h('span', { class: 'eq-ph eq-ph-' + s }),
-        h('span', { class: 'eq-i ' + (e ? rarCls(e.id) : '') }, e ? itemDisplayName(e) + (e.cards && e.cards.length ? ` ◆${e.cards.length}` : '') : SLOT_THAI[s]));
+      const e = p.equip[s], r = e ? this.rarOf(e.id) : '';
+      const el = h('button', { type: 'button', class: 'eq-slot' + (e ? ' r-' + r : ' empty') + (s === cur ? ' sel' : ''), onclick: () => pick(s) },
+        e ? h('span', { class: 'plate r-' + r }, h('img', { src: itemIconUrl(e.id), alt: '', draggable: 'false' }), e.refine ? h('i', { class: 'rf' }, '+' + e.refine) : null)
+          : h('span', { class: 'plate empty' }, h('span', { class: 'eq-ph eq-ph-' + s })),
+        h('span', { class: 'eq-i' }, h('small', {}, SLOT_THAI[s]), h('b', { class: e ? 'r-' + r : '' }, e ? itemDisplayName(e) : L('ว่าง', 'Empty'))));
+      if (e) el.addEventListener('dblclick', () => unequip(s));
       return e ? this.tipFor(el, e, true) : el;
     };
     const prev = h('canvas', { class: 'eq-prev', width: 128, height: 168 });
     const turn = d => h('button', { type: 'button', class: 'eq-turn', 'aria-label': L('หมุนตัวละคร', 'Rotate character'), onclick: () => { this.eqDir = (this.eqDir + d + 8) % 8; } }, d < 0 ? '⟲' : '⟳');
-    const mid = h('div', { class: 'eq-mid' }, h('div', { class: 'eq-stage' }, prev, turn(-1), turn(1)), h('span', { class: 'eq-job' }, JOBS[p.job].name));
-    body.append(h('div', { class: 'eq-wrap' }, h('div', { class: 'eq-col' }, this.EQ_LEFT.map(slot)), mid, h('div', { class: 'eq-col' }, this.EQ_RIGHT.map(slot))),
-      h('div', { class: 'hint' }, L('คลิกที่อุปกรณ์เพื่อถอด • สวมใส่ได้จากหน้าต่างไอเทม', 'Click a piece to unequip it • equip items from the Inventory window')));
+    const d = p.d || {};
+    const left = [
+      h('div', { class: 'eq-wrap' }, h('div', { class: 'eq-col' }, this.EQ_LEFT.map(slot)),
+        h('div', { class: 'eq-mid' }, h('div', { class: 'eq-stage' }, prev, turn(-1), turn(1)), h('span', { class: 'eq-job' }, `${JOBS[p.job].name} · Lv ${p.baseLv}`)),
+        h('div', { class: 'eq-col' }, this.EQ_RIGHT.map(slot))),
+      h('div', { class: 'eq-sum' }, [['ATK', (d.statusAtk || 0) + (d.weaponAtk || 0) + (d.atkBonus || 0)], ['MATK', d.matkMax || 0], ['DEF', d.def || 0], ['MDEF', d.mdef || 0]]
+        .map(([k, v]) => h('span', {}, h('small', {}, k), h('b', {}, U.fmt(v))))),
+    ];
+    const e = p.equip[cur];
+    const fits = p.inventory.filter(x => { const it = ITEMS[x.id]; return isEquipType(it) && (it.slot === cur || (cur === 'acc2' && it.slot === 'acc')); });
+    const cand = fits.length ? h('div', { class: 'dsec' }, h('div', { class: 'dsec-h' }, this.ico('gem'), L(`ของในกระเป๋าที่ใส่ช่อง ${SLOT_THAI[cur]} ได้`, `In your bag for ${SLOT_THAI[cur]}`)),
+      h('div', { class: 'irows flat' }, fits.map(x => { const row = this.itemRow(x, false, y => { useItem(y); },
+        h('button', { type: 'button', class: 'btn small primary', disabled: !canEquip(ITEMS[x.id], false), onclick: ev => { ev.stopPropagation(); useItem(x); } }, 'Equip')); this.tipFor(row, x); return row; }))) : null;
+    const back = this.bookBack(() => { this.eqDet = false; this.renderEquip(); });
+    const right = e
+      ? [back, ...this.itemDetail(e, [h('button', { class: 'btn big primary', onclick: () => unequip(cur) }, 'Unequip')]), cand]
+      : [back, h('div', { class: 'det-top' }, h('h3', { class: 'dname' }, SLOT_THAI[cur]), h('small', {}, L('ช่องนี้ยังว่าง', 'This slot is empty'))),
+        cand || h('div', { class: 'book-empty' }, L('ยังไม่มีของในกระเป๋าที่ใส่ช่องนี้ได้', 'Nothing in your bag fits this slot yet'))];
+    this.keepScroll(body, () => { body.innerHTML = ''; body.append(this.book('w-equip', left, right, this.eqDet)); });
     this.eqAnim(prev);
   },
   // วาดตัวละครกลางหน้าต่างวนไปเรื่อย ๆ จนกว่าหน้าต่างจะปิด/วาดใหม่ (ใช้ canvas ใหม่ทุกครั้งที่ render)
@@ -1912,7 +2030,7 @@ const UI = {
   illust(key) {
     const el = $('#illust');
     const img = key && Art.get(key);
-    // มือถือ: ภาพประกอบใหญ่ถูกกล่องคุยบัง → แสดงหน้า NPC ในกรอบโค้ง (ui_dlg_portrait) ในกล่องคุยแทน
+    // กล่องคุย: รูปหน้า NPC ในวงกลม (มือถือ: ภาพประกอบใหญ่ถูกกล่องคุยบัง)
     const dw = $('#w-dialog'); dw.classList.toggle('has-pic', !!img); if (img) dw.style.setProperty('--npc-pic', `url("${img.src}")`);
     if (!img) { el.classList.remove('show'); return; }
     if (el.dataset.key !== key) { el.innerHTML = ''; el.append(Object.assign(new Image(), { src: img.src, alt: '' })); el.dataset.key = key; }
@@ -1936,19 +2054,6 @@ const UI = {
     el.classList.toggle('upgrade', !boss);
     el.classList.toggle('boss', boss);
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
-  },
-
-  // ป้ายเล็กกลางบน (ไม่บังตัวละคร กดทะลุได้): 'quest' = ตราเควสต์สำเร็จ (ui_banner_quest) • 'chapter' = การ์ดบทใหม่ (ui_banner_chapter)
-  seal(kind, title, sub) {
-    if (typeof G !== 'undefined' && G.fastSim) return;
-    let el = $('#seal-pop');
-    if (!el) { el = h('div', { id: 'seal-pop', 'aria-hidden': 'true' }); ($('#hud') || document.body).append(el); }
-    el.innerHTML = '';
-    el.className = kind;
-    if (kind === 'quest') el.append(h('i', { class: 'sl-art' }), h('small', {}, 'QUEST COMPLETE'), h('b', {}, title || ''));
-    else el.append(h('div', { class: 'sl-card' }, h('small', {}, 'CHAPTER'), h('b', {}, title || ''), sub ? h('span', {}, sub) : null));
-    void el.offsetWidth; el.classList.add('show');
-    clearTimeout(this._sealT); this._sealT = setTimeout(() => el.classList.remove('show'), kind === 'quest' ? 2600 : 4200);
   },
 
   // ---------------- ร้านค้า ----------------
@@ -1975,7 +2080,7 @@ const UI = {
         if (isEquipType(it)) qty.style.visibility = 'hidden';
         list.append(h('div', { class: 'shop-row' + (usable ? '' : ' dim') },
           this.tipFor(h('img', { src: itemIconUrl(id), alt: '', class: 'slotic rarc-' + rarCls(id).slice(4) }), { id, refine: 0, cards: [] }),
-          h('div', { class: 'shop-n' }, h('b', { class: rarCls(id) }, it.name + (it.slots ? ` [${it.slots}]` : '')), h('small', {}, it.desc + (it.lv ? ` (Lv ${it.lv}+)` : '')), isEquipType(it) && usable ? this.compareLine({ id, refine: 0, cards: [] }, true) : null),
+          h('div', { class: 'shop-n' }, h('b', { class: rarCls(id) }, it.name + (it.slots ? ` [${it.slots}]` : '')), h('small', {}, EN(it.desc) + (it.lv ? ` (Lv ${it.lv}+)` : '')), isEquipType(it) && usable ? this.compareLine({ id, refine: 0, cards: [] }, true) : null),
           h('span', { class: 'shop-p' + (it.price > p.zeny ? ' poor' : '') }, U.fmt(it.price) + ' ' + CUR),
           qty,
           h('button', { class: 'btn small', onclick: () => this.buy(id, Math.max(1, Math.min(999, parseInt(qty.value, 10) || 1))) }, 'Buy')));
@@ -2210,7 +2315,14 @@ UI.stackTop = () => {
   if (!bi || !tg) return;
   for (const e of [tg, ch, nav, bf, qt]) if (e) e.style.top = '';
   if (qt) qt.style.right = ''; if (ch) ch.style.width = '';
-  if (innerWidth > 760 || innerHeight <= innerWidth || !bi.getClientRects().length) return;
+  if (!bi.getClientRects().length) return;
+  // คอม / แนวนอน: บัฟ และการ์ดเควสต์ เรียงต่อใต้การ์ดตัวละคร (การ์ดสูงไม่คงที่ — มีป้ายแต้ม / พับได้)
+  if (innerWidth > 760 || innerHeight <= innerWidth) {
+    let y = bi.getBoundingClientRect().bottom + 8;
+    if (bf && bf.querySelector('.buff')) { bf.style.top = y + 'px'; y = bf.getBoundingClientRect().bottom + 6; }
+    if (qt && !(document.body.classList.contains('pad-mode') && innerHeight <= 520)) qt.style.top = y + 'px';
+    return;
+  }
   const vis = e => e && !e.hidden && e.getClientRects().length && getComputedStyle(e).display !== 'none';
   const top = e => parseFloat(getComputedStyle(e).top) || 0;
   const biB = bi.getBoundingClientRect().bottom;
@@ -2233,7 +2345,8 @@ UI.stackTop = () => {
   }
   if (ch && document.body.classList.contains('pad-mode')) {
     const bfB = bf && bf.querySelector('.buff') ? bf.getBoundingClientRect().bottom + 6 : below;
-    const cTop = parseFloat(getComputedStyle(ch).top) || 0, need = Math.max(tTop + 52, bfB);
+    const qB = vis(qt) && qt.getBoundingClientRect().left < innerWidth / 2 ? qt.getBoundingClientRect().bottom + 6 : 0; // การ์ดเควสต์อยู่ซ้าย (ชุด UI ใหม่) → แชตลงไปใต้การ์ด
+    const cTop = parseFloat(getComputedStyle(ch).top) || 0, need = Math.max(tTop + 52, bfB, qB);
     if (need > cTop) ch.style.top = need + 'px';
     // ข้อความแชตยาวไม่วิ่งไปทับแถบเควสต์ทางขวา
     if (vis(qt)) {

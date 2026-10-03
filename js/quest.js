@@ -193,9 +193,6 @@ const Quest = {
     for (const [id, n] of r.items || []) addItem(id, n, true);
     if (r.bexp || r.jexp) gainExp(r.bexp || 0, r.jexp || 0);
     addFloater(p.x, p.y - 1.8, 'QUEST CLEAR!', '#ffd34a', true);
-    const nq = this.current(); // ตราเควสต์สำเร็จ แล้วถ้าเควสต์ถัดไปขึ้นบทใหม่ → การ์ดชื่อบท
-    if (nq && nq.ch && q.ch && nq.ch !== q.ch) { UI.seal('quest', q.title); setTimeout(() => { if (G.started) UI.seal('chapter', L(`บทที่ ${nq.ch}`, `Chapter ${nq.ch}`), CHAPTERS[nq.ch] || ''); }, 2700); }
-    else UI.seal('quest', q.title);
     addFx({ type: 'buff', ref: p, dur: 1.2 });
     Sound.play('quest');
     if (this.current()) setTimeout(() => Sound.play('quest_new'), 900);
