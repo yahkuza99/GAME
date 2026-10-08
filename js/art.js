@@ -17,12 +17,14 @@ const Art = {
   imgs: {},
   load() {
     // f = ชื่อไฟล์ (เช่น skill_fire_rune.webp) หรือ key ล้วน (ลอง .webp แล้วค่อย .png)
-    let ver = {};
+    let ver = {}, mappedFiles = {}, motion = {};
     const probe = f => {
-      const k = f.replace(/\.(webp|png)$/, ''), exts = /\.(webp|png)$/.test(f) ? [''] : ['.webp', '.png'];
+      const k = f.replace(/\.(webp|png)$/, '');
+      f = mappedFiles[k] || f;
+      const exts = /\.(webp|png)$/.test(f) ? [''] : ['.webp', '.png'];
       const tryAt = i => {
         const img = new Image();
-        img.onload = () => { this.imgs[k] = img; this.onLoad(k); };
+        img.onload = () => { img.groundedStride = !!(motion[f] && motion[f].groundedStride); this.imgs[k] = img; this.onLoad(k); };
         img.onerror = () => { if (i + 1 < exts.length) tryAt(i + 1); else if (this.lazy.has(k)) { this.missed.add(k); this.onLoad(k); } }; // ภาพตามแมพโหลดไม่ได้ → จดไว้ ให้แมพวาดพื้นใหม่ด้วยทางสำรอง
         img.src = `assets/${f}${exts[i]}` + (ver[f] ? `?v=${ver[f]}` : '');
       };
@@ -33,10 +35,14 @@ const Art = {
     fetch('assets/manifest.json', { cache: 'no-store' }).then(r => (r.ok ? r.json() : Promise.reject()))
       .then(m => {
         const list = Array.isArray(m) ? m : m.files; ver = (m && m.v) || {}; this.ver = ver;
+        mappedFiles = Object.assign({}, (m && m.portraits) || {}, (m && m.animations) || {});
+        motion = (m && m.motion) || {};
+        const mappedAssets = new Set(Object.values(mappedFiles));
+        Object.keys(mappedFiles).forEach(probe);
         // bake_*: ภาพอบ 3D ขนาดใหญ่ของแมพเดียว — ไม่โหลดตอนเปิดเกม รอ Art.need() ตอนเข้าแมพนั้น
         //   (arena_ground = ภาพลานประลองรุ่นแรก — ทางสำรองของ bake_arena_ground โหลดเมื่อจำเป็นเท่านั้น)
         //   rune_*: ไอคอนรูน 3D (tools/rune3d.py) 90 ไฟล์ — โหลดเมื่อหน้าต่าง/เอฟเฟกต์ขอใช้ (Art.url สำหรับ <img>, Art.need/get สำหรับผ้าใบ)
-        list.filter(f => !/\.(ogg|mp3|wav)$/.test(f)).forEach(f => (f.startsWith('bake_') || f.startsWith('rune_') || f.startsWith('arena_ground.') ? this.lazy.set(f.replace(/\.(webp|png)$/, ''), f) : probe(f)));
+        list.filter(f => !/\.(ogg|mp3|wav)$/.test(f) && !mappedAssets.has(f) && !mappedFiles[f.replace(/\.(webp|png)$/, '')]).forEach(f => (f.startsWith('bake_') || f.startsWith('rune_') || f.startsWith('arena_ground.') ? this.lazy.set(f.replace(/\.(webp|png)$/, ''), f) : probe(f)));
         this._probe = probe;
         for (const k of this.wanted) this.need(k);
         if (typeof Sound !== 'undefined') Sound.register(list, ver); // ไฟล์เสียงจริง (sfx_*, bgm_*)

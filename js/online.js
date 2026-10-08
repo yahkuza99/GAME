@@ -14,6 +14,8 @@ const Online = {
   init() {
     const cfg = window.ONLINE_CONFIG || {};
     this.enabled = true;
+    if (window.CHARACTER_LAB === true) { this.local = true; return; }
+    if (['localhost','127.0.0.1','[::1]'].includes(location.hostname) && new URLSearchParams(location.search).get('local-test') === '1') { this.local = true; return; }
     if (!cfg.url || !cfg.anonKey) { this.local = true; return; }
     if (!window.supabase || !window.supabase.createClient) { console.warn('โหลด Supabase ไม่สำเร็จ — ใช้บัญชีในเครื่อง'); this.local = true; return; }
     this.sb = window.supabase.createClient(cfg.url, cfg.anonKey, { auth: { persistSession: true, autoRefreshToken: true } });

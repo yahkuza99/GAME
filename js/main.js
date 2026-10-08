@@ -23,7 +23,7 @@ function toggleFullscreen() {
 function mapWalkTo(tx, ty) {
   const p = G.player;
   tx = U.clamp(tx, 0, G.map.w - 1); ty = U.clamp(ty, 0, G.map.h - 1);
-  p.target = null; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.cast = null; p.sitting = false;
+  p.target = null; p.skillTarget = null; p.manualSkillLock = false; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.cast = null; p.sitting = false;
   Bot.manualOverride(); Nav.cancel(true);
   p.path = findPath(G.map, Math.floor(p.x), Math.floor(p.y), tx, ty, 20000);
   if (!p.path.length) UI.msg(L('ไปจุดนั้นไม่ได้', 'Cannot move there.'), 'err');
@@ -47,7 +47,7 @@ function stepMove(dx, dy) {
   if (!G.started || p.dead || p.cast) return;
   if (G.time < (p.kbAt || 0)) return;
   p.kbAt = G.time + 0.08;
-  p.target = null; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.sitting = false;
+  p.target = null; p.skillTarget = null; p.manualSkillLock = false; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.sitting = false;
   Bot.manualOverride(); Nav.cancel(true);
   const cx = Math.floor(p.x), cy = Math.floor(p.y);
   // ลองทิศตรงก่อน ถ้าติดให้ไถลตามแนวแกน
@@ -67,7 +67,7 @@ function toggleSit() {
   const p = G.player;
   if (!G.started || p.dead || p.cast || stunBlocked()) return;
   p.sitting = !p.sitting;
-  p.path = []; p.target = null; p.skillIntent = null;
+  p.path = []; p.target = null; p.skillTarget = null; p.manualSkillLock = false; p.skillIntent = null;
   UI.msg(p.sitting ? L('นั่งพัก — ฟื้นฟู HP/SP เร็วขึ้น 2 เท่า', 'Resting — HP/SP recovery doubled.') : L('ลุกขึ้นยืน', 'You stand up.'), 'info');
 }
 
@@ -86,11 +86,11 @@ function updateHover() {
   R.mouse.wx = w.x; R.mouse.wy = w.y;
   G.hover = R.pick(w.x, w.y);
   let cur = 'default';
-  if (G.pendingSkill) cur = 'crosshair';
+  if (G.pendingSkill) cur = skillAimRadius(G.pendingSkill) > 0 ? 'none' : 'crosshair';
   else if (G.hover) cur = G.hover.kind === 'mob' ? 'crosshair' : 'pointer';
   if (R.cv.style.cursor !== cur) R.cv.style.cursor = cur;
 }
-// /nc (/noctrl) แบบ RO: เปิด (ค่าเริ่ม) = คลิกมอนแล้วตีต่อเนื่อง + ใช้สกิลใส่มอนแล้วตีต่อ • ปิด = คลิกตี 1 ที (กด Ctrl ค้างตอนคลิก = ตีต่อเนื่อง)
+// /nc (/noctrl): เปิด = คลิกมอนแล้วตีต่อเนื่อง • ปิด = คลิกตี 1 ที (Ctrl+คลิก = ต่อเนื่อง) • คลิกเล็งสกิลไม่สั่งตีปกติ
 function ncOn(ev) { return G.player.options.noCtrl !== false || !!(ev && ev.ctrlKey); }
 function handleClick(ev) {
   const p = G.player;
@@ -99,6 +99,13 @@ function handleClick(ev) {
   const hv = G.hover;
   if (G.pendingSkill) {
     const id = G.pendingSkill;
+    if (groundSkill(id)) {
+      const w = R.screenToWorld(R.mouse.x, R.mouse.y);
+      const point = {kind:'ground', map:G.map.id, x:w.x/TILE, y:w.y/TILE};
+      if (!skillTargetValid(id, point)) { UI.msg(L('เลือกพื้นที่ที่เดินได้', 'Choose open ground.'), 'info'); return; }
+      beginSkill(id, skillLv(id), point);
+      return;
+    }
     // แตะบนมือถือนิ้วใหญ่: ถ้าไม่โดนตัวพอดี เลือกมอนที่ใกล้จุดแตะที่สุดในระยะ 1.6 ช่อง
     let m = hv && hv.kind === 'mob' ? hv.ref : null;
     if (!m) {
@@ -106,12 +113,12 @@ function handleClick(ev) {
       m = G.mobs.filter(x => !x.dead && U.dist(x.x, x.y, wx, wy) < 1.6).sort((a, b) => U.dist(a.x, a.y, wx, wy) - U.dist(b.x, b.y, wx, wy))[0] || null;
     }
     G.pendingSkill = null;
-    if (m) { p.target = ncOn(ev) ? m : null; p.oneHit = null; p.repathAt = 0; beginSkill(id, skillLv(id), m); }
+    if (m) { beginSkill(id, skillLv(id), m); }
     else UI.msg(L('ยกเลิกการใช้สกิล', 'Skill cancelled.'), 'info');
     return;
   }
   if (p.cast) { p.cast = null; UI.msg(L('ยกเลิกการร่ายเวท', 'Cast cancelled.'), 'info'); }
-  p.target = null; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null;
+  p.target = null; p.skillTarget = null; p.manualSkillLock = false; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null;
   p.sitting = false;
   if (hv && hv.kind === 'mob') { p.target = hv.ref; p.oneHit = ncOn(ev) ? null : hv.ref; p.repathAt = 0; Bot.userTarget(hv.ref); return; }
   if (hv && hv.kind === 'npc') { Bot.manualOverride(); p.npcTarget = hv.ref; p.path = []; return; }
@@ -290,6 +297,7 @@ function frame(ts) {
     hudAcc += dt;
     if (hudAcc > 0.08) { hudAcc = 0; UI.updateHud(); }
   } else {
+    if (GpuFX.active || GpuFX.pending) GpuFX.release();
     lastSimReal = performance.now();
     Title.draw(ts / 1000);
     drawTitlePreview(ts / 1000);
@@ -387,6 +395,7 @@ function showTitle() {
 // ---------------- หน้าเลือกตัวละคร (สูงสุด Acct.MAX ช่องต่อบัญชี) ----------------
 let csSel = 0, csFakes = [], csFaceAt = 0;
 function setupCharSel() {
+  UnitPreview.init($('#cs-preview'));
   $('#btn-new').onclick = () => openCreate();
   $('#btn-continue').onclick = () => csPlay(csSel);
   $('#cs-delete').onclick = () => csAskDelete(csSel);
@@ -557,7 +566,7 @@ function drawSelectPreview(t) {
   g.beginPath(); g.ellipse(cx, by, 58, 14, 0, 0, 7); g.stroke();
   g.globalAlpha = 0.3; g.beginPath(); g.ellipse(cx, by, 70 + Math.sin(t * 2) * 4, 18, 0, 0, 7); g.stroke();
   g.globalAlpha = 1;
-  if (fake) { g.save(); g.translate(cx, by); g.scale(3.2, 3.2); Sprites.drawPlayer(g, fake, t); g.restore(); }
+  if (fake) { g.save(); g.translate(cx, by); g.scale(3.2, 3.2); UnitPreview.draw(g, c, fake, t); g.restore(); }
   else { g.fillStyle = U.rgba(glow, 0.35); g.font = '600 64px sans-serif'; g.textAlign = 'center'; g.fillText('?', cx, by - 60); }
   // รูปหน้าในช่อง: วาดใหม่ทุก 1 วินาที (ภาพอาจโหลดเสร็จทีหลัง)
   if (t - csFaceAt < 1 && csFaceAt) return;
@@ -586,6 +595,7 @@ async function switchCharacter() {
   location.reload();
 }
 function setupCreateScreen() {
+  UnitPreview.init($('#cr-preview'));
   // ย้อนกลับ = กลับไปหน้าเลือกตัวละคร (ออกจากระบบได้จากแถบบัญชีที่นั่น)
   $('#cr-back').onclick = () => showCharSel();
   const swatchRow = (sel, list, key) => {
@@ -636,7 +646,7 @@ function drawTitlePreview(t) {
   const c = $('#cr-preview');
   if (!c || $('#create').classList.contains('hidden')) return;
   // มีโมเดลแบบภาพแล้ว: ซ่อนตัวเลือกสี/ทรงหัว/วิเซอร์ (มีผลเฉพาะโมเดลวาดด้วยโค้ด)
-  const imgModel = Art.has('hero_novice_f') || Art.has('hero_novice_m');
+  const imgModel = Anim.has('novice_'+creation.gender) || Art.has('hero_novice_f') || Art.has('hero_novice_m');
   if ($('#create').classList.contains('img-model') !== imgModel) {
     $('#create').classList.toggle('img-model', imgModel);
     ['#cr-head', '#cr-hair', '#cr-color', '#cr-glow', '#cr-visor'].forEach(sel => { const el = $(sel); el.classList.toggle('hidden', imgModel); el.previousElementSibling.classList.toggle('hidden', imgModel); });
@@ -662,7 +672,7 @@ function drawTitlePreview(t) {
     x: 0, y: 0, job: 'novice', hair: creation.hair, gender: creation.gender, look: creationLook(), facing: 1, dir: creation.dir, moving: false, sitting: false, dead: false,
     atkAnim: 0, buffs: {}, equip: { weapon: { id: 'knife' }, head: null, garment: null },
   };
-  Sprites.drawPlayer(g, fake, t);
+  UnitPreview.draw(g, c, fake, t);
   g.restore();
 }
 

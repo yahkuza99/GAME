@@ -6,6 +6,9 @@
 // ============================================================
 
 const NPC = {
+  talkRange: 4, // ช่องแผนที่: คุยได้โดยไม่ต้องเดินไปชิดตัว NPC
+  distance(n, p = G.player) { return U.dist(p.x, p.y, n.x + 0.5, n.y + 0.5); },
+  inTalkRange(n, p = G.player) { return this.distance(n, p) <= this.talkRange; },
   busy: false,
   async talk(n) {
     // ค้างจากบทสนทนาเก่าที่ไม่จบ (หน้าต่างปิดไปแล้ว) → ล้างทิ้ง คุยใหม่ได้เสมอ

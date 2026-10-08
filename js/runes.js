@@ -156,14 +156,14 @@ const Runes = {
     m.rmark = null;
     if (mk.fx) mk.fx.t = mk.fx.dur; // ดับภาพรอย
     addFloater(m.x, m.y - 1.7, mk.label || 'ᚱ BREAK', mk.col || '#9ff0ff');
-    this.fx({ kind: 'burst', ref: m, dur: 0.45, col: mk.rgb || '160,240,255' });
+    this.fx(Object.assign({ kind: 'burst', ref: m, dur: 0.45, col: mk.rgb || '160,240,255' }, mk.presentation || {}));
     if (mk.onConsume) mk.onConsume(m, s);
   },
   // ติดรอยรูนบนเป้า (สกิลอื่น/ตีปกติถัดไปใช้แล้วหาย)
   mark(m, by, opt) {
     if (!m || m.dead) return;
     if (m.rmark && m.rmark.fx) m.rmark.fx.t = m.rmark.fx.dur;
-    const fx = this.fx({ kind: 'mark', ref: m, dur: opt.dur, col: opt.rgb || '160,240,255', glyph: opt.glyph || 'ᚱ' });
+    const fx = this.fx(Object.assign({ kind: 'mark', ref: m, dur: opt.dur, col: opt.rgb || '160,240,255', glyph: opt.glyph || 'ᚱ' }, opt.presentation || {}));
     m.rmark = Object.assign({ by, until: G.time + opt.dur, k: 1, fx }, opt);
   },
   afterHit(s, lv, m, r) {
@@ -246,10 +246,13 @@ const Runes = {
   // ---------- ภาพ ----------
   fx(f) {
     if (G.fastSim) return { t: 0, dur: 0 };
-    f.rune = 1; f.type = 'rune'; f.t = 0; f.linger = 0; f.seed = (Math.random() * 1e6) | 0;
+    f.rune = 1; f.type = 'rune'; f.t = 0; f.linger = 0;
+    // A visual continuation can reuse its parent seed without consuming combat RNG.
+    if (!Number.isFinite(f.seed)) f.seed = (Math.random() * 1e6) | 0;
     G.fx.push(f); return f;
   },
   draw(g, f, t) {
+    if (typeof SciencePresentation !== 'undefined' && SciencePresentation.owns(f)) return SciencePresentation.draw(g,f);
     const k = Math.min(1, f.t / Math.max(0.001, f.dur));
     const o = f.ref || f, X = o.x * TILE, Y = o.y * TILE * R.K, col = f.col || '160,240,255';
     const sc = (f.ref && f.ref.def && f.ref.def.scale) || 1;
@@ -637,7 +640,8 @@ Runes.watchCombat = function () {
         if (!t) return false;
         skillHitOne(s, lv, t, K.fr_main);
         const sh = Object.create(s); sh.dmg = Object.assign({}, s.dmg, { status: null }); // เศษไฟไม่จุดไฟ
-        for (const o of others(t, 3.5, 2)) later(0.3, () => { if (!o.dead && !t.dead) Runes.fly(t.x, t.y, o, 0.22, '255,140,50', () => skillDeliver(sh, lv, o, K.fr_shard), { size: 9, arc: 16 }); else if (!o.dead) skillDeliver(sh, lv, o, K.fr_shard); });
+        sh.presentationRune = 'fire_rune.split'; // Branch contact only; primary plasma hit retains its own art.
+        for (const o of others(t, 3.5, 2)) later(0.3, () => { if (!o.dead && !t.dead) Runes.fly(t.x, t.y, o, 0.22, '255,140,50', () => skillDeliver(sh, lv, o, K.fr_shard), { size: 9, arc: 16, src: 'fire_rune', runeVariant: 'fire_rune.split' }); else if (!o.dead) skillDeliver(sh, lv, o, K.fr_shard); });
         return true;
       } },
     { id: 'fire_rune.kindle', name: 'Kindle', intent: 'single', glyph: 'ᚲ', col: '#ffa060',
@@ -645,7 +649,7 @@ Runes.watchCombat = function () {
       desc: () => L(`ไฟอ่อนลง (${pc(K.fr_kindle)}%) แต่ติดรอย "ประกายไฟ" 6 วิ: คาถาอื่นลูกถัดไปที่โดนตัวนั้นแรง ${pc(K.fr_mark)}% — สลับ ไฟ → น้ำแข็ง/สายฟ้า`,
         `Weaker fire (${pc(K.fr_kindle)}%) that leaves a Kindled mark for 6s: the next different spell to hit that enemy deals ${pc(K.fr_mark)}% — weave fire → ice/thunder.`),
       mod: base => ({ dmg: { mult: mul(base, 'fr_kindle') } }),
-      onHit(s, lv, m, r) { if (!r.miss) Runes.mark(m, 'fire_rune', { k: K.fr_mark, dur: 6, glyph: 'ᚲ', rgb: '255,140,50', col: '#ffa060', label: 'KINDLED!' }); } },
+      onHit(s, lv, m, r) { if (!r.miss) Runes.mark(m, 'fire_rune', { k: K.fr_mark, dur: 6, glyph: 'ᚲ', rgb: '255,140,50', col: '#ffa060', label: 'KINDLED!', presentation: { src: 'fire_rune', runeVariant: 'fire_rune.kindle' } }); } },
   ]);
   Runes.add('ice_rune', [
     { id: 'ice_rune.lance', name: 'Glacial Lance', intent: 'pack', glyph: '⟶', col: '#9fe0ff',
@@ -660,7 +664,11 @@ Runes.watchCombat = function () {
       mod: base => ({ dmg: { status: null } }),
       hitMul(s, lv, m) { if (m.slowUntil > G.time) { m._shat = 1; return K.ir_shat; } m._shat = 0; return K.ir_base; },
       onHit(s, lv, m, r) {
-        if (m._shat) { m._shat = 0; m.slowUntil = 0; say(m, 'SHATTER!', '#c0f0ff'); if (!fast()) addFx({ type: 'coldbolt', ref: m, dur: 0.3 }); }
+        if (m._shat) { m._shat = 0; m.slowUntil = 0; say(m, 'SHATTER!', '#c0f0ff'); if (!fast()) {
+          // Tag only this impact's authored overlay; retain all original effect clocks.
+          for (const f of G.fx) if (f.skillArt && f.id === s.id && f.ref === m && f.t === 0) f.runeVariant = 'ice_rune.shatter';
+          addFx({ type: 'coldbolt', src: 'ice_rune', runeVariant: 'ice_rune.shatter', ref: m, dur: 0.3 });
+        } }
         else if (!r.miss && !m.dead) applyStatus(m, SKILLS.ice_rune.dmg.status, lv, r.dmg);
       } },
   ]);
@@ -672,7 +680,12 @@ Runes.watchCombat = function () {
       mod: () => ({ dmg: { area: 2.5 } }), est: 3 * 0.4,
       cast(s, lv, t) {
         const c = t || P(), x = c.x, y = c.y;
-        Runes.zone({ skill: 'thunder_rune', x, y, r: 2.5, until: G.time + 2.4, every: 0.8, first: 0.15, rgb: '240,230,110', tick: (z, ms) => { for (const m of ms) { if (!fast()) addFx({ type: 'lightning', ref: m, dur: 0.3 }); skillDeliver(s, lv, m, K.tr_storm); } } });
+        const zone = Runes.zone({ skill: 'thunder_rune', x, y, r: 2.5, until: G.time + 2.4, every: 0.8, first: 0.15, rgb: '240,230,110', tick: (z, ms) => {
+          // The original area tick owns both the hit and its visual pulse; no second timer.
+          if (z.fx) { z.fx.pulseAt = G.time; z.fx.pulseCount = (z.fx.pulseCount || 0) + 1; }
+          for (const m of ms) { if (!fast()) addFx({ type: 'lightning', src: 'thunder_rune', runeVariant: 'thunder_rune.storm', ref: m, dur: 0.3 }); skillDeliver(s, lv, m, K.tr_storm); }
+        } });
+        if (zone.fx) Object.assign(zone.fx, { src: 'thunder_rune', runeVariant: 'thunder_rune.storm', groundLayer: true });
         return true;
       } },
     { id: 'thunder_rune.focus', name: 'Focused Bolt', intent: 'single', glyph: '↯', col: '#fff080',
@@ -680,7 +693,11 @@ Runes.watchCombat = function () {
       desc: () => L(`ไม่เป็นวงแล้ว รวมสายฟ้าเป็นลำเดียวใส่เป้าเดียว แรง ${pc(K.tr_focus)}%`,
         `No more area: all of Thor's lightning gathers into one bolt on a single target for ${pc(K.tr_focus)}%.`),
       mod: base => ({ dmg: { area: 0, mult: mul(base, 'tr_focus') } }),
-      onHit(s, lv, m, r) { if (!r.miss) { kick(5, 0.25); say(m, 'FOCUS!', '#fff080'); } } },
+      onHit(s, lv, m, r) { if (!r.miss) {
+        const owner=G.fx.findLast(f=>f.elemental&&f.runeVariant==='thunder_rune.focus'&&f.focusTarget===m);
+        if(owner){owner.focusHitAt=G.time;owner.focusContactAge=owner.t;}
+        kick(5, 0.25); say(m, 'FOCUS!', '#fff080');
+      } } },
   ]);
   Runes.add('earth_rune', [
     { id: 'earth_rune.fissure', name: 'Fissure', intent: 'pack', glyph: '⚡', col: '#d0a060',
@@ -696,8 +713,10 @@ Runes.watchCombat = function () {
       cast(s, lv, t) {
         if (!t) return false;
         const x = t.x, y = t.y;
-        Runes.fx({ kind: 'sky', x, y, r: 0.9, dur: 0.8, col: '210,170,110' });
-        later(0.8, () => { kick(5, 0.2); ring(x, y, 1, '210,170,110', 2, 0.45); for (const m of Runes.foes(x, y, 0.9)) skillDeliver(s, lv, m, 1); });
+        const shadow = Runes.fx({ kind: 'sky', src: 'earth_rune', runeVariant: 'earth_rune.boulder', x, y, r: 0.9, dur: 0.8, col: '210,170,110' });
+        later(0.8, () => { kick(5, 0.2); ring(x, y, 1, '210,170,110', 2, 0.45); for (const m of Runes.foes(x, y, 0.9)) skillDeliver(s, lv, m, 1);
+          Runes.fx({ kind: 'boulder_impact', src: 'earth_rune', runeVariant: 'earth_rune.boulder', x, y, r: 0.9, dur: 0.65, seed: shadow.seed });
+        });
         return true;
       } },
   ]);
@@ -707,11 +726,16 @@ Runes.watchCombat = function () {
       desc: () => L(`MaxHP เพิ่มแค่ 2%×Lv แต่ทุก ${K.rw_bar_cd} วิ จะมีเกราะรูนกันการโดนตี 1 ครั้งเต็ม ๆ — เกราะแตกแล้วคลื่นรูนซัดศัตรูรอบตัว 2 ช่อง (โอกาส 1% มึน ${K.rw_stun} วิ)`,
         `MaxHP only +2%×Lv, but every ${K.rw_bar_cd}s a rune barrier fully blocks one hit — when it breaks, a rune pulse hits enemies within 2 cells (1% chance to stun for ${K.rw_stun}s).`),
       mod: () => ({ passive: lv => ({ hpPct: 2 * lv, spPct: 4 * lv, mdef: 2 * lv }) }),
-      tick() { const p = P(); p.rc = p.rc || {}; if (!p.rc.barrier && G.time >= (p.rc.barAt || 0)) { p.rc.barrier = 1; aura('120,170,255'); } },
+      tick() { const p = P(); p.rc = p.rc || {}; if (!p.rc.barrier && G.time >= (p.rc.barAt || 0)) {
+        p.rc.barrier = 1; const f=aura('120,170,255');
+        Object.assign(f,{src:'runic_ward',runeVariant:'runic_ward.barrier'});
+      } },
       onHurt(m, dmg) {
         const p = P(); if (!p.rc || !p.rc.barrier) return dmg;
         p.rc.barrier = 0; p.rc.barAt = G.time + K.rw_bar_cd;
-        ring(p.x, p.y, 2, '120,170,255', 3, 0.5); say(p, 'BARRIER!', '#9fc8ff');
+        ring(p.x, p.y, 2, '120,170,255', 3, 0.5);
+        if(!fast()){const f=G.fx.findLast(f=>f.type==='ring'&&f.t===0&&f.x===p.x&&f.y===p.y);if(f)Object.assign(f,{src:'runic_ward',runeVariant:'runic_ward.barrier'});}
+        say(p, 'BARRIER!', '#9fc8ff');
         for (const o of Runes.foes(p.x, p.y, 2)) Runes.tryStun(o, K.rw_stun);
         return 0;
       } },
@@ -720,7 +744,10 @@ Runes.watchCombat = function () {
       desc: () => L(`ไม่ได้ MDEF แต่ทุกครั้งที่ถูกโจมตี มีโอกาส ${pc(K.rw_fb_ch)}% ช็อตตัวที่ตีด้วยสายฟ้า ${pc(K.rw_fb)}% MATK`,
         `No MDEF, but whenever you're attacked there's a ${pc(K.rw_fb_ch)}% chance to zap the attacker with lightning for ${pc(K.rw_fb)}% MATK.`),
       mod: () => ({ passive: lv => ({ hpPct: 4 * lv, spPct: 4 * lv }) }),
-      onAttacked(m) { if (!U.chance(K.rw_fb_ch) || !Runes.icd('rw_fb', 0.4)) return; if (!fast()) addFx({ type: 'lightning', ref: m, dur: 0.3 }); Runes.hit(m, S('runic_ward'), K.rw_fb, { type: 'magic', element: 'wind' }); } },
+      onAttacked(m) { if (!U.chance(K.rw_fb_ch) || !Runes.icd('rw_fb', 0.4)) return;
+        if (!fast()) { const p=P();addFx({ type: 'lightning', src:'runic_ward', runeVariant:'runic_ward.feedback', feedbackOrigin:{x:p.x,y:p.y,facing:p.facing||1}, ref: m, dur: 0.3 }); }
+        Runes.hit(m, S('runic_ward'), K.rw_fb, { type: 'magic', element: 'wind' });
+      } },
   ]);
 
   // ===================== Wildhunter =====================
@@ -773,8 +800,13 @@ Runes.watchCombat = function () {
         `Summons 2 wolves (${pc(K.wc_twin)}% power each). The second one hunts a different monster than your target.`),
       cast() {
         const p = P(), w = G.allies.find(a => a.kind === 'wolf'); if (!w) return false;
+        w.split = false;
         w.pow = K.wc_twin; w.def = Object.assign({}, w.def, { size: 0.72 });
-        G.allies.push(Object.assign({}, w, { x: p.x - 0.8, path: [], target: null, split: true, seed: Math.random(), def: Object.assign({}, w.def, { color: '#a8a8b8' }) }));
+        if (!G.allies.some(a => a.kind === 'wolf' && a !== w && a.split && !a.dead && a.hp > 0 && a.until > G.time)) {
+          const near = { x: p.x - 0.8, y: p.y };
+          const pos = G.map.walkable(Math.floor(near.x), Math.floor(near.y)) ? near : G.map.nearestWalkable(near.x, near.y);
+          G.allies.push(Object.assign({}, w, { x: pos.x, y: pos.y, path: [], target: null, split: true, seed: Math.random(), def: Object.assign({}, w.def, { color: '#a8a8b8' }) }));
+        }
         return false;
       } },
     { id: 'wolf_companion.alpha', name: 'Alpha Hunt', intent: 'single', glyph: '🐾', col: '#d0e0ff',

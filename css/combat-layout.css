@@ -1,0 +1,60 @@
+/* Reserve the left side for chat and the right side for combat controls. */
+body.visor:not(.pad-mode) { --chat-width: clamp(180px, 26vw, 340px); --desktop-chat-height: 137px; }
+body.visor:not(.pad-mode):has(#chat.folded) { --desktop-chat-height: 42px; }
+body.visor:not(.pad-mode) #hud:has(#chat:not([hidden])) #chat { width: var(--chat-width); }
+body.visor:not(.pad-mode) #hud #dock { left: auto; right: calc(8px + var(--sr)); bottom: calc(8px + var(--sb)); transform: none; }
+@media (max-width: 1100px) {
+  body.visor:not(.pad-mode) #hud #dock {
+    display: grid; grid-template-columns: 50px minmax(0, 1fr) 50px;
+    grid-template-areas: 'skills skills skills' 'auto pots ult'; gap: 8px;
+    width: min(640px, calc(100vw - var(--chat-width) - var(--sl) - var(--sr) - 32px));
+  }
+  body.visor:not(.pad-mode) #hud #dock #hotbar { grid-area: skills; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); width: 100%; gap: 4px; padding: 0; margin: 0; }
+  body.visor:not(.pad-mode) #hud #dock #hotbar .hb { width: 100%; max-width: 50px; justify-self: center; }
+  body.visor:not(.pad-mode) #hud #dock #auto-btn { grid-area: auto; }
+  body.visor:not(.pad-mode) #hud #dock #ult-btn { grid-area: ult; position: relative; inset: auto; margin: 0; }
+  body.visor:not(.pad-mode) #hud #dock #potbar { grid-area: pots; justify-self: center; padding: 0; border: 0; margin: 0; }
+}
+@media (max-width: 760px) {
+  body.visor:not(.pad-mode) #hud:has(#chat:not([hidden])) #chat { width: min(340px, calc(100vw - var(--sl) - var(--sr))); }
+  body.visor:not(.pad-mode) #hud #chat-log { height: 96px; }
+  body.visor:not(.pad-mode) #hud #chat.folded #chat-log { height: 38px; }
+  body.visor:not(.pad-mode) #hud #dock { width: calc(100vw - var(--sl) - var(--sr) - 16px); bottom: calc(var(--desktop-chat-height) + var(--sb) + 12px); }
+}
+@media (max-width: 480px) {
+  body.visor:not(.pad-mode) #hud #dock #hotbar { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  body.visor:not(.pad-mode) #hud #dock #potbar { gap: 3px; }
+  body.visor:not(.pad-mode) #hud #dock #potbar .hb { width: 36px; height: 36px; }
+}
+
+/* Typing uses the same reserved chat strip rather than covering the skills. */
+body.visor.pad-mode #hud #chat { border: 0 !important; border-image: none !important; box-shadow: none !important; }
+body.visor.pad-mode #hud #chat::before, body.visor.pad-mode #hud #chat::after { content: none !important; }
+body.visor.pad-mode #hud #chat-input { top: auto; bottom: var(--sb); left: var(--sl); right: auto; width: min(360px, calc(100vw - 224px - var(--sl) - var(--sr))); height: 36px; box-sizing: border-box; padding: 4px 8px; border-radius: 6px; font-size: 16px; line-height: 26px; }
+body.visor.pad-mode #hud #chat.typing #chat-log { visibility: hidden; }
+@media (orientation: portrait) {
+  body.visor.pad-mode { --portrait-key: 48px; --portrait-step: 54px; }
+  body.visor.pad-mode #hud:has(#chat:not([hidden])) #chat { left: var(--sl); bottom: var(--sb); top: auto; transform: none; width: calc(100vw - var(--sl) - var(--sr)); }
+  body.visor.pad-mode #hud #chat-log, body.visor.pad-mode #hud #chat.folded #chat-log { height: auto; max-height: 36px; font-size: 11px; }
+  body.visor.pad-mode #hud #chat-input { left: calc(8px + var(--sl)); bottom: calc(4px + var(--sb)); width: calc(100vw - 16px - var(--sl) - var(--sr)); }
+  body.visor.pad-mode #hud #joy-zone { left: var(--sl); bottom: calc(48px + var(--sb)); width: 118px; height: 150px; }
+  body.visor.pad-mode #hud #joy { left: 64px; top: calc(100% - 60px); width: 100px; height: 100px; }
+  body.visor.pad-mode #hud #joy-knob { width: 44px; height: 44px; }
+  body.visor.pad-mode #hud #pad-atk { right: calc(16px + var(--sr)); bottom: calc(60px + var(--sb)); width: 64px; height: 64px; }
+  body.visor.pad-mode #hud #auto-btn, body.visor.pad-mode #hud #ult-btn { top: auto; bottom: calc(60px + var(--sb)); width: 44px; height: 44px; }
+  body.visor.pad-mode #hud #auto-btn { right: calc(94px + var(--sr)); }
+  body.visor.pad-mode #hud #ult-btn { right: calc(146px + var(--sr)); }
+  body.visor.pad-mode #hud #hotbar .hb { width: var(--portrait-key); height: var(--portrait-key); }
+  body.visor.pad-mode #hud #hotbar .hb:nth-child(odd) { right: calc(8px + var(--portrait-step) + var(--sr)); }
+  body.visor.pad-mode #hud #hotbar .hb:nth-child(even) { right: calc(8px + var(--sr)); }
+  body.visor.pad-mode #hud #hotbar .hb:nth-child(-n+2) { bottom: calc(142px + var(--sb)); }
+  body.visor.pad-mode #hud #hotbar .hb:nth-child(n+3):nth-child(-n+4) { bottom: calc(142px + var(--portrait-step) + var(--sb)); }
+  body.visor.pad-mode #hud #hotbar .hb:nth-child(n+5):nth-child(-n+6) { bottom: calc(142px + 2 * var(--portrait-step) + var(--sb)); }
+  body.visor.pad-mode #hud #hotbar .hb:nth-child(n+7) { bottom: calc(142px + 3 * var(--portrait-step) + var(--sb)); }
+  body.visor.pad-mode #hud #potbar { left: calc(14px + var(--sl)); bottom: calc(206px + var(--sb)); width: auto; flex-direction: column-reverse; flex-wrap: nowrap; gap: 6px; }
+  body.visor.pad-mode #hud #potbar .hb { width: 44px; height: 44px; }
+  body.visor.pad-mode #hud #chat-btn { left: calc(128px + var(--sl)); bottom: calc(150px + var(--sb)); width: 44px; height: 44px; }
+}
+@media (orientation: portrait) and (max-width: 360px) {
+  body.visor.pad-mode { --portrait-key: 44px; --portrait-step: 50px; }
+}

@@ -150,7 +150,7 @@ const Class3 = (() => {
     p.c3ward = null;
     const s = SKILLS.sap_ward, lv = w.lv, r = s.c3ward.r;
     say(p, 'WARD BURST', '#bff4ff', true);
-    if (!fast()) { addFx({ type: 'firering', x: p.x, y: p.y, dur: 0.55, r }); C.fx({ kind: 'shatter', x: p.x, y: p.y, r, dur: 0.7 }); Sound.play('ice'); }
+    if (!fast()) { addFx({ type: 'firering', c3wardBurst: 1, x: p.x, y: p.y, dur: 0.55, r }); C.fx({ kind: 'shatter', x: p.x, y: p.y, r, dur: 0.7 }); Sound.play('ice'); }
     for (const m of G.mobs.filter(o => !o.dead && U.dist(o.x, o.y, p.x, p.y) <= r)) {
       const res = Runes.hit(m, s, s.c3ward.boom(lv), { type: 'magic', element: 'water' });
       if (res && !res.miss && !m.dead) applyStatus(m, { kind: 'slow', chance: () => 100, dur: () => 3 }, lv, res.dmg);
@@ -220,7 +220,23 @@ const Class3 = (() => {
     let n = 0; for (const m of G.mobs) if (!m.dead && U.dist(m.x, m.y, p.x, p.y) <= c.r && ++n >= c.cap) break;
     return 1 + c.per(lv) * n;
   };
-  const leechHeal = (amt) => { const p = P(); if (amt <= 0 || p.dead || p.hp >= p.d.maxHp) return; p.hp = Math.min(p.d.maxHp, p.hp + amt); };
+  const leechHeal = (amt) => {
+    const p = P(); if (amt <= 0 || p.dead || p.hp >= p.d.maxHp) return;
+    const before = p.hp;
+    p.hp = Math.min(p.d.maxHp, p.hp + amt);
+    if (!fast()) {
+      const got = p.hp - before;
+      const recent = G.floaters.find(f => f.c3Drain && f.t < 0.6 && Math.abs(f.x - p.x) < 1.6);
+      if (recent) {
+        recent.drainAmount += got;
+        recent.text = L(`+${recent.drainAmount} ดูดเลือด`, `+${recent.drainAmount} Drain`);
+        recent.t = 0;
+      } else {
+        addFloater(p.x + 0.35, p.y - 1.5, L(`+${got} ดูดเลือด`, `+${got} Drain`), '#ff8fb4');
+        Object.assign(G.floaters[G.floaters.length - 1], { c3Drain: true, drainAmount: got });
+      }
+    }
+  };
   C.ultOn = kind => { const u = G.player && G.player.c3ult; return !!(u && u.kind === kind && u.until > G.time); };
 
   // ============================================================
@@ -460,7 +476,7 @@ const Class3 = (() => {
   };
   C.startTrial = job => {
     const p = P(), st = C.st(p);
-    if (!C.isThird(job) || THIRD_JOBS[p.job] !== job) return false;
+    if (!C.isThird(job) || THIRD_JOBS[p.job] !== job || !C.req(p).ok) return false;
     st.trial = { job, stage: 'seek' };
     UI.msg(L(`✦ เควสต์ทดสอบ Class 3: ไปหา ${C.TRIAL[job].who} ที่ ${C.TRIAL[job].place} — เดินตามความคิดสุดท้ายของแม่พิมพ์`, `✦ Class 3 trial: find ${C.TRIAL[job].who} in ${C.TRIAL[job].place} — follow the mold's last thought.`), 'lvl');
     saveGame(); UI.dirty();
@@ -511,7 +527,7 @@ const Class3 = (() => {
   if (typeof BossKit !== 'undefined' && BossKit.KITS) BossKit.KITS.c3_shadow = { col: '170,120,255', hex: '#b080ff', rot: ['c3_echo', 'slam', 'c3_echo', 'shockwave'], wbRot: ['c3_echo', 'slam', 'shockwave'], ult: null, minions: [], elite: null, cry: L('เงาไม่ต้องการพวก', 'A shadow needs no allies') };
   C.ascend = job => {
     const p = P(), st = C.st(p);
-    if (THIRD_JOBS[p.job] !== job) return false;
+    if (THIRD_JOBS[p.job] !== job || !C.req(p).ok || st.trial?.job !== job || st.trial?.stage !== 'ascend') return false;
     changeJob(job);
     if (!st.done.includes(job)) st.done.push(job);
     st.trial = null;
@@ -524,7 +540,7 @@ const Class3 = (() => {
     const m0 = NPC.scripts.jobmaster; if (!m0 || m0._c3) return;
     const fn = async n => {
       const p = G.player, nm = `[${n.name}]`, rq = C.req(p), tr = C.trial();
-      if (rq.next && tr && tr.job === rq.next && tr.stage === 'ascend') {
+      if (rq.ok && tr && tr.job === rq.next && tr.stage === 'ascend') {
         const J = JOBS[tr.job];
         UI.illust(Art.jobKey(tr.job, p.gender));
         const ok = await UI.menu(nm, L(`เจ้าชนะเงาของตัวเองแล้ว... ความคิดสุดท้ายของวีรชนนิ่งพอจะยึดร่าง<br><b>${J.name}</b> — ${J.thai}<br>${J.desc}<br><br>สกิลใหม่: ${J.skills.map(id => SKILLS[id].name).join(', ')}<br>สกิลและอาวุธของ ${JOBS[p.job].name} และ ${JOBS[jobRoot(p.job)].name} ยังอยู่ครบ • แต้มสกิลที่เหลือยกมาด้วย<br><br>รับความคิดนี้ลงร่างหรือไม่? (ย้อนกลับไม่ได้)`,
@@ -534,8 +550,8 @@ const Class3 = (() => {
         if (ok !== 0) return;
         C.ascend(tr.job);
         UI.illust(Art.jobKey(p.job, p.gender));
-        await UI.say(nm, L(`ชั้นที่สามตื่นแล้ว — ตอนนี้เจ้าคือ ${NB(J.name)}<br>Job Level เริ่มใหม่ที่ 1 ถึง ${J.jobMax} (25 แต้มสำหรับ 6 สกิล — เจ้าต้องเลือกเอง) • สกิลติดตัวมี ${NB('Oath')} 2 แบบ เปลี่ยนได้ที่ Runes (Shift+R)<br>ไม้ตายแบบใหม่รออยู่ในปุ่ม ULT (คลิกขวา/กดค้างเพื่อเลือก)`,
-          `The third tier has woken — you are now ${NB(J.name)}.<br>Job Level restarts at 1 up to ${J.jobMax} (25 points for 6 skills — you choose) • your passive has 2 ${NB('Oaths')}, swap them in Runes (Shift+R).<br>A new ultimate awaits on the ULT button (right-click/hold to choose).`));
+        await UI.say(nm, L(`ชั้นที่สามตื่นแล้ว — ตอนนี้เจ้าคือ ${NB(J.name)}<br>Job Level เริ่มใหม่ที่ 1 ถึง ${J.jobMax} (${J.jobMax - 1} แต้มใหม่ — เลือกบิลด์ของเจ้า) • สกิลติดตัวมี ${NB('Oath')} 2 แบบ เปลี่ยนได้ที่ Runes (Shift+R)<br>ไม้ตายแบบใหม่รออยู่ในปุ่ม ULT (คลิกขวา/กดค้างเพื่อเลือก)`,
+          `The third tier has woken — you are now ${NB(J.name)}.<br>Job Level restarts at 1 up to ${J.jobMax} (${J.jobMax - 1} new points — choose your build) • your passive has 2 ${NB('Oaths')}, swap them in Runes (Shift+R).<br>A new ultimate awaits on the ULT button (right-click/hold to choose).`));
         UI.illust(`npc_${n.id}`);
         await UI.say(nm, L('(Mimir มองไปทางเหนือ) ...Huginn ยังมีเศษความคิดเหลืออีกสี่ชิ้น ข้าจะถอดให้ครบ — แต่ทำไมทุกชิ้นถึงอุ่นเหมือนเพิ่งถูกคิดเมื่อเช้านี้', '(Mimir looks north) ...Huginn still carries four more shards. I will decode them all — but why is every shard warm, as if it were thought only this morning?'));
         return;
@@ -667,10 +683,11 @@ const Class3 = (() => {
     g.lineWidth = 2.5; g.strokeStyle = `rgba(${col},${0.85 * a})`; gEll(g, X, Y, rr, rr * R.K); g.stroke();
     g.lineWidth = 1.2; g.strokeStyle = `rgba(255,236,170,${0.55 * a})`; gEll(g, X, Y, rr * 0.86, rr * 0.86 * R.K); g.stroke();
     g.strokeStyle = `rgba(${col},${0.5 * a})`; gEll(g, X, Y, rr * 0.42, rr * 0.42 * R.K); g.stroke();
-    // เส้นดาว 6 แฉก (รากต้นไม้) หมุนช้า ๆ
-    g.lineWidth = 1.4; g.strokeStyle = `rgba(${col},${0.45 * a})`; g.beginPath();
-    for (let i = 0; i < 6; i++) { const a0 = spin + i * Math.PI / 3, a1 = a0 + Math.PI * 2 / 3; g.moveTo(X + Math.cos(a0) * rr * 0.84, Y + Math.sin(a0) * rr * 0.84 * R.K); g.lineTo(X + Math.cos(a1) * rr * 0.84, Y + Math.sin(a1) * rr * 0.84 * R.K); }
-    g.stroke();
+    // เส้นอาคมโค้งรอบขอบ เว้นกลางวงให้เห็นเป้าและพื้นที่เล่นชัด
+    g.lineWidth=1.2;g.strokeStyle=`rgba(${col},${.4*a})`;
+    g.save();g.translate(X,Y);g.scale(1,R.K);
+    for(let i=0;i<3;i++){const an=spin+i*Math.PI*2/3;g.beginPath();g.arc(0,0,rr*.69,an,an+1.4);g.stroke();}
+    g.restore();
     // อักษรรูนวนรอบขอบ
     const n = Math.max(8, Math.round(f.r * 6));
     g.font = `700 ${Math.round(10 + f.r * 1.5)}px serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
@@ -797,7 +814,7 @@ const Class3 = (() => {
     if (rq.next && tab === p.job) return h('div', { class: 'hint c3-hint' }, L(`Class 3 (${JOBS[rq.next].name}): Base Lv ${THIRD_JOB_REQ.base} + Job Lv ${THIRD_JOB_REQ.job} + จบภาค 1 แล้วคุยกับ Mimir AI → เควสต์ทดสอบ`, `Class 3 (${JOBS[rq.next].name}): Base Lv ${THIRD_JOB_REQ.base} + Job Lv ${THIRD_JOB_REQ.job} + finish Part 1, then talk to Mimir AI → trial quest`));
     if (J && J.tier === 3 && tab === p.job) {
       const ps = J.skills.find(id => SKILLS[id].type === 'passive'), r = ps && Runes.chosen(ps);
-      return h('div', { class: 'hint c3-hint' }, h('b', {}, 'Oath'), L(` = รูนของ ${SKILLS[ps].name} (ปลดที่ Lv ${Runes.UNLOCK}) — ${r ? 'ใช้อยู่: ' + r.name : 'ยังไม่ได้เลือก'} • 25 แต้มสำหรับ 6 สกิล (ต้องเลือกว่าจะไม่เต็มตัวไหน)`, ` = a rune on ${SKILLS[ps].name} (unlocks at Lv ${Runes.UNLOCK}) — ${r ? 'active: ' + r.name : 'none chosen'} • 25 points for 6 skills (choose what to leave unmaxed)`));
+      return h('div', { class: 'hint c3-hint' }, h('b', {}, 'Oath'), L(` = รูนของ ${SKILLS[ps].name} (ปลดที่ Lv ${Runes.UNLOCK}) — ${r ? 'ใช้อยู่: ' + r.name : 'ยังไม่ได้เลือก'} • ${J.jobMax - 1} แต้มใหม่สำหรับ ${J.skills.length} สกิล (เลือกหรือผสมบิลด์ได้)`, ` = a rune on ${SKILLS[ps].name} (unlocks at Lv ${Runes.UNLOCK}) — ${r ? 'active: ' + r.name : 'none chosen'} • ${J.jobMax - 1} new points for ${J.skills.length} skills (choose or combine builds)`));
     }
     return null;
   };

@@ -184,8 +184,7 @@ const ClassBook = {
     b.dataset.win = 'w-classbook'; b.title = L('คู่มือ Class (L)', 'Class Guide (L)');
     b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M9 8h7M9 11.5h5"/></svg><span>${L('Class', 'Classes')}</span><small>L</small>`;
     b.addEventListener('click', () => { UI.toggle('w-classbook'); if (typeof Pad !== 'undefined' && Pad.enabled() && UI.setFold) UI.setFold(m, true); });
-    const sit = [...m.querySelectorAll('button')].find(x => (x.querySelector('small') || {}).textContent === 'X'); // ปุ่มนั่ง อยู่ท้ายสุดเสมอ
-    m.insertBefore(b, sit || null);
+    m.append(b);
   },
 
   tree() {
@@ -256,6 +255,7 @@ const ClassBook = {
       const s = SKILLS[k];
       return UI.skillTipFor(h('div', { class: 'cb-sk' }, UI.skillIcon(k), h('div', {}, h('b', {}, s.name, s.type === 'passive' ? h('em', {}, 'Passive') : null), h('small', {}, s.desc + (s.cd ? L(` [คูลดาวน์ ${s.cd} วิ]`, ` [Cooldown ${s.cd}s]`) : '')))), k);
     }))));
+    if (typeof ClassTraits !== 'undefined' && ClassTraits.info(id)) det.append(this.sec(L('พลังเฉพาะ Class', 'Class identity'), h('p', {class:'cb-tip'},ClassTraits.info(id))));
     if (B.tips) det.append(this.sec('Tips', h('p', { class: 'cb-tip' }, '💡 ', B.tips)));
     body.append(h('div', { class: 'cb-wrap' }, toc, det));
     det.scrollTop = 0;

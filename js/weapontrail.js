@@ -9,6 +9,7 @@ const WeaponTrail = {
   ON: true,
   COLOR: { einherjar: '255,90,70', runecaster: '110,200,255', wildhunter: '140,255,120', volva: '255,215,110', trickster: '200,120,255', berserker: '255,150,50' },
   ACTS: { attack: 1 },
+  MELEE: new Set(['einherjar', 'trickster', 'berserker']),
   MIN_MOVE: 18, // ปลายอาวุธต้องเคลื่อนเกินนี้ (px) ถึงนับว่าเป็นจังหวะเหวี่ยง
   WIDTH: 20,
   EXTEND: 0.45, // ยืดหางย้อนหลัง (สัดส่วนของมุมที่กวาดในเฟรม)    // ความหนาของแสง (px ในช่อง 240)
@@ -47,26 +48,37 @@ const WeaponTrail = {
   },
 
   draw(g, gk, it, fr) {
-    if (!this.ON || !it || !this.ACTS[fr.action] || fr.f < 1) return;
+    if (!this.ON || !it || !this.MELEE.has(it.cls) || it.wtype === 'bow' || !this.ACTS[fr.action] || fr.f < 1 || fr.skillKind === 'throw') return;
     const D = PAPERDOLL_DATA[gk] && PAPERDOLL_DATA[gk][fr.action];
     const n = D && D.hand[fr.row] ? D.hand[fr.row].length : 0;
     const sf = this.strike(gk, it, fr.action, fr.row, n);
     if (sf < 0 || (fr.f !== sf && fr.f !== sf + 1)) return;
     const p0 = this.pose(gk, it, fr.action, fr.row, sf - 1), p1 = this.pose(gk, it, fr.action, fr.row, sf);
     if (!p0 || !p1) return;
-    this.arc(g, p0, p1, it.cls, fr.f === sf ? 1 : 0.4, fr); // เฟรมถัดจากจังหวะฟัน: แสงจางลง
+    const mix = fr.frameMix || 0;
+    this.arc(g, p0, p1, it.cls, fr.f === sf ? 0.95 - mix * 0.3 : 0.65 * (1 - mix) ** 2, fr);
   },
 
   // ภาพถืออาวุธในภาพ (ไม่มี paperdoll): ใช้วงเหวี่ยงที่ tools/armed_trail.py หาไว้ (ไหล่ + ปลายอาวุธก่อน/ตอนฟัน)
   drawArmed(g, gk, cls, fr) {
-    if (!this.ON || !this.ACTS[fr.action] || typeof ARMED_TRAIL === 'undefined') return;
+    if (!this.ON || !this.MELEE.has(cls) || !this.ACTS[fr.action] || fr.skillKind === 'throw' || typeof ARMED_TRAIL === 'undefined') return;
+    const thrust = typeof MELEE_THRUST !== 'undefined' && MELEE_THRUST[gk] && MELEE_THRUST[gk][fr.row];
+    if (thrust) {
+      if (fr.f !== thrust.f && fr.f !== thrust.f + 1) return;
+      const dx = thrust.b[0] - thrust.a[0], dy = thrust.b[1] - thrust.a[1], length = Math.hypot(dx, dy);
+      if (length < 2) return;
+      const mix = fr.frameMix || 0, fade = fr.f === thrust.f ? 0.95 - mix * 0.3 : 0.65 * (1 - mix) ** 2;
+      const at = (t, offset) => [thrust.a[0] + dx * t - dy / length * offset, thrust.a[1] + dy * t + dx / length * offset];
+      this.precision(g, at, this.COLOR[cls], fade, cls); return;
+    }
     const v = ARMED_TRAIL[gk] && ARMED_TRAIL[gk][fr.row];
     if (!v || (fr.f !== v.f && fr.f !== v.f + 1)) return;
     const P = q => { const dx = q[0] - v.p[0], dy = q[1] - v.p[1]; return { x: v.p[0], y: v.p[1], a: Math.atan2(dy, dx), r: Math.hypot(dx, dy) }; };
     const p0 = P(v.a), p1 = P(v.b), da = Math.atan2(Math.sin(p1.a - p0.a), Math.cos(p1.a - p0.a));
     // วงกว้างที่ข้ามเหนือหัว (แทงคทาจากข้างหนึ่งไปอีกข้าง) ไม่ใช่การเหวี่ยง → ไม่วาด
     if (Math.abs(da) > Math.PI * 0.7 && Math.sin(p0.a + da / 2) < -0.7) return;
-    this.arc(g, p0, p1, cls, fr.f === v.f ? 1 : 0.4, fr, { front: 0, extend: 0.15 }); // ทางสั้นเสมอ
+    const mix = fr.frameMix || 0;
+    this.arc(g, p0, p1, cls, fr.f === v.f ? 0.95 - mix * 0.3 : 0.65 * (1 - mix) ** 2, fr, { front: 0, extend: 0.15 });
   },
 
   // วาดแสงโค้งรอบจุดหมุน จากมุม/ระยะของ p0 (ก่อนฟัน) → p1 (ตอนฟัน)
@@ -101,6 +113,7 @@ const WeaponTrail = {
       g.closePath();
     };
     const W = this.WIDTH;
+    if (['einherjar', 'berserker', 'trickster'].includes(cls)) { this.precision(g, at, col, fade, cls); return; }
     if (this.drawTexture(g, at, col, fade)) return;
     if (this.STYLE === 'energy') { this.energy(g, at, col, fade, fr, da); return; }
     g.save();
@@ -119,6 +132,31 @@ const WeaponTrail = {
     });
     g.restore();
   },
+};
+
+// Sharp metal edge with a restrained translucent ribbon, sampled along the real weapon sweep.
+WeaponTrail.precision = function (g, at, col, fade, family) {
+  if (fade <= 0.001) return;
+  const width = family === 'berserker' ? 17 : family === 'trickster' ? 6 : 11;
+  const N = 48, points = [];
+  for (let i = 0; i <= N; i++) {
+    const t = i / N, taper = Math.sin(Math.PI * t) ** 0.7;
+    points.push({ outer: at(t, 0), inner: at(t, -width * taper), t });
+  }
+  g.save(); g.globalCompositeOperation = 'lighter';
+  // A continuous ribbon, rather than overlapping bright texture tiles.
+  g.beginPath(); g.moveTo(...points[0].outer);
+  for (const p of points) g.lineTo(...p.outer);
+  for (let i = N; i >= 0; i--) g.lineTo(...points[i].inner);
+  g.closePath(); g.fillStyle = `rgba(${col},${0.24 * fade})`; g.fill();
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  for (let i = 1; i <= N; i++) {
+    const p = points[i - 1], q = points[i], alpha = Math.sin(Math.PI * q.t) * fade;
+    g.beginPath(); g.moveTo(...p.outer); g.lineTo(...q.outer);
+    g.strokeStyle = `rgba(${col},${0.4 * alpha})`; g.lineWidth = 5; g.stroke();
+    g.strokeStyle = `rgba(255,249,226,${0.9 * alpha})`; g.lineWidth = family === 'trickster' ? 1.4 : 2.2; g.stroke();
+  }
+  g.restore();
 };
 
 // ---------------- แบบพลังงานไหล (ค่าเริ่มต้น): แถบกว้าง สว่างขาวที่ขอบนอกใกล้อาวุธ ไล่เป็นสี Class แล้วจางเข้าใน/ไปทางหาง
@@ -232,7 +270,7 @@ if (typeof Paperdoll !== 'undefined' && !Paperdoll._trailArmed) {
   const base = Paperdoll.layers.bind(Paperdoll);
   Paperdoll.layers = (gk, p, bare) => {
     const L = base(gk, p, bare);
-    if (bare || typeof ARMED_TRAIL === 'undefined' || !ARMED_TRAIL[gk]) return L;
+    if (bare || typeof ARMED_TRAIL === 'undefined' || (!ARMED_TRAIL[gk] && !(typeof MELEE_THRUST !== 'undefined' && MELEE_THRUST[gk]))) return L;
     const b = Paperdoll.baseJob(p.job), over = L.over;
     return Object.assign({}, L, { over: (g, fr) => { WeaponTrail.drawArmed(g, gk, b, fr); if (over) over(g, fr); } });
   };

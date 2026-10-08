@@ -107,9 +107,10 @@ const Nav = {
     const wp = this.waypoint();
     if (!wp) { this.cancel(); return; }
     const d = U.dist(p.x, p.y, wp.x + 0.5, wp.y + 0.5);
-    const arrive = wp.mob ? 4 : wp.npc ? 1.2 : 0.8;
-    if (d <= arrive && !wp.portal) {
-      if (wp.npc) { const n = G.npcs.find(n => n.id === t.npcId); if (n) p.npcTarget = n; }
+    const npc = wp.npc ? G.npcs.find(n => n.id === t.npcId) : null;
+    const arrived = wp.npc ? npc && NPC.inTalkRange(npc, p) : d <= (wp.mob ? 4 : 0.8);
+    if (arrived && !wp.portal) {
+      if (npc) { p.npcTarget = npc; p.path = []; }
       else if (wp.mob) { p.target = wp.mob; p.repathAt = 0; UI.msg(L(`ถึงตัว ${t.name} แล้ว — เริ่มโจมตี`, `Reached ${t.name} — attacking`), 'info'); }
       else if (wp.none) UI.msg(L(`มาถึง ${MAP_DEFS[t.map].name} แล้ว แต่ยังไม่พบ ${t.name} ในตอนนี้ ลองเดินหารอบ ๆ`, `Arrived at ${MAP_DEFS[t.map].name}, but no ${t.name} is around right now — try searching nearby`), 'info');
       else UI.msg(L(`ถึง ${t.name} แล้ว`, `Arrived at ${t.name}`), 'info');

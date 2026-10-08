@@ -1,0 +1,5 @@
+/* Habitat key belongs to the full map, leaving the game HUD clear. */
+.mob-area-legend { display: flex; flex-wrap: wrap; gap: 5px 10px; margin: 8px 0; }
+.mob-area-legend[hidden] { display: none; }
+.mob-area-legend span { border-left: 4px solid; padding: 3px 7px; background: #f4e5c8; color: #392b1b; border-radius: 3px; font: 600 12px/1.4 var(--f-body); }
+.mob-area-legend small { flex-basis: 100%; color: #51402c; font: 12px/1.5 var(--f-body); }
