@@ -829,6 +829,7 @@ Sprites.mobImage = (g, x, y, m, t, img) => {
   Sprites.drawImageActor(g, x, y, m, t, img, base * s, motion, true);
 };
 Sprites.drawMob = (g, m, t) => {
+  if (!m || !m.def) return; // มอนที่ข้อมูลยังไม่ครบ (เช่น ซิงก์ออนไลน์มาไม่ทัน) — เดิมพัง "reading 'sprite'" บนเว็บจริง 8 ต.ค.
   const x = m.x * TILE, y = m.y * TILE;
   g.save();
   if (m.dead) g.globalAlpha = Math.max(0, 1 - m.deathT / 0.8);

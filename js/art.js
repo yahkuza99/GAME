@@ -77,7 +77,8 @@ const Art = {
   // ไอคอนไอเทม: ภาพเฉพาะชิ้น > ชิปการ์ดรวม > วาดด้วยโค้ด
   itemKey(id) {
     if (this.imgs['item_' + id]) return 'item_' + id;
-    if (ITEMS[id] && ITEMS[id].type === 'card' && this.imgs.item_card) return 'item_card';
+    if (this.lazy.has('item_' + id)) this.need('item_' + id); // ไอคอนไอเทมโหลดตอนใช้ — ขอครั้งแรกตรงนี้ (ระหว่างรอใช้ไอคอนวาดด้วยโค้ด)
+    if (ITEMS[id] && ITEMS[id].type === 'card') { if (this.imgs.item_card) return 'item_card'; if (this.lazy.has('item_card')) this.need('item_card'); }
     return null;
   },
   has(k) { return !!this.get(k); },
@@ -192,7 +193,7 @@ const Art = {
   },
   onLoad(k) {
     if (k === 'keyart' || k === 'logo' || k.startsWith('job_')) applyTitleArt();
-    if (this._mapped && this._mapped[k] && typeof UI !== 'undefined' && UI.dirty) UI.dirty(); // ภาพที่โหลดทีหลังมาถึง: วาดหน้าต่างใหม่
+    if (((this._mapped && this._mapped[k]) || ART_LAZY.test(k)) && typeof UI !== 'undefined' && UI.dirty) UI.dirty(); // ภาพที่โหลดทีหลังมาถึง: วาดหน้าต่างใหม่
     if ((k.startsWith('ground_') || k.startsWith('prop_') || (k === 'arena_ground' && typeof G !== 'undefined' && G.map && G.map.arena) || (k.startsWith('bake_') && typeof G !== 'undefined' && G.map && G.map.usesBake && G.map.usesBake(k))) && typeof G !== 'undefined' && G.map) { // ภาพพื้น/ของประดับโหลดเสร็จช้า → วาดพื้นใหม่
       clearTimeout(this._regen);
       this._regen = setTimeout(() => {

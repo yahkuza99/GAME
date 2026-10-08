@@ -566,7 +566,7 @@ function addFx(f) {
       return addFx({ type: 'sprite', sprite: key, src:f.src, ref: f.ref, x: f.x, y: f.y + (f.ref ? 0 : FX_MIDBODY[f.type] || 0), onHit: f.onHit, hitAt: f.dur, size: f.r ? Math.max(1, f.r / 2) : 1 });
     }
   }
-  if (f.type === 'sprite') { const im = Art.get(f.sprite); f.dur = Math.max(0.2, Math.round(im.width / 240) * FX_FRAME); }
+  if (f.type === 'sprite') { const im = Art.get(f.sprite); f.dur = im ? Math.max(0.2, Math.round(im.width / 240) * FX_FRAME) : 0.5; } // ภาพเอฟเฟกต์โหลดตอนใช้ (js/art.js) ยังไม่มา: ความยาวกลาง ๆ (ภาพวาดเมื่อมาถึง)
   f.t = 0; f.linger = FX_LINGER[f.type] || 0; G.fx.push(f); return f;
 }
 function addFloater(x, y, text, color, big) {
