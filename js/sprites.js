@@ -1027,7 +1027,7 @@ Sprites.drawProp = (g, o, t) => {
   Sprites.shadow(g, x + 3, y, W * sh, W * sh * 0.32, 0.3);
   g.save(); g.translate(x, y);
   if (o.kind === 'tree' || o.kind === 'pine' || o.kind === 'bush') {
-    const sway = Math.sin(t * 1.1 + o.r * 10) * (o.kind === 'bush' ? 0.012 : 0.022);
+    const sway = windSway(o.x, t) * (o.kind === 'bush' ? 0.007 : 0.012); // ลมเดียวกันทั้งแมพ (js/bake.js) — เดิม 0.022 คนละจังหวะ ลายตา
     g.transform(1, 0, sway, 1, 0, 0); // เอียงเฉพาะส่วนบน (โคนอยู่กับที่)
   }
   if (o.kind === 'pylon' || o.kind === 'crystal' || o.kind === 'mushroom' || o.kind === 'lamp') {
