@@ -48,13 +48,13 @@ const SHOTS = process.env.SHOTS || '';
   await p.evaluate(() => {
     window.C3 = {
       plan: { runelord: ['int', 'dex', 'rod'], packlord: ['str', 'agi', 'battle_axe'], galdr: ['int', 'dex', 'rod'], warlord: ['str', 'agi', 'battle_axe'] },
-      // Class 2 Lv 70 Job 26 สกิลเต็ม (ยังไม่ Class 3)
+      // Class 2 Lv 70 Job ตามเกณฑ์ปลด (THIRD_JOB_REQ.job — js/job-progression.js ตั้ง 50) สกิลเต็ม (ยังไม่ Class 3)
       second(job2, lv = 70) {
         const pl = G.player; document.querySelectorAll('.win:not(.hidden)').forEach(w => w.classList.add('hidden'));
         Bot.toggle(false);
         pl.dead = false; pl.baseLv = lv; pl.job = 'novice'; pl.jobLv = 10; pl.skills = { first_aid: 1 }; pl.buffs = {}; pl.runes = {}; pl.rb = {}; pl.cds = {}; pl.c3 = {}; delete pl.job1Lv; delete pl.job2Lv;
-        changeJob(jobRoot(job2)); pl.jobLv = 26; pl.skillPoints = 25; for (const id of JOBS[jobRoot(job2)].skills) while (canLearn(id)) learnSkill(id);
-        changeJob(job2); pl.jobLv = 26; pl.skillPoints = Math.max(0, totalSkillPoints(pl) - lineSkillsSpent(pl)); for (const id of JOBS[job2].skills) while (canLearn(id)) learnSkill(id);
+        changeJob(jobRoot(job2)); pl.jobLv = JOBS[jobRoot(job2)].jobMax; pl.skillPoints = JOBS[jobRoot(job2)].jobMax - 1; for (const id of JOBS[jobRoot(job2)].skills) while (canLearn(id)) learnSkill(id);
+        changeJob(job2); pl.jobLv = THIRD_JOB_REQ.job; pl.skillPoints = Math.max(0, totalSkillPoints(pl) - lineSkillsSpent(pl)); for (const id of JOBS[job2].skills) while (canLearn(id)) learnSkill(id);
         const [a, b] = C3.plan[job2] || ['str', 'agi']; const st = { str: 1, agi: 1, vit: 30, int: 1, dex: 1, luk: 1 }; st[a] = 90; st[b] = 60; pl.stats = st;
         recalc(); pl.hp = pl.d.maxHp; pl.sp = pl.d.maxSp;
         return pl;
@@ -62,8 +62,8 @@ const SHOTS = process.env.SHOTS || '';
       third(job3) {
         const pl = C3.second(JOBS[job3].parent);
         Class3.st(pl).trial = { job: job3, stage: 'ascend' }; Class3.ascend(job3);
-        pl.jobLv = 26; pl.skillPoints = Math.max(0, totalSkillPoints(pl) - lineSkillsSpent(pl));
-        for (const id of JOBS[job3].skills) pl.skills[id] = SKILLS[id].max; // ทดสอบ: ทุกสกิล Lv 5 (เกมจริงเลือกได้ 25 จาก 30)
+        pl.jobLv = 26; // Class 3 Job 26 (เพดาน 60 — ทดสอบที่จุดเดิม) pl.skillPoints = Math.max(0, totalSkillPoints(pl) - lineSkillsSpent(pl));
+        for (const id of JOBS[job3].skills) if (!SKILLS[id].exp) pl.skills[id] = SKILLS[id].max; // ทดสอบ: ทุกสกิล Lv 5 (เกมจริงเลือกได้ 25 จาก 30)
         recalc(); pl.hp = pl.d.maxHp; pl.sp = pl.d.maxSp;
         return pl;
       },
@@ -85,11 +85,12 @@ const SHOTS = process.env.SHOTS || '';
     const o = {}, bad = [];
     for (const [c2, c3] of Object.entries(THIRD_JOBS)) {
       const J = JOBS[c3], P2 = JOBS[c2];
-      if (J.tier !== 3 || J.parent !== c2 || J.jobMax !== 26 || J.skills.length !== 6) bad.push('job ' + c3);
+      const core = J.skills.filter(id => !SKILLS[id].exp); // สกิลขยาย (exp) มาจาก js/class-expansion-data.js — ภาพ/รูนของมันเอง
+      if (J.tier !== 3 || J.parent !== c2 || J.jobMax < THIRD_JOB_REQ.job || core.length !== 6) bad.push('job ' + c3);
       for (const k of ['atkPct', 'matkPct', 'hit', 'hpPct']) if (J.bonus[k] !== P2.bonus[k] + 5) bad.push('bonus ' + c3 + ' ' + k);
       if (Math.abs(J.hp - P2.hp) > 0.1 + 1e-9 || Math.abs(J.sp - P2.sp) > 0.1 + 1e-9 || Math.abs(J.aspd - P2.aspd) > 50) bad.push('mult ' + c3);
-      if (J.skills.filter(id => SKILLS[id].type === 'passive').length !== 1) bad.push('passive ' + c3);
-      for (const id of J.skills) {
+      if (core.filter(id => SKILLS[id].type === 'passive').length !== 1) bad.push('passive ' + c3);
+      for (const id of core) {
         const s = SKILLS[id];
         if (!s || s.id !== id || !s.desc || !s.name) { bad.push('skill ' + id); continue; }
         const mm = /L\(\s*(['`])([\s\S]*?)\1\s*,\s*(['`"])([\s\S]*?)\3\s*\)/.exec(s.desc + '') ; void mm;
@@ -115,11 +116,11 @@ const SHOTS = process.env.SHOTS || '';
 
   // ============== 2) ปลด + เควสต์ทดสอบ + ยกระดับ ==============
   const flow = await p.evaluate(async () => {
-    const o = {}, pl = C3.second('galdr', 69);
+    const o = { req: THIRD_JOB_REQ.job }, pl = C3.second('galdr', 69);
     C3.partOne(true);
     o.lv69 = Class3.req().ok;
-    pl.baseLv = 70; pl.jobLv = 25; o.job25 = Class3.req().ok;
-    pl.jobLv = 26; C3.partOne(false); o.noStory = Class3.req().ok;
+    pl.baseLv = 70; pl.jobLv = THIRD_JOB_REQ.job - 1; o.job25 = Class3.req().ok;
+    pl.jobLv = THIRD_JOB_REQ.job; C3.partOne(false); o.noStory = Class3.req().ok;
     C3.partOne(true); o.okAll = Class3.req().ok;
     const p1 = C3.second('valkyrie'); C3.partOne(true); o.noThird = Class3.req().next === null && !Class3.req().ok;
     C3.second('galdr'); C3.partOne(true);
@@ -143,31 +144,31 @@ const SHOTS = process.env.SHOTS || '';
     o.stage = Class3.trial() && Class3.trial().stage;
     await NPC.scripts.jobmaster({ id: 'jobmaster', name: 'Mimir AI' });
     o.job = G.player.job; o.job2Lv = G.player.job2Lv; o.done = G.player.c3.done.slice(); o.trialAfter = Class3.trial();
-    o.spCarry = G.player.skillPoints === sp0 && totalSkillPoints(G.player) === 25 + 25 + 0 + (G.player.jobLv - 1);
+    o.spCarry = G.player.skillPoints === sp0 && totalSkillPoints(G.player) === (JOBS.runecaster.jobMax - 1) + (THIRD_JOB_REQ.job - 1) + (G.player.jobLv - 1);
     UI.menu = menu0; UI.say = say0;
     // เซฟ/โหลด
     const data = saveData(), back = loadGameFrom(JSON.parse(JSON.stringify(data)));
-    o.saved = data.job2Lv === 26 && back.job2Lv === 26 && back.job === 'runelord' && back.c3.done.includes('runelord');
+    o.saved = data.job2Lv === THIRD_JOB_REQ.job && back.job2Lv === THIRD_JOB_REQ.job && back.job === 'runelord' && back.c3.done.includes('runelord');
     // เซฟเก่า (ก่อนมี Class 3): ไม่มี job2Lv / c3 → โหลดได้ ค่าว่าง
     const old = loadGameFrom({ name: 'Old', gender: 'm', hair: '#ccc', job: 'galdr', baseLv: 72, jobLv: 26, job1Lv: 26, skills: { galdr_focus: 5 }, stats: { str: 1, agi: 1, vit: 1, int: 50, dex: 1, luk: 1 } });
     o.old = !!old && old.job === 'galdr' && old.c3 && Array.isArray(old.c3.done) && old.c3.trial === null && old.job2Lv === undefined;
     const old3 = loadGameFrom({ name: 'Old3', gender: 'f', hair: '#ccc', job: 'packlord', baseLv: 80, jobLv: 5, skills: {}, c3: { trial: { job: 'nope', stage: 'x' }, done: ['packlord', 'bad'] }, job2Lv: 'oops', stats: { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 } });
-    o.old3 = !!old3 && old3.job2Lv === undefined && old3.c3.trial === null && old3.c3.done.join() === 'packlord' && totalSkillPoints(old3) === 4 + 25 + 25;
+    o.old3pts = [totalSkillPoints(old3), JOBS.berserker.jobMax, JOBS.warlord.jobMax, old3.job1Lv, old3.job2Lv]; o.old3 = !!old3 && old3.job2Lv === 26 && old3.c3.trial === null && old3.c3.done.join() === 'packlord' && totalSkillPoints(old3) === 4 + (JOBS.berserker.jobMax - 1) + 25; // ebf7aef: job2Lv เสียของ Class 3 = 26 (ยุคเดิม Class 2 ตัน 26 — game.js loadGame)
     G.player = pl; G.player = back; recalc();
     return o;
   });
   ok('unlock: Base 69 → locked', !flow.lv69);
-  ok('unlock: Class 2 Job 25 → locked', !flow.job25);
+  ok('unlock: Class 2 Job below requirement → locked', !flow.job25);
   ok('unlock: Part 1 not finished (ch7_home) → locked', !flow.noStory);
-  ok('unlock: Base 70 + Job 26 + ch7_home → open', flow.okAll);
+  ok('unlock: Base 70 + Job requirement + ch7_home → open', flow.okAll);
   ok('unlock: Class 2 without a pilot Class 3 (Valkyrie) → none', flow.noThird);
   ok('Mimir starts the trial (talk to Muninn) + quest tracker shows it', /"stage":"seek"/.test(flow.trial) && /Muninn/.test(flow.tracker), flow.trial + ' | ' + flow.tracker);
   ok('trial NPC raises the Mould Shadow (boss, shadow of Galdr, not in MOBS)', flow.shadow);
   ok('defeating the shadow → stage "ascend" (no bestiary entry)', flow.stage === 'ascend' && flow.kills === 0, flow);
-  ok('Mimir ascends: job runelord, job2Lv 26, trial cleared, skill points carried', flow.job === 'runelord' && flow.job2Lv === 26 && flow.done.includes('runelord') && !flow.trialAfter && flow.spCarry, flow);
+  ok('Mimir ascends: job runelord, job2Lv 26, trial cleared, skill points carried', flow.job === 'runelord' && flow.job2Lv === flow.req && flow.done.includes('runelord') && !flow.trialAfter && flow.spCarry, flow);
   ok('save → load keeps job2Lv / c3', flow.saved);
   ok('old save (no job2Lv/c3) loads clean', flow.old);
-  ok('broken c3/job2Lv in a save is sanitized, skill points fall back to Job max', flow.old3);
+  ok('broken c3/job2Lv in a save is sanitized (job2Lv → 26, the old Class 2 cap)', flow.old3, flow.old3pts);
 
   // ============== 3) ทุกสกิลใช้ได้ ==============
   const skills = await p.evaluate(async () => {
@@ -296,7 +297,7 @@ const SHOTS = process.env.SHOTS || '';
     const w = document.querySelector('#w-skills');
     o.tabs = [...w.querySelectorAll('.sk-tabs .tab small')].map(x => x.textContent);
     o.runeRow = !!w.querySelector('.rn-row[data-skill="root_script"]') && !!w.querySelector('.rn-row[data-skill="rune_circle"]');
-    o.badge = w.querySelectorAll('.sicon.sk-c3').length === 6 && !!w.querySelector('.c3-hint');
+    o.badge = w.querySelectorAll('.sicon.sk-c3').length >= 6 && !!w.querySelector('.c3-hint');
     UI.close('w-skills');
     UI.open('w-status'); UI.renderStatus(); o.status = /CLASS III/.test((document.querySelector('#w-status .c3-status') || {}).textContent || ''); UI.close('w-status');
     // หน้าต่าง Runes: สกิลติดตัว Class 3 อยู่ในรายการ

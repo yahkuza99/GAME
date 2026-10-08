@@ -221,7 +221,7 @@ const Runes = {
   },
   // ดาเมจรูน (ไม่ใช่ผ่าน skillHitOne): mult × ATK/MATK ของเรา → ใช้สูตรเดียวกับสกิล
   hit(m, s, mult, opt = {}) {
-    if (!m || m.dead) return null;
+    if (!m || m.dead || !m.def) return null; // ลูกสะท้อน/ลูกบินที่ไปถึงช้า: เป้าอาจหายไปแล้ว (ไม่มี def) — เดิม magicHit พัง (tests/runes.js)
     const D = s.dmg || {}, type = opt.type || D.type || 'phys', el = opt.element || D.element;
     const r = type === 'magic' ? magicHit(m, mult, el) : physHit(m, mult, { skill: true, element: el, sureHit: opt.sureHit != null ? opt.sureHit : D.sureHit });
     applyHit(m, r, { element: el, src: s.id, color: opt.color });
@@ -393,7 +393,7 @@ Runes.watchCombat = function () {
     vo_echo: 0.517, vo_res: 0.51,
     // Rune Caster
     rm_echo: 0.8, rm_ley: 0.0688,
-    fr_main: 0.78, fr_shard: 0.4, fr_kindle: 0.85, fr_mark: 2,
+    fr_main: 0.78, fr_shard: 0.4, fr_kindle: 0.8, fr_mark: 1.75,
     ir_lance: 0.82, ir_shat: 1.24, ir_base: 0.85,
     tr_storm: 0.4, tr_focus: 1.9,
     er_fis: 1.51, er_boulder: 1.5,
@@ -402,12 +402,12 @@ Runes.watchCombat = function () {
     ee_focus: 0.0275, ee_main: 0.6, ee_scatter: 0.33,
     pa_vol: 0.52, pa_fan: 1.03,
     wc_twin: 0.767, wc_alpha: 0.85, wc_mark: 1.36,
-    bt_sh: 1.25, bt_hurl: 1.55,
+    bt_sh: 1.2, bt_hurl: 1.55,
     ca_harp: 1.5, ca_main: 0.8, ca_conc: 0.5,
     hr_fl: 0.483, hr_mom: 11,
     // Völva
     sa_weak: 0.25, sa_rad: 0.43,
-    lf_daze: 1.5, lf_fav: 0.781,
+    lf_daze: 1.5, lf_fav: 0.68,
     bo_raven: 0.659, bo_storm: 0.35,
     hs_lance: 0.652, hs_judg: 0.72,
     ds_ret: 0.5, ds_shell: 0.25,
@@ -422,7 +422,7 @@ Runes.watchCombat = function () {
     // Berserker
     wb_price: 4.72, wb_feral: 45,
     rs_main: 0.79, rs_cleave: 0.39, rs_exe_lo: 0.85, rs_exe_hi: 2.6,
-    bf_lust: 3.5, bf_ramp: 0.56,
+    bf_lust: 3.2, bf_ramp: 0.56,
     hw_rend: 0.6, hw_tick: 0.34, hw_chal: 0.6, hw_mark: 2.0,
     ax_boom: 0.39, ax_leap: 1.26,
     bt_hem: 1.15, bt_spray: 0.34,
