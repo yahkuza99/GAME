@@ -129,5 +129,6 @@
     raf = requestAnimationFrame(step);
   };
   const el = document.getElementById('illust'); if (!el) return;
-  new MutationObserver(() => { if (el.classList.contains('scene') && el.classList.contains('show')) run(el); }).observe(el, { attributes: true, attributeFilter: ['class'] });
+  let was = false; // เริ่มเฉพาะตอนเพิ่งเข้าฉาก — class อื่นที่ถูกใส่ระหว่างฉาก (เช่น 'depth') ไม่ต้องเริ่มใหม่
+  new MutationObserver(() => { const on = el.classList.contains('scene') && el.classList.contains('show'); if (on && !was) run(el); was = on; }).observe(el, { attributes: true, attributeFilter: ['class'] });
 })();

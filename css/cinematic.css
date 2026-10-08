@@ -30,3 +30,6 @@ body:has(#illust.scene.show) #w-dialog.win:not(.hidden) { top: auto !important; 
 @media (prefers-reduced-motion: reduce) { #illust.scene.show img, #illust.scene::before { animation: none; } }
 /* ฉากเต็มจอไม่หยุดเกม (มอนที่เหลือยังตีได้) → แผงเลือด/SP ของเราลอยเหนือฉากเสมอ */
 body:has(#illust.scene.show) #basic-info { z-index: 96; }
+/* 2.5D (js/scene-depth.js): แคนวาส WebGL แทนภาพนิ่งเมื่อมีแผนที่ความลึก */
+#illust .scene-depth { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+#illust.scene.depth img { visibility: hidden; }
