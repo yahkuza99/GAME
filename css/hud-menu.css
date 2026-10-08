@@ -42,3 +42,7 @@
 /* ป้ายปุ่มลัด: คำสั่งแชตยาว (/trade) ไม่ใช่ปุ่มลัด — ไม่ต้องโชว์ (เดิมล้นขอบปุ่ม) */
 body.visor #hud #menubar .menu-grid > button[data-win="w-trade"] small { display: none; }
 body.visor #hud #menubar .menu-grid > button small { white-space: nowrap; }
+/* มือถือแนวตั้ง: การ์ดเลือดมอนเป้าหมาย เดิมชิดขวาเยื้องจากกลาง → กึ่งกลางจอ สมมาตร (เจ้าของ 8 ต.ค.) */
+@media (max-width: 760px) and (orientation: portrait) {
+  body.visor #hud #target { left: 50% !important; right: auto !important; transform: translateX(-50%) !important; width: min(260px, 68vw); }
+}
