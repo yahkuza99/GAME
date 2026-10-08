@@ -25,7 +25,7 @@
     background: radial-gradient(circle at 50% 35%, #f6db9a, #c39146 75%);
   }
   body.visor:not(.pad-mode) #hud #menubar .menu-panel {
-    top: -164px; right: 40px; width: 214px; padding: 12px 11px 11px;
+    top: -164px; right: 52px; width: 244px; padding: 10px 10px 9px;
     max-height: calc(100dvh - var(--st) - var(--sb) - var(--hud-edge) - 24px);
     border: 2px solid transparent; border-radius: 0;
     border-image: var(--u3-hud) 48 / 24px / 3px round;
@@ -33,6 +33,11 @@
     box-shadow: 8px 14px 22px -10px rgba(5, 2, 0, 0.6);
     transform-origin: top right;
   }
+  /* เจ้าของ 8 ต.ค.: แผงเมนูต้องไม่ยาวเลยขอบล่างมินิแมพ + ห้ามทับปุ่มกลมข้างมินิแมพ → 4 คอลัมน์ ปุ่มเตี้ยลง ห่างปุ่มกลม 22px */
+  body.visor:not(.pad-mode) #hud #menubar .menu-heading { margin-bottom: 6px; }
+  body.visor:not(.pad-mode) #hud #menubar .menu-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+  body.visor:not(.pad-mode) #hud #menubar .menu-grid > button { height: 48px; gap: 2px; }
+  body.visor:not(.pad-mode) #hud #menubar .menu-grid > button svg { width: 19px; height: 19px; }
 }
 /* ป้ายปุ่มลัด: คำสั่งแชตยาว (/trade) ไม่ใช่ปุ่มลัด — ไม่ต้องโชว์ (เดิมล้นขอบปุ่ม) */
 body.visor #hud #menubar .menu-grid > button[data-win="w-trade"] small { display: none; }
