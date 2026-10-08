@@ -1,4 +1,6 @@
 'use strict';
+// ภาพที่โหลดตอนใช้ (เดิมโหลดทั้งหมด ~100 MB ตั้งแต่หน้าแรก): ชีตท่า Class ทุกตัว 33 MB · เอฟเฟกต์ 23 MB · ภาพ Class 18 MB · NPC/กาชา/บอส/ฉาก
+const ART_LAZY = /^(anim|vfx|job|npc|gacha|mvp|exp|item|map|skill)_/; // + ไอคอนไอเทม/สกิล 4–5 MB · ภาพแผนที่ 2.6 MB (ระหว่างรอใช้ไอคอนวาดด้วยโค้ด)
 // ============================================================
 //  ภาพประกอบจากไฟล์ (ใส่ไว้ในโฟลเดอร์ assets/ ตามชื่อไฟล์ใน art/PROMPTS.md)
 //  ถ้าไม่มีไฟล์ เกมจะใช้ภาพที่วาดด้วยโค้ดแทนโดยอัตโนมัติ
@@ -38,11 +40,15 @@ const Art = {
         mappedFiles = Object.assign({}, (m && m.portraits) || {}, (m && m.animations) || {});
         motion = (m && m.motion) || {};
         const mappedAssets = new Set(Object.values(mappedFiles));
-        Object.keys(mappedFiles).forEach(probe);
+        // ภาพ Class 2/3 (portraits 28 ภาพ ~8 MB) + ชุดท่าเฉพาะ Class (animations ~12 MB): เดิมโหลดหมดตอนเปิดเกม (มือถือเสียเน็ต ~20 MB)
+        // → โหลดตอนมีคนขอครั้งแรก (Art.get/need — เช่น ตัวละคร Class นั้นโผล่บนจอ / เปิดหน้าดู Class) ระหว่างรอใช้ภาพสำรองเดิม
+        this._mapped = mappedFiles;
+        for (const k of Object.keys(mappedFiles)) this.lazy.set(k, mappedFiles[k]);
         // bake_*: ภาพอบ 3D ขนาดใหญ่ของแมพเดียว — ไม่โหลดตอนเปิดเกม รอ Art.need() ตอนเข้าแมพนั้น
         //   (arena_ground = ภาพลานประลองรุ่นแรก — ทางสำรองของ bake_arena_ground โหลดเมื่อจำเป็นเท่านั้น)
         //   rune_*: ไอคอนรูน 3D (tools/rune3d.py) 90 ไฟล์ — โหลดเมื่อหน้าต่าง/เอฟเฟกต์ขอใช้ (Art.url สำหรับ <img>, Art.need/get สำหรับผ้าใบ)
-        list.filter(f => !/\.(ogg|mp3|wav)$/.test(f) && !mappedAssets.has(f) && !mappedFiles[f.replace(/\.(webp|png)$/, '')]).forEach(f => (f.startsWith('bake_') || f.startsWith('rune_') || f.startsWith('arena_ground.') ? this.lazy.set(f.replace(/\.(webp|png)$/, ''), f) : probe(f)));
+        list.filter(f => !/\.(ogg|mp3|wav)$/.test(f) && !mappedAssets.has(f) && !mappedFiles[f.replace(/\.(webp|png)$/, '')]).forEach(f => (f.startsWith('bake_') || f.startsWith('rune_') || f.startsWith('arena_ground.') || ART_LAZY.test(f) ? this.lazy.set(f.replace(/\.(webp|png)$/, ''), f) : probe(f)));
+        this.prefetchLoop();
         this._probe = probe;
         for (const k of this.wanted) this.need(k);
         if (typeof Sound !== 'undefined') Sound.register(list, ver); // ไฟล์เสียงจริง (sfx_*, bgm_*)
@@ -57,7 +63,7 @@ const Art = {
     const f = this.lazy.get(k);
     if (!f || !this._probe) return;
     (this._asked = this._asked || new Set()).add(k);
-    this._probe(f);
+    this._probe(this._mapped && this._mapped[k] ? k : f); // ภาพที่ map ชื่อ: probe ด้วยกุญแจ (probe แปลงเป็นไฟล์ให้เอง)
   },
   // คืนหน่วยความจำภาพ bake_* ที่วาดลงผ้าใบพื้นแล้ว (ภาพถอดรหัสเต็มแมพหลายสิบ MB) • need() ครั้งหน้าโหลดใหม่ได้ (จากแคชเบราว์เซอร์)
   free(k) { delete this.imgs[k]; if (this._asked) this._asked.delete(k); },
@@ -75,7 +81,30 @@ const Art = {
     return null;
   },
   has(k) { return !!this.get(k); },
-  get(k) { return this.imgs[k] || this.derive(k); },
+  get(k) { const i = this.imgs[k]; if (i) return i; if (this.lazy.has(k) && (ART_LAZY.test(k) || (this._mapped && this._mapped[k]))) this.need(k); return this.derive(k); },
+  // โหลดล่วงหน้าทีละไฟล์ตอนเครื่องว่าง (ไม่แย่งเน็ตกับการเล่น): ของ Class ตัวเองก่อน → เอฟเฟกต์สกิล/หน้า NPC ที่เหลือ
+  //   ประหยัดเน็ต (saveData) / เน็ตช้า (2g/3g) = โหลดเฉพาะของ Class ตัวเอง ที่เหลือรอขอใช้จริง
+  prefetchLoop() {
+    // มือถือ (จอสัมผัส) นับเป็นประหยัดด้วย — เน็ตมือถือจ่ายตามปริมาณ
+    const slow = matchMedia('(pointer: coarse)').matches || !!(navigator.connection && (navigator.connection.saveData || /2g|3g/.test(navigator.connection.effectiveType || '')));
+    const queue = () => {
+      const p = typeof G !== 'undefined' && G.started && G.player, out = [];
+      if (!p) { for (const k of this.lazy.keys()) if (/^job_(einherjar|berserker|trickster|wildhunter|runecaster|volva)_[mf]$/.test(k)) out.push(k); return slow ? out.slice(0, 4) : out; } // หน้าแรก: ภาพ Class 1 ให้ฉากโชว์ตัวละคร (มือถือ 4 ภาพ)
+      const mine = [p.job, typeof jobRoot === 'function' ? jobRoot(p.job) : p.job, JOBS[p.job] && JOBS[p.job].parent].filter(Boolean);
+      const gd = p.gender === 'f' ? 'f' : 'm'; // ชีตท่าเฉพาะเพศของตัวเอง (เดิมโหลดทั้งชาย-หญิง)
+      for (const k of this.lazy.keys()) if (/^anim_/.test(k) && mine.some(j => k.startsWith(`anim_${j}_${gd}_`))) out.push(k);
+      for (const id of Object.keys(p.skills || {})) if (this.lazy.has('skill_' + id)) out.push('skill_' + id); // ไอคอนสกิลที่มี (แถบสกิล)
+      if (!slow) for (const k of this.lazy.keys()) if (/^(vfx|npc|job|anim_novice)_/.test(k)) out.push(k);
+      return out;
+    };
+    const step = () => {
+      const k = queue().find(x => !this.imgs[x] && !(this._asked && this._asked.has(x)));
+      if (k) this.need(k);
+      const idle = window.requestIdleCallback || (f => setTimeout(f, 50));
+      setTimeout(() => idle(step, { timeout: 2000 }), k ? 250 : 3000); // มีของ: ทีละไฟล์ห่าง 0.25 วิ • หมดแล้ว: เช็กใหม่ทุก 3 วิ (เปลี่ยน Class/เข้าเกม)
+    };
+    setTimeout(step, 1500);
+  },
 
   // ---------------- ภาพย้อมสี (palette swap แบบ RO: Poring → Drops → Poporing) ----------------
   // มอนสีต่าง: MOBS[id].base = id มอนต้นแบบ + hue (องศา) / sat / bri / tint ('#สี' หรือ ['#สี', ความเข้ม 0..1])
@@ -163,6 +192,7 @@ const Art = {
   },
   onLoad(k) {
     if (k === 'keyart' || k === 'logo' || k.startsWith('job_')) applyTitleArt();
+    if (this._mapped && this._mapped[k] && typeof UI !== 'undefined' && UI.dirty) UI.dirty(); // ภาพที่โหลดทีหลังมาถึง: วาดหน้าต่างใหม่
     if ((k.startsWith('ground_') || k.startsWith('prop_') || (k === 'arena_ground' && typeof G !== 'undefined' && G.map && G.map.arena) || (k.startsWith('bake_') && typeof G !== 'undefined' && G.map && G.map.usesBake && G.map.usesBake(k))) && typeof G !== 'undefined' && G.map) { // ภาพพื้น/ของประดับโหลดเสร็จช้า → วาดพื้นใหม่
       clearTimeout(this._regen);
       this._regen = setTimeout(() => {
