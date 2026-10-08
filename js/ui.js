@@ -82,6 +82,9 @@ const UI = {
     const panel = h('nav', { id: 'menu-panel', class: 'menu-panel', 'aria-label': L('เมนูเกม', 'Game menu') }, h('div', { class: 'menu-heading' }, L('เมนู', 'Menu')), grid);
     menu.append(panel);
     menu.prepend(mf);
+    // ซ่อนเมนูเอง (เจ้าของ 8 ต.ค. "ทำซ่อนได้ด้วยนะเมนู"): กดปุ่มในเมนูแล้วพับ • แตะ/คลิกนอกเมนูแล้วพับ — ไม่ต้องกด TAB ซ้ำ
+    grid.addEventListener('click', e => { if (e.target.closest('button')) setTimeout(() => this.setFold(menu, true), 0); });
+    document.addEventListener('pointerdown', e => { if (!menu.classList.contains('folded') && !menu.contains(e.target)) this.setFold(menu, true); }, true);
     // Extensions add their menu entries after UI.init; keep them in the same panel.
     new MutationObserver(() => {
       for (const b of menu.querySelectorAll(':scope > button:not(.menu-fold)')) grid.append(b);
