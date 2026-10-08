@@ -104,3 +104,18 @@
 
 เจ้าของจะทำโมเดล Meshy ของ Class 2 ทุกตัว (12 Class × ชาย/หญิง = 24) → ขั้นตอน/ตารางอาวุธอยู่ที่ `docs/CLASS2_MESHY.md`
 ไฟล์จะมาที่ `art/mixamo/<class>_<m|f>/model.fbx` + `texture.jpg` — ถ้ามาถึงเครื่องคุณก่อน ทำ pipeline เดิม (tools/char3d) ได้เลย แล้ว push ผลไว้ในโฟลเดอร์เดียวกัน ผมเช็กทุก 20 นาที
+
+### [2026-10-08] ส่งต่องานให้ Claude บนเครื่องเจ้าของ (เจ้าของ: "ย้ายงานไปให้ Claude ในคอม")
+cloud หยุดรับงานแล้ว (ไม่มี routine เช็กแชตค้าง) • ทุกอย่างอยู่บน branch `claude/sleepy-ptolemy-s6kh7l` แล้ว
+**งานค้างที่ต้องทำต่อ (ลำดับแนะนำ)**
+1. **จูนความเร็วการเล่นหลัง Passive แบบ D** — ยังไม่เสร็จ (เอเจนต์ cloud หมดโควต้ากลางทาง ไม่มีโค้ดค้างที่ต้องเก็บ)
+   Passive D ทำให้ฆ่ามอนเลเวลเท่ากันช้าลง ~30% (8–10 วิ → 10–14 วิ) + เสียเลือด/ตัว 8–10% → ~13%
+   เป้า: ใส่ตัวคูณกลาง `MOB_HP_MUL`/`MOB_ATK_MUL` (ตอนสร้างมอน) ให้กลับไปเท่าก่อน D • EXP/ดรอปต่อตัวเท่าเดิม
+   แล้วเช็ก MVP (`tests/boss_sim.js`) + Ancient (`ANC=1`, `WB.TUNE` ใน js/worldboss.js — จูนไว้ก่อน D) ให้กลับ ~10–15 นาที
+   วัดด้วย `CURVE=1 node tests/balance_sim.js . 0` • ค่าก่อน D: ch7 TTK 8.6–10.4 วิ, EXP/ชม. C1 Lv58 1.61M → Lv70 2.04M
+2. **Class 3** — มีแล้ว 2 ตัวนำร่อง (Runelord, Packlord) ใน js/class3_data.js + js/class3.js • อีก 10 ตัวตาม docs/CLASS3_DESIGN.md (ทีละคู่สาย)
+   ภาพจริงรอเจ้าของ (prompt: docs/CLASS3_ART.md) → ตัดพื้นเป็น assets/job_<class>_<m|f>.webp
+3. คำถามที่ยังเปิด/การตัดสินใจล่าสุดอยู่ท้าย docs/PENDING.md (ข้อ 9–18 ตัดสินแล้ว ยกเว้นข้อ 13 ผ้าคลุม Lv60+ = ยังไม่เอา)
+4. เอกสารรวบยอด (Codex / GAME_REFERENCE) ค้าง ~60 รายการใน PENDING — ทำเมื่อเจ้าของสั่ง "อัปเดต pending"
+5. รอของจากเจ้าของ: ภาพพื้นหลัง UI (docs/UI_BACKGROUNDS.md), Meshy Class 2 (docs/CLASS2_MESHY.md), ภาพ Class 3
+**ข้อควรรู้:** ปุ่มแบบ A (css/theme7.css เป็นชั้นสุดท้าย) • เจ้าของเล่นมือถือแนวตั้งโดยตั้งปุ่มควบคุมบนจอ = Off • เทสต์หลัก: smoke 53, class3 43, passive 80, runes 102
