@@ -316,11 +316,12 @@ function hideTitlePanels() {
   $('#title').classList.remove('creating', 'selecting');
   csConfirmClose();
 }
+function authNote() { return Online.local ? L('บัญชีเก็บในเบราว์เซอร์นี้ • ตัวละครแยกตามบัญชี', 'Accounts are stored in this browser • Characters are saved per account') : L('บัญชีออนไลน์ • เล่นได้ทุกเครื่อง', 'Online account • Play from any device'); }
 function showAuth() {
   hideTitlePanels();
   Acct.data = null;
   $('#auth').classList.remove('hidden');
-  $('#au-note').textContent = Online.local ? L('บัญชีเก็บในเบราว์เซอร์นี้ • ตัวละครแยกตามบัญชี', 'Accounts are stored in this browser • Characters are saved per account') : L('บัญชีออนไลน์ • เล่นได้ทุกเครื่อง', 'Online account • Play from any device');
+  $('#au-note').textContent = authNote();
   if (!matchMedia('(pointer: coarse)').matches) $('#au-user').focus();
 }
 function setAuthMode(m) {
@@ -389,7 +390,21 @@ function showTitle() {
   let back = null; // กลับมาจาก "เปลี่ยนตัวละคร" ในเกม (รีโหลดหน้า) → เปิดหน้าเลือกตัวละครเลย
   try { back = sessionStorage.getItem('nm_charsel'); sessionStorage.removeItem('nm_charsel'); } catch (e) { /* โหมดส่วนตัว */ }
   hideTitlePanels();
-  Online.restore().then(ok => { if (ok) afterLogin(); else if (back === 'offline') enterOffline(); else showAuth(); });
+  // การ์ดล็อกอินขึ้นทันที (เดิมรอเช็กเซิร์ฟเวอร์ออนไลน์ ~1.5 วิหลังโหลดสคริปต์) — เฉพาะคนที่ไม่มีเซสชันค้าง (มีเซสชัน = ข้ามไปเลือกตัวละคร ไม่กะพริบ)
+  //   สมัคร/ล็อกอินรอเซิร์ฟเวอร์เองอยู่แล้ว (Online.login/register await ready) • ปุ่มเล่นแบบไม่ล็อกอินกดได้ทันที
+  let hasSession = false;
+  try { hasSession = !!localStorage.getItem(Online.LS.session) || Object.keys(localStorage).some(k => /^sb-.+-auth-token$/.test(k)); } catch (e) { /* โหมดส่วนตัว */ }
+  const early = !hasSession && back !== 'offline';
+  if (early) showAuth();
+  Online.restore().then(ok => {
+    if (ok) afterLogin();
+    else if (back === 'offline') enterOffline();
+    else if (!early) showAuth();
+    else if (!$('#auth').classList.contains('hidden')) { // ยังอยู่หน้าล็อกอิน: อัปเดตข้อความ/แท็บตามผลเช็กเซิร์ฟเวอร์ (ถ้ายังไม่ได้พิมพ์อะไร)
+      if (!$('#au-user').value && !$('#au-pass').value) setAuthMode(Online.local && !Object.keys(Online.lsGet(Online.LS.accounts, {})).length ? 'register' : 'login');
+      $('#au-note').textContent = authNote();
+    }
+  });
 }
 
 // ---------------- หน้าเลือกตัวละคร (สูงสุด Acct.MAX ช่องต่อบัญชี) ----------------
