@@ -82,13 +82,17 @@ const UI = {
     const panel = h('nav', { id: 'menu-panel', class: 'menu-panel', 'aria-label': L('เมนูเกม', 'Game menu') }, h('div', { class: 'menu-heading' }, L('เมนู', 'Menu')), grid);
     menu.append(panel);
     menu.prepend(mf);
+    // ซ่อนเมนูเอง (เจ้าของ 8 ต.ค. "ทำซ่อนได้ด้วยนะเมนู"): กดปุ่มในเมนูแล้วพับ • แตะ/คลิกนอกเมนูแล้วพับ — ไม่ต้องกด TAB ซ้ำ
+    grid.addEventListener('click', e => { if (e.target.closest('button')) setTimeout(() => this.setFold(menu, true), 0); });
+    document.addEventListener('pointerdown', e => { if (!menu.classList.contains('folded') && !menu.contains(e.target)) this.setFold(menu, true); }, true);
     // Extensions add their menu entries after UI.init; keep them in the same panel.
     new MutationObserver(() => {
       for (const b of menu.querySelectorAll(':scope > button:not(.menu-fold)')) grid.append(b);
     }).observe(menu, { childList: true });
-    // จอเล็ก/จอสัมผัส: เริ่มต้นพับเมนูและแชทไว้ให้เห็นเกมเต็ม ๆ
+    // เริ่มต้นพับเมนูไว้ทุกจอ (เปิดด้วย Tab / ปุ่มกลมข้างมินิแมพ) • จอเล็ก/จอสัมผัส: พับแชทด้วย — ให้เห็นเกมเต็ม ๆ
     const small = matchMedia('(pointer: coarse)').matches || innerWidth < 760 || innerHeight < 520;
-    if (small) { if (st.menu === undefined) st.menu = true; if (st.chat === undefined) st.chat = true; }
+    if (st.menu === undefined) st.menu = true;
+    if (small && st.chat === undefined) st.chat = true;
     $$('.foldable').forEach(p => {
       if (st[p.dataset.fold]) p.classList.add('folded');
       const b = $('.fold-btn', p);
@@ -2240,6 +2244,8 @@ const UI = {
     const dw = $('#w-dialog'); dw.classList.toggle('has-pic', !!img); if (img) dw.style.setProperty('--npc-pic', `url("${img.src}")`);
     if (!img) { el.classList.remove('show'); return; }
     if (el.dataset.key !== key) { el.innerHTML = ''; el.append(Object.assign(new Image(), { src: img.src, alt: '' })); el.dataset.key = key; }
+    // ภาพฉากแนวนอน (เช่นฉากบอสล้ม mvp_*): เดิมโผล่เป็นกล่องขอบแข็งมุมซ้ายล่างทับเกม → แสดงเต็มจอแบบฉากหนัง หรี่ขอบ (css/cinematic.css)
+    el.classList.toggle('scene', img.width / Math.max(1, img.height) > 1.2);
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   },
   // ฉากเปิดตัวบอส

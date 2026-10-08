@@ -1,0 +1,44 @@
+/* 2026-10-08 เจ้าของ: "UI มันเพี้ยน ๆ" — ปุ่ม TAB กับแผงเมนูเข้าชุดเดียวกับมินิแมพ (จอคอม)
+   • TAB = ปุ่มกลมทองแถวเดียวกับปุ่มซูม/แผนที่ใหญ่ ข้างกรอบมินิแมพ (เดิมลอยแยกห่างออกไป)
+   • แผงเมนูใช้กรอบไม้-ทองเหลืองแบบเดียวกับมินิแมพ ทึบ (เดิมโปร่ง ชื่อมอนข้างหลังโผล่ทะลุ) เปิดทางซ้ายบนชิดขอบบนมินิแมพ
+   • จอมือถือ/โหมดจอย ใช้ของเดิมใน css/map-toolbar.css */
+@media (min-width: 761px) and (min-height: 521px) {
+  body.visor:not(.pad-mode) #hud:has(#minimap:not([hidden])) #menubar,
+  body.visor:not(.pad-mode) #hud:has(#minimap:not([hidden])) #menubar:not(.folded) {
+    width: 30px; height: 30px; z-index: 21;
+    top: calc(var(--hud-edge) + var(--st) + 164px);
+    right: calc(var(--hud-edge) + var(--sr) + var(--hud-map-width) - 16px);
+  }
+  body.visor:not(.pad-mode) #hud:has(#minimap:not([hidden])) #menubar .menu-fold,
+  body.visor:not(.pad-mode) #hud:has(#minimap:not([hidden])) #menubar.folded .menu-fold,
+  body.visor:not(.pad-mode) #hud:has(#minimap:not([hidden])) #menubar:not(.folded) .menu-fold {
+    width: 30px; height: 30px; padding: 0; border-radius: 50%;
+    border: 2px solid var(--c-gold); color: #fbe6b2;
+    background: radial-gradient(circle at 50% 35%, #7f5532, #3f2613 75%);
+    box-shadow: 0 3px 6px -2px rgba(0, 0, 0, 0.7);
+  }
+  body.visor:not(.pad-mode) #hud #menubar .menu-fold:hover { filter: brightness(1.15); border-color: var(--c-gold-hi); box-shadow: var(--glow-gold); }
+  body.visor:not(.pad-mode) #hud #menubar .menu-fold svg { width: 15px; height: 15px; }
+  body.visor:not(.pad-mode) #hud #menubar .menu-fold span { display: none; }
+  body.visor:not(.pad-mode) #hud:has(#minimap:not([hidden])) #menubar:not(.folded) .menu-fold.menu-fold {
+    color: #39200e; border-color: var(--c-gold-hi);
+    background: radial-gradient(circle at 50% 35%, #f6db9a, #c39146 75%);
+  }
+  body.visor:not(.pad-mode) #hud #menubar .menu-panel {
+    top: -164px; right: 52px; width: 244px; padding: 10px 10px 9px;
+    max-height: calc(100dvh - var(--st) - var(--sb) - var(--hud-edge) - 24px);
+    border: 2px solid transparent; border-radius: 0;
+    border-image: var(--u3-hud) 48 / 24px / 3px round;
+    background: linear-gradient(180deg, #3a2614, #22160a) padding-box;
+    box-shadow: 8px 14px 22px -10px rgba(5, 2, 0, 0.6);
+    transform-origin: top right;
+  }
+  /* เจ้าของ 8 ต.ค.: แผงเมนูต้องไม่ยาวเลยขอบล่างมินิแมพ + ห้ามทับปุ่มกลมข้างมินิแมพ → 4 คอลัมน์ ปุ่มเตี้ยลง ห่างปุ่มกลม 22px */
+  body.visor:not(.pad-mode) #hud #menubar .menu-heading { margin-bottom: 6px; }
+  body.visor:not(.pad-mode) #hud #menubar .menu-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+  body.visor:not(.pad-mode) #hud #menubar .menu-grid > button { height: 48px; gap: 2px; }
+  body.visor:not(.pad-mode) #hud #menubar .menu-grid > button svg { width: 19px; height: 19px; }
+}
+/* ป้ายปุ่มลัด: คำสั่งแชตยาว (/trade) ไม่ใช่ปุ่มลัด — ไม่ต้องโชว์ (เดิมล้นขอบปุ่ม) */
+body.visor #hud #menubar .menu-grid > button[data-win="w-trade"] small { display: none; }
+body.visor #hud #menubar .menu-grid > button small { white-space: nowrap; }
