@@ -133,7 +133,7 @@ const ClassTraits = (() => {
     if(!active()||!r||r.miss||m.dead)return hit0.apply(this,arguments);
     const p=G.player,q=state(),root=jobRoot(p.job),bonus=q.bonus[opts.src];
     const b=bonus&&bonus.until>=G.time?bonus:null;
-    const e=EDGE[root],edge=e&&e.dmg?e.dmg*(b?b.edgeN:q.n):0,k=(b?b.k:1)*(1+edge);
+    const e=EDGE[root],n=root==='wildhunter'&&q.target!==m?0:(b?b.edgeN:q.n),edge=e&&e.dmg?e.dmg*n:0,k=(b?b.k:1)*(1+edge); // Hunt Mark นับเฉพาะเป้าเดิม
     const adjusted=k!==1?{...r,dmg:Math.max(0,Math.round(r.dmg*(1+(k-1)*(m.isPlayer?.5:1))))}:r;
     const actual=Math.min(m.hp,adjusted.dmg);
     hit0.call(this,m,adjusted,opts);
