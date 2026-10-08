@@ -2244,6 +2244,8 @@ const UI = {
     const dw = $('#w-dialog'); dw.classList.toggle('has-pic', !!img); if (img) dw.style.setProperty('--npc-pic', `url("${img.src}")`);
     if (!img) { el.classList.remove('show'); return; }
     if (el.dataset.key !== key) { el.innerHTML = ''; el.append(Object.assign(new Image(), { src: img.src, alt: '' })); el.dataset.key = key; }
+    // ภาพฉากแนวนอน (เช่นฉากบอสล้ม mvp_*): เดิมโผล่เป็นกล่องขอบแข็งมุมซ้ายล่างทับเกม → แสดงเต็มจอแบบฉากหนัง หรี่ขอบ (css/cinematic.css)
+    el.classList.toggle('scene', img.width / Math.max(1, img.height) > 1.2);
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   },
   // ฉากเปิดตัวบอส

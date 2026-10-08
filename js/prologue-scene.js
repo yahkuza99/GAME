@@ -103,3 +103,31 @@
   new MutationObserver(recs => { for (const r of recs) for (const n of r.addedNodes) if (n.id === 'prologue') start(n); })
     .observe(document.body, { childList: true });
 })();
+// ฉากเล่าเรื่องเต็มจอ (#illust.scene จาก UI.illust): ประกายไฟลอยขึ้นช้า ๆ เหนือภาพ ใต้เงาขอบ — หยุดเองเมื่อปิดฉาก
+(() => {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let raf = 0;
+  const run = el => {
+    cancelAnimationFrame(raf);
+    let cv = el.querySelector('.scene-motes');
+    if (!cv) { cv = document.createElement('canvas'); cv.className = 'scene-motes'; el.append(cv); }
+    const g = cv.getContext('2d'), ps = []; let last = performance.now();
+    const step = now => {
+      if (!el.classList.contains('scene') || !el.classList.contains('show')) { g.clearRect(0, 0, cv.width, cv.height); return; }
+      if (cv.width !== el.clientWidth || cv.height !== el.clientHeight) { cv.width = el.clientWidth; cv.height = el.clientHeight; } else g.clearRect(0, 0, cv.width, cv.height); // ขยายแคนวาสเฉพาะตอนขนาดเปลี่ยน
+      const W = cv.width, H = cv.height, dt = Math.min(0.05, (now - last) / 1000); last = now;
+      if (ps.length < 60 && Math.random() < 0.5) ps.push({ x: Math.random() * W, y: H * (0.6 + Math.random() * 0.4), vx: (Math.random() - 0.5) * 18, vy: -(20 + Math.random() * 45), r: 0.8 + Math.random() * 2.2, t: 0, d: 3 + Math.random() * 4 });
+      g.globalCompositeOperation = 'lighter';
+      for (let i = ps.length - 1; i >= 0; i--) {
+        const p = ps[i]; p.t += dt; if (p.t > p.d) { ps.splice(i, 1); continue; }
+        p.x += (p.vx + Math.sin(now / 700 + i) * 8) * dt; p.y += p.vy * dt;
+        const a = Math.sin(Math.PI * p.t / p.d);
+        g.fillStyle = `rgba(255,${170 + (i % 3) * 25},90,${0.75 * a})`; g.beginPath(); g.arc(p.x, p.y, p.r, 0, 7); g.fill();
+      }
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  };
+  const el = document.getElementById('illust'); if (!el) return;
+  new MutationObserver(() => { if (el.classList.contains('scene') && el.classList.contains('show')) run(el); }).observe(el, { attributes: true, attributeFilter: ['class'] });
+})();

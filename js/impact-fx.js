@@ -2,7 +2,7 @@
 // ============================================================
 //  แรงกระแทกตอนสกิลโดน (2026-10-08 เจ้าของ: "AAA = vibe ความสวย" • ถ่ายฉากจริงแล้วสกิลส่วนใหญ่แทบไม่มีภาพตอนโดน)
 //  • ทุกสกิลที่โดนเป้า: แฟลชแกนสว่าง + วงคลื่นขยาย + ประกายพุ่งออกตามสีธาตุ (บวกแสง) — คริ ใหญ่และนานกว่า
-//  • ตอนร่าย: วงอักษรรูนบนพื้นใต้ตัว สีประจำสาย (สีเดียวกับ js/class-trait-fx.js)
+//  • ตอนร่าย (จ่าย SP/HP): วงอักษรรูนบนพื้นใต้ตัว สีประจำสาย (สีเดียวกับ js/class-trait-fx.js)
 //  • วาดด้วยโค้ดล้วน ไม่ใช้ภาพ (ภาพเอฟเฟกต์เฉพาะสกิลยังเป็นงานของ Codex) • จำกัดพร้อมกัน 8 วง • คุณภาพ low = เบาลงครึ่ง • fastSim ไม่วาด
 // ============================================================
 const ImpactFX = (() => {
@@ -60,16 +60,21 @@ const ImpactFX = (() => {
   }
   const draw0 = R.drawFx;
   R.drawFx = function (g, f, t) { if (f.impactFx) return draw(g, f); return draw0.apply(this, arguments); };
-  const hit0 = applyHit;
-  applyHit = function (m, r, opts = {}) {
-    const alive = m && !m.dead, res = hit0.apply(this, arguments);
-    if (alive && r && !r.miss && !m.isPlayer) hit(m, Object.assign({ crit: r.crit }, opts), r.el);
+  // ดักที่ damageMob (ทุกทางของดาเมจผ่านที่นี่ — รูน/พื้นที่/ลูกธนู Class 2-3 ไม่ผ่าน applyHit) • สกิลเดียวกันเป้าเดียวกันเว้น 0.15 วิ (พื้นที่/หลายฮิตไม่ถี่เกิน)
+  const hitAt = new WeakMap();
+  const dmg0 = damageMob;
+  damageMob = function (m, dmg, opts = {}) {
+    const alive = m && !m.dead, res = dmg0.apply(this, arguments);
+    if (alive && dmg > 0 && !m.isPlayer && !opts.dot && opts.src && SKILLS[opts.src]) {
+      const k = hitAt.get(m) || {}; if (!(G.time - (k[opts.src] ?? -9) < 0.15)) { k[opts.src] = G.time; hitAt.set(m, k); hit(m, opts, opts.element || opts.emEl); }
+    }
     return res;
   };
-  const cast0 = executeSkill;
-  executeSkill = function (id, lv, t) {
-    const p = G.player, sp = p && p.sp, hp = p && p.hp, res = cast0.apply(this, arguments);
-    if (p && SKILLS[id] && (p.sp !== sp || p.hp !== hp)) cast(p); // ร่ายจริง (จ่าย SP/HP แล้ว) เท่านั้น
+  // วงรูนตอนร่าย: ดักตอนจ่าย SP/HP ของสกิล (paySkill) — ทุกสกิลจ่ายที่นี่ รวมสกิลขยายของ js/class-expansion.js ที่ไม่ผ่าน executeSkill เดิม
+  const pay0 = paySkill;
+  paySkill = function () {
+    const res = pay0.apply(this, arguments);
+    if (G.player && !G.player.dead) cast(G.player);
     return res;
   };
   return { hit, cast };

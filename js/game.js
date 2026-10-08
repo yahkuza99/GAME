@@ -991,13 +991,19 @@ function damagePlayer(dmg, color = '#ff5050', src = {}) { // src: { lv: เล�
   if (p.hp <= 0) playerDie();
 }
 // label = ที่มาของการฟื้น HP (ชื่อไอเทม/สกิล/พาสซีฟ) โชว์ต่อท้ายตัวเลข ให้รู้ว่าเลือดเด้งเพราะอะไร
+let itemHealNames = null;
+function itemHealLabel(label) { if (!itemHealNames) itemHealNames = new Set(Object.values(ITEMS).map(it => it.name)); return itemHealNames.has(label); }
 function healPlayer(amt, label) {
   const p = G.player;
   p.hp = Math.min(p.d.maxHp, p.hp + amt);
   // ฟื้นทีละนิดถี่ ๆ (ดูดเลือด/รีเจน) รวมเป็นป้ายเดียวทุก 0.8 วิ — เดิม "+1 ดูดเลือด" เด้งทุกฮิตซ้อนกันเต็มหัว
-  if (label && amt < Math.max(3, p.d.maxHp * 0.01)) {
-    p.healAcc = (p.healAcc || 0) + amt;
-    if (G.time < (p.healAccAt || 0)) return;
+  //   ยา/ไอเทม (label = ชื่อไอเทม) ไม่รวม — โชว์ทุกครั้งเหมือนเดิม • ยอดค้างท้ายสุดโชว์เองเมื่อครบ 0.8 วิ
+  if (label && amt < Math.max(3, p.d.maxHp * 0.01) && !itemHealLabel(label)) {
+    p.healAcc = (p.healAcc || 0) + amt; p.healAccLbl = label;
+    if (G.time < (p.healAccAt || 0)) {
+      if (!p.healFlush) { p.healFlush = true; later(p.healAccAt - G.time, () => { p.healFlush = false; if (p.healAcc && !p.dead) { addFloater(p.x, p.y - 1.2, `+${p.healAcc} ${p.healAccLbl}`, '#70ff70'); p.healAcc = 0; p.healAccAt = G.time + 0.8; } }); }
+      return;
+    }
     p.healAccAt = G.time + 0.8; amt = p.healAcc; p.healAcc = 0;
   }
   addFloater(p.x, p.y - 1.2, `+${amt}${label ? ' ' + label : ''}`, '#70ff70');
