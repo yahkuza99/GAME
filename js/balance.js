@@ -7,6 +7,18 @@ for (const id in MOBS) {
   const m = MOBS[id];
   if (m.lv >= 30 && !m.dummy && !m.hpBoosted) { m.hp = Math.round(m.hp * 1.3); m.hpBoosted = true; }
 }
+// ตัวคูณกลางหลัง Passive แบบ D (2026-10-08): D ทำให้ฆ่ามอนช้าลงและโดนตีต่อตัวมากขึ้น → คืนจังหวะเล่นให้ใกล้ก่อน D
+//   วัดด้วย CURVE=1 ONLY=duel tests/balance_sim.js เทียบ commit ก่อน D (048f888): เวลาฆ่ารวม ×1.26 • ดาเมจที่โดนต่อนาที ×1.16
+//   ใช้กับมอน Lv 30+ ครั้งเดียว (ธง mulTuned) ก่อน World Boss → Ancient สร้างจาก MVP ที่คูณแล้ว ไม่คูณซ้ำ
+//   EXP/ดรอปต่อตัวไม่เปลี่ยน • ลูกสมุนบอส (js/bosskit.js) และมอนที่สร้างทีหลังไฟล์นี้ไม่โดน
+const MOB_HP_MUL = 0.8, MOB_ATK_MUL = 0.86;
+for (const id in MOBS) {
+  const m = MOBS[id];
+  if (m.lv < 30 || m.dummy || m.mulTuned) continue;
+  m.hp = Math.round(m.hp * MOB_HP_MUL);
+  if (Array.isArray(m.atk)) m.atk = m.atk.map(v => Math.max(1, Math.round(v * MOB_ATK_MUL)));
+  m.mulTuned = true;
+}
 
 // ------------------------------------------------------------
 //  ของดรอปแบบ RO: ของสวมใส่ต้อง "หายาก" — แจกเยอะเกินทำให้ของไม่มีค่า

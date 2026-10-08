@@ -1,5 +1,17 @@
 # CHANGELOG — NEO MIDGARD
 
+## 2026-10-08 — ตัวคูณมอนหลัง Passive แบบ D (branch `claude/tune-mob-mul-after-passive-d` · ยังไม่ขึ้นเว็บ)
+
+- **เปลี่ยน** มอน Lv 30+ เลือด ×0.8 · ATK ×0.86 ครั้งเดียวตอนโหลด (`js/balance.js` `MOB_HP_MUL`/`MOB_ATK_MUL` ธง `mulTuned`) — งานที่คลาวด์ส่งต่อ: Passive D ทำให้ฆ่ามอนช้าลง
+  - อยู่ก่อน `js/worldboss.js` → Ancient สร้างจาก MVP ที่คูณแล้ว ไม่คูณซ้ำ (Codex เตือนเรื่องคูณซ้ำใน `spawnMob`) · EXP/ดรอปต่อตัวเท่าเดิม · ลูกสมุนบอส (`js/bosskit.js`) ไม่โดน
+- **วัด** `CURVE=1 tests/balance_sim.js` เทียบ commit ก่อน D (`048f888`, worktree แยก) ทุก Class เดียวกัน 162 ดวล:
+  - ก่อนแก้: เวลาฆ่ารวม ×1.26 · ดาเมจที่โดน/นาที ×1.16 · %HP ที่เสียต่อตัว ×1.53 → หลังแก้: ×1.03 · ×1.04 · ×1.09 · ตาย 0
+  - EXP/ชม. ฟาร์ม 10 จุด รวม ×1.04 ของก่อน D (Lv15/Lv30 ยังต่ำกว่าเดิม ×0.91/×0.86 — มอนต่ำกว่า Lv 30 ไม่ได้คูณ)
+  - MVP (boss_sim GEAR=lv) ไม่มีตาย เวลาใกล้ก่อน D แต่ยังต่างตาม Class · Ancient ปาร์ตี้ 5 ผลแกว่งมากต่อรอบ (ก่อน D 11–17 นาที · หลังแก้ 6–20 นาที) ยังสรุปไม่ได้จากรอบเดียว
+- เจอระหว่างทาง: ตัวคูณกลางไม่แก้ความต่างราย Class — หลังแก้ Berserker/Runecaster ยังช้ากว่าก่อน D ×1.24/×1.26 · Einherjar เร็วขึ้น ×0.80
+- เทสต์ (เทียบโค้ดเดียวกันไม่มีตัวคูณ): passive ตกเพิ่ม 1 ข้อ "total norn ≤ +60%" (+50.9% → +63.1% คงที่ 2 รอบ) · smoke/class3/runes ตกเท่าเดิม (smoke login card · class3 17 ข้อ · runes พังที่ `js/class-expansion.js:282`) — ตกอยู่ก่อนแล้วบนโค้ดที่ deploy `ebf7aef`
+- `tests/balance_sim.js`, `tests/boss_sim.js`: ใช้ Chrome ของเครื่องบน Windows (ไม่มี Playwright browser)
+
 ## 2026-10-02 — รอยฟันแบบ Ragnarok ตอนตีโดน
 
 - **เพิ่ม** รอยฟันบนตัวมอนตอนตีประชิดโดน (ยะยา: "สร้างเอฟเฟกต์การฟัน เกมจะออกสไตล์ Ragnarok") — `js/juice.js` `J.slashMark` + `drawSlash`

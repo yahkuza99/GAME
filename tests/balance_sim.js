@@ -32,7 +32,7 @@ const serve = () => new Promise(res => {
 (async () => {
   const srv = process.env.BASE ? null : await serve();
   const url = process.env.BASE || `http://localhost:${srv.address().port}/index.html`;
-  const b = await chromium.launch({ executablePath: fs.existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined });
+  const b = await chromium.launch({ channel: process.platform === 'win32' ? 'chrome' : undefined, executablePath: fs.existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined });
   const p = await b.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.goto(url); await p.waitForTimeout(1000);
   await p.click('#au-offline'); await p.click('#btn-new'); await p.fill('#cr-name', 'Sim'); await p.click('#cr-start');
