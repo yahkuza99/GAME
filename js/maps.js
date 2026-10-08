@@ -98,6 +98,7 @@ function portalPos(def, side) {
   return p;
 }
 // ภาพฉาก (assets/prop_*) — ไม่มีภาพจะวาดด้วยโค้ดแบบเดิม
+const PROP_VARY = new Set(['crystal', 'rock', 'mushroom', 'bush', 'scrap']);
 const PROP_ART = { pylon: 'prop_pylon', crate: 'prop_crate', scrap: 'prop_scrap', bush: 'prop_bush', rock: 'prop_rock', mushroom: 'prop_mushroom', crystal: 'prop_crystal' };
 const BUILDING_ART = { SUPPLY: 'prop_bld_shop', ARMORY: 'prop_bld_house', PLATING: 'prop_bld_house', FORGE: 'prop_bld_forge' };
 // อาคาร 3D ทั้งชุดของเมือง (หอคอย + ร้าน 4 ร้าน — tools/bld3d.py, js/bake_data_eldheim_bld.js, js/bake.js Bake.buildings) • false = กลับไปใช้ภาพวาด BUILDING_ART เดิม
@@ -1290,6 +1291,8 @@ class GameMap {
   addProp(kind, x, y, s = 1) {
     if (!propArt(PROP_ART[kind])) return false;
     const img = (kind === 'crystal' && this.def.crystalImg && propArt(this.def.crystalImg)) ? this.def.crystalImg : PROP_ART[kind];
+    // ของประดับชิ้นเล็กขนาดไม่เท่ากัน (เดิมคริสตัล/หินทั้งแมพขนาดเดียว ดูเป็นลายวอลเปเปอร์) — 5 ขั้น 0.7–1.3 สุ่มจากตำแหน่ง (แมพเดิมได้ผลเดิมทุกครั้ง)
+    if (PROP_VARY.has(kind)) s *= 0.7 + Math.floor(U.hash2(y | 0, x | 0, this.def.seed + 7) * 5) * 0.15;
     this.props.push({ kind, img, x: x / TILE, y: y / TILE, s, r: U.hash2(x | 0, y | 0, this.def.seed) });
     return true;
   }
