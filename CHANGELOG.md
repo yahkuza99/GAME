@@ -1,5 +1,18 @@
 # CHANGELOG — NEO MIDGARD
 
+## 2026-10-08 (รอบ 2) — ความถนัดประจำสายหลัง Passive แบบ D (branch `claude/class-flavor-after-passive-d` · ยังไม่ขึ้นเว็บ)
+
+- **เปลี่ยน** ยิ่งสะสมพลังประจำสายมาก ยิ่งแรง (เจ้าของ: "Class แบบ Diablo ปรับที่ตัวละคร" • "ต้องการความมีสีสัน") — `js/class-traits.js` ตาราง `EDGE`
+  - Runecaster +40% ต่อธาตุในชุด Sigils · Völva +9% ต่อ Devotion · Wildhunter +6% ต่อ Hunt Mark · Berserker +0.9% ต่อ Fury 1 แต้ม · Trickster +12% ต่อ Flow และโดนตีเบาลง 8% ต่อ Flow
+  - ใช้ชั้นก่อนจ่ายพลัง (สกิลที่ปล่อยพลังได้แรงจากชั้นที่มีด้วย) · ลานประลองได้ครึ่งเดียวเหมือนโบนัสอื่นของระบบนี้ · Einherjar ไม่แตะ (D ไม่ทำให้ช้าลง)
+- **เปลี่ยน** กิ่ง Passive ของ Trickster: FLEE จุดเล็ก 3→6 · แกนกลาง 2→5 (D ตัด FLEE ไป 16% จนโดนตีต่อตัวมากกว่าเดิม 3.7 เท่า)
+- **ถอด** แนวทางตัวคูณมอน (branch `claude/tune-mob-mul-after-passive-d`) — ปรับมอนเท่ากันทุกตัว ทำให้ Einherjar ที่ D ไม่ได้ทำให้อ่อนลงกลับเก่งเกินเดิม 20% แต่ Berserker/Runecaster ยังช้า
+- **วัด** `CURVE=1 ONLY=duel tests/balance_sim.js` เทียบ commit ก่อน D (`048f888`) 162 ดวล (เวลาฆ่า เทียบก่อน D):
+  - ก่อนแก้ → หลังแก้: Berserker ×1.53→×1.06 · Runecaster ×1.53→×1.17 · Völva ×1.31→×1.05 · Trickster ×1.19→×1.10 · Wildhunter ×1.15→×1.07 · Einherjar ×1.00→×1.05 (ไม่ได้แตะ = ช่วงแกว่ง) · รวม ×1.26→×1.07 · ตาย 0
+  - ผลแกว่งราว ±0.07 ต่อรอบ (Völva ค่าเดิมวัด 2 รอบได้ ×1.08/×1.15) · ปรับ 4 รอบ (Runecaster .12→.25→.40, Berserker .0025→.006→.009, Völva .06→.09, Trickster .06→.12)
+  - EXP/ชม. ฟาร์ม ×1.05 ของก่อน D · Ancient ปาร์ตี้ 5 ผลแกว่งรอบต่อรอบจนใช้ตัดสินไม่ได้ (Class เดียวกัน ล้มใน 5 นาที ↔ ล้มไม่ได้)
+- เทสต์: passive **ALL 80 PASSED** · smoke ตก 2 (login card) · class3 ตก 17/43 · runes พังที่ `js/class-expansion.js:282` — ตกเท่ากันบนโค้ดก่อนแก้ (`ebf7aef`)
+
 ## 2026-10-02 — รอยฟันแบบ Ragnarok ตอนตีโดน
 
 - **เพิ่ม** รอยฟันบนตัวมอนตอนตีประชิดโดน (ยะยา: "สร้างเอฟเฟกต์การฟัน เกมจะออกสไตล์ Ragnarok") — `js/juice.js` `J.slashMark` + `drawSlash`

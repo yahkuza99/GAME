@@ -143,7 +143,7 @@ const PSECT = [
       ['Wound Fury', {}, { woundDmg: 4 }], ['Heavy Hitter', {}, { crowdDmg: 1 }]],
     key: ['Overclock', { hpPct: -15 }, 'overclock', { lowDmg: 8, lowAspd: 5 }] },
   { job: 'trickster', name: 'Shadow', th: L('เงา', 'Shade'), color: '#b070ff', main: 'agi', icon: 'feather', tag: L('FLEE • หลบแล้วสวน • ปิดฉาก', 'FLEE • Dodge & strike • Finish'),
-    small: [{ agi: 1 }, { flee: 3 }, { crit: 1 }, { luk: 2 }], spine: { agi: 1, flee: 2 },
+    small: [{ agi: 1 }, { flee: 6 }, { crit: 1 }, { luk: 2 }], spine: { agi: 1, flee: 5 },
     notables: [['Quickstep', { agi: 1, speedPct: 4 }], ['Ghost Protocol', {}, { dodgeDmg: 12 }], ['Lucky Seven', { luk: 3, crit: 1 }],
       ['Assassin Code', {}, { execDmg: 8 }], ['Toxin Coating', { venom: 5 }]],
     key: ['Phantom Code', {}, 'phantom', { fleeMul: 1.2, halfDef: 1, killCrit: 1 }] },

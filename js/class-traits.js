@@ -27,6 +27,17 @@ const ClassTraits = (() => {
     runelord:'ใช้ Rune Circle, สลับธาตุและเวทสะท้อนจากวงเป็นระบบเฉพาะของ Runelord',
     packlord:'ใช้ฝูงหมาป่า, Hunter Mark และช่วง Unchained เป็นระบบเฉพาะของ Packlord',
   };
+  // ความถนัดประจำสาย (2026-10-08 เจ้าของ: "Class แบบ Diablo ปรับที่ตัวละคร" • "ต้องการความมีสีสัน")
+  // Passive แบบ D ตัดค่าหลักของแต่ละสายไม่เท่ากัน (MATK Runecaster -40%, Völva -26%, ATK Berserker/Wildhunter -13%, FLEE Trickster -16%)
+  // → คืนผ่านพลังประจำสาย: ยิ่งสะสมชั้นมาก ยิ่งแรง (dmg ต่อชั้น) / Trickster โดนตีเบาลง (guard ต่อชั้น) • Einherjar ไม่ได้ (D ไม่ทำให้ช้าลง)
+  // วัดด้วย CURVE=1 ONLY=duel tests/balance_sim.js เทียบ commit ก่อน D (048f888) • ลานประลองได้ครึ่งเดียวเหมือนโบนัสอื่น
+  const EDGE = {
+    runecaster: {dmg:.4},    // ต่อธาตุที่ร่ายในชุดปัจจุบัน (สูงสุด 3)
+    volva:      {dmg:.09},   // ต่อ Devotion (สูงสุด 4)
+    wildhunter: {dmg:.06},   // ต่อ Hunt Mark บนเป้าเดิม (สูงสุด 3)
+    berserker:  {dmg:.009},  // ต่อ Fury 1 แต้ม (สูงสุด 100)
+    trickster:  {dmg:.12, guard:.08}, // ต่อ Flow (สูงสุด 2/3)
+  };
   const state = () => {
     const p=G.player;if(!p)return null;
     let q=states.get(p);
@@ -64,7 +75,7 @@ const ClassTraits = (() => {
   const prepare = (s,t) => {
     const p=G.player,q=state(),root=jobRoot(p.job),job=p.job;
     const attack=!!s.dmg,holy=attack&&s.dmg.element==='holy';
-    let bonus={k:1,heal:0,bleed:false,until:G.time+12},trigger=false;
+    let bonus={k:1,heal:0,bleed:false,until:G.time+12,edgeN:q.n},trigger=false;
     if(root==='einherjar'&&q.n>=3&&attack){
       q.n=0;trigger=true;
       if(job==='hersir')bonus.k=1.25;
@@ -122,7 +133,8 @@ const ClassTraits = (() => {
     if(!active()||!r||r.miss||m.dead)return hit0.apply(this,arguments);
     const p=G.player,q=state(),root=jobRoot(p.job),bonus=q.bonus[opts.src];
     const b=bonus&&bonus.until>=G.time?bonus:null;
-    const adjusted=b?{...r,dmg:Math.max(0,Math.round(r.dmg*(1+(b.k-1)*(m.isPlayer?.5:1))))}:r;
+    const e=EDGE[root],edge=e&&e.dmg?e.dmg*(b?b.edgeN:q.n):0,k=(b?b.k:1)*(1+edge);
+    const adjusted=k!==1?{...r,dmg:Math.max(0,Math.round(r.dmg*(1+(k-1)*(m.isPlayer?.5:1))))}:r;
     const actual=Math.min(m.hp,adjusted.dmg);
     hit0.call(this,m,adjusted,opts);
     if(b&&b.empowered&&actual>0)ClassTraitFX.emit(root,'impact',m,p.job);
@@ -141,6 +153,7 @@ const ClassTraits = (() => {
     if(!active())return hurt0.apply(this,arguments);
     const p=G.player,q=state(),hp=p.hp;
     if(q.shieldUntil>G.time&&q.shield>0&&dmg>0){const blocked=Math.min(dmg,q.shield);q.shield-=blocked;dmg-=blocked;}
+    const e=EDGE[jobRoot(p.job)];if(e&&e.guard&&dmg>0&&q.n>0)dmg=Math.max(1,Math.round(dmg*(1-e.guard*q.n)));
     hurt0.call(this,dmg,color,src);
     if(!p.dead&&dmg>0&&!src.dot){
       if(jobRoot(p.job)==='einherjar'&&G.time>=q.gainAt){q.gainAt=G.time+1;gain(1);}
