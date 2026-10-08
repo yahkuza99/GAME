@@ -86,9 +86,10 @@ const UI = {
     new MutationObserver(() => {
       for (const b of menu.querySelectorAll(':scope > button:not(.menu-fold)')) grid.append(b);
     }).observe(menu, { childList: true });
-    // จอเล็ก/จอสัมผัส: เริ่มต้นพับเมนูและแชทไว้ให้เห็นเกมเต็ม ๆ
+    // เริ่มต้นพับเมนูไว้ทุกจอ (เปิดด้วย Tab / ปุ่มกลมข้างมินิแมพ) • จอเล็ก/จอสัมผัส: พับแชทด้วย — ให้เห็นเกมเต็ม ๆ
     const small = matchMedia('(pointer: coarse)').matches || innerWidth < 760 || innerHeight < 520;
-    if (small) { if (st.menu === undefined) st.menu = true; if (st.chat === undefined) st.chat = true; }
+    if (st.menu === undefined) st.menu = true;
+    if (small && st.chat === undefined) st.chat = true;
     $$('.foldable').forEach(p => {
       if (st[p.dataset.fold]) p.classList.add('folded');
       const b = $('.fold-btn', p);
