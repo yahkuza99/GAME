@@ -400,7 +400,7 @@ Runes.watchCombat = function () {
     rw_stun: 1.2, rw_bar_cd: 8, rw_fb_ch: 0.3, rw_fb: 0.164,
     // Wildhunter
     ee_focus: 0.0275, ee_main: 0.6, ee_scatter: 0.33,
-    pa_vol: 0.52, pa_fan: 1.03,
+    pa_vol: 0.52, pa_fan: 0.92,
     wc_twin: 0.767, wc_alpha: 0.85, wc_mark: 1.36,
     bt_sh: 1.2, bt_hurl: 1.55,
     ca_harp: 1.5, ca_main: 0.8, ca_conc: 0.5,
