@@ -2240,6 +2240,12 @@ const UI = {
   illust(key) {
     const el = $('#illust');
     const img = key && Art.get(key);
+    // ภาพที่โหลดตอนใช้ (js/art.js ART_LAZY) ยังมาไม่ถึง: รอแล้วเรียกซ้ำ (สูงสุด ~4 วิ) ถ้ายังขอภาพเดิมอยู่ — เดิมฉากบอสล้มขึ้นว่าง
+    this._illustWant = key || null;
+    if (key && !img && Art.lazy && Art.lazy.has(key) && !(Art.missed && Art.missed.has(key))) {
+      const t0 = performance.now(), wait = () => { if (this._illustWant !== key) return; if (Art.imgs[key]) this.illust(key); else if (performance.now() - t0 < 4000) setTimeout(wait, 100); };
+      setTimeout(wait, 100);
+    }
     // กล่องคุย: รูปหน้า NPC ในวงกลม (มือถือ: ภาพประกอบใหญ่ถูกกล่องคุยบัง)
     const dw = $('#w-dialog'); dw.classList.toggle('has-pic', !!img); if (img) dw.style.setProperty('--npc-pic', `url("${img.src}")`);
     if (!img) { el.classList.remove('show'); return; }
@@ -2253,6 +2259,11 @@ const UI = {
     // ป้ายชื่อแมพยังแสดงอยู่ → คำเตือนบอสรอให้จบก่อน (ใช้ช่องบนจอเดียวกัน ไม่ทับกัน)
     const wait = cls !== 'upgrade' ? (this._bannerUntil || 0) - performance.now() : 0;
     if (wait > 0) { clearTimeout(this._splashT); this._splashT = setTimeout(() => this.splash(key, title, sub, cls), wait); return; }
+    // ภาพบอส/Class โหลดตอนใช้: รอให้มาก่อนสูงสุด 1.5 วิ แล้วค่อยขึ้นป้าย (เดิมขึ้นแบบไม่มีภาพ)
+    if (key && !Art.imgs[key] && Art.lazy && Art.lazy.has(key) && !(Art.missed && Art.missed.has(key)) && !(arguments[4] > 1500)) {
+      Art.need(key); clearTimeout(this._splashT); const waited = (arguments[4] || 0) + 100;
+      this._splashT = setTimeout(() => this.splash(key, title, sub, cls, Art.imgs[key] ? 9999 : waited), 100); return;
+    }
     const img = Art.get(key);
     const el = $('#splash');
     el.innerHTML = '';

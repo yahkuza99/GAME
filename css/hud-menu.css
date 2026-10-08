@@ -44,5 +44,11 @@ body.visor #hud #menubar .menu-grid > button[data-win="w-trade"] small { display
 body.visor #hud #menubar .menu-grid > button small { white-space: nowrap; }
 /* มือถือแนวตั้ง: การ์ดเลือดมอนเป้าหมาย เดิมชิดขวาเยื้องจากกลาง → กึ่งกลางจอ สมมาตร (เจ้าของ 8 ต.ค.) */
 @media (max-width: 760px) and (orientation: portrait) {
-  body.visor #hud #target { left: 50% !important; right: auto !important; transform: translateX(-50%) !important; width: min(260px, 68vw); }
+  body.visor #hud #target { left: 50% !important; right: auto !important; transform: translateX(-50%) !important; width: min(196px, 52vw) !important; padding: 3px 8px 4px 3px !important; gap: 5px !important; }
+  /* เจ้าของ "เลือกมอนเล็กกว่านี้ สัดส่วนไม่อึดอัด": การ์ดเล็กลง รูปมอน/ตัวหนังสือ/หลอดย่อตาม */
+  body.visor #hud #target #tg-cv { width: 30px !important; height: 30px !important; }
+  body.visor #hud #target #tg-name { font-size: 12px !important; }
+  body.visor #hud #target #tg-lv, body.visor #hud #target .tg-info { font-size: 10px !important; }
+  body.visor #hud #target .gauge { height: 7px !important; }
+  body.visor #hud #target #tg-hp-t, body.visor #hud #target #tg-er { font-size: 9px !important; }
 }

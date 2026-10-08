@@ -762,7 +762,7 @@ Runes.watchCombat = function () {
       short: `Every 3rd arrow +2 splinters ${pc(K.ee_scatter)}% · main ${pc(K.ee_main)}%`,
       desc: () => L(`ไม่ได้ HIT เพิ่ม และลูกธนูปกติทุกดอกที่ 3 จะแตก: ดอกหลักเหลือ ${pc(K.ee_main)}% แต่แตกอีก 2 ดอกไปหาตัวใกล้ ๆ (4 ช่อง) ดอกละ ${pc(K.ee_scatter)}% ATK`,
         `No bonus HIT, and every 3rd basic arrow splinters: the main arrow deals ${pc(K.ee_main)}%, plus 2 splinters at nearby enemies (4 cells) for ${pc(K.ee_scatter)}% ATK each.`),
-      mod: () => ({ passive: lv => ({ range: lv, dex: lv }) }),
+      mod: () => ({ passive: lv => ({ range: Math.ceil(lv / 2), dex: lv }) }), // ระยะครึ่งเดียว (2026-10-08): ระยะเต็มทำให้ตีฝูง +13% เกินเกณฑ์ 12% (ถอดระยะ = +8.4%)
       basicMul() { if (!Runes.count('ee_sc', 3)) return 1; P().rc.scat = 1; return K.ee_main; },
       afterBasic(m) {
         const p = P(); if (!p.rc || !p.rc.scat) return; p.rc.scat = 0;
