@@ -104,7 +104,7 @@ const BAND = 12, CAP = 15, MEAN = 7, CLASS_MEAN = 5;
       U.rand = (a, b) => (a + b) / 2; U.randi = (a, b) => Math.floor((a + b + 1) / 2);
       // มอนเกิดรอบ "จุดกลางลาน" (ไม่ใช่รอบตัวเรา) และดึงตัวเรากลับถ้าไหลออกไปไกล → ไม่ลอยไปติดต้นไม้/ขอบแมพ (ผลไม่แกว่งตามเส้นทาง)
       const cx = spot.x + 0.5, cy = spot.y + 0.5;
-      const spawn = () => { const a = Math.random() * Math.PI * 2, r = 2.5 + Math.random(); const m = spawnMob('rune_sim', { x: Math.floor(cx + Math.cos(a) * r), y: Math.floor(cy + Math.sin(a) * r) }); m.nextWander = 1e9; return m; };
+      const spawn = () => { const a = Math.random() * Math.PI * 2, r = 2.5 + Math.random(); const m = spawnMob('rune_sim', { x: Math.floor(cx + Math.cos(a) * r), y: Math.floor(cy + Math.sin(a) * r) }); m.nextWander = 1e9; m.hp = m.maxHp = Math.round(m.maxHp * (0.9 + 0.2 * Math.random())); return m; }; // เลือด ±10% ต่อตัว (สุ่มตาม seed): ดาเมจในเทสต์เป็นค่ากลางตายตัว → จำนวนครั้งที่ต้องตีกระโดดเป็นขั้น ผลเปลี่ยนแบบไม่เป็นเส้นตรง (Lance 0.57 → +3.6% / 0.60 → +27%)
       for (let i = 0; i < n; i++) spawn();
       const pend = [];
       let tgt = null, nextHeal = 1004, holdUntil = 0; const lastUse = {};

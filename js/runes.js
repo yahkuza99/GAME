@@ -409,7 +409,7 @@ Runes.watchCombat = function () {
     sa_weak: 0.25, sa_rad: 0.43,
     lf_daze: 1.5, lf_fav: 0.68,
     bo_raven: 0.659, bo_storm: 0.35,
-    hs_lance: 0.57, hs_judg: 0.72,
+    hs_lance: 0.62, hs_judg: 0.72,
     ds_ret: 0.5, ds_shell: 0.25,
     fg_smite: 0.847, fg_cap: 0.25,
     // Loki's Trickster
@@ -762,7 +762,7 @@ Runes.watchCombat = function () {
       short: `Every 3rd arrow +2 splinters ${pc(K.ee_scatter)}% · main ${pc(K.ee_main)}%`,
       desc: () => L(`ไม่ได้ HIT เพิ่ม และลูกธนูปกติทุกดอกที่ 3 จะแตก: ดอกหลักเหลือ ${pc(K.ee_main)}% แต่แตกอีก 2 ดอกไปหาตัวใกล้ ๆ (4 ช่อง) ดอกละ ${pc(K.ee_scatter)}% ATK`,
         `No bonus HIT, and every 3rd basic arrow splinters: the main arrow deals ${pc(K.ee_main)}%, plus 2 splinters at nearby enemies (4 cells) for ${pc(K.ee_scatter)}% ATK each.`),
-      mod: () => ({ passive: lv => ({ range: Math.ceil(lv / 2), dex: lv }) }), // ระยะครึ่งเดียว (2026-10-08): ระยะเต็มทำให้ตีฝูง +13% เกินเกณฑ์ 12% (ถอดระยะ = +8.4%)
+      mod: () => ({ passive: lv => ({ range: Math.floor(lv / 2), dex: lv }) }), // ระยะ Lv/2 ปัดลง (Lv5 = +2): ระยะทำให้ตีฝูงแรงเกิน (เต็ม +13% · ปัดขึ้น +12.4–13.5% · ถอด +8.4%)
       basicMul() { if (!Runes.count('ee_sc', 3)) return 1; P().rc.scat = 1; return K.ee_main; },
       afterBasic(m) {
         const p = P(); if (!p.rc || !p.rc.scat) return; p.rc.scat = 0;
