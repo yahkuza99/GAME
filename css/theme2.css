@@ -31,6 +31,8 @@ body.visor #menubar button.on svg { filter: none; }
 .ipr .coin { width: 18px; height: 18px; }
 .ipr.poor { color: var(--c-bad); border-color: rgba(179, 50, 31, 0.35); background: #fbe9e2; }
 .ipr-w { display: inline-flex; flex-direction: column; align-items: flex-end; gap: var(--s1); }
+#w-shop .book .shop-sell-tabs { flex-wrap: wrap; gap: 4px; }
+#w-shop .book .shop-sell-tabs .pill { min-height: 44px; flex: 1 1 auto; }
 /* กล่องราคา / จำนวน */
 .pricebox .kv { align-items: center; min-height: 36px; }
 .pricebox .kv.total { background: rgba(240, 220, 170, 0.35); }

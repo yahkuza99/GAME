@@ -1,0 +1,21 @@
+/* Portrait starts with just movement, attack, chat and the expansion latch. */
+#combat-toggle { display: none; }
+@media (orientation: portrait) {
+  body.visor.pad-mode #hud #combat-toggle {
+    position: fixed; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    right: calc(16px + var(--sr)); bottom: calc(142px + var(--sb)); width: 44px; height: 44px;
+    z-index: 26; padding: 4px; border: 1px solid #bb904e; border-radius: 8px;
+    color: #f4d49a; background: linear-gradient(180deg, #68482b, #322015);
+    box-shadow: inset 0 1px 0 #d6b16c66, 0 3px 8px #160b0799;
+  }
+  body.visor.pad-mode #hud #combat-toggle svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+  body.visor.pad-mode #hud #combat-toggle span { font: 600 9px/1.1 var(--f-body); }
+  body.visor.pad-mode #hud #combat-toggle:focus-visible { outline: 2px solid #ffe2a0; outline-offset: 3px; }
+  body.visor.pad-mode.combat-expanded #hud #combat-toggle { color: #39200e; background: linear-gradient(180deg, #f6db9a, #c39146); }
+  body.visor.pad-mode:not(.combat-expanded) #hud :is(#hotbar, #potbar, #auto-btn, #ult-btn) { display: none; }
+  body.visor.pad-mode:not(.combat-expanded) #hud #chat-btn { left: calc(14px + var(--sl)); bottom: calc(164px + var(--sb)); }
+  body.visor.pad-mode #hud #hotbar .hb:nth-child(-n+2) { bottom: calc(198px + var(--sb)); }
+  body.visor.pad-mode #hud #hotbar .hb:nth-child(n+3):nth-child(-n+4) { bottom: calc(198px + var(--portrait-step) + var(--sb)); }
+  body.visor.pad-mode #hud #hotbar .hb:nth-child(n+5):nth-child(-n+6) { bottom: calc(198px + 2 * var(--portrait-step) + var(--sb)); }
+  body.visor.pad-mode #hud #hotbar .hb:nth-child(n+7) { bottom: calc(198px + 3 * var(--portrait-step) + var(--sb)); }
+}

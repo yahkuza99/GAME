@@ -1,0 +1,18 @@
+/* Smaller plaques and less vertical space above window content. */
+body.visor { --t5-title-h: 38px; }
+body.visor #hud .win:not(.gc-art) > .win-title {
+  height: var(--t5-title-h); min-height: var(--t5-title-h);
+  padding: 3px 12px; gap: 6px;
+}
+body.visor #hud .win:not(.gc-art) > .win-title > span {
+  height: 26px; padding: 0 6px; font-size: 14px; line-height: 1.1;
+  border-width: 0 10px; border-image-width: 0 26px; gap: 5px;
+}
+body.visor #hud .win:not(.gc-art) > .win-title > span::before { width: 6px; height: 6px; }
+@media (max-width: 760px), (max-height: 520px) and (orientation: landscape) {
+  body.visor { --t5-title-h: 36px; }
+  body.visor #hud .win:not(.gc-art) > .win-title { padding-inline: 10px; }
+  body.visor #hud .win:not(.gc-art) > .win-title > span {
+    height: 24px; font-size: 12px; border-image-width: 0 24px;
+  }
+}

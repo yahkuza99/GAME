@@ -231,7 +231,7 @@ R.render = () => {
 
   if (typeof AmbientLife !== 'undefined') AmbientLife.ground(g, map, t); // ชีวิตในฉาก: วงน้ำ/ฝุ่นรอยเท้า/เงานก + อัปเดต (js/ambient.js)
   // ช่องที่เมาส์ชี้
-  if (R.mouse.x >= 0 && !G.hover && !p.dead) {
+  if (R.mouse.x >= 0 && !G.hover && !p.dead && !G.pendingSkill) {
     const tx = Math.floor(R.mouse.wx / TILE), ty = Math.floor(R.mouse.wy / TILE);
     if (map.walkable(tx, ty)) {
       g.strokeStyle = 'rgba(255,255,255,0.35)'; g.lineWidth = 1.5;
@@ -269,6 +269,8 @@ R.render = () => {
   g.restore();
   // ---------- จบชั้นพื้น ----------
 
+  // Surface-bound effects use projected coordinates and stay below actors.
+  for (const f of G.fx) if (f.groundLayer) R.drawFx(g, f, t);
   // พอร์ทัล
   // (วาร์ปในซุ้มปากถ้ำ 3D วาดในรายการเรียงความลึกต่อจากซุ้ม — ม่านแสงอยู่ "ใน" ช่องประตู ทับม่านมืด)
   const gate = map.ridgeGate && Art.get(map.ridgeGate.img) ? map.ridgeGate : null;
@@ -304,9 +306,11 @@ R.render = () => {
     g.beginPath(); g.ellipse(0, 0, rr2, rr2 * K, 0, 0, 7); g.stroke();
     g.restore();
     const hm = G.hover && G.hover.kind === 'mob' ? G.hover.ref : null;
+    const areaAim = R.skillAreaAim();
+    if (areaAim) R.drawSkillAreaAim(g, areaAim, t);
     for (const m of G.mobs) {
       if (m.dead || U.dist(m.x, m.y, p.x, p.y) > 12) continue;
-      const on = m === hm;
+      const on = m === hm || (areaAim && U.dist(m.x, m.y, areaAim.x, areaAim.y) <= areaAim.r);
       upright(m.y * TILE, () => R.targetRing(g, m.x * TILE, m.y * TILE + 2, (on ? 24 : 18) * (m.def.scale || 1), on ? 'rgba(255,224,120,1)' : 'rgba(255,255,255,1)', t));
     }
   }
@@ -326,7 +330,7 @@ R.render = () => {
   // วงเล็งเป้าหมายที่พื้น
   for (const m of G.mobs) {
     if (m.dead) continue;
-    const tgt = p.target === m, hov = G.hover && G.hover.ref === m;
+    const tgt = (p.target || p.skillTarget) === m, hov = G.hover && G.hover.ref === m;
     if (tgt || hov) upright(m.y * TILE, () => R.targetRing(g, m.x * TILE, m.y * TILE + 2, 20 * (m.def.scale || 1), tgt ? 'rgba(255,107,125,1)' : 'rgba(255,255,255,1)', t));
   }
 
@@ -388,7 +392,7 @@ R.render = () => {
   for (const it of list) upright(it.y * TILE, it.f);
 
   // เอฟเฟกต์ (คำนวณตำแหน่งแบบฉายแล้วใน drawFx)
-  for (const f of G.fx) R.drawFx(g, f, t);
+  for (const f of G.fx) if (!f.groundLayer) R.drawFx(g, f, t);
   if (typeof AmbientLife !== 'undefined') AmbientLife.air(g, map); // สิ่งที่บิน/ร่วง (ผีเสื้อ นก ใบไม้ ควัน หยดน้ำ)
   // ป้ายชื่อ / หลอด HP
   g.textAlign = 'center'; g.textBaseline = 'middle';
@@ -410,7 +414,7 @@ R.render = () => {
     const bossTag = m.isMvp || m.isWB; // บอสระดับ 1 (MVP) / ระดับ 2 (Ancient) — หลอดยาว + ป้ายชื่อถาวร
     if (m.hp < m.maxHp || bossTag) R.bar(g, x, y + 10, m.isWB ? 84 : bossTag ? 64 : 38, m.hp / m.maxHp, bossTag ? '#ff4f6a' : '#ff6b7d');
     if (bossTag) R.name(g, x, y + 26, m.isWB ? `TIER 2 · ${m.def.name}${m.phase ? (m.phase >= 2 ? ' · FRENZY' : ' · ENRAGED') : ''}` : `MVP · ${m.def.name}`, 'mvp');
-    else if ((G.hover && G.hover.ref === m) || (p.target === m && !(Pad.enabled() && innerHeight > innerWidth))) { // มือถือแนวตั้ง: ชื่อเป้าหมายอยู่ในแถบบนแล้ว ไม่ต้องซ้ำในฉาก
+    else if ((G.hover && G.hover.ref === m) || ((p.target || p.skillTarget) === m && !(Pad.enabled() && innerHeight > innerWidth))) { // มือถือแนวตั้ง: ชื่อเป้าหมายอยู่ในแถบบนแล้ว ไม่ต้องซ้ำในฉาก
       // ยืนชิดผู้เล่น: ป้ายชื่อมอนจะทับชื่อผู้เล่น → เลื่อนลงไปใต้ป้ายผู้เล่น
       let ty = y + 26; const py = P(p.y * TILE) + 28;
       if (Math.abs(x - p.x * TILE) < 110 && Math.abs(ty - py) < 22) ty = Math.max(ty, py) + 22;
@@ -429,7 +433,12 @@ R.render = () => {
     if (o.speech) R.speech(g, x, y - 92, o.speech.text, false);
     if (o.emote && o.emote.until > G.time) Emote.draw(g, x + 2, y - (o.speech ? 122 : 84), o.emote, t);
   }
-  for (const a of G.allies) if (!a.quiet) R.label(g, a.x * TILE, P(a.y * TILE) + 14, `${a.name} ${Math.ceil(a.until - G.time)}s`, '#b8e0ff'); // quiet = ฝูงเงาหมาป่า (Class 3) โชว์ป้ายตัวเดียว
+  for (const a of G.allies) if (!a.quiet && !a.dead && a.until > G.time) {
+    const x = a.x * TILE, y = P(a.y * TILE), healthy = a.hp !== undefined;
+    if (healthy) R.bar(g, x, y - 46, 46, a.hp / a.maxHp, a.hp / a.maxHp < 0.25 ? '#ff705a' : '#7ee8b2');
+    R.label(g, x, y + (healthy ? -74 : 14), `${a.name} · ${Math.ceil(a.until - G.time)}s`, '#b8e0ff');
+    if (healthy) R.label(g, x, y - 60, `${Math.ceil(a.hp)}/${a.maxHp} HP`, a.hp / a.maxHp < 0.25 ? '#ffb090' : '#d3fff0');
+  } // quiet = ฝูงเงาหมาป่า (Class 3) โชว์ป้ายตัวเดียว
   // ชื่อของบนพื้น: ตัวที่เมาส์ชี้ + ของ rare ขึ้นไปแสดงตลอด (สีตามความหายาก)
   for (const d of G.drops) {
     const hov = G.hover && G.hover.kind === 'drop' && G.hover.ref === d, rare = typeof LOOT !== 'undefined' && ITEMS[d.id].type !== 'card' && LOOT.rank(d.id) >= 2;
@@ -1048,6 +1057,39 @@ R.fxPos = f => {
   return { x: f.x, y: f.y };
 };
 
+// Shared arrow silhouette: readable shaft, metal broadhead and forest-green feathers.
+R.arrowGlyph = (g, style = 'basic', phase = 1) => {
+  const power = style === 'charge', skill = style !== 'basic';
+  const col = power ? '255,202,110' : skill ? '173,241,167' : '203,225,180';
+  const tail = Math.min(R.quality === 'low' ? 26 : power ? 64 : skill ? 48 : 28, Math.max(0,phase)*110);
+  g.save(); g.lineCap = 'round'; g.lineJoin = 'round';
+  if (tail > 18) {
+    g.strokeStyle = `rgba(${col},.15)`; g.lineWidth = power ? 10 : skill ? 6 : 3;
+    g.beginPath(); g.moveTo(-tail,0); g.lineTo(-12,0); g.stroke();
+    g.strokeStyle = `rgba(${col},.65)`; g.lineWidth = power ? 2.5 : 1.3;
+    g.beginPath(); g.moveTo(-tail*.75,0); g.lineTo(-10,0); g.stroke();
+  }
+  g.strokeStyle = '#293932'; g.lineWidth = 4;
+  g.beginPath(); g.moveTo(-19,0); g.lineTo(6,0); g.stroke();
+  g.strokeStyle = power ? '#f3d394' : '#d5b981'; g.lineWidth = 2;
+  g.beginPath(); g.moveTo(-19,-.4); g.lineTo(6,-.4); g.stroke();
+  g.fillStyle = power ? '#b57d36' : '#557e48'; g.strokeStyle = '#253c32'; g.lineWidth = .8;
+  for (const side of [-1,1]) {
+    g.beginPath(); g.moveTo(-20,0); g.lineTo(-24,side*4); g.lineTo(-16,side*3); g.lineTo(-12,0); g.closePath(); g.fill(); g.stroke();
+    g.strokeStyle = power ? '#ffe4a6' : '#b5d793';
+    g.beginPath(); g.moveTo(-22,side*3); g.lineTo(-15,side*1.5); g.stroke(); g.strokeStyle='#253c32';
+  }
+  const tip = power ? 15 : skill ? 13 : 11, width = power ? 5 : 3.5;
+  g.fillStyle = '#bed5d2'; g.strokeStyle = '#354d4b';
+  g.beginPath(); g.moveTo(tip,0); g.lineTo(4,-width); g.lineTo(6,0); g.lineTo(4,width); g.closePath(); g.fill(); g.stroke();
+  g.fillStyle = '#f7fff2'; g.beginPath(); g.moveTo(tip,0); g.lineTo(4,-width); g.lineTo(6,0); g.closePath(); g.fill();
+  if (skill && R.quality !== 'low') {
+    g.strokeStyle = `rgba(${col},.65)`; g.lineWidth = 1;
+    g.beginPath(); g.moveTo(-18,-7); g.lineTo(-6,-3); g.moveTo(-30,5); g.lineTo(-19,3); g.stroke();
+  }
+  g.restore();
+};
+
 R.drawFx = (g, f, t) => {
   if (f.fx2) return FX2.draw(g, f, t); // เอฟเฟกต์เฉพาะสกิล (js/fx2.js)
   const k = Math.min(1, f.t / f.dur);
@@ -1066,16 +1108,23 @@ R.drawFx = (g, f, t) => {
       break;
     }
     case 'arrow': {
-      if (after >= 0) break;
-      const sx = f.sx * TILE, sy = f.sy * TILE * R.K;
+      const sx = f.X0 == null ? f.sx*TILE : f.X0, sy = f.Y0 == null ? f.sy*TILE*R.K : f.Y0;
       const ex = f.ref ? X : f.tx * TILE, ey = f.ref ? tgtY : f.ty * TILE * R.K - 24;
       const x = U.lerp(sx, ex, k), y = U.lerp(sy, ey, k);
       const a = Math.atan2(ey - sy, ex - sx);
+      if (after >= 0) {
+        if (!f.ref || f.ref.dead) break;
+        g.save(); g.translate(ex,ey); g.rotate(a);
+        g.globalAlpha = Math.max(0,1-after);
+        g.strokeStyle = f.big ? '#c5f0a8' : '#f4e4bb'; g.lineWidth=1.5;
+        for (let i=0;i<4;i++) {
+          const b=i*Math.PI/2+.4, r=3+after*12;
+          g.beginPath();g.moveTo(Math.cos(b)*r,Math.sin(b)*r);g.lineTo(Math.cos(b)*(r+4),Math.sin(b)*(r+4));g.stroke();
+        }
+        g.restore(); break;
+      }
       g.save(); g.translate(x, y); g.rotate(a);
-      g.strokeStyle = f.big ? '#ffe080' : '#e8d8b0'; g.lineWidth = f.big ? 3 : 2;
-      g.beginPath(); g.moveTo(-14, 0); g.lineTo(6, 0); g.stroke();
-      g.fillStyle = '#ddd'; g.beginPath(); g.moveTo(9, 0); g.lineTo(4, -3); g.lineTo(4, 3); g.fill();
-      if (f.big) { g.strokeStyle = 'rgba(255,220,120,0.4)'; g.lineWidth = 6; g.beginPath(); g.moveTo(-26, 0); g.lineTo(-8, 0); g.stroke(); }
+      R.arrowGlyph(g,f.big ? 'piercing' : 'basic',k);
       g.restore();
       break;
     }
@@ -1278,6 +1327,41 @@ R.drawFx = (g, f, t) => {
       g.stroke();
       break;
     }
+    case 'wolfcall': {
+      if (after >= 0) break;
+      const fade = Math.sin(Math.PI * k), rise = 1 - (1 - k) ** 3;
+      g.save(); g.translate(X, Y); g.globalCompositeOperation = 'lighter';
+      const beam = g.createLinearGradient(0, -90, 0, 0);
+      beam.addColorStop(0, 'rgba(125,235,235,0)'); beam.addColorStop(1, `rgba(125,235,235,${fade * 0.24})`);
+      g.fillStyle = beam; g.fillRect(-22, -90, 44, 90);
+      g.save(); g.scale(1, 0.48); g.rotate(k * Math.PI * 0.7);
+      const radius = 24 + rise * 14;
+      g.globalAlpha = fade; g.strokeStyle = '#b5fff0'; g.lineWidth = 2;
+      g.beginPath(); g.arc(0, 0, radius, 0, Math.PI * 2); g.stroke();
+      g.strokeStyle = '#f5d594'; g.lineWidth = 1;
+      g.beginPath(); g.arc(0, 0, radius - 6, 0, Math.PI * 2); g.stroke();
+      g.font = '13px serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#f5d594';
+      for (let i = 0; i < 6; i++) {
+        const angle = i * Math.PI / 3;
+        g.fillText(['ᚹ', 'ᚱ', 'ᛉ'][i % 3], Math.cos(angle) * (radius + 8), Math.sin(angle) * (radius + 8));
+      }
+      g.restore();
+      // Paw sigil rises from the summoning circle, then dissolves into motes.
+      g.save(); g.translate(0, -25 - rise * 30); g.globalAlpha = fade;
+      g.fillStyle = '#ccfff2';
+      g.beginPath(); g.ellipse(0, 5, 10, 8, 0, 0, Math.PI * 2); g.fill();
+      for (const [px, py, angle] of [[-12,-6,-0.4],[-5,-13,-0.12],[5,-13,0.12],[12,-6,0.4]]) {
+        g.beginPath(); g.ellipse(px, py, 3.5, 5, angle, 0, Math.PI * 2); g.fill();
+      }
+      g.restore();
+      const count = R.quality === 'low' ? 6 : 12;
+      for (let i = 0; i < count; i++) {
+        const angle = i * Math.PI * 2 / count + k * 2, height = k * (38 + (i % 4) * 12);
+        g.fillStyle = `rgba(${i % 2 ? '245,213,148' : '181,255,240'},${fade})`;
+        g.beginPath(); g.arc(Math.cos(angle) * (18 + k * 10), -height + Math.sin(angle) * 7, 1.8, 0, Math.PI * 2); g.fill();
+      }
+      g.restore(); break;
+    }
     case 'warp': {
       for (let i = 0; i < 10; i++) {
         const a = i / 10 * Math.PI * 2 + t * 4, h = k * 60 + (i % 3) * 8;
@@ -1349,5 +1433,40 @@ R.drawTelegraphs = (g, t) => {
       g.restore();
     }
   }
+  g.restore();
+};
+
+// Area-spell cursor is drawn on the ground plane at the real damage radius.
+R.skillAreaAim = () => {
+  const id = G.pendingSkill, r = id && skillAimRadius(id);
+  if (!r || R.mouse.x < 0 || R.mouse.y < 0 || R.mouse.x > R.W || R.mouse.y > R.H || G.player.dead) return null;
+  const w = R.screenToWorld(R.mouse.x, R.mouse.y);
+  let target = !groundSkill(id) && G.hover && G.hover.kind === 'mob' && !G.hover.ref.dead ? G.hover.ref : null;
+  if (!target && !groundSkill(id)) target = G.mobs.filter(m => !m.dead && U.dist(m.x, m.y, w.x / TILE, w.y / TILE) < 1.6)
+    .sort((a,b) => U.dist(a.x,a.y,w.x/TILE,w.y/TILE)-U.dist(b.x,b.y,w.x/TILE,w.y/TILE))[0];
+  const x = target ? target.x : w.x / TILE, y = target ? target.y : w.y / TILE;
+  const s = skillDef(id), p = G.player;
+  const inRange = G.map.walkable(Math.floor(x),Math.floor(y)) && U.dist(p.x,p.y,x,y) <= skillRange(s)+.3 && lineOfSight(G.map,p.x,p.y,x,y);
+  return {x,y,r,col:inRange?(s.icon||'#6ff3ff'):'#ffd078',target};
+};
+R.drawSkillAreaAim = (g, a, t) => {
+  const r = a.r * TILE;
+  g.save();g.translate(a.x*TILE,a.y*TILE*R.K);g.scale(1,R.K);
+  g.fillStyle=a.col;g.globalAlpha=.055;g.beginPath();g.arc(0,0,r,0,Math.PI*2);g.fill();
+  g.globalAlpha=.9;g.strokeStyle=a.col;g.shadowColor=a.col;g.shadowBlur=6;g.lineWidth=1.5;
+  for(const k of [1,.87]){g.beginPath();g.arc(0,0,r*k,0,Math.PI*2);g.stroke();}
+  g.save();g.rotate(t*.16);g.globalAlpha=.55;
+  // Fine concentric arcs leave the centre clear; no star or intersecting polygon.
+  g.lineWidth=1;g.globalAlpha=.4;g.beginPath();g.arc(0,0,r*.64,0,Math.PI*2);g.stroke();
+  for(let i=0;i<3;i++){
+    const v=i*Math.PI*2/3;
+    g.globalAlpha=.7;g.beginPath();g.arc(0,0,r*.74,v,v+Math.PI*.43);g.stroke();
+    g.globalAlpha=.38;g.beginPath();g.arc(0,0,r*.52,-v-t*.28,-v-t*.28+Math.PI*.32);g.stroke();
+    g.globalAlpha=.85;g.beginPath();g.arc(Math.cos(v)*r*.74,Math.sin(v)*r*.74,2.2,0,Math.PI*2);g.fill();
+  }
+  const runes=['ᚠ','ᚢ','ᚦ','ᚨ','ᚱ','ᚲ','ᚷ','ᚹ','ᚺ','ᚾ','ᛁ','ᛃ'];
+  g.font='bold 13px serif';g.textAlign='center';g.textBaseline='middle';g.globalAlpha=.9;
+  for(let i=0;i<12;i++){g.save();g.rotate(i*Math.PI/6);g.fillText(runes[i],0,-r*.94);g.restore();}
+  g.restore();g.shadowBlur=0;g.globalAlpha=1;g.beginPath();g.arc(0,0,4,0,Math.PI*2);g.stroke();
   g.restore();
 };

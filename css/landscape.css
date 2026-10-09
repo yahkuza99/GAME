@@ -1,0 +1,64 @@
+/* Touch landscape: keep the world clear between the two thumb zones. */
+@media (orientation: landscape) {
+  body.visor.pad-mode { --hud-map-width: 100px; --hud-edge: 8px; --ls-key: clamp(44px, 7vh, 52px); --ls-step: calc(var(--ls-key) + 6px); }
+  body.visor.pad-mode #basic-info { left: calc(8px + var(--sl)); top: calc(8px + var(--st)); width: 208px; max-width: 208px; padding: 6px; gap: 6px; }
+  body.visor.pad-mode #basic-info .bi-face, body.visor.pad-mode #basic-info .bi-face canvas { width: 36px; height: 36px; }
+  body.visor.pad-mode #basic-info .bi-face canvas { inset: 0; }
+  body.visor.pad-mode #basic-info .bi-main { gap: 2px; }
+  body.visor.pad-mode #basic-info .bi-id b { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+  body.visor.pad-mode #basic-info .bi-id span { display: none; }
+  body.visor.pad-mode #basic-info .gauge.hp, body.visor.pad-mode #basic-info .gauge.sp { height: 12px; }
+  body.visor.pad-mode #basic-info .gauge i, body.visor.pad-mode #basic-info .gauge span { font-size: 10px; }
+  body.visor.pad-mode #basic-info .xrow { grid-template-columns: 40px minmax(0, 1fr) 30px; gap: 3px; }
+  body.visor.pad-mode #basic-info .xrow label, body.visor.pad-mode #basic-info .xrow > span { font-size: 8px; }
+  body.visor.pad-mode #basic-info .bi-exp { gap: 2px; }
+  body.visor.pad-mode #basic-info #bi-zeny { margin: 0; font-size: 10px; line-height: 1.2; }
+  body.visor.pad-mode #basic-info .pt { padding: 1px 5px; font-size: 9px; }
+  body.visor.pad-mode #hud-toggle { left: calc(222px + var(--sl)); top: calc(8px + var(--st)); }
+  body.visor.pad-mode #minimap { width: 100px; padding: 4px; top: calc(8px + var(--st)); right: calc(8px + var(--sr)); }
+  body.visor.pad-mode #minimap .mm-ring { width: 86px; height: 86px; }
+  body.visor.pad-mode #minimap.folded { width: auto; }
+  body.visor.pad-mode #hud:has(#minimap:not([hidden])) #menubar:not(.folded) { top: calc(8px + var(--st)); grid-template-columns: repeat(4, 44px); max-height: calc(100dvh - 24px - var(--st) - var(--sb)); }
+  body.visor.pad-mode #hud:has(#minimap:not([hidden])) #menubar:not(.folded) > button { width: 44px; height: 44px; }
+  body.visor.pad-mode #hud:has(#minimap:not([hidden])) #menubar:not(.folded) .menu-fold { height: 36px; }
+  body.visor.pad-mode #hud:has(#minimap:not([hidden])) #menubar.folded .menu-fold { width: 44px; height: 44px; }
+
+  body.visor.pad-mode #hud #quest-track, body.visor.pad-mode #hud:has(#buffs .buff) #quest-track { left: calc(8px + var(--sl)); right: auto; width: 208px; padding: 4px 8px; max-height: 56px; overflow-y: auto; text-align: left; }
+  body.visor.pad-mode #quest-track::before { display: none; }
+  body.visor.pad-mode #quest-track .qt-tabs { float: right; width: 92px; margin: 0 0 2px 4px; gap: 2px; }
+  body.visor.pad-mode #quest-track .qt-tab { min-width: 0; min-height: 24px; padding: 2px 3px; gap: 2px; font-size: 9px; }
+  body.visor.pad-mode #quest-track .qt-tab .ivi { display: none; }
+  body.visor.pad-mode #quest-track .qt-title { justify-content: flex-start; font-size: 11px; }
+  body.visor.pad-mode #quest-track .qt-obj { display: flex; flex-direction: row; font-size: 10px; }
+  body.visor.pad-mode #hud #target { top: calc(8px + var(--st)); left: 50%; right: auto; transform: translateX(-50%); width: min(240px, calc(100vw - 448px - var(--sl) - var(--sr))); }
+  body.visor.pad-mode #target .tg-id b { font-size: 11px; }
+  body.visor.pad-mode #target .tg-id span { font-size: 9px; }
+  body.visor.pad-mode #hud #nav-pill { top: calc(70px + var(--st)); left: 50%; right: auto; transform: translateX(-50%); max-width: calc(100vw - 450px - var(--sl) - var(--sr)); }
+  body.visor.pad-mode #skill-aim { top: auto; bottom: calc(120px + var(--sb)); max-width: calc(100vw - 360px - var(--sl) - var(--sr)); }
+
+  body.visor.pad-mode #joy-zone { left: var(--sl); bottom: var(--sb); width: 118px; height: 150px; }
+  body.visor.pad-mode #joy { left: 60px; top: calc(100% - 94px); width: 92px; height: 92px; }
+  body.visor.pad-mode #joy-knob { width: 42px; height: 42px; }
+  body.visor.pad-mode #pad-atk { right: calc(16px + var(--sr)); bottom: calc(16px + var(--sb)); width: 64px; height: 64px; }
+  body.visor.pad-mode #auto-btn, body.visor.pad-mode #ult-btn { top: auto; bottom: calc(16px + var(--sb)); width: var(--ls-key); height: var(--ls-key); }
+  body.visor.pad-mode #auto-btn { right: calc(94px + var(--sr)); }
+  body.visor.pad-mode #ult-btn { right: calc(100px + var(--ls-key) + var(--sr)); }
+  body.visor.pad-mode #hotbar .hb { width: var(--ls-key); height: var(--ls-key); }
+  body.visor.pad-mode #hotbar .hb:nth-child(-n+4) { bottom: calc(90px + var(--sb)); }
+  body.visor.pad-mode #hotbar .hb:nth-child(n+5) { bottom: calc(90px + var(--ls-step) + var(--sb)); }
+  body.visor.pad-mode #hotbar .hb:nth-child(4n+1) { right: calc(8px + 3 * var(--ls-step) + var(--sr)); }
+  body.visor.pad-mode #hotbar .hb:nth-child(4n+2) { right: calc(8px + 2 * var(--ls-step) + var(--sr)); }
+  body.visor.pad-mode #hotbar .hb:nth-child(4n+3) { right: calc(8px + var(--ls-step) + var(--sr)); }
+  body.visor.pad-mode #hotbar .hb:nth-child(4n) { right: calc(8px + var(--sr)); }
+  body.visor.pad-mode #potbar { left: calc(124px + var(--sl)); bottom: calc(48px + var(--sb)); flex-direction: row; flex-wrap: nowrap; width: auto; gap: 6px; }
+  body.visor.pad-mode #potbar .hb { width: 44px; height: 44px; flex: none; }
+  body.visor.pad-mode #hud:has(#chat:not([hidden])) #chat { top: auto; bottom: var(--sb); left: var(--sl); transform: none; width: min(360px, calc(100vw - 224px - var(--sl) - var(--sr))); }
+  body.visor.pad-mode #chat-log, body.visor.pad-mode #chat.folded #chat-log { height: auto; max-height: 36px; font-size: 11px; }
+  body.visor.pad-mode #chat-btn { left: calc(326px + var(--sl)); bottom: calc(44px + var(--sb)); width: 44px; height: 44px; }
+  body.visor.pad-mode #chat:not(.folded)::before { inset: 0; }
+}
+@media (orientation: landscape) and (max-height: 360px) {
+  body.visor.pad-mode #minimap .mm-ring { width: 72px; height: 72px; align-self: center; }
+  body.visor.pad-mode #minimap .mm-head { font-size: 9px; margin-top: 3px; }
+  body.visor.pad-mode #minimap .mm-sub { display: none; }
+}

@@ -714,8 +714,8 @@ const Juice = (() => {
     if (typeof spawnMob === 'function' && typeof changeMap === 'function') {
       const sm0 = spawnMob, cm0 = changeMap;
       changeMap = function () { J.mapLoading = true; try { return cm0.apply(this, arguments); } finally { J.mapLoading = false; } };
-      spawnMob = function (id, pos) {
-        const m = sm0(id, pos);
+      spawnMob = function (id, pos, roaming) {
+        const m = sm0(id, pos, roaming);
         if (m && vis() && !J.mapLoading) { st(m).bornAt = G.time; J.dust(m.x, m.y, (m.def.scale || 1) * 1.2); }
         return m;
       };

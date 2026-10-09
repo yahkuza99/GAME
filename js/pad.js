@@ -32,6 +32,7 @@ const Pad = {
   },
   apply() {
     document.body.classList.toggle('pad-mode', this.enabled());
+    if (typeof UI !== 'undefined') UI.syncCombatFold?.();
     if (!this.enabled()) this.releaseJoy();
   },
 
@@ -101,7 +102,7 @@ const Pad = {
     const p = G.player;
     if (!G.started || !p || p.dead) return;
     if (G.pendingSkill) {
-      const m = this.nearestMob();
+      const m = skillLockTarget();
       const id = G.pendingSkill; G.pendingSkill = null;
       if (m) beginSkill(id, skillLv(id), m); else UI.msg(L('ไม่มีเป้าหมายในระยะ', 'No target in range'), 'err');
       return;
@@ -109,13 +110,14 @@ const Pad = {
     p.sitting = false;
     Bot.manualOverride();
     // คุย NPC ที่อยู่ใกล้ > เก็บของ > โจมตีมอนใกล้สุด
-    const npc = G.npcs.find(n => U.dist(p.x, p.y, n.x + 0.5, n.y + 0.5) < 2.6);
+    const npc = G.npcs.filter(n => NPC.inTalkRange(n, p))
+      .sort((a, b) => NPC.distance(a, p) - NPC.distance(b, p))[0];
     if (npc && !(p.target && !p.target.dead)) { p.npcTarget = npc; p.path = []; return; }
     const drop = G.drops.find(d => U.dist(p.x, p.y, d.x, d.y) < 2.2);
     if (drop && !(p.target && !p.target.dead)) { p.pickTarget = drop; p.path = []; return; }
     if (p.target && !p.target.dead && U.dist(p.x, p.y, p.target.x, p.target.y) < 14) { p.repathAt = 0; return; }
     const m = this.nearestMob();
-    if (m) { p.target = m; p.oneHit = p.options.noCtrl === false ? m : null; p.pickTarget = null; p.npcTarget = null; p.repathAt = 0; } // /nc ปิด = กดปุ่มตี 1 ที
+    if (m) { p.skillTarget = null; p.manualSkillLock = false; p.target = m; p.oneHit = p.options.noCtrl === false ? m : null; p.pickTarget = null; p.npcTarget = null; p.repathAt = 0; } // /nc ปิด = กดปุ่มตี 1 ที
     else if (npc) { p.npcTarget = npc; p.path = []; }
     else UI.msg(L('ไม่มีเป้าหมายใกล้ ๆ — เดินออกไปหามอนสเตอร์ก่อน', 'No target nearby — go find some monsters first'), 'info');
   },

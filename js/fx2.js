@@ -15,6 +15,7 @@ const FX2 = {
     // สกิลที่ 6 ของ Class แรก
     shield_throw: 'shield_spin', earth_rune: 'rock_spikes', charge_arrow: 'charge_arrow',
     divine_shield: 'hex_shield', throwing_knife: 'knife_spin', axe_throw: 'axe_spin',
+    venom_blade: 'venom',
     // Valkyrie Knight
     spear_of_valhalla: 'valhalla_spear', einherjar_guard: 'guard', judgment_quake: 'quake', valhallas_call: 'valhalla_heal',
     // Galdr Sage
@@ -50,6 +51,7 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
   // ring: เวลาที่วงขยายถึงขอบ (self)   travel: เวลาที่พุ่งสุดเส้น (line)   imp: ภาพตอนโดนแต่ละตัว
   // hit: 'proj' (speed ช่อง/วิ, arc โค้ง px) | 'melee' | 'strike' (ตกจากฟ้า) | 'chain' | 'snipe'
   const SPEC = {
+    venom: { cast: 'buff', dur: .9 },
     shield_spin: { hit: 'proj', speed: 15, arc: 12, imp: 'clang' },
     knife_spin: { hit: 'proj', speed: 20, arc: 4, imp: 'knife' },
     axe_spin: { hit: 'proj', speed: 12, arc: 20, imp: 'chop' },
@@ -236,7 +238,7 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
 
   // ---------- สร้างเอฟเฟกต์ ----------
   function add(f) {
-    f.fx2 = 1; f.t = 0; f.linger = 0; f.seed = (Math.random() * 1e6) | 0;
+    f.fx2 = 1; f.src = f.src || FX2.presentationSource; f.t = 0; f.linger = 0; f.seed = (Math.random() * 1e6) | 0;
     G.fx.push(f); return f;
   }
   const CAST = {}; // id สกิล → ข้อมูลการร่ายล่าสุด (ใช้จับจังหวะดาเมจ)
@@ -247,7 +249,7 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
     if (c && c.m === m && G.time - c.t < 0.7) { c.n++; c.t = G.time; return c; }
     return (HC[s.id] = { m, n: 0, t: G.time });
   }
-  function impact(v, m, n) { if (v && IMP[v]) add({ kind: 'imp', v, ref: m, dur: IMP[v].dur, n: n || 0 }); }
+  function impact(v, m, n, src, runeVariant, groundAngle) { if (v && IMP[v]) add({ kind: 'imp', v, src, runeVariant, groundAngle, groundLayer: runeVariant==='earth_rune.fissure', ref: m, dur: IMP[v].dur, n: n || 0 }); }
 
   FX2.cast = (s, lv, tgt) => {
     if (G.fastSim || !s.vfx || !SPEC[s.vfx] || !SPEC[s.vfx].cast) return false;
@@ -264,8 +266,8 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
     } else if (sp.cast === 'line') {
       if (!tgt) return false;
       const dx = tgt.x - p.x, dy = tgt.y - p.y, d = Math.hypot(dx, dy) || 1, len = skillRange(s) + 1;
-      add({ kind, x: p.x, y: p.y, ux: dx / d, uy: dy / d, len, dur: sp.dur });
-      c = { t: G.time, x: p.x, y: p.y, r: len };
+      add({ kind, runeVariant: s.rune?.id==='earth_rune.fissure' ? s.rune.id : undefined, groundLayer: s.rune?.id==='earth_rune.fissure', x: p.x, y: p.y, ux: dx / d, uy: dy / d, len, dur: sp.dur });
+      c = { t: G.time, x: p.x, y: p.y, r: len, angle: Math.atan2(dy, dx) };
     } else {
       add({ kind, ref: p, dur: sp.dur, face: p.facing || 1 });
       if (sp.cast === 'buff') AST[s.id] = G.time;
@@ -283,7 +285,7 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
       let at = c.t;
       if (sp.cast === 'area') at += sp.impact || 0;
       else at += (sp.ring || sp.travel || 0) * cl(U.dist(c.x, c.y, m.x, m.y) / (c.r || 1));
-      const go = () => { if (m.dead) return; deliver(); impact(sp.imp, m); };
+      const go = () => { if (m.dead) return; deliver(); impact(sp.imp, m, 0, s.id, s.rune?.id==='earth_rune.fissure' ? s.rune.id : undefined, c.angle); };
       if (snd) Sound.play(snd);
       if (at - G.time > 0.01) later(at - G.time, go); else go();
       return true;
@@ -291,10 +293,10 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
     if (!sp.hit) return false;
     const hc = hitIdx(s, m), n = hc.n;
     if (sp.hit === 'proj') {
-      const [hx, hy] = hand(p), d = U.dist(p.x, p.y, m.x, m.y);
+      const [hx, hy] = s.bow && typeof HunterMotion !== 'undefined' ? HunterMotion.muzzle(p,m) : hand(p), d = U.dist(p.x, p.y, m.x, m.y);
       add({ kind, X0: hx, Y0: hy, ref: m, dur: Math.max(0.08, d / sp.speed), arc: sp.arc || 0, n, onHit: () => {
-        deliver(); impact(sp.imp, m, n);
-        if (sp.back) add({ kind: 'drain_back', ref: m, dur: 0.75 });
+        deliver(); impact(sp.imp, m, n, s.id);
+        if (sp.back) add({ kind: 'drain_back', src:s.id, ref: m, dur: 0.75 });
       } });
       if (snd) Sound.play(snd);
     } else if (sp.hit === 'melee') {
@@ -325,6 +327,8 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
   // ---------- วาด ----------
   const DRAW = {};
   FX2.draw = (g, f, t) => {
+    // Cutting is drawn by WeaponTrail from the actor's actual weapon poses.
+    if (['mirror','cleave','fury'].includes(f.kind)) return;
     const fn = DRAW[f.kind]; if (!fn) return;
     const k = Math.min(1, f.t / f.dur);
     const [X, Y] = f.ref ? feet(f.ref) : [f.x * TILE, f.y * TILE * R.K];
@@ -398,12 +402,6 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
     }
     if (P.n) sparks(() => { g.strokeStyle = `rgba(${P.col},${a})`; g.lineWidth = 2.2; g.stroke(); });
     if (P.star) star4(g, bx, by, 36 * (1 - k * 0.7), '255,255,240', a);
-    if (P.x) {
-      const s = 16 + 8 * e;
-      g.beginPath(); g.moveTo(bx - s, by - s * 0.8); g.lineTo(bx + s, by + s * 0.8); g.moveTo(bx + s, by - s * 0.8); g.lineTo(bx - s, by + s * 0.8);
-      nrm(g); g.strokeStyle = `rgba(${P.dk},${0.7 * a})`; g.lineWidth = 5; g.stroke();
-      lit(g); g.strokeStyle = `rgba(255,255,255,${a})`; g.lineWidth = 2.2; g.stroke();
-    }
     if (P.shards) {
       for (let i = 0; i < N(8); i++) {
         const an = i / 8 * TAU + H(f, i) * 0.4, d = 8 + 34 * e;
@@ -510,9 +508,7 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
       g.translate(x, y); g.scale(PS, PS); g.rotate(a);
       g.strokeStyle = 'rgba(255,230,160,0.35)'; g.lineWidth = 9; g.beginPath(); g.moveTo(-46, 0); g.lineTo(-10, 0); g.stroke();
       nrm(g);
-      g.strokeStyle = '#f6e2b0'; g.lineWidth = 3; g.beginPath(); g.moveTo(-22, 0); g.lineTo(6, 0); g.stroke();
-      g.fillStyle = '#ffffff'; g.beginPath(); g.moveTo(5, -6); g.lineTo(17, 0); g.lineTo(5, 6); g.closePath(); g.fill();
-      g.fillStyle = '#e0a060'; g.beginPath(); g.moveTo(-22, 0); g.lineTo(-27, -5); g.lineTo(-17, 0); g.lineTo(-27, 5); g.closePath(); g.fill();
+      R.arrowGlyph(g,'charge',k);
     },
     volley(g, f, k, t, x, y, a) { arrowBody(g, f, k, x, y, a, '255,220,120', '#ffe9a8', (f.n - 1) * 5); },
     twin(g, f, k, t, x, y, a) { arrowBody(g, f, k, x, y, a, '200,255,150', '#e6ffc8', f.n % 2 ? 5 : -5); },
@@ -543,8 +539,7 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
     g.strokeStyle = `rgba(${col},0.4)`; g.lineWidth = 5; g.beginPath(); g.moveTo(-40, 0); g.lineTo(-8, 0); g.stroke();
     glow(g, 4, 0, 12, col, 0.6);
     nrm(g);
-    g.strokeStyle = shaft; g.lineWidth = 2.2; g.beginPath(); g.moveTo(-15, 0); g.lineTo(5, 0); g.stroke();
-    g.fillStyle = '#ffffff'; g.beginPath(); g.moveTo(4, -3.5); g.lineTo(12, 0); g.lineTo(4, 3.5); g.closePath(); g.fill();
+    R.arrowGlyph(g,'piercing',k);
   }
   for (const kname in PROJ) DRAW[kname] = (g, f, k, t) => { if (f.t >= f.dur) return; const [x, y, a] = projAt(f, k); PROJ[kname](g, f, k, t, x, y, a); };
 
@@ -569,19 +564,23 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
   DRAW.chain = (g, f, k, t) => {
     const a = (1 - k) * (0.7 + 0.3 * U.hash2((t * 40) | 0, 3, f.seed));
     const [x1, y1] = f.from || body(f.ref), [x2, y2] = f.to || body(f.ref);
-    const seed = f.seed + ((f.t * 28) | 0);
+    const seed = f.seed + ((f.t * 12) | 0);
     lit(g);
-    boltGlow(g, x1, y1, x2, y2, seed, Math.min(26, Math.hypot(x2 - x1, y2 - y1) * 0.18), 9, '255,240,120', a);
+    boltGlow(g, x1, y1, x2, y2, seed, Math.min(13, Math.hypot(x2 - x1, y2 - y1) * 0.12), 14, '145,212,255', a,.75);
     for (let b = 0; b < N(2); b++) {
       const q = 0.3 + 0.4 * U.hash2(b, seed, 2), bx = x1 + (x2 - x1) * q, by = y1 + (y2 - y1) * q, an = U.hash2(b, seed, 5) * TAU;
-      boltGlow(g, bx, by, bx + Math.cos(an) * 22, by + Math.sin(an) * 16, seed + b * 9, 6, 4, '255,240,120', a * 0.7, 0.6);
+      boltGlow(g, bx, by, bx + Math.cos(an) * 22, by + Math.sin(an) * 16, seed + b * 9, 4, 6, '255,225,150', a * 0.65, 0.4);
     }
-    glow(g, x2, y2, 30, '255,240,140', a); glow(g, x1, y1, 16, '255,240,140', a * 0.7);
+    glow(g, x2, y2, 20, '150,215,255', a*.7); glow(g, x1, y1, 10, '150,215,255', a * 0.5);
   };
 
   // ===== Snipe: ประกายที่คันธนู → เส้นกระสุนร้อน → แสงกระทบ =====
   DRAW.snipe = (g, f, k, t) => {
     const T = f.t, [tx, ty] = body(f.ref);
+    if(T<.12&&typeof ProjectileArt!=='undefined'){
+      const q=cl(T/.12),dx=tx-f.X0,dy=ty-f.Y0;
+      ProjectileArt.head(g,f.X0+dx*q,f.Y0+dy*q,Math.atan2(dy,dx),104,T,Math.hypot(dx,dy)*q);
+    }
     lit(g);
     if (T < 0.16) { const q = T / 0.16; glow(g, f.X0, f.Y0, 18 + 10 * q, '255,240,190', 1); star4(g, f.X0, f.Y0, 6 + 16 * Math.sin(q * Math.PI), '255,255,240', 1); }
     if (T >= 0.08) {
@@ -756,6 +755,7 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
     g.stroke();
   };
   DRAW.titan = (g, f, k, t, X, Y) => {
+    if(typeof JudgmentVFX!=='undefined'&&JudgmentVFX.ground(g,X,Y,170,f.t,f.dur))return;
     const a = 1 - k, e = eo3(k), Rr = 70;
     nrm(g);
     for (let i = 0; i < N(14); i++) { const an = i / N(14) * TAU + H(f, i) * 0.3, d = Rr * e * (0.8 + 0.3 * H(f, i, 2)); puff(g, X + Math.cos(an) * d, Y + Math.sin(an) * d * R.K - 8, 12 + 12 * k, '165,145,115', 0.55 * a); }
@@ -787,6 +787,12 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
       g.strokeStyle = 'rgba(255,110,40,0.35)'; g.lineWidth = 18; g.beginPath(); g.moveTo(tx, ty); g.lineTo(mx, my); g.stroke();
       g.strokeStyle = 'rgba(255,220,150,0.8)'; g.lineWidth = 5; g.stroke();
       for (let j = N(10); j >= 1; j--) { const [px, py] = P(Math.max(0, e - j * (LQ() ? 0.07 : 0.035))); glow(g, px, py, 30 - j * 2, j < 4 ? '255,190,80' : '255,90,30', 0.65 - j * 0.045); }
+      const meteorArt=Art.get('vfx_art_meteor');
+      if(meteorArt){
+        // The existing trajectory and impact timer remain authoritative.
+        nrm(g);g.drawImage(meteorArt,256,0,256,256,mx-50,my-62,100,100);
+        return;
+      }
       glow(g, mx, my, 58, '255,150,50', 0.95); glow(g, mx, my, 24, '255,250,220', 1);
       nrm(g); g.fillStyle = '#2a140c'; g.beginPath(); g.arc(mx, my, 11, 0, TAU); g.fill();
       lit(g); const da = Math.atan2(ey - sy, ex - sx);
@@ -1079,8 +1085,9 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
   DRAW.valhalla_spear = (g, f, k) => {
     const G2 = lineGeom(f), tr = SPEC.valhalla_spear.travel, q = eo(cl(f.t / tr)), af = f.t < tr ? 1 : 1 - (f.t - tr) / (f.dur - tr);
     const hx = G2.sx + G2.dx * q, hy = G2.sy + G2.dy * q;
+    const tail=Math.min(110,G2.L*q),sx=hx-G2.ux*tail,sy=hy-G2.uy*tail;
     lit(g);
-    g.strokeStyle = `rgba(255,215,110,${0.22 * af})`; g.lineWidth = 16; g.beginPath(); g.moveTo(G2.sx, G2.sy); g.lineTo(hx, hy); g.stroke();
+    g.strokeStyle = `rgba(255,215,110,${0.22 * af})`; g.lineWidth = 10; g.beginPath(); g.moveTo(sx,sy); g.lineTo(hx, hy); g.stroke();
     g.strokeStyle = `rgba(255,240,180,${0.6 * af})`; g.lineWidth = 5; g.stroke();
     g.strokeStyle = `rgba(255,255,255,${af})`; g.lineWidth = 1.5; g.stroke();
     if (f.t < 0.3) glow(g, G2.sx, G2.sy, 30, '255,225,140', 1 - f.t / 0.3);
@@ -1088,7 +1095,8 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
     for (let i = 0; i < N(6); i++) { const s = H(f, i) * q, dr = f.t * 18 * (0.6 + H(f, i, 2)); feather(g, G2.sx + G2.dx * s + Math.sin(f.t * 6 + i) * 5, G2.sy + G2.dy * s + dr, 0.8, Math.sin(f.t * 5 + i * 2) * 0.8); }
     if (f.t < tr + 0.15) {
       const la = f.t < tr ? 1 : 1 - (f.t - tr) / 0.15;
-      lit(g); glow(g, hx, hy, 30, '255,220,120', la);
+      lit(g); glow(g, hx, hy, 20, '255,220,120', la*.35);
+      if(typeof ProjectileArt!=='undefined'&&ProjectileArt.head(g,hx,hy,G2.a,124,f.t,G2.L*q,'odin_spear'))return;
       g.save(); g.translate(hx, hy); g.rotate(G2.a); g.globalAlpha = la;
       nrm(g);
       g.fillStyle = '#f6e7b0'; g.fillRect(-38, -1.6, 34, 3.2);
@@ -1129,7 +1137,7 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
       g.save(); g.translate(G2.sx + G2.dx * s, G2.sy + G2.dy * s); g.rotate(G2.a);
       g.strokeStyle = `rgba(210,255,160,${1 - age})`; g.lineWidth = 1.8; g.beginPath(); g.ellipse(0, 0, 3 + age * 8, 8 + age * 22, 0, 0, TAU); g.stroke(); g.restore();
     }
-    if (q < 1) { glow(g, hx, hy, 18, '220,255,150', 1); g.save(); g.translate(hx, hy); g.rotate(G2.a); g.fillStyle = '#fff'; g.beginPath(); g.moveTo(10, 0); g.lineTo(0, -4); g.lineTo(0, 4); g.closePath(); g.fill(); g.restore(); }
+    if (q < 1) { glow(g, hx, hy, 18, '220,255,150', .6);if(typeof ProjectileArt==='undefined'||!ProjectileArt.head(g,hx,hy,G2.a,110,f.t,Math.hypot(G2.dx,G2.dy)*q)){g.save(); g.translate(hx, hy); g.rotate(G2.a); g.fillStyle = '#fff'; g.beginPath(); g.moveTo(10, 0); g.lineTo(0, -4); g.lineTo(0, 4); g.closePath(); g.fill(); g.restore();} }
   };
   DRAW.fissure = (g, f, k) => {
     const G2 = lineGeom(f, true), tr = SPEC.fissure.travel, q = cl(f.t / tr), a = k < 0.72 ? 1 : (1 - k) / 0.28, n = 14;
@@ -1146,7 +1154,8 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
       const h = (30 + 18 * H(f, j, 3)) * eo3(cl(age / 0.08)) * (1 - cl((age - 0.35) / 0.25)), side = (H(f, j, 4) - 0.5) * 18;
       const x = G2.sx + G2.dx * s + G2.nx * side, y = G2.sy + G2.dy * s + G2.ny * side;
       if (age < 0.4) puff(g, x, y - 3, 10 + age * 30, '150,125,95', 0.5 * (1 - age / 0.4));
-      spike(g, x, y, h, 7 + 4 * H(f, j, 5), (H(f, j, 6) - 0.5) * 8, '#a48256', '#5e4428', 'rgba(255,232,190,0.7)');
+      if(typeof EarthVFX==='undefined'||!EarthVFX.cluster(g,x,y,65+10*H(f,j,5),age,.65))
+        spike(g, x, y, h, 7 + 4 * H(f, j, 5), (H(f, j, 6) - 0.5) * 8, '#a48256', '#5e4428', 'rgba(255,232,190,0.7)');
     }
   };
 
@@ -1186,11 +1195,13 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
     glow(g, X, Y - 40, 50, '255,70,40', 0.5 * a);
     for (let j = 0; j < 3; j++) {
       const q = cl(k * 1.4 - j * 0.2); if (q <= 0 || q >= 1) continue;
-      const r = 18 + 100 * eo(q), n = 28;
-      g.strokeStyle = `rgba(255,${80 + j * 30},50,${1 - q})`; g.lineWidth = 3;
-      g.beginPath();
-      for (let i = 0; i <= n; i++) { const an = i / n * TAU, rr = r * (i % 2 ? 0.86 : 1); g.lineTo(X + Math.cos(an) * rr, Y + Math.sin(an) * rr * R.K); }
-      g.stroke();
+      const r = 18 + 100 * eo(q);
+      // Layered pressure waves soften at their outside edge, rather than a
+      // toothed polygon that reads like a spell symbol instead of a howl.
+      g.strokeStyle = `rgba(255,${80 + j * 30},50,${(1-q)*.13})`; g.lineWidth = 10*(1-q)+2;
+      gEll(g,X,Y,r);g.stroke();
+      g.strokeStyle = `rgba(255,${125 + j * 25},90,${(1-q)*.8})`;g.lineWidth=1.5;
+      gEll(g,X,Y,r);g.stroke();
       g.lineWidth = 2.5;
       for (const s of [-1, 1]) { g.beginPath(); g.arc(X, Y - 52, 10 + q * 34, (s > 0 ? 0 : Math.PI) - 0.6, (s > 0 ? 0 : Math.PI) + 0.6); g.stroke(); }
     }
@@ -1271,6 +1282,18 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
     }
     g.fillStyle = `rgba(170,240,150,${a})`;
     for (let i = 0; i < N(6); i++) { const an = H(f, i) * TAU + k * 8, y = Y - 10 - k * 70 * H(f, i, 2); g.save(); g.translate(X + Math.cos(an) * 28, y); g.rotate(an); g.beginPath(); g.ellipse(0, 0, 4, 1.8, 0, 0, TAU); g.fill(); g.restore(); }
+  };
+  DRAW.venom = (g, f, k) => {
+    const [x,y]=hand(f.ref),a=env(k,.08,.3),d=f.ref.facing||1;
+    // The weapon itself is coated in Paperdoll's actual pose. Only liquid motes
+    // belong in this world-space cast effect; a guessed blade angle floats off it.
+    lit(g);
+    for(let i=0;i<N(10);i++){
+      const q=cl(k*1.6-H(f,i)*.45),u=H(f,i,2),xx=x+d*(u*24-4)+Math.sin(q*7+i)*3,yy=y+4-u*26+q*q*25;
+      if(q<=0||q>=1)continue;
+      glow(g,xx,yy,4,'110,245,60',a*(1-q)*.6);
+      g.fillStyle=`rgba(160,255,100,${a*(1-q)})`;g.beginPath();g.ellipse(xx,yy,1.5,2.5,0,0,TAU);g.fill();
+    }
   };
   DRAW.zen = (g, f, k, t, X, Y) => {
     const a = env(k, 0.12, 0.35), open = eo3(cl(k * 1.8));
@@ -1381,6 +1404,7 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
     nrm(g);
     for (const [x, y, d, i] of list) {
       const s = 6.5 + 3.5 * H(f, i, 2);
+      if(typeof RelicVFX!=='undefined'&&RelicVFX.stone(g,x,y,s*4,k>.78?3:i%3,a))continue;
       g.globalAlpha = a; g.strokeStyle = 'rgba(40,28,16,0.8)'; g.lineWidth = 1; g.fillStyle = d > 0 ? '#8a6c48' : '#6a5236';
       g.beginPath(); g.moveTo(x - s, y + s * 0.4); g.lineTo(x - s * 0.5, y - s * 0.8); g.lineTo(x + s * 0.6, y - s * 0.7); g.lineTo(x + s, y + s * 0.3); g.lineTo(x + s * 0.2, y + s * 0.9); g.closePath(); g.fill(); g.stroke();
       g.fillStyle = 'rgba(190,255,150,0.6)'; g.fillRect(x - s * 0.4, y - s * 0.6, s * 0.7, 1.4);
@@ -1534,7 +1558,7 @@ for (const id in FX2.SKILL) if (typeof SKILLS !== 'undefined' && SKILLS[id] && !
   if (typeof Sprites !== 'undefined' && Sprites.drawPlayer) {
     const base = Sprites.drawPlayer;
     Sprites.drawPlayer = (g, p, t) => {
-      if (G.fastSim || p !== G.player || p.dead) return base(g, p, t);
+      if (G.fastSim || p !== G.player || p.dead || (typeof SciencePresentation !== 'undefined' && SciencePresentation.caster(p.job))) return base(g, p, t);
       const list = auras(p), x = p.x * TILE, y = p.y * TILE;
       if (list || p.cast) { g.save(); if (list) for (const [v, a] of list) AURA[v](g, x, y, t, false, a, p); if (p.cast) charge(g, p, t, x, y, false); g.restore(); }
       base(g, p, t);

@@ -47,7 +47,7 @@ function newPlayer(name, gender, hair, look) {
 
 function initRuntime(p) {
   Object.assign(p, {
-    path: [], target: null, pickTarget: null, npcTarget: null, skillIntent: null, cast: null,
+    path: [], target: null, skillTarget: null, manualSkillLock: false, pickTarget: null, npcTarget: null, skillIntent: null, cast: null,
     facing: 1, dir: 2, moving: false, sitting: false, dead: false, atkAnim: 0, nextAttack: 0, skillReadyAt: 0, itemReadyAt: 0,
     repathAt: 0, hpTimer: 0, spTimer: 0, buffs: {}, speech: null, poisonUntil: 0, stunUntil: 0, stealthUntil: 0, d: {},
   });
@@ -178,6 +178,9 @@ function loadGameFrom(data) {
   if (typeof HuntRunes !== 'undefined') HuntRunes.sanitize(p); // Hunt Rune (js/huntrunes.js): เซฟเก่าไม่มี = ว่าง • id ที่ไม่มี/ไม่ได้ซื้อ/Endow ซ้ำ ถูกตัดทิ้ง
   if (typeof Loadouts !== 'undefined') p.loadouts = Loadouts.sanitize(p.loadouts); // Loadouts (js/loadouts.js): เซฟเก่าไม่มี = 3 ช่องว่าง • ข้อมูลเสียถูกตัดทิ้ง
   Passive.migrate(p, data); // ต้นไม้ Passive แบบ D: id เดิมใช้ต่อ • id เสีย/ต่อแกนไม่ถึงถูกตัด (แต้มคืน) • เซฟก่อนรุ่นนี้ได้รีเซ็ตฟรี 1 ครั้ง
+  // Legacy Class 3 saves without a recorded Class 2 level completed the old Job 26 cap.
+  // Expanding that cap must not grant 24 unearned points or revoke their existing class.
+  if (JOBS[p.job].tier === 3 && (!Number.isInteger(p.job2Lv) || p.job2Lv < 1 || p.job2Lv > 99)) p.job2Lv = 26;
   fixSkillPoints(p, true); // เซฟเก่าที่แต้มสกิลเกิน (แต้ม Novice ค้างข้าม Class) → ปรับให้ถูกต้อง
   // แถบสกิล (8 ช่อง) แยกจากแถบไอเทม (4 ช่อง) — เซฟเก่าที่ปนกันจะถูกย้ายไอเทมไปแถบไอเทม
   const oldBar = (p.hotbar || []).filter(h => h && ((h.t === 'skill' && SKILLS[h.id]) || (h.t === 'item' && ITEMS[h.id])));
@@ -543,13 +546,16 @@ function pickUp(drop) {
 // ------------------------------------------------------------
 //  เอฟเฟกต์และตัวเลขลอย
 // ------------------------------------------------------------
-const FX_LINGER = { firebolt: 0.3, coldbolt: 0.25, lightning: 0.2, holy: 0.25, soul: 0.2, frost: 0.35, arrow: 0.05 };
+const FX_LINGER = { firebolt: 0.3, coldbolt: 0.25, lightning: 0.2, holy: 0.25, soul: 0.2, frost: 0.35, arrow: 0.12 };
 // เอฟเฟกต์แบบภาพ (สไตล์ RO): ถ้ามี assets/fx_<ชื่อ>.webp (แถบเฟรม 240px พื้นดำ) เล่นภาพนั้นแทนเอฟเฟกต์ที่วาดด้วยโค้ด
 // ชื่อ = f.skin (ชื่อ fx ของสกิล) หรือ f.type • ลูกธนู/ลูกพลังยังพุ่งแบบเดิม แล้วเล่นภาพตอนโดนเป้า
 const FX_PROJECTILE = { arrow: 1, soul: 1, frost: 1 };
 const FX_MIDBODY = { hit: 0.5, crit: 0.5, bash: 0.5 }; // เอฟเฟกต์ที่วางกลางตัว → ภาพยึดที่เท้า
 const FX_FRAME = 0.07; // วินาทีต่อเฟรมของภาพเอฟเฟกต์
 function addFx(f) {
+  if (f.type === 'arrow' && typeof HunterMotion !== 'undefined') {
+    [f.X0,f.Y0] = HunterMotion.muzzle({x:f.sx,y:f.sy+.6},f.ref || {x:f.tx,y:f.ty});
+  }
   const key = 'fx_' + (f.skin || f.type), img = f.type !== 'sprite' && typeof Art !== 'undefined' && Art.get(key);
   if (img) {
     if (FX_PROJECTILE[f.type]) {
@@ -557,7 +563,7 @@ function addFx(f) {
       f.onHit = () => { if (hit) hit(); addFx({ type: 'sprite', sprite: key, ref, x: tx, y: ty }); };
     } else {
       // เวลาที่ดาเมจเข้า (onHit) ยังเท่าเดิม แม้ภาพจะยาวกว่า
-      return addFx({ type: 'sprite', sprite: key, ref: f.ref, x: f.x, y: f.y + (f.ref ? 0 : FX_MIDBODY[f.type] || 0), onHit: f.onHit, hitAt: f.dur, size: f.r ? Math.max(1, f.r / 2) : 1 });
+      return addFx({ type: 'sprite', sprite: key, src:f.src, ref: f.ref, x: f.x, y: f.y + (f.ref ? 0 : FX_MIDBODY[f.type] || 0), onHit: f.onHit, hitAt: f.dur, size: f.r ? Math.max(1, f.r / 2) : 1 });
     }
   }
   if (f.type === 'sprite') { const im = Art.get(f.sprite); f.dur = Math.max(0.2, Math.round(im.width / 240) * FX_FRAME); }
@@ -602,11 +608,16 @@ function changeMap(id, x, y, opts = {}) {
   G.map = map;
   p.map = id;
   teleportPlayer(x, y);
+  p._bowPose = null;
   G.mapEntry = { map: id, x, y };
   G.mobs = []; G.drops = []; G.fx = []; G.floaters = []; G.timers = []; G.respawns = []; G.traps = []; G.zones = [];
-  for (const a of G.allies) { a.x = x + 0.7; a.y = y; a.path = []; a.target = null; }
+  for (const [i, a] of G.allies.entries()) {
+    const near = { x: x + (i % 2 ? -0.7 : 0.7), y: y + (i > 1 ? 0.7 : 0) };
+    const pos = map.walkable(Math.floor(near.x), Math.floor(near.y)) ? near : map.nearestWalkable(near.x, near.y);
+    a.x = pos.x; a.y = pos.y; a.path = []; a.target = null; a.moving = false; a.repathAt = 0;
+  }
   G.npcs = (map.def.npcs || []).map(n => Object.assign({}, n));
-  for (const [mid, n] of map.def.spawns) for (let i = 0; i < n; i++) spawnMob(mid);
+  for (const [mid, n] of map.def.spawns) for (let i = 0; i < n; i++) spawnMob(mid, undefined, i >= Math.ceil(n * .8));
   for (const [dx, dy] of map.def.dummies || []) { const d = spawnMob('training_dummy', { x: dx, y: dy }); d.facing = 1; d.home = { x: dx + 0.5, y: dy + 0.5 }; }
   if (map.def.mvp && mvpLeft(id) <= 0) { if (p.mvpAt) delete p.mvpAt[id]; spawnMvp(map.def.mvp); }
   UI.onMapChange(map);
@@ -618,20 +629,25 @@ function changeMap(id, x, y, opts = {}) {
 function teleportPlayer(x, y) {
   const p = G.player;
   G.pendingSkill = null; // เปลี่ยนแมพ/วาร์ป = ยกเลิกโหมดเล็งสกิล
-  p.x = x; p.y = y; p.path = []; p.target = null; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.cast = null;
+  p.x = x; p.y = y; p.path = []; p.target = null; p.skillTarget = null; p.manualSkillLock = false; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.cast = null;
   p.sitting = false;
   for (const m of G.mobs) if (m.state === 'chase') { m.state = 'idle'; m.path = []; }
 }
-function spawnMob(id, pos) {
+function spawnMob(id, pos, roaming) {
   const d = MOBS[id];
   const p = G.player;
-  pos = pos || G.map.randomWalkable([{ x: p.x, y: p.y }], 7);
+  const area = !pos && MobAreas.get(G.map, id);
+  const wanderer = roaming == null ? Math.random() < .2 : roaming;
+  const habitatPos = area && !wanderer && MobAreas.position(G.map, area, p);
+  pos = pos || habitatPos || G.map.randomWalkable([{ x: p.x, y: p.y }], 7);
   const m = {
     uid: G.uid++, def: d, x: pos.x + 0.5, y: pos.y + 0.5, hp: d.hp, maxHp: d.hp, state: 'idle', path: [],
     facing: Math.random() < 0.5 ? 1 : -1, seed: Math.random(), nextWander: G.time + U.rand(0, 4), nextAtk: 0, repathAt: 0,
     hitFlash: 0, atkAnim: 0, stunUntil: 0, slowUntil: 0, burnUntil: 0, burnTick: 0, burnDmg: 0, poisonUntil: 0, poisonTick: 0, dead: false, deathT: 0, moving: false,
     emoteUntil: 0, stolen: false, nextBossSkill: G.time + 8,
   };
+  if (habitatPos) { m.spawnArea = area; m.home = { x: m.x, y: m.y }; }
+  if (area) m.spawnRoaming = !habitatPos;
   G.mobs.push(m);
   return m;
 }
@@ -678,6 +694,7 @@ function moveEntity(e, dt, speed) {
     if (Math.abs(dx) > 0.05) e.facing = dx > 0 ? 1 : -1;
     if (d > 0.01) e.dir = dirFromVec(dx, dy);
     e.moving = true;
+    if (e === G.player || e.kind === 'wolf') e._stride = (e._stride || 0) + Math.min(d, step);
     if (d <= step) { e.x = tx; e.y = ty; e.path.shift(); step -= d; }
     else { e.x += dx / d * step; e.y += dy / d * step; step = 0; }
   }
@@ -768,6 +785,7 @@ function damageMob(m, dmg, opts = {}) {
   if (opts.crit) addFx({ type: 'crit', x: m.x, y: m.y - 0.5, dur: 0.35 });
   else addFx({ type: 'hit', x: m.x + U.rand(-0.2, 0.2), y: m.y - 0.5 * s + U.rand(-0.2, 0.2), dur: 0.2 });
   aggroMob(m);
+  if (opts.ally && !opts.ally.dead && opts.ally.hp > 0 && G.allies.includes(opts.ally)) m.allyTarget = opts.ally;
   // เสียงตีโดน 1 เสียงต่อครั้ง: คริ > ตีบอส > ดาเมจแรง (≥25% เลือดเต็ม) > เสียงของท่านั้น (ฟัน/ทุบ) หรือ 'hit'
   const big = !m.def.dummy && dmg >= m.maxHp * 0.25;
   const sfx = opts.crit ? 'crit' : (m.def.boss || m.isMvp) ? 'hit_boss' : big ? 'hit_big' : opts.sfx === undefined ? 'hit' : opts.sfx;
@@ -826,7 +844,7 @@ function killMob(m) {
     Sound.play('mvp');
     if (typeof Story !== 'undefined') Story.onMvpKill(d.id);
   } else {
-    G.respawns.push({ id: d.id, at: G.time + U.rand(4, 10) }); // เกิดใหม่เร็วขึ้น (เดิม 6–14 วิ)
+    G.respawns.push({ id: d.id, at: G.time + U.rand(4, 10), roaming: m.spawnRoaming }); // เกิดใหม่เร็วขึ้น (เดิม 6–14 วิ)
   }
   Sound.play('kill');
 }
@@ -881,14 +899,28 @@ function playerAttack(m) {
     if (!r.miss && p.d.venom && !m.def.boss) applyStatus(m, { kind: 'poison', chance: () => p.d.venom, dur: () => 8 }, 1);
   };
   if (p.d.ranged) {
-    addFx({ type: 'arrow', sx: p.x, sy: p.y - 0.6, ref: m, dur: Math.max(0.08, U.dist(p.x, p.y, m.x, m.y) / 18), onHit: doHit });
-    Sound.play('bow');
+    const windup = HunterMotion.start(p, p.d.aspdDelay / 1000 * .8);
+    later(windup, () => {
+      if (p.dead || m.dead || !G.mobs.includes(m)) return;
+      addFx({ type: 'arrow', sx: p.x, sy: p.y - 0.6, ref: m, dur: Math.max(0.08, U.dist(p.x, p.y, m.x, m.y) / 18), onHit: doHit });
+      Sound.play('bow');
+    });
   } else {
     doHit();
   }
 }
 
-function mobAttack(m) {
+function mobAttack(m, target = G.player) {
+  if (target !== G.player) {
+    m.nextAtk = G.time + (m.def.atkDelay || 1.7); m.atkAnim = 1;
+    faceTo(m, target.x, target.y);
+    if (!U.chance(U.clamp(80 + m.def.hit - (target.flee || 0), 5, 95) / 100)) {
+      addFloater(target.x, target.y - 1, 'Miss', '#a0c0ff'); return;
+    }
+    const raw = U.randi(m.def.atk[0], m.def.atk[1]);
+    damageAlly(target, Math.max(1, Math.round(raw * (1 - (target.defense || 0) / 100))), m);
+    return;
+  }
   const p = G.player, d = p.d, md = m.def;
   m.nextAtk = G.time + (md.atkDelay || 1.7);
   m.atkAnim = 1;
@@ -911,6 +943,7 @@ function mobAttack(m) {
 function autoCounter(m) {
   const p = G.player;
   if (p.options.autoCounter === false || p.dead || m.dead || isStunned()) return;
+  if (!Bot.on && (p.manualSkillLock || p.cast || p.skillIntent || G.pendingSkill || (p.skillTarget && !p.skillTarget.dead && G.mobs.includes(p.skillTarget)))) return;
   if ((p.target && !p.target.dead) || p.npcTarget || p.pickTarget || p.cast || p.skillIntent || p.path.length) return;
   if (Bot.on || (typeof Nav !== 'undefined' && Nav.target) || NPC.busy) return;
   p.sitting = false; p.target = m; p.repathAt = 0;
@@ -959,7 +992,7 @@ function healPlayer(amt, label) {
 }
 function playerDie() {
   const p = G.player;
-  p.hp = 0; p.dead = true; p.path = []; p.target = null; p.cast = null; p.skillIntent = null; p.sitting = false; p.stunUntil = 0;
+  p.hp = 0; p.dead = true; p.path = []; p.target = null; p.skillTarget = null; p.manualSkillLock = false; p.cast = null; p.skillIntent = null; p.sitting = false; p.stunUntil = 0;
   G.pendingSkill = null;
   let lost = 0;
   if (G.map.def.pvp) { Online.onPvpDeath(); UI.showDeath(0); Sound.play('die'); Bot.onDeath(); return; } // ลานประลอง: ไม่เสีย EXP
@@ -1073,6 +1106,38 @@ function skillRange(s) {
   return G.player.d.range;
 }
 
+// ใช้เป้าเดิมก่อนเลือกตัวใหม่ เพื่อให้กดสกิลต่อเนื่องกับ Space ได้
+// Radius for targeted area spells, including rune-modified definitions.
+function skillAimRadius(id) {
+  const s = SKILLS[id] && skillDef(id);
+  if (!s || s.target !== 'enemy') return 0;
+  if (s.dmg && s.dmg.area && s.dmg.at !== 'self') return s.dmg.area;
+  if (s.c3circle) return s.c3circle.r(skillLv(id));
+  return 0;
+}
+
+function groundSkill(id) {
+  const s = SKILLS[id] && skillDef(id);
+  return !!(s && skillAimRadius(id) && (s.c3circle || s.dmg.type === 'magic'));
+}
+function skillTargetValid(id, t) {
+  if (!t) return false;
+  if (t.kind !== 'ground') return !t.dead && G.mobs.includes(t);
+  return groundSkill(id) && t.map === G.map.id && Number.isFinite(t.x) && Number.isFinite(t.y)
+    && G.map.walkable(Math.floor(t.x), Math.floor(t.y));
+}
+
+function skillLockTarget() {
+  const p = G.player;
+  const valid = m => m && !m.dead && G.mobs.includes(m);
+  for (const m of [p.target, p.skillIntent && p.skillIntent.tgt, p.cast && p.cast.target, p.skillTarget]) {
+    if (valid(m) && U.dist(p.x, p.y, m.x, m.y) < 14) return m;
+  }
+  const hovered = G.hover && G.hover.kind === 'mob' && G.hover.ref;
+  if (valid(hovered) && U.dist(p.x, p.y, hovered.x, hovered.y) < 12) return hovered;
+  return Pad.nearestMob(12);
+}
+
 function useSkill(id) {
   const p = G.player;
   if (p.dead) return;
@@ -1089,16 +1154,30 @@ function useSkill(id) {
     return;
   }
   if (s.target === 'enemy') {
-    const cur = p.target && !p.target.dead ? p.target : (G.hover && G.hover.kind === 'mob' ? G.hover.ref : null);
-    // แบบ RO: กดสกิล → โหมดเล็ง → คลิก/แตะมอน • กดปุ่มเดิมซ้ำ = ใช้กับเป้าปัจจุบัน (หรือตัวใกล้สุด)
-    const quick = p.options.noShift && p.target && !p.target.dead; // /ns: มีเป้าอยู่แล้ว = ยิงใส่เป้าทันที ไม่ต้องคลิกเล็ง
-    if (p.options.skillAim !== false && G.pendingSkill !== id && !quick) {
+    if (groundSkill(id) && !Bot.on) {
       if (G.time < p.skillReadyAt) { skillDelayHint(); return; }
       if (skillCdLeft(id) > 0) { skillCdHint(id); return; }
       G.pendingSkill = id; G.pendingAt = G.time; Sound.play('click');
       return;
     }
-    let tgt = cur;
+    if (p.options.skillLock !== false && p.options.noShift !== false) {
+      const tgt = skillLockTarget();
+      if (tgt) { beginSkill(id, lv, tgt); return; }
+      G.pendingSkill = id; G.pendingAt = G.time;
+      UI.msg(L('ไม่มีเป้าหมายใกล้ ๆ — คลิกมอนสเตอร์หรือกด Space เมื่อเข้าใกล้', 'No target nearby — click a monster or press Space when closer.'), 'info');
+      return;
+    }
+    const cur = p.target && !p.target.dead ? p.target : (p.skillTarget && !p.skillTarget.dead ? p.skillTarget : (G.hover && G.hover.kind === 'mob' ? G.hover.ref : null));
+    // แบบ RO: กดสกิล → โหมดเล็ง → คลิก/แตะมอน • กดปุ่มเดิมซ้ำ = ใช้กับเป้าปัจจุบัน (หรือตัวใกล้สุด)
+    const locked = [p.target, p.skillIntent && p.skillIntent.tgt, p.cast && p.cast.target, p.skillTarget].find(m => m && !m.dead && G.mobs.includes(m));
+    const quick = p.options.noShift && locked; // /ns: มีเป้าอยู่แล้ว = ยิงใส่เป้าทันที ไม่ต้องคลิกเล็ง
+    if ((p.options.noShift === false || p.options.skillAim !== false) && G.pendingSkill !== id && !quick) {
+      if (G.time < p.skillReadyAt) { skillDelayHint(); return; }
+      if (skillCdLeft(id) > 0) { skillCdHint(id); return; }
+      G.pendingSkill = id; G.pendingAt = G.time; Sound.play('click');
+      return;
+    }
+    let tgt = quick || cur;
     if (!tgt && (Pad.enabled() || G.pendingSkill === id)) tgt = Pad.nearestMob(12);
     if (!tgt) { G.pendingSkill = id; G.pendingAt = G.time; UI.msg(L(`คลิกที่มอนสเตอร์เพื่อใช้ ${s.name}`, `Click a monster to use ${s.name}.`), 'info'); return; }
     beginSkill(id, lv, tgt);
@@ -1129,6 +1208,18 @@ function beginSkill(id, lv, tgt) {
   if (skillCdLeft(id) > 0) { skillCdHint(id); return; }
   if (!canPaySkill(skillCost(id, lv))) { const w = p.d.bloodmagic ? 'HP' : 'SP'; UI.msg(L(`${w} ไม่เพียงพอ`, `Not enough ${w}.`), 'err'); addFloater(p.x, p.y - 1.3, L(`${w} ไม่พอ`, `Low ${w}`), '#8fb0ff'); return; }
   if (tgt) {
+    if (!skillTargetValid(id, tgt)) return;
+    // Area spells keep the chosen point even if the original monster moves or dies.
+    if (groundSkill(id)) tgt = Object.freeze({kind:'ground', map:G.map.id, x:tgt.x, y:tgt.y});
+    if (!Bot.on) {
+      // A manual skill selects a skill target, never a basic-attack order.
+      p.skillTarget = tgt.kind === 'ground' ? null : tgt; p.target = null; p.oneHit = null;
+      p.manualSkillLock = true;
+      p.pickTarget = null; p.npcTarget = null;
+    } else if (tgt.kind !== 'ground' && s.target === 'enemy' && p.options.skillLock !== false && p.options.noShift !== false) {
+      p.skillTarget = null; p.manualSkillLock = false; p.target = tgt; p.pickTarget = null; p.npcTarget = null;
+      p.oneHit = p.options.noCtrl === false ? tgt : null;
+    }
     const dist = U.dist(p.x, p.y, tgt.x, tgt.y);
     const range = skillRange(s);
     if (dist > range + 0.3 || (range > 2 && !lineOfSight(G.map, p.x, p.y, tgt.x, tgt.y))) {
@@ -1142,7 +1233,7 @@ function beginSkill(id, lv, tgt) {
   castMs *= p.d.castMul * Math.max(0, 1 - p.d.dex / 150) * (typeof Runes !== 'undefined' ? Runes.castMul(id) : 1) * (castMs > 0 ? Passive.castMul() : 1); // Quick Glyph: ฆ่าแล้วร่ายครั้งถัดไปเร็วขึ้น
   if (castMs > 50) {
     p.cast = { id, lv, target: tgt, start: G.time, end: G.time + castMs / 1000 };
-    addFx({ type: 'castcircle', ref: p, dur: castMs / 1000, color: s.icon });
+    addFx({ type: 'castcircle', src:id, ref: p, dur: castMs / 1000, color: s.icon });
     return;
   }
   executeSkill(id, lv, tgt);
@@ -1151,7 +1242,7 @@ function beginSkill(id, lv, tgt) {
 // ทำงานของสกิลตามข้อมูลใน SKILLS (ดูคำอธิบายรูปแบบใน data.js)
 function executeSkill(id, lv, tgt) {
   const p = G.player, s = skillDef(id);
-  if (tgt && tgt.dead) return;
+  if (tgt && !skillTargetValid(id, tgt)) return;
   const cost = skillCost(id, lv);
   if (!canPaySkill(cost)) { UI.msg(L(`${p.d.bloodmagic ? 'HP' : 'SP'} ไม่เพียงพอ`, `Not enough ${p.d.bloodmagic ? 'HP' : 'SP'}.`), 'err'); return; }
   paySkill(cost);
@@ -1169,37 +1260,49 @@ function executeSkill(id, lv, tgt) {
   p.atkAnim = 1;
   p.skillPose = G.time; // ท่าใช้สกิล — ความต่างของแต่ละสกิลอยู่ที่เอฟเฟกต์
   p.skillKind = s.target === 'enemy' ? 'skill' : 'buff'; // ท่าสกิลโจมตี / ท่าบัฟ (ถ้ามีภาพแยก — ไม่มีก็ใช้ท่าร่าย)
+  if (s.special === 'summon_wolf') p.skillKind = 'summon';
+  if (s.special === 'trap') p.skillKind = 'trap';
+  const presentation=typeof SkillPresentation!=='undefined'&&SkillPresentation.profile(id);
+  p.skillId=id;p.skillAction=presentation?presentation.action:null;p.skillPoseDur=presentation?presentation.duration:.5;
+  if(presentation)p.skillKind=presentation.kind;
   if (tgt) faceTo(p, tgt.x, tgt.y);
-  Sound.play(skillRange(s) > 3 ? 'skill_range' : 'skill');
+  const resolve = () => {
+    if (p.dead || (tgt && !skillTargetValid(id, tgt))) return;
+    Sound.play(skillRange(s) > 3 ? 'skill_range' : 'skill');
 
-  const vfx = typeof FX2 !== 'undefined' && FX2.cast(s, lv, tgt); // เอฟเฟกต์เฉพาะสกิล (js/fx2.js) แทน selfFx เดิม
-  if (s.selfFx && !vfx) {
-    const fxMap = {
-      heal: { type: 'heal', ref: p, dur: 1.1 }, buff: { type: 'buff', ref: p, dur: 1, color: s.icon },
-      whirl: { type: 'whirl', x: p.x, y: p.y, dur: 0.45, r: (s.dmg && s.dmg.area) || 2 },
-      howl: { type: 'ring', ref: p, dur: 0.7, r: (s.dmg && s.dmg.area) || 2.5, color: '230,220,180', waves: 3 },
-      shout: { type: 'ring', ref: p, dur: 0.6, r: s.aggro || 4, color: '255,90,70', waves: 2 },
-      firering: { type: 'firering', x: p.x, y: p.y, dur: 0.55, r: (s.dmg && s.dmg.area) || 2.5 },
-    };
-    if (fxMap[s.selfFx]) addFx(fxMap[s.selfFx]);
-  }
-  if (s.heal) {
-    const amt = Math.floor(s.heal(lv, p.d, p) * (1 + p.d.healPct / 100) * masteryMul(id));
-    if (tgt) { damageMob(tgt, Math.max(1, Math.floor(amt / 2 * elemMod('holy', tgt.def.element))), { color: '#fff6a0' }); addFx({ type: 'holy', ref: tgt, dur: 0.5 }); }
-    else { healPlayer(amt, s.name); Sound.play('heal'); }
-  }
-  if (s.buff) {
-    p.buffs[id] = { lv, until: G.time + s.buff.dur(lv) * masteryMul(id) }; // ความชำนาญ: บัฟนานขึ้น
-    recalc();
-    Sound.play('buff');
-  }
-  if (s.aggro) {
-    for (const m of G.mobs) if (!m.dead && U.dist(m.x, m.y, p.x, p.y) <= s.aggro) aggroMob(m);
-  }
-  if (s.special) runSpecialSkill(s.special, s, lv);
-  const runeDone = typeof Runes !== 'undefined' && Runes.onCast(s, lv, tgt); // รูนที่เปลี่ยนวิธีทำดาเมจทั้งหมด (เช่น ดีเลย์ตกจากฟ้า) คืน true
-  if (s.dmg && !runeDone) skillDamage(s, lv, tgt);
-  if (s.chain && tgt && !tgt.dead && (p.options.noCtrl !== false || Bot.on)) { p.target = tgt; p.nextAttack = Math.max(p.nextAttack, G.time + 0.35); }
+    const vfx = typeof FX2 !== 'undefined' && FX2.cast(s, lv, tgt); // เอฟเฟกต์เฉพาะสกิล (js/fx2.js) แทน selfFx เดิม
+    if (s.selfFx && !vfx) {
+      const fxMap = {
+        heal: { type: 'heal', ref: p, dur: 1.1 }, buff: { type: 'buff', ref: p, dur: 1, color: s.icon },
+        whirl: { type: 'whirl', x: p.x, y: p.y, dur: 0.45, r: (s.dmg && s.dmg.area) || 2 },
+        howl: { type: 'ring', ref: p, dur: 0.7, r: (s.dmg && s.dmg.area) || 2.5, color: '230,220,180', waves: 3 },
+        shout: { type: 'ring', ref: p, dur: 0.6, r: s.aggro || 4, color: '255,90,70', waves: 2 },
+        firering: { type: 'firering', x: p.x, y: p.y, dur: 0.55, r: (s.dmg && s.dmg.area) || 2.5 },
+      };
+      if (fxMap[s.selfFx]) addFx({ ...fxMap[s.selfFx], src:id });
+    }
+    if (s.heal) {
+      const amt = Math.floor(s.heal(lv, p.d, p) * (1 + p.d.healPct / 100) * masteryMul(id));
+      if (tgt) { damageMob(tgt, Math.max(1, Math.floor(amt / 2 * elemMod('holy', tgt.def.element))), { color: '#fff6a0' }); addFx({ type: 'holy', ref: tgt, dur: 0.5 }); }
+      else { healPlayer(amt, s.name); Sound.play('heal'); }
+    }
+    if (s.buff) {
+      p.buffs[id] = { lv, until: G.time + s.buff.dur(lv) * masteryMul(id) }; // ความชำนาญ: บัฟนานขึ้น
+      recalc();
+      Sound.play('buff');
+    }
+    if (s.aggro) {
+      for (const m of G.mobs) if (!m.dead && U.dist(m.x, m.y, p.x, p.y) <= s.aggro) aggroMob(m);
+    }
+    if (s.special) runSpecialSkill(s.special, s, lv);
+    const runeDone = typeof Runes !== 'undefined' && Runes.onCast(s, lv, tgt); // รูนที่เปลี่ยนวิธีทำดาเมจทั้งหมด (เช่น ดีเลย์ตกจากฟ้า) คืน true
+    if (s.dmg && !runeDone) skillDamage(s, lv, tgt);
+    if (s.chain && Bot.on && tgt && tgt.kind !== 'ground' && !tgt.dead) { p.target = tgt; p.nextAttack = Math.max(p.nextAttack, G.time + 0.35); }
+  };
+  if (s.bow) {
+    p.skillKind = 'shoot';
+    later(HunterMotion.start(p, id === 'charge_arrow' ? .44 : .38), resolve);
+  } else resolve();
 }
 
 function skillDamage(s, lv, tgt) {
@@ -1218,11 +1321,12 @@ function skillDamage(s, lv, tgt) {
       const perp = Math.abs((m.x - p.x) * uy - (m.y - p.y) * ux);
       return t >= 0 && t <= reach && perp < 0.8;
     });
-    if (D.line && !s.vfx) addFx({ type: 'arrow', sx: p.x, sy: p.y - 0.6, tx: p.x + ux * reach, ty: p.y + uy * reach, dur: 0.25, big: true });
+    if (D.line && !s.vfx) addFx({ type: 'arrow', src: s.id, runeVariant: s.rune?.id, sx: p.x, sy: p.y - 0.6, tx: p.x + ux * reach, ty: p.y + uy * reach, dur: 0.25, big: true });
   } else targets = tgt ? [tgt] : [];
   const hits = typeof D.hits === 'function' ? D.hits(lv) : (D.hits || 1);
   targets.forEach((m, ti) => {
-    for (let i = 0; i < hits; i++) later(i * 0.15 + ti * 0.04, () => skillHitOne(s, lv, m));
+    const flight = s.bow && D.line && !s.vfx ? Math.min(.25, U.dist(p.x,p.y,m.x,m.y)/(skillRange(s)+1)*.25) : 0;
+    for (let i = 0; i < hits; i++) later(flight + i * 0.15 + ti * 0.04, () => skillHitOne(s, lv, m));
   });
 }
 // ดาเมจสกิล 1 ครั้งลงเป้า (ไม่มีภาพ) — k = ตัวคูณเพิ่มจากรูน (แตกลูก/กระโดด ฯลฯ)
@@ -1232,7 +1336,7 @@ function skillDeliver(s, lv, m, k = 1) {
   const RU = typeof Runes !== 'undefined' ? Runes : null;
   const mult = (D.multAware && m.state === 'chase' ? D.multAware(lv) : D.mult(lv)) * masteryMul(s.id) * k * (RU ? RU.hitMul(s, lv, m) : 1); // รอยรูนบนเป้า (ใช้แล้วหาย)
   const r = D.type === 'magic' ? magicHit(m, mult, D.element) : physHit(m, mult, { skill: true, element: D.element, sureHit: D.sureHit, forceCrit: RU ? RU.takeCrit() : false });
-  applyHit(m, r, { element: D.element, src: s.id });
+  applyHit(m, r, { element: D.element, src: s.id, runeVariant: s.presentationRune==='fire_rune.split' ? s.presentationRune : ['ice_rune.lance','thunder_rune.storm'].includes(s.rune?.id) ? s.rune.id : undefined });
   if (!r.miss && !m.dead) {
     applyStatus(m, D.status, lv, r.dmg);
     if (D.knockback && !m.def.boss) knockback(m, p.x, p.y, D.knockback);
@@ -1250,7 +1354,7 @@ function skillHitOne(s, lv, m, k = 1) {
     addFx({ type: 'arrow', sx: p.x, sy: p.y - 0.6, ref: m, dur: Math.max(0.08, U.dist(p.x, p.y, m.x, m.y) / 20), big: true, onHit: deliver });
     Sound.play('bow');
   } else if (fx === 'firebolt' || fx === 'coldbolt' || fx === 'lightning' || fx === 'holy') {
-    addFx({ type: fx, ref: m, dur: 0.28, onHit: deliver });
+    addFx({ type: fx, src:s.id, runeVariant:['ice_rune.lance','thunder_rune.focus'].includes(s.rune?.id) ? s.rune.id : undefined, ref: m, dur: 0.28, onHit: deliver });
     Sound.play({ firebolt: 'fire', coldbolt: 'ice', lightning: 'zap', holy: 'holy' }[fx]);
   } else if (fx === 'soul') {
     addFx({ type: 'soul', sx: p.x, sy: p.y - 0.8, ref: m, dur: Math.max(0.1, U.dist(p.x, p.y, m.x, m.y) / 14), onHit: deliver });
@@ -1264,14 +1368,27 @@ function skillHitOne(s, lv, m, k = 1) {
 function runSpecialSkill(kind, s, lv) {
   const p = G.player;
   if (kind === 'summon_wolf') {
-    G.allies = G.allies.filter(a => a.kind !== 'wolf');
-    G.allies.push({
-      kind: 'wolf', name: 'Wolf', x: p.x + 0.8, y: p.y, path: [], facing: p.facing, moving: false, seed: Math.random(),
-      until: G.time + s.dur(lv) * masteryMul(s.id), lv, nextAtk: 0, repathAt: 0, atkAnim: 0, target: null, state: 'ally',
-      def: { size: 0.85, color: '#c8c8d4', color2: '#8a8a98', variant: 'wolf' },
-    });
-    addFx({ type: 'warp', x: p.x + 0.8, y: p.y, dur: 0.6 });
-    UI.msg(L(`หมาป่าคู่ใจมาช่วยสู้ ${s.dur(lv)} วินาที!`, `Your loyal wolf joins the fight for ${s.dur(lv)}s!`), 'sys');
+    G.allies = G.allies.filter(a => a.kind !== 'wolf' || (!a.dead && a.hp > 0 && a.until > G.time));
+    const until = G.time + s.dur(lv) * masteryMul(s.id);
+    const pack = G.allies.filter(a => a.kind === 'wolf' && !a.dead && a.hp > 0 && a.until > G.time);
+    if (pack.length) {
+      for (const a of pack) a.until = Math.max(a.until, until);
+      addFx({ type: 'wolfcall', ref: p, dur: 1.1, refresh: true });
+      UI.msg(L('ต่อเวลาหมาป่าคู่ใจแล้ว — เลือดคงเดิม', 'Wolf companion duration refreshed — HP unchanged'), 'sys');
+    } else {
+      const near = { x: p.x + 0.8, y: p.y };
+      const pos = G.map.walkable(Math.floor(near.x), Math.floor(near.y)) ? near : G.map.nearestWalkable(near.x, near.y);
+      const maxHp = Math.max(1, Math.round(p.d.maxHp * 0.65 + lv * 30));
+      const a = {
+        kind: 'wolf', name: 'Wolf', x: pos.x, y: pos.y, path: [], facing: p.facing, moving: false, seed: Math.random(),
+        until, lv, hp: maxHp, maxHp, defense: Math.min(45, p.d.def * 0.6 + lv * 2), flee: Math.floor(p.d.flee * 0.5),
+        born: G.time, hitFlash: 0, nextAtk: 0, repathAt: 0, atkAnim: 0, target: null, state: 'ally',
+        def: { size: 0.95, color: '#d4e1e6', color2: '#728c9a', variant: 'wolf' },
+      };
+      G.allies.push(a);
+      addFx({ type: 'wolfcall', x: a.x, y: a.y, dur: 1.25 });
+      UI.msg(L(`หมาป่าคู่ใจมาช่วยสู้ ${Math.round(until - G.time)} วินาที!`, `Your loyal wolf joins the fight for ${Math.round(until - G.time)}s!`), 'sys');
+    }
   } else if (kind === 'trap') {
     if (G.traps.length >= 3) G.traps.shift();
     G.traps.push({ x: p.x, y: p.y, lv, until: G.time + 40, armed: G.time + 0.6, mul: masteryMul(s.id), rune: s.rune || null });
@@ -1295,11 +1412,25 @@ function knockback(m, fx, fy, n) {
 // ------------------------------------------------------------
 //  สัตว์คู่ใจและกับดัก
 // ------------------------------------------------------------
+function damageAlly(a, dmg, source) {
+  if (a.dead || !(a.hp > 0) || a.until <= G.time || !G.allies.includes(a)) return;
+  const amount = Math.max(1, Math.round(dmg));
+  a.hp = Math.max(0, a.hp - amount); a.hitFlash = 0.18;
+  addFloater(a.x, a.y - 1, amount, '#ffb090');
+  addFx({ type: 'hit', ref: a, dur: 0.2 });
+  if (a.hp === 0) {
+    a.dead = true; a.path = []; a.target = null; a.moving = false;
+    if (source && source.allyTarget === a) source.allyTarget = null;
+    UI.msg(L('หมาป่าคู่ใจล้มลงแล้ว เรียกใหม่ได้เมื่อสกิลพร้อม', 'Your wolf has fallen. Summon it again when the skill is ready.'), 'sys');
+  }
+}
 function updateAllies(dt) {
   const p = G.player;
-  G.allies = G.allies.filter(a => a.until > G.time && !p.dead);
+  G.allies = G.allies.filter(a => a.until > G.time && !a.dead && (a.hp === undefined || a.hp > 0) && (a.kind === 'wolf' || !p.dead));
   for (const a of G.allies) {
     a.atkAnim = Math.max(0, a.atkAnim - dt * 3);
+    a.hitFlash = Math.max(0, (a.hitFlash || 0) - dt);
+    if (p.dead) { a.path = []; a.target = null; a.moving = false; continue; }
     let t = a.target && !a.target.dead && G.mobs.includes(a.target) ? a.target : null;
     if (!t) {
       t = p.target && !p.target.dead && !a.split ? p.target : null; // a.split = หมาป่าตัวที่สอง (รูน Twin Wolves) เลือกเป้าอื่น
@@ -1315,13 +1446,14 @@ function updateAllies(dt) {
     }
     if (t && U.dist(t.x, t.y, p.x, p.y) > 12) { a.target = null; t = null; }
     if (t) {
+      a.following = false;
       const d = U.dist(a.x, a.y, t.x, t.y);
       if (d <= 1.3) {
         a.path = []; a.moving = false; faceTo(a, t.x, t.y);
         if (G.time >= a.nextAtk) {
           a.nextAtk = G.time + 1.0; a.atkAnim = 1;
           const dmg = Math.max(1, Math.round((p.d.statusAtk * 0.5 + p.d.weaponAtk * 0.5 + a.lv * 12) * (a.pow || 1) * U.rand(0.85, 1.1) * (1 - t.def.def / 100)));
-          damageMob(t, dmg, { color: '#c0e0ff', src: 'wolf_companion' });
+          damageMob(t, dmg, { color: '#c0e0ff', src: 'wolf_companion', ally: a });
           if (typeof Runes !== 'undefined') Runes.afterWolf(a, t, dmg);
         }
       } else {
@@ -1329,12 +1461,19 @@ function updateAllies(dt) {
         moveEntity(a, dt, 5.5);
       }
     } else {
-      const d = U.dist(a.x, a.y, p.x, p.y);
-      if (d > 14) { a.x = p.x; a.y = p.y; a.path = []; }
-      else if (d > 2) {
-        if (G.time >= a.repathAt || !a.path.length) { a.path = findPath(G.map, Math.floor(a.x), Math.floor(a.y), Math.floor(p.x), Math.floor(p.y), 600); a.repathAt = G.time + 0.4; }
-        moveEntity(a, dt, 5.5);
-      } else { a.path = []; a.moving = false; }
+      const goal = HunterMotion.followPoint(p, a), d = U.dist(a.x, a.y, goal.x, goal.y);
+      if (d > 14) { a.x = goal.x; a.y = goal.y; a.path = []; a.moving = false; a.following = false; }
+      else {
+        if (d > 1.6) a.following = true;
+        if (d < .8) a.following = false;
+        if (a.following) {
+          const gx = Math.floor(goal.x), gy = Math.floor(goal.y), last = a.path[a.path.length-1];
+          if (G.time >= a.repathAt && (!last || last.x !== gx || last.y !== gy)) {
+            a.path = findPath(G.map, Math.floor(a.x), Math.floor(a.y), gx, gy, 1000); a.repathAt = G.time + .35;
+          }
+          moveEntity(a, dt, U.clamp(5.5+(d-3)*.35,5.5,7.5));
+        } else { a.path = []; a.moving = false; }
+      }
     }
   }
 }
@@ -1349,6 +1488,7 @@ function updateTraps() {
     const tr = t.rune && typeof Runes !== 'undefined' ? Runes.trapMod(t) : null; // รูน: รัศมี/ตัวคูณ/ผลพิเศษของกับดัก
     const rad = tr ? tr.r : 1.5;
     addFx({ type: 'firering', x: t.x, y: t.y, dur: 0.5, r: rad });
+    if(typeof SkillArtFX!=='undefined')SkillArtFX.emit('blast_trap',t,{width:rad*TILE*2});
     Sound.play('crit');
     for (const m of G.mobs) {
       if (m.dead || U.dist(m.x, m.y, t.x, t.y) > rad) continue;
@@ -1465,7 +1605,7 @@ function updateGame(dt) {
   G.mobs = G.mobs.filter(m => !(m.dead && m.deathT > 0.8));
   // เกิดใหม่
   for (let i = G.respawns.length - 1; i >= 0; i--) {
-    if (G.respawns[i].at <= G.time) { spawnMob(G.respawns[i].id); G.respawns.splice(i, 1); }
+    if (G.respawns[i].at <= G.time) { spawnMob(G.respawns[i].id, undefined, G.respawns[i].roaming); G.respawns.splice(i, 1); }
   }
   const mvp = G.map.def.mvp;
   const pa = G.player.mvpAt;
@@ -1506,6 +1646,7 @@ function autoPotTick() {
 }
 
 function updatePlayer(dt) {
+  if (G.player.skillTarget && (G.player.skillTarget.dead || !G.mobs.includes(G.player.skillTarget))) G.player.skillTarget = null;
   const p = G.player;
   p.atkAnim = Math.max(0, p.atkAnim - dt * 4);
   p.hurtFlash = Math.max(0, (p.hurtFlash || 0) - dt);
@@ -1519,8 +1660,9 @@ function updatePlayer(dt) {
   // ฟื้นฟู
   const moving = p.path.length > 0;
   p.hpTimer += dt; p.spTimer += dt;
-  // นั่งพัก: ถี่ขึ้น 3 เท่าและได้ต่อครั้ง 2 เท่า (รวม ~6 เท่าของยืนนิ่ง) — นั่งราว 1.5 นาทีจากเกือบหมดจนเกือบเต็ม
-  const hpInt = p.sitting ? 2 : 6, spInt = p.sitting ? 2.7 : 8, sitMul = p.sitting ? 2 : 1;
+  // The Wildhunter line recovers SP while standing, moving or fighting; sitting restores four times as fast.
+  const hunter = jobRoot(p.job) === 'wildhunter';
+  const hpInt = p.sitting ? 2 : 6, spInt = hunter ? (p.sitting ? 2 : 4) : (p.sitting ? 2.7 : 8), sitMul = p.sitting ? 2 : 1;
   if (p.hpTimer >= hpInt) {
     p.hpTimer = 0;
     if (!moving || p.sitting || p.d.regenPct) {
@@ -1533,22 +1675,23 @@ function updatePlayer(dt) {
   }
   if (p.spTimer >= spInt) {
     p.spTimer = 0;
-    const amt = (1 + Math.floor(p.d.maxSp / 100) + Math.floor(p.d.int / 6)) * sitMul;
+    const base = hunter ? Math.max(2, Math.ceil(p.d.maxSp * .02)) : 1 + Math.floor(p.d.maxSp / 100);
+    const amt = (base + Math.floor(p.d.int / 6)) * sitMul;
     p.sp = Math.min(p.d.maxSp, p.sp + amt);
   }
   if (p.stunUntil > G.time) { p.moving = false; p.path = []; return; }
   if (p.cast) {
     p.moving = false;
-    if (p.cast.target && p.cast.target.dead) { p.cast = null; return; }
+    if (p.cast.target && !skillTargetValid(p.cast.id, p.cast.target)) { p.cast = null; return; }
     if (G.time >= p.cast.end) { const c = p.cast; p.cast = null; executeSkill(c.id, c.lv, c.target); }
     return;
   }
   // เดินเข้าระยะเพื่อใช้สกิล
   if (p.skillIntent) {
     const si = p.skillIntent, t = si.tgt;
-    if (t.dead) p.skillIntent = null;
+    if (!skillTargetValid(si.id, t)) { p.skillIntent = null; p.path = []; }
     else {
-      const range = skillRange(SKILLS[si.id]);
+      const range = skillRange(skillDef(si.id));
       const dist = U.dist(p.x, p.y, t.x, t.y);
       if (dist <= range + 0.3 && (range <= 2 || lineOfSight(G.map, p.x, p.y, t.x, t.y))) { p.path = []; p.skillIntent = null; beginSkill(si.id, si.lv, t); return; }
       if (G.time >= p.repathAt) { p.path = findPath(G.map, Math.floor(p.x), Math.floor(p.y), Math.floor(t.x), Math.floor(t.y), 1500); p.repathAt = G.time + 0.35; }
@@ -1579,7 +1722,7 @@ function updatePlayer(dt) {
   }
   if (p.npcTarget) {
     const n = p.npcTarget;
-    if (U.dist(p.x, p.y, n.x + 0.5, n.y + 0.5) <= 2.0) {
+    if (NPC.inTalkRange(n, p)) {
       p.path = []; p.npcTarget = null;
       faceTo(p, n.x + 0.5, n.y + 0.5);
       NPC.talk(n);
@@ -1639,9 +1782,11 @@ function updateMob(m, dt) {
     if (m.dead) return;
   }
   if (m.stunUntil > G.time) { m.moving = false; return; }
-  const alive = !p.dead;
-  const hidden = p.stealthUntil > G.time;
-  const dist = U.dist(m.x, m.y, p.x, p.y);
+  if (m.allyTarget && (m.allyTarget.dead || !(m.allyTarget.hp > 0) || m.allyTarget.until <= G.time || !G.allies.includes(m.allyTarget))) m.allyTarget = null;
+  const target = m.allyTarget || p;
+  const alive = !target.dead;
+  const hidden = target === p && p.stealthUntil > G.time;
+  const dist = U.dist(m.x, m.y, target.x, target.y);
   const spd = md.speed * (m.slowUntil > G.time ? 0.5 : 1);
   if (hidden && m.state === 'chase') { m.state = 'idle'; m.path = []; }
   // มอนตีก่อน: เห็นในระยะ 4 ช่อง • ไม่สนผู้เล่นที่เลเวลสูงกว่ามันเกิน 10 (ฟาร์มแมพเก่าได้สบาย)
@@ -1653,7 +1798,7 @@ function updateMob(m, dt) {
   if (md.dummy) { // หุ่นฝึก: อยู่กับที่ ตีกลับเฉพาะตอนผู้เล่นอยู่ในระยะหลังถูกตี
     m.moving = false; m.path = [];
     if (m.state === 'chase' && (!alive || dist > 5)) m.state = 'idle';
-    if (m.state === 'chase' && dist <= md.range + 0.5) { faceTo(m, p.x, p.y); if (G.time >= m.nextAtk) mobAttack(m); }
+    if (m.state === 'chase' && dist <= md.range + 0.5) { faceTo(m, target.x, target.y); if (G.time >= m.nextAtk) mobAttack(m, target); }
     if (m.dmgLog) while (m.dmgLog.length && m.dmgLog[0][0] < G.time - 5) m.dmgLog.shift();
     return;
   }
@@ -1666,11 +1811,11 @@ function updateMob(m, dt) {
     }
     if (dist <= (md.range || 1) + 0.5) {
       m.path = []; m.moving = false;
-      faceTo(m, p.x, p.y);
-      if (G.time >= m.nextAtk) mobAttack(m);
+      faceTo(m, target.x, target.y);
+      if (G.time >= m.nextAtk) mobAttack(m, target);
     } else {
       if (G.time >= m.repathAt || !m.path.length) {
-        m.path = findPath(G.map, Math.floor(m.x), Math.floor(m.y), Math.floor(p.x), Math.floor(p.y), 800);
+        m.path = findPath(G.map, Math.floor(m.x), Math.floor(m.y), Math.floor(target.x), Math.floor(target.y), 800);
         m.repathAt = G.time + 0.5;
       }
       moveEntity(m, dt, spd * 1.35);
@@ -1681,9 +1826,14 @@ function updateMob(m, dt) {
       m.moving = false;
       if (G.time >= m.nextWander) {
         m.nextWander = G.time + U.rand(2, 6);
+        if (m.spawnArea && !MobAreas.contains(m.spawnArea, m.x, m.y)) {
+          const q = MobAreas.position(G.map, m.spawnArea, p);
+          if (q) m.path = findPath(G.map, Math.floor(m.x), Math.floor(m.y), q.x, q.y, 4000);
+          return;
+        }
         const ox = m.home ? m.home.x : m.x, oy = m.home ? m.home.y : m.y; // มีจุดประจำ (บอสหน้าประตู) = วนแถวนั้น
         const tx = Math.floor(ox) + U.randi(-4, 4), ty = Math.floor(oy) + U.randi(-4, 4);
-        if (G.map.walkable(tx, ty) && !G.map.portalAt(tx, ty)) m.path = findPath(G.map, Math.floor(m.x), Math.floor(m.y), tx, ty, 200);
+        if (G.map.walkable(tx, ty) && !G.map.portalAt(tx, ty) && (!m.spawnArea || MobAreas.contains(m.spawnArea, tx + .5, ty + .5))) m.path = findPath(G.map, Math.floor(m.x), Math.floor(m.y), tx, ty, 200);
       }
     }
   }

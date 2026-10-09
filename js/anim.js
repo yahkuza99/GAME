@@ -20,6 +20,13 @@ const Anim = {
     cast: { cycle: 0.56, loop: true, alt: 'attack' },
     buff: { loop: false, alt: 'cast' },  // ใช้สกิลบัฟ/ฮีล/กับตัวเอง (ยังไม่มีภาพ = ใช้ท่าร่าย)
     skill: { loop: false, alt: 'cast' }, // ใช้สกิลโจมตีใส่ศัตรู (ยังไม่มีภาพ = ใช้ท่าร่าย)
+    summon: {loop:false,alt:'buff'},
+    trap: {loop:false,alt:'summon'},
+    monk: {loop:false,alt:'cast'},
+    bard: {loop:false,alt:'buff'},
+    shield: {loop:false,alt:'attack'},
+    shield_throw: {loop:false,alt:'attack'},
+    first_aid: {loop:false,alt:'buff'},
     hurt: { loop: false, alt: 'idle' },
     sit: { cycle: 1.2, loop: true, alt: 'idle' },
     dead: { loop: false, alt: 'hurt' },
@@ -28,7 +35,7 @@ const Anim = {
   // ภาพแถบเฟรมของท่านั้น (ไล่ท่าสำรองถ้ายังไม่มี) คืน { img, n } หรือ null
   strip(key, action) {
     for (let a = action, guard = 0; a && guard < 5; a = (this.ACTIONS[a] || {}).alt, guard++) {
-      const img = Art.get(`anim_${key}_${a}`);
+      const img = Art.get(`anim_${key}_${a}`)||(['monk','bard','shield','shield_throw','first_aid'].includes(a)?Art.get(`anim_${key.replace(/_bare$/,'')}_${a}`):null);
       if (img) return { img, n: Math.max(1, Math.round(img.width / this.CELL)), dirs: Math.round(img.height / this.CELL) >= 8 ? 8 : 1, action: a };
     }
     return null;
@@ -116,6 +123,11 @@ const Anim = {
     if (k < 0.55) return 0.3 + (k - 0.35) / 0.2 * 0.45;
     return 0.75 + (k - 0.55) / 0.45 * 0.25;
   },
+  bowTiming(k) {
+    if (k < .46) return k / .46 * .5;
+    if (k < .65) return .5 + (k-.46)/.19*.3;
+    return .8 + (k-.65)/.35*.2;
+  },
   // ภาพติดตา (motion blur) ของอาวุธตอนฟัน: ภาพเฟรมก่อนหน้า "เฉพาะส่วนที่ขยับไปแล้ว" (มีในเฟรมก่อน ไม่มีในเฟรมนี้ = อาวุธ/แขนที่เหวี่ยง)
   // เบลอเล็กน้อย วาดจางใต้ตัวละคร 2 ชั้น (เฟรม −1 ชัดกว่า −2) • แคชต่อเฟรม (ภาพ 240px ไม่กี่สิบช่อง)
   ghost(img, row, f, back) {
@@ -138,6 +150,16 @@ const Anim = {
       const gh = this.ghost(p.img, p.row, p.f, back); if (!gh) continue;
       g.save(); g.globalAlpha *= a; g.drawImage(gh, -this.CX, -this.GROUND, C, C); g.restore();
     }
+  },
+  // Cosmetic weight transfer. Shear pivots at the feet; world position and hit timing stay intact.
+  meleeLean(progress, family) {
+    const u = Math.max(0, Math.min(1, progress));
+    const smooth = v => v * v * (3 - 2 * v);
+    const weight = family === 'berserker' ? 0.045 : family === 'trickster' ? 0.024 : 0.032;
+    const wind = u < 0.16 ? -smooth(u / 0.16) : 0;
+    const strike = u >= 0.16 && u < 0.38 ? -1 + 2 * smooth((u - 0.16) / 0.22) : 0;
+    const settle = u >= 0.38 ? 1 - smooth((u - 0.38) / 0.62) : 0;
+    return weight * (wind + strike + settle);
   },
   has(key) { return !!Art.get(`anim_${key}_idle`) || !!Art.get(`anim_${key}_walk`); },
   // ชุดภาพของตัวละครผู้เล่น: ของ Class ตัวเอง • Class 2 ที่ยังไม่มีภาพ → ใช้ภาพ Class ต้นสาย (ไม่ใช่ตัววาดด้วยโค้ดแบบเก่า)
@@ -165,7 +187,11 @@ const Anim = {
     }
     if (st.dead) { action = 'dead'; k = Math.min(1, (st.deathT == null ? 1 : st.deathT) / 0.5); }
     else if (st.hurt > 0) { action = 'hurt'; k = 1 - st.hurt; }
-    else if (st.skill > 0) { action = st.skillKind === 'buff' ? 'buff' : st.skillKind === 'skill' ? 'skill' : 'cast'; k = st.skillKind === 'skill' ? this.snap(1 - st.skill) : 1 - st.skill; }
+    else if (st.bow > 0) { action = 'shoot'; k = this.bowTiming(1-st.bow); }
+    else if (st.skill > 0) {
+      action = st.skillAction || (['summon','trap'].includes(st.skillKind)?st.skillKind:st.skillKind==='shoot'?'shoot':st.skillKind === 'buff' ? 'buff' : st.skillKind === 'skill' ? 'skill' : 'cast');
+      k = action === 'attack'||action==='skill' ? this.snap(1-st.skill) : 1-st.skill;
+    }
     else if (st.atk > 0) {
       k = this.snap(1 - st.atk); action = 'attack';
       // ธนูมีไว้ยิง ไม่ได้ฟัน: ใช้ท่ายิงถ้ามีภาพ ไม่มีก็ยืนนิ่ง (ลูกศรเป็นเอฟเฟกต์ของเกม)
@@ -174,9 +200,10 @@ const Anim = {
     else if (st.cast) action = 'cast';
     else if (st.sit) action = 'sit';
     else if (st.moving) action = 'walk';
+    if(st.skillAction&&key.startsWith('wildhunter_')&&['buff','cast'].includes(action)&&!Art.get(`anim_${key}_${action}`)&&Art.get(`anim_${key}_summon`))action='summon';
     // Class ธนู: ใช้สกิล/ร่าย = ท่ายิงเดียวกับท่าโจมตี (ไม่มีท่าร่ายแยก)
     // (ท่าบัฟ/ท่าสกิลโจมตีของตัวเอง ถ้ามีภาพแยกก็ใช้ภาพนั้น)
-    if ((action === 'cast' || action === 'buff' || action === 'skill') && st.shoot) {
+    if ((action === 'cast' || action === 'buff' || action === 'skill') && st.shoot && !st.skillAction) {
       const own = this.strip(key, action), sh = this.strip(key, 'shoot');
       if ((action === 'cast' || !own || own.action !== action) && sh && sh.action === 'shoot') action = 'shoot';
     }
@@ -193,16 +220,51 @@ const Anim = {
     const def = this.ACTIONS[s.action];
     let f;
     if (s.action === 'walk' && action !== 'walk') f = this.stillFrame(s.img, s.n, st.dir != null ? st.dir : (st.facing > 0 ? 0 : 4)); // ยืนนิ่งด้วยเฟรมเท้าชิดของท่าเดิน (ยังไม่มีภาพท่าอื่น)
+    else if(s.action==='first_aid'&&st.skill>0){
+      const elapsed=(1-st.skill)*.75;
+      // Preserve legacy two-frame repair pulses; authored longer strips finish
+      // their reach/press sequence and recovery within the same native duration.
+      if(s.n<=2)f=elapsed>=.15&&elapsed<.55?1:0;
+      else if(elapsed<.15)f=0;
+      else if(elapsed<.55)f=1+Math.min(s.n-3,Math.floor((elapsed-.15)/.4*(s.n-2)));
+      else f=s.n-1;
+    }
+    else if(s.action==='shield_throw'&&st.skill>0){
+      const elapsed=(1-st.skill)*.5;f=elapsed>=.04&&elapsed<.4?1:0;
+    }
+    else if(s.action==='shield'&&st.skill>0){
+      const elapsed=(1-st.skill)*.6;
+      // Existing two-frame strips retain their original impact window. Longer
+      // strips finish on their authored recovery until the native pose ends.
+      if(s.n<=2)f=elapsed>=.06&&elapsed<.3?Math.min(1,s.n-1):0;
+      else if(elapsed<.06)f=0;
+      else if(elapsed<.3)f=1+Math.min(s.n-3,Math.floor((elapsed-.06)/.24*(s.n-2)));
+      else f=s.n-1;
+    }
+    else if(s.action==='monk'&&st.skill>0&&typeof SkillPresentation!=='undefined'){
+      const duration=({punch:.45,palm:.6,burst:.75,meditate:.9})[st.skillKind]||.6;
+      f=Math.min(s.n-1,SkillPresentation.monkFrame(st.skillKind,(1-st.skill)*duration));
+    }
+    else if(s.action==='bard'&&st.skill>0&&typeof SkillPresentation!=='undefined'){
+      const duration=st.skillKind==='strum'?.6:.85;
+      f=Math.min(s.n-1,SkillPresentation.bardFrame(st.skillKind,(1-st.skill)*duration));
+    }
     else if (k != null && (!def.loop || st.skill > 0)) f = Math.min(s.n - 1, Math.floor(k * s.n)); // ท่าที่เล่นครั้งเดียว (รวมท่าใช้สกิล): ตามความคืบหน้า
-    else f = Math.floor((t + (st.seed || 0)) / ((def.cycle || 1) / s.n)) % s.n;
+    else f = Math.floor((action === 'walk' && st.walkTime != null ? st.walkTime : t + (st.seed || 0)) / ((def.cycle || 1) / s.n)) % s.n;
     // แถว: ภาพ 8 ทิศเลือกตามทิศที่หัน, ภาพทิศเดียวใช้แถวแรกแล้วกลับด้านตอนหันขวา
-    const dir = st.dir != null ? st.dir : (st.facing > 0 ? 0 : 4);
+    let dir = st.dir != null ? st.dir : (st.facing > 0 ? 0 : 4);
+    // Spin skills turn the rendered actor through its existing eight views.
+    // Logical facing and the skill's area/hit schedule remain unchanged.
+    if(st.skill>0&&st.skillKind==='spin'&&s.action==='attack'&&s.dirs===8)
+      dir=(dir+Math.floor((1-st.skill+1e-8)*8))%8;
     const row = s.dirs === 8 ? dir : 0;
     // ท่าเดิน: ยกตัวขึ้นเล็กน้อยตอนก้าวผ่าน ลงตอนเหยียบ (ขั้นละเฟรม ตามจังหวะขาในภาพ) ให้เห็นการก้าวชัดขึ้น
     let lift = 0;
     // ภาพเดิน 8 เฟรม (เรนเดอร์ 3D มีการโยกตัวในภาพอยู่แล้ว) ไม่ต้องยกเพิ่ม — ยกสลับเฟรมทำให้ตัวกระตุก (berserker_f เดินหน้าตรง)
-    if (s.action === 'walk' && action === 'walk' && s.n <= 4) { const fr = this.feet(s.img, s.n)[row]; lift = fr && Math.max(0, f) % 2 === fr.pass ? 3 : 0; }
-    return { img: s.img, f: Math.max(0, f), row, flip: s.dirs === 8 ? false : st.facing > 0, lift, breathe: s.action === 'idle' && s.n === 1, action: s.action, n: s.n };
+    if (s.action === 'walk' && action === 'walk' && s.n <= 4 && st.walkLift !== false && !s.img.groundedStride) { const fr = this.feet(s.img, s.n)[row]; lift = fr && Math.max(0, f) % 2 === fr.pass ? 3 : 0; }
+    return { img: s.img, f: Math.max(0, f), row, flip: s.dirs === 8 ? false : st.facing > 0, lift, breathe: s.action==='monk'&&st.skillKind==='meditate'||s.action === 'idle' && s.n === 1, action: s.action, n: s.n,
+      progress: st.skill > 0 ? 1 - st.skill : st.atk > 0 ? 1 - st.atk : 0,
+      frameMix: k == null ? 0 : Math.min(1, Math.max(0, k * s.n - f)), skillKind: st.skill > 0 ? st.skillKind : null };
   },
 
   // วาดที่ตำแหน่งเท้า (x, y), ตัวสูงราว H px, facing>0 = หันขวา (ภาพต้นฉบับหันซ้าย)
@@ -245,9 +307,11 @@ const Anim = {
     if (st.dead && p.action !== 'dead' && p.action !== 'hurt') { g.globalAlpha *= 0.55; st = Object.assign({}, st, { filter: 'grayscale(1) brightness(0.75)' }); }
     g.translate(x, y - (st.raise || 0) + sink * k);
     if (p.lift) g.translate(0, -p.lift * k);
-    g.scale(p.flip ? -k : k, k * (p.breathe ? 1 + Math.sin(t * 2.4 + (st.seed || 0)) * 0.012 : 1));
+    g.scale(p.flip ? -k : k, k * (st.squash || 1) * (p.breathe ? 1 + Math.sin(t * 2.4 + (st.seed || 0)) * 0.012 : 1));
+    const melee = st.meleeFamily && p.action === 'attack' && !['throw', 'spin'].includes(p.skillKind);
+    if (melee) g.transform(1, 0, -this.meleeLean(p.progress, st.meleeFamily) * Math.cos(p.row * Math.PI / 4), 1, 0, 0);
     if (st.under) st.under(g, p); // ชั้นหลังตัว (เช่นอาวุธตอนหันหลัง — Paperdoll)
-    if (st.blur && (p.action === 'attack' || p.action === 'skill') && p.f > 0) this.motionBlur(g, p);
+    if (st.blur && !st.meleeFamily && (p.action === 'attack' || p.action === 'skill') && p.f > 0) this.motionBlur(g, p);
     if (st.flash) g.filter = 'brightness(1.9)';
     if (st.filter) { // ใส่ filter ที่ช่องเฟรมขนาด 240px แทนแคนวาสหลัก (filter บนแคนวาสหลัก = เลเยอร์เต็มจอ ช้ามาก)
       const fc = this._fc || (this._fc = document.createElement('canvas'));

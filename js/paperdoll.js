@@ -77,10 +77,33 @@ const Paperdoll = {
   },
   // ภาพตัวเปล่า (ลบแท่งบอกมือแล้ว) ใช้เมื่อ Class นั้นมีอาวุธประจำให้วาด • Novice ใช้ภาพเดิมที่มีมีดในภาพ
   key(gk, job) {
+    // New Novice sheets contain their cyan dagger in every animation frame.
+    if (job === 'novice') return null;
     return this.ON && typeof PAPERDOLL_DATA !== 'undefined' && PAPERDOLL_DATA[gk] && this.classWeapon(job) && Anim.has(gk + '_bare') ? gk + '_bare' : null;
   },
   // ข้อมูลเฟรม: ใช้ชื่อท่าที่ภาพจริงเล่นอยู่ (Anim.pick คืน action)
   frame(gk, p) {
+    if(['monk','bard','shield','shield_throw','first_aid'].includes(p.action)){
+      // Dedicated poses contain their stowed weapon or instrument. Keep headgear without a second hand weapon.
+      const box=Anim.frameBox(p.img,p.f,p.row);if(!box)return null;
+      const cache=p.img._monkHeads||(p.img._monkHeads={}),key=p.row*64+p.f;
+      if(!cache[key]){
+        const c=document.createElement('canvas');c.width=c.height=Anim.CELL;const g=c.getContext('2d');
+        g.drawImage(p.img,p.f*Anim.CELL,p.row*Anim.CELL,Anim.CELL,Anim.CELL,0,0,Anim.CELL,Anim.CELL);
+        let top=box.top;
+        const red=(pixels,i)=>pixels[i]>80&&pixels[i-3]>65&&pixels[i-3]>pixels[i-2]*1.3&&pixels[i-3]>pixels[i-1]*1.2;
+        // Raised drum beaters can extend above the hair. Anchor Bard headgear to
+        // its crimson hair rather than the uppermost opaque instrument pixel.
+        if(p.action==='bard'){
+          const all=g.getImageData(0,0,Anim.CELL,140).data;
+          for(let i=3;i<all.length;i+=4)if(red(all,i)){top=Math.floor(i/4/Anim.CELL);break;}
+        }
+        const pixels=g.getImageData(0,top,Anim.CELL,Math.min(28,Anim.CELL-top)).data;let weight=0,xsum=0;
+        for(let i=3;i<pixels.length;i+=4)if(p.action==='bard'?red(pixels,i):pixels[i]>80){weight+=pixels[i];xsum+=(Math.floor(i/4)%Anim.CELL)*pixels[i];}
+        cache[key]=[weight?xsum/weight:Anim.CX,top];
+      }
+      return {hand:null,head:cache[key],row:p.row};
+    }
     const d = PAPERDOLL_DATA[gk], a = d && d[p.action || 'walk'];
     if (!a) return null;
     const act = p.action || 'walk', i = p.row * 64 + p.f;
@@ -243,6 +266,27 @@ const Paperdoll = {
     g.restore();
   },
 
+  coating(g,it,hand,act,fix,ctx,actor,layer){
+    const buff=actor.buffs?.venom_blade;if(!buff||buff.until<=G.time)return;
+    const p=this.pose(it,hand,act,fix,ctx);if(!p)return;
+    const age=actor.skillId==='venom_blade'?G.time-actor.skillPose:2;
+    const alpha=(age<.9?.78:.28)*Math.min(1,(buff.until-G.time)/1.2),[f0,f1]=p.front,BIG=400;
+    if(layer==='over'&&f1<=f0||layer==='under'&&!p.split)return;
+    g.save();g.translate(p.x,p.y);g.rotate(p.ang);
+    if(p.split){g.beginPath();if(layer==='over')g.rect(f0,-BIG,f1-f0,BIG*2);else{g.rect(-BIG,-BIG,BIG+f0,BIG*2);g.rect(f1,-BIG,BIG-f1,BIG*2);}g.clip();}
+    g.globalCompositeOperation='lighter';g.strokeStyle=`rgba(135,245,80,${alpha})`;g.lineWidth=1.8;
+    for(const side of [-1,1]){
+      g.beginPath();for(let i=0;i<=12;i++){const u=i/12,x=p.reach*(.28+.68*u),y=side*(1.5+Math.sin(u*7-G.time*5)*1.2);g.lineTo(x,y);}g.stroke();
+    }
+    g.restore();
+  },
+  armedCoating(g,gk,frame,actor){
+    const buff=actor.buffs?.venom_blade;if(!buff||buff.until<=G.time||actor.dead)return false;
+    const img=Art.get('venom_anim_'+gk+'_'+frame.action);if(!img?.complete||!img.naturalWidth)return false;
+    const age=actor.skillId==='venom_blade'?G.time-actor.skillPose:2;
+    g.save();g.globalAlpha*=(age<.9?.95:.5)*Math.min(1,(buff.until-G.time)/1.2);
+    g.drawImage(img,frame.f*240,frame.row*240,240,240,-Anim.CX,-Anim.GROUND,240,240);g.restore();return true;
+  },
   // วาดมือ (จากภาพตัวเปล่า) ทับด้ามอีกรอบ ให้ดูเหมือนนิ้วกำด้ามไว้ ไม่ใช่อาวุธแปะทับมือ
   // บริเวณที่วาดทับ = แคปซูลตามแนวอาวุธ: จากหลังกำปั้น (FIST_BACK+FIST_R) ถึงหน้ากำปั้น (FIST_FRONT = ชิดการ์ด) กว้าง ±FIST_R
   // (ไม่ใช่วงกลม — วงกลมจะกัดการ์ด/ใบมีดหน้ากำปั้นเป็นรอยโค้ง) • วาดเฉพาะเมื่อจุดมืออยู่ในช่วงหน้าตัว
@@ -277,18 +321,21 @@ const Paperdoll = {
   // ส่งเข้า Anim.draw เป็น st.under / st.over (วาดในพิกัดช่องภาพ หลังตั้งตำแหน่ง/สเกลแล้ว)
   // bare = วาดบนภาพตัวเปล่า (ใส่อาวุธประจำ Class) • ไม่ใช่ = ภาพเดิมที่มีอาวุธในภาพแล้ว (ใส่แค่หมวก)
   layers(gk, p, bare) {
-    if (!this.ON || typeof PAPERDOLL_DATA === 'undefined' || !PAPERDOLL_DATA[gk]) return {};
+    if (!this.ON) return {};
+    if (typeof PAPERDOLL_DATA === 'undefined' || !PAPERDOLL_DATA[gk]) return {over:(g,fr)=>this.armedCoating(g,gk,fr,p)};
     const wid = bare ? this.classWeapon(p.job) : null;
     const hid = p.equip.head ? p.equip.head.id : null;
     return {
       under: (g, fr) => { // ส่วนของอาวุธที่อยู่หลังตัว
         const d = this.frame(gk, fr); if (!d || !wid || !d.hand) return;
         this.weapon(g, wid, d.hand, fr.action, d.fix, d, 'under');
+        this.coating(g,wid,d.hand,fr.action,d.fix,d,p,'under');
       },
       over: (g, fr) => { // ส่วนที่อยู่หน้าตัว + กำปั้นทับด้าม + หมวก
         const d = this.frame(gk, fr); if (!d) return;
         if (wid && d.hand) {
           this.weapon(g, wid, d.hand, fr.action, d.fix, d, 'over');
+          this.coating(g,wid,d.hand,fr.action,d.fix,d,p,'over');
           this.fist(g, fr, this.pose(wid, d.hand, fr.action, d.fix, d));
         }
         if (hid && fr.action !== 'dead') this.hat(g, hid, d.head, fr.row, gk);

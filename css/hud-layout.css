@@ -1,0 +1,62 @@
+/* HUD placement: menu beside the radar, money in the character panel. */
+/* Pin the desktop chat to the lower-left screen edge, including small windows. */
+body.visor:not(.pad-mode) #hud:has(#chat:not([hidden])) #chat {
+  left: var(--sl); bottom: var(--sb); top: auto; transform: none;
+}
+body.visor:not(.pad-mode) #hud #chat:not(.folded)::before { inset: 0; }
+body.visor { --hud-map-width: 172px; --hud-edge: var(--s3); }
+body.visor #hud:has(#minimap:not([hidden])) #menubar {
+  top: calc(var(--hud-edge) + var(--st));
+  right: calc(var(--hud-edge) + var(--sr) + var(--hud-map-width) + 28px);
+}
+body.visor #hud:has(#minimap:not([hidden])) #menubar:not(.folded) {
+  display: grid; grid-template-columns: repeat(3, 52px); grid-auto-rows: auto;
+  gap: 4px; width: auto; direction: ltr;
+  max-height: calc(100dvh - var(--st) - var(--sb) - 110px);
+  overflow-y: auto; overflow-x: hidden;
+}
+body.visor #hud:has(#minimap:not([hidden])) #menubar:not(.folded) > button { width: 52px; height: 48px; direction: ltr; }
+body.visor #hud:has(#minimap:not([hidden])) #menubar:not(.folded) .menu-fold {
+  position: relative; grid-column: 1 / -1; justify-self: end; height: 30px; order: -1;
+}
+body.visor #hud:has(#minimap:not([hidden])) #menubar:not(.folded) .menu-fold::after { inset: 0; }
+body.visor #basic-info .bi-money { margin-top: 3px; min-width: 0; }
+body.visor #basic-info #bi-zeny {
+  display: block; color: #f3d59c; font: 600 12px/1.4 var(--f-num);
+  white-space: normal; overflow-wrap: anywhere;
+}
+body.visor #basic-info #bi-zeny::before { content: none; }
+body.visor #basic-info #bi-zeny img { display: none; }
+
+@media (max-width: 760px) {
+  body.visor { --hud-map-width: 112px; --hud-edge: var(--s2); }
+  body.visor #basic-info { width: calc(100vw - 206px - var(--sl) - var(--sr)); max-width: 230px; gap: 6px; }
+  body.visor #hud:has(#minimap:not([hidden])) #menubar.folded .menu-fold { width: 40px; height: 40px; }
+  body.visor #hud:has(#minimap:not([hidden])) #menubar:not(.folded) {
+    top: calc(168px + var(--st)); grid-template-columns: repeat(3, 44px);
+    max-height: calc(100dvh - var(--st) - var(--sb) - 278px);
+  }
+  body.visor #hud:has(#minimap:not([hidden])) #menubar:not(.folded) > button { width: 44px; height: 44px; }
+  body.visor #basic-info #bi-zeny { font-size: 10px; }
+}
+@media (max-width: 360px) and (orientation: portrait) {
+  body.visor #basic-info { display: block; }
+  body.visor #basic-info .bi-face { position: absolute; left: 8px; top: 8px; width: 32px; height: 32px; }
+  body.visor #basic-info .bi-face canvas, body.visor #basic-info #bi-rings { inset: 0; width: 32px; height: 32px; }
+  body.visor #basic-info .bi-face em { display: none; }
+  body.visor #basic-info .bi-id { padding-left: 36px; min-height: 34px; }
+  body.visor #basic-info .bi-id b { font-size: 10px; }
+  body.visor #basic-info .xrow { grid-template-columns: 34px minmax(0, 1fr) 24px; gap: 2px; }
+  body.visor #basic-info .xrow label, body.visor #basic-info .xrow > span { font-size: 8px; }
+  body.visor #basic-info .pt { max-width: 100%; font-size: 9px; padding-inline: 3px; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  body.visor { --hud-map-width: 100px; --hud-edge: var(--s2); }
+  body.visor #basic-info { width: 236px; max-width: 236px; }
+  body.visor #hud:has(#minimap:not([hidden])) #menubar:not(.folded) {
+    top: calc(var(--hud-edge) + var(--st));
+    grid-template-columns: repeat(4, 44px);
+    max-height: calc(100dvh - var(--st) - var(--sb) - 90px);
+  }
+  body.visor #hud:has(#minimap:not([hidden])) #menubar:not(.folded) > button { width: 44px; height: 44px; }
+}

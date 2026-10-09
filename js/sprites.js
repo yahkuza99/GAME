@@ -932,10 +932,17 @@ Sprites.drawPlayer = (g, p, t) => {
     const PD = typeof Paperdoll !== 'undefined' ? Paperdoll : null;
     const bare = PD && PD.key(gk, p.job); // ตัวเปล่า + อาวุธประจำ Class (+ หมวกที่สวม)
     const cw = PD && PD.classWeapon(p.job);
-    Anim.draw(g, x + shake, y, bare || gk, Object.assign(PD ? PD.layers(gk, p, !!bare) : {}, {
-      facing: p.facing || 1, dir: p.dir, moving: p.moving && !p.sitting, atk: tr.atk, cast: !!p.cast, sit: p.sitting, dead: p.dead, deathT: tr.deathT,
-      skill: p.skillPose != null && G.time - p.skillPose < 0.5 && G.time >= p.skillPose ? 1 - (G.time - p.skillPose) / 0.5 : 0, skillKind: p.skillKind,
+    const bow = HunterMotion.pose(p), hunter = PD && PD.baseJob(p.job) === 'wildhunter';
+    const skillDur=p.skillPoseDur||.5;
+    const gesture = hunter && p.skillPose != null ? Math.sin(U.clamp((G.time-p.skillPose)/skillDur,0,1)*Math.PI) : 0;
+    Anim.draw(g, x + shake - (bow ? Math.cos(bow.dir*Math.PI/4)*bow.recoil : 0), y - (bow ? Math.sin(bow.dir*Math.PI/4)*bow.recoil : 0), bare || gk, Object.assign(PD ? PD.layers(gk, p, !!bare) : {}, {
+      facing: p.facing || 1, moving: p.moving && !p.sitting, atk: p._bowPose && G.time-p._bowPose.at < .5 ? 0 : tr.atk, cast: !!p.cast, sit: p.sitting, dead: p.dead, deathT: tr.deathT,
+      skill: p.skillPose != null && G.time - p.skillPose < skillDur && G.time >= p.skillPose ? 1 - (G.time - p.skillPose) / skillDur : 0, skillKind: p.skillKind,skillAction:p.skillAction,
       hurt: tr.hurt, stun, blur: true, shoot: !!(cw ? cw.wtype === 'bow' : wItem && wItem.wtype === 'bow'),
+      meleeFamily: PD && ['einherjar', 'berserker', 'trickster'].includes(PD.baseJob(p.job)) ? PD.baseJob(p.job) : null,
+      bow: bow ? bow.progress : 0, dir: bow ? bow.dir : p.dir,
+      walkTime: hunter || p.job === 'novice' || p.job === 'berserker' ? (p._stride || 0)/2.2*.72 : undefined,
+      squash: p.skillKind === 'trap' ? 1-gesture*.06 : 1,
     }), t, 68);
     if (stun) Sprites.stunStars(g, x, y - (stun.e < 0.3 || stun.r < 0.3 ? 56 : 30), t);
     return;
@@ -974,12 +981,28 @@ Sprites.drawPlayer = (g, p, t) => {
 };
 
 Sprites.drawAlly = (g, a, t) => {
+  if (a.dead || (a.hp !== undefined && a.hp <= 0)) return;
   const x = a.x * TILE, y = a.y * TILE;
   g.save();
   const left = a.until - G.time;
   if (left < 3) g.globalAlpha = 0.5 + Math.sin(t * 12) * 0.3;
-  Sprites.quad(g, x, y, a, t);
+  if (a.hitFlash > 0) g.globalAlpha *= 0.65;
+  if (a.kind === 'wolf' && G.time - a.born < 0.65) {
+    const k = U.clamp((G.time - a.born) / 0.65, 0, 1), scale = 0.65 + 0.35 * (1 - (1 - k) ** 3);
+    g.globalAlpha *= Math.min(1, k * 3);
+    g.translate(x, y); g.scale(scale, scale);
+    Sprites.wolf(g, 0, -Math.sin(k * Math.PI) * 7, a, t);
+  } else Sprites.wolf(g, x, y, a, t);
   g.restore();
+};
+Sprites.wolf = (g, x, y, a, t) => {
+  if (!['wolf','c3wolf'].includes(a.kind) || !Anim.has('mob_fenrir_pup')) { Sprites.quad(g,x,y,a,t); return; }
+  const bite = a.atkAnim > 0 ? Math.sin((1-a.atkAnim)*Math.PI) : 0;
+  const angle = (a.dir == null ? (a.facing > 0 ? 0 : 4) : a.dir)*Math.PI/4;
+  Anim.draw(g, x+Math.cos(angle)*bite*5, y+Math.sin(angle)*bite*3, 'mob_fenrir_pup', {
+    facing: a.facing || 1, dir: a.dir, moving: a.moving, atk: a.atkAnim,
+    walkTime: (a._stride || 0)/2.4*.72, raise: bite*1.5,
+  }, t, 38*(a.kind==='c3wolf'?(a.sz||1)*.9:1));
 };
 Sprites.drawTrap = (g, tr, t) => {
   const x = tr.x * TILE, y = tr.y * TILE;

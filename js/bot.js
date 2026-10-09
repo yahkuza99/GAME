@@ -126,6 +126,8 @@ const Bot = {
       if (hpGate && p.hp / p.d.maxHp * 100 >= hpGate) return false;
     }
     if (p.skillReadyAt - G.time > slack || p.cast || skillCdLeft(id) > slack || isStunned()) return false;
+    // AUTO และ Battle Script รอให้สัตว์คู่ใจตาย/หมดเวลา ไม่ต่อเวลาเองเมื่อสกิลพร้อม
+    if (s.special === 'summon_wolf' && G.allies.some(a => a.kind === 'wolf' && !a.dead && a.hp > 0 && a.until > G.time)) return false;
     if (s.bow && weaponType() !== 'bow') return false;
     return canPaySkill(skillCost(id, lv)) && (!p.d.bloodmagic || p.hp - bloodCost(skillCost(id, lv)) > p.d.maxHp * 0.5); // Blood Circuit: เหลือ HP ครึ่งหนึ่งไว้สู้ต่อ
   },
@@ -349,7 +351,7 @@ const Bot = {
         }
         useSkill(id); return true;
       }
-      if (r === 'summon' && !G.allies.length && this.canCast(id)) { useSkill(id); return true; }
+      if (r === 'summon' && this.canCast(id)) { useSkill(id); return true; }
     }
     return false;
   },

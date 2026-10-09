@@ -274,7 +274,7 @@ const Feel = (() => {
     skill: svgCur('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="none" stroke="#6ff3ff" stroke-width="2"/><circle cx="16" cy="16" r="2.2" fill="#ffd66a"/><path d="M16 2 V9 M16 23 V30 M2 16 H9 M23 16 H30" stroke="#ffd66a" stroke-width="2" stroke-linecap="round"/></svg>', 16, 16, 'crosshair'),
   };
   F.cursorFor = () => {
-    if (G.pendingSkill) return F.CURSOR.skill;
+    if (G.pendingSkill) return typeof skillAimRadius === 'function' && skillAimRadius(G.pendingSkill) > 0 ? 'none' : F.CURSOR.skill;
     const h = G.hover; if (!h) return F.CURSOR.default;
     return h.kind === 'mob' ? F.CURSOR.mob : h.kind === 'npc' ? F.CURSOR.talk : h.kind === 'drop' ? F.CURSOR.grab : F.CURSOR.default;
   };
