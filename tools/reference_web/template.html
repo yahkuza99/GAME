@@ -1,71 +1,77 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Valhalla Codex</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
 <style>
-/* codex terminal: แถบค้นหา + แท็บติดบน • แถวข้อมูลสแกนง่าย • รายละเอียดเปิดเป็นแผ่นด้านข้าง — ธีมมืดเดียวตามโลกเกม (หน้ากากวิซอร์สีฟ้า) */
+/* codex terminal: แถบค้นหา + แท็บติดบน • แถวข้อมูลสแกนง่าย • รายละเอียดเปิดเป็นแผ่นด้านข้าง — ธีมมืดเดียวตามโลกเกม (หน้ากากวิซอร์สีฟ้า)
+   กติกาเจ้าของ: ไม่มีทรงแคปซูล (มุมมน ≤ 8px) • ไม่มีแถบหลอดแสดงสัดส่วน (ใช้ตัวเลข) • ไม่ถ่างตัวอักษรกับข้อความไทย */
 :root {
   color-scheme: dark;
   --bg: #0a1017; --panel: #101a24; --panel-2: #15222e; --line: #213244; --line-2: #2c4258;
-  --ink: #e4ecf4; --dim: #8b9fb4; --faint: #5d7086;
+  --ink: #e4ecf4; --dim: #8b9fb4; --faint: #6a7e94;
   --accent: #6ff3ff; --accent-ink: #062027; --gold: #ffd27a;
   --r-common: #a9b4c0; --r-uncommon: #7ee08a; --r-rare: #6fb8ff; --r-epic: #c58cff; --r-legend: #ffcf5a;
   --bad: #ff8f9c; --ok: #7ee08a;
   --display: "Chakra Petch", "IBM Plex Sans Thai", "Noto Sans Thai", sans-serif;
   --body: "IBM Plex Sans Thai", "Noto Sans Thai", Tahoma, sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --mono: "JetBrains Mono", "IBM Plex Sans Thai", ui-monospace, Menlo, monospace;
 }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font: 400 14px/1.5 var(--body); }
+html { overflow-x: hidden; }
+body { background: var(--bg); color: var(--ink); font: 400 14px/1.55 var(--body); margin: 0; overflow-x: hidden; }
 .wrap { max-width: 1180px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 60px; }
 a { color: var(--accent); }
-button, input, select { font: inherit; color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 6px 20px; margin-bottom: 14px; }
-.eyebrow { font: 500 11px var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--accent); }
-h1 { font: 700 clamp(26px, 5vw, 40px)/1.05 var(--display); letter-spacing: .02em; margin: 2px 0 0; text-wrap: balance; }
-.counts { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--dim); font-size: 12.5px; }
+.eyebrow { font: 500 12px var(--mono); text-transform: uppercase; color: var(--accent); }
+h1 { font: 700 clamp(26px, 5vw, 40px)/1.1 var(--display); letter-spacing: .02em; margin: 2px 0 0; text-wrap: balance; }
+.counts { display: flex; flex-wrap: wrap; gap: 4px 14px; color: var(--dim); font-size: 13px; }
 .counts b { font: 500 13px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
 
-.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 8px; display: grid; gap: 8px; border-bottom: 1px solid var(--line); }
-.search { display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--line-2); border-radius: 10px; padding: 0 12px; }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 8px; display: grid; gap: 8px; border-bottom: 1px solid var(--line); min-width: 0; }
+.search { display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--line-2); border-radius: 8px; padding: 0 12px; }
 .search svg { flex: none; color: var(--dim); }
 .search input { flex: 1; min-width: 0; border: 0; background: none; padding: 10px 0; outline: none; font-size: 15px; }
 .search kbd { font: 500 11px var(--mono); color: var(--faint); border: 1px solid var(--line-2); border-radius: 5px; padding: 1px 6px; }
-.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; min-width: 0; }
 .tabs::-webkit-scrollbar { display: none; }
-.tab { flex: none; border: 1px solid transparent; background: none; border-radius: 8px; padding: 6px 12px; color: var(--dim); font-weight: 500; cursor: pointer; white-space: nowrap; }
+.tab { flex: none; border: 1px solid transparent; background: none; border-radius: 6px; padding: 6px 12px; color: var(--dim); font-weight: 500; cursor: pointer; white-space: nowrap; }
 .tab:hover { color: var(--ink); background: var(--panel); }
 .tab.on { color: var(--accent-ink); background: var(--accent); font-weight: 600; }
-.tab small { font: 500 10.5px var(--mono); opacity: .75; margin-left: 4px; }
+.tab small { font: 500 11px var(--mono); opacity: .75; margin-left: 4px; }
 .filters { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
 .filters:empty { display: none; }
-.filters label { display: flex; align-items: center; gap: 6px; color: var(--dim); font-size: 12.5px; }
-.filters select { background: var(--panel); border: 1px solid var(--line-2); border-radius: 8px; padding: 5px 8px; max-width: 220px; }
+.filters label { display: flex; align-items: center; gap: 6px; color: var(--dim); font-size: 13px; }
+.filters select { background: var(--panel); border: 1px solid var(--line-2); border-radius: 6px; padding: 5px 8px; max-width: 220px; }
 .chipsel { display: flex; gap: 4px; flex-wrap: wrap; }
-.chipsel button { border: 1px solid var(--line-2); background: var(--panel); border-radius: 999px; padding: 3px 10px; font-size: 12px; color: var(--dim); cursor: pointer; }
+.chipsel button { border: 1px solid var(--line-2); background: var(--panel); border-radius: 6px; padding: 3px 10px; font-size: 13px; color: var(--dim); cursor: pointer; }
 .chipsel button.on { border-color: var(--accent); color: var(--ink); background: var(--panel-2); }
 .result-n { margin-left: auto; font: 500 12px var(--mono); color: var(--faint); }
 
-main { margin-top: 14px; }
+main { margin-top: 14px; min-width: 0; }
 .empty { padding: 40px 0; text-align: center; color: var(--dim); }
 .list { display: grid; gap: 6px; }
-.row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; cursor: pointer; text-align: left; width: 100%; }
+.row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; text-align: left; width: 100%; }
 .row:hover { border-color: var(--line-2); background: var(--panel-2); }
 .row .ic { width: 44px; height: 44px; border-radius: 8px; background: var(--panel-2); display: grid; place-items: center; overflow: hidden; font: 600 18px var(--display); color: var(--faint); }
 .row .ic img { width: 100%; height: 100%; object-fit: cover; }
 .row .ic.item img { object-fit: contain; padding: 3px; }
 .row .main { min-width: 0; }
 .row .nm { font-weight: 600; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
-.row .sub { color: var(--dim); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.row .sub { color: var(--dim); font-size: 13px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .row .side { display: flex; flex-wrap: nowrap; justify-content: end; gap: 4px 14px; }
-.kv { display: grid; text-align: right; line-height: 1.15; }
-.kv span { font: 500 10px var(--mono); letter-spacing: .08em; color: var(--faint); text-transform: uppercase; }
-.kv b { font: 500 13.5px var(--mono); font-variant-numeric: tabular-nums; }
-.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 0 8px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--dim); white-space: nowrap; line-height: 18px; }
+.kv { display: grid; text-align: right; line-height: 1.2; }
+.kv span { font: 500 11px var(--mono); color: var(--faint); text-transform: uppercase; }
+.kv b { font: 500 14px var(--mono); font-variant-numeric: tabular-nums; }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; padding: 0 7px; border-radius: 4px; border: 1px solid var(--line-2); color: var(--dim); white-space: nowrap; line-height: 20px; }
 .pill.pass { border-color: transparent; background: var(--panel-2); }
 .pill.agg { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 50%, transparent); }
 .pill.mvp { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 55%, transparent); }
+.pill.oath { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 45%, transparent); }
+.pill.t3 { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
 .r-common { color: var(--r-common); } .r-uncommon { color: var(--r-uncommon); } .r-rare { color: var(--r-rare); } .r-epic { color: var(--r-epic); } .r-legend { color: var(--r-legend); }
 .pill.r-common { border-color: color-mix(in srgb, var(--r-common) 40%, transparent); } .pill.r-uncommon { border-color: color-mix(in srgb, var(--r-uncommon) 45%, transparent); }
 .pill.r-rare { border-color: color-mix(in srgb, var(--r-rare) 45%, transparent); } .pill.r-epic { border-color: color-mix(in srgb, var(--r-epic) 50%, transparent); } .pill.r-legend { border-color: color-mix(in srgb, var(--r-legend) 55%, transparent); }
@@ -73,86 +79,113 @@ main { margin-top: 14px; }
 /* Class */
 .lines { display: grid; gap: 14px; }
 .line { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 10px; }
-.branch { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.cls { position: relative; display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 4px 12px; align-items: start; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; cursor: pointer; text-align: left; width: 100%; }
-.cls::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 3px; border-radius: 12px 0 0 12px; background: var(--glow); }
+.branch { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.col { display: grid; gap: 6px; align-content: start; }
+.line > .cls { align-self: start; }
+.cls { position: relative; display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 4px 12px; align-items: start; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; cursor: pointer; text-align: left; width: 100%; }
+.cls::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 3px; border-radius: 8px 0 0 8px; background: var(--glow); }
 .cls:hover { border-color: var(--line-2); background: var(--panel-2); }
+.cls.t3 { border-style: dashed; border-color: color-mix(in srgb, var(--glow) 45%, var(--line)); }
 .cls img, .cls .em { width: 48px; height: 48px; grid-row: span 2; }
-.cls .em { border-radius: 50%; background: var(--panel-2); }
-.cls h3 { margin: 0; font: 600 16px/1.2 var(--display); }
-.cls .th { color: var(--dim); font-size: 12px; }
-.cls .role { grid-column: 2; font-size: 12.5px; }
+.cls .em { border-radius: 8px; background: var(--panel-2); }
+.cls h3 { margin: 0; font: 600 16px/1.3 var(--display); }
+.cls .th { color: var(--dim); font-size: 13px; }
+.cls .role { grid-column: 2; font-size: 13px; }
 .cls .meta { grid-column: 2; display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-.tier { font: 500 10px var(--mono); letter-spacing: .14em; color: var(--faint); text-transform: uppercase; }
+.tier { font: 500 11px var(--mono); color: var(--faint); text-transform: uppercase; }
+.note { color: var(--dim); margin-top: 16px; max-width: 72ch; }
 
 /* maps */
-.maps { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
-.mapc { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 8px; align-content: start; }
-.mapc h3 { margin: 0; font: 600 17px/1.2 var(--display); display: flex; justify-content: space-between; gap: 8px; }
+.maps { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 10px; }
+.mapc { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.mapc h3 { margin: 0; font: 600 17px/1.3 var(--display); display: flex; justify-content: space-between; gap: 8px; }
 .mapc h3 span { font: 500 12px var(--mono); color: var(--accent); white-space: nowrap; }
-.mapc .th { color: var(--dim); font-size: 12.5px; margin-top: -6px; }
+.mapc .th { color: var(--dim); font-size: 13px; margin-top: -6px; }
 .mobchips { display: flex; flex-wrap: wrap; gap: 6px; }
-.mobchip { display: inline-flex; align-items: center; gap: 6px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px 2px 2px; cursor: pointer; font-size: 12.5px; }
-.mobchip img { width: 24px; height: 24px; border-radius: 50%; }
+.mobchip { display: inline-flex; align-items: center; gap: 6px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 2px 10px 2px 2px; cursor: pointer; font-size: 13px; }
+.mobchip img { width: 24px; height: 24px; border-radius: 4px; }
 .mobchip i { font: 500 11px var(--mono); font-style: normal; color: var(--faint); }
-.mapc .k { font: 500 10.5px var(--mono); letter-spacing: .12em; color: var(--faint); text-transform: uppercase; }
+.mapc .k { font: 500 12px var(--mono); color: var(--faint); text-transform: uppercase; }
 
 /* quests / tables */
-.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-th { text-align: left; font: 500 10.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--faint); padding: 9px 12px; background: var(--panel); position: sticky; top: 0; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; max-width: 100%; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font: 500 12px var(--mono); text-transform: uppercase; color: var(--faint); padding: 9px 12px; background: var(--panel); position: sticky; top: 0; }
 td { padding: 8px 12px; border-top: 1px solid var(--line); vertical-align: top; }
 td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .ch { font: 600 12px var(--mono); color: var(--accent); }
 
-/* gacha */
+/* panels (gacha / guide / passive / build) */
 .gacha { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 16px; align-items: start; }
-.rules { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 10px; }
-.rules h3 { margin: 0; font: 600 18px var(--display); }
-.rules dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; }
+.rules { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: grid; gap: 10px; min-width: 0; }
+.rules h3 { margin: 0; font: 600 18px/1.35 var(--display); }
+.rules dl { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; }
 .rules dt { color: var(--dim); } .rules dd { margin: 0; font-weight: 500; }
-.rate { display: grid; grid-template-columns: 30px minmax(0, 1fr) 56px; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.rules ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.rules p { margin: 0; }
+.stack { display: grid; gap: 12px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); gap: 12px; }
+.rate { display: grid; grid-template-columns: 30px minmax(0, 1fr) 64px; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); }
 .rate img, .rate .ph { width: 30px; height: 30px; object-fit: contain; }
-.rate .bar2 { height: 6px; border-radius: 3px; background: var(--panel-2); overflow: hidden; margin-top: 4px; }
-.rate .bar2 b { display: block; height: 100%; background: var(--accent); }
-.rate .pc { font: 500 13px var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+.rate .pc { font: 500 14px var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+.node { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.node:last-child { border-bottom: 0; }
+.node b { font-weight: 600; }
+.node small { color: var(--dim); font-size: 13px; }
+.ks { color: var(--gold); }
+.buildin { display: grid; gap: 8px; }
+.buildin textarea { width: 100%; min-height: 84px; resize: vertical; background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 8px; padding: 10px 12px; font: 500 13px var(--mono); word-break: break-all; }
+.btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn { border: 1px solid var(--line-2); background: var(--panel-2); border-radius: 6px; padding: 6px 12px; cursor: pointer; font-weight: 500; }
+.btn.main { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.err { color: var(--bad); }
+.portraits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 10px 0; }
+.portraits figure { margin: 0; background: var(--panel-2); border-radius: 8px; padding: 6px; text-align: center; }
+.portraits img { width: 100%; max-width: 200px; height: auto; aspect-ratio: 1; object-fit: contain; }
+.portraits figcaption { color: var(--dim); font-size: 13px; }
+.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(420px, 100%), 1fr)); gap: 12px; align-items: start; }
+.shot { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; min-width: 0; }
+.shot img { display: block; width: 100%; height: auto; }
+.shot.phone img { max-width: 260px; margin: 0 auto; }
+.shot figcaption { padding: 8px 12px 10px; display: grid; gap: 2px; }
+.shot figcaption span { color: var(--dim); font-size: 13px; }
 
 /* sheet */
 [hidden] { display: none !important; }
 .scrim { position: fixed; inset: 0; z-index: 20; background: rgba(2, 6, 10, .6); display: flex; justify-content: flex-end; }
-.sheet { width: min(520px, 100%); height: 100%; overflow-y: auto; background: var(--panel); border-left: 1px solid var(--line-2); padding: 18px 18px 40px; padding-top: calc(18px + env(safe-area-inset-top, 0px)); }
-.sheet .x { float: right; border: 1px solid var(--line-2); background: var(--panel-2); border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+.sheet { width: min(520px, 100%); height: 100%; overflow-y: auto; overflow-x: hidden; background: var(--panel); border-left: 1px solid var(--line-2); padding: 18px 18px 40px; padding-top: calc(18px + env(safe-area-inset-top, 0px)); }
+.sheet .x { float: right; border: 1px solid var(--line-2); background: var(--panel-2); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
 .sh-head { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 14px; align-items: center; margin: 4px 0 14px; clear: both; }
-.sh-head img, .sh-head .ph { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; background: var(--panel-2); }
-.sh-head h2 { margin: 0; font: 700 22px/1.15 var(--display); text-wrap: balance; }
-.sh-head .th { color: var(--dim); font-size: 13px; }
+.sh-head img, .sh-head .ph { width: 64px; height: 64px; border-radius: 8px; object-fit: cover; background: var(--panel-2); }
+.sh-head h2 { margin: 0; font: 700 22px/1.3 var(--display); text-wrap: balance; }
+.sh-head .th { color: var(--dim); font-size: 14px; }
 .sec { margin-top: 16px; }
-.sec h4 { margin: 0 0 6px; font: 500 10.5px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.sec h4 { margin: 0 0 6px; font: 600 12px var(--mono); text-transform: uppercase; color: var(--accent); }
 .sec p { margin: 0; color: var(--ink); max-width: 62ch; }
 .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
-.stat { background: var(--panel-2); border-radius: 8px; padding: 6px 10px; }
-.stat span { display: block; font: 500 10px var(--mono); letter-spacing: .1em; color: var(--faint); text-transform: uppercase; }
-.stat b { font: 500 14px var(--mono); font-variant-numeric: tabular-nums; }
+.stat { background: var(--panel-2); border-radius: 8px; padding: 6px 10px; min-width: 0; }
+.stat span { display: block; font: 500 11px var(--mono); color: var(--faint); text-transform: uppercase; }
+.stat b { font: 500 14px var(--mono); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .drops { display: grid; gap: 4px; }
 .drop { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 4px 6px; border-radius: 8px; cursor: pointer; }
 .drop:hover { background: var(--panel-2); }
 .drop img, .drop .ph { width: 28px; height: 28px; object-fit: contain; border-radius: 6px; }
 .drop .ph { background: var(--panel-2); }
-.drop .pc { font: 500 12.5px var(--mono); color: var(--dim); font-variant-numeric: tabular-nums; }
+.drop .pc { font: 500 13px var(--mono); color: var(--dim); font-variant-numeric: tabular-nums; }
 .sk-mini { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
 .sk-mini img, .sk-mini .ph { width: 36px; height: 36px; border-radius: 8px; }
-.sk-mini small { color: var(--dim); display: block; font-size: 12px; }
+.sk-mini small { color: var(--dim); display: block; font-size: 13px; }
 .build { display: flex; flex-wrap: wrap; gap: 4px; }
 .mono { font-family: var(--mono); }
 
 @media (max-width: 760px) {
-  .line, .branch, .gacha { grid-template-columns: 1fr; }
+  .line, .branch, .gacha { grid-template-columns: minmax(0, 1fr); }
   .row { grid-template-columns: 40px minmax(0, 1fr); }
   .row .ic { width: 40px; height: 40px; }
   .row .side { grid-column: 2; justify-content: start; flex-wrap: wrap; }
   .kv { text-align: left; }
-  .maps { grid-template-columns: 1fr; }
   .search kbd { display: none; }
+  .result-n { margin-left: 0; }
 }
 @media (prefers-reduced-motion: no-preference) { .sheet { animation: slide .18s ease-out; } @keyframes slide { from { transform: translateX(24px); opacity: .6; } } }
 </style>
@@ -168,7 +201,7 @@ td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-spa
   <div class="bar">
     <label class="search" for="q">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <input id="q" type="search" placeholder="ค้นหาชื่อ คำอธิบาย มอน ไอเทม…" autocomplete="off">
+      <input id="q" type="search" placeholder="ค้นหาชื่อ คำอธิบาย มอน ไอเทม รูน…" autocomplete="off">
       <kbd>/</kbd>
     </label>
     <nav class="tabs" id="tabs" aria-label="หมวด"></nav>
@@ -188,13 +221,16 @@ const IC = D.icons, J = D.jobs;
 const img = (k, cls) => IC[k] ? `<img src="${IC[k]}" alt="" loading="lazy"${cls ? ` class="${cls}"` : ''}>` : `<span class="ph"></span>`;
 const RAR = { common: 'ธรรมดา', uncommon: 'ดี', rare: 'หายาก', epic: 'Epic', legend: 'ตำนาน' };
 const RORD = ['common', 'uncommon', 'rare', 'epic', 'legend'];
-const SLOT = { weapon: 'อาวุธ', armor: 'ชุดเกราะ', head: 'หมวก', shield: 'โล่', garment: 'ผ้าคลุม', shoes: 'รองเท้า', acc: 'เครื่องประดับ', accessory: 'เครื่องประดับ' };
-const RACE = { formless: 'ไร้รูป', plant: 'พืช', insect: 'แมลง', brute: 'สัตว์', angel: 'เทวดา', undead: 'อมตะ', demon: 'ปีศาจ' };
+const SLOT = { weapon: 'อาวุธ', armor: 'ชุดเกราะ', head: 'หมวก', shield: 'โล่', garment: 'ผ้าคลุม', shoes: 'รองเท้า', acc: 'เครื่องประดับ', acc2: 'เครื่องประดับ 2', accessory: 'เครื่องประดับ' };
+const RACE = { formless: 'ไร้รูป', plant: 'พืช', insect: 'แมลง', brute: 'สัตว์', angel: 'เทวดา', undead: 'อมตะ', demon: 'ปีศาจ', dragon: 'มังกร', human: 'ผู้เล่น' };
 const ELE = Object.assign({ neutral: 'ไร้ธาตุ', water: 'น้ำ', earth: 'ดิน', fire: 'ไฟ', wind: 'ลม', holy: 'ศักดิ์สิทธิ์', undead: 'อมตะ', poison: 'พิษ', shadow: 'มืด' }, D.elem || {});
 const STAT = { str: 'STR', agi: 'AGI', vit: 'VIT', int: 'INT', dex: 'DEX', luk: 'LUK', atk: 'ATK', matk: 'MATK', def: 'DEF', mdef: 'MDEF', hit: 'HIT', flee: 'FLEE', crit: 'CRIT', hp: 'HP', sp: 'SP', aspd: 'ASPD', hpPct: 'HP%', spPct: 'SP%', atkPct: 'ATK%', matkPct: 'MATK%', speedPct: 'วิ่ง%', cdCut: 'ลดคูลดาวน์%', healPct: 'ฮีล%' };
 const bonus = o => o ? Object.entries(o).map(([k, v]) => `${STAT[k] || k} ${v > 0 ? '+' : ''}${v}`).join(' · ') : '';
 const MOB = Object.fromEntries(D.mobs.map(m => [m.id, m])), ITEM = Object.fromEntries(D.items.map(i => [i.id, i])), SK = Object.fromEntries(D.skills.map(s => [s.id, s])), MAP = Object.fromEntries(D.maps.map(m => [m.id, m]));
+const RUNE = Object.fromEntries((D.runes || []).map(r => [r.id, r])), HR = Object.fromEntries(((D.hunt || {}).list || []).map(r => [r.id, r]));
 const firsts = Object.keys(D.second), seconds = firsts.flatMap(f => D.second[f]);
+const third = D.third || {}, thirds = seconds.filter(s => third[s] && J[third[s]]).map(s => third[s]);
+const tierName = k => J[k].tier === 3 ? 'Class 3' : J[k].tier === 2 ? 'Class 2' : k === 'novice' ? 'Novice' : 'Class 1';
 const line = j => { const o = []; for (let x = j; x && J[x]; x = J[x].parent) o.push(x); return o; };
 const canUse = (jobs, cls) => jobs === 'all' || !cls || line(cls).some(x => jobs.includes(x));
 const jobsTxt = j => j === 'all' || !j ? 'ทุก Class' : j.filter(x => x !== 'novice').length >= 6 ? 'หลาย Class' : j.filter(x => x !== 'novice').map(x => J[x] ? J[x].name : x).join(', ');
@@ -203,7 +239,11 @@ for (const m of D.mobs) { for (const [iid, r] of m.drops) (dropsBy[iid] = dropsB
 for (const k in dropsBy) dropsBy[k].sort((a, b) => (b[1] ?? 1) - (a[1] ?? 1));
 const srcTxt = id => [D.shopOf[id] ? 'ร้านค้า' : '', ...(dropsBy[id] || []).slice(0, 2).map(([m, r]) => `${MOB[m].name}${r != null ? ' ' + pct(r) : ''}`)].filter(Boolean).join(' · ');
 const kv = (k, v) => `<div class="kv"><span>${k}</span><b>${v}</b></div>`;
-const clsOpts = (all = 'ทุก Class') => `<option value="">${all}</option>` + firsts.map(f => `<optgroup label="${esc(J[f].name)}"><option value="${f}">${esc(J[f].name)}</option>${D.second[f].map(s => `<option value="${s}">↳ ${esc(J[s].name)}</option>`).join('')}</optgroup>`).join('');
+const clsOpts = (all = 'ทุก Class') => `<option value="">${all}</option>` + firsts.map(f => `<optgroup label="${esc(J[f].name)}"><option value="${f}">${esc(J[f].name)}</option>${D.second[f].map(s => `<option value="${s}">↳ ${esc(J[s].name)}</option>${third[s] && J[third[s]] ? `<option value="${third[s]}">&nbsp;&nbsp;↳ ${esc(J[third[s]].name)} (Class 3)</option>` : ''}`).join('')}</optgroup>`).join('');
+const runesOfJob = k => (J[k].skills || []).flatMap(s => (D.runes || []).filter(r => r.skill === s));
+const ultOf = k => (D.ults || []).find(u => u.job === k);
+const chipTxt = D.chip && D.chip.drop != null ? `ชิปดรอปสุ่ม: มอนทั่วไป ${pct(D.chip.drop)} · MVP ${pct(D.chip.boss)} ต่อตัว (ดรอปซ้ำได้)` : '';
+const zenyTxt = m => m.zeny ? (m.zeny[0] === m.zeny[1] ? num(m.zeny[0]) : `${num(m.zeny[0])}–${num(m.zeny[1])}`) : '–';
 
 // ---------- state ----------
 const S = { tab: 'class', q: '', f: {} };
@@ -214,34 +254,45 @@ const match = (...parts) => !S.q || parts.join(' ').toLowerCase().includes(S.q);
 // ---------- tabs ----------
 const weapons = D.items.filter(i => i.type === 'weapon'), armors = D.items.filter(i => i.type === 'armor'), chips = D.items.filter(i => i.type === 'card'), misc = D.items.filter(i => i.type === 'use' || i.type === 'etc');
 const TABS = {
-  class: { label: 'Class', n: firsts.length + seconds.length },
+  class: { label: 'Class', n: firsts.length + seconds.length + thirds.length },
   skill: { label: 'สกิล', n: D.skills.length },
+  rune: { label: 'Skill Rune / Oath', n: (D.runes || []).length },
+  hunt: { label: 'Hunt Rune', n: ((D.hunt || {}).list || []).length },
+  ult: { label: 'ไม้ตาย', n: (D.ults || []).length },
+  passive: { label: 'Passive', n: (D.passive ? D.passive.sects.length : 0) },
   mob: { label: 'มอนสเตอร์', n: D.mobs.length },
   weapon: { label: 'อาวุธ', n: weapons.length },
   armor: { label: 'ชุดเกราะ', n: armors.length },
   chip: { label: 'ชิป', n: chips.length },
   item: { label: 'ไอเทม', n: misc.length },
   map: { label: 'แผนที่', n: D.maps.length },
-  quest: { label: 'เควสต์', n: D.quests.length },
+  quest: { label: 'เควสต์', n: D.quests.length + (D.side || []).length },
   gacha: { label: 'กาชา', n: D.gacha.table.length },
+  guide: { label: 'วิธีเล่น', n: (D.help || []).length },
+  shots: { label: 'ภาพเกม', n: (D.shots || []).length },
+  build: { label: 'Build Code', n: '' },
 };
 if (!TABS[S.tab]) S.tab = 'class';
-$('#counts').innerHTML = [['Class', firsts.length + seconds.length], ['สกิล', D.skills.length], ['มอน', D.mobs.length], ['ไอเทม', D.items.length], ['แผนที่', D.maps.length]].map(([k, v]) => `<span><b>${v}</b> ${k}</span>`).join('');
+$('#counts').innerHTML = [['Class', firsts.length + seconds.length + thirds.length], ['สกิล', D.skills.length], ['รูน', (D.runes || []).length + ((D.hunt || {}).list || []).length], ['มอน', D.mobs.length], ['ไอเทม', D.items.length], ['แผนที่', D.maps.length]].map(([k, v]) => `<span><b>${v}</b> ${k}</span>`).join('');
 function drawTabs() {
-  $('#tabs').innerHTML = Object.entries(TABS).map(([k, t]) => `<button type="button" class="tab${k === S.tab ? ' on' : ''}" data-tab="${k}">${t.label}<small>${t.n}</small></button>`).join('');
+  $('#tabs').innerHTML = Object.entries(TABS).map(([k, t]) => `<button type="button" class="tab${k === S.tab ? ' on' : ''}" data-tab="${k}">${t.label}${t.n !== '' ? `<small>${t.n}</small>` : ''}</button>`).join('');
 }
 $('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (!b) return; S.tab = b.dataset.tab; S.f = {}; try { localStorage.setItem('codex-tab', S.tab); } catch (err) {} history.replaceState(null, '', '#' + S.tab); render(); });
 $('#q').addEventListener('input', e => { S.q = e.target.value.trim().toLowerCase(); body(); });
-addEventListener('keydown', e => { if (e.key === '/' && document.activeElement !== $('#q')) { e.preventDefault(); $('#q').focus(); } if (e.key === 'Escape') closeSheet(); });
+addEventListener('keydown', e => { if (e.key === '/' && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) { e.preventDefault(); $('#q').focus(); } if (e.key === 'Escape') closeSheet(); });
 
 // ---------- filters ----------
+const chipSel = (k, opts) => `<div class="chipsel" data-f="${k}">${opts.map(([v, l]) => `<button type="button" data-v="${v}">${l}</button>`).join('')}</div>`;
 const FILTERS = {
-  skill: () => `<label>Class <select data-f="cls">${clsOpts()}</select></label><div class="chipsel" data-f="type">${[['', 'ทั้งหมด'], ['active', 'กดใช้'], ['passive', 'ติดตัว']].map(([v, l]) => `<button type="button" data-v="${v}">${l}</button>`).join('')}</div>`,
-  mob: () => `<label>แผนที่ <select data-f="map"><option value="">ทุกแผนที่</option>${D.maps.filter(m => m.spawns.length).map(m => `<option value="${m.id}">${esc(m.name)}${m.level ? ' · ' + esc(m.level.replace(/\s*\(.*/, '')) : ''}</option>`).join('')}</select></label><div class="chipsel" data-f="agg">${[['', 'ทั้งหมด'], ['1', 'ดุ'], ['0', 'ไม่ดุ']].map(([v, l]) => `<button type="button" data-v="${v}">${l}</button>`).join('')}</div>`,
+  skill: () => `<label>Class <select data-f="cls">${clsOpts()}</select></label>${chipSel('type', [['', 'ทั้งหมด'], ['active', 'กดใช้'], ['passive', 'ติดตัว']])}`,
+  rune: () => `<label>Class <select data-f="cls">${clsOpts()}</select></label>${chipSel('kind', [['', 'ทั้งหมด'], ['oath', 'Oath'], ['rune', 'รูนสกิล']])}${chipSel('intent', [['', 'ทุกแนว'], ['single', 'เป้าเดี่ยว'], ['pack', 'ฝูง'], ['both', 'รอบด้าน']])}`,
+  hunt: () => chipSel('kind', [['', 'ทั้งหมด'], ...Object.entries((D.hunt || {}).kinds || {})]),
+  mob: () => `<label>แผนที่ <select data-f="map"><option value="">ทุกแผนที่</option>${D.maps.filter(m => m.spawns.length).map(m => `<option value="${m.id}">${esc(m.name)}${m.level ? ' · ' + esc(m.level.replace(/\s*\(.*/, '')) : ''}</option>`).join('')}</select></label>${chipSel('agg', [['', 'ทั้งหมด'], ['1', 'ดุ'], ['0', 'ไม่ดุ']])}`,
   weapon: () => `<label>ใส่ได้โดย <select data-f="cls">${clsOpts()}</select></label><label>ชนิด <select data-f="wt"><option value="">ทุกชนิด</option>${[...new Set(weapons.map(w => w.wtype))].map(t => `<option value="${t}">${esc(D.wtype[t] || t)}</option>`).join('')}</select></label><label>ความหายาก <select data-f="rar"><option value="">ทั้งหมด</option>${RORD.map(r => `<option value="${r}">${RAR[r]}</option>`).join('')}</select></label>`,
   armor: () => `<label>ใส่ได้โดย <select data-f="cls">${clsOpts()}</select></label><label>ตำแหน่ง <select data-f="slot"><option value="">ทุกตำแหน่ง</option>${[...new Set(armors.map(a => a.slot))].map(s => `<option value="${s}">${SLOT[s] || s}</option>`).join('')}</select></label><label>ความหายาก <select data-f="rar"><option value="">ทั้งหมด</option>${RORD.map(r => `<option value="${r}">${RAR[r]}</option>`).join('')}</select></label>`,
   chip: () => `<label>ใส่ใน <select data-f="slot"><option value="">ทุกตำแหน่ง</option>${[...new Set(chips.map(a => a.slot))].map(s => `<option value="${s}">${SLOT[s] || s}</option>`).join('')}</select></label>`,
-  item: () => `<div class="chipsel" data-f="type">${[['', 'ทั้งหมด'], ['use', 'ใช้งาน'], ['etc', 'วัตถุดิบ']].map(([v, l]) => `<button type="button" data-v="${v}">${l}</button>`).join('')}</div>`,
+  item: () => chipSel('type', [['', 'ทั้งหมด'], ['use', 'ใช้งาน'], ['etc', 'วัตถุดิบ']]),
+  quest: () => chipSel('kind', [['', 'เนื้อเรื่อง'], ['side', 'เควสต์เสริม'], ['lore', 'จุดตำนาน']]),
 };
 function drawFilters() {
   const el = $('#filters');
@@ -255,45 +306,84 @@ const itemRow = i => `<button type="button" class="row" data-item="${i.id}"><spa
   i.type === 'weapon' ? kv('ATK', i.atk || '–') + (i.matk ? kv('MATK', i.matk) : '') + kv('Lv', i.lv) + kv('ชิป', i.slots) :
   i.type === 'armor' ? kv('DEF', i.def || '–') + (i.mdef ? kv('MDEF', i.mdef) : '') + kv('Lv', i.lv) + kv('ชิป', i.slots) :
   i.type === 'card' ? kv('ใส่ใน', SLOT[i.slot] || i.slot) : kv('ราคา', num(i.price))}</span></button>`;
-const mobRow = m => `<button type="button" class="row" data-mob="${m.id}"><span class="ic">${img('m:' + m.id)}</span><span class="main"><span class="nm">${esc(m.name)}${m.mvp ? '<span class="pill mvp">MVP</span>' : ''}${m.aggro ? '<span class="pill agg">ดุ</span>' : ''}</span><span class="sub">${ELE[m.el] || m.el} · ${RACE[m.race] || m.race} · ${m.maps.map(k => MAP[k] ? MAP[k].name : k).join(', ')}</span></span><span class="side">${kv('Lv', m.lv)}${kv('HP', num(m.hp))}${kv('EXP', num(m.exp))}</span></button>`;
-const skillRow = s => `<button type="button" class="row" data-skill="${s.id}"><span class="ic">${img('s:' + s.id)}</span><span class="main"><span class="nm">${esc(s.name)}<span class="pill pass">${s.type === 'passive' ? 'ติดตัว' : 'กดใช้'}</span>${s.job ? `<span class="pill">${esc(J[s.job].name)}</span>` : ''}</span><span class="sub">${esc(s.desc)}</span></span><span class="side">${kv('Lv', s.max)}${s.cd ? kv('CD', s.cd + 's') : ''}${s.spMax ? kv('SP', s.sp1 === s.spMax ? s.sp1 : s.sp1 + '–' + s.spMax) : ''}</span></button>`;
-const clsCard = (k, tier) => { const j = J[k]; return `<button type="button" class="cls" data-cls="${k}" style="--glow:${j.glow}">${IC['e:' + k] ? `<img src="${IC['e:' + k]}" alt="">` : '<span class="em"></span>'}<span><span class="tier">${tier}</span><h3>${esc(j.name)}</h3><span class="th">${esc(j.thai)}</span></span><span class="role">${esc(j.role)}</span><span class="meta"><span class="pill">${esc(j.stats)}</span><span class="pill pass mono">HP ×${j.hp}</span><span class="pill pass mono">SP ×${j.sp}</span></span></button>`; };
+const mobRow = m => `<button type="button" class="row" data-mob="${m.id}"><span class="ic">${img('m:' + m.id)}</span><span class="main"><span class="nm">${esc(m.name)}${m.mvp ? '<span class="pill mvp">MVP</span>' : ''}${m.elite ? '<span class="pill oath">Elite</span>' : ''}${m.aggro ? '<span class="pill agg">ดุ</span>' : ''}</span><span class="sub">${ELE[m.el] || m.el} · ${RACE[m.race] || m.race} · ${m.maps.map(k => MAP[k] ? MAP[k].name : k).join(', ')}</span></span><span class="side">${kv('Lv', m.lv)}${kv('HP', num(m.hp))}${kv('EXP', num(m.exp))}</span></button>`;
+const skillRow = s => `<button type="button" class="row" data-skill="${s.id}"><span class="ic">${img('s:' + s.id)}</span><span class="main"><span class="nm">${esc(s.name)}<span class="pill pass">${s.type === 'passive' ? 'ติดตัว' : 'กดใช้'}</span>${s.job ? `<span class="pill${J[s.job].tier === 3 ? ' t3' : ''}">${esc(J[s.job].name)}</span>` : ''}</span><span class="sub">${esc(s.desc)}</span></span><span class="side">${kv('Lv', s.max)}${s.cd ? kv('CD', s.cd + 's') : ''}${s.spMax ? kv('SP', s.sp1 === s.spMax ? s.sp1 : s.sp1 + '–' + s.spMax) : ''}</span></button>`;
+const runeKind = r => r.oath ? '<span class="pill oath">Oath</span>' : J[SK[r.skill] && SK[r.skill].job] && J[SK[r.skill].job].tier === 3 ? '<span class="pill t3">รูน ★</span>' : '<span class="pill pass">รูน</span>';
+const runeRow = r => { const s = SK[r.skill] || {}; return `<button type="button" class="row" data-rune="${r.id}"><span class="ic item">${img('r:' + r.id)}</span><span class="main"><span class="nm">${esc(r.name)}${runeKind(r)}${s.job ? `<span class="pill">${esc(J[s.job].name)}</span>` : ''}</span><span class="sub">${esc(r.short || r.desc)}</span></span><span class="side">${kv('สกิล', esc(s.name || r.skill))}${kv('แนว', esc(r.intentTh || '–'))}</span></button>`; };
+const huntRow = r => `<button type="button" class="row" data-hunt="${r.id}"><span class="ic item">${img('h:' + r.id)}</span><span class="main"><span class="nm"><span class="r-${r.rarity}">${esc(r.name)}</span><span class="pill pass">${esc((D.hunt.kinds || {})[r.kind] || r.kind)}</span>${r.arena ? '<span class="pill agg">ลานประลอง</span>' : ''}</span><span class="sub">${esc(r.short)}</span></span><span class="side">${kv('ราคา', num(r.price))}</span></button>`;
+const clsCard = (k, tier) => { const j = J[k]; return `<button type="button" class="cls${j.tier === 3 ? ' t3' : ''}" data-cls="${k}" style="--glow:${j.glow}">${IC['e:' + k] ? `<img src="${IC['e:' + k]}" alt="">` : '<span class="em"></span>'}<span><span class="tier">${tier}</span><h3>${esc(j.name)}</h3><span class="th">${esc(j.thai)}</span></span><span class="role">${esc(j.role)}</span><span class="meta"><span class="pill">${esc(j.stats)}</span><span class="pill pass mono">HP ×${j.hp}</span><span class="pill pass mono">SP ×${j.sp}</span></span></button>`; };
+const table = (heads, rows) => `<div class="tablewrap"><table><thead><tr>${heads.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 
 function body() {
   const out = $('#out'); let html = '', n = 0;
   const f = S.f, list = (rows) => { n = rows.length; return rows.length ? `<div class="list">${rows.join('')}</div>` : '<div class="empty">ไม่พบข้อมูลที่ตรงกับตัวกรอง</div>'; };
   if (S.tab === 'class') {
     const hit = k => match(J[k].name, J[k].thai, J[k].role, J[k].desc);
-    const ls = firsts.filter(fk => hit(fk) || D.second[fk].some(hit));
+    const ls = firsts.filter(fk => hit(fk) || D.second[fk].some(s => hit(s) || (third[s] && J[third[s]] && hit(third[s]))));
     n = ls.length;
-    html = `<div class="lines">${ls.map(fk => `<div class="line">${clsCard(fk, 'Class 1')}<div class="branch">${D.second[fk].map(s => clsCard(s, 'Class 2')).join('')}</div></div>`).join('')}</div>
-      <p style="color:var(--dim);margin-top:16px;max-width:70ch">Novice → Job Lv ${D.jobChange} เลือก Class 1 → Base Lv ${D.req.base} + Job Lv ${D.req.job} (Job ของ Class 1 เต็ม) เลือก Class 2 หนึ่งสาย • เปลี่ยนที่ Mimir AI ในนีโอเอลด์ไฮม์</p>`;
+    const R3 = D.thirdReq;
+    html = `<div class="lines">${ls.map(fk => `<div class="line">${clsCard(fk, 'Class 1')}<div class="branch">${D.second[fk].map(s => `<div class="col">${clsCard(s, 'Class 2')}${third[s] && J[third[s]] ? clsCard(third[s], 'Class 3') : ''}</div>`).join('')}</div></div>`).join('')}</div>
+      <p class="note">Novice → Job Lv ${D.jobChange} เลือก Class 1 → Base Lv ${D.req.base} + Job Lv ${D.req.job} (Job ของ Class 1 เต็ม) เลือก Class 2 หนึ่งสาย${R3 ? ` → Base Lv ${R3.base} + Job Lv ${R3.job} + จบเควสต์ "${esc(D.thirdQuest ? D.thirdQuest.title : R3.quest)}" แล้วผ่านเควสต์ทดสอบ "ความคิดสุดท้าย" (ดวลเงาแม่พิมพ์) → Class 3 (Class 2 ละ 1 สาย)` : ''} • เปลี่ยนที่ Mimir AI ในนีโอเอลด์ไฮม์</p>`;
   } else if (S.tab === 'skill') {
     html = list(D.skills.filter(s => (!f.cls || s.job === f.cls) && (!f.type || s.type === f.type) && match(s.name, s.desc, s.job ? J[s.job].name : '')).map(skillRow));
+  } else if (S.tab === 'rune') {
+    const rs = (D.runes || []).filter(r => { const s = SK[r.skill] || {}; return (!f.cls || s.job === f.cls) && (!f.kind || (f.kind === 'oath' ? !!r.oath : !r.oath)) && (!f.intent || r.intent === f.intent) && match(r.name, r.short, r.desc, s.name, s.job ? J[s.job].name : ''); });
+    html = `<p class="note" style="margin:0 0 10px">ปลดเมื่อ Skill Lv ${D.runeUnlock} · เลือก 0 หรือ 1 จาก 2 แบบต่อสกิล · เปลี่ยนฟรีนอกการต่อสู้ · หน้าต่าง Runes (Shift+R) · ไอคอนหินรูนมีจุดเรืองใต้อักษร 1 / 3 / 2 จุด = เป้าเดี่ยว / ฝูง / รอบด้าน · Class 3: Oath = รูนของสกิลติดตัว, รูน ★ = รูนของสกิลประจำตัว</p>` + list(rs.map(runeRow));
+  } else if (S.tab === 'hunt') {
+    const H = D.hunt || { list: [], unlock: [], kinds: {} };
+    const rs = H.list.filter(r => (!f.kind || r.kind === f.kind) && match(r.name, r.short, r.desc));
+    html = `<p class="note" style="margin:0 0 10px">${H.unlock.length} ช่อง (${H.unlock.map((v, i) => `ช่อง ${['I', 'II', 'III'][i]} = Base Lv ${v}`).join(' · ')}) · ซื้อครั้งเดียวที่ Brokk Forge-Bot แท็บ Hunt Rune แล้วใส่ในหน้าต่าง Runes (Shift+R) แท็บ Hunt Runes · สลับฟรีนอกการต่อสู้ · เพดานรวม +${Math.round(H.cap * 100)}% ต่อครั้ง · Endow ใส่ได้ 1 อัน</p>` + list(rs.map(huntRow));
+  } else if (S.tab === 'ult') {
+    const us = (D.ults || []).filter(u => match(u.name, u.th, u.desc, u.job ? J[u.job].name : ''));
+    n = us.length;
+    html = `<p class="note" style="margin:0 0 10px">เกจเต็มแล้วกด T หรือปุ่ม ULT · คลิกขวา/กดค้างปุ่ม ULT = เลือกไม้ตาย · ใช้ในลานประลองไม่ได้ · ไม้ตายกลางใช้ได้ทุก Class ส่วนตัวที่ผูก Class เป็นตัวเลือกที่ 4 ของ Class 3 นั้น</p>`
+      + table(['ไม้ตาย', 'ใช้ได้', 'ผล'], us.map(u => [`<b>${esc(u.name)}</b><div style="color:var(--dim);font-size:13px">${esc(u.th)}</div>`, u.job ? `<span class="pill t3">${esc(J[u.job].name)}</span>` : 'ทุก Class', esc(u.desc)]));
+  } else if (S.tab === 'passive') {
+    const P = D.passive;
+    if (P) {
+      const sects = P.sects.filter(s => match(s.name, s.th, s.tag, s.key.name, s.key.fx, ...s.notables.map(x => x.name + ' ' + x.fx + ' ' + x.b)));
+      n = sects.length;
+      html = `<div class="stack"><div class="rules"><h3>เพดานรวมจากต้นไม้</h3><p style="color:var(--dim)">ได้ 1 แต้มต่อ 1 Base Level · เดินจากแกนกลางไปแฉกไหนก็ได้ · นับเฉพาะส่วนที่มาจากต้นไม้ (ของสวม/Class/สกิล/บัฟ ไม่ถูกตัด) · ผลมีเงื่อนไขด้านดาเมจ/ASPD/ฮีลนับรวมใต้เพดานเดียวกัน</p>
+        <dl>${Object.entries(P.cap).map(([k, v]) => `<dt>${esc(P.capLabel[k] || k)}</dt><dd class="mono">${v < 0 ? 'ลดได้ไม่เกิน ' + (-v) : v}</dd>`).join('')}${P.capFx && P.capFx.taken ? `<dt>ดาเมจที่โดนลดลงรวม</dt><dd class="mono">${P.capFx.taken}%</dd>` : ''}</dl></div>
+        <div class="grid2">${sects.map(s => `<section class="rules" style="border-left:3px solid ${J[s.job] ? J[s.job].glow : 'var(--line)'}"><div class="eyebrow">แฉก ${esc(J[s.job] ? J[s.job].name : s.job)}</div><h3>${esc(s.name)} · ${esc(s.th)}</h3><p style="color:var(--dim)">${esc(s.tag)} · สเตตัสหลัก ${s.main.toUpperCase()}</p>
+          <div>${s.notables.map(x => `<div class="node"><b>${esc(x.name)}</b><small>${esc([x.b, x.fx].filter(Boolean).join(' · '))}</small></div>`).join('')}<div class="node"><b class="ks">Keystone · ${esc(s.key.name)}</b><small>${esc([s.key.b, s.key.fx].filter(Boolean).join(' · '))}</small></div></div></section>`).join('')}</div></div>`;
+    }
   } else if (S.tab === 'mob') {
-    html = list(D.mobs.filter(m => (!f.map || m.maps.includes(f.map)) && (f.agg == null || f.agg === '' || String(+m.aggro) === f.agg) && match(m.name, m.drops.map(d => ITEM[d[0]] ? ITEM[d[0]].name : '').join(' '))).sort((a, b) => a.lv - b.lv).map(mobRow));
+    html = (chipTxt ? `<p class="note" style="margin:0 0 10px">${chipTxt} · ลูกสมุนบอสไม่มี EXP/Volt/ดรอป</p>` : '') + list(D.mobs.filter(m => (!f.map || m.maps.includes(f.map)) && (f.agg == null || f.agg === '' || String(+m.aggro) === f.agg) && match(m.name, m.drops.map(d => ITEM[d[0]] ? ITEM[d[0]].name : '').join(' '))).sort((a, b) => a.lv - b.lv).map(mobRow));
   } else if (S.tab === 'weapon' || S.tab === 'armor') {
     const src = S.tab === 'weapon' ? weapons : armors;
     html = list(src.filter(i => canUse(i.jobs, f.cls) && (!f.wt || i.wtype === f.wt) && (!f.slot || i.slot === f.slot) && (!f.rar || i.rarity === f.rar) && match(i.name, i.desc, srcTxt(i.id))).sort((a, b) => a.lv - b.lv || (a.atk + a.def) - (b.atk + b.def)).map(itemRow));
   } else if (S.tab === 'chip') {
-    html = list(chips.filter(i => (!f.slot || i.slot === f.slot) && match(i.name, i.desc, srcTxt(i.id))).map(itemRow));
+    html = (chipTxt ? `<p class="note" style="margin:0 0 10px">${chipTxt} · ถอดชิปฟรีที่เตาของ Brokk (แท็บ Chips)</p>` : '') + list(chips.filter(i => (!f.slot || i.slot === f.slot) && match(i.name, i.desc, srcTxt(i.id))).map(itemRow));
   } else if (S.tab === 'item') {
     html = list(misc.filter(i => (!f.type || i.type === f.type) && match(i.name, i.desc, srcTxt(i.id))).map(itemRow));
   } else if (S.tab === 'map') {
     const ms = D.maps.filter(m => match(m.name, m.thai, m.spawns.map(s => MOB[s[0]] ? MOB[s[0]].name : '').join(' '), m.npcs.join(' ')));
     n = ms.length;
     const KIND = { town: 'เมือง', field: 'ทุ่ง', cave: 'ถ้ำ / ดันเจี้ยน' };
-    html = `<div class="maps">${ms.map(m => `<section class="mapc"><h3>${esc(m.name)}<span>${esc((lv => m.kind === 'town' ? 'เมือง' : /^\d/.test(lv) ? 'Lv ' + lv : lv || KIND[m.kind])((m.level || '').replace(/\s*\(.*/, '')))}</span></h3><div class="th">${esc(m.thai)} · ${KIND[m.kind] || m.kind}</div>
+    const loreN = k => (D.lore || []).filter(l => l.map === k).length;
+    html = (D.gates ? `<p class="note" style="margin:0 0 10px">${esc(D.gates)} · ภาพจริงดูแท็บ ภาพเกม</p>` : '') + `<div class="maps">${ms.map(m => `<section class="mapc"><h3>${esc(m.name)}<span>${esc((lv => m.kind === 'town' ? 'เมือง' : /^\d/.test(lv) ? 'Lv ' + lv : lv || KIND[m.kind])((m.level || '').replace(/\s*\(.*/, '')))}</span></h3><div class="th">${esc(m.thai)} · ${KIND[m.kind] || m.kind}${m.w ? ` · ${m.w}×${m.h} ช่อง` : ''}${loreN(m.id) ? ` · จุดตำนาน ${loreN(m.id)}` : ''}</div>
       ${m.spawns.length ? `<div class="k">มอนสเตอร์</div><div class="mobchips">${m.spawns.map(([id, c]) => MOB[id] ? `<span class="mobchip" data-mob="${id}">${img('m:' + id)}${esc(MOB[id].name)}<i>Lv ${MOB[id].lv}</i></span>` : '').join('')}</div>` : ''}
-      ${m.mvp ? `<div class="k">MVP</div><div class="mobchips"><span class="mobchip" data-mob="${m.mvp}">${img('m:' + m.mvp)}${esc(MOB[m.mvp].name)}<i>Lv ${MOB[m.mvp].lv}</i></span>${m.wb ? `<span class="pill mvp">World Boss: Ancient ${esc(MOB[m.mvp].name)}</span>` : ''}</div>` : ''}
-      ${m.npcs.length ? `<div class="k">NPC</div><div style="color:var(--dim);font-size:13px">${m.npcs.map(esc).join(' · ')}</div>` : ''}
-      <div class="k">ทางเชื่อม</div><div style="font-size:13px">${Object.entries(m.links).map(([d, t]) => `${d} → ${esc(MAP[t] ? MAP[t].name : t)}`).join(' · ') || '–'}</div></section>`).join('')}</div>`;
+      ${m.mvp && MOB[m.mvp] ? `<div class="k">MVP</div><div class="mobchips"><span class="mobchip" data-mob="${m.mvp}">${img('m:' + m.mvp)}${esc(MOB[m.mvp].name)}<i>Lv ${MOB[m.mvp].lv}</i></span>${m.wb ? `<span class="pill mvp">World Boss: Ancient ${esc(MOB[m.mvp].name)}</span>` : ''}</div>` : ''}
+      ${(D.landmarks || {})[m.id] ? `<div class="k">จุดสังเกต</div><div style="font-size:14px">${esc(D.landmarks[m.id])}</div>` : ''}
+      ${m.npcs.length ? `<div class="k">NPC</div><div style="color:var(--dim);font-size:14px">${m.npcs.map(esc).join(' · ')}</div>` : ''}
+      <div class="k">ทางเชื่อม</div><div style="font-size:14px">${Object.entries(m.links).map(([d, t]) => `${d} → ${esc(MAP[t] ? MAP[t].name : t)}`).join(' · ') || '–'}</div></section>`).join('')}</div>`;
   } else if (S.tab === 'quest') {
-    const qs = D.quests.filter(q => match(q.title, q.desc));
-    n = qs.length;
-    html = `<div class="tablewrap"><table><thead><tr><th>บท</th><th>เควสต์</th><th>ทำอะไร</th><th>รางวัล</th></tr></thead><tbody>${qs.map(q => `<tr><td class="ch">${q.ch || 6}</td><td><b>${esc(q.title)}</b><div style="color:var(--dim);font-size:12px">${esc(q.desc || '')}</div></td><td>${esc(objTxt(q.obj))}</td><td>${esc(rwTxt(q.reward))}</td></tr>`).join('')}</tbody></table></div>`;
+    if (f.kind === 'side') {
+      const qs = (D.side || []).filter(q => match(q.title, q.giver, q.offer));
+      n = qs.length;
+      html = `<p class="note" style="margin:0 0 10px">รับ-ส่งกับ NPC · แสดงเป็นการ์ดในหน้าต่างเควสต์ (J)</p>` + table(['เควสต์', 'ผู้ให้', 'ขั้นตอน', 'รางวัล'], qs.map(q => [`<b>${esc(q.title)}</b><div style="color:var(--dim);font-size:13px">${esc(q.offer)}</div>`, esc(q.giver), esc(q.steps.map(sideStep).join(' → ')), esc(rwTxt(q.reward))]));
+    } else if (f.kind === 'lore') {
+      const ls = (D.lore || []).filter(l => match(l.name, l.title, MAP[l.map] ? MAP[l.map].name : l.map));
+      n = ls.length;
+      html = `<p class="note" style="margin:0 0 10px">${(D.lore || []).length} จุดทั่วโลก — เดินไปตรวจเพื่อปลดเรื่องเล่า · อ่านซ้ำในแท็บ Lore (Valhalla Codex) ของสมุดเควสต์${(D.newNpcs || []).length ? ` · NPC จาก World Pack: ${D.newNpcs.map(x => esc(x.name)).join(', ')}` : ''}</p>` + table(['แผนที่', 'จุด', 'เรื่อง'], ls.map(l => [esc(MAP[l.map] ? MAP[l.map].name : l.map), esc(l.name), esc(l.title)]));
+    } else {
+      const qs = D.quests.filter(q => match(q.title, q.desc));
+      n = qs.length;
+      html = `<div class="tablewrap"><table><thead><tr><th>บท</th><th>เควสต์</th><th>ทำอะไร</th><th>รางวัล</th></tr></thead><tbody>${qs.map(q => `<tr><td class="ch">${q.ch || 6}</td><td><b>${esc(q.title)}</b><div style="color:var(--dim);font-size:13px">${esc(q.desc || '')}</div></td><td>${esc(objTxt(q.obj))}</td><td>${esc(rwTxt(q.reward))}</td></tr>`).join('')}</tbody></table></div>`;
+    }
   } else if (S.tab === 'gacha') {
-    const G = D.gacha, tot = G.table.reduce((a, t) => a + t.pct, 0), mx = Math.max(...G.table.map(t => t.pct));
+    const G = D.gacha, tot = G.table.reduce((a, t) => a + t.pct, 0);
     const rows = G.table.filter(t => match(t.volt ? 'volt' : ITEM[t.id] ? ITEM[t.id].name : t.id));
     n = rows.length;
     html = `<div class="gacha"><div class="rules"><div class="eyebrow">Norn's Wheel</div><h3>วงล้อนอร์น</h3><dl>
@@ -302,17 +392,94 @@ function body() {
       <dt>หมุน 1 ครั้ง</dt><dd>${G.cost} เหรียญ</dd>
       <dt>หมุน ${G.multi.count} ครั้ง</dt><dd>${G.multi.cost} เหรียญ · การันตี${RAR[G.multi.guarantee]}+</dd>
       <dt>การันตี</dt><dd>${RAR[G.pity.rarity]} ทุก ${G.pity.every} ครั้ง</dd>
-      <dt>World Boss</dt><dd>แข็งกว่า MVP ${D.wb.MULT} เท่า · เกิดทุก ${D.wb.PERIOD / 60000} นาที อยู่ ${D.wb.WINDOW / 60000} นาที</dd></dl></div>
+      <dt>World Boss</dt><dd>เกิดทุก ${D.wb.PERIOD / 60000} นาที อยู่ ${D.wb.WINDOW / 60000} นาที · เลือด/แรงตั้งต่อบอส (แท็บวิธีเล่น)</dd></dl></div>
       <div>${rows.map(t => { const it = ITEM[t.id]; const nm = t.volt ? `${num(t.volt)} Volt` : `${it ? it.name : t.id}${t.qty > 1 ? ' ×' + t.qty : ''}`; const r = t.rarity || (it && it.rarity) || 'common';
-        return `<div class="rate"${t.id ? ` data-item="${t.id}" style="cursor:pointer"` : ''}>${t.id ? img('i:' + t.id) : '<span class="ph"></span>'}<div><span class="r-${r}">${esc(nm)}</span><div class="bar2"><b style="width:${(t.pct / mx * 100).toFixed(1)}%"></b></div></div><span class="pc">${t.pct}%</span></div>`; }).join('')}
-      <p class="mono" style="color:var(--faint);font-size:12px">รวม ${tot.toFixed(1)}%</p></div></div>`;
+        return `<div class="rate"${t.id ? ` data-item="${t.id}" style="cursor:pointer"` : ''}>${t.id ? img('i:' + t.id) : '<span class="ph"></span>'}<span class="r-${r}">${esc(nm)}</span><span class="pc">${t.pct}%</span></div>`; }).join('')}
+      <p class="mono" style="color:var(--faint);font-size:13px">รวม ${tot.toFixed(1)}%</p></div></div>`;
+  } else if (S.tab === 'guide') {
+    html = guideHtml(); n = (D.help || []).length;
+  } else if (S.tab === 'shots') {
+    const ss = (D.shots || []).filter(s => match(s.title, s.desc));
+    n = ss.length;
+    html = ss.length ? `<p class="note" style="margin:0 0 10px">ภาพจากเกมจริง (ถ่ายอัตโนมัติด้วย tools/reference_web/shots.js${D.shotsWhen ? ' · ' + esc(D.shotsWhen) : ''}) — ตัวละครตัวอย่าง ไม่ใช่ของผู้เล่น</p><div class="shots">${ss.map(s => `<figure class="shot${s.phone ? ' phone' : ''}"><img src="${s.src}" alt="${esc(s.title)}" loading="lazy" width="${s.w}" height="${s.h}"><figcaption><b>${esc(s.title)}</b><span>${esc(s.desc)}</span></figcaption></figure>`).join('')}</div>` : '<div class="empty">ยังไม่มีภาพ (รัน tools/reference_web/shots.js แล้วส่งโฟลเดอร์ให้ build.py)</div>';
+  } else if (S.tab === 'build') {
+    html = buildHtml(); n = '';
   }
   out.innerHTML = html;
-  const rn = $('#rn'); if (rn) rn.textContent = `${n} รายการ`;
+  const rn = $('#rn'); if (rn) rn.textContent = n === '' ? '' : `${n} รายการ`;
+  if (S.tab === 'build') wireBuild();
 }
 const npcOf = {}; for (const m of D.maps) for (const nme of m.npcs) npcOf[nme] = m.name;
-const objTxt = o => !o ? '' : o.type === 'kill' ? `ล่า ${MOB[o.mob] ? MOB[o.mob].name : o.mob} ×${o.n}` : o.type === 'collect' ? `เก็บ ${ITEM[o.item] ? ITEM[o.item].name : o.item} ×${o.n}${o.mob && MOB[o.mob] ? ' จาก ' + MOB[o.mob].name : ''}` : o.type === 'talk' ? `คุยกับ NPC` : o.type === 'hit' ? `ตีหุ่นฝึก ×${o.n}` : o.type === 'baseLv' ? `Base Lv ${o.n}` : o.type === 'jobLv' ? `Job Lv ${o.n}` : o.type === 'job' ? 'เปลี่ยน Class ที่ Mimir' : o.type === 'skill' ? 'อัปสกิลแรก' : o.type === 'useskill' ? `ใช้สกิล ×${o.n || ''}` : o.type === 'event' ? ({ save: 'บันทึกจุดเซฟที่ Bifrost', refine: 'ตีบวกที่ Brokk' }[o.ev] || o.ev) : o.type;
+const objTxt = o => !o ? '' : o.type === 'kill' ? `ล่า ${MOB[o.mob] ? MOB[o.mob].name : o.mob} ×${o.n}` : o.type === 'collect' ? `เก็บ ${ITEM[o.item] ? ITEM[o.item].name : o.item} ×${o.n}${o.mob && MOB[o.mob] ? ' จาก ' + MOB[o.mob].name : ''}` : o.type === 'talk' ? `คุยกับ NPC` : o.type === 'hit' ? `ตีหุ่นฝึก ×${o.n}` : o.type === 'baseLv' ? `Base Lv ${o.n}` : o.type === 'jobLv' ? `Job Lv ${o.n}` : o.type === 'job' ? 'เปลี่ยน Class ที่ Mimir' : o.type === 'skill' ? 'อัปสกิลแรก' : o.type === 'useskill' ? `ใช้สกิล ×${o.n || ''}` : o.type === 'event' ? ({ save: 'บันทึกจุดเซฟที่ Bifrost', refine: 'ตีบวกที่ Brokk' }[o.ev] || o.ev) : o.type === 'map' || o.type === 'visit' ? `ไปที่ ${MAP[o.map] ? MAP[o.map].name : o.map}` : o.type;
 const rwTxt = r => !r ? '' : [r.zeny ? num(r.zeny) + ' Volt' : '', r.bexp ? num(r.bexp) + ' BEXP' : '', r.jexp ? num(r.jexp) + ' JEXP' : '', ...(r.items || []).map(([id, k]) => `${ITEM[id] ? ITEM[id].name : id} ×${k}`)].filter(Boolean).join(', ');
+const sideStep = s => s.type === 'kill' ? `ล่า ${s.mob} ×${s.n}` : s.type === 'collect' ? `เก็บ ${s.item} ×${s.n}${s.mob ? ' จาก ' + s.mob : ''}` : s.type === 'talk' ? `คุยกับ ${s.to}` : s.type === 'visit' ? `ไปที่ ${s.to || (MAP[s.map] ? MAP[s.map].name : s.map || '')}` : `${s.type}${s.to ? ' ' + s.to : ''}${s.mob ? ' ' + s.mob : ''}`;
+
+// ---------- วิธีเล่น (การควบคุม / กลไกต่อสู้ / ธาตุ / World Boss) ----------
+function guideHtml() {
+  const F = D.flinch, MF = D.mobFlinch, LC = D.lvChance, part = [];
+  const mech = [
+    F && `<b>กระตุก (ผู้เล่น):</b> โดนตีระหว่างเดินมีโอกาส ${Math.round(F.chance * 100)}% หยุดเดิน ${F.dur} วิ แล้วเดินต่อทางเดิม · คูลดาวน์ ${F.cd} วิ · ดาเมจต่ำกว่า 1% MaxHP / พิษ / ไหม้ ไม่กระตุก · หยุดแค่การเดิน (ตี/ร่าย/สกิลได้ปกติ)`,
+    MF && `<b>กระตุก (มอน):</b> โอกาส ${Math.round(MF.chance * 100)}% หยุด ${MF.dur} วิ คูลดาวน์ ${MF.cd} วิ · บอส/MVP/Ancient ไม่กระตุก`,
+    LC && `<b>จำกัดตามเลเวล (มึน/ช้า/กระตุก ทั้งสองฝ่าย):</b> ผู้ทำเลเวลต่ำกว่าเป้า โอกาสลด ${LC.perLv}%/เลเวล (ต่ำสุด ×${LC.floor})${F ? ` · ต่ำกว่าเกิน ${F.lvGap} เลเวล = กระตุกไม่ได้` : ''} · สูงกว่าไม่ได้เพิ่ม · ผู้เล่นต้านมึนด้วย VIT / ต้านมึน`,
+    `<b>ธาตุแพ้/ต้าน:</b> ตีโดนธาตุที่แพ้ = ▲ สีธาตุติดมุมเลขดาเมจ · ธาตุที่ต้าน = ▼ สีเทา`,
+    chipTxt && `<b>ชิป:</b> ${chipTxt}`,
+  ].filter(Boolean);
+  part.push(`<section class="rules"><h3>กลไกต่อสู้</h3><ul>${mech.map(x => `<li>${x}</li>`).join('')}</ul></section>`);
+  const ET = D.elemTable || {};
+  if (Object.keys(ET).length) part.push(`<section class="rules"><h3>ตารางธาตุ</h3>${table(['ธาตุที่ตี', 'แรงขึ้นใส่', 'เบาลงใส่'], Object.entries(ET).map(([el, r]) => [esc(ELE[el] || el), esc(Object.entries(r).filter(([, v]) => v > 1).map(([k, v]) => `${ELE[k] || k} ×${v}`).join(', ') || '–'), esc(Object.entries(r).filter(([, v]) => v < 1).map(([k, v]) => `${ELE[k] || k} ×${v}`).join(', ') || '–')]))}</section>`);
+  const wb = D.wb.MAPS || {}, T = D.wbTune || {};
+  part.push(`<section class="rules"><h3>World Boss (Ancient)</h3><p style="color:var(--dim)">ระดับ 2 ของ MVP · เกิดทุก ${D.wb.PERIOD / 60000} นาที อยู่ ${D.wb.WINDOW / 60000} นาที · เลือดใช้ร่วมกันทั้งแผนที่ · ป้ายใต้มินิแมพบอกสถานะทุกแผนที่ (แตะ = นำทาง) · คลั่งที่ 50% / 20%</p>${table(['แผนที่', 'บอส', 'เลือด', 'แรง'], Object.entries(wb).map(([mk, v]) => [esc(MAP[mk] ? MAP[mk].name : mk), 'Ancient ' + esc(MOB[v.mvp] ? MOB[v.mvp].name : v.mvp), `×${(T[mk] || {}).hp || D.wb.MULT} ของ MVP`, `×${(T[mk] || {}).atk || 3}`]))}</section>`);
+  for (const h of D.help || []) part.push(`<section class="rules"><h3>${esc(h.title)}</h3><ul>${h.items.filter(x => match(x)).map(x => `<li>${esc(x)}</li>`).join('')}</ul></section>`);
+  part.push(`<section class="rules"><h3>คำสั่งแชต</h3>${table(['คำสั่ง', 'ผล'], [['/nc หรือ /noctrl', 'เปิด (ค่าเริ่ม) = คลิกมอนแล้วตีต่อเนื่อง + ใช้สกิลแล้วตีต่อ · ปิด = คลิกตี 1 ที (Ctrl+คลิก = ต่อเนื่อง)'], ['/ns หรือ /noshift', 'เปิด = มีเป้าอยู่แล้ว กดสกิลยิงใส่เป้าทันที · ปิด = กดสกิลแล้วคลิกเลือกเป้า'], ['/sit · /where · /save', 'นั่งพัก · บอกตำแหน่ง · บันทึก'], ['/autoloot', 'สลับเก็บของอัตโนมัติ'], ['/e · /emote', 'อีโมต'], ['/p ข้อความ · /invite ชื่อ', 'แชตปาร์ตี้ · ชวนเข้าปาร์ตี้'], ['/help', 'หน้าต่างวิธีเล่น']].map(([a, b]) => [`<span class="mono">${esc(a)}</span>`, esc(b)]))}<p style="color:var(--dim)">/nc และ /ns สลับได้ในหน้าตั้งค่า (การเล่น) ด้วย</p></section>`);
+  return `<div class="grid2">${part.join('')}</div>`;
+}
+
+// ---------- Build Code (IV-BUILD:...) — อ่านอย่างเดียว ตามรูปแบบใน js/loadouts.js ----------
+function decodeBuild(str) {
+  const bad = why => ({ err: 'Build Code ไม่ถูกต้อง' + (why ? ` (${why})` : '') });
+  str = String(str || '').trim();
+  if (!str.startsWith(D.buildPrefix)) return bad(`ต้องขึ้นต้นด้วย ${D.buildPrefix}`);
+  let b = str.slice(D.buildPrefix.length).replace(/-/g, '+').replace(/_/g, '/'); b += '='.repeat((4 - b.length % 4) % 4);
+  let txt; try { txt = atob(b); } catch (e) { return bad(); }
+  const f = txt.split('|');
+  if (!((f[0] === '1' && f.length === 6) || (f[0] === '2' && f.length === 7))) return bad('รุ่นโค้ดไม่รู้จัก');
+  const hs = f[0] === '2' ? f.splice(5, 1)[0] : '';
+  const [ver, job, rs, ps, es, sc] = f;
+  if (!J[job]) return bad('Class');
+  const runes = rs ? rs.split(',') : [], passives = ps ? ps.split(',') : [], equip = es.split(','), hrunes = hs ? hs.split(',') : [];
+  if (runes.some(r => !RUNE[r])) return bad('Rune');
+  if (passives.some(p => !D.ptree[p])) return bad('Passive');
+  return { ver, job, runes, passives, equip, hrunes, script: sc || '' };
+}
+function buildView(B) {
+  if (B.err) return `<p class="err">${esc(B.err)}</p>`;
+  const j = J[B.job], nodes = B.passives.map(id => D.ptree[id]), big = nodes.filter(x => x.kind === 'notable' || x.kind === 'key');
+  const eq = D.equipSlots.map((s, i) => [s, B.equip[i]]).filter(([, id]) => id);
+  return `<div class="grid2">
+    <section class="rules"><div class="sh-head" style="margin:0">${img('e:' + B.job)}<div><h3>${esc(j.name)}</h3><div style="color:var(--dim)">${esc(j.thai)} · ${tierName(B.job)} · โค้ดรุ่น ${esc(B.ver)}</div></div></div>
+      <dl><dt>Skill Rune / Oath</dt><dd>${B.runes.length || 'ไม่มี'}</dd><dt>Passive</dt><dd>${nodes.length} จุด</dd><dt>อุปกรณ์</dt><dd>${eq.length} ชิ้น</dd><dt>Hunt Rune</dt><dd>${B.hrunes.filter(Boolean).length || 'ไม่มี'}</dd><dt>Battle Script</dt><dd>${B.script ? 'มี (ใช้ได้เมื่อวางในเกม)' : 'ไม่มี'}</dd></dl></section>
+    ${B.runes.length ? `<section class="rules"><h3>รูน</h3><div class="drops">${B.runes.map(id => { const r = RUNE[id]; return `<div class="drop" data-rune="${id}">${img('r:' + id)}<span><b>${esc(r.name)}</b> <span style="color:var(--faint)">${esc(SK[r.skill] ? SK[r.skill].name : r.skill)}</span><br><span style="color:var(--dim);font-size:13px">${esc(r.short)}</span></span><span class="pc">${r.oath ? 'Oath' : ''}</span></div>`; }).join('')}</div></section>` : ''}
+    ${nodes.length ? `<section class="rules"><h3>Passive เด่น</h3>${big.length ? big.map(x => `<div class="node"><b${x.kind === 'key' ? ' class="ks"' : ''}>${x.kind === 'key' ? 'Keystone · ' : ''}${esc(x.name)}</b><small>${esc([x.b, x.fx].filter(Boolean).join(' · '))}</small></div>`).join('') : '<p style="color:var(--dim)">มีแต่จุดเล็ก</p>'}</section>` : ''}
+    ${eq.length || B.hrunes.some(Boolean) ? `<section class="rules"><h3>อุปกรณ์ / Hunt Rune</h3><div class="drops">${eq.map(([s, id]) => `<div class="drop" data-item="${id}">${img('i:' + id)}<span class="r-${ITEM[id] ? ITEM[id].rarity : 'common'}">${esc(ITEM[id] ? ITEM[id].name : id)}</span><span class="pc">${esc(SLOT[s] || s)}</span></div>`).join('')}${B.hrunes.filter(Boolean).map((id, i) => `<div class="drop" data-hunt="${id}">${img('h:' + id)}<span>${esc(HR[id] ? HR[id].name : id)}</span><span class="pc">ช่อง ${['I', 'II'][i] || i + 1}</span></div>`).join('')}</div></section>` : ''}
+  </div>`;
+}
+function sampleBuild() { // ตัวอย่าง: Class 3 ตัวแรก + รูนแรกของทุกสกิลที่มีรูน (ไม่มีอุปกรณ์/Passive)
+  const k = thirds[0] || firsts[0], rs = [...new Set((J[k] ? line(k) : []).flatMap(x => J[x].skills || []))].map(s => (D.runes || []).find(r => r.skill === s)).filter(Boolean).map(r => r.id).sort((a, b) => a.split('.')[0].localeCompare(b.split('.')[0]));
+  const txt = ['1', k, rs.join(','), '', D.equipSlots.map(() => '').join(','), ''].join('|');
+  return D.buildPrefix + btoa(txt).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+let buildDraft = '';
+function buildHtml() {
+  return `<div class="stack"><section class="rules buildin"><h3>ดู Build Code</h3><p style="color:var(--dim)">วางโค้ด <span class="mono">${esc(D.buildPrefix)}…</span> ที่คัดลอกจากหน้าต่าง Builds (ปุ่ม D) ในเกม เพื่อดู Class รูน Passive อุปกรณ์ และ Hunt Rune ของ build นั้น — หน้านี้อ่านอย่างเดียว ไม่ส่งโค้ดไปที่ไหน</p>
+    <label for="bc" class="eyebrow">Build Code</label><textarea id="bc" spellcheck="false" placeholder="${esc(D.buildPrefix)}...">${esc(buildDraft)}</textarea>
+    <div class="btns"><button type="button" class="btn main" id="bcgo">ดู build</button><button type="button" class="btn" id="bcsample">ลองโค้ดตัวอย่าง</button></div></section><div id="bcout"></div></div>`;
+}
+function wireBuild() {
+  const ta = $('#bc'), go = () => { buildDraft = ta.value; $('#bcout').innerHTML = buildDraft.trim() ? buildView(decodeBuild(buildDraft)) : ''; };
+  $('#bcgo').onclick = go; $('#bcsample').onclick = () => { ta.value = sampleBuild(); go(); };
+  ta.oninput = () => { buildDraft = ta.value; };
+  if (buildDraft.trim()) go();
+}
 
 // ---------- sheet ----------
 const scrim = $('#scrim');
@@ -321,16 +488,22 @@ function closeSheet() { scrim.hidden = true; scrim.innerHTML = ''; }
 scrim.addEventListener('click', e => { if (e.target === scrim || e.target.closest('[data-close]')) return closeSheet(); route(e); });
 document.addEventListener('click', e => { if (!scrim.contains(e.target)) route(e); });
 function route(e) {
-  const t = e.target.closest('[data-mob],[data-item],[data-skill],[data-cls]'); if (!t) return;
-  if (t.dataset.mob) showMob(t.dataset.mob); else if (t.dataset.item) showItem(t.dataset.item); else if (t.dataset.skill) showSkill(t.dataset.skill); else showCls(t.dataset.cls);
+  const t = e.target.closest('[data-mob],[data-item],[data-skill],[data-cls],[data-rune],[data-hunt]'); if (!t) return;
+  const d = t.dataset;
+  if (d.mob) showMob(d.mob); else if (d.item) showItem(d.item); else if (d.skill) showSkill(d.skill); else if (d.rune) showRune(d.rune); else if (d.hunt) showHunt(d.hunt); else showCls(d.cls);
 }
 const stat = (k, v) => `<div class="stat"><span>${k}</span><b>${v}</b></div>`;
 function showMob(id) {
-  const m = MOB[id];
-  openSheet(`<div class="sh-head">${img('m:' + id)}<div><h2>${esc(m.name)}</h2><div class="th">${ELE[m.el] || m.el} · ${RACE[m.race] || m.race}${m.aggro ? ' · ดุ (โจมตีก่อน)' : ''}${m.mvp ? ' · MVP' : ''}</div></div></div>
-    <div class="stats">${stat('Lv', m.lv)}${stat('HP', num(m.hp))}${stat('ATK', m.atk.join('–'))}${stat('DEF', m.def)}${stat('MDEF', m.mdef)}${stat('EXP', num(m.exp))}${stat('JEXP', num(m.jexp))}</div>
-    <div class="sec"><h4>พบที่</h4><p>${m.maps.map(k => esc(MAP[k] ? MAP[k].name : k)).join(' · ') || '–'}</p></div>
-    <div class="sec"><h4>ของที่ดรอป</h4><div class="drops">${m.drops.map(([iid, r]) => `<div class="drop" data-item="${iid}">${img('i:' + iid)}<span class="r-${ITEM[iid] ? ITEM[iid].rarity : 'common'}">${esc(ITEM[iid] ? ITEM[iid].name : iid)}</span><span class="pc">${pct(r)}</span></div>`).join('')}${m.chip ? `<div class="drop" data-item="${m.chip}">${img('i:' + m.chip)}<span class="r-rare">${esc(ITEM[m.chip].name)}</span><span class="pc">ชิป</span></div>` : ''}</div></div>`);
+  const m = MOB[id]; if (!m) return;
+  const k = (D.bossKits || {})[id];
+  const mv = l => l.map(x => `<div class="node"><b>${esc(x.name)}</b>${x.hint ? `<small>${esc(x.hint)}</small>` : ''}</div>`).join('');
+  openSheet(`<div class="sh-head">${img('m:' + id)}<div><h2>${esc(m.name)}</h2><div class="th">${ELE[m.el] || m.el} · ${RACE[m.race] || m.race}${m.aggro ? ' · ดุ (โจมตีก่อน)' : ''}${m.mvp ? ' · MVP' : ''}${m.elite ? ' · Elite หายาก' : ''}</div></div></div>
+    <div class="stats">${stat('Lv', m.lv)}${stat('HP', num(m.hp))}${stat('ATK', m.atk.join('–'))}${stat('DEF', m.def)}${stat('MDEF', m.mdef)}${stat('EXP', num(m.exp))}${stat('JEXP', num(m.jexp))}${stat('Volt', zenyTxt(m))}</div>
+    <div class="sec"><h4>พบที่</h4><p>${m.maps.map(k2 => esc(MAP[k2] ? MAP[k2].name : k2)).join(' · ') || '–'}</p></div>
+    ${k ? `<div class="sec"><h4>ท่า MVP (ป้ายแดงเตือน ≥1 วิ หลบได้ทุกท่า)</h4>${mv(k.rot)}</div>
+      <div class="sec"><h4>ท่า Ancient${k.ult ? ` · ไม้ตาย ${esc(k.ult.name)}` : ''}</h4>${mv(k.wbRot)}</div>
+      <div class="sec"><h4>ลูกสมุน</h4><p>${esc(k.minions.join(' · '))}${k.elite ? ` · ชั้นยอด (Ancient คลั่ง): ${esc(k.elite)}` : ''}</p></div>` : ''}
+    <div class="sec"><h4>ของที่ดรอป</h4><div class="drops">${m.drops.map(([iid, r]) => `<div class="drop" data-item="${iid}">${img('i:' + iid)}<span class="r-${ITEM[iid] ? ITEM[iid].rarity : 'common'}">${esc(ITEM[iid] ? ITEM[iid].name : iid)}</span><span class="pc">${pct(r)}</span></div>`).join('')}${m.chip && ITEM[m.chip] ? `<div class="drop" data-item="${m.chip}">${img('i:' + m.chip)}<span class="r-rare">${esc(ITEM[m.chip].name)}</span><span class="pc">ชิป ${D.chip && D.chip.drop != null ? pct(m.mvp ? D.chip.boss : D.chip.drop) : ''}</span></div>` : ''}</div></div>`);
 }
 function showItem(id) {
   const i = ITEM[id]; if (!i) return;
@@ -344,24 +517,46 @@ function showItem(id) {
     <div class="sec"><h4>หาได้จาก</h4><div class="drops">${D.shopOf[id] ? '<div class="drop"><span class="ph"></span><span>ร้านค้าในนีโอเอลด์ไฮม์</span><span class="pc">ซื้อ</span></div>' : ''}${src.map(([mid, r]) => `<div class="drop" data-mob="${mid}">${img('m:' + mid)}<span>${esc(MOB[mid].name)} <span style="color:var(--faint)">Lv ${MOB[mid].lv}</span></span><span class="pc">${r == null ? 'ชิป' : pct(r)}</span></div>`).join('') || (D.shopOf[id] ? '' : '<p style="color:var(--dim)">กาชา / เควสต์ / ตีบวก</p>')}</div></div>`);
 }
 function showSkill(id) {
-  const s = SK[id];
-  openSheet(`<div class="sh-head">${img('s:' + id)}<div><h2>${esc(s.name)}</h2><div class="th">${s.type === 'passive' ? 'ติดตัว' : 'กดใช้'}${s.job ? ' · ' + esc(J[s.job].name) : ''}</div></div></div>
+  const s = SK[id]; if (!s) return;
+  const rs = (D.runes || []).filter(r => r.skill === id);
+  openSheet(`<div class="sh-head">${img('s:' + id)}<div><h2>${esc(s.name)}</h2><div class="th">${s.type === 'passive' ? 'ติดตัว' : 'กดใช้'}${s.job ? ' · ' + esc(J[s.job].name) + ' (' + tierName(s.job) + ')' : ''}</div></div></div>
     <div class="stats">${stat('Lv สูงสุด', s.max)}${s.cd ? stat('คูลดาวน์', s.cd + ' วิ') : ''}${s.spMax ? stat('SP', s.sp1 === s.spMax ? s.sp1 : s.sp1 + '–' + s.spMax) : ''}${s.el ? stat('ธาตุ', ELE[s.el] || s.el) : ''}</div>
     <div class="sec"><h4>คำอธิบาย</h4><p>${esc(s.desc)}</p></div>
-    ${s.req ? `<div class="sec"><h4>ต้องอัปก่อน</h4><p>${Object.entries(s.req).map(([k, v]) => `${esc(SK[k] ? SK[k].name : k)} Lv ${v}`).join(' · ')}</p></div>` : ''}`);
+    ${s.req ? `<div class="sec"><h4>ต้องอัปก่อน</h4><p>${Object.entries(s.req).map(([k, v]) => `${esc(SK[k] ? SK[k].name : k)} Lv ${v}`).join(' · ')}</p></div>` : ''}
+    ${rs.length ? `<div class="sec"><h4>รูน (ปลดที่ Skill Lv ${D.runeUnlock})</h4>${rs.map(runeMini).join('')}</div>` : ''}`);
+}
+const runeMini = r => `<div class="sk-mini" data-rune="${r.id}">${img('r:' + r.id)}<span><b>${r.oath ? 'Oath · ' : ''}${esc(r.name)}</b> <span style="color:var(--faint);font-size:13px">${esc(SK[r.skill] ? SK[r.skill].name : r.skill)} · ${esc(r.intentTh || '')}</span><small>${esc(r.short || r.desc)}</small></span></div>`;
+function showRune(id) {
+  const r = RUNE[id]; if (!r) return; const s = SK[r.skill] || {};
+  openSheet(`<div class="sh-head">${img('r:' + id)}<div><h2>${esc(r.name)}</h2><div class="th">${r.oath ? 'Oath' : 'Skill Rune'} · ${esc(s.name || r.skill)}${s.job ? ' · ' + esc(J[s.job].name) : ''}</div></div></div>
+    <div class="stats">${stat('แนว', esc(r.intentTh || '–'))}${stat('ปลด', 'Skill Lv ' + D.runeUnlock)}</div>
+    <div class="sec"><h4>สรุป</h4><p>${esc(r.short)}</p></div>
+    <div class="sec"><h4>รายละเอียด</h4><p>${esc(r.desc)}</p></div>
+    <div class="sec"><h4>สกิล</h4><div class="sk-mini" data-skill="${r.skill}">${img('s:' + r.skill)}<span><b>${esc(s.name || r.skill)}</b><small>${esc(s.desc || '')}</small></span></div></div>`);
+}
+function showHunt(id) {
+  const r = HR[id]; if (!r) return;
+  openSheet(`<div class="sh-head">${img('h:' + id)}<div><h2 class="r-${r.rarity}">${esc(r.name)}</h2><div class="th">Hunt Rune · ${esc((D.hunt.kinds || {})[r.kind] || r.kind)}${r.arena ? ' · ลานประลองเท่านั้น' : ''}</div></div></div>
+    <div class="stats">${stat('ราคา', num(r.price) + ' Volt')}${r.pct ? stat('แรงขึ้น', Math.round(r.pct * 100) + '%') : ''}${r.race ? stat('เผ่า', RACE[r.race] || r.race) : ''}${r.elem ? stat('ธาตุ', ELE[r.elem] || r.elem) : ''}</div>
+    <div class="sec"><h4>สรุป</h4><p>${esc(r.short)}</p></div><div class="sec"><h4>รายละเอียด</h4><p>${esc(r.desc)}</p></div>
+    <div class="sec"><h4>ซื้อ / ใส่</h4><p>ซื้อครั้งเดียวที่ Brokk Forge-Bot (แท็บ Hunt Rune) · ใส่ในหน้าต่าง Runes (Shift+R)</p></div>`);
 }
 function showCls(k) {
-  const j = J[k], g = j.guide || {};
-  openSheet(`<div class="sh-head">${img('e:' + k)}<div><h2>${esc(j.name)}</h2><div class="th">${esc(j.thai)} · ${j.tier === 2 ? 'Class 2 จาก ' + esc(J[j.parent].name) : 'Class 1'}</div></div></div>
+  const j = J[k], g = j.guide || {}, rs = runesOfJob(k), u = ultOf(k), t = (D.trials || {})[k];
+  openSheet(`<div class="sh-head">${img('e:' + k)}<div><h2>${esc(j.name)}</h2><div class="th">${esc(j.thai)} · ${j.tier >= 2 ? tierName(k) + ' จาก ' + esc(J[j.parent].name) : 'Class 1'}</div></div></div>
     <p style="color:var(--dim);max-width:62ch">${esc(j.desc)}</p>
-    <div class="stats">${stat('บทบาท', esc(j.role))}${stat('สเตตัสหลัก', esc(j.stats))}${stat('HP ×', j.hp)}${stat('SP ×', j.sp)}${stat('ตีทุก', j.aspd + ' ms')}${g.weapon ? stat('อาวุธ', esc(g.weapon)) : ''}</div>
+    ${IC['j:' + k + '_m'] || IC['j:' + k + '_f'] ? `<div class="portraits">${['m', 'f'].filter(g => IC['j:' + k + '_' + g]).map(g => `<figure><img src="${IC['j:' + k + '_' + g]}" alt=""><figcaption>${g === 'm' ? 'ชาย' : 'หญิง'}</figcaption></figure>`).join('')}</div>` : ''}
+    <div class="stats">${stat('บทบาท', esc(j.role))}${stat('สเตตัสหลัก', esc(j.stats))}${stat('HP ×', j.hp)}${stat('SP ×', j.sp)}${stat('ตีทุก', j.aspd + ' ms')}${stat('Job สูงสุด', j.jobMax)}${g.weapon ? stat('อาวุธ', esc(g.weapon)) : ''}</div>
     ${j.bonus ? `<div class="sec"><h4>โบนัส Class</h4><p class="mono">${esc(bonus(j.bonus))}</p></div>` : ''}
+    ${t ? `<div class="sec"><h4>วิธีปลด</h4><p>${esc(t.how)}</p><p style="color:var(--dim);margin-top:6px">เควสต์ทดสอบ: ${esc(t.who)} ที่ ${esc(t.place)} — ${esc(t.thought)}</p></div>` : ''}
     ${g.play ? `<div class="sec"><h4>วิธีเล่น</h4><p>${esc(g.play)}</p></div>` : ''}
     ${g.pros ? `<div class="sec"><h4>จุดเด่น / จุดอ่อน</h4><p><span style="color:var(--ok)">+</span> ${esc(g.pros)}<br><span style="color:var(--bad)">−</span> ${esc(g.cons || '')}</p></div>` : ''}
     ${g.stats ? `<div class="sec"><h4>สเตตัสแนะนำ</h4><div class="build">${g.stats.map(([s, v]) => `<span class="pill">${s.toUpperCase()} ${v}%</span>`).join('')}</div></div>` : ''}
     ${g.build ? `<div class="sec"><h4>ลำดับอัปสกิล</h4><div class="build">${g.build.map(([s, v], i) => `<span class="pill">${i + 1}. ${esc(SK[s] ? SK[s].name : s)} ${v}</span>`).join('')}</div></div>` : ''}
     ${g.tips ? `<div class="sec"><h4>เคล็ดลับ</h4><p>${esc(g.tips)}</p></div>` : ''}
-    <div class="sec"><h4>สกิล</h4>${j.skills.map(s => SK[s] ? `<div class="sk-mini" data-skill="${s}">${img('s:' + s)}<span><b>${esc(SK[s].name)}</b> <span style="color:var(--faint);font-size:12px">${SK[s].type === 'passive' ? 'ติดตัว' : 'กดใช้'} · Lv ${SK[s].max}</span><small>${esc(SK[s].desc)}</small></span></div>` : '').join('')}</div>`);
+    ${u ? `<div class="sec"><h4>ไม้ตายประจำ Class</h4><p><b>${esc(u.name)}</b> (${esc(u.th)}) — ${esc(u.desc)}</p></div>` : ''}
+    <div class="sec"><h4>สกิล</h4>${j.skills.map(s => SK[s] ? `<div class="sk-mini" data-skill="${s}">${img('s:' + s)}<span><b>${esc(SK[s].name)}</b> <span style="color:var(--faint);font-size:13px">${SK[s].type === 'passive' ? 'ติดตัว' : 'กดใช้'} · Lv ${SK[s].max}</span><small>${esc(SK[s].desc)}</small></span></div>` : '').join('')}</div>
+    ${rs.length ? `<div class="sec"><h4>${j.tier === 3 ? 'Oath และรูน ★' : 'Skill Rune'}</h4>${rs.map(runeMini).join('')}</div>` : ''}`);
 }
 
 function render() { drawTabs(); drawFilters(); body(); }

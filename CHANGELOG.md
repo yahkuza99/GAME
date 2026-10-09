@@ -1,5 +1,16 @@
 # CHANGELOG — NEO MIDGARD
 
+## 2026-10-09 (รอบ 13) — อัปเดต pending ทีเดียว: GAME_REFERENCE + Valhalla Codex รวม Class 3
+
+- **ที่มา**: เจ้าของอนุมัติให้ทำ "อัปเดต pending" — docs/PENDING.md ค้าง 59 ข้อตั้งแต่ 2026-10-02 และตัวสร้างเอกสารทั้งสองไม่รู้จัก Class 3
+- **เพิ่ม** `tools/ref_extract.js` ใช้ร่วมกันทั้ง `tools/make_reference.js` และ `tools/reference_web/dump.js`: ดึงจากอ็อบเจกต์จริงในเกม — Class 3 (THIRD_JOBS/THIRD_JOB_REQ/Class3.TRIAL), Skill Rune + Oath ทั้ง 120 (Runes.TREE), Hunt Rune, ไม้ตาย (Feel.ULTS), Passive (PCAP/PSECT), Ancient ต่อบอส (WB.TUNE), ท่าบอส+ลูกสมุน (BossKit.KITS), ชิป %, Elite, เควสต์เสริม/จุดตำนาน, กระตุก/จำกัดตามเลเวล, ตารางธาตุ, Volt ต่อมอน, การควบคุมจากหน้าต่าง How to Play
+- **เพิ่ม** GAME_REFERENCE หัวข้อใหม่: Class 3, Rune Paths, Hunt Rune, ไม้ตาย, Passive, กลไกต่อสู้, การควบคุม/คำสั่งแชต, หน้าต่างและ UI, ท่าบอสและลูกสมุน, เควสต์เสริม, จุดตำนาน, จุดสังเกตแมพ • World Boss เลิกเขียน "แข็งกว่า MVP 5 เท่า" → ตาราง เลือด/แรง ต่อบอส
+- **เพิ่ม** Codex แท็บใหม่: Skill Rune / Oath, Hunt Rune, ไม้ตาย, Passive, วิธีเล่น, ภาพเกม (32 ภาพจาก `tools/reference_web/shots.js`), Build Code (ถอดโค้ด IV-BUILD: อ่านอย่างเดียว) • การ์ด Class 3 ใต้ Class 2 ทุกสาย • ภาพ Class ชาย/หญิง • ไอคอนรูน 3D • ไอคอนที่เกมย้อมสี (Class 3) เก็บจากเกมเอง
+- **เปลี่ยน** Codex ตามกติกาดีไซน์เจ้าของ: เลิกทรงแคปซูล (999px → ≤8px) • เลิกแถบหลอดโอกาสกาชา (เหลือตัวเลข) • เลิก letter-spacing ที่โดนข้อความไทย • เพิ่ม meta viewport (เดิมมือถือเรนเดอร์กว้าง 980px)
+- **เปลี่ยน** สคริปต์เปิดเซิร์ฟเวอร์ไฟล์ในตัว + `CHROME=` env (เดิมฝัง /opt/pw-browsers/chromium) — **พลาดระหว่างทาง**: `python -m http.server` บน Windows ปฏิเสธการเชื่อมต่อตอนเกมโหลดภาพพร้อมกัน → หน้าแรกไม่ขึ้น/ภาพหาย (shots.js ล้ม 2 รอบ) จึงย้ายไปเซิร์ฟเวอร์ Node แบบ tests/smoke.js
+- **แก้เอกสาร**: CLASS3_DESIGN Thousand Cuts 6×42–70% • DESIGN_CUSTOM_PLAY เกณฑ์ ±12% + เฟส A/B/C • DESIGN_SETS_CHIPS_PASSIVE ข้อ 4 ทำแล้ว • RENDER3D_PLAN สถานะ • ROADMAP สถานะล่าสุด • UI_ART_SHEETS เลิกใช้
+- **พิสูจน์**: PENDING ติ๊ก 54 ข้อ (ค้าง 2 = แกลเลอรีท่าทางใน Codex รอเจ้าของเลือก + 3 ข้อที่เจ้าของสั่งพัก) • Codex headless Chrome 1366/390 ไม่มี console error ไม่มี scroll แนวนอนทุกแท็บ • smoke 53/53 (ไม่แตะโค้ดเกม)
+
 ## 2026-10-09 (รอบ 11) — Sixth Shadow Lv70 ตีฝูงเร็วเกิน (ROADMAP 4h)
 
 - **วัด** สาเหตุ (นับการร่าย + ดาเมจแยกแหล่งต่อฝูง + เหตุผลที่บอทไม่เลือก Thousand Cuts — ตัวนับชั่วคราว ไม่ได้ commit):
