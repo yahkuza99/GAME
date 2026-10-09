@@ -22,7 +22,7 @@
     // Worldbreaker
     yb_fury: 0.3, yb_cap: 0.4,                      // Ymir's Bones: 30% ของ HP ที่จ่ายเป็นค่าสกิล → สกิลถัดไปแรงขึ้น (สูงสุด +40%)
     ws_charge: 900,                                 // Worldsplitter ร่าย (ชาร์จ) 0.9 วิ (เดิม 1.2 — ตีเดี่ยวช้ากว่า Jotun)
-    om_cd: 1.5, ob_hp: 2, ob_k: 1.15,               // Oath of the Mountain: ไม่เสีย HP คูลดาวน์ ×1.5 / of Blood: ค่า HP ×2 แรง ×1.15
+    om_cd: 1.5, ob_hp: 1.5, ob_k: 1.05,             // Oath of the Mountain: ไม่เสีย HP คูลดาวน์ ×1.5 / of Blood: ค่า HP ×1.5 แรง ×1.05 (เดิม ×2 / ×1.15 = +15%/+12% • ×1.5/×1.1 ยังเฉลี่ย +8% — tests/runes_c3.js)
     qr_k: 0.6, qr_r: 3, fl_k: 0.3, fl_dur: 4, fl_r: 1.5, // รูน Worldsplitter: Quake Ring / Fault Line
     hide_hp: 0.5,                                   // Frost Hide: HP ค่าสกิล −50%
     ult_ymir: 10, ult_ymir_k: 1.5,

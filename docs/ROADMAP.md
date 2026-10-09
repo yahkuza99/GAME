@@ -23,7 +23,7 @@
 - [~] 4f. Class 3 รอบ 5: Urd Lifeweaver + Tyr Oathfist เสร็จ (9 ต.ค.) — เหลือ 2 ตัว (Sixth Shadow/Edda Warsinger)
 - [x] 4g. Class 3 รอบ 6: Sixth Shadow + Edda Warsinger เสร็จ (9 ต.ค.) — **Class 3 ครบ 12 ตัว** (ภาพจริงทั้งหมดยังเป็นภาพย้อมจาก Class 2 — prompt อยู่ `docs/CLASS3_ART.md`)
 - [x] 4h. Sixth Lv70 ตีฝูงเร็วเกิน — สาเหตุ: Thousand Cuts แรงเกิน (~9 เท่าต่อเป้า) เห็นแค่ Lv70 เพราะบอทไม่หายตัวกลางไฟต์ตอน SP <50% • ลดเหลือ 42–70% ×6 (9 ต.ค.)
-- [ ] 4d. เทสต์รูน/Oath Class 3 ในแถบ ±12% (`tests/runes.js` วัดแค่ Class 1)
+- [x] 4d. เทสต์รูน/Oath Class 3 ในแถบ ±12% — `tests/runes_c3.js` 48 ตัวเลือกผ่าน · ปรับ 8 ตัว + แก้บั๊ก Snare Glyph (9 ต.ค.)
 - [x] 4. Class 3 ที่เหลือตาม `docs/CLASS3_DESIGN.md` (ทีละคู่สาย) — ตัวเกม/สกิล/เควสต์ ทำได้เลย · ภาพจริงรอเจ้าของ (prompt `docs/CLASS3_ART.md`)
 
 ## Codex — งานภาพ (ส่งใน AGENT_HANDOFF แล้ว)

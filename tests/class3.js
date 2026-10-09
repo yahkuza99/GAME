@@ -396,7 +396,7 @@ const SHOTS = process.env.SHOTS || '';
     const low = C3.dummy(pl.x + 3, pl.y, 1000); low.hp = 100; o.cut = Runes.hitMul(skillDef('norn_cut'), 5, low) > 1.3;
     fresh(pl); pl.buffs = {}; executeSkill('leaf_recall', 5, null); damagePlayer(pl.d.maxHp * 5); o.leaf = !pl.dead && Math.abs(pl.hp - Math.round(pl.d.maxHp * 0.3)) <= 1 && !pl.buffs.leaf_recall;
     pl.combatAt = -99; Runes.set('well_of_urd', 'well_of_urd.skuld'); fresh(pl); const sk = C3.dummy(pl.x + 1, pl.y, 1e7); pl.hp = 1; healPlayer(Math.round(pl.d.maxHp * 0.1), 'test');
-    o.skuld = (by.norn_cut || 0) > 0; pl.combatAt = -99; Runes.set('well_of_urd', null);
+    o.skuld = (by.well_of_urd || 0) > 0; pl.combatAt = -99; Runes.set('well_of_urd', null);
     pl.hp = 10; pl.ultKind = 'norns'; pl.ult = 100; Feel.ultFire(); o.norns = pl.hp === pl.d.maxHp; pl.c3ult = null;
     // ----- Oathfist -----
     pl = C3.third('oathfist'); C3.arena('roots'); G.mobs = []; G.zones = []; G.allies = [];
@@ -408,7 +408,7 @@ const SHOTS = process.env.SHOTS || '';
     fresh(pl); pl.buffs = {}; executeSkill('iron_vow', 5, null); addItem('white_potion', 1, true); pl.hp = Math.round(pl.d.maxHp * 0.5); pl.itemReadyAt = 0; const v0 = pl.hp; useItem(pl.inventory.find(e => e.id === 'white_potion')); o.vow = pl.hp === v0 && !!pl.buffs.iron_vow;
     pl.buffs = {}; recalc(); G.mobs = []; const hm = C3.dummy(pl.x + 1, pl.y, 1e7); fresh(pl); const hh = pl.hp; executeSkill('hand_of_sacrifice', 5, hm); C3.run(0.4); o.hand = pl.hp <= Math.ceil(hh * 0.86) && (by.hand_of_sacrifice || 0) > 0;
     pl.combatAt = -99; Runes.set('oath_of_tyr', 'oath_of_tyr.open'); o.open = !skillDef('hand_of_sacrifice').hpCost;
-    pl.combatAt = -99; Runes.set('oath_of_tyr', 'oath_of_tyr.lost'); pl.hp = Math.round(pl.d.maxHp * 0.4); o.lost = Runes.hitMul(skillDef('sun_pillar'), 5, hm) >= 1.2 - 1e-9;
+    pl.combatAt = -99; Runes.set('oath_of_tyr', 'oath_of_tyr.lost'); pl.hp = Math.round(pl.d.maxHp * 0.4); o.lost = Runes.hitMul(skillDef('sun_pillar'), 5, hm) >= Class3.K.o5_lost_k - 1e-9;
     pl.combatAt = -99; Runes.set('oath_of_tyr', null); pl.hp = pl.d.maxHp;
     pl.ultKind = 'tyr'; pl.ult = 100; Feel.ultFire(); o.tyr = skillDef('hundred_palms').dmg.element === 'holy'; pl.c3ult = null;
     G.onDmg = null;
@@ -417,7 +417,7 @@ const SHOTS = process.env.SHOTS || '';
   ok('Lifeweaver: Well of Urd overheal shield absorbs • Lifethread / Sap Spring heal over time', m5.well && m5.wellAbsorb && m5.thread && m5.spring, m5);
   ok("Lifeweaver: Verdandi's Now clears/blocks stun • Norn Cut execute • Leaf Recall catches • Oath of Skuld • ULT full heal", m5.now && m5.cut && m5.leaf && m5.skuld && m5.norns, m5);
   ok('Oathfist: 5-hit combo fires a free Holy Fist • Hundred Palms ends in a stun • Chain of Gleipnir pulls', m5.combo && m5.palms && m5.chain, m5);
-  ok('Oathfist: Iron Vow blocks potions • Hand costs HP (Open Hand: no HP) • Lost Hand ×1.2 below half • ULT holy fists', m5.vow && m5.hand && m5.open && m5.lost && m5.tyr, m5);
+  ok('Oathfist: Iron Vow blocks potions • Hand costs HP (Open Hand: no HP) • Lost Hand ×K below half • ULT holy fists', m5.vow && m5.hand && m5.open && m5.lost && m5.tyr, m5);
   // ============== Class 3 รอบ 6: Sixth Shadow / Warsinger ==============
   const m6 = await p.evaluate(async () => {
     const o = {}, by = {}; G.onDmg = (m, d, op) => { by[op.src || '?'] = (by[op.src || '?'] || 0) + d; };
@@ -430,7 +430,7 @@ const SHOTS = process.env.SHOTS || '';
     const px = pl.x; Runes._crit = false; fresh(pl); executeSkill('doppel_step', 5, t); C3.run(0.1); o.swap = Math.abs(pl.x - x0) < 0.6 && Runes._crit === true; Runes._crit = false;
     for (let i = 0; i < 30; i++) updateAllies(1 / 15); o.shadeStill = !!Class3.shade() && Math.abs(Class3.shade().x - px) < 0.1;
     G.mobs = []; const f = C3.dummy(pl.x + 3, pl.y, 1e7); f.state = 'chase'; f.nextAtk = 0; fresh(pl); executeSkill('green_flicker', 5, f); C3.run(0.1); o.flicker = f.allyTarget === Class3.shade() && !!pl.buffs.green_flicker;
-    G.mobs = []; const v = C3.dummy(pl.x + 1, pl.y, 1e7); v.poisonUntil = G.time + 10; fresh(pl); executeSkill('venom_requiem', 5, v); C3.run(0.5); o.venom = (by.venom_requiem || 0) > 0 && !(v.poisonUntil > G.time);
+    G.mobs = []; const v = C3.dummy(pl.x + 1, pl.y, 1e7); v.def = Object.assign({}, v.def, { flee: 0 }); v.poisonUntil = G.time + 10; fresh(pl); executeSkill('venom_requiem', 5, v); C3.run(0.5); o.venom = (by.venom_requiem || 0) > 0 && !(v.poisonUntil > G.time);
     const c0 = by.thousand_cuts || 0; fresh(pl); executeSkill('thousand_cuts', 5, v); C3.run(1.2); o.cuts = (by.thousand_cuts || 0) > c0;
     fresh(pl); Runes._crit = false; executeSkill('shadow_vanish', 5, null); C3.run(0.1); o.vanish = pl.stealthUntil > G.time && Runes._crit === true; Runes._crit = false; pl.stealthUntil = 0;
     pl.combatAt = -99; Runes.set('unsigned_mold', 'unsigned_mold.unmasked'); v.facing = 1; v.x = pl.x + 1; o.behind = Class3.behind(v) && physHit(v, 1, { skill: true }).crit === true;

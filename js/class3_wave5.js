@@ -21,12 +21,13 @@
     l5_sp: lv => 3 + 2 * lv, l5_sp_r: 3,                 // Sap Spring: ฮีลทุกวิ = ฐานฮีล × (5~13)
     l5_cut_max: 0.4,                                      // Norn Cut: +40% เมื่อเป้าเลือดหมด (นับรวมเพดาน Hunt Rune)
     l5_leaf: 0.3,
-    l5_well_heal: 1.25, l5_well_dmg: 0.85, l5_skuld: lv => 1.0 + 0.2 * lv, l5_skuld_r: 2.5, l5_skuld_icd: 0.6,
+    // Oath of Skuld: เดิมแสงแตกใส่ทุกตัวรอบ 2.5 ช่อง 120~200% พัก 0.6 วิ = เดี่ยว +104% ฝูง +375% (tests/runes_c3.js) → ตัวใกล้สุดตัวเดียว 22~36% พัก 3 วิ และไม่ป้อนพลังประจำสาย (ตัวที่ทำให้แรงเกินจริง ๆ)
+    l5_well_heal: 1.25, l5_well_dmg: 0.85, l5_skuld: lv => 0.18 + 0.036 * lv, l5_skuld_r: 2.5, l5_skuld_icd: 3,
     l5_ult_regen: 6,
     // Oathfist
     o5_combo: 5, o5_window: 3, o5_free_k: 0.4,           // Holy Fist ฟรีแรง 40%
     o5_storm_k: 0.5, o5_storm_r: 2, o5_seal: 3, o5_seal_hits: 6,
-    o5_lost_hp: 0.5, o5_lost_k: 1.2,
+    o5_lost_hp: 0.5, o5_lost_k: 1.15,
     o5_ult: 8, o5_ult_every: 3, o5_ult_r: 2, o5_ult_k: 1.2,
   });
   const P = () => G.player;
@@ -142,7 +143,9 @@
         if (lv && over > 0) { const cap = Math.round(p.d.maxHp * K.l5_cap(lv)); p.c3well = Math.min(cap, (p.c3well || 0) + over); p.c3wellUntil = G.time + K.l5_well_dur; }
         if (!item && oath('well_of_urd') === 'skuld' && amt >= p.d.maxHp * 0.01 && Runes.icd('c3w5_skuld', K.l5_skuld_icd)) {
           const s = SKILLS.norn_cut, k = K.l5_skuld(lv || 1);
-          for (const m of Runes.foes(p.x, p.y, K.l5_skuld_r)) Runes.hit(m, s, k, { type: 'magic', element: 'holy', color: '#fff8c0' });
+          // ส่งตรง damageMob (ไม่ผ่าน applyHit): ถ้าผ่าน แสงทุกครั้งนับเป็น "ตีธาตุศักดิ์สิทธิ์" ของพลังประจำสาย Völva (js/class-traits.js) — วัดแล้วพลังสายคือ +7~15% ทั้งที่แสงเองแค่ ~1%
+          const m = Runes.nearest(p.x, p.y, K.l5_skuld_r);
+          if (m && !m.isPlayer && m.def) { const r = magicHit(m, k, 'holy'); if (r && !r.miss && r.dmg > 0) damageMob(m, r.dmg, { src: 'well_of_urd', color: '#fff8c0' }); }
           if (!fast()) addFx({ type: 'ring', x: p.x, y: p.y, dur: 0.4, r: K.l5_skuld_r, color: '255,248,200' });
         }
       }
@@ -302,9 +305,9 @@
       desc: () => L(`Oath of the Well — ฮีลแรง ${pc(K.l5_well_heal)}% แต่ดาเมจสกิลเหลือ ${pc(K.l5_well_dmg)}% — สายปาร์ตี้/ผู้ช่วย`, `Oath of the Well — healing at ${pc(K.l5_well_heal)}%, but skill damage drops to ${pc(K.l5_well_dmg)}% — the party/ally path.`),
       mod: keepP('well_of_urd') },
     { id: 'well_of_urd.skuld', name: 'Of Skuld', oath: 'skuld', intent: 'single', glyph: 'ᛋ', col: '#fff8c0',
-      short: `Oath: each heal bursts Holy around you (${K.l5_skuld_r} cells)`,
-      desc: () => L(`Oath of Skuld — ทุกครั้งที่ฮีล (ไม่นับยา) แสงแตกออกใส่ศัตรูรอบตัว ${K.l5_skuld_r} ช่อง ธาตุศักดิ์สิทธิ์ (พัก ${K.l5_skuld_icd} วิ) — นักบวชสายบู๊ เล่นคนเดียวได้`,
-        `Oath of Skuld — every heal (not potions) bursts into Holy damage on foes within ${K.l5_skuld_r} cells (${K.l5_skuld_icd}s cooldown) — the battle-healer path, fine solo.`),
+      short: `Oath: each heal smites the nearest foe (Holy, ${K.l5_skuld_r} cells)`,
+      desc: () => L(`Oath of Skuld — ทุกครั้งที่ฮีล (ไม่นับยา) แสงพุ่งใส่ศัตรูตัวใกล้สุดในระยะ ${K.l5_skuld_r} ช่อง ${pc(K.l5_skuld(1))}~${pc(K.l5_skuld(5))}% ธาตุศักดิ์สิทธิ์ (พัก ${K.l5_skuld_icd} วิ) — นักบวชสายบู๊ เล่นคนเดียวได้`,
+        `Oath of Skuld — every heal (not potions) strikes the nearest foe within ${K.l5_skuld_r} cells for ${pc(K.l5_skuld(1))}~${pc(K.l5_skuld(5))}% Holy (${K.l5_skuld_icd}s cooldown) — the battle-healer path, fine solo.`),
       mod: keepP('well_of_urd') },
   ]);
   Runes.add('lifethread', [

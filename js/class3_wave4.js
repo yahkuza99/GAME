@@ -25,8 +25,9 @@
     h4_ult: 10, h4_ult_r: 7,
     // Deadeye
     d4_far: 6, d4_far_k: lv => 0.03 * lv, d4_far_max: 10,  // Gungnir's Truth: ≥6 ช่องไม่พลาด • +3%×Lv × (ระยะ/10)
-    d4_pat_cast: 3000, d4_pat_k: 1.45, d4_sk_k: 0.6, d4_sk_cd: 1.8,
-    d4_rico_n: 2, d4_rico_k: 0.5, d4_rico_r: 4, d4_pin: 3, d4_pin_boss: 1,
+    d4_pat_cast: 3000, d4_pat_k: 1.38, d4_sk_k: 0.6, d4_sk_cd: 1.8,
+    // Oath of Patience ×1.45→1.38 (เฉลี่ย +8%) • Ricochet 2 ตัว 50% → 3 ตัว 70% (ฝูง −14% / −12%) — tests/runes_c3.js
+    d4_rico_n: 3, d4_rico_k: 0.7, d4_rico_r: 4, d4_pin: 3, d4_pin_boss: 1,
     d4_prey: lv => 0.02 * lv, d4_prey_dur: 12,
     d4_back: 4,
     d4_rain_n: 5, d4_rain_r: 2.5, d4_rain_hit: 0.9,
@@ -180,7 +181,7 @@
       until: G.time + 0.15 + (drift ? 1 : K.h4_bz_every) * (K.h4_bz_waves - 1) + 0.05,
       tick: (z, ms) => { for (const m of ms) { skillHitOne(s, lv, m); C.chill(m); } } });
   };
-  C.snare = (s, lv) => {
+  C.frostSnare = (s, lv) => { // ชื่อ C.snare เป็นของ Snare Glyph (js/class3.js) — ชนกันแล้วรูนนั้นสร้างกับดัก NaN
     const p = P(), at = { x: p.x, y: p.y };
     p.c3snares = (p.c3snares || []).filter(z => z.until > G.time);
     while (p.c3snares.length >= K.h4_sn_max) p.c3snares.shift().until = G.time;
@@ -309,7 +310,7 @@
     RU.onCast = function (s, lv, tgt) {
       const p = P();
       if (s.c3w4white) RU._crit = true; // ลูกแรกหลัง Whiteout คริ (ตีปกติได้ Ambush จากการซ่อนตัวอยู่แล้ว)
-      if (s.c3w4snare) C.snare(s, lv);
+      if (s.c3w4snare) C.frostSnare(s, lv);
       const r = f0.apply(this, arguments);
       if (s.c3w4bliz && tgt && !tgt.dead) { C.blizzard(s, lv, tgt); return true; }
       if (s.c3w4rain && tgt && !tgt.dead) { C.rain(s, lv, tgt); return true; }
