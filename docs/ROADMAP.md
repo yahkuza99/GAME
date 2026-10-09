@@ -18,7 +18,9 @@
 - [~] 3. มือถือลื่นขึ้น: วัดแล้ว (9 ต.ค.) โค้ดเกมใช้ CPU ~12 ms/เฟรมแม้จำลอง CPU ช้า 4 เท่า · ตอนจำลองเล่น CPU ทำงานแค่ 24% — เฟรมช้าเพราะเบราว์เซอร์ทดสอบวาดภาพด้วย CPU (ไม่มีการ์ดจอ) **ตัวเลข ~10 FPS เดิมจึงใช้ตัดสินไม่ได้** · ต้องดูมือถือจริง (เกมขึ้นเตือนเองถ้าต่ำกว่า 38 FPS)
 - [~] 4a. ตัวนำร่อง Class 3 ไม่เร็วกว่า Class 2 → เปิดพลังประจำสายให้ Class 3 แล้ว (Packlord เข้าเป้า · Runelord เร็วขึ้น 7–24% แต่บางกว่า Galdr ~2 เท่า — ลอง Sap Ward หนาขึ้น 50% ไม่ช่วย คืนค่า = ตัวตน glass cannon ยืนร่ายกลางวง) (9 ต.ค.)
 - [~] 4b. Class 3 รอบ 2: Niflheim Hexer + Ymir Worldbreaker เสร็จ (9 ต.ค.) — เหลือ 8 ตัว
-- [ ] 4. Class 3 อีก 8 ตัวตาม `docs/CLASS3_DESIGN.md` (ทีละคู่สาย) — ตัวเกม/สกิล/เควสต์ ทำได้เลย · ภาพจริงรอเจ้าของ (prompt `docs/CLASS3_ART.md`)
+- [~] 4c. Class 3 รอบ 3: Heimdall Warden + Jarl Warbringer เสร็จ (9 ต.ค.) — เหลือ 6 ตัว (Huntmaster/Deadeye · Lifeweaver/Oathfist · Sixth/Warsinger)
+- [ ] 4d. เทสต์รูน/Oath Class 3 ในแถบ ±12% (`tests/runes.js` วัดแค่ Class 1)
+- [ ] 4. Class 3 ที่เหลือตาม `docs/CLASS3_DESIGN.md` (ทีละคู่สาย) — ตัวเกม/สกิล/เควสต์ ทำได้เลย · ภาพจริงรอเจ้าของ (prompt `docs/CLASS3_ART.md`)
 
 ## Codex — งานภาพ (ส่งใน AGENT_HANDOFF แล้ว)
 - [ ] Goal Artwork เดิม (Rune 10/80 · ชุดท่าขั้นสูง 1/28)

@@ -1,5 +1,19 @@
 # CHANGELOG — NEO MIDGARD
 
+## 2026-10-09 (รอบ 7) — Class 3 รอบ 3: Heimdall Warden + Jarl Warbringer (สาย Einherjar)
+
+- **เพิ่ม** `js/class3_wave3.js` ตามแบบ `docs/CLASS3_DESIGN.md` §3.1/§3.2
+  - **Heimdall Warden** (← Valkyrie): Bifrost Line เส้นรุ้ง 6 ช่อง 6 วิ ศัตรูบนเส้นโดนศักดิ์สิทธิ์ทุกวิ + ช้า เรายืนบนเส้น DEF+ · Gjallar Call ดึงรอบ 8 ช่อง + รับดาเมจ −15% · Rainbow Bash 465–725% มึน 1 วิ · Warden's Stand ยืนนิ่ง −40% สะท้อน 30% (เดิน = ยกเลิก) · Guardian Leap กระโดดกระแทก · P Watchful Eye ตัวที่ตีเราติดรอย "ถูกจ้อง" รับดาเมจจากเรา +3%×Lv · Oath: of the Bridge / of the Horn (ดาเมจที่กันได้ → Rainbow Bash แรงขึ้น ≤ +60%) · รูน: Prism Wall / Rainbow Ring · ULT GJALLARHORN (6 วิ ไม่ล้ม + ดึงทุกตัว) · เควสต์ทดสอบที่ Hrólf (ประตู Eldheim)
+  - **Jarl Warbringer** (← Hersir): Longship Charge พุ่งจริง 7 ช่องทะลุแนว 280–440% ผลักออกข้าง · P Jarl's Command พุ่งแล้วได้โมเมนตัม ATK/ความเร็วตี (ซ้อน 3) · Raven Banner ธง 15 วิ ยืนในธงคูลดาวน์พุ่ง ×0.6 · Gram Rend 2 จังหวะ (จังหวะสอง ×1.5 ถ้าเป้ามึน) · Shieldwall Breaker กรวยหน้า + ศัตรูรับดาเมจกายภาพ +12% · Conqueror's Roar ล้างมึน/ช้า + กันมึน 6 วิ · Oath: of the Raid (ฆ่าหลังพุ่ง = รีเซ็ตคูลดาวน์) / of the Hold (ตีติดกัน 4 ครั้ง = โมเมนตัม) · รูน: Ram / Wake · ULT RAID OF THE JARL · เควสต์ทดสอบที่ Sigrún (Wolfwood)
+  - ง่ายลงจากแบบ: ปาร์ตี้ออนไลน์ยังส่งดาเมจ/บัฟข้ามเครื่องไม่ได้ → Oath of the Bridge โอนดาเมจจากผู้ช่วยในเกม (หมาป่า/สิ่งที่อัญเชิญ) + เรารับดาเมจ −10% · Gjallar/Banner บัฟตัวเรา · "ลด DEF −20%" → รับดาเมจกายภาพ +12% · "คริแน่นอน" → ×1.5
+- **วัด** (`DUEL=8 C3=1 C3PAIRS=valkyrie:warden,hersir:jarl` เป้า −15~25%): Warden ตีเดี่ยว −13~−18% · ฝูง −12~−19% · Jarl ตีเดี่ยว −18~−24% · ฝูง −12~−24%
+  - ปรับระหว่างทาง: รอบแรก Warden ช้ากว่า Valkyrie (+1~+5%) → Rainbow Bash แรงขึ้น/คูลดาวน์ 5→3.5 วิ · เส้นรุ้งแรง/กว้างขึ้น · Watchful Eye +ATK 1%×Lv · Jarl ตีเดี่ยวเร็วเกิน (−29%) → Gram Rend 320–520→270–430% คูลดาวน์ 6→8 · โมเมนตัมความเร็วตี 2Lv→Lv% · Longship 300–480→280–440% · บอทพุ่งทุกครั้งที่พร้อม (เดิมพุ่งเฉพาะเป้าไกล — ตีฝูงแทบไม่ได้ใช้)
+  - ผลวัดแกว่งรอบละ ±5–8% แม้ไม่ได้แก้อะไร (ครั้งหนึ่งสคริปต์แก้ค่าพังกลางทาง ไฟล์ไม่เปลี่ยน แต่ผลขยับ) → ใช้ DUEL=8 ตัดสิน
+- **เปลี่ยน** `tests/class3.js`: ตรวจกลไก Warden/Jarl 5 ข้อใหม่ · ตัวอย่าง "Class 2 ที่ยังไม่มี Class 3" Valkyrie → Skadi · สกิลตีกายภาพพลาดได้ ให้ลอง 3 ครั้งก่อนตัดสินว่า "ไม่มีผล" (เดิมสุ่มตก pack_pursuit/rainbow_bash)
+- เจอ: ข้อ Howl runes (Packlord) ตก 1 ใน 4 รอบ — แก้รอบนี้ไม่ได้แตะ น่าจะเป็นเงื่อนไข "อยู่ในการต่อสู้" ตอนเปลี่ยนรูน ยังไม่ได้ไล่
+- ยังไม่ได้วัด: รูน/Oath ของ Class 3 (ทั้ง 6 ตัว) ในแถบ ±12% — `tests/runes.js` วัดแค่รูน Class 1
+- เทสต์: class3 48/48 (2 รอบติด) · smoke 53/53 · passive 80/80 · runes 24/24
+
 ## 2026-10-09 (รอบ 6) — Class 3 รอบ 2: Niflheim Hexer + Ymir Worldbreaker
 
 - **เพิ่ม** `js/class3_wave2.js` (ไฟล์ใหม่ — `js/class3.js` 864 บรรทัดเกินเพดาน 800 แล้ว) ตามแบบ `docs/CLASS3_DESIGN.md` §3.4/§3.12 ครบสายของตัวนำร่อง

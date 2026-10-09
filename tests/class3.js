@@ -122,7 +122,7 @@ const SHOTS = process.env.SHOTS || '';
     pl.baseLv = 70; pl.jobLv = THIRD_JOB_REQ.job - 1; o.job25 = Class3.req().ok;
     pl.jobLv = THIRD_JOB_REQ.job; C3.partOne(false); o.noStory = Class3.req().ok;
     C3.partOne(true); o.okAll = Class3.req().ok;
-    const p1 = C3.second('valkyrie'); C3.partOne(true); o.noThird = Class3.req().next === null && !Class3.req().ok;
+    const p1 = C3.second('skadi'); C3.partOne(true); o.noThird = Class3.req().next === null && !Class3.req().ok;
     C3.second('galdr'); C3.partOne(true);
     // บทพูด: เมนูเลือกตัวแรกเสมอ
     const menu0 = UI.menu, say0 = UI.say; UI.menu = async () => 0; UI.say = async () => {};
@@ -161,7 +161,7 @@ const SHOTS = process.env.SHOTS || '';
   ok('unlock: Class 2 Job below requirement → locked', !flow.job25);
   ok('unlock: Part 1 not finished (ch7_home) → locked', !flow.noStory);
   ok('unlock: Base 70 + Job requirement + ch7_home → open', flow.okAll);
-  ok('unlock: Class 2 without a pilot Class 3 (Valkyrie) → none', flow.noThird);
+  ok('unlock: Class 2 without a pilot Class 3 (Skadi) → none', flow.noThird);
   ok('Mimir starts the trial (talk to Muninn) + quest tracker shows it', /"stage":"seek"/.test(flow.trial) && /Muninn/.test(flow.tracker), flow.trial + ' | ' + flow.tracker);
   ok('trial NPC raises the Mould Shadow (boss, shadow of Galdr, not in MOBS)', flow.shadow);
   ok('defeating the shadow → stage "ascend" (no bestiary entry)', flow.stage === 'ascend' && flow.kills === 0, flow);
@@ -183,9 +183,13 @@ const SHOTS = process.env.SHOTS || '';
         pl.skillReadyAt = 0; pl.cds = {}; pl.cast = null; pl.sp = pl.d.maxSp; pl.hp = pl.d.maxHp; pl.stunUntil = 0; pl.buffs = {};
         const sp0 = pl.sp, x0 = pl.x, y0 = pl.y, hp0 = m.hp + m2.hp; let cd = false, spMin = pl.sp;
         try {
-          beginSkill(id, s.max, s.target === 'enemy' ? m : null);
-          for (let i = 0; i < 75; i++) { for (const o of G.mobs) o.nextAtk = G.time + 1; updateGame(1 / 15); if (skillCdLeft(id) > 0) cd = true; spMin = Math.min(spMin, pl.sp); }
-          const eff = (m.hp + m2.hp < hp0) || (G.zones || []).some(z => z.skill === id) || !!pl.buffs[id] || G.allies.some(a => a.kind === 'c3wolf') || Class3.circles().length > 0 || (m.c3mark && m.c3mark.until > G.time) || U.dist(x0, y0, pl.x, pl.y) > 1 || (pl.rb && pl.rb.c3_lone);
+          let eff = false;
+          for (let tryN = 0; tryN < 3 && !eff; tryN++) { // ตีกายภาพพลาดได้ (HIT vs FLEE) — ให้โอกาส 3 ครั้งก่อนตัดสินว่า "ไม่มีผล"
+            if (tryN) { pl.skillReadyAt = 0; pl.cds = {}; pl.cast = null; pl.sp = pl.d.maxSp; teleportPlayer(x0, y0); m.x = pl.x + 1.2; m.y = pl.y; }
+            beginSkill(id, s.max, s.target === 'enemy' ? m : null);
+            for (let i = 0; i < 75; i++) { for (const o of G.mobs) o.nextAtk = G.time + 1; updateGame(1 / 15); if (skillCdLeft(id) > 0) cd = true; spMin = Math.min(spMin, pl.sp); }
+            eff = (m.hp + m2.hp < hp0) || (G.zones || []).some(z => z.skill === id) || !!pl.buffs[id] || G.allies.some(a => a.kind === 'c3wolf') || Class3.circles().length > 0 || (m.c3mark && m.c3mark.until > G.time) || U.dist(x0, y0, pl.x, pl.y) > 1 || (pl.rb && pl.rb.c3_lone);
+          }
           out[id] = (spMin < sp0 ? '' : 'NO-SP ') + (cd ? '' : 'NO-CD ') + (eff ? 'ok' : 'NO-EFFECT');
         } catch (e) { out[id] = 'ERROR ' + e.message; }
       }
@@ -276,6 +280,63 @@ const SHOTS = process.env.SHOTS || '';
   ok("Alpha's Mark +15% at Lv 5", mech.mark);
   ok('Unchained: clears stun, blocks stun, HP floor 1', mech.unstun && mech.stunImm && mech.floor, mech);
   ok('ULT RAGNARÖK HOWL: +2 wolves, lifesteal, stun immunity', mech.howlUlt);
+
+  // ---------- รอบ 3: Warden + Jarl ----------
+  const m3 = await p.evaluate(async () => {
+    const o = {}, by = {}; G.onDmg = (m, d, op) => { by[op.src || '?'] = (by[op.src || '?'] || 0) + d; };
+    const fresh = pl => { pl.cds = {}; pl.skillReadyAt = 0; pl.cast = null; pl.sp = pl.d.maxSp; pl.hp = pl.d.maxHp; pl.stunUntil = 0; };
+    // ----- Warden -----
+    let pl = C3.third('warden'); C3.arena('roots'); G.mobs = []; G.zones = [];
+    const t = C3.dummy(pl.x + 4, pl.y, 1e7); t.state = 'chase';
+    const mid = C3.dummy(pl.x + 2, pl.y, 1e7); mid.state = 'chase';
+    fresh(pl); beginSkill('bifrost_line', 5, t); C3.run(2.5);
+    o.line = (by.bifrost_line || 0) > 0 && (mid.slowUntil || 0) > G.time && !!(pl.rb && pl.rb.c3w3_line);
+    // Gjallar −15% • Stand −40% (รวม ×0.51) • เดิน = ยกเลิก Stand
+    pl.buffs = {}; fresh(pl); executeSkill('gjallar_call', 5, null); C3.run(0.2);
+    o.call = Math.abs(Class3.takenMul() - 0.85) < 1e-9; // ตัวคูณของ Class 3 เอง (Resolve/Passive ลดซ้อนต่างหาก)
+    fresh(pl); executeSkill('wardens_stand', 5, null); C3.run(0.2);
+    o.stand = Math.abs(Class3.takenMul() - 0.51) < 1e-9;
+    // สะท้อน: ตัวที่ตีเรา (Runes.onHurt) โดน 30% + ติดรอยถูกจ้อง
+    const r0 = by.wardens_stand || 0; Runes.onHurt(mid, 500); o.reflect = (by.wardens_stand || 0) - r0 >= 140 && mid.c3watch > G.time;
+    teleportPlayer(pl.x + 1.5, pl.y); C3.run(0.2); o.standBreak = !pl.buffs.wardens_stand;
+    // Oath of the Horn: ดาเมจที่กันได้ → Rainbow Bash แรงขึ้น
+    pl.combatAt = -99; Runes.set('watchful_eye', 'watchful_eye.horn'); fresh(pl); pl.buffs = {}; executeSkill('gjallar_call', 5, null); C3.run(0.2);
+    damagePlayer(2000); o.horn = pl.c3horn >= 290;
+    Runes.preCast(skillDef('rainbow_bash'), 5, mid); o.hornCast = pl.c3hornCast && pl.c3hornCast.k > 1 && !pl.c3horn;
+    pl.combatAt = -99; Runes.set('watchful_eye', null); pl.c3hornCast = null;
+    // ULT GJALLARHORN: ไม่ล้ม
+    pl.ultKind = 'gjallar'; pl.ult = 100; Feel.ultFire(); pl.hp = 50; damagePlayer(99999); o.hornUlt = pl.hp === 1 && !pl.dead; pl.c3ult = null; pl.hp = pl.d.maxHp;
+    // ----- Jarl -----
+    pl = C3.third('jarl'); C3.arena('roots'); G.mobs = []; G.zones = [];
+    const a = C3.dummy(pl.x + 2, pl.y, 1e7), b = C3.dummy(pl.x + 4, pl.y, 1e7), z = C3.dummy(pl.x + 6, pl.y, 1e7); a.state = b.state = z.state = 'chase';
+    const x0 = pl.x; fresh(pl); pl.buffs = {}; beginSkill('longship_charge', 5, z); C3.run(0.6);
+    o.ship = pl.x - x0 > 4 && (by.longship_charge || 0) > 0 && [a, b, z].every(m => m.hp < m.maxHp);
+    o.mom1 = pl.rb && pl.rb.c3w3_mom && pl.rb.c3w3_mom.stacks === 1;
+    for (let i = 0; i < 3; i++) { pl.cds = {}; pl.skillReadyAt = 0; pl.cast = null; executeSkill('longship_charge', 5, a); C3.run(0.3); }
+    o.momMax = pl.rb.c3w3_mom.stacks === 3;
+    // ธง: คูลดาวน์ Longship ×0.6 ในธง
+    fresh(pl); executeSkill('raven_banner', 5, null); C3.run(0.6);
+    o.banner = !!pl.buffs.raven_banner && Math.abs(skillDef('longship_charge').cd - SKILLS.longship_charge.cd * 0.6) < 1e-6;
+    // Roar: ล้างมึน + กันมึน
+    pl.stunUntil = G.time + 5; pl.cds = {}; pl.skillReadyAt = 0; executeSkill('conquerors_roar', 5, null);
+    o.roar = pl.stunUntil <= G.time && (stunPlayer(3), pl.stunUntil <= G.time);
+    // Oath of the Raid: ฆ่าหลังพุ่ง = รีเซ็ตคูลดาวน์
+    pl.combatAt = -99; Runes.set('jarls_command', 'jarls_command.raid'); fresh(pl);
+    const k1 = C3.dummy(pl.x + 3, pl.y, 50); k1.state = 'chase'; executeSkill('longship_charge', 5, k1); C3.run(0.5);
+    o.raid = k1.dead && skillCdLeft('longship_charge') <= 0;
+    pl.combatAt = -99; Runes.set('jarls_command', null);
+    // Shieldwall Breaker ติดรอย +12% • ULT RAID: Longship ไม่ใช้ SP
+    fresh(pl); const c1 = C3.dummy(pl.x + 1, pl.y, 1e7); c1.state = 'chase'; executeSkill('shieldwall_breaker', 5, c1); C3.run(0.4);
+    o.sunder = c1.c3sunder > G.time;
+    pl.ultKind = 'raid'; pl.ult = 100; Feel.ultFire(); o.raidUlt = skillCost('longship_charge', 5) === 0; pl.c3ult = null;
+    G.onDmg = null;
+    return o;
+  });
+  ok('Warden: Bifrost Line hurts + slows foes on it, DEF buff on the line', m3.line, m3);
+  ok("Warden: Gjallar −15% • Stand −40% • reflect 30% + Watched • moving breaks the Stand", m3.call && m3.stand && m3.reflect && m3.standBreak, m3);
+  ok('Warden: Oath of the Horn stores blocked damage into Rainbow Bash • ULT GJALLARHORN floor', m3.horn && m3.hornCast && m3.hornUlt, m3);
+  ok('Jarl: Longship dashes through the line, Momentum stacks to 3', m3.ship && m3.mom1 && m3.momMax, m3);
+  ok('Jarl: Raven Banner cooldown ×0.6 • Roar clears/blocks stun • Raid reset • Sunder • ULT no SP', m3.banner && m3.roar && m3.raid && m3.sunder && m3.raidUlt, m3);
 
   // ============== 5) IV-BUILD / Battle Script / UI ==============
   const ui = await p.evaluate(async () => {

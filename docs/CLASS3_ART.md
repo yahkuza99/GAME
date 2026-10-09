@@ -66,4 +66,30 @@ NO ice particles, NO smoke, NO floating rocks — keep the silhouette clean for 
 Make the {FEMALE | MALE} version: same armor, weapon and colors; {female: thick braided grey hair, slimmer waist | male: short grey hair, very broad shoulders}.
 ```
 
+## Heimdall Warden (`warden` ← Valkyrie Knight) — ผู้คุมสะพานแห่งไฮม์ดัล (เพิ่ม 2026-10-09 · Claude เสนอตามแบบ §3.1 — เจ้าของยังไม่ได้เลือก)
+แนบ: `assets/job_valkyrie_f.webp` + `assets/job_valkyrie_m.webp`
+
+```
+Attached: the Valkyrie Knight (female and male) from my game. Design its evolved 3rd-tier class "Heimdall Warden" — an android bridge-guard who never turns her back, keeper of the rainbow bridge.
+Full-body character design sheet, front view, standing, same art style, rendering quality and proportions as the attached images (tall, anime-fantasy armor, Norse knotwork), dark plain background.
+Android knight in white-and-gold plate armor with thin PRISMATIC rainbow edging on every plate rim; tall horned helm with a smooth faceplate and ONE glowing gold visor strip, NO eyes, NO mouth; thick layered pauldrons.
+Weapons fully visible, not hiding the torso: a short golden sword in the right hand, and on the left arm a TALL rectangular tower shield (almost body height) with a rainbow-rimmed edge and a carved horn emblem.
+Palette: white, gold, thin rainbow accents. Steady, protective, unmovable — clearly a higher rank than the Valkyrie Knight.
+NO light rays, NO particles, NO floating runes — keep the silhouette clean for 3D.
+Make the {FEMALE | MALE} version: same armor, weapons and colors; {female: long pale-gold braid from under the helm | male: short pale hair, broader chest}.
+```
+
+## Jarl Warbringer (`jarl` ← Hersir Vanguard) — ยาร์ลผู้นำศึก (เพิ่ม 2026-10-09 · Claude เสนอตามแบบ §3.2 — เจ้าของยังไม่ได้เลือก)
+แนบ: `assets/job_hersir_f.webp` + `assets/job_hersir_m.webp`
+
+```
+Attached: the Hersir Vanguard (female and male) from my game. Design its evolved 3rd-tier class "Jarl Warbringer" — an android war-chief who leads the raid from the front of the longship.
+Full-body character design sheet, front view, standing, same art style, rendering quality and proportions as the attached images (tall, anime-fantasy armor, Norse knotwork), dark plain background.
+Android warrior in dark iron-grey armor with deep blood-red cloth and a THICK black fur mantle over the shoulders (not reaching the knees); long jarl arm-rings on both forearms; half-face helm with ONE glowing ember-red visor strip, NO eyes, NO mouth below it is a smooth plate.
+Weapon fully visible, not hiding the torso: a two-handed greatsword resting on the right shoulder, its blade etched with dull red runes.
+Palette: iron grey, dark red, black fur. Commanding, forward-leaning, always moving — clearly a higher rank than the Hersir Vanguard.
+NO banners in hand, NO smoke, NO embers — keep the silhouette clean for 3D.
+Make the {FEMALE | MALE} version: same armor, weapon and colors; {female: long dark-red braids from under the helm | male: short dark hair, heavy braided beard-like cable bundle}.
+```
+
 ใช้แชตละ 1 ภาพ (4 ภาพ: runelord_f, runelord_m, packlord_f, packlord_m) • ได้ภาพแล้วส่งในแชตหรือวางที่ `art/class3/` แล้ว push — Claude ตัดพื้น/บีบไฟล์เป็น `assets/job_<class>_<m|f>.webp` แล้วใช้เป็นภาพ Class ในเกมทันที (ระหว่างรอ Meshy)
