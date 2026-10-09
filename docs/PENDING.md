@@ -8,7 +8,7 @@
 
 | ปลายทาง | อัปเดตด้วย | อัปเดตล่าสุด |
 |---|---|---|
-| **Valhalla Codex** (หน้าเว็บเอกสาร) https://claude.ai/artifact/7mrJsDWNZkEZrdfBsBpNqr | `tools/reference_web/` (ดู README ในโฟลเดอร์) | 2026-10-09 • ข้อมูลจาก `99467ec` • สร้าง HTML ใหม่แล้ว (+ Class 3 / รูน / Passive / Build Code / ภาพเกม) — **ยังไม่เผยแพร่ทับลิงก์เดิม** |
+| **Valhalla Codex** (หน้าเว็บเอกสาร) https://claude.ai/artifact/7mrJsDWNZkEZrdfBsBpNqr | `tools/reference_web/` (ดู README ในโฟลเดอร์) | 2026-10-09 • ข้อมูลจาก `99467ec` • สร้าง HTML ใหม่แล้ว (+ Class 3 / รูน / Passive / Build Code / ภาพเกม) — เผยแพร่ทับลิงก์เดิมแล้ว (version 3) |
 | **docs/GAME_REFERENCE.md** | `node tools/make_reference.js` | 2026-10-09 |
 | **ROADMAP.md / Todo** | แก้มือ | 2026-10-09 |
 
