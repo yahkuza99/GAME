@@ -1,0 +1,75 @@
+/* =====================================================================
+   ตลาดผู้เล่น (แผงขายของ + บอร์ดตลาด) — js/market.js
+   กติกาหน้าตา: สี่เหลี่ยมมุมมนเล็ก (≤ 8px) ไม่ใช้ทรงแคปซูล • ราคาเป็นตัวเลข ไม่มีแถบสัดส่วน • ไม่ถ่างตัวอักษร
+   ===================================================================== */
+#w-market button, #w-market input, #w-market select { font: inherit; }
+#w-market .win-body { max-height: min(76vh, 640px); overflow-y: auto; }
+#w-market .mk-board, #w-market .mk-shop, #w-market .mk-mine, #w-market .mk-pick { display: flex; flex-direction: column; gap: 8px; }
+#w-market .mk-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+#w-market .mk-tab { min-height: 38px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--edge, rgba(255, 255, 255, 0.12)); background: var(--fill, rgba(255, 255, 255, 0.04)); color: var(--ink-dim, #b8c4d8); font-size: 14px; font-weight: 600; cursor: pointer; }
+#w-market .mk-tab.on { color: var(--exp, #ffe08a); border-color: rgba(255, 224, 138, 0.55); background: rgba(255, 224, 138, 0.09); }
+#w-market .mk-filters { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px; }
+#w-market .mk-filters input, #w-market .mk-filters select { min-width: 0; min-height: 36px; border-radius: 6px; font-size: 14px; }
+#w-market .mk-sec { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--ink-dim, #b8c4d8); }
+#w-market .mk-sec small { font: 500 12px var(--mono, monospace); color: var(--ink-faint, #8a96aa); }
+#w-market .mk-list { display: flex; flex-direction: column; gap: 6px; }
+#w-market .mk-row { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 8px; background: var(--fill, rgba(255, 255, 255, 0.04)); border: 1px solid var(--edge, rgba(255, 255, 255, 0.1)); min-width: 0; }
+#w-market .mk-row.mine { border-color: rgba(255, 224, 138, 0.4); }
+#w-market .mk-row.gone { opacity: 0.5; }
+#w-market .mk-ic { flex: none; width: 40px; height: 40px; padding: 0; position: relative; border-radius: 6px; }
+#w-market .mk-ic img { width: 76%; height: 76%; }
+#w-market .mk-holes { position: absolute; left: 0; right: 0; bottom: 3px; display: flex; justify-content: center; gap: 2px; pointer-events: none; }
+#w-market .mk-holes i { width: 4px; height: 4px; border-radius: 1px; background: rgba(255, 255, 255, 0.3); }
+#w-market .mk-holes i.on { background: var(--cy, #6ff3ff); }
+#w-market .mk-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.35; }
+#w-market .mk-mid b { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#w-market .mk-mid small { font-size: 12.5px; color: var(--ink-dim, #b8c4d8); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#w-market .mk-qty { font-weight: 500; color: var(--ink-dim, #b8c4d8); }
+#w-market .mk-end { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+#w-market .mk-btns { display: flex; gap: 4px; align-items: center; }
+#w-market .mk-btns .btn { min-height: 32px; padding: 4px 10px; border-radius: 6px; }
+#w-market .mk-volt { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+#w-market .mk-vi { display: inline-flex; }
+#w-market .mk-vi svg { width: 13px; height: 13px; fill: var(--exp, #ffe08a); stroke: none; }
+#w-market .mk-volt b { font: 600 14px var(--mono, monospace); color: var(--exp, #ffe08a); }
+#w-market .mk-volt small { font: 500 12px var(--mono, monospace); color: var(--ink-faint, #8a96aa); }
+#w-market .mk-n { width: 58px; min-height: 32px; text-align: center; border-radius: 6px; }
+#w-market .mk-none { padding: 14px 10px; text-align: center; font-size: 13px; color: var(--ink-dim, #b8c4d8); }
+#w-market .mk-note { padding: 8px 12px; border-radius: 6px; background: rgba(255, 224, 138, 0.08); border: 1px solid rgba(255, 224, 138, 0.3); font-size: 13px; line-height: 1.45; }
+#w-market .mk-shead { display: flex; align-items: center; gap: 8px; min-width: 0; }
+#w-market .mk-st { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.35; }
+#w-market .mk-st b { font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#w-market .mk-st small { font-size: 12.5px; color: var(--ink-dim, #b8c4d8); }
+#w-market .mk-field { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+#w-market .mk-field span { flex: none; color: var(--ink-dim, #b8c4d8); }
+#w-market .mk-field input { flex: 1; min-width: 0; min-height: 36px; border-radius: 6px; }
+#w-market .mk-inv { display: grid; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 5px; max-height: 150px; overflow-y: auto; padding: 2px; }
+#w-market .mk-icell { padding: 0; min-width: 0; color: inherit; border-radius: 6px; }
+#w-market .mk-icell img { width: 74%; height: 74%; }
+#w-market .mk-icell.used { opacity: 0.28; cursor: default; }
+#w-market .mk-set { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; padding: 8px 10px; border-radius: 8px; background: var(--fill, rgba(255, 255, 255, 0.04)); border: 1px solid var(--edge, rgba(255, 255, 255, 0.1)); }
+#w-market .mk-set-n { flex: 1 1 100%; display: flex; align-items: center; gap: 8px; min-width: 0; }
+#w-market .mk-set-n img { width: 26px; height: 26px; }
+#w-market .mk-set-n b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#w-market .mk-set label { display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; color: var(--ink-dim, #b8c4d8); }
+#w-market .mk-set input { width: 110px; min-height: 34px; border-radius: 6px; }
+#w-market .mk-set .mk-add { min-height: 34px; min-width: 64px; border-radius: 6px; }
+#w-market .mk-log { display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--ink-dim, #b8c4d8); }
+#w-market .mk-acts { display: flex; justify-content: flex-end; gap: 8px; }
+#w-market .mk-acts .btn { min-height: 40px; min-width: 130px; border-radius: 6px; }
+#w-market .mk-empty { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 10px 8px; text-align: center; }
+#w-market .mk-empty b { font-size: 16px; }
+#w-market .mk-empty p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-dim, #b8c4d8); max-width: 320px; }
+#w-market .mk-empty-ic { width: 64px; height: 64px; border-radius: 8px; display: grid; place-items: center; color: var(--exp, #ffe08a); background: rgba(255, 224, 138, 0.08); border: 1px solid rgba(255, 224, 138, 0.25); }
+#w-market .mk-empty-ic svg, #menubar [data-win="w-market"] svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+#w-market .mk-empty-ic svg { width: 34px; height: 34px; }
+#w-market .btn:disabled { cursor: default; opacity: 0.5; }
+#w-market .hint { margin-top: 2px; }
+@media (max-width: 520px) {
+  #w-market .mk-filters { grid-template-columns: 1fr 1fr; }
+  #w-market .mk-filters .mk-q { grid-column: 1 / -1; }
+  #w-market .mk-row { gap: 8px; padding: 6px; }
+  #w-market .mk-ic { width: 36px; height: 36px; }
+  #w-market .mk-btns .btn { padding: 4px 8px; }
+  #w-market .mk-set input { width: 90px; }
+}

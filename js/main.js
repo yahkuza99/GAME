@@ -117,6 +117,7 @@ function handleClick(ev) {
     else UI.msg(L('ยกเลิกการใช้สกิล', 'Skill cancelled.'), 'info');
     return;
   }
+  if (typeof Market !== 'undefined' && Market.onClick()) return; // ป้ายร้านผู้เล่น = เปิดหน้าร้าน • กำลังเปิดร้าน = ไม่เดินออก (js/market.js)
   if (p.cast) { p.cast = null; UI.msg(L('ยกเลิกการร่ายเวท', 'Cast cancelled.'), 'info'); }
   p.target = null; p.skillTarget = null; p.manualSkillLock = false; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null;
   p.sitting = false;

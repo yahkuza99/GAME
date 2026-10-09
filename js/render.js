@@ -434,7 +434,9 @@ R.render = () => {
     const oy = R.tagSlot(x, y + (pm ? 28 : 26), R.nameW(g, o.name, pm ? 'party' : 'player', { crest: '#888' }));
     R.name(g, x, oy, o.name, pm ? 'party' : 'player', { crest: (JOBS[o.job] || JOBS.novice).glow });
     R.label(g, x, oy + 15, `${JOBS[o.job].name} Lv ${o.baseLv}${o.bot ? ' · AUTO' : ''}`, pm ? '#a8f0dc' : '#c8d4e8');
-    if (o.speech) R.speech(g, x, y - 92, o.speech.text, false);
+    const sign = typeof Market !== 'undefined' ? Market.signFor(o.id) : null; // ป้ายร้าน (js/market.js)
+    if (sign) Market.drawSign(g, x, y - 76, sign, false);
+    if (o.speech) R.speech(g, x, y - (sign ? 110 : 92), o.speech.text, false);
     if (o.emote && o.emote.until > G.time) Emote.draw(g, x + 2, y - (o.speech ? 122 : 84), o.emote, t);
   }
   for (const a of G.allies) if (!a.quiet && !a.dead && a.until > G.time) {
@@ -460,8 +462,10 @@ R.render = () => {
       g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(x - 30, y - 66, 60, 8);
       g.fillStyle = '#60ff60'; g.fillRect(x - 29, y - 65, 58 * k, 6);
     }
-    if (p.speech) R.speech(g, x, y - (p.cast ? 104 : 92), p.speech.text, p.speech.shout);
-    if (p.sitting && !(p.emote && p.emote.until > G.time)) R.emote(g, x + 14, y - 46, 'z');
+    const sign = typeof Market !== 'undefined' && Market.mine ? Market.mine.title : null; // ร้านของเรา (js/market.js)
+    if (sign) Market.drawSign(g, x, y - 76, sign, true);
+    if (p.speech) R.speech(g, x, y - (sign ? 110 : p.cast ? 104 : 92), p.speech.text, p.speech.shout);
+    if (p.sitting && !sign && !(p.emote && p.emote.until > G.time)) R.emote(g, x + 14, y - 46, 'z');
     if (p.emote && p.emote.until > G.time) Emote.draw(g, x + 2, y - (p.speech ? 122 : 84), p.emote, t);
   }
   // ตัวเลขลอย
