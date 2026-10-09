@@ -82,13 +82,17 @@ const UI = {
     const panel = h('nav', { id: 'menu-panel', class: 'menu-panel', 'aria-label': L('เมนูเกม', 'Game menu') }, h('div', { class: 'menu-heading' }, L('เมนู', 'Menu')), grid);
     menu.append(panel);
     menu.prepend(mf);
+    // ซ่อนเมนูเอง (เจ้าของ 8 ต.ค. "ทำซ่อนได้ด้วยนะเมนู"): กดปุ่มในเมนูแล้วพับ • แตะ/คลิกนอกเมนูแล้วพับ — ไม่ต้องกด TAB ซ้ำ
+    grid.addEventListener('click', e => { if (e.target.closest('button')) setTimeout(() => this.setFold(menu, true), 0); });
+    document.addEventListener('pointerdown', e => { if (!menu.classList.contains('folded') && !menu.contains(e.target)) this.setFold(menu, true); }, true);
     // Extensions add their menu entries after UI.init; keep them in the same panel.
     new MutationObserver(() => {
       for (const b of menu.querySelectorAll(':scope > button:not(.menu-fold)')) grid.append(b);
     }).observe(menu, { childList: true });
-    // จอเล็ก/จอสัมผัส: เริ่มต้นพับเมนูและแชทไว้ให้เห็นเกมเต็ม ๆ
+    // เริ่มต้นพับเมนูไว้ทุกจอ (เปิดด้วย Tab / ปุ่มกลมข้างมินิแมพ) • จอเล็ก/จอสัมผัส: พับแชทด้วย — ให้เห็นเกมเต็ม ๆ
     const small = matchMedia('(pointer: coarse)').matches || innerWidth < 760 || innerHeight < 520;
-    if (small) { if (st.menu === undefined) st.menu = true; if (st.chat === undefined) st.chat = true; }
+    if (st.menu === undefined) st.menu = true;
+    if (small && st.chat === undefined) st.chat = true;
     $$('.foldable').forEach(p => {
       if (st[p.dataset.fold]) p.classList.add('folded');
       const b = $('.fold-btn', p);
@@ -234,8 +238,9 @@ const UI = {
       else if (cmd === 'help') this.open('w-help');
       else if (cmd === 'emote' || cmd === 'e') this.toggle('w-emote');
       else if (/^trade(\s|$)/.test(cmd)) Trade.command(text.slice(6));
+      else if (/^(market|vend)(\s|$)/.test(cmd) && typeof Market !== 'undefined') Market.command(cmd.startsWith('vend') ? 'vend' : text.slice(8)); // ตลาด /market • เปิดร้าน /vend
       else if (Emote.fromChat(cmd)) { /* อีโมต */ }
-      else this.msg(L(`คำสั่ง: /sit /where /save /autoloot /nc /ns /help /emote • ปาร์ตี้: /party create /invite ชื่อ /leave /p ข้อความ • อีโมต: ${EMOTES.map(e => '/' + e.k).join(' ')}`, `Commands: /sit /where /save /autoloot /nc /ns /help /emote • Party: /party create /invite name /leave /p message • Emotes: ${EMOTES.map(e => '/' + e.k).join(' ')}`), 'info');
+      else this.msg(L(`คำสั่ง: /sit /where /save /autoloot /nc /ns /help /emote /trade /market /vend • ปาร์ตี้: /party create /invite ชื่อ /leave /p ข้อความ • อีโมต: ${EMOTES.map(e => '/' + e.k).join(' ')}`, `Commands: /sit /where /save /autoloot /nc /ns /help /emote /trade /market /vend • Party: /party create /invite name /leave /p message • Emotes: ${EMOTES.map(e => '/' + e.k).join(' ')}`), 'info');
       return;
     }
     this.msg(`${p.name} : ${text}`, 'say');
@@ -2087,6 +2092,7 @@ const UI = {
             h('span', { class: 'hunt-s' }, `${t.mapName}${t.map === G.map.id ? L(' · อยู่ที่นี่', ' · Here') : ''}${kc ? L(` · ล่าแล้ว ${U.fmt(kc)}`, ` · ${U.fmt(kc)} defeated`) : ''}${t.mvp ? ` · ${this.mvpStatus(t.mobId).replace(/^[^ ]+ /, '')}` : ''}`)),
           h('span', { class: 'hunt-r' }, h('b', {}, `Lv ${t.lv}`), h('small', { class: expLevelMul(d.lv, G.player.baseLv) < 1 ? 'exp-low' : expLevelMul(d.lv, G.player.baseLv) > 1 ? 'exp-hi' : '' }, `+${U.fmt(Math.round(d.exp * expLevelMul(d.lv, G.player.baseLv)))} EXP${expLevelMul(d.lv, G.player.baseLv) !== 1 ? ` · ${Math.round(expLevelMul(d.lv, G.player.baseLv) * 100)}%` : ''}`)),
           h('span', { class: 'hunt-info', title: L('ข้อมูลมอนสเตอร์', 'Monster info'), onclick: e => { e.stopPropagation(); this.showMob(t.mobId); } }, 'i'));
+        if (t.mvp && typeof MM !== 'undefined') $('.hunt-mid', r).append(h('span', { class: 'hunt-mm', role: 'button', title: L('หาปาร์ตี้ไปตีบอสนี้ (จับคู่อัตโนมัติ)', 'Find a party for this boss (matchmaking)'), onclick: e => { e.stopPropagation(); MM.open('mvp:' + t.mobId); } }, L('หาปาร์ตี้', 'Find party'))); // js/matchmaking.js
         list.append(r);
       }
     }
@@ -2236,10 +2242,18 @@ const UI = {
   illust(key) {
     const el = $('#illust');
     const img = key && Art.get(key);
+    // ภาพที่โหลดตอนใช้ (js/art.js ART_LAZY) ยังมาไม่ถึง: รอแล้วเรียกซ้ำ (สูงสุด ~4 วิ) ถ้ายังขอภาพเดิมอยู่ — เดิมฉากบอสล้มขึ้นว่าง
+    this._illustWant = key || null;
+    if (key && !img && Art.lazy && Art.lazy.has(key) && !(Art.missed && Art.missed.has(key))) {
+      const t0 = performance.now(), wait = () => { if (this._illustWant !== key) return; if (Art.imgs[key]) this.illust(key); else if (performance.now() - t0 < 4000) setTimeout(wait, 100); };
+      setTimeout(wait, 100);
+    }
     // กล่องคุย: รูปหน้า NPC ในวงกลม (มือถือ: ภาพประกอบใหญ่ถูกกล่องคุยบัง)
     const dw = $('#w-dialog'); dw.classList.toggle('has-pic', !!img); if (img) dw.style.setProperty('--npc-pic', `url("${img.src}")`);
     if (!img) { el.classList.remove('show'); return; }
     if (el.dataset.key !== key) { el.innerHTML = ''; el.append(Object.assign(new Image(), { src: img.src, alt: '' })); el.dataset.key = key; }
+    // ภาพฉากแนวนอน (เช่นฉากบอสล้ม mvp_*): เดิมโผล่เป็นกล่องขอบแข็งมุมซ้ายล่างทับเกม → แสดงเต็มจอแบบฉากหนัง หรี่ขอบ (css/cinematic.css)
+    el.classList.toggle('scene', img.width / Math.max(1, img.height) > 1.2);
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
   },
   // ฉากเปิดตัวบอส
@@ -2247,6 +2261,11 @@ const UI = {
     // ป้ายชื่อแมพยังแสดงอยู่ → คำเตือนบอสรอให้จบก่อน (ใช้ช่องบนจอเดียวกัน ไม่ทับกัน)
     const wait = cls !== 'upgrade' ? (this._bannerUntil || 0) - performance.now() : 0;
     if (wait > 0) { clearTimeout(this._splashT); this._splashT = setTimeout(() => this.splash(key, title, sub, cls), wait); return; }
+    // ภาพบอส/Class โหลดตอนใช้: รอให้มาก่อนสูงสุด 1.5 วิ แล้วค่อยขึ้นป้าย (เดิมขึ้นแบบไม่มีภาพ)
+    if (key && !Art.imgs[key] && Art.lazy && Art.lazy.has(key) && !(Art.missed && Art.missed.has(key)) && !(arguments[4] > 1500)) {
+      Art.need(key); clearTimeout(this._splashT); const waited = (arguments[4] || 0) + 100;
+      this._splashT = setTimeout(() => this.splash(key, title, sub, cls, Art.imgs[key] ? 9999 : waited), 100); return;
+    }
     const img = Art.get(key);
     const el = $('#splash');
     el.innerHTML = '';

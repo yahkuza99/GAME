@@ -1,4 +1,7 @@
 'use strict';
+// ลมพัดต้นไม้ (เจ้าของ 8 ต.ค. "ต้นไม้ขยับแบบลายตา"): เดิมแต่ละต้นแกว่งคนละจังหวะสุ่ม ถี่ → ทั้งจอกะพริบ
+// → ลมเดียวกันทั้งแมพ: คลื่นเคลื่อนผ่านตามแนวนอน (ต้นติดกันจังหวะใกล้กัน) ช้า + มีช่วงลมแรง/ลมสงบ • ค่าคืน = ตัวคูณ -1..1
+function windSway(x, t) { const gust = 0.55 + 0.45 * Math.sin(t * 0.23); return gust * Math.sin(t * 0.8 - x * 0.09); }
 // ============================================================
 //  ฉากที่เรนเดอร์จาก Blender แล้วอบเป็นภาพ 2D (docs/RENDER3D_PLAN.md) — ข้อมูล BAKE_DATA[map.id]:
 //    js/bake_data.js (tools/hel3d.py --install: Hel's Hollow) + js/bake_data_mistlake.js (tools/lake3d.py --install: ซากในบ่อน้ำ Mistlake)
@@ -346,7 +349,7 @@ const Bake = {
     if (pc.dup) { box = this.dupBox(pc, L, Tp, s, fw, fh); if (!box) return; } // ชั้นหน้าที่ซ้ำกับภาพพื้น: ไม่มีใครอยู่หลัง = ไม่ต้องวาด
     g.save();
     if (o.fa < 0.995) g.globalAlpha *= o.fa;
-    if (pc.sway) { g.translate(x, y); g.transform(1, 0, Math.sin(t * 0.7 + o.r * 10) * pc.sway, 1, 0, 0); g.translate(-x, -y); } // ไหวลมช้า ๆ (โคนนิ่ง ยอดเอนไม่กี่ px)
+    if (pc.sway) { g.translate(x, y); g.transform(1, 0, windSway(o.x, t) * pc.sway * 0.6, 1, 0, 0); g.translate(-x, -y); } // ไหวลมช้า ๆ (โคนนิ่ง ยอดเอนไม่กี่ px)
     if (pc.frames) { // น้ำไหลวนเป็นลูป: เฟรมตามเวลา (ทุกเครื่องเห็นจังหวะเดียวกันโดยไม่ต้องซิงก์ — ของประดับล้วน)
       const fi = Math.floor(t * pc.fps) % pc.frames;
       g.drawImage(img, (fi % pc.cols) * fw, Math.floor(fi / pc.cols) * fh, fw, fh, L, Tp, W, H);

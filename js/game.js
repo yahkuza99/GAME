@@ -566,7 +566,7 @@ function addFx(f) {
       return addFx({ type: 'sprite', sprite: key, src:f.src, ref: f.ref, x: f.x, y: f.y + (f.ref ? 0 : FX_MIDBODY[f.type] || 0), onHit: f.onHit, hitAt: f.dur, size: f.r ? Math.max(1, f.r / 2) : 1 });
     }
   }
-  if (f.type === 'sprite') { const im = Art.get(f.sprite); f.dur = Math.max(0.2, Math.round(im.width / 240) * FX_FRAME); }
+  if (f.type === 'sprite') { const im = Art.get(f.sprite); f.dur = im ? Math.max(0.2, Math.round(im.width / 240) * FX_FRAME) : 0.5; } // ภาพเอฟเฟกต์โหลดตอนใช้ (js/art.js) ยังไม่มา: ความยาวกลาง ๆ (ภาพวาดเมื่อมาถึง)
   f.t = 0; f.linger = FX_LINGER[f.type] || 0; G.fx.push(f); return f;
 }
 function addFloater(x, y, text, color, big) {
@@ -574,11 +574,17 @@ function addFloater(x, y, text, color, big) {
   // ข้อความ (ฮีล/ดูดเลือด/Volt/เลเวลอัป) ที่เด้งพร้อมกันตรงจุดเดียวกัน: เรียงซ้อนขึ้นไป ไม่ทับกัน
   if (!num) {
     const near = G.floaters.filter(f => !f.num && f.t < 0.6 && Math.abs(f.x - x) < 1.6 && Math.abs(f.y - y) < 1.2).length;
-    y -= near * 0.42;
+    y -= near * 0.5;
+  }
+  // ตัวเลขที่เด้งพร้อมกันบนเป้าเดียว (สกิลหลายฮิต/ตีพร้อมสกิล): ขยับขึ้นทีละชั้น + สลับซ้ายขวา ไม่ทับเป็นก้อนเดียว
+  let side = 0;
+  if (num) {
+    const near = G.floaters.filter(f => f.num && f.t < 0.3 && Math.abs(f.x - x) < 1.2 && Math.abs(f.y - y) < 1.4).length;
+    y -= near * 0.38; side = near ? (near % 2 ? 1 : -1) : 0;
   }
   // ตัวเลขดาเมจแบบ RO: เด้งขึ้นแล้วตกลง ส่ายซ้ายขวาเล็กน้อย / คริ = ตัวเหลืองบนดาวแตก
   G.floaters.push({ x: x + U.rand(-0.15, 0.15), y, text: String(text), color, big, num, crit: num && big,
-    vx: num ? U.rand(-45, 45) : 0, t: 0, dur: num ? (big ? 1.25 : 1.0) : (big ? 1.6 : 1.1) });
+    vx: num ? (side ? side * U.rand(20, 50) : U.rand(-45, 45)) : 0, t: 0, dur: num ? (big ? 1.25 : 1.0) : (big ? 1.6 : 1.1) });
   if (num && big) R.kick(4, 0.14);
 }
 function later(sec, fn) { G.timers.push({ at: G.time + sec, fn }); }
@@ -974,7 +980,7 @@ function damagePlayer(dmg, color = '#ff5050', src = {}) { // src: { lv: เล�
   if (p.d.mom) { const s = Math.min(Math.floor(p.sp), Math.floor(dmg * ((p.d.pfx && p.d.pfx.spShield) || 30) / 100)); p.sp -= s; p.hp -= dmg - s; if (s > 0) addFloater(p.x + 0.4, p.y - 1.7, L(`SP ดูดซับ ${s}`, `SP absorbed ${s}`), '#8fb8ff'); } // Mind over Matter
   else p.hp -= dmg;
   p.sitting = false; p.combatAt = G.time;
-  addFloater(p.x, p.y - 1.2, dmg, color);
+  addFloater(p.x - 0.45, p.y - 1.2, dmg, color); // ดาเมจที่เราโดน: เยื้องซ้ายตัว ไม่ปนกับเลขที่เราตีมอน
   p.hurtFlash = 0.15;
   // กระตุกตอนเดิน (เจ้าของ 2026-10-03): โดนตีระหว่างเดินมีโอกาสสะดุดหยุดเดินสั้น ๆ • มีคูลดาวน์ เดินฝ่าได้ ไม่โดนล็อกจนขยับไม่ได้
   // จำกัดเลเวล (เจ้าของ 2026-10-03): มอนเลเวลต่ำกว่าเรา โอกาสลดตาม lvChanceMul • ต่ำกว่าเกิน FLINCH.lvGap ทำให้กระตุกไม่ได้ • ดาเมจต่อเนื่อง (พิษ) ไม่กระตุก
@@ -985,9 +991,21 @@ function damagePlayer(dmg, color = '#ff5050', src = {}) { // src: { lv: เล�
   if (p.hp <= 0) playerDie();
 }
 // label = ที่มาของการฟื้น HP (ชื่อไอเทม/สกิล/พาสซีฟ) โชว์ต่อท้ายตัวเลข ให้รู้ว่าเลือดเด้งเพราะอะไร
+let itemHealNames = null;
+function itemHealLabel(label) { if (!itemHealNames) itemHealNames = new Set(Object.values(ITEMS).map(it => it.name)); return itemHealNames.has(label); }
 function healPlayer(amt, label) {
   const p = G.player;
   p.hp = Math.min(p.d.maxHp, p.hp + amt);
+  // ฟื้นทีละนิดถี่ ๆ (ดูดเลือด/รีเจน) รวมเป็นป้ายเดียวทุก 0.8 วิ — เดิม "+1 ดูดเลือด" เด้งทุกฮิตซ้อนกันเต็มหัว
+  //   ยา/ไอเทม (label = ชื่อไอเทม) ไม่รวม — โชว์ทุกครั้งเหมือนเดิม • ยอดค้างท้ายสุดโชว์เองเมื่อครบ 0.8 วิ
+  if (label && amt < Math.max(3, p.d.maxHp * 0.01) && !itemHealLabel(label)) {
+    p.healAcc = (p.healAcc || 0) + amt; p.healAccLbl = label;
+    if (G.time < (p.healAccAt || 0)) {
+      if (!p.healFlush) { p.healFlush = true; later(p.healAccAt - G.time, () => { p.healFlush = false; if (p.healAcc && !p.dead) { addFloater(p.x, p.y - 1.2, `+${p.healAcc} ${p.healAccLbl}`, '#70ff70'); p.healAcc = 0; p.healAccAt = G.time + 0.8; } }); }
+      return;
+    }
+    p.healAccAt = G.time + 0.8; amt = p.healAcc; p.healAcc = 0;
+  }
   addFloater(p.x, p.y - 1.2, `+${amt}${label ? ' ' + label : ''}`, '#70ff70');
 }
 function playerDie() {

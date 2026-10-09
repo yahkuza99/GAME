@@ -358,6 +358,8 @@ const UnitCard = {
       onclick: () => { this.close(); Party.sendInvite({ id: o.id, name: o.name }); } }, ivIconEl('party'), L('ชวนเข้าปาร์ตี้', 'Invite to party')));
     if (typeof Trade !== 'undefined') btns.push(h('button', { type: 'button', class: 'btn small', 'data-act': 'trade', disabled: online && !o.dead ? false : 'disabled',
       onclick: () => { this.close(); Trade.request(o); } }, ivIconEl('trade'), L('แลกเปลี่ยน', 'Trade')));
+    if (typeof Market !== 'undefined' && Market.stallOf(o.id)) btns.unshift(h('button', { type: 'button', class: 'btn small primary', 'data-act': 'shop',
+      onclick: () => { this.close(); Market.openShop(o.id); } }, ivIconEl('trade'), L('ดูร้าน', 'View Shop')));
     if (typeof Emote !== 'undefined') btns.push(h('button', { type: 'button', class: 'btn small', 'data-act': 'emote', onclick: () => { this.close(); UI.open('w-emote'); } }, ivIconEl('emote'), L('อีโมต', 'Emote')));
     if (pm) btns.unshift(h('button', { type: 'button', class: 'btn small primary', 'data-act': 'attack', onclick: () => this.attack(pm) }, ivIconEl('sword'), L('โจมตี', 'Attack')));
     out.push(h('div', { class: 'uc-btns' }, btns));

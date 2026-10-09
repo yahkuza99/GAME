@@ -407,6 +407,7 @@ R.render = () => {
     if (n.id === qNpc) R.questMark(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) - 92, t); // เครื่องหมายเควสต์เหนือหัว NPC
     else if (n.emote && n.emote.until > G.time) Emote.draw(g, n.x * TILE + TILE / 2 + 4, P((n.y + 0.5) * TILE + 10) - 96, n.emote, t);
   }
+  const softAt = []; // ป้ายชื่อบาง ๆ ที่วาดแล้วในเฟรมนี้ — มอนยืนเบียดกัน: วาดแค่ป้ายแรก (เดิมชื่อซ้อนกันอ่านไม่ออก)
   for (const m of G.mobs) {
     if (m.dead || m.x < VL || m.x > Rr || m.y < Tp - 1 || m.y > B) continue; // นอกจอ: ไม่ต้องวาดหลอด/ป้าย
     const x = m.x * TILE, y = P(m.y * TILE), s = (m.def.scale || 1);
@@ -419,7 +420,10 @@ R.render = () => {
       let ty = y + 26; const py = P(p.y * TILE) + 28;
       if (Math.abs(x - p.x * TILE) < 110 && Math.abs(ty - py) < 22) ty = Math.max(ty, py) + 22;
       R.name(g, x, ty, m.def.name, 'mob', { dot: m.def.aggro ? '#ff6b7d' : '#8fe3a8', lv: `Lv ${m.def.lv}`, lvCol: R.lvColor(m.def.lv, p.baseLv || 1) });
-    } else if (!m.def.dummy) R.name(g, x, y + (m.hp < m.maxHp ? 21 : 15), m.def.name, 'mobsoft'); // มอนทั่วไป: ชื่อบาง ๆ ใต้ตัวเสมอ (ชี้/ล็อกเป้า = ป้ายเต็ม)
+    } else if (!m.def.dummy) { // มอนทั่วไป: ชื่อบาง ๆ ใต้ตัว (ชี้/ล็อกเป้า = ป้ายเต็ม) • ชนป้ายอื่น = ข้าม
+      const ny = y + (m.hp < m.maxHp ? 21 : 15);
+      if (!softAt.some(q => Math.abs(q[0] - x) < 90 && Math.abs(q[1] - ny) < 16)) { softAt.push([x, ny]); R.name(g, x, ny, m.def.name, 'mobsoft'); }
+    }
     if (m.emoteUntil > G.time) R.emote(g, x + 12, y - 44 * s, '!');
     if (m.speech && m.speech.until > G.time) R.speech(g, x, y - 44 * s - 12, m.speech.text, true); // บอสตะโกน (เรียกลูกสมุน/คลั่ง — js/bosskit.js)
   }
@@ -430,7 +434,9 @@ R.render = () => {
     const oy = R.tagSlot(x, y + (pm ? 28 : 26), R.nameW(g, o.name, pm ? 'party' : 'player', { crest: '#888' }));
     R.name(g, x, oy, o.name, pm ? 'party' : 'player', { crest: (JOBS[o.job] || JOBS.novice).glow });
     R.label(g, x, oy + 15, `${JOBS[o.job].name} Lv ${o.baseLv}${o.bot ? ' · AUTO' : ''}`, pm ? '#a8f0dc' : '#c8d4e8');
-    if (o.speech) R.speech(g, x, y - 92, o.speech.text, false);
+    const sign = typeof Market !== 'undefined' ? Market.signFor(o.id) : null; // ป้ายร้าน (js/market.js)
+    if (sign) Market.drawSign(g, x, y - 76, sign, false);
+    if (o.speech) R.speech(g, x, y - (sign ? 110 : 92), o.speech.text, false);
     if (o.emote && o.emote.until > G.time) Emote.draw(g, x + 2, y - (o.speech ? 122 : 84), o.emote, t);
   }
   for (const a of G.allies) if (!a.quiet && !a.dead && a.until > G.time) {
@@ -456,8 +462,10 @@ R.render = () => {
       g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(x - 30, y - 66, 60, 8);
       g.fillStyle = '#60ff60'; g.fillRect(x - 29, y - 65, 58 * k, 6);
     }
-    if (p.speech) R.speech(g, x, y - (p.cast ? 104 : 92), p.speech.text, p.speech.shout);
-    if (p.sitting && !(p.emote && p.emote.until > G.time)) R.emote(g, x + 14, y - 46, 'z');
+    const sign = typeof Market !== 'undefined' && Market.mine ? Market.mine.title : null; // ร้านของเรา (js/market.js)
+    if (sign) Market.drawSign(g, x, y - 76, sign, true);
+    if (p.speech) R.speech(g, x, y - (sign ? 110 : p.cast ? 104 : 92), p.speech.text, p.speech.shout);
+    if (p.sitting && !sign && !(p.emote && p.emote.until > G.time)) R.emote(g, x + 14, y - 46, 'z');
     if (p.emote && p.emote.until > G.time) Emote.draw(g, x + 2, y - (p.speech ? 122 : 84), p.emote, t);
   }
   // ตัวเลขลอย

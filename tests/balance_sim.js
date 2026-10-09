@@ -185,6 +185,7 @@ function printJob(r) {
   for (const k in r.duelCurve) line(k, r.duelCurve[k]);
   for (const k in r.duelCh7) line(k, r.duelCh7[k]);
   for (const k in r.duelPack || {}) line(k, r.duelPack[k]);
+  if (process.env.SRC && r.src) { const tot = Object.values(r.src).reduce((x, y) => x + y, 0) || 1; console.log('  dmg by source: ' + Object.entries(r.src).sort((x, y) => y[1] - x[1]).map(([k, v]) => `${k} ${(v / tot * 100).toFixed(0)}%`).join(' · ')); }
   for (const k in r.farm) { const x = r.farm[k]; console.log(`  farm ${k.padEnd(12)} EXP/h ${String(x.expH).padStart(8)}  ${x.hPerLv.toFixed(2)} h/lv  kills/h ${x.killsH}  deaths/h ${x.deathsH.toFixed(1)}  zeny/h ${x.zenyH} (etc ${x.zenyEtcH}, gear ${x.zenyGearH}, kill ${x.zenyKillH})  pots/h ${x.potsH}  dmgTaken ${x.dmgPctMin}%HP/min`); }
 }
 
@@ -249,7 +250,7 @@ async function simCurve({ job, cfg }) {
   const mapOfMob = id => Object.keys(MAP_DEFS).find(k => MAP_DEFS[k].mvp === id || (MAP_DEFS[k].spawns || []).some(s => s[0] === id));
 
   // ตัวนับ (ห่อฟังก์ชันเกมครั้งเดียว)
-  const T = { exp: 0, loot: 0, lootEtc: 0, lootGear: 0, dmg: 0, hits: 0, miss: 0, on: false, ttk: {} };
+  const T = { exp: 0, loot: 0, lootEtc: 0, lootGear: 0, dmg: 0, hits: 0, miss: 0, on: false, ttk: {}, src: {} };
   const ge = gainExp; gainExp = function (b0) { if (T.on) T.exp += b0; if(cfg.AUDIT)return; return ge.apply(this, arguments); };
   const ps=paySkill;paySkill=function(cost){if(T.on)T.spUsed=(T.spUsed||0)+cost;return ps.apply(this,arguments);};
   const rng=Math.random;
@@ -257,7 +258,7 @@ async function simCurve({ job, cfg }) {
   const ai = addItem; addItem = function (id, qty = 1) { if (T.on && ITEMS[id]) { const v = Math.floor(ITEMS[id].price / 2) * qty; T.loot += v; if (isEquipType(ITEMS[id])) T.lootGear += v; else if (ITEMS[id].type === 'etc') T.lootEtc += v; } return ai.apply(this, arguments); };
   const dp = damagePlayer; damagePlayer = function (dmg) { if (T.on && !G.player.dead && dmg > 0) T.dmg += dmg; return dp.apply(this, arguments); };
   const ah = applyHit; applyHit = function (m, r) { if (T.on && r) { if (r.miss) T.miss++; else T.hits++; } return ah.apply(this, arguments); };
-  const dmf = damageMob; damageMob = function (m) { if (T.on && m && !m._t0) m._t0 = G.time; return dmf.apply(this, arguments); };
+  const dmf = damageMob; damageMob = function (m, dmg, opts) { if (T.on && m && !m._t0) m._t0 = G.time; if (T.on && !m.isPlayer) { const k = (opts && opts.src) || '?'; T.src[k] = (T.src[k] || 0) + (+dmg || 0); } return dmf.apply(this, arguments); }; // SRC=1: ดาเมจแยกตามแหล่ง
   const km = killMob; killMob = function (m) { if (T.on && m._t0) (T.ttk[m.def.id] = T.ttk[m.def.id] || []).push(G.time - m._t0); return km.apply(this, arguments); };
 
   // ดวล: มอนทีละตัว เลือดเต็มทุกรอบ
@@ -344,5 +345,6 @@ async function simCurve({ job, cfg }) {
   // คืนฟังก์ชันเดิม (รัน Class ถัดไปในหน้าเดียวกันจะห่อซ้ำ)
   gainExp = ge; addItem = ai; damagePlayer = dp; applyHit = ah; damageMob = dmf; killMob = km;
   paySkill=ps;Math.random=rng;
+  res.src = T.src;
   return res;
 }

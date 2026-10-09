@@ -221,7 +221,7 @@ const Runes = {
   },
   // ดาเมจรูน (ไม่ใช่ผ่าน skillHitOne): mult × ATK/MATK ของเรา → ใช้สูตรเดียวกับสกิล
   hit(m, s, mult, opt = {}) {
-    if (!m || m.dead) return null;
+    if (!m || m.dead || !m.def) return null; // ลูกสะท้อน/ลูกบินที่ไปถึงช้า: เป้าอาจหายไปแล้ว (ไม่มี def) — เดิม magicHit พัง (tests/runes.js)
     const D = s.dmg || {}, type = opt.type || D.type || 'phys', el = opt.element || D.element;
     const r = type === 'magic' ? magicHit(m, mult, el) : physHit(m, mult, { skill: true, element: el, sureHit: opt.sureHit != null ? opt.sureHit : D.sureHit });
     applyHit(m, r, { element: el, src: s.id, color: opt.color });
@@ -393,23 +393,23 @@ Runes.watchCombat = function () {
     vo_echo: 0.517, vo_res: 0.51,
     // Rune Caster
     rm_echo: 0.8, rm_ley: 0.0688,
-    fr_main: 0.78, fr_shard: 0.4, fr_kindle: 0.85, fr_mark: 2,
+    fr_main: 0.78, fr_shard: 0.4, fr_kindle: 0.8, fr_mark: 1.75,
     ir_lance: 0.82, ir_shat: 1.24, ir_base: 0.85,
     tr_storm: 0.4, tr_focus: 1.9,
     er_fis: 1.51, er_boulder: 1.5,
     rw_stun: 1.2, rw_bar_cd: 8, rw_fb_ch: 0.3, rw_fb: 0.164,
     // Wildhunter
     ee_focus: 0.0275, ee_main: 0.6, ee_scatter: 0.33,
-    pa_vol: 0.52, pa_fan: 1.03,
-    wc_twin: 0.767, wc_alpha: 0.85, wc_mark: 1.36,
-    bt_sh: 1.25, bt_hurl: 1.55,
-    ca_harp: 1.5, ca_main: 0.8, ca_conc: 0.5,
+    pa_vol: 0.52, pa_fan: 0.85,
+    wc_twin: 0.767, wc_alpha: 0.85, wc_mark: 1.12,
+    bt_sh: 1.2, bt_hurl: 1.55, bt_hurl_arm: 0.8, bt_hurl_r: 1.15,
+    ca_harp: 1.25, ca_slow: 1, ca_pull: 2.5, ca_delay: 2.4, ca_main: 0.8, ca_conc: 0.5,
     hr_fl: 0.483, hr_mom: 11,
     // Völva
     sa_weak: 0.25, sa_rad: 0.43,
-    lf_daze: 1.5, lf_fav: 0.781,
+    lf_daze: 1.5, lf_fav: 0.68,
     bo_raven: 0.659, bo_storm: 0.35,
-    hs_lance: 0.652, hs_judg: 0.72,
+    hs_lance: 0.62, hs_judg: 0.72,
     ds_ret: 0.5, ds_shell: 0.25,
     fg_smite: 0.847, fg_cap: 0.25,
     // Loki's Trickster
@@ -420,9 +420,9 @@ Runes.watchCombat = function () {
     tk_fmain: 0.81, tk_fan: 0.29, tk_main: 0.8, tk_mark: 1.48,
     lg_dbl_ch: 0.35, lg_dbl: 2.6, lg_mir: 1.97,
     // Berserker
-    wb_price: 4.72, wb_feral: 45,
+    wb_price: 4.72, wb_feral: 25, wb_feral_max: 3, wb_feral_dur: 3,
     rs_main: 0.79, rs_cleave: 0.39, rs_exe_lo: 0.85, rs_exe_hi: 2.6,
-    bf_lust: 3.5, bf_ramp: 0.56,
+    bf_lust: 3.2, bf_ramp: 0.56,
     hw_rend: 0.6, hw_tick: 0.34, hw_chal: 0.6, hw_mark: 2.0,
     ax_boom: 0.39, ax_leap: 1.26,
     bt_hem: 1.15, bt_spray: 0.34,
@@ -762,7 +762,7 @@ Runes.watchCombat = function () {
       short: `Every 3rd arrow +2 splinters ${pc(K.ee_scatter)}% · main ${pc(K.ee_main)}%`,
       desc: () => L(`ไม่ได้ HIT เพิ่ม และลูกธนูปกติทุกดอกที่ 3 จะแตก: ดอกหลักเหลือ ${pc(K.ee_main)}% แต่แตกอีก 2 ดอกไปหาตัวใกล้ ๆ (4 ช่อง) ดอกละ ${pc(K.ee_scatter)}% ATK`,
         `No bonus HIT, and every 3rd basic arrow splinters: the main arrow deals ${pc(K.ee_main)}%, plus 2 splinters at nearby enemies (4 cells) for ${pc(K.ee_scatter)}% ATK each.`),
-      mod: () => ({ passive: lv => ({ range: lv, dex: lv }) }),
+      mod: () => ({ passive: lv => ({ range: Math.floor(lv / 2), dex: lv }) }), // ระยะ Lv/2 ปัดลง (Lv5 = +2): ระยะทำให้ตีฝูงแรงเกิน (เต็ม +13% · ปัดขึ้น +12.4–13.5% · ถอด +8.4%)
       basicMul() { if (!Runes.count('ee_sc', 3)) return 1; P().rc.scat = 1; return K.ee_main; },
       afterBasic(m) {
         const p = P(); if (!p.rc || !p.rc.scat) return; p.rc.scat = 0;
@@ -824,22 +824,22 @@ Runes.watchCombat = function () {
       trap: () => ({ r: 2.3, k: K.bt_sh, done: t => { for (let i = 0; i < 3; i++) { const a = i * 2.1; if (!fast()) addFx({ type: 'firering', x: t.x + Math.cos(a) * 1.1, y: t.y + Math.sin(a) * 1.1, dur: 0.45, r: 0.9 }); } } }) },
     { id: 'blast_trap.hurl', name: 'Hurl', intent: 'single', glyph: '➶', col: '#ff9040',
       short: `Thrown at target (6 cells) · ${pc(K.bt_hurl)}%, small blast`,
-      desc: () => L(`โยนกับดักไปใต้เท้าเป้า (ไกลสุด 6 ช่อง) ติดทันที ระเบิดวงเล็ก 1.4 ช่อง แรง ${pc(K.bt_hurl)}% (โอกาส 1% มึน 1.2 วิ)`,
-        `Hurls the trap under your target (up to 6 cells); it arms at once, blasts a small 1.4-cell area for ${pc(K.bt_hurl)}% (1% chance to stun for 1.2s).`),
+      desc: () => L(`โยนกับดักไปใต้เท้าเป้า (ไกลสุด 6 ช่อง) ติดใน ${K.bt_hurl_arm} วิ ระเบิดวงเล็ก ${K.bt_hurl_r} ช่อง แรง ${pc(K.bt_hurl)}% (โอกาส 1% มึน 1.2 วิ)`,
+        `Hurls the trap under your target (up to 6 cells); it arms in ${K.bt_hurl_arm}s and blasts a small ${K.bt_hurl_r}-cell area for ${pc(K.bt_hurl)}% (1% chance to stun for 1.2s).`),
       cast() {
         const p = P(), t = G.traps[G.traps.length - 1], m = curTgt(6);
-        if (t && m && U.dist(p.x, p.y, m.x, m.y) <= 6.3) { Runes.fly(p.x, p.y, { x: m.x, y: m.y }, 0.25, '255,150,60', () => {}, { size: 8, arc: 30 }); t.x = m.x; t.y = m.y; t.armed = G.time + 0.3; }
+        if (t && m && U.dist(p.x, p.y, m.x, m.y) <= 6.3) { Runes.fly(p.x, p.y, { x: m.x, y: m.y }, 0.25, '255,150,60', () => {}, { size: 8, arc: 30 }); t.x = m.x; t.y = m.y; t.armed = G.time + K.bt_hurl_arm; }
         return false;
       },
-      trap: () => ({ r: 1.4, k: K.bt_hurl, after: m => { Runes.tryStun(m, 1.2); } }) },
+      trap: () => ({ r: K.bt_hurl_r, k: K.bt_hurl, after: m => { Runes.tryStun(m, 1.2); } }) },
   ]);
   Runes.add('charge_arrow', [
     { id: 'charge_arrow.harpoon', name: 'Harpoon', intent: 'single', glyph: '⥂', col: '#d0b080',
-      short: `Pulls target in + 2s slow, ${pc(K.ca_harp)}% · no knockback`,
-      desc: () => L(`แทนการผลักออก ลูกธนูมีเชือกดึงเป้าเข้ามาหาเรา (เหลือ 1.2 ช่อง) และทำให้ช้า 2 วิ ดาเมจ ${pc(K.ca_harp)}%`,
-        `Instead of knocking back, a roped arrow yanks the target in to 1.2 cells and slows it for 2s. ${pc(K.ca_harp)}% damage.`),
-      mod: base => ({ dmg: { knockback: 0, mult: mul(base, 'ca_harp') } }),
-      onHit(s, lv, m, r) { if (r.miss || m.dead) return; const p = P(); Runes.pull(m, p.x, p.y, 1.2); if (!m.isPlayer) m.slowUntil = Math.max(m.slowUntil || 0, G.time + 2); say(m, 'HOOKED!', '#d0b080'); } },
+      short: `Pulls target in + ${K.ca_slow}s slow, ${pc(K.ca_harp)}% · no knockback · ${pc(K.ca_delay)}% delay`,
+      desc: () => L(`แทนการผลักออก ลูกธนูมีเชือกดึงเป้าเข้ามาหาเรา (เหลือ ${K.ca_pull} ช่อง) และทำให้ช้า ${K.ca_slow} วิ ดาเมจ ${pc(K.ca_harp)}%`,
+        `Instead of knocking back, a roped arrow yanks the target in to ${K.ca_pull} cells and slows it for ${K.ca_slow}s. ${pc(K.ca_harp)}% damage.`),
+      mod: base => ({ delay: Math.round((base.delay || 0) * K.ca_delay), dmg: { knockback: 0, mult: mul(base, 'ca_harp') } }), // ต้นทุน: หน่วงหลังยิงนานขึ้น (ไม่ผลักเป้า = ตีต่อได้ไม่เสียจังหวะ — ตัวการของ +15~25%)
+      onHit(s, lv, m, r) { if (r.miss || m.dead) return; const p = P(); Runes.pull(m, p.x, p.y, K.ca_pull); if (!m.isPlayer) m.slowUntil = Math.max(m.slowUntil || 0, G.time + K.ca_slow); say(m, 'HOOKED!', '#d0b080'); } }, // ช้า 2→1 วิ (2026-10-09: ตีฝูง +26% เกินเกณฑ์ — ดาเมจไม่ใช่ตัวการ)
     { id: 'charge_arrow.concussion', name: 'Concussion', intent: 'pack', glyph: '✸', col: '#ffe0a0',
       short: `${pc(K.ca_conc)}% blast, knocks all back · main ${pc(K.ca_main)}%`,
       desc: () => L(`ลูกธนูระเบิดเมื่อโดน: เป้า ${pc(K.ca_main)}% ตัวอื่นในรัศมี 1.6 ช่อง ${pc(K.ca_conc)}% และทุกตัวกระเด็นถอย 2 ช่อง`,
@@ -1123,11 +1123,11 @@ Runes.watchCombat = function () {
       mod: () => ({ passive: lv => ({ hpPct: 2 * lv }) }),
       onAnySkill(s) { if (!SKILLS[s.id].hpCost) return; const b = Runes.giveBuff('bprice', 'wolf_blood', 8, { atkPct: K.wb_price }, 5); aura('255,80,80'); say(P(), `BLOOD ×${b.stacks}`, '#ff6060'); } },
     { id: 'wolf_blood.feral', name: 'Feral', intent: 'pack', glyph: '≋', col: '#ff9050',
-      short: `Kill: heal 3%, +${K.wb_feral}% ASPD (×3) · ½ low-HP bonus`,
-      desc: () => L(`แรงจาก HP ที่หายเหลือครึ่ง แต่ฆ่ามอนได้ = ฟื้น HP 3% และเร็วขึ้น +${K.wb_feral}% 5 วิ (ซ้อน 3)`,
-        `Half the bonus from missing HP, but each kill restores 3% HP and grants +${K.wb_feral}% attack speed for 5s (stacks 3×).`),
+      short: `Kill: heal 3%, +${K.wb_feral}% ASPD (×${K.wb_feral_max}) · ½ low-HP bonus`,
+      desc: () => L(`แรงจาก HP ที่หายเหลือครึ่ง แต่ฆ่ามอนได้ = ฟื้น HP 3% และเร็วขึ้น +${K.wb_feral}% ${K.wb_feral_dur} วิ (ซ้อน ${K.wb_feral_max})`,
+        `Half the bonus from missing HP, but each kill restores 3% HP and grants +${K.wb_feral}% attack speed for ${K.wb_feral_dur}s (stacks ${K.wb_feral_max}×).`),
       mod: () => ({ passive: lv => ({ rage: 5 * lv, hpPct: 2 * lv }) }),
-      onAnyKill() { const p = P(), b = Runes.giveBuff('feral', 'wolf_blood', 5, { aspdPct: K.wb_feral }, 3); if (p.hp < p.d.maxHp) healPlayer(Math.round(p.d.maxHp * 0.03), 'Feral'); aura('255,140,80'); say(p, `FERAL ×${b.stacks}`, '#ff9050'); } },
+      onAnyKill() { const p = P(), b = Runes.giveBuff('feral', 'wolf_blood', K.wb_feral_dur, { aspdPct: K.wb_feral }, K.wb_feral_max); if (p.hp < p.d.maxHp) healPlayer(Math.round(p.d.maxHp * 0.03), 'Feral'); aura('255,140,80'); say(p, `FERAL ×${b.stacks}`, '#ff9050'); } },
   ]);
   Runes.add('rage_strike', [
     { id: 'rage_strike.cleave', name: 'Cleave', intent: 'pack', glyph: '⌓', col: '#ff7040',

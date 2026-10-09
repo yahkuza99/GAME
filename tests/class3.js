@@ -48,13 +48,13 @@ const SHOTS = process.env.SHOTS || '';
   await p.evaluate(() => {
     window.C3 = {
       plan: { runelord: ['int', 'dex', 'rod'], packlord: ['str', 'agi', 'battle_axe'], galdr: ['int', 'dex', 'rod'], warlord: ['str', 'agi', 'battle_axe'] },
-      // Class 2 Lv 70 Job 26 สกิลเต็ม (ยังไม่ Class 3)
+      // Class 2 Lv 70 Job ตามเกณฑ์ปลด (THIRD_JOB_REQ.job — js/job-progression.js ตั้ง 50) สกิลเต็ม (ยังไม่ Class 3)
       second(job2, lv = 70) {
         const pl = G.player; document.querySelectorAll('.win:not(.hidden)').forEach(w => w.classList.add('hidden'));
         Bot.toggle(false);
         pl.dead = false; pl.baseLv = lv; pl.job = 'novice'; pl.jobLv = 10; pl.skills = { first_aid: 1 }; pl.buffs = {}; pl.runes = {}; pl.rb = {}; pl.cds = {}; pl.c3 = {}; delete pl.job1Lv; delete pl.job2Lv;
-        changeJob(jobRoot(job2)); pl.jobLv = 26; pl.skillPoints = 25; for (const id of JOBS[jobRoot(job2)].skills) while (canLearn(id)) learnSkill(id);
-        changeJob(job2); pl.jobLv = 26; pl.skillPoints = Math.max(0, totalSkillPoints(pl) - lineSkillsSpent(pl)); for (const id of JOBS[job2].skills) while (canLearn(id)) learnSkill(id);
+        changeJob(jobRoot(job2)); pl.jobLv = JOBS[jobRoot(job2)].jobMax; pl.skillPoints = JOBS[jobRoot(job2)].jobMax - 1; for (const id of JOBS[jobRoot(job2)].skills) while (canLearn(id)) learnSkill(id);
+        changeJob(job2); pl.jobLv = THIRD_JOB_REQ.job; pl.skillPoints = Math.max(0, totalSkillPoints(pl) - lineSkillsSpent(pl)); for (const id of JOBS[job2].skills) while (canLearn(id)) learnSkill(id);
         const [a, b] = C3.plan[job2] || ['str', 'agi']; const st = { str: 1, agi: 1, vit: 30, int: 1, dex: 1, luk: 1 }; st[a] = 90; st[b] = 60; pl.stats = st;
         recalc(); pl.hp = pl.d.maxHp; pl.sp = pl.d.maxSp;
         return pl;
@@ -62,8 +62,8 @@ const SHOTS = process.env.SHOTS || '';
       third(job3) {
         const pl = C3.second(JOBS[job3].parent);
         Class3.st(pl).trial = { job: job3, stage: 'ascend' }; Class3.ascend(job3);
-        pl.jobLv = 26; pl.skillPoints = Math.max(0, totalSkillPoints(pl) - lineSkillsSpent(pl));
-        for (const id of JOBS[job3].skills) pl.skills[id] = SKILLS[id].max; // ทดสอบ: ทุกสกิล Lv 5 (เกมจริงเลือกได้ 25 จาก 30)
+        pl.jobLv = 26; // Class 3 Job 26 (เพดาน 60 — ทดสอบที่จุดเดิม) pl.skillPoints = Math.max(0, totalSkillPoints(pl) - lineSkillsSpent(pl));
+        for (const id of JOBS[job3].skills) if (!SKILLS[id].exp) pl.skills[id] = SKILLS[id].max; // ทดสอบ: ทุกสกิล Lv 5 (เกมจริงเลือกได้ 25 จาก 30)
         recalc(); pl.hp = pl.d.maxHp; pl.sp = pl.d.maxSp;
         return pl;
       },
@@ -85,11 +85,12 @@ const SHOTS = process.env.SHOTS || '';
     const o = {}, bad = [];
     for (const [c2, c3] of Object.entries(THIRD_JOBS)) {
       const J = JOBS[c3], P2 = JOBS[c2];
-      if (J.tier !== 3 || J.parent !== c2 || J.jobMax !== 26 || J.skills.length !== 6) bad.push('job ' + c3);
+      const core = J.skills.filter(id => !SKILLS[id].exp); // สกิลขยาย (exp) มาจาก js/class-expansion-data.js — ภาพ/รูนของมันเอง
+      if (J.tier !== 3 || J.parent !== c2 || J.jobMax < THIRD_JOB_REQ.job || core.length !== 6) bad.push('job ' + c3);
       for (const k of ['atkPct', 'matkPct', 'hit', 'hpPct']) if (J.bonus[k] !== P2.bonus[k] + 5) bad.push('bonus ' + c3 + ' ' + k);
       if (Math.abs(J.hp - P2.hp) > 0.1 + 1e-9 || Math.abs(J.sp - P2.sp) > 0.1 + 1e-9 || Math.abs(J.aspd - P2.aspd) > 50) bad.push('mult ' + c3);
-      if (J.skills.filter(id => SKILLS[id].type === 'passive').length !== 1) bad.push('passive ' + c3);
-      for (const id of J.skills) {
+      if (core.filter(id => SKILLS[id].type === 'passive').length !== 1) bad.push('passive ' + c3);
+      for (const id of core) {
         const s = SKILLS[id];
         if (!s || s.id !== id || !s.desc || !s.name) { bad.push('skill ' + id); continue; }
         const mm = /L\(\s*(['`])([\s\S]*?)\1\s*,\s*(['`"])([\s\S]*?)\3\s*\)/.exec(s.desc + '') ; void mm;
@@ -115,13 +116,13 @@ const SHOTS = process.env.SHOTS || '';
 
   // ============== 2) ปลด + เควสต์ทดสอบ + ยกระดับ ==============
   const flow = await p.evaluate(async () => {
-    const o = {}, pl = C3.second('galdr', 69);
+    const o = { req: THIRD_JOB_REQ.job }, pl = C3.second('galdr', 69);
     C3.partOne(true);
     o.lv69 = Class3.req().ok;
-    pl.baseLv = 70; pl.jobLv = 25; o.job25 = Class3.req().ok;
-    pl.jobLv = 26; C3.partOne(false); o.noStory = Class3.req().ok;
+    pl.baseLv = 70; pl.jobLv = THIRD_JOB_REQ.job - 1; o.job25 = Class3.req().ok;
+    pl.jobLv = THIRD_JOB_REQ.job; C3.partOne(false); o.noStory = Class3.req().ok;
     C3.partOne(true); o.okAll = Class3.req().ok;
-    const p1 = C3.second('valkyrie'); C3.partOne(true); o.noThird = Class3.req().next === null && !Class3.req().ok;
+    const t3 = THIRD_JOBS.phantom; delete THIRD_JOBS.phantom; const p1 = C3.second('phantom'); C3.partOne(true); o.noThird = Class3.req().next === null && !Class3.req().ok; THIRD_JOBS.phantom = t3; // ครบ 12 แล้ว — ถอดชั่วคราวเพื่อทดสอบกรณี "ยังไม่มี"
     C3.second('galdr'); C3.partOne(true);
     // บทพูด: เมนูเลือกตัวแรกเสมอ
     const menu0 = UI.menu, say0 = UI.say; UI.menu = async () => 0; UI.say = async () => {};
@@ -143,31 +144,31 @@ const SHOTS = process.env.SHOTS || '';
     o.stage = Class3.trial() && Class3.trial().stage;
     await NPC.scripts.jobmaster({ id: 'jobmaster', name: 'Mimir AI' });
     o.job = G.player.job; o.job2Lv = G.player.job2Lv; o.done = G.player.c3.done.slice(); o.trialAfter = Class3.trial();
-    o.spCarry = G.player.skillPoints === sp0 && totalSkillPoints(G.player) === 25 + 25 + 0 + (G.player.jobLv - 1);
+    o.spCarry = G.player.skillPoints === sp0 && totalSkillPoints(G.player) === (JOBS.runecaster.jobMax - 1) + (THIRD_JOB_REQ.job - 1) + (G.player.jobLv - 1);
     UI.menu = menu0; UI.say = say0;
     // เซฟ/โหลด
     const data = saveData(), back = loadGameFrom(JSON.parse(JSON.stringify(data)));
-    o.saved = data.job2Lv === 26 && back.job2Lv === 26 && back.job === 'runelord' && back.c3.done.includes('runelord');
+    o.saved = data.job2Lv === THIRD_JOB_REQ.job && back.job2Lv === THIRD_JOB_REQ.job && back.job === 'runelord' && back.c3.done.includes('runelord');
     // เซฟเก่า (ก่อนมี Class 3): ไม่มี job2Lv / c3 → โหลดได้ ค่าว่าง
     const old = loadGameFrom({ name: 'Old', gender: 'm', hair: '#ccc', job: 'galdr', baseLv: 72, jobLv: 26, job1Lv: 26, skills: { galdr_focus: 5 }, stats: { str: 1, agi: 1, vit: 1, int: 50, dex: 1, luk: 1 } });
     o.old = !!old && old.job === 'galdr' && old.c3 && Array.isArray(old.c3.done) && old.c3.trial === null && old.job2Lv === undefined;
     const old3 = loadGameFrom({ name: 'Old3', gender: 'f', hair: '#ccc', job: 'packlord', baseLv: 80, jobLv: 5, skills: {}, c3: { trial: { job: 'nope', stage: 'x' }, done: ['packlord', 'bad'] }, job2Lv: 'oops', stats: { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 } });
-    o.old3 = !!old3 && old3.job2Lv === undefined && old3.c3.trial === null && old3.c3.done.join() === 'packlord' && totalSkillPoints(old3) === 4 + 25 + 25;
+    o.old3pts = [totalSkillPoints(old3), JOBS.berserker.jobMax, JOBS.warlord.jobMax, old3.job1Lv, old3.job2Lv]; o.old3 = !!old3 && old3.job2Lv === 26 && old3.c3.trial === null && old3.c3.done.join() === 'packlord' && totalSkillPoints(old3) === 4 + (JOBS.berserker.jobMax - 1) + 25; // ebf7aef: job2Lv เสียของ Class 3 = 26 (ยุคเดิม Class 2 ตัน 26 — game.js loadGame)
     G.player = pl; G.player = back; recalc();
     return o;
   });
   ok('unlock: Base 69 → locked', !flow.lv69);
-  ok('unlock: Class 2 Job 25 → locked', !flow.job25);
+  ok('unlock: Class 2 Job below requirement → locked', !flow.job25);
   ok('unlock: Part 1 not finished (ch7_home) → locked', !flow.noStory);
-  ok('unlock: Base 70 + Job 26 + ch7_home → open', flow.okAll);
-  ok('unlock: Class 2 without a pilot Class 3 (Valkyrie) → none', flow.noThird);
+  ok('unlock: Base 70 + Job requirement + ch7_home → open', flow.okAll);
+  ok('unlock: Class 2 without a pilot Class 3 (Phantom) → none', flow.noThird);
   ok('Mimir starts the trial (talk to Muninn) + quest tracker shows it', /"stage":"seek"/.test(flow.trial) && /Muninn/.test(flow.tracker), flow.trial + ' | ' + flow.tracker);
   ok('trial NPC raises the Mould Shadow (boss, shadow of Galdr, not in MOBS)', flow.shadow);
   ok('defeating the shadow → stage "ascend" (no bestiary entry)', flow.stage === 'ascend' && flow.kills === 0, flow);
-  ok('Mimir ascends: job runelord, job2Lv 26, trial cleared, skill points carried', flow.job === 'runelord' && flow.job2Lv === 26 && flow.done.includes('runelord') && !flow.trialAfter && flow.spCarry, flow);
+  ok('Mimir ascends: job runelord, job2Lv 26, trial cleared, skill points carried', flow.job === 'runelord' && flow.job2Lv === flow.req && flow.done.includes('runelord') && !flow.trialAfter && flow.spCarry, flow);
   ok('save → load keeps job2Lv / c3', flow.saved);
   ok('old save (no job2Lv/c3) loads clean', flow.old);
-  ok('broken c3/job2Lv in a save is sanitized, skill points fall back to Job max', flow.old3);
+  ok('broken c3/job2Lv in a save is sanitized (job2Lv → 26, the old Class 2 cap)', flow.old3, flow.old3pts);
 
   // ============== 3) ทุกสกิลใช้ได้ ==============
   const skills = await p.evaluate(async () => {
@@ -182,9 +183,13 @@ const SHOTS = process.env.SHOTS || '';
         pl.skillReadyAt = 0; pl.cds = {}; pl.cast = null; pl.sp = pl.d.maxSp; pl.hp = pl.d.maxHp; pl.stunUntil = 0; pl.buffs = {};
         const sp0 = pl.sp, x0 = pl.x, y0 = pl.y, hp0 = m.hp + m2.hp; let cd = false, spMin = pl.sp;
         try {
-          beginSkill(id, s.max, s.target === 'enemy' ? m : null);
-          for (let i = 0; i < 75; i++) { for (const o of G.mobs) o.nextAtk = G.time + 1; updateGame(1 / 15); if (skillCdLeft(id) > 0) cd = true; spMin = Math.min(spMin, pl.sp); }
-          const eff = (m.hp + m2.hp < hp0) || !!pl.buffs[id] || G.allies.some(a => a.kind === 'c3wolf') || Class3.circles().length > 0 || (m.c3mark && m.c3mark.until > G.time) || U.dist(x0, y0, pl.x, pl.y) > 1 || (pl.rb && pl.rb.c3_lone);
+          let eff = false;
+          for (let tryN = 0; tryN < 3 && !eff; tryN++) { // ตีกายภาพพลาดได้ (HIT vs FLEE) — ให้โอกาส 3 ครั้งก่อนตัดสินว่า "ไม่มีผล"
+            if (tryN) { pl.skillReadyAt = 0; pl.cds = {}; pl.cast = null; pl.sp = pl.d.maxSp; teleportPlayer(x0, y0); m.x = pl.x + 1.2; m.y = pl.y; }
+            beginSkill(id, s.max, s.target === 'enemy' ? m : null);
+            for (let i = 0; i < 75; i++) { for (const o of G.mobs) o.nextAtk = G.time + 1; updateGame(1 / 15); if (skillCdLeft(id) > 0) cd = true; spMin = Math.min(spMin, pl.sp); }
+            eff = (m.hp + m2.hp < hp0) || (G.zones || []).some(z => z.skill === id) || !!pl.buffs[id] || G.allies.some(a => a.kind === 'c3wolf') || Class3.circles().length > 0 || (m.c3mark && m.c3mark.until > G.time) || U.dist(x0, y0, pl.x, pl.y) > 1 || (pl.rb && pl.rb.c3_lone);
+          }
           out[id] = (spMin < sp0 ? '' : 'NO-SP ') + (cd ? '' : 'NO-CD ') + (eff ? 'ok' : 'NO-EFFECT');
         } catch (e) { out[id] = 'ERROR ' + e.message; }
       }
@@ -242,9 +247,9 @@ const SHOTS = process.env.SHOTS || '';
     o.wolvesPack = G.allies.filter(a => a.kind === 'c3wolf').length;
     pl.combatAt = -99; Runes.set('pack_blood', 'pack_blood.lone_wolf'); G.allies = []; pl.cds = {}; pl.skillReadyAt = 0; beginSkill('howl_of_the_pack', 5, null); C3.run(0.3);
     o.lone = G.allies.filter(a => a.kind === 'c3wolf').length === 0 && !!(pl.rb && pl.rb.c3_lone);
-    pl.combatAt = -99; Runes.set('pack_blood', null); Runes.set('howl_of_the_pack', 'howl_of_the_pack.single_alpha'); G.allies = []; pl.cds = {}; pl.skillReadyAt = 0; beginSkill('howl_of_the_pack', 5, null); C3.run(0.3);
-    o.alpha = G.allies.filter(a => a.kind === 'c3wolf').length === 1 && G.allies.find(a => a.kind === 'c3wolf').alpha;
-    pl.combatAt = -99; Runes.set('howl_of_the_pack', 'howl_of_the_pack.ember_pack'); G.allies = []; pl.cds = {}; pl.skillReadyAt = 0; beginSkill('howl_of_the_pack', 5, null);
+    pl.combatAt = -99; Runes.set('pack_blood', null); Runes.set('howl_of_the_pack', 'howl_of_the_pack.single_alpha'); G.allies = []; pl.cds = {}; pl.skillReadyAt = 0; pl.sp = pl.d.maxSp; const aSp = pl.sp; beginSkill('howl_of_the_pack', 5, null); const aNow = [aSp, pl.sp, G.allies.map(a => a.kind + (a.alpha ? 'A' : '')).join()]; C3.run(0.3); // เดิมไม่เติม SP — เหลือไม่พอร่ายแล้วตกเป็นบางรอบ
+    o.alpha = G.allies.filter(a => a.kind === 'c3wolf').length === 1 && G.allies.find(a => a.kind === 'c3wolf').alpha; o.alphaD = [aNow.join('|'), G.allies.map(a => a.kind + (a.alpha ? 'A' : '')).join(), String(Runes.chosen('howl_of_the_pack') && Runes.chosen('howl_of_the_pack').id), pl.sp, pl.job, String(pl.cast), pl.stunUntil > G.time, skillCdLeft('howl_of_the_pack'), pl.dead, pl.hp, pl.skillReadyAt - G.time];
+    pl.combatAt = -99; Runes.set('howl_of_the_pack', 'howl_of_the_pack.ember_pack'); G.allies = []; pl.cds = {}; pl.skillReadyAt = 0; pl.sp = pl.d.maxSp; beginSkill('howl_of_the_pack', 5, null);
     const e0 = by.howl_of_the_pack || 0; C3.run(11); o.ember = (by.howl_of_the_pack || 0) > e0;
     pl.combatAt = -99; Runes.set('howl_of_the_pack', null);
     // Alpha's Mark +15%
@@ -276,6 +281,188 @@ const SHOTS = process.env.SHOTS || '';
   ok('Unchained: clears stun, blocks stun, HP floor 1', mech.unstun && mech.stunImm && mech.floor, mech);
   ok('ULT RAGNARÖK HOWL: +2 wolves, lifesteal, stun immunity', mech.howlUlt);
 
+  // ---------- รอบ 3: Warden + Jarl ----------
+  const m3 = await p.evaluate(async () => {
+    const o = {}, by = {}; G.onDmg = (m, d, op) => { by[op.src || '?'] = (by[op.src || '?'] || 0) + d; };
+    const fresh = pl => { pl.cds = {}; pl.skillReadyAt = 0; pl.cast = null; pl.sp = pl.d.maxSp; pl.hp = pl.d.maxHp; pl.stunUntil = 0; };
+    // ----- Warden -----
+    let pl = C3.third('warden'); C3.arena('roots'); G.mobs = []; G.zones = [];
+    const t = C3.dummy(pl.x + 4, pl.y, 1e7); t.state = 'chase';
+    const mid = C3.dummy(pl.x + 2, pl.y, 1e7); mid.state = 'chase';
+    fresh(pl); beginSkill('bifrost_line', 5, t); C3.run(2.5);
+    o.line = (by.bifrost_line || 0) > 0 && (mid.slowUntil || 0) > G.time && !!(pl.rb && pl.rb.c3w3_line);
+    // Gjallar −15% • Stand −40% (รวม ×0.51) • เดิน = ยกเลิก Stand
+    pl.buffs = {}; fresh(pl); executeSkill('gjallar_call', 5, null); C3.run(0.2);
+    o.call = Math.abs(Class3.takenMul() - 0.85) < 1e-9; // ตัวคูณของ Class 3 เอง (Resolve/Passive ลดซ้อนต่างหาก)
+    fresh(pl); executeSkill('wardens_stand', 5, null); C3.run(0.2);
+    o.stand = Math.abs(Class3.takenMul() - 0.51) < 1e-9;
+    // สะท้อน: ตัวที่ตีเรา (Runes.onHurt) โดน 30% + ติดรอยถูกจ้อง
+    const r0 = by.wardens_stand || 0; Runes.onHurt(mid, 500); o.reflect = (by.wardens_stand || 0) - r0 >= 140 && mid.c3watch > G.time;
+    teleportPlayer(pl.x + 1.5, pl.y); C3.run(0.2); o.standBreak = !pl.buffs.wardens_stand;
+    // Oath of the Horn: ดาเมจที่กันได้ → Rainbow Bash แรงขึ้น
+    pl.combatAt = -99; Runes.set('watchful_eye', 'watchful_eye.horn'); fresh(pl); pl.buffs = {}; executeSkill('gjallar_call', 5, null); C3.run(0.2);
+    damagePlayer(2000); o.horn = pl.c3horn >= 290;
+    Runes.preCast(skillDef('rainbow_bash'), 5, mid); o.hornCast = pl.c3hornCast && pl.c3hornCast.k > 1 && !pl.c3horn;
+    pl.combatAt = -99; Runes.set('watchful_eye', null); pl.c3hornCast = null;
+    // ULT GJALLARHORN: ไม่ล้ม
+    pl.ultKind = 'gjallar'; pl.ult = 100; Feel.ultFire(); pl.hp = 50; damagePlayer(99999); o.hornUlt = pl.hp === 1 && !pl.dead; pl.c3ult = null; pl.hp = pl.d.maxHp;
+    // ----- Jarl -----
+    pl = C3.third('jarl'); C3.arena('roots'); G.mobs = []; G.zones = [];
+    const a = C3.dummy(pl.x + 2, pl.y, 1e7), b = C3.dummy(pl.x + 4, pl.y, 1e7), z = C3.dummy(pl.x + 6, pl.y, 1e7); a.state = b.state = z.state = 'chase';
+    const x0 = pl.x; fresh(pl); pl.buffs = {}; beginSkill('longship_charge', 5, z); C3.run(0.6);
+    o.ship = pl.x - x0 > 4 && (by.longship_charge || 0) > 0 && [a, b, z].every(m => m.hp < m.maxHp);
+    o.mom1 = pl.rb && pl.rb.c3w3_mom && pl.rb.c3w3_mom.stacks === 1;
+    for (let i = 0; i < 3; i++) { pl.cds = {}; pl.skillReadyAt = 0; pl.cast = null; executeSkill('longship_charge', 5, a); C3.run(0.3); }
+    o.momMax = pl.rb.c3w3_mom.stacks === 3;
+    // ธง: คูลดาวน์ Longship ×0.6 ในธง
+    fresh(pl); executeSkill('raven_banner', 5, null); C3.run(0.6);
+    o.banner = !!pl.buffs.raven_banner && Math.abs(skillDef('longship_charge').cd - SKILLS.longship_charge.cd * 0.6) < 1e-6;
+    // Roar: ล้างมึน + กันมึน
+    pl.stunUntil = G.time + 5; pl.cds = {}; pl.skillReadyAt = 0; executeSkill('conquerors_roar', 5, null);
+    o.roar = pl.stunUntil <= G.time && (stunPlayer(3), pl.stunUntil <= G.time);
+    // Oath of the Raid: ฆ่าหลังพุ่ง = รีเซ็ตคูลดาวน์
+    pl.combatAt = -99; Runes.set('jarls_command', 'jarls_command.raid'); fresh(pl);
+    const k1 = C3.dummy(pl.x + 3, pl.y, 50); k1.state = 'chase'; executeSkill('longship_charge', 5, k1); C3.run(0.5);
+    o.raid = k1.dead && skillCdLeft('longship_charge') <= 0;
+    pl.combatAt = -99; Runes.set('jarls_command', null);
+    // Shieldwall Breaker ติดรอย +12% • ULT RAID: Longship ไม่ใช้ SP
+    fresh(pl); const c1 = C3.dummy(pl.x + 1, pl.y, 1e7); c1.state = 'chase'; executeSkill('shieldwall_breaker', 5, c1); C3.run(0.4);
+    o.sunder = c1.c3sunder > G.time;
+    pl.ultKind = 'raid'; pl.ult = 100; Feel.ultFire(); o.raidUlt = skillCost('longship_charge', 5) === 0; pl.c3ult = null;
+    G.onDmg = null;
+    return o;
+  });
+  // ============== Class 3 รอบ 4: Huntmaster / Deadeye ==============
+  const m4 = await p.evaluate(async () => {
+    const o = {}, by = {}; G.onDmg = (m, d, op) => { by[op.src || '?'] = (by[op.src || '?'] || 0) + d; };
+    const fresh = pl => { pl.cds = {}; pl.skillReadyAt = 0; pl.cast = null; pl.sp = pl.d.maxSp; pl.hp = pl.d.maxHp; pl.stunUntil = 0; };
+    const wolves = () => G.allies.filter(a => a.kind === 'wolf' && !a.dead && a.c3frost);
+    const summon = () => { G.allies = []; runSpecialSkill('summon_wolf', SKILLS.wolf_companion, 5); return wolves().length; };
+    // ----- Huntmaster -----
+    let pl = C3.third('huntmaster'); C3.arena('roots'); G.mobs = []; G.zones = []; G.allies = [];
+    o.pack2 = summon() === 2;
+    pl.combatAt = -99; Runes.set('winter_pack', 'winter_pack.pack'); o.pack3 = summon() === 3;
+    pl.combatAt = -99; Runes.set('winter_pack', 'winter_pack.lone'); o.lone = summon() === 0 && Math.abs(skillDef('fimbul_whiteout').cd - SKILLS.fimbul_whiteout.cd * 0.6) < 1e-6;
+    pl.combatAt = -99; Runes.set('winter_pack', null); summon();
+    const t = C3.dummy(pl.x + 4, pl.y, 1e7); t.state = 'chase';
+    fresh(pl); beginSkill('blizzard_volley', 5, t); C3.run(2.2);
+    o.bliz = (by.blizzard_volley || 0) > 0 && t.c3frozen > 0;
+    const f = C3.dummy(pl.x + 3, pl.y + 1, 1e7); f.state = 'chase'; Class3.chill(f, 3);
+    o.freeze = f.stunUntil > G.time && f.c3frozen > G.time;
+    fresh(pl); beginSkill('glacier_arrow', 5, f); C3.run(1.2); o.shatter = (by.glacier_arrow || 0) > 0 && !(f.c3frozen > G.time);
+    fresh(pl); executeSkill('pack_command', 5, null); C3.run(0.2); o.cmd = wolves().length === 2 && wolves().every(a => Math.abs(a.pow - a.c3pow * 1.5) < 1e-9);
+    G.mobs = []; G.zones = []; fresh(pl); executeSkill('frost_snare', 5, null); C3.run(0.8);
+    const sn = C3.dummy(pl.x, pl.y, 1e7); sn.x = pl.x; sn.y = pl.y; C3.run(0.4); o.snare = sn.stunUntil > G.time && (by.frost_snare || 0) > 0;
+    fresh(pl); Runes._crit = false; executeSkill('fimbul_whiteout', 5, null); C3.run(0.1); o.white = pl.stealthUntil > G.time && Runes._crit === true; Runes._crit = false; pl.stealthUntil = 0;
+    const u = C3.dummy(pl.x + 3, pl.y, 1e7); u.slowUntil = 0; pl.ultKind = 'fimbul'; pl.ult = 100; Feel.ultFire(); C3.run(0.6); o.fimbul = u.slowUntil > G.time; pl.c3ult = null;
+    G.allies = [];
+    // ----- Deadeye -----
+    pl = C3.third('deadeye'); C3.arena('roots'); G.mobs = []; G.zones = [];
+    const far = C3.dummy(pl.x + 10, pl.y, 1e7); o.far = Math.abs(Class3.farMul(far) - 1.15) < 1e-9;
+    far.def = Object.assign({}, far.def, { flee: 99999 }); far.x = pl.x + 7; let hit = 0; for (let i = 0; i < 20; i++) if (!physHit(far, 1, { skill: true }).miss) hit++;
+    far.x = pl.x + 2; let near = 0; for (let i = 0; i < 20; i++) if (!physHit(far, 1, { skill: true }).miss) near++;
+    o.sure = hit === 20 && near < 20; G.mobs = [];
+    const a = C3.dummy(pl.x + 2, pl.y, 1e7), b = C3.dummy(pl.x + 4, pl.y, 1e7); // ยืนนิ่ง (chase = เดินเข้ามาหลุดแนว)
+    fresh(pl); beginSkill('spear_shot', 5, b); C3.run(3.6); o.spear = a.hp < a.maxHp && b.hp < b.maxHp;
+    pl.combatAt = -99; Runes.set('gungnirs_truth', 'gungnirs_truth.patience'); o.patience = skillDef('spear_shot').cast(5) === 3000;
+    pl.combatAt = -99; Runes.set('gungnirs_truth', 'gungnirs_truth.skirmisher'); o.skirm = skillDef('spear_shot').cast(5) === 0 && skillDef('spear_shot').cd === 1.8;
+    pl.combatAt = -99; Runes.set('gungnirs_truth', null);
+    fresh(pl); pl.buffs = {}; executeSkill('mark_prey', 5, b); C3.run(0.2); o.mark = b.c3prey > G.time && !!pl.buffs.mark_prey;
+    G.mobs = []; const r1 = C3.dummy(pl.x + 2, pl.y, 1e7); const x0 = pl.x;
+    fresh(pl); beginSkill('recoil_shot', 5, r1); C3.run(1.2); o.recoil = x0 - pl.x > 2 && (by.recoil_shot || 0) > 0;
+    const q = C3.dummy(pl.x + 4, pl.y, 1e7); q.state = 'chase'; fresh(pl); beginSkill('rain_of_spears', 5, q); C3.run(1.6); o.rain = (by.rain_of_spears || 0) > 0;
+    fresh(pl); pl.buffs = {}; executeSkill('steady_breath', 5, null); C3.run(3.2); o.breath = !!(pl.rb && pl.rb.c3w4_breath && pl.rb.c3w4_breath.stacks >= 2);
+    teleportPlayer(pl.x + 1.5, pl.y); C3.run(0.2); o.breathBreak = !(pl.rb && pl.rb.c3w4_breath);
+    pl.ultKind = 'never'; pl.ult = 100; Feel.ultFire(); o.never = skillDef('spear_shot').cast(5) === 0 && skillDef('recoil_shot').dmg.line === true; pl.c3ult = null;
+    G.onDmg = null;
+    return o;
+  });
+  ok('Huntmaster: Winter Pack 2 frost wolves • Oath of the Pack 3 • Lone Peak 0 (+ Whiteout cd ×0.6)', m4.pack2 && m4.pack3 && m4.lone, m4);
+  ok('Huntmaster: Blizzard Volley chills to freeze • Glacier Arrow shatters • Pack Command ×1.5 bites', m4.bliz && m4.freeze && m4.shatter && m4.cmd, m4);
+  ok('Huntmaster: Frost Snare roots • Whiteout stealth + sure crit • ULT FIMBULWINTER slows', m4.snare && m4.white && m4.fimbul, m4);
+  ok("Deadeye: Gungnir's Truth +15% at 10 cells, never misses at 6+ • Spear-Shot pierces • Oaths change the charge", m4.far && m4.sure && m4.spear && m4.patience && m4.skirm, m4);
+  ok('Deadeye: Mark Prey • Recoil leaps back • Rain of Spears • Steady Breath stacks/breaks • ULT NEVER-MISSING', m4.mark && m4.recoil && m4.rain && m4.breath && m4.breathBreak && m4.never, m4);
+  // ============== Class 3 รอบ 5: Lifeweaver / Oathfist ==============
+  const m5 = await p.evaluate(async () => {
+    const o = {}, by = {}; G.onDmg = (m, d, op) => { by[op.src || '?'] = (by[op.src || '?'] || 0) + d; };
+    const fresh = pl => { pl.cds = {}; pl.skillReadyAt = 0; pl.cast = null; pl.sp = pl.d.maxSp; pl.hp = pl.d.maxHp; pl.stunUntil = 0; };
+    // ----- Lifeweaver -----
+    let pl = C3.third('lifeweaver'); C3.arena('roots'); G.mobs = []; G.zones = []; G.allies = [];
+    fresh(pl); pl.c3well = 0; healPlayer(5000, 'test'); o.well = pl.c3well > 0 && pl.c3well <= Math.round(pl.d.maxHp * 0.15) + 1;
+    const w0 = pl.c3well, h0 = pl.hp; damagePlayer(Math.floor(w0 / 2)); o.wellAbsorb = pl.hp === h0 && pl.c3well < w0; pl.c3well = 0;
+    fresh(pl); pl.buffs = {}; executeSkill('lifethread', 5, null); pl.hp = Math.round(pl.d.maxHp * 0.5); const t0 = pl.hp; C3.run(2.2); o.thread = pl.hp > t0;
+    fresh(pl); G.zones = []; executeSkill('sap_spring', 5, null); pl.hp = Math.round(pl.d.maxHp * 0.5); const s0 = pl.hp; C3.run(1.5); o.spring = pl.hp > s0 && G.zones.some(z => z.skill === 'sap_spring');
+    fresh(pl); pl.stunUntil = G.time + 5; pl.skillReadyAt = 0; executeSkill('verdandis_now', 5, null); o.now = pl.stunUntil <= G.time && (stunPlayer(3), pl.stunUntil <= G.time);
+    const low = C3.dummy(pl.x + 3, pl.y, 1000); low.hp = 100; o.cut = Runes.hitMul(skillDef('norn_cut'), 5, low) > 1.3;
+    fresh(pl); pl.buffs = {}; executeSkill('leaf_recall', 5, null); damagePlayer(pl.d.maxHp * 5); o.leaf = !pl.dead && Math.abs(pl.hp - Math.round(pl.d.maxHp * 0.3)) <= 1 && !pl.buffs.leaf_recall;
+    pl.combatAt = -99; Runes.set('well_of_urd', 'well_of_urd.skuld'); fresh(pl); const sk = C3.dummy(pl.x + 1, pl.y, 1e7); pl.hp = 1; healPlayer(Math.round(pl.d.maxHp * 0.1), 'test');
+    o.skuld = (by.well_of_urd || 0) > 0; pl.combatAt = -99; Runes.set('well_of_urd', null);
+    pl.hp = 10; pl.ultKind = 'norns'; pl.ult = 100; Feel.ultFire(); o.norns = pl.hp === pl.d.maxHp; pl.c3ult = null;
+    // ----- Oathfist -----
+    pl = C3.third('oathfist'); C3.arena('roots'); G.mobs = []; G.zones = []; G.allies = [];
+    fresh(pl); pl.c3combo = null; if (pl.ricd) pl.ricd.c3w5_free = 0; const cm = C3.dummy(pl.x + 1, pl.y, 1e7);
+    for (let i = 0; i < 5; i++) applyHit(cm, { dmg: 10, phys: true }, { src: 'attack' });
+    o.combo = (by.oath_of_tyr || 0) > 0;
+    G.mobs = []; const pm = C3.dummy(pl.x + 1, pl.y, 1e7); fresh(pl); beginSkill('hundred_palms', 5, pm); C3.run(1.4); o.palms = (by.hundred_palms || 0) > 0 && pm.stunUntil > G.time;
+    G.mobs = []; const cg = C3.dummy(pl.x + 5, pl.y, 1e7); fresh(pl); executeSkill('chain_of_gleipnir', 5, cg); C3.run(0.3); o.chain = U.dist(cg.x, cg.y, pl.x, pl.y) < 2;
+    fresh(pl); pl.buffs = {}; executeSkill('iron_vow', 5, null); addItem('white_potion', 1, true); pl.hp = Math.round(pl.d.maxHp * 0.5); pl.itemReadyAt = 0; const v0 = pl.hp; useItem(pl.inventory.find(e => e.id === 'white_potion')); o.vow = pl.hp === v0 && !!pl.buffs.iron_vow;
+    pl.buffs = {}; recalc(); G.mobs = []; const hm = C3.dummy(pl.x + 1, pl.y, 1e7); fresh(pl); const hh = pl.hp; executeSkill('hand_of_sacrifice', 5, hm); C3.run(0.4); o.hand = pl.hp <= Math.ceil(hh * 0.86) && (by.hand_of_sacrifice || 0) > 0;
+    pl.combatAt = -99; Runes.set('oath_of_tyr', 'oath_of_tyr.open'); o.open = !skillDef('hand_of_sacrifice').hpCost;
+    pl.combatAt = -99; Runes.set('oath_of_tyr', 'oath_of_tyr.lost'); pl.hp = Math.round(pl.d.maxHp * 0.4); o.lost = Runes.hitMul(skillDef('sun_pillar'), 5, hm) >= Class3.K.o5_lost_k - 1e-9;
+    pl.combatAt = -99; Runes.set('oath_of_tyr', null); pl.hp = pl.d.maxHp;
+    pl.ultKind = 'tyr'; pl.ult = 100; Feel.ultFire(); o.tyr = skillDef('hundred_palms').dmg.element === 'holy'; pl.c3ult = null;
+    G.onDmg = null;
+    return o;
+  });
+  ok('Lifeweaver: Well of Urd overheal shield absorbs • Lifethread / Sap Spring heal over time', m5.well && m5.wellAbsorb && m5.thread && m5.spring, m5);
+  ok("Lifeweaver: Verdandi's Now clears/blocks stun • Norn Cut execute • Leaf Recall catches • Oath of Skuld • ULT full heal", m5.now && m5.cut && m5.leaf && m5.skuld && m5.norns, m5);
+  ok('Oathfist: 5-hit combo fires a free Holy Fist • Hundred Palms ends in a stun • Chain of Gleipnir pulls', m5.combo && m5.palms && m5.chain, m5);
+  ok('Oathfist: Iron Vow blocks potions • Hand costs HP (Open Hand: no HP) • Lost Hand ×K below half • ULT holy fists', m5.vow && m5.hand && m5.open && m5.lost && m5.tyr, m5);
+  // ============== Class 3 รอบ 6: Sixth Shadow / Warsinger ==============
+  const m6 = await p.evaluate(async () => {
+    const o = {}, by = {}; G.onDmg = (m, d, op) => { by[op.src || '?'] = (by[op.src || '?'] || 0) + d; };
+    const fresh = pl => { pl.cds = {}; pl.skillReadyAt = 0; pl.cast = null; pl.sp = pl.d.maxSp; pl.hp = pl.d.maxHp; pl.stunUntil = 0; };
+    // ----- Sixth Shadow -----
+    let pl = C3.third('sixth'); C3.arena('roots'); G.mobs = []; G.zones = []; G.allies = [];
+    const t = C3.dummy(pl.x + 4, pl.y, 1e7); t.def = Object.assign({}, t.def, { flee: 0 }); const x0 = pl.x, y0 = pl.y;
+    fresh(pl); executeSkill('doppel_step', 5, t); C3.run(0.2);
+    const sh = Class3.shade(); o.doppel = !!sh && Math.hypot(sh.x - x0, sh.y - y0) < 0.6 && pl.x > t.x - 0.2 && (by.doppel_step || 0) > 0;
+    const px = pl.x; Runes._crit = false; fresh(pl); executeSkill('doppel_step', 5, t); C3.run(0.1); o.swap = Math.abs(pl.x - x0) < 0.6 && Runes._crit === true; Runes._crit = false;
+    for (let i = 0; i < 30; i++) updateAllies(1 / 15); o.shadeStill = !!Class3.shade() && Math.abs(Class3.shade().x - px) < 0.1;
+    G.mobs = []; const f = C3.dummy(pl.x + 3, pl.y, 1e7); f.state = 'chase'; f.nextAtk = 0; fresh(pl); executeSkill('green_flicker', 5, f); C3.run(0.1); o.flicker = f.allyTarget === Class3.shade() && !!pl.buffs.green_flicker;
+    G.mobs = []; const v = C3.dummy(pl.x + 1, pl.y, 1e7); v.def = Object.assign({}, v.def, { flee: 0 }); v.poisonUntil = G.time + 10; fresh(pl); executeSkill('venom_requiem', 5, v); C3.run(0.5); o.venom = (by.venom_requiem || 0) > 0 && !(v.poisonUntil > G.time);
+    const c0 = by.thousand_cuts || 0; fresh(pl); executeSkill('thousand_cuts', 5, v); C3.run(1.2); o.cuts = (by.thousand_cuts || 0) > c0;
+    fresh(pl); Runes._crit = false; executeSkill('shadow_vanish', 5, null); C3.run(0.1); o.vanish = pl.stealthUntil > G.time && Runes._crit === true; Runes._crit = false; pl.stealthUntil = 0;
+    pl.combatAt = -99; Runes.set('unsigned_mold', 'unsigned_mold.unmasked'); v.facing = 1; v.x = pl.x + 1; o.behind = Class3.behind(v) && physHit(v, 1, { skill: true }).crit === true;
+    pl.combatAt = -99; Runes.set('unsigned_mold', null);
+    pl.ultKind = 'twelve'; pl.ult = 100; Feel.ultFire(); const w0 = by.twelve_shadows || 0; applyHit(v, { dmg: 100, phys: true }, { src: 'attack' }); C3.run(0.3); o.twelve = (by.twelve_shadows || 0) - w0 >= 50; pl.c3ult = null;
+    G.allies = [];
+    // ----- Warsinger -----
+    pl = C3.third('warsinger'); C3.arena('roots'); G.mobs = []; G.zones = []; pl.rb = {}; pl.c3saga = null;
+    fresh(pl); executeSkill('saga_of_heroes', 5, null); C3.run(0.2); const atk1 = pl.rb.c3w6_saga && pl.rb.c3w6_saga.stats.atk;
+    fresh(pl); executeSkill('saga_of_heroes', 5, null); C3.run(0.2); o.saga = atk1 === 20 && pl.c3saga.mode === 'guard' && pl.rb.c3w6_saga.stats.def === 20;
+    const sp0 = pl.sp; C3.run(2.1); o.drain = pl.sp < sp0;
+    G.mobs = []; const a = C3.dummy(pl.x + 2, pl.y, 1e7), b = C3.dummy(pl.x + 4, pl.y, 1e7), back = C3.dummy(pl.x - 2, pl.y, 1e7);
+    for (const m of [a, b, back]) m.def = Object.assign({}, m.def, { flee: 0 }); // ตีกายภาพพลาดได้ — ให้โดนแน่
+    fresh(pl); executeSkill('thunder_chord', 5, a); C3.run(0.4); o.chord = a.hp < a.maxHp && b.hp < b.maxHp && back.hp === back.maxHp;
+    const e0 = by.echo_strike || 0; fresh(pl); executeSkill('echo_strike', 5, a); C3.run(0.3); const e1 = by.echo_strike || 0; C3.run(1.0); o.echo = e1 > e0 && (by.echo_strike || 0) > e1;
+    o.verse = !!(pl.rb.c3w6_verse && pl.rb.c3w6_verse.until > G.time);
+    G.mobs = []; const d = C3.dummy(pl.x + 2, pl.y, 1e7); d.state = 'chase'; fresh(pl); executeSkill('discord', 5, null); C3.run(0.3); o.discord = d.state !== 'chase' && d.c3confuse > G.time;
+    fresh(pl); pl.sp = 10; pl.cds = { echo_strike: G.time + 3 }; executeSkill('rally_drum', 5, null); o.rally = pl.sp > 10 && skillCdLeft('echo_strike') <= 1.01;
+    pl.ultKind = 'verse'; pl.ult = 100; Feel.ultFire(); C3.run(0.2); const st = Class3.sagaStats(); o.five = !!st && st.atk > 0 && st.def > 0 && st.crit > 0; pl.c3ult = null;
+    G.onDmg = null;
+    return o;
+  });
+  ok('Sixth Shadow: Doppel Step leaves a still shade + dashes • recast swaps (sure crit) • Green Flicker turns the foe on the shade', m6.doppel && m6.swap && m6.shadeStill && m6.flicker, m6);
+  ok('Sixth Shadow: Venom Requiem pops poison • Thousand Cuts • Vanish primes a crit • Unmasked crits from behind • ULT TWELVE SHADOWS', m6.venom && m6.cuts && m6.vanish && m6.behind && m6.twelve, m6);
+  ok('Warsinger: Saga of Heroes modes switch + drain SP • Thunder Chord cone • Echo Strike echoes • Verse Complete', m6.saga && m6.drain && m6.chord && m6.echo && m6.verse, m6);
+  ok('Warsinger: Discord confuses • Rally Drum SP + cooldowns • ULT VERSE OF THE FIVE all modes', m6.discord && m6.rally && m6.five, m6);
+  ok('Warden: Bifrost Line hurts + slows foes on it, DEF buff on the line', m3.line, m3);
+  ok("Warden: Gjallar −15% • Stand −40% • reflect 30% + Watched • moving breaks the Stand", m3.call && m3.stand && m3.reflect && m3.standBreak, m3);
+  ok('Warden: Oath of the Horn stores blocked damage into Rainbow Bash • ULT GJALLARHORN floor', m3.horn && m3.hornCast && m3.hornUlt, m3);
+  ok('Jarl: Longship dashes through the line, Momentum stacks to 3', m3.ship && m3.mom1 && m3.momMax, m3);
+  ok('Jarl: Raven Banner cooldown ×0.6 • Roar clears/blocks stun • Raid reset • Sunder • ULT no SP', m3.banner && m3.roar && m3.raid && m3.sunder && m3.raidUlt, m3);
+
   // ============== 5) IV-BUILD / Battle Script / UI ==============
   const ui = await p.evaluate(async () => {
     const o = {}, pl = C3.third('runelord');
@@ -296,7 +483,7 @@ const SHOTS = process.env.SHOTS || '';
     const w = document.querySelector('#w-skills');
     o.tabs = [...w.querySelectorAll('.sk-tabs .tab small')].map(x => x.textContent);
     o.runeRow = !!w.querySelector('.rn-row[data-skill="root_script"]') && !!w.querySelector('.rn-row[data-skill="rune_circle"]');
-    o.badge = w.querySelectorAll('.sicon.sk-c3').length === 6 && !!w.querySelector('.c3-hint');
+    o.badge = w.querySelectorAll('.sicon.sk-c3').length >= 6 && !!w.querySelector('.c3-hint');
     UI.close('w-skills');
     UI.open('w-status'); UI.renderStatus(); o.status = /CLASS III/.test((document.querySelector('#w-status .c3-status') || {}).textContent || ''); UI.close('w-status');
     // หน้าต่าง Runes: สกิลติดตัว Class 3 อยู่ในรายการ

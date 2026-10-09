@@ -37,8 +37,10 @@ const ok = (name, cond, info = '') => { checks.push([name, !!cond, info]); };
     const ctx = await browser.newContext({ viewport: { width: w, height: h }, isMobile: mobile, hasTouch: mobile });
     const p = await ctx.newPage();
     p.on('pageerror', e => errors.push(`${name}: ${e.message}`));
-    await p.goto(url); await p.waitForTimeout(1500);
-    ok(`${name}: login card on entry`, await p.isVisible('#auth'));
+    const t0 = Date.now(); await p.goto(url);
+    // การ์ดล็อกอินขึ้นหลังโหลดสคริปต์/ภาพครบ (ไฟล์เยอะขึ้นตั้งแต่ ebf7aef → เกิน 1.5 วิที่เคยรอตายตัว) — รอจนขึ้นจริง บอกเวลาที่ใช้
+    const authOk = await p.waitForSelector('#auth', { state: 'visible', timeout: 15000 }).then(() => true, () => false);
+    ok(`${name}: login card on entry`, authOk, `${((Date.now() - t0) / 1000).toFixed(1)}s`);
     await p.click('#au-offline'); await p.click('#btn-new');
     await p.fill('#cr-name', 'Smoke'); await p.click('#cr-start'); await p.waitForTimeout(1500);
     await p.click('#prologue-skip', { timeout: 3000 }).catch(() => {}); // บทนำ (บทที่ 0) แสดงครั้งแรกเมื่อสร้างตัวละคร

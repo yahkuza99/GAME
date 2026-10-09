@@ -23,7 +23,7 @@ const Class3 = (() => {
     ot_up: 0.2, ot_down: 0.2,                      // of Three Tongues: ต่างธาตุจากลูกก่อน +20% / ธาตุซ้ำ −20% (แทน Resonance)
     // รูน Rune Circle
     sg_echo: 0.75, sg_root: 1.5, sg_root_boss: 0.5, // Snare Glyph: ระเบิดซ้ำเหลือครึ่ง • ตรึงตัวที่เดินเข้า 1.5 วิ (บอส/ผู้เล่น: ช้า 0.5 วิ)
-    ley_r: 2,                                      // Leyline: วงเล็ก 2 ช่องเดินตามตัวเรา
+    ley_r: 2, ley_echo: 0.25,                      // Leyline: วงเล็ก 2 ช่องเดินตามตัวเรา • ระเบิดซ้ำ 25% (tests/runes_c3.js: เต็มแรง ฝูง +21~25% / 50% +16% / 30% +12.2%)
     // Oath — Packlord (Pack Blood)
     op_n: 5, op_self: 0.08,                        // of the Pack: หมา 5 ตัว • ตัวเราเบาลง 12%
     ol_ch: 0.25, ol_k: 0.8, ol_aspd: 12,           // of the Lone Wolf: ไม่มีหมา • ตีปกติ 25% ตีซ้ำ (80%) • หอน = ASPD +12% 10 วิ
@@ -95,7 +95,7 @@ const Class3 = (() => {
     else while (mine.length >= ci.max) killZone(mine.shift());
     const dur = ci.dur(lv) * masteryMul('rune_circle');
     const z = Runes.zone({ skill: 'rune_circle', c3circle: true, ley, snare, x: o.x, y: o.y, ref: ley ? p : null, r: ley ? K.ley_r : ci.r(lv), until: G.time + dur,
-      echo: ci.echo(lv) * (snare ? K.sg_echo : 1), every: 0.2, first: 0.05, draw: false, seen: new Set(),
+      echo: ci.echo(lv) * (snare ? K.sg_echo : ley ? K.ley_echo : 1), every: 0.2, first: 0.05, draw: false, seen: new Set(),
       tick: (zz, ms) => { if (zz.snare) for (const m of ms) C.snare(zz, m); } });
     if (!fast()) z.fx = C.fx({ kind: 'circle', ground: 1, z, ref: ley ? p : null, x: z.x, y: z.y, r: z.r, dur, col: snare ? '170,255,190' : ley ? '160,190,255' : '120,236,255' });
     if (!fast()) Sound.play('magic');
@@ -410,9 +410,9 @@ const Class3 = (() => {
       desc: () => L(`วงรูนกลายเป็นกับดัก: ศัตรูที่เดินเข้าวงถูกตรึง ${K.sg_root} วินาที (บอส/ผู้เล่น: ช้า ${K.sg_root_boss} วิ ครั้งเดียวต่อวง) แต่การระเบิดซ้ำเหลือ ${pc(K.sg_echo)}%`,
         `The circle becomes a snare: enemies that step in are rooted for ${K.sg_root}s (bosses/players: slowed ${K.sg_root_boss}s, once per circle), but the echo drops to ${pc(K.sg_echo)}%.`) },
     { id: 'rune_circle.leyline', name: 'Leyline', c3: 'leyline', intent: 'both', glyph: 'ᛝ', col: '#a0b8ff',
-      short: `A ${K.ley_r}-cell circle that follows you (1 at a time)`,
-      desc: () => L(`วงรูนเล็กรัศมี ${K.ley_r} ช่อง เดินตามตัวเรา (มีได้ทีละวง) — ศัตรูที่เข้ามาประชิดโดนระเบิดซ้ำเต็มแรง ไม่ต้องวางล่วงหน้า`,
-        `A small ${K.ley_r}-cell circle that follows you (one at a time) — enemies that close in take the full echo, no planning needed.`) },
+      short: `A ${K.ley_r}-cell circle that follows you · echo ${pc(K.ley_echo)}% of normal`,
+      desc: () => L(`วงรูนเล็กรัศมี ${K.ley_r} ช่อง เดินตามตัวเรา (มีได้ทีละวง) — ศัตรูที่เข้ามาประชิดโดนระเบิดซ้ำ (เหลือ ${pc(K.ley_echo)}% ของวงปกติ) ไม่ต้องวางล่วงหน้า`,
+        `A small ${K.ley_r}-cell circle that follows you (one at a time) — enemies that close in take the echo (${pc(K.ley_echo)}% of a normal circle's), no planning needed.`) },
   ]);
   Runes.add('pack_blood', [
     { id: 'pack_blood.pack', name: 'Of the Pack', oath: 'pack', intent: 'pack', glyph: 'ᚹ', col: '#ff8a5a',
@@ -583,11 +583,12 @@ const Class3 = (() => {
     fn._c3 = true;
     NPC.scripts.jobmaster = fn;
   };
-  const trialNpcWrap = (id, job) => {
+  // NPC หนึ่งตัวรับได้หลาย Class (Sigrún = Packlord/Jarl/Huntmaster) — เลือกบทจากเควสต์ที่ถืออยู่ ไม่ผูกกับ job ตอนห่อ
+  const trialNpcWrap = id => {
     const s0 = NPC.scripts[id]; if (s0 && s0._c3) return;
     const fn = async n => {
-      const tr = C.trial(), T = C.TRIAL[job];
-      if (tr && tr.job === job && (tr.stage === 'seek' || (tr.stage === 'duel' && !G.mobs.some(m => m.c3shadow && !m.dead)))) {
+      const tr = C.trial(), T = tr && C.TRIAL[tr.job];
+      if (T && T.npc === id && (tr.stage === 'seek' || (tr.stage === 'duel' && !G.mobs.some(m => m.c3shadow && !m.dead)))) {
         const c = await UI.menu(`[${n.name}]`, T.meet, [L('ท้าเงาแม่พิมพ์!', 'Face the Mould Shadow!'), L('ยังไม่พร้อม', 'Not ready yet')]);
         if (c === 0) { UI.dlgClose(); C.spawnShadow(); }
         return;
@@ -600,7 +601,7 @@ const Class3 = (() => {
   C.install = () => {
     if (typeof NPC === 'undefined') return;
     mimirWrap();
-    for (const job in C.TRIAL) trialNpcWrap(C.TRIAL[job].npc, job);
+    for (const job in C.TRIAL) trialNpcWrap(C.TRIAL[job].npc);
   };
   C.install();
 

@@ -1,0 +1,59 @@
+/* หาปาร์ตี้อัตโนมัติ (js/matchmaking.js) — มุมมน ≤ 8px ไม่มีแถบสัดส่วน ไม่ถ่างตัวอักษร */
+.mm-list { display: flex; flex-direction: column; gap: 6px; }
+.mm-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; text-align: left; color: var(--ink); cursor: pointer;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(110,200,255,.18); border-radius: 6px; font: inherit; }
+.mm-row.on { border-color: #ffc85a; box-shadow: inset 0 0 0 1px #ffc85a; }
+.mm-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.mm-mid b { font-size: 13.5px; font-weight: 600; }
+.mm-mid small { font-size: 12px; opacity: .8; line-height: 1.4; }
+.mm-n { flex: none; display: flex; flex-direction: column; align-items: flex-end; font-variant-numeric: tabular-nums; }
+.mm-n b { font-size: 16px; font-weight: 700; }
+.mm-n small { font-size: 11.5px; opacity: .75; }
+.mm-status { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; margin-bottom: 4px; border-radius: 8px;
+  background: rgba(255,200,90,.1); border: 1px solid rgba(255,200,90,.5); }
+.mm-status small { font-size: 12px; font-weight: 600; }
+.mm-status b { font-size: 15px; }
+.mm-status span { font-size: 12.5px; line-height: 1.5; }
+.mm-status .mm-wait { font-weight: 600; color: #2f7a2a; }
+.mm-status .mm-leave { align-self: flex-start; margin-top: 4px; }
+.mm-mode { display: flex; align-items: flex-start; gap: 8px; padding: 7px 9px; margin: 4px 0; border-radius: 6px; cursor: pointer; border: 1px solid rgba(110,200,255,.18); }
+.mm-mode.on { border-color: #ffc85a; }
+.mm-mode.off { opacity: .55; cursor: default; }
+.mm-mode span { display: flex; flex-direction: column; gap: 1px; }
+.mm-mode b { font-size: 13px; } .mm-mode small { font-size: 12px; opacity: .8; line-height: 1.4; }
+.mm-fill { display: block; margin: 6px 2px; font-size: 12.5px; line-height: 1.45; }
+.mm-foot { display: flex; justify-content: flex-end; margin: 10px 0 4px; }
+.mm-foot .mm-go { min-width: 150px; }
+.btn.mm-entry { display: block; width: 100%; margin-top: 10px; }
+.hunt-mm { align-self: flex-start; margin-top: 2px; padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; line-height: 1.3; color: var(--cy); border: 1px solid rgba(111,243,255,.4); }
+.hunt-mm:hover { background: rgba(111,243,255,.15); }
+
+body.visor .win .mm-row, body.visor .win .mm-mode { border: 0; border-radius: 8px; background: var(--a-card); box-shadow: var(--a-card-sh); color: #3a2410; }
+body.visor .win .mm-row.on, body.visor .win .mm-mode.on { box-shadow: var(--a-card-sh), 0 0 0 2px #c8901e; }
+body.visor .win .mm-n b { color: #6b4210; }
+body.visor .win .mm-status { color: #3a2410; background: #fff4d8; border-color: #c8901e; }
+body.visor .win .hunt-mm { color: #6b4210; border-color: #b48a4a; }
+body.visor .win .hunt-mm:hover { background: rgba(255,210,110,.3); }
+
+/* โทสต์คำชวน + โทสต์ "Ancient ตื่น → เข้าคิวบอส" */
+#mm-offer, #mm-call { position: fixed; left: 50%; transform: translateX(-50%); z-index: 905; width: min(470px, calc(100vw - 20px));
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 8px; color: #e8f4ff;
+  background: rgba(7,13,24,.95); border: 1px solid rgba(255,200,90,.6); box-shadow: 0 16px 40px -12px rgba(0,0,0,.9); }
+#mm-offer { top: calc(108px + var(--st, 0px)); }
+#mm-call { top: calc(170px + var(--st, 0px)); font-size: 13.5px; }
+#mm-offer[hidden], #mm-call[hidden] { display: none; }
+.mm-ot { flex: 1; min-width: 180px; display: flex; flex-direction: column; gap: 2px; font-size: 13.5px; line-height: 1.45; }
+.mm-ot small { font-size: 12px; font-weight: 600; color: #ffc85a; }
+.mm-ot b { color: #fff; }
+.mm-ob { flex: none; display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.mm-sec { min-width: 30px; text-align: center; font-size: 18px; font-variant-numeric: tabular-nums; color: #ffc85a; }
+.mm-ob .btn { min-width: 70px; padding: 7px 14px; font-size: 13.5px; }
+.mm-yes { color: #2a1802 !important; background: linear-gradient(#ffe19a, #e8b04a) !important; }
+.mm-ow { margin-left: auto; font-size: 13px; color: #ffc85a; }
+#mm-call > span { flex: 1; min-width: 150px; }
+#mm-call .mm-cq { padding: 7px 14px; font-size: 13.5px; }
+.mm-cx { flex: none; width: 30px; height: 30px; border-radius: 6px; font-size: 18px; color: #e8f4ff; background: transparent; border: 1px solid rgba(255,255,255,.25); cursor: pointer; }
+@media (max-width: 560px) {
+  #mm-offer { top: calc(150px + var(--st, 0px)); }
+  .mm-ob { width: 100%; } .mm-ob .btn { flex: 1; padding: 9px 14px; }
+}

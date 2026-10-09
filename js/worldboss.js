@@ -113,6 +113,7 @@ const WB = {
     if (fresh.length) {
       const r = this.pick(), map = r && fresh.includes(r.map) ? r.map : fresh[0], B = MOBS[this.id(map)], nm = MAP_DEFS[map] ? MAP_DEFS[map].name : map;
       UI.announce(L(`☠ ${B.name} (Lv ${B.lv}) ตื่นแล้วที่ ${nm}! บอสระดับ 2 (เลือด ×${this.hpMul(map)} ของ MVP) — รวมทีมไปปราบ (แตะป้ายใต้มินิแมพเพื่อนำทาง)`, `☠ ${B.name} (Lv ${B.lv}) has awakened in ${nm}! A Tier-2 boss (${this.hpMul(map)}× an MVP's HP) — gather a party (tap the minimap tag to navigate)`));
+      if (typeof MM !== 'undefined') MM.offerQueue(map); // แตะเดียวเข้าคิวบอส (js/matchmaking.js)
     }
   },
   pill(map) {

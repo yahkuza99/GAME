@@ -100,7 +100,7 @@ const Title = {
 
   // ตัวละครโชว์: สลับ Class ทุก 6 วินาที (ครอสเฟด)
   refreshHeroes() {
-    const keys = ART_KEYS.filter(k => k.startsWith('job_') && Art.has(k));
+    const keys = ART_KEYS.filter(k => k.startsWith('job_') && Art.imgs[k]); // เฉพาะภาพที่โหลดแล้ว (ภาพ Class 2/3 โหลดตอนใช้ — Art.has จะไปสั่งโหลดทั้ง 28 ภาพ)
     if (keys.length === this.heroKeys.length) return;
     this.heroKeys = keys;
     if (keys.length && !this.heroEl[0].src) this.showHero(0, true);
