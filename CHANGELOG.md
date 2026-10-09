@@ -1,5 +1,19 @@
 # CHANGELOG — NEO MIDGARD
 
+## 2026-10-09 (รอบ 14) — ภาพจริง Class 3: ภาพ Class 20 ภาพ (10 Class × ชาย/หญิง) + ตรา Class 12 อัน (ยังไม่ deploy — รอเจ้าของดู)
+
+- **ที่มา**: เจ้าของอนุมัติ "สั่ง Codex ได้เลย" สำหรับภาพ • Class 3 ใช้ภาพย้อมสีจาก Class 2 (Art.alias) มาตลอด
+- **เพิ่ม** `assets/job_<class>_<f|m>_v2.webp` (512×768 พื้นโปร่งใส วางแบบเดียวกับ Class 2 v2) ของ hexer, worldbreaker, warden, jarl, huntmaster, deadeye, lifeweaver, oathfist, sixth, warsinger + แมปใน `manifest.json` → `portraits` (ภาพจริงทับภาพย้อมเองตามกลไก Art เดิม ไม่แตะโค้ด)
+  - runelord / packlord **ไม่ได้ทำใหม่** — มีภาพจริง v2 อยู่แล้วตั้งแต่ 2026-10-08
+- **เพิ่ม** `assets/emblem_<class>.webp` 128×128 ทั้ง 12 Class 3 (เดิมย้อมจากตรา Class 2)
+- **วิธีทำ**: Codex CLI `image_gen` แนบภาพ Class 2 ต้นสาย (ชาย+หญิง) ตาม prompt ใน docs/CLASS3_ART.md (สั่งภาพตัวเดียว ไม่มีตัวหนังสือ) • ภาพชายแนบภาพหญิงที่ได้เป็นแม่แบบเพิ่ม • ตราแนบตรา Class 2 + ภาพตัวละคร • ตัดพื้นด้วย rembg
+- **พลาดระหว่างทาง**:
+  - Codex ค่าเริ่ม `gpt-6.1-sol` ใช้กับบัญชี ChatGPT ไม่ได้แล้ว (400) → ระบุ `-m gpt-5.6-terra`
+  - ภาพชายรอบแรก (warden/jarl/worldbreaker/hexer) ออกมาเป็นทรงผู้หญิงเพราะสั่ง "เหมือนภาพหญิงทุกอย่าง" → เปลี่ยน prompt ให้ยึดเฉพาะชุด/สี/อาวุธ แต่บังคับรูปร่างชาย แล้วทำใหม่
+  - rembg `isnet-anime` ลบเกราะหิน/เหล็กสีเข้มทิ้งเกือบหมด (worldbreaker ทั้งคู่, jarl ชาย) → ตัวตัดเลือก `isnet-general-use` อัตโนมัติเมื่อพื้นที่ตัวละครหายเกิน 20% + กรองเศษจุดลอยก่อนจัดกรอบ
+- **ยังไม่มี** ไอคอนสกิล Class 3 ภาพจริง (72 ไอคอน ยังย้อมสี) • ชีตท่า Class 3 (ใช้ชีตของ Class แรกต้นสายเหมือน Class 2)
+- **พิสูจน์**: เกมจริงใน headless Chrome เปิด Class Guide ทั้ง 12 Class × ชาย/หญิง → `Art.imgs` เป็นไฟล์จริงครบ 24 ภาพ + 12 ตรา (ไม่มีภาพย้อมเหลือ) ไม่มี page error • smoke 53/53 • class3 61/61
+
 ## 2026-10-09 (รอบ 13) — อัปเดต pending ทีเดียว: GAME_REFERENCE + Valhalla Codex รวม Class 3
 
 - **ที่มา**: เจ้าของอนุมัติให้ทำ "อัปเดต pending" — docs/PENDING.md ค้าง 59 ข้อตั้งแต่ 2026-10-02 และตัวสร้างเอกสารทั้งสองไม่รู้จัก Class 3
