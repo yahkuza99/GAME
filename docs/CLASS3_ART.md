@@ -38,4 +38,32 @@ NO fire effects, NO smoke, NO particles, NO floating objects — keep the silhou
 Make the {FEMALE | MALE} version: same armor, weapon and colors; {female: long wild silver-grey hair falling from under the wolf helm, slimmer waist | male: short spiky grey hair, very broad shoulders}.
 ```
 
+## Niflheim Hexer (`hexer` ← Seidr Witch) — ผู้สาปแห่งนิฟล์ไฮม์ (เพิ่ม 2026-10-09 · Claude เสนอตามแบบ §3.4 — เจ้าของยังไม่ได้เลือก)
+แนบ: `assets/job_seidr_f.webp` + `assets/job_seidr_m.webp`
+
+```
+Attached: the Seidr Witch (female and male) from my game. Design its evolved 3rd-tier class "Niflheim Hexer" — an android curse-bearer of Hel's misty realm, who curses in order to release, not to harm.
+Full-body character design sheet, front view, standing, same art style, rendering quality and proportions as the attached images (tall, elegant anime-fantasy, Norse knotwork details), dark plain background.
+Android body: matte violet-black armor plates over a slim mechanical frame; a HALF mask covering the left side of the faceplate (pale bone-white half, dark half), ONE glowing violet visor strip, NO eyes, NO mouth.
+Faint muted-green mist-like engraving lines on the armor (not smoke); a torn shoulder shawl, SHORT and stiff (not reaching the knees); layered witch tabards with Hel rune glyphs.
+Weapon held in the right hand, fully visible: a tall black staff with a hanging lantern at the tip — the lantern is half lit (cold violet light) and half dark, attached to the staff, not floating.
+Palette: violet-black, bone white, muted green, cold violet glow. Quiet, mournful, powerful — clearly a higher rank than the Seidr Witch.
+NO floating particles, NO smoke, NO magic circles — keep the silhouette clean for 3D.
+Make the {FEMALE | MALE} version: same outfit, weapon and colors; {female: long straight black-violet hair behind the half mask, slimmer frame | male: short layered black-violet hair, broader shoulders}.
+```
+
+## Ymir Worldbreaker (`worldbreaker` ← Jotun Breaker) — ผู้ทลายพิภพแห่งยมีร์ (เพิ่ม 2026-10-09 · Claude เสนอตามแบบ §3.12 — เจ้าของยังไม่ได้เลือก)
+แนบ: `assets/job_jotun_f.webp` + `assets/job_jotun_m.webp`
+
+```
+Attached: the Jotun Breaker (female and male) from my game. Design its evolved 3rd-tier class "Ymir Worldbreaker" — an android giant-slayer who carries the bones of Ymir, the giant whose body became the world.
+Full-body character design sheet, front view, standing, same art style, rendering quality and proportions as the attached images (tall, heavy anime-fantasy armor, Norse knotwork), dark plain background.
+Android warrior in HEAVY stone-and-ice plate armor: massive rock-like pauldrons with frost-blue cracks glowing faintly inside, a smooth faceplate with ONE glowing ice-blue visor strip, NO eyes, NO mouth; huge armored gauntlets.
+Ice-grey and earth-brown palette with glowing frost-blue fracture lines; a braided {male: beard-like cable bundle | female: thick braided hair} motif; SHORT stiff fur mantle (not reaching the knees).
+Weapon held in both hands but fully visible, not hiding the torso: a giant short-hafted warhammer whose head is a block of stone fused with ice, frost-blue cracks along it.
+Palette: ice grey, earth brown, frost blue. Immovable, ancient, crushing — clearly a higher rank than the Jotun Breaker.
+NO ice particles, NO smoke, NO floating rocks — keep the silhouette clean for 3D.
+Make the {FEMALE | MALE} version: same armor, weapon and colors; {female: thick braided grey hair, slimmer waist | male: short grey hair, very broad shoulders}.
+```
+
 ใช้แชตละ 1 ภาพ (4 ภาพ: runelord_f, runelord_m, packlord_f, packlord_m) • ได้ภาพแล้วส่งในแชตหรือวางที่ `art/class3/` แล้ว push — Claude ตัดพื้น/บีบไฟล์เป็น `assets/job_<class>_<m|f>.webp` แล้วใช้เป็นภาพ Class ในเกมทันที (ระหว่างรอ Meshy)
