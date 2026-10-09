@@ -2091,6 +2091,7 @@ const UI = {
             h('span', { class: 'hunt-s' }, `${t.mapName}${t.map === G.map.id ? L(' · อยู่ที่นี่', ' · Here') : ''}${kc ? L(` · ล่าแล้ว ${U.fmt(kc)}`, ` · ${U.fmt(kc)} defeated`) : ''}${t.mvp ? ` · ${this.mvpStatus(t.mobId).replace(/^[^ ]+ /, '')}` : ''}`)),
           h('span', { class: 'hunt-r' }, h('b', {}, `Lv ${t.lv}`), h('small', { class: expLevelMul(d.lv, G.player.baseLv) < 1 ? 'exp-low' : expLevelMul(d.lv, G.player.baseLv) > 1 ? 'exp-hi' : '' }, `+${U.fmt(Math.round(d.exp * expLevelMul(d.lv, G.player.baseLv)))} EXP${expLevelMul(d.lv, G.player.baseLv) !== 1 ? ` · ${Math.round(expLevelMul(d.lv, G.player.baseLv) * 100)}%` : ''}`)),
           h('span', { class: 'hunt-info', title: L('ข้อมูลมอนสเตอร์', 'Monster info'), onclick: e => { e.stopPropagation(); this.showMob(t.mobId); } }, 'i'));
+        if (t.mvp && typeof MM !== 'undefined') $('.hunt-mid', r).append(h('span', { class: 'hunt-mm', role: 'button', title: L('หาปาร์ตี้ไปตีบอสนี้ (จับคู่อัตโนมัติ)', 'Find a party for this boss (matchmaking)'), onclick: e => { e.stopPropagation(); MM.open('mvp:' + t.mobId); } }, L('หาปาร์ตี้', 'Find party'))); // js/matchmaking.js
         list.append(r);
       }
     }
