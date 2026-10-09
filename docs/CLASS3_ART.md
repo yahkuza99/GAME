@@ -92,4 +92,30 @@ NO banners in hand, NO smoke, NO embers — keep the silhouette clean for 3D.
 Make the {FEMALE | MALE} version: same armor, weapon and colors; {female: long dark-red braids from under the helm | male: short dark hair, heavy braided beard-like cable bundle}.
 ```
 
+## Fimbul Huntmaster (`huntmaster` ← Skadi Ranger) — จ้าวพรานแห่งฟิมบูล (เพิ่ม 2026-10-09 · Claude เสนอตามแบบ §3.5 — เจ้าของยังไม่ได้เลือก)
+แนบ: `assets/job_skadi_f.webp` + `assets/job_skadi_m.webp`
+
+```
+Attached: the Skadi Ranger (female and male) from my game. Design its evolved 3rd-tier class "Fimbul Huntmaster" — an android huntress of the endless winter who fights beside a pack of frost wolves.
+Full-body character design sheet, front view, standing, same art style, rendering quality and proportions as the attached images (tall, agile anime-fantasy, Norse knotwork details), dark plain background.
+Android ranger in light white-and-ice-blue armor plates with silver trim; a white wolf-pelt hood with frost crusted on the fur and a big fur collar; smooth faceplate under the hood with ONE glowing pale-cyan visor strip, NO eyes, NO mouth; a quiver of crystal arrows on the back.
+Weapon held in the left hand, fully visible, not hiding the torso: a large recurve bow made of clear ice crystal with silver grips.
+Palette: white, ice blue, silver. Cold, patient, wild — clearly a higher rank than the Skadi Ranger.
+NO wolves in the image, NO snow particles, NO mist — keep the silhouette clean for 3D.
+Make the {FEMALE | MALE} version: same outfit, weapon and colors; {female: long white braid falling from the hood, slimmer frame | male: short white hair under the hood, broader shoulders}.
+```
+
+## Gungnir Deadeye (`deadeye` ← Ullr Sniper) — นักแม่นธนูแห่งกุงนีร์ (เพิ่ม 2026-10-09 · Claude เสนอตามแบบ §3.6 — เจ้าของยังไม่ได้เลือก)
+แนบ: `assets/job_ullr_f.webp` + `assets/job_ullr_m.webp`
+
+```
+Attached: the Ullr Sniper (female and male) from my game. Design its evolved 3rd-tier class "Gungnir Deadeye" — an android sniper whose arrows never miss, like Odin's spear Gungnir.
+Full-body character design sheet, front view, standing, same art style, rendering quality and proportions as the attached images (tall, lean anime-fantasy, Norse knotwork details), dark plain background.
+Android archer in olive-green and dark-brown light armor with gold trim; a SHORT stiff shoulder cape (not reaching the knees); smooth faceplate with a single scope-like monocle visor over ONE eye glowing gold, NO eyes, NO mouth; spearhead-shaped arrows in a hip quiver.
+Weapon held upright in the left hand, fully visible, not hiding the torso: a longbow TALLER than the character, both limb tips capped with iron shaped like spearheads.
+Palette: olive green, gold, dark brown. Calm, precise, distant — clearly a higher rank than the Ullr Sniper.
+NO flying arrows, NO light trails, NO particles — keep the silhouette clean for 3D.
+Make the {FEMALE | MALE} version: same outfit, weapon and colors; {female: long dark-olive ponytail, slimmer frame | male: short swept dark hair, broader shoulders}.
+```
+
 ใช้แชตละ 1 ภาพ (4 ภาพ: runelord_f, runelord_m, packlord_f, packlord_m) • ได้ภาพแล้วส่งในแชตหรือวางที่ `art/class3/` แล้ว push — Claude ตัดพื้น/บีบไฟล์เป็น `assets/job_<class>_<m|f>.webp` แล้วใช้เป็นภาพ Class ในเกมทันที (ระหว่างรอ Meshy)

@@ -583,11 +583,12 @@ const Class3 = (() => {
     fn._c3 = true;
     NPC.scripts.jobmaster = fn;
   };
-  const trialNpcWrap = (id, job) => {
+  // NPC หนึ่งตัวรับได้หลาย Class (Sigrún = Packlord/Jarl/Huntmaster) — เลือกบทจากเควสต์ที่ถืออยู่ ไม่ผูกกับ job ตอนห่อ
+  const trialNpcWrap = id => {
     const s0 = NPC.scripts[id]; if (s0 && s0._c3) return;
     const fn = async n => {
-      const tr = C.trial(), T = C.TRIAL[job];
-      if (tr && tr.job === job && (tr.stage === 'seek' || (tr.stage === 'duel' && !G.mobs.some(m => m.c3shadow && !m.dead)))) {
+      const tr = C.trial(), T = tr && C.TRIAL[tr.job];
+      if (T && T.npc === id && (tr.stage === 'seek' || (tr.stage === 'duel' && !G.mobs.some(m => m.c3shadow && !m.dead)))) {
         const c = await UI.menu(`[${n.name}]`, T.meet, [L('ท้าเงาแม่พิมพ์!', 'Face the Mould Shadow!'), L('ยังไม่พร้อม', 'Not ready yet')]);
         if (c === 0) { UI.dlgClose(); C.spawnShadow(); }
         return;
@@ -600,7 +601,7 @@ const Class3 = (() => {
   C.install = () => {
     if (typeof NPC === 'undefined') return;
     mimirWrap();
-    for (const job in C.TRIAL) trialNpcWrap(C.TRIAL[job].npc, job);
+    for (const job in C.TRIAL) trialNpcWrap(C.TRIAL[job].npc);
   };
   C.install();
 

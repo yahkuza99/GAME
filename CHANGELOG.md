@@ -1,5 +1,20 @@
 # CHANGELOG — NEO MIDGARD
 
+## 2026-10-09 (รอบ 8) — Class 3 รอบ 4: Fimbul Huntmaster + Gungnir Deadeye (สาย Wildhunter)
+
+- **เพิ่ม** `js/class3_wave4.js` ตามแบบ `docs/CLASS3_DESIGN.md` §3.5/§3.6
+  - **Fimbul Huntmaster** (← Skadi): P Winter Pack — Wolf Companion เรียกหมาป่าน้ำแข็ง 2 ตัว (ตัวละ 60–76%) เขี้ยวติดรอยหนาว · รอยหนาวครบ 3 ชั้น = แช่แข็ง 1.5 วิ (บอส/ผู้เล่น: ช้า) · Blizzard Volley 4 ระลอก ระลอกละ 98–162% ธาตุน้ำ · Pack Command หมาป่ารุมเป้าเรา กัด +50% · Glacier Arrow 452–700% เป้าแข็ง ×1.5 แล้วแตก · Whiteout ซ่อน 4 วิ ลูกแรกคริแน่นอน · Frost Snare กับดัก ≤3 ตรึง 2 วิ · Oath: of the Pack (หมา 3 ตัว ธนู 88%) / of the Lone Peak (ไม่มีหมา ธนู 115% Whiteout คูลดาวน์ ×0.6) · รูน: Avalanche / Drift · ULT FIMBULWINTER · เควสต์ทดสอบที่ Sigrún (Wolfwood)
+  - **Gungnir Deadeye** (← Ullr): P Gungnir's Truth — เป้าห่าง ≥6 ช่องไม่พลาด + ดาเมจ +3%×Lv ตามระยะ (เต็มที่ 10 ช่อง) · Spear-Shot ชาร์จ 2 วิ 700–1100% ทะลุแนว ระยะ 11 · Mark Prey +2%×Lv ทุกการตีของเรา 12 วิ · Recoil Shot 300–480% แล้วกระโดดถอย 4 ช่อง · Rain of Spears 5 ดอก ดอกละ 200–340% · Steady Breath ยืนนิ่งทุกวิได้ชั้น ความเร็วตี/แรงคริ (เดินแล้วหาย) · Oath: of Patience (ชาร์จ 3 วิ ×1.45) / of the Skirmisher (ไม่ต้องชาร์จ 60% คูลดาวน์ 1.8 วิ) · รูน: Ricochet / Pin · ULT NEVER-MISSING · เควสต์ทดสอบที่ Lopt (Mistlake)
+  - ง่ายลงจากแบบ: หมาป่าน้ำแข็งใช้ระบบ Wolf Companion เดิม (เรียก/ต่อเวลา/ข้ามแผนที่เหมือนเดิม) ไม่ใช่สัตว์ถาวร · Oath of Patience ชาร์จ 3 วิเสมอ (ยังไม่มีระบบปล่อยชาร์จกลางทาง) · Mark Prey มีผลกับการตีของเราเท่านั้น (ปาร์ตี้ออนไลน์ยังส่งรอยข้ามเครื่องไม่ได้) + ให้ HIT ตัวเรา
+- **แก้บั๊ก** `js/class3.js` เควสต์ทดสอบที่ NPC ตัวเดียวกันหลาย Class: ตัวห่อบท NPC ผูก job ตอนห่อครั้งแรก → **Jarl (รอบ 3) ที่ Sigrún ไม่เคยขึ้นปุ่มท้าเงาแม่พิมพ์** เพราะ Packlord ห่อ Sigrún ไปก่อน · แก้เป็นเลือกบทจากเควสต์ที่ถืออยู่ (Sigrún รับ Packlord/Jarl/Huntmaster) · เทสต์เดิมไม่จับเพราะเช็กแค่ Packlord
+- **วัด** (`DUEL=8 C3=1 C3PAIRS=skadi:huntmaster,ullr:deadeye` เป้า −15~25%): Huntmaster ตีเดี่ยว −18~−24% · ฝูง −8~−23% · Deadeye ตีเดี่ยว −16~−23% · ฝูง −8~−18%
+  - ปรับระหว่างทาง: รอบแรก Huntmaster เร็วเกิน (−28%/−31% ที่ Lv70) → หมาป่า 64–80→60–76% · Blizzard 102–170→94–158% (ฝูงตกเหลือ −10~−14%) → กลับขึ้น 98–162%
+  - ค่าตีฝูงแกว่งแรงกว่าตีเดี่ยว (แก้ Blizzard 4% ผลฝูงขยับ 15%) — ค่าตีเดี่ยวนิ่งกว่า ใช้ตัดสินหลัก
+- **แก้บั๊ก** (ก่อนขึ้น) id สกิล `whiteout` ชนสกิลเดิมใน `js/class-expansion-data.js` → ใช้ id `fimbul_whiteout` (ชื่อในเกมยังเป็น Whiteout) · Spear-Shot ไม่มีระยะของตัวเอง เดินเข้าหาเป้าแทนยิงไกล → ระยะ 11
+- **เปลี่ยน** `tests/class3.js`: ตรวจกลไก Huntmaster/Deadeye 5 ข้อใหม่ (รวม 53) · ตัวอย่าง "Class 2 ที่ยังไม่มี Class 3" Skadi → Norn
+- **พิสูจน์**: class3 53/53 · smoke 53/53 · passive 80/80 · runes 102/102 · เปิดเว็บจริงหลังขึ้น
+- ยังไม่ได้วัด: รูน/Oath ของ Class 3 ในแถบ ±12% (ROADMAP 4d) — ค่า Oath of the Skirmisher/Lone Peak ตั้งจากการคำนวณ DPS ยังไม่ได้จำลอง
+
 ## 2026-10-09 (รอบ 7) — Class 3 รอบ 3: Heimdall Warden + Jarl Warbringer (สาย Einherjar)
 
 - **เพิ่ม** `js/class3_wave3.js` ตามแบบ `docs/CLASS3_DESIGN.md` §3.1/§3.2

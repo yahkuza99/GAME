@@ -19,6 +19,7 @@
 - [~] 4a. ตัวนำร่อง Class 3 ไม่เร็วกว่า Class 2 → เปิดพลังประจำสายให้ Class 3 แล้ว (Packlord เข้าเป้า · Runelord เร็วขึ้น 7–24% แต่บางกว่า Galdr ~2 เท่า — ลอง Sap Ward หนาขึ้น 50% ไม่ช่วย คืนค่า = ตัวตน glass cannon ยืนร่ายกลางวง) (9 ต.ค.)
 - [~] 4b. Class 3 รอบ 2: Niflheim Hexer + Ymir Worldbreaker เสร็จ (9 ต.ค.) — เหลือ 8 ตัว
 - [~] 4c. Class 3 รอบ 3: Heimdall Warden + Jarl Warbringer เสร็จ (9 ต.ค.) — เหลือ 6 ตัว (Huntmaster/Deadeye · Lifeweaver/Oathfist · Sixth/Warsinger)
+- [~] 4e. Class 3 รอบ 4: Fimbul Huntmaster + Gungnir Deadeye เสร็จ (9 ต.ค.) — เหลือ 4 ตัว (Lifeweaver/Oathfist · Sixth/Warsinger)
 - [ ] 4d. เทสต์รูน/Oath Class 3 ในแถบ ±12% (`tests/runes.js` วัดแค่ Class 1)
 - [ ] 4. Class 3 ที่เหลือตาม `docs/CLASS3_DESIGN.md` (ทีละคู่สาย) — ตัวเกม/สกิล/เควสต์ ทำได้เลย · ภาพจริงรอเจ้าของ (prompt `docs/CLASS3_ART.md`)
 
