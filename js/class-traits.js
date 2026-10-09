@@ -50,7 +50,7 @@ const ClassTraits = (() => {
   };
   const active = () => {
     const p=G.player;
-    if(!enabled||!p||p.dead||(JOBS[p.job].tier||1)>=3)return false;
+    if(!enabled||!p||p.dead)return false; // Class 3 ใช้พลังประจำสายต่อจากสายแม่ (เดิมปิด — 9 ต.ค. วัดแล้ว Class 3 ไม่เร็วกว่า Class 2 เพราะไม่ได้ความถนัดประจำสาย)
     const r=roots[jobRoot(p.job)];
     return p.job==='trickster'?{...r,max:2}:r;
   };
@@ -174,6 +174,6 @@ const ClassTraits = (() => {
     if(!el||!p)return;const r=active(),q=state();el.hidden=!r;
     if(r){el.textContent=r.name+' '+Math.floor(q.n)+'/'+r.max;el.style.color=r.color;el.title=info(p.job);}
   };
-  function info(job){const r=roots[jobRoot(job)];return (JOBS[job].tier===3?'':r?r.rule+' • ':'')+(branches[job]||'');}
+  function info(job){const r=roots[jobRoot(job)];return (r?r.rule+' • ':'')+(branches[job]||'');} // Class 3 ก็ใช้พลังประจำสายแล้ว (9 ต.ค.)
   return {state,info,get enabled(){return enabled;},set enabled(v){enabled=!!v;}};
 })();
