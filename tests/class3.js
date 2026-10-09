@@ -185,7 +185,7 @@ const SHOTS = process.env.SHOTS || '';
         try {
           beginSkill(id, s.max, s.target === 'enemy' ? m : null);
           for (let i = 0; i < 75; i++) { for (const o of G.mobs) o.nextAtk = G.time + 1; updateGame(1 / 15); if (skillCdLeft(id) > 0) cd = true; spMin = Math.min(spMin, pl.sp); }
-          const eff = (m.hp + m2.hp < hp0) || !!pl.buffs[id] || G.allies.some(a => a.kind === 'c3wolf') || Class3.circles().length > 0 || (m.c3mark && m.c3mark.until > G.time) || U.dist(x0, y0, pl.x, pl.y) > 1 || (pl.rb && pl.rb.c3_lone);
+          const eff = (m.hp + m2.hp < hp0) || (G.zones || []).some(z => z.skill === id) || !!pl.buffs[id] || G.allies.some(a => a.kind === 'c3wolf') || Class3.circles().length > 0 || (m.c3mark && m.c3mark.until > G.time) || U.dist(x0, y0, pl.x, pl.y) > 1 || (pl.rb && pl.rb.c3_lone);
           out[id] = (spMin < sp0 ? '' : 'NO-SP ') + (cd ? '' : 'NO-CD ') + (eff ? 'ok' : 'NO-EFFECT');
         } catch (e) { out[id] = 'ERROR ' + e.message; }
       }

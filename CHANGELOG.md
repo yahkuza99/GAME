@@ -1,5 +1,18 @@
 # CHANGELOG — NEO MIDGARD
 
+## 2026-10-09 (รอบ 6) — Class 3 รอบ 2: Niflheim Hexer + Ymir Worldbreaker
+
+- **เพิ่ม** `js/class3_wave2.js` (ไฟล์ใหม่ — `js/class3.js` 864 บรรทัดเกินเพดาน 800 แล้ว) ตามแบบ `docs/CLASS3_DESIGN.md` §3.4/§3.12 ครบสายของตัวนำร่อง
+  - **Niflheim Hexer** (← Seidr): Plague Hex คำสาปมืดทุกวิ 8 วิ ตัวที่ติดสาปล้ม → กระโดด 2 ตัว · Half-Mask Siphon ดูด SP ตามชั้นคำสาป · Wither Field หมอกช้า + เวทแรง 15% · Grave Bind ตรึง 2 วิ · Harvest เก็บเกี่ยวคำสาปรอบ 9 ช่อง ×1.2 · P Mist of Nifl คำสาปนาน/คริได้ · Oath: of Rot (ซ้อน 3 ไม่ลาม) / of Release (Harvest คืน HP) · รูน: Contagion / Single Doom · ULT NIFLHEIM GATE · เควสต์ทดสอบที่ Hel (Hel's Hollow)
+  - **Ymir Worldbreaker** (← Jotun): Ymir's Bones เลือดที่จ่ายเป็นค่าสกิล 30% → สกิลถัดไปแรงขึ้น (สูงสุด +40%) · Worldsplitter ชาร์จ 0.9 วิ ทุบแนว 6 ช่อง · Glacier Fall · Giant's Grip (ไม่พลาด มึน 2 วิ) · Frost Hide ค่า HP ครึ่ง · Tremor Step กระโดดกระแทก · Oath: of the Mountain (ไม่เสีย HP คูลดาวน์ ×1.5) / of Blood (ค่า HP ×2 แรง ×1.15) · รูน: Quake Ring / Fault Line · ULT FALL OF YMIR · เควสต์ทดสอบที่ Loki (Nidhogg's Hollow)
+  - ภาพ/ตรา/ไอคอนย้อมจาก Seidr/Jotun จนกว่าจะมีภาพจริง · บอทใช้ Harvest เมื่อมีคำสาปรอบตัว ≥3 · Class Book มีบิลด์/วิธีเล่น
+  - ง่ายลงจากแบบ: Worldsplitter "กดค้างชาร์จ 0.5–2 วิ" → ร่ายชาร์จ 0.9 วิคงที่ (ไม้ตาย = ชาร์จเต็มทันที ×1.5)
+- **วัด** (`C3=1 C3PAIRS=…` เทียบ Class 2 ต้นสาย เป้า −15~25%): Hexer ตีเดี่ยว −12~−19% · ฝูง −20~−24% · Worldbreaker ตีเดี่ยว −4~−12% · ฝูง −15~−41% (ตัวทุบแนว/วงตามแบบ — "ไม่ใช่ตัวตีเดี่ยวเร็วแบบ Jotun")
+  - ปรับระหว่างทาง: Siphon 380–620→425–685% · Giant's Grip 350–550→390–630% + ไม่พลาด · Worldsplitter 500–900→430–710% ชาร์จ 1.2→0.9 วิ · Ymir's Bones +ATK 1%×Lv
+- **เปลี่ยน** `tests/class3.js`: นับโซนบนพื้นของสกิลเป็น "มีผล" (Wither Field ทำให้ช้า/เวทแรง ไม่มีดาเมจเอง)
+- เจอ: Plague Hex/Wither Field เป็นสกิลวง ต้องคลิกพื้น (เหมือนสกิลวงอื่น) — ตัวทดสอบแรกกดปุ่มอย่างเดียวเลยดูเหมือนไม่ร่าย
+- เทสต์: class3 43/43 (ตรวจข้อมูลทั้ง 4 Class 3) · smoke 53/53 · passive 80/80 · ทดสอบใช้จริง: คำสาปติด 6/6 ตัว · เดินต่อ · Harvest เก็บหมด · ไม่มี pageerror
+
 ## 2026-10-09 (รอบ 5) — Class 3 ได้ความถนัดประจำสายด้วย
 
 - **วัด** ตัวนำร่อง Class 3 เทียบ Class 2 ต้นสาย (`C3=1 tests/balance_sim.js` เป้า เวลาฆ่า −15~25%): **ไม่ได้เร็วกว่าเลย** — Runelord ตีฝูงช้ากว่า Galdr 13–26% · Packlord เท่า Warlord
