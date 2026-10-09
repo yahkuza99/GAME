@@ -409,7 +409,7 @@ Runes.watchCombat = function () {
     sa_weak: 0.25, sa_rad: 0.43,
     lf_daze: 1.5, lf_fav: 0.68,
     bo_raven: 0.659, bo_storm: 0.35,
-    hs_lance: 0.652, hs_judg: 0.72,
+    hs_lance: 0.57, hs_judg: 0.72,
     ds_ret: 0.5, ds_shell: 0.25,
     fg_smite: 0.847, fg_cap: 0.25,
     // Loki's Trickster
@@ -420,7 +420,7 @@ Runes.watchCombat = function () {
     tk_fmain: 0.81, tk_fan: 0.29, tk_main: 0.8, tk_mark: 1.48,
     lg_dbl_ch: 0.35, lg_dbl: 2.6, lg_mir: 1.97,
     // Berserker
-    wb_price: 4.72, wb_feral: 30,
+    wb_price: 4.72, wb_feral: 25, wb_feral_max: 3, wb_feral_dur: 3,
     rs_main: 0.79, rs_cleave: 0.39, rs_exe_lo: 0.85, rs_exe_hi: 2.6,
     bf_lust: 3.2, bf_ramp: 0.56,
     hw_rend: 0.6, hw_tick: 0.34, hw_chal: 0.6, hw_mark: 2.0,
@@ -1123,11 +1123,11 @@ Runes.watchCombat = function () {
       mod: () => ({ passive: lv => ({ hpPct: 2 * lv }) }),
       onAnySkill(s) { if (!SKILLS[s.id].hpCost) return; const b = Runes.giveBuff('bprice', 'wolf_blood', 8, { atkPct: K.wb_price }, 5); aura('255,80,80'); say(P(), `BLOOD ×${b.stacks}`, '#ff6060'); } },
     { id: 'wolf_blood.feral', name: 'Feral', intent: 'pack', glyph: '≋', col: '#ff9050',
-      short: `Kill: heal 3%, +${K.wb_feral}% ASPD (×3) · ½ low-HP bonus`,
-      desc: () => L(`แรงจาก HP ที่หายเหลือครึ่ง แต่ฆ่ามอนได้ = ฟื้น HP 3% และเร็วขึ้น +${K.wb_feral}% 5 วิ (ซ้อน 3)`,
-        `Half the bonus from missing HP, but each kill restores 3% HP and grants +${K.wb_feral}% attack speed for 5s (stacks 3×).`),
+      short: `Kill: heal 3%, +${K.wb_feral}% ASPD (×${K.wb_feral_max}) · ½ low-HP bonus`,
+      desc: () => L(`แรงจาก HP ที่หายเหลือครึ่ง แต่ฆ่ามอนได้ = ฟื้น HP 3% และเร็วขึ้น +${K.wb_feral}% ${K.wb_feral_dur} วิ (ซ้อน ${K.wb_feral_max})`,
+        `Half the bonus from missing HP, but each kill restores 3% HP and grants +${K.wb_feral}% attack speed for ${K.wb_feral_dur}s (stacks ${K.wb_feral_max}×).`),
       mod: () => ({ passive: lv => ({ rage: 5 * lv, hpPct: 2 * lv }) }),
-      onAnyKill() { const p = P(), b = Runes.giveBuff('feral', 'wolf_blood', 5, { aspdPct: K.wb_feral }, 3); if (p.hp < p.d.maxHp) healPlayer(Math.round(p.d.maxHp * 0.03), 'Feral'); aura('255,140,80'); say(p, `FERAL ×${b.stacks}`, '#ff9050'); } },
+      onAnyKill() { const p = P(), b = Runes.giveBuff('feral', 'wolf_blood', K.wb_feral_dur, { aspdPct: K.wb_feral }, K.wb_feral_max); if (p.hp < p.d.maxHp) healPlayer(Math.round(p.d.maxHp * 0.03), 'Feral'); aura('255,140,80'); say(p, `FERAL ×${b.stacks}`, '#ff9050'); } },
   ]);
   Runes.add('rage_strike', [
     { id: 'rage_strike.cleave', name: 'Cleave', intent: 'pack', glyph: '⌓', col: '#ff7040',
