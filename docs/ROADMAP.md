@@ -21,8 +21,10 @@
 - [~] 4c. Class 3 รอบ 3: Heimdall Warden + Jarl Warbringer เสร็จ (9 ต.ค.) — เหลือ 6 ตัว (Huntmaster/Deadeye · Lifeweaver/Oathfist · Sixth/Warsinger)
 - [~] 4e. Class 3 รอบ 4: Fimbul Huntmaster + Gungnir Deadeye เสร็จ (9 ต.ค.) — เหลือ 4 ตัว (Lifeweaver/Oathfist · Sixth/Warsinger)
 - [~] 4f. Class 3 รอบ 5: Urd Lifeweaver + Tyr Oathfist เสร็จ (9 ต.ค.) — เหลือ 2 ตัว (Sixth Shadow/Edda Warsinger)
+- [x] 4g. Class 3 รอบ 6: Sixth Shadow + Edda Warsinger เสร็จ (9 ต.ค.) — **Class 3 ครบ 12 ตัว** (ภาพจริงทั้งหมดยังเป็นภาพย้อมจาก Class 2 — prompt อยู่ `docs/CLASS3_ART.md`)
+- [ ] 4h. Sixth Lv70 ตีฝูงเร็วเกิน (−38~−40% ทุกรอบ ระดับอื่นปกติ) — หาสาเหตุ
 - [ ] 4d. เทสต์รูน/Oath Class 3 ในแถบ ±12% (`tests/runes.js` วัดแค่ Class 1)
-- [ ] 4. Class 3 ที่เหลือตาม `docs/CLASS3_DESIGN.md` (ทีละคู่สาย) — ตัวเกม/สกิล/เควสต์ ทำได้เลย · ภาพจริงรอเจ้าของ (prompt `docs/CLASS3_ART.md`)
+- [x] 4. Class 3 ที่เหลือตาม `docs/CLASS3_DESIGN.md` (ทีละคู่สาย) — ตัวเกม/สกิล/เควสต์ ทำได้เลย · ภาพจริงรอเจ้าของ (prompt `docs/CLASS3_ART.md`)
 
 ## Codex — งานภาพ (ส่งใน AGENT_HANDOFF แล้ว)
 - [ ] Goal Artwork เดิม (Rune 10/80 · ชุดท่าขั้นสูง 1/28)

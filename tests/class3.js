@@ -122,7 +122,7 @@ const SHOTS = process.env.SHOTS || '';
     pl.baseLv = 70; pl.jobLv = THIRD_JOB_REQ.job - 1; o.job25 = Class3.req().ok;
     pl.jobLv = THIRD_JOB_REQ.job; C3.partOne(false); o.noStory = Class3.req().ok;
     C3.partOne(true); o.okAll = Class3.req().ok;
-    const p1 = C3.second('phantom'); C3.partOne(true); o.noThird = Class3.req().next === null && !Class3.req().ok;
+    const t3 = THIRD_JOBS.phantom; delete THIRD_JOBS.phantom; const p1 = C3.second('phantom'); C3.partOne(true); o.noThird = Class3.req().next === null && !Class3.req().ok; THIRD_JOBS.phantom = t3; // ครบ 12 แล้ว — ถอดชั่วคราวเพื่อทดสอบกรณี "ยังไม่มี"
     C3.second('galdr'); C3.partOne(true);
     // บทพูด: เมนูเลือกตัวแรกเสมอ
     const menu0 = UI.menu, say0 = UI.say; UI.menu = async () => 0; UI.say = async () => {};
@@ -247,9 +247,9 @@ const SHOTS = process.env.SHOTS || '';
     o.wolvesPack = G.allies.filter(a => a.kind === 'c3wolf').length;
     pl.combatAt = -99; Runes.set('pack_blood', 'pack_blood.lone_wolf'); G.allies = []; pl.cds = {}; pl.skillReadyAt = 0; beginSkill('howl_of_the_pack', 5, null); C3.run(0.3);
     o.lone = G.allies.filter(a => a.kind === 'c3wolf').length === 0 && !!(pl.rb && pl.rb.c3_lone);
-    pl.combatAt = -99; Runes.set('pack_blood', null); Runes.set('howl_of_the_pack', 'howl_of_the_pack.single_alpha'); G.allies = []; pl.cds = {}; pl.skillReadyAt = 0; beginSkill('howl_of_the_pack', 5, null); C3.run(0.3);
-    o.alpha = G.allies.filter(a => a.kind === 'c3wolf').length === 1 && G.allies.find(a => a.kind === 'c3wolf').alpha; o.alphaD = [G.allies.map(a => a.kind + (a.alpha ? 'A' : '')).join(), String(Runes.chosen('howl_of_the_pack') && Runes.chosen('howl_of_the_pack').id), pl.sp, pl.job, String(pl.cast), pl.stunUntil > G.time, skillCdLeft('howl_of_the_pack')];
-    pl.combatAt = -99; Runes.set('howl_of_the_pack', 'howl_of_the_pack.ember_pack'); G.allies = []; pl.cds = {}; pl.skillReadyAt = 0; beginSkill('howl_of_the_pack', 5, null);
+    pl.combatAt = -99; Runes.set('pack_blood', null); Runes.set('howl_of_the_pack', 'howl_of_the_pack.single_alpha'); G.allies = []; pl.cds = {}; pl.skillReadyAt = 0; pl.sp = pl.d.maxSp; const aSp = pl.sp; beginSkill('howl_of_the_pack', 5, null); const aNow = [aSp, pl.sp, G.allies.map(a => a.kind + (a.alpha ? 'A' : '')).join()]; C3.run(0.3); // เดิมไม่เติม SP — เหลือไม่พอร่ายแล้วตกเป็นบางรอบ
+    o.alpha = G.allies.filter(a => a.kind === 'c3wolf').length === 1 && G.allies.find(a => a.kind === 'c3wolf').alpha; o.alphaD = [aNow.join('|'), G.allies.map(a => a.kind + (a.alpha ? 'A' : '')).join(), String(Runes.chosen('howl_of_the_pack') && Runes.chosen('howl_of_the_pack').id), pl.sp, pl.job, String(pl.cast), pl.stunUntil > G.time, skillCdLeft('howl_of_the_pack'), pl.dead, pl.hp, pl.skillReadyAt - G.time];
+    pl.combatAt = -99; Runes.set('howl_of_the_pack', 'howl_of_the_pack.ember_pack'); G.allies = []; pl.cds = {}; pl.skillReadyAt = 0; pl.sp = pl.d.maxSp; beginSkill('howl_of_the_pack', 5, null);
     const e0 = by.howl_of_the_pack || 0; C3.run(11); o.ember = (by.howl_of_the_pack || 0) > e0;
     pl.combatAt = -99; Runes.set('howl_of_the_pack', null);
     // Alpha's Mark +15%
@@ -418,6 +418,45 @@ const SHOTS = process.env.SHOTS || '';
   ok("Lifeweaver: Verdandi's Now clears/blocks stun • Norn Cut execute • Leaf Recall catches • Oath of Skuld • ULT full heal", m5.now && m5.cut && m5.leaf && m5.skuld && m5.norns, m5);
   ok('Oathfist: 5-hit combo fires a free Holy Fist • Hundred Palms ends in a stun • Chain of Gleipnir pulls', m5.combo && m5.palms && m5.chain, m5);
   ok('Oathfist: Iron Vow blocks potions • Hand costs HP (Open Hand: no HP) • Lost Hand ×1.2 below half • ULT holy fists', m5.vow && m5.hand && m5.open && m5.lost && m5.tyr, m5);
+  // ============== Class 3 รอบ 6: Sixth Shadow / Warsinger ==============
+  const m6 = await p.evaluate(async () => {
+    const o = {}, by = {}; G.onDmg = (m, d, op) => { by[op.src || '?'] = (by[op.src || '?'] || 0) + d; };
+    const fresh = pl => { pl.cds = {}; pl.skillReadyAt = 0; pl.cast = null; pl.sp = pl.d.maxSp; pl.hp = pl.d.maxHp; pl.stunUntil = 0; };
+    // ----- Sixth Shadow -----
+    let pl = C3.third('sixth'); C3.arena('roots'); G.mobs = []; G.zones = []; G.allies = [];
+    const t = C3.dummy(pl.x + 4, pl.y, 1e7); t.def = Object.assign({}, t.def, { flee: 0 }); const x0 = pl.x, y0 = pl.y;
+    fresh(pl); executeSkill('doppel_step', 5, t); C3.run(0.2);
+    const sh = Class3.shade(); o.doppel = !!sh && Math.hypot(sh.x - x0, sh.y - y0) < 0.6 && pl.x > t.x - 0.2 && (by.doppel_step || 0) > 0;
+    const px = pl.x; Runes._crit = false; fresh(pl); executeSkill('doppel_step', 5, t); C3.run(0.1); o.swap = Math.abs(pl.x - x0) < 0.6 && Runes._crit === true; Runes._crit = false;
+    for (let i = 0; i < 30; i++) updateAllies(1 / 15); o.shadeStill = !!Class3.shade() && Math.abs(Class3.shade().x - px) < 0.1;
+    G.mobs = []; const f = C3.dummy(pl.x + 3, pl.y, 1e7); f.state = 'chase'; f.nextAtk = 0; fresh(pl); executeSkill('green_flicker', 5, f); C3.run(0.1); o.flicker = f.allyTarget === Class3.shade() && !!pl.buffs.green_flicker;
+    G.mobs = []; const v = C3.dummy(pl.x + 1, pl.y, 1e7); v.poisonUntil = G.time + 10; fresh(pl); executeSkill('venom_requiem', 5, v); C3.run(0.5); o.venom = (by.venom_requiem || 0) > 0 && !(v.poisonUntil > G.time);
+    const c0 = by.thousand_cuts || 0; fresh(pl); executeSkill('thousand_cuts', 5, v); C3.run(1.2); o.cuts = (by.thousand_cuts || 0) > c0;
+    fresh(pl); Runes._crit = false; executeSkill('shadow_vanish', 5, null); C3.run(0.1); o.vanish = pl.stealthUntil > G.time && Runes._crit === true; Runes._crit = false; pl.stealthUntil = 0;
+    pl.combatAt = -99; Runes.set('unsigned_mold', 'unsigned_mold.unmasked'); v.facing = 1; v.x = pl.x + 1; o.behind = Class3.behind(v) && physHit(v, 1, { skill: true }).crit === true;
+    pl.combatAt = -99; Runes.set('unsigned_mold', null);
+    pl.ultKind = 'twelve'; pl.ult = 100; Feel.ultFire(); const w0 = by.twelve_shadows || 0; applyHit(v, { dmg: 100, phys: true }, { src: 'attack' }); C3.run(0.3); o.twelve = (by.twelve_shadows || 0) - w0 >= 50; pl.c3ult = null;
+    G.allies = [];
+    // ----- Warsinger -----
+    pl = C3.third('warsinger'); C3.arena('roots'); G.mobs = []; G.zones = []; pl.rb = {}; pl.c3saga = null;
+    fresh(pl); executeSkill('saga_of_heroes', 5, null); C3.run(0.2); const atk1 = pl.rb.c3w6_saga && pl.rb.c3w6_saga.stats.atk;
+    fresh(pl); executeSkill('saga_of_heroes', 5, null); C3.run(0.2); o.saga = atk1 === 20 && pl.c3saga.mode === 'guard' && pl.rb.c3w6_saga.stats.def === 20;
+    const sp0 = pl.sp; C3.run(2.1); o.drain = pl.sp < sp0;
+    G.mobs = []; const a = C3.dummy(pl.x + 2, pl.y, 1e7), b = C3.dummy(pl.x + 4, pl.y, 1e7), back = C3.dummy(pl.x - 2, pl.y, 1e7);
+    for (const m of [a, b, back]) m.def = Object.assign({}, m.def, { flee: 0 }); // ตีกายภาพพลาดได้ — ให้โดนแน่
+    fresh(pl); executeSkill('thunder_chord', 5, a); C3.run(0.4); o.chord = a.hp < a.maxHp && b.hp < b.maxHp && back.hp === back.maxHp;
+    const e0 = by.echo_strike || 0; fresh(pl); executeSkill('echo_strike', 5, a); C3.run(0.3); const e1 = by.echo_strike || 0; C3.run(1.0); o.echo = e1 > e0 && (by.echo_strike || 0) > e1;
+    o.verse = !!(pl.rb.c3w6_verse && pl.rb.c3w6_verse.until > G.time);
+    G.mobs = []; const d = C3.dummy(pl.x + 2, pl.y, 1e7); d.state = 'chase'; fresh(pl); executeSkill('discord', 5, null); C3.run(0.3); o.discord = d.state !== 'chase' && d.c3confuse > G.time;
+    fresh(pl); pl.sp = 10; pl.cds = { echo_strike: G.time + 3 }; executeSkill('rally_drum', 5, null); o.rally = pl.sp > 10 && skillCdLeft('echo_strike') <= 1.01;
+    pl.ultKind = 'verse'; pl.ult = 100; Feel.ultFire(); C3.run(0.2); const st = Class3.sagaStats(); o.five = !!st && st.atk > 0 && st.def > 0 && st.crit > 0; pl.c3ult = null;
+    G.onDmg = null;
+    return o;
+  });
+  ok('Sixth Shadow: Doppel Step leaves a still shade + dashes • recast swaps (sure crit) • Green Flicker turns the foe on the shade', m6.doppel && m6.swap && m6.shadeStill && m6.flicker, m6);
+  ok('Sixth Shadow: Venom Requiem pops poison • Thousand Cuts • Vanish primes a crit • Unmasked crits from behind • ULT TWELVE SHADOWS', m6.venom && m6.cuts && m6.vanish && m6.behind && m6.twelve, m6);
+  ok('Warsinger: Saga of Heroes modes switch + drain SP • Thunder Chord cone • Echo Strike echoes • Verse Complete', m6.saga && m6.drain && m6.chord && m6.echo && m6.verse, m6);
+  ok('Warsinger: Discord confuses • Rally Drum SP + cooldowns • ULT VERSE OF THE FIVE all modes', m6.discord && m6.rally && m6.five, m6);
   ok('Warden: Bifrost Line hurts + slows foes on it, DEF buff on the line', m3.line, m3);
   ok("Warden: Gjallar −15% • Stand −40% • reflect 30% + Watched • moving breaks the Stand", m3.call && m3.stand && m3.reflect && m3.standBreak, m3);
   ok('Warden: Oath of the Horn stores blocked damage into Rainbow Bash • ULT GJALLARHORN floor', m3.horn && m3.hornCast && m3.hornUlt, m3);

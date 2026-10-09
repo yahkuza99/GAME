@@ -1,5 +1,18 @@
 # CHANGELOG — NEO MIDGARD
 
+## 2026-10-09 (รอบ 10) — Class 3 รอบ 6: Sixth Shadow + Edda Warsinger (สาย Trickster) = Class 3 ครบ 12
+
+- **เพิ่ม** `js/class3_wave6.js` ตามแบบ `docs/CLASS3_DESIGN.md` §3.9/§3.10
+  - **Sixth Shadow** (← Loki's Phantom): P Unsigned Mold ตีแรกหลังหายตัว/สลับร่างคริแน่นอน · Doppel Step ทิ้งร่างเงา 6 วิ แล้วพุ่งไปหลังเป้า 264–440% · กดซ้ำตอนร่างเงาอยู่ = สลับที่ · Thousand Cuts 6 ครั้งรอบเป้า (มีร่างเงา ×1.2) · Green Flicker ให้เป้าหันไปตีร่างเงา 5 วิ · Venom Requiem 460–740% เป้าติดพิษ ×1.35 · Vanish หายตัว 3 วิ · Oath: of the Mask / of the Unmasked (ตีจากด้านหลังคริ) · รูน: Mirror Trap / Long Shadow · ULT TWELVE SHADOWS · เควสต์ทดสอบที่ Bragi (Eldheim) — ท่อนที่หกยังว่างเหมือนเดิม
+  - **Edda Warsinger** (← Skald): P Kenning ใช้สกิลต่างกัน 3 อันติดกัน = Verse Complete · Saga of Heroes ออร่าค้าง (2 SP/วิ) กดซ้ำเปลี่ยนโหมด ศึก → ป้อม → ลม · Thunder Chord กรวย 5 ช่อง ผลักถอย · Discord สับสน 3 วิ · Echo Strike 376–600% สะท้อน 50% · Rally Drum ฟื้น SP + ลดคูลดาวน์ · Oath: of the Chorus / of the Solo · รูน: Battle Hymn / March · ULT VERSE OF THE FIVE · เควสต์ทดสอบที่ Tóki (Eldheim)
+  - ง่ายลงจากแบบ: ร่างเงาเป็นผู้ช่วยในเกมที่ยืนนิ่ง ไม่ตี (มอนที่โดน Green Flicker ตีมันแทน) · "กดซ้ำสลับที่" = Doppel Step คูลดาวน์ 4 วิ ร่ายซ้ำตอนร่างเงายังอยู่ · ออร่า/Rally Drum มีผลกับตัวเรา (ปาร์ตี้ออนไลน์ยังส่งบัฟข้ามเครื่องไม่ได้) · Discord = มอนเลิกไล่ 3 วิ
+- **วัด** (`DUEL=8 C3=1 C3PAIRS=phantom:sixth,skald:warsinger` เป้า −15~25%): Warsinger ตีเดี่ยว −17~−19% · ฝูง −22~−26% · Sixth ตีเดี่ยว −20~−27% · ฝูง −13~−25% **ยกเว้น Lv70 ฝูง −38~−40% ทุกรอบ** (ยังไม่ได้หาว่าทำไมเฉพาะ Lv70)
+  - ปรับ: Venom Requiem 505–805→460–740% ×1.5→×1.35 (เดิมกินดาเมจ 22%) · Doppel Step 310–510→264–440%
+- **แก้บั๊ก** `tests/class3.js` ข้อ "Howl runes" (Packlord) ที่ตกเองบางรอบมาตั้งแต่รอบ 3: ตัวเก็บหลักฐานที่ใส่ไว้รอบก่อนจับได้ว่า **SP เหลือ 34 ไม่พอร่าย Howl** — เทสต์ไม่เติม SP ระหว่างข้อ ผลจึงขึ้นกับว่าข้อก่อน ๆ ใช้ SP ไปเท่าไร · เติม SP ก่อนร่าย ผ่านต่อเนื่อง
+  - พลาดระหว่างทาง 2 ครั้ง: ใส่คอมเมนต์ `//` กลางบรรทัดเทสต์ ทำให้คำสั่งร่ายที่ตามหลังถูกปิดไปด้วย (เทสต์ตกแบบหลอก) — ย้ายคอมเมนต์ไปท้ายบรรทัดแล้ว
+- **เปลี่ยน** `tests/class3.js`: ตรวจกลไก Sixth/Warsinger 4 ข้อใหม่ (รวม 61) · ทุก Class 2 มี Class 3 แล้ว → ข้อ "Class 2 ที่ยังไม่มี Class 3" ถอด Phantom ออกชั่วคราวในเทสต์ · ตีกายภาพในเทสต์กลไกตั้ง FLEE เป้าเป็น 0 (กันตกเพราะสุ่มพลาด)
+- **พิสูจน์**: class3 61/61 (3 รอบ) · smoke 53/53 · passive 80/80 · runes 102/102 · เปิดเว็บจริงหลังขึ้น
+
 ## 2026-10-09 (รอบ 9) — Class 3 รอบ 5: Urd Lifeweaver + Tyr Oathfist (สาย Völva)
 
 - **เพิ่ม** `js/class3_wave5.js` ตามแบบ `docs/CLASS3_DESIGN.md` §3.7/§3.8

@@ -144,4 +144,30 @@ NO light effects, NO particles, NO motion lines — keep the silhouette clean fo
 Make the {FEMALE | MALE} version: same outfit, gauntlet and colors; {female: long high ponytail, slimmer frame | male: short topknot, broader shoulders}.
 ```
 
+## Sixth Shadow (`sixth` ← Loki's Phantom) — เงาที่หก (เพิ่ม 2026-10-09 · Claude เสนอตามแบบ §3.9 — เจ้าของยังไม่ได้เลือก)
+แนบ: `assets/job_phantom_f.webp` + `assets/job_phantom_m.webp`
+
+```
+Attached: the Loki's Phantom (female and male) from my game. Design its evolved 3rd-tier class "Sixth Shadow" — an android assassin whose mold was never signed, who fights alongside its own shade.
+Full-body character design sheet, front view, standing, same art style, rendering quality and proportions as the attached images (tall, lithe anime-fantasy, Norse knotwork details), dark plain background.
+Android rogue in matte black light armor with magenta trim; a torn half-cloak hanging from one shoulder (SHORT, not reaching the knees); a smooth hood mask with ONE thin visor strip glowing GREEN (a hint of Loki), NO eyes, NO mouth.
+Weapons fully visible, not hiding the torso: two long curved knives, one in each hand, blades glowing faint violet-pink.
+Palette: black, magenta, a single green accent. Silent, doubled, unreadable — clearly a higher rank than Loki's Phantom.
+NO second figure, NO shadow clones, NO smoke — keep the silhouette clean for 3D.
+Make the {FEMALE | MALE} version: same outfit, weapons and colors; {female: long dark hair with magenta tips falling from the hood, slimmer frame | male: short dark hair under the hood, broader shoulders}.
+```
+
+## Edda Warsinger (`warsinger` ← Skald Bard) — นักขับศึกแห่งเอ็ดดา (เพิ่ม 2026-10-09 · Claude เสนอตามแบบ §3.10 — เจ้าของยังไม่ได้เลือก)
+แนบ: `assets/job_skald_f.webp` + `assets/job_skald_m.webp`
+
+```
+Attached: the Skald Bard (female and male) from my game. Design its evolved 3rd-tier class "Edda Warsinger" — an android war-poet who sings auras into the battle.
+Full-body character design sheet, front view, standing, same art style, rendering quality and proportions as the attached images (tall, anime-fantasy, Norse knotwork details), dark plain background.
+Android bard in navy and gold armor-coat with sky-blue accents; a half-length cloak (SHORT, not reaching the knees); a hat with one long feather; smooth faceplate with ONE glowing sky-blue visor strip, NO eyes, NO mouth; a small drum on the hip.
+Instrument held in the left hand, fully visible, not hiding the torso: a lyre whose frame is a curved war-horn, gold strings.
+Palette: navy, gold, sky blue. Bold, rhythmic, uplifting — clearly a higher rank than the Skald Bard.
+NO music notes, NO sound waves, NO particles — keep the silhouette clean for 3D.
+Make the {FEMALE | MALE} version: same outfit, instrument and colors; {female: long wavy golden hair under the hat, slimmer frame | male: short golden hair under the hat, broader shoulders}.
+```
+
 ใช้แชตละ 1 ภาพ (4 ภาพ: runelord_f, runelord_m, packlord_f, packlord_m) • ได้ภาพแล้วส่งในแชตหรือวางที่ `art/class3/` แล้ว push — Claude ตัดพื้น/บีบไฟล์เป็น `assets/job_<class>_<m|f>.webp` แล้วใช้เป็นภาพ Class ในเกมทันที (ระหว่างรอ Meshy)
