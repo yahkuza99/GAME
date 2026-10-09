@@ -1,5 +1,17 @@
 # CHANGELOG — NEO MIDGARD
 
+## 2026-10-09 (รอบ 9) — Class 3 รอบ 5: Urd Lifeweaver + Tyr Oathfist (สาย Völva)
+
+- **เพิ่ม** `js/class3_wave5.js` ตามแบบ `docs/CLASS3_DESIGN.md` §3.7/§3.8
+  - **Urd Lifeweaver** (← Norn): P Well of Urd ฮีลเกิน HP เต็ม = โล่ (≤3%×Lv MaxHP 10 วิ) · Lifethread ฮีลต่อเนื่อง 15 วิ · Sap Spring บ่อฮีล 3 ช่อง 8 วิ · Verdandi's Now ล้าง/กันมึน-พิษ · Norn Cut 424–680% ศักดิ์สิทธิ์ (+≤40% ตาม HP ที่เป้าเสีย) · Leaf Recall จะล้ม = ฟื้น 30% · Oath: of the Well (ฮีล 125% ดาเมจ 85%) / of Skuld (ฮีลแตกเป็นแสงใส่ศัตรูรอบตัว) · รูน: Twin Thread / Taut Thread · ULT THREAD OF THE NORNS · เควสต์ทดสอบที่ Eir (Eldheim)
+  - **Tyr Oathfist** (← Gythja): P Oath of Tyr ตีโดน 5 ครั้งใน 3 วิ = Holy Fist ฟรี (40% ≤1 ครั้ง/3 วิ) · Hundred Palms 8 ฝ่ามือ 56–80% ครั้งสุดท้ายมึน · Sun Pillar 210–330% รัศมี 2.5 · Iron Vow 10 วิ ATK/DEF/ดูดเลือด ห้ามยา · Chain of Gleipnir ดึงเป้า ≤6 ช่อง · Hand of Sacrifice เสีย HP 15% → 630–990% · Oath: of the Open Hand (ใช้ SP แทน HP) / of the Lost Hand (HP <50% ×1.2 ห้ามยา) · รูน: Palm Storm / Seal · ULT TYR'S JUDGMENT · เควสต์ทดสอบที่ Brokk (Eldheim)
+  - ง่ายลงจากแบบ: ปาร์ตี้ออนไลน์ยังส่งฮีล/ดาเมจข้ามเครื่องไม่ได้ → ด้ายชีวิต/บ่อ/ULT มีผลกับตัวเรา + ผู้ช่วยในเกม · Leaf Recall เป็นบัฟ 60 วิไม่ต้องผูกด้าย · Seal = บอสเลื่อนท่าถัดไป 3 วิ (มอนธรรมดามึน 1 วิ) · Lost Hand "ฮีลตัวเองไม่ได้" = ห้ามยา (ดูดเลือด/รีเจนยังทำงาน)
+- **วัด** (`DUEL=8 C3=1 C3PAIRS=norn:lifeweaver,gythja:oathfist` เป้า −15~25%): Lifeweaver ตีเดี่ยว −24~−26% · ฝูง −11~−19% · Oathfist ตีเดี่ยว −21~−23% · ฝูง −25~−27% (ขอบบน เท่าระดับแกว่ง)
+  - รอบแรกแรงเกินมาก: Lifeweaver −37~−40% · Oathfist −44~−53% — ปรับ 4 รอบ: Norn Cut คูลดาวน์ 3→7 · ตัด MATK% จาก Well of Urd · Hundred Palms 78–110→56–80% · Sun Pillar 282–450→210–330% คูลดาวน์ 8 · Hand 700–1100→630–990% คูลดาวน์ 14 · Holy Fist ฟรี 100%→40% ≤1 ครั้ง/3 วิ · ตัดความเร็วตีจาก Oath of Tyr
+  - ลองปิดทีละสกิล (Sun Pillar / Hand / Hundred Palms) ผลแทบไม่ขยับ — บอทเอาสกิลอื่นมาเติมช่องว่างแทน → **เพิ่ม `SRC=1` ใน `tests/balance_sim.js`** พิมพ์ดาเมจแยกตามแหล่ง จึงเห็นว่า Holy Fist (รวมของฟรี) กิน 32%
+- **เปลี่ยน** `tests/class3.js`: ตรวจกลไก Lifeweaver/Oathfist 4 ข้อใหม่ (รวม 57) · ตัวอย่าง "Class 2 ที่ยังไม่มี Class 3" Norn → Phantom · ข้อ Howl runes (Packlord) ตกติดกัน 3 รอบหลังเพิ่ม wave 5 แล้วผ่าน 6 รอบติดโดยไม่ได้แก้อะไร — ยังจับสาเหตุไม่ได้ ใส่ตัวเก็บหลักฐาน (`alphaD`) ไว้ในผลข้อนั้นแล้ว ตกครั้งหน้าจะเห็นสถานะ
+- **พิสูจน์**: class3 57/57 (2 รอบ) · smoke 53/53 · passive 80/80 · runes 102/102 · เปิดเว็บจริงหลังขึ้น
+
 ## 2026-10-09 (รอบ 8) — Class 3 รอบ 4: Fimbul Huntmaster + Gungnir Deadeye (สาย Wildhunter)
 
 - **เพิ่ม** `js/class3_wave4.js` ตามแบบ `docs/CLASS3_DESIGN.md` §3.5/§3.6

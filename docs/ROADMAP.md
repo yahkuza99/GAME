@@ -20,6 +20,7 @@
 - [~] 4b. Class 3 รอบ 2: Niflheim Hexer + Ymir Worldbreaker เสร็จ (9 ต.ค.) — เหลือ 8 ตัว
 - [~] 4c. Class 3 รอบ 3: Heimdall Warden + Jarl Warbringer เสร็จ (9 ต.ค.) — เหลือ 6 ตัว (Huntmaster/Deadeye · Lifeweaver/Oathfist · Sixth/Warsinger)
 - [~] 4e. Class 3 รอบ 4: Fimbul Huntmaster + Gungnir Deadeye เสร็จ (9 ต.ค.) — เหลือ 4 ตัว (Lifeweaver/Oathfist · Sixth/Warsinger)
+- [~] 4f. Class 3 รอบ 5: Urd Lifeweaver + Tyr Oathfist เสร็จ (9 ต.ค.) — เหลือ 2 ตัว (Sixth Shadow/Edda Warsinger)
 - [ ] 4d. เทสต์รูน/Oath Class 3 ในแถบ ±12% (`tests/runes.js` วัดแค่ Class 1)
 - [ ] 4. Class 3 ที่เหลือตาม `docs/CLASS3_DESIGN.md` (ทีละคู่สาย) — ตัวเกม/สกิล/เควสต์ ทำได้เลย · ภาพจริงรอเจ้าของ (prompt `docs/CLASS3_ART.md`)
 

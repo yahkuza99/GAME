@@ -118,4 +118,30 @@ NO flying arrows, NO light trails, NO particles — keep the silhouette clean fo
 Make the {FEMALE | MALE} version: same outfit, weapon and colors; {female: long dark-olive ponytail, slimmer frame | male: short swept dark hair, broader shoulders}.
 ```
 
+## Urd Lifeweaver (`lifeweaver` ← Norn Oracle) — ผู้ทอชีวิตแห่งบ่ออูร์ด (เพิ่ม 2026-10-09 · Claude เสนอตามแบบ §3.7 — เจ้าของยังไม่ได้เลือก)
+แนบ: `assets/job_norn_f.webp` + `assets/job_norn_m.webp`
+
+```
+Attached: the Norn Oracle (female and male) from my game. Design its evolved 3rd-tier class "Urd Lifeweaver" — an android healer who tends the Well of Urd and ties threads of life.
+Full-body character design sheet, front view, standing, same art style, rendering quality and proportions as the attached images (tall, elegant anime-fantasy, Norse knotwork details), dark plain background.
+Android priestess in white and pale-lavender layered robes over slim ivory armor plates, sea-teal accents; a SHORT stiff shoulder mantle patterned with Yggdrasil leaves (not reaching the knees); a crown of small metal leaves; smooth faceplate with ONE glowing soft-teal visor strip, NO eyes, NO mouth.
+Weapon held in the right hand, fully visible: a long staff shaped like a weaver's spindle, wrapped in golden thread, topped with a clear crystal water-drop (attached, not floating).
+Palette: white, pale lavender, sea teal, thread gold. Gentle, steady, quietly powerful — clearly a higher rank than the Norn Oracle.
+NO floating threads, NO water particles, NO glow aura — keep the silhouette clean for 3D.
+Make the {FEMALE | MALE} version: same outfit, weapon and colors; {female: long silver-lavender hair under the leaf crown, slimmer frame | male: short silver hair under the leaf crown, broader shoulders}.
+```
+
+## Tyr Oathfist (`oathfist` ← Gythja Monk) — หมัดสาบานแห่งทีร์ (เพิ่ม 2026-10-09 · Claude เสนอตามแบบ §3.8 — เจ้าของยังไม่ได้เลือก)
+แนบ: `assets/job_gythja_f.webp` + `assets/job_gythja_m.webp`
+
+```
+Attached: the Gythja Monk (female and male) from my game. Design its evolved 3rd-tier class "Tyr Oathfist" — an android fist-priest of Tyr, the god who gave his hand to bind the wolf.
+Full-body character design sheet, front view, standing, same art style, rendering quality and proportions as the attached images (tall, athletic anime-fantasy, Norse knotwork details), dark plain background.
+Android monk in cream and orange cloth over light golden armor; a long sash at the waist; hair tied up high; smooth faceplate with ONE glowing warm-gold visor strip, NO eyes, NO mouth.
+Hands fully visible, not hiding the torso: the RIGHT hand wears an OVERSIZED golden-iron gauntlet engraved with the Tyr rune; the LEFT wrist is wrapped in a thin silk-like chain (Gleipnir) with a short loose end hanging. No weapon held.
+Palette: cream, orange, gold. Disciplined, solemn, ready — clearly a higher rank than the Gythja Monk.
+NO light effects, NO particles, NO motion lines — keep the silhouette clean for 3D.
+Make the {FEMALE | MALE} version: same outfit, gauntlet and colors; {female: long high ponytail, slimmer frame | male: short topknot, broader shoulders}.
+```
+
 ใช้แชตละ 1 ภาพ (4 ภาพ: runelord_f, runelord_m, packlord_f, packlord_m) • ได้ภาพแล้วส่งในแชตหรือวางที่ `art/class3/` แล้ว push — Claude ตัดพื้น/บีบไฟล์เป็น `assets/job_<class>_<m|f>.webp` แล้วใช้เป็นภาพ Class ในเกมทันที (ระหว่างรอ Meshy)
