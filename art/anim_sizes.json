@@ -3,15 +3,15 @@
   "walk": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.5415,
-   "median_src_h": 277
+   "scale_src": 0.6438,
+   "median_src_h": 233
   },
-  "_k1536": 0.36101,
+  "_k1536": 0.47026,
   "idle": {
-   "frames": 4,
+   "frames": 1,
    "dirs": 8,
-   "scale_src": 0.6024,
-   "median_src_h": 249
+   "scale_src": 0.6466,
+   "median_src_h": 232.0
   },
   "cast": {
    "frames": 4,
@@ -20,7 +20,7 @@
    "median_src_h": 236.0
   },
   "attack": {
-   "frames": 6,
+   "frames": 4,
    "dirs": 8,
    "scale_src": 0.6466,
    "median_src_h": 232.0
@@ -42,6 +42,12 @@
    "dirs": 8,
    "scale_src": 0.615,
    "median_src_h": 243.90243902439025
+  },
+  "first_aid": {
+   "frames": 2,
+   "dirs": 8,
+   "source": "art\\skill-audit\\first-aid-actions; press/wrap",
+   "scale_src": 0.7177
   }
  },
  "mob_hel_maiden": {
@@ -241,12 +247,12 @@
  },
  "novice_m": {
   "idle": {
-   "frames": 4,
+   "frames": 1,
    "dirs": 8,
-   "scale_src": 0.8152,
-   "median_src_h": 184
+   "scale_src": 0.6466,
+   "median_src_h": 232.0
   },
-  "_k1536": 0.81522,
+  "_k1536": 0.44906,
   "cast": {
    "frames": 4,
    "dirs": 8,
@@ -254,10 +260,10 @@
    "median_src_h": 182.0
   },
   "attack": {
-   "frames": 6,
+   "frames": 4,
    "dirs": 8,
-   "scale_src": 0.8197,
-   "median_src_h": 183.0
+   "scale_src": 0.6466,
+   "median_src_h": 232.0
   },
   "sit": {
    "frames": 2,
@@ -280,8 +286,14 @@
   "walk": {
    "frames": 4,
    "dirs": 8,
-   "scale_src": 0.8152,
-   "median_src_h": 184
+   "scale_src": 0.6148,
+   "median_src_h": 244
+  },
+  "first_aid": {
+   "frames": 2,
+   "dirs": 8,
+   "source": "art\\skill-audit\\first-aid-actions; press/wrap",
+   "scale_src": 0.7109
   }
  },
  "mob_archive_warden": {
@@ -537,6 +549,18 @@
    "dirs": 8,
    "scale_src": 0.5415,
    "median_src_h": 277.0083102493075
+  },
+  "idle": {
+   "frames": 1,
+   "dirs": 8,
+   "scale_src": 0.6173,
+   "median_src_h": 243
+  },
+  "summon": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.5319,
+   "median_src_h": 282.0
   }
  },
  "wildhunter_m": {
@@ -558,6 +582,18 @@
    "dirs": 1,
    "scale_src": 0.73,
    "median_src_h": 205.47945205479454
+  },
+  "idle": {
+   "frames": 1,
+   "dirs": 8,
+   "scale_src": 0.6173,
+   "median_src_h": 243
+  },
+  "summon": {
+   "frames": 4,
+   "dirs": 8,
+   "scale_src": 0.5435,
+   "median_src_h": 276.0
   }
  },
  "runecaster_f": {
@@ -579,6 +615,12 @@
    "dirs": 8,
    "scale_src": 0.75,
    "median_src_h": 200.0
+  },
+  "idle": {
+   "frames": 1,
+   "dirs": 8,
+   "scale_src": 0.5172,
+   "median_src_h": 290
   }
  },
  "runecaster_m": {
@@ -606,6 +648,12 @@
    "dirs": 1,
    "scale_src": 0.73,
    "median_src_h": 205.47945205479454
+  },
+  "idle": {
+   "frames": 1,
+   "dirs": 8,
+   "scale_src": 0.5119,
+   "median_src_h": 293
   }
  },
  "trickster_f": {
@@ -627,6 +675,18 @@
    "dirs": 8,
    "scale_src": 0.6064,
    "median_src_h": 247.36147757255935
+  },
+  "idle": {
+   "frames": 1,
+   "dirs": 8,
+   "scale_src": 0.4425,
+   "median_src_h": 339
+  },
+  "bard": {
+   "frames": 5,
+   "dirs": 8,
+   "source": "bard-actions; lute/pluck/strum/drum-up/drum-down",
+   "scale_src": 0.5814
   }
  },
  "trickster_m": {
@@ -654,6 +714,18 @@
    "dirs": 1,
    "scale_src": 0.73,
    "median_src_h": 205.47945205479454
+  },
+  "idle": {
+   "frames": 1,
+   "dirs": 8,
+   "scale_src": 0.4412,
+   "median_src_h": 340
+  },
+  "bard": {
+   "frames": 5,
+   "dirs": 8,
+   "source": "bard-actions; lute/pluck/strum/drum-up/drum-down",
+   "scale_src": 0.5952
   }
  },
  "volva_m": {
@@ -681,6 +753,18 @@
    "dirs": 1,
    "scale_src": 0.73,
    "median_src_h": 205.47945205479454
+  },
+  "idle": {
+   "frames": 1,
+   "dirs": 8,
+   "scale_src": 0.495,
+   "median_src_h": 303
+  },
+  "monk": {
+   "frames": 4,
+   "dirs": 8,
+   "source": "monk-actions; corrected north row",
+   "scale_src": 0.655
   }
  },
  "volva_f": {
@@ -702,6 +786,18 @@
    "dirs": 8,
    "scale_src": 0.5556,
    "median_src_h": 270
+  },
+  "idle": {
+   "frames": 1,
+   "dirs": 8,
+   "scale_src": 0.4902,
+   "median_src_h": 306
+  },
+  "monk": {
+   "frames": 4,
+   "dirs": 8,
+   "source": "monk-actions; corrected north row",
+   "scale_src": 0.6383
   }
  },
  "einherjar_m": {
@@ -729,6 +825,24 @@
    "dirs": 1,
    "scale_src": 0.73,
    "median_src_h": 205.47945205479454
+  },
+  "idle": {
+   "frames": 1,
+   "dirs": 8,
+   "scale_src": 0.3018,
+   "median_src_h": 497
+  },
+  "shield": {
+   "frames": 2,
+   "dirs": 8,
+   "source": "shield-actions; guard/bash",
+   "scale_src": 0.8333
+  },
+  "shield_throw": {
+   "frames": 2,
+   "dirs": 8,
+   "source": "art\\skill-audit\\shield-throw-actions; windup/release",
+   "scale_src": 0.838
   }
  },
  "einherjar_f": {
@@ -750,6 +864,24 @@
    "dirs": 8,
    "scale_src": 0.5792,
    "median_src_h": 258.9779005524862
+  },
+  "idle": {
+   "frames": 1,
+   "dirs": 8,
+   "scale_src": 0.3906,
+   "median_src_h": 384
+  },
+  "shield": {
+   "frames": 2,
+   "dirs": 8,
+   "source": "shield-actions; guard/bash",
+   "scale_src": 0.838
+  },
+  "shield_throw": {
+   "frames": 2,
+   "dirs": 8,
+   "source": "art\\skill-audit\\shield-throw-actions; windup/release",
+   "scale_src": 0.838
   }
  },
  "berserker_m": {
@@ -777,6 +909,12 @@
    "dirs": 1,
    "scale_src": 0.73,
    "median_src_h": 205.47945205479454
+  },
+  "idle": {
+   "frames": 1,
+   "dirs": 8,
+   "scale_src": 0.5263,
+   "median_src_h": 285
   }
  },
  "berserker_f": {
@@ -828,6 +966,12 @@
    "dirs": 8,
    "scale_src": 0.6073,
    "median_src_h": 246.99489543882763
+  },
+  "idle": {
+   "frames": 1,
+   "dirs": 8,
+   "scale_src": 0.5282,
+   "median_src_h": 284
   }
  }
 }

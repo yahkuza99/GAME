@@ -34,12 +34,31 @@ const serve = () => new Promise(res => {
   const url = process.env.BASE || `http://localhost:${srv.address().port}/index.html`;
   const b = await chromium.launch({ channel: process.platform === 'win32' ? 'chrome' : undefined, executablePath: fs.existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined });
   const p = await b.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
+  await p.route('https://**/*', r => r.abort());
   await p.goto(url); await p.waitForTimeout(1000);
   await p.click('#au-offline'); await p.click('#btn-new'); await p.fill('#cr-name', 'Sim'); await p.click('#cr-start');
   await p.waitForFunction(() => G.started, null, { timeout: 15000 }); await p.waitForTimeout(500);
-  if (process.env.C3) await c3mode(p); else if (process.env.CURVE) await curve(p); else await keystones(p);
+  if (process.env.BALANCE) await balance(p); else if (process.env.C3) await c3mode(p); else if (process.env.CURVE) await curve(p); else await keystones(p);
   console.log('errors:', errs.slice(0, 5)); await b.close(); if (srv) srv.close();
 })();
+
+// Reproducible production-point audit: same Base level, 25 points per tier,
+// level-appropriate +0 common/uncommon gear, no potions, no GM bonuses.
+async function balance(p) {
+  if(process.env.BASELINE) await p.evaluate(()=>{
+    ClassTraits.enabled=false;
+    SKILLS.spear_of_valhalla.dmg.mult=lv=>2.8+.5*lv;
+    SKILLS.judgment_quake.dmg.mult=lv=>1.7+.35*lv;
+    SKILLS.arrow_storm.dmg.mult=lv=>1.8+.35*lv;SKILLS.arrow_storm.dmg.area=2;
+    SKILLS.frost_arrow.dmg.mult=lv=>2.4+.5*lv;
+  });
+  const jobs = process.argv[4] ? process.argv[4].split(',') : await p.evaluate(() => Object.keys(JOBS).filter(j => j !== 'novice'));
+  const cfg = {AUDIT:1, C3:1, DUEL_N:6, ONLY:'duel', HPX:1, CURVE_MOBS:[],
+    CH7_LVS:[70], CH7_MOBS:['nid_spawn','nidhogg'], PACK:['rust_bloom'], PACK_N:5, FARM:[]};
+  const out=[];
+  for (const job of jobs) {const r=await p.evaluate(simCurve,{job,cfg});out.push(r);printJob(r);}
+  if(process.env.JSON) fs.writeFileSync(process.env.JSON,JSON.stringify(out,null,2));
+}
 
 // ------------------------------------------------------------
 //  โหมดเดิม: Keystone ที่ Lv 30 (Wolfwood)
@@ -162,7 +181,7 @@ async function c3mode(p) {
 }
 function printJob(r) {
   console.log(`\n=== ${r.job} ===`);
-  const line = (k, x) => console.log(`  ${k.padEnd(28)} TTK ${x.ttk.toFixed(1).padStart(5)}s  dmg ${String(x.dmgPctMin).padStart(4)}%HP/min  ${String(x.dmgPctKill).padStart(3)}%HP/kill  hit ${x.hitPct}%  deaths ${x.deaths}  (HP ${x.maxHp} ATK ${x.atk} MATK ${x.matk} DEF ${x.def} FLEE ${x.flee})`);
+  const line = (k, x) => console.log(`  ${k.padEnd(28)} TTK ${(x.ttk == null ? 'FAIL' : x.ttk.toFixed(1)).padStart(5)}s  dmg ${String(x.dmgPctMin).padStart(4)}%HP/min  ${String(x.dmgPctKill).padStart(3)}%HP/kill  hit ${x.hitPct}%  deaths ${x.deaths}  (HP ${x.maxHp} ATK ${x.atk} MATK ${x.matk} DEF ${x.def} FLEE ${x.flee})`);
   for (const k in r.duelCurve) line(k, r.duelCurve[k]);
   for (const k in r.duelCh7) line(k, r.duelCh7[k]);
   for (const k in r.duelPack || {}) line(k, r.duelPack[k]);
@@ -220,19 +239,22 @@ async function simCurve({ job, cfg }) {
       const best = bySlot[s].sort((a, b) => score(b) - score(a)).slice(0, s === 'acc' ? 2 : 1);
       for (const it of best) { addItem(it.id, 1, true); equipItem(pl.inventory.find(x => x.id === it.id), true); gear.push(it.id); }
     }
-    for (const e of [['white_potion', 400], ['orange_potion', 200], ['blue_potion', 200], ['green_herb', 50]]) if (ITEMS[e[0]]) addItem(e[0], e[1], true);
+    for (const e of cfg.AUDIT ? [] : [['white_potion', 400], ['orange_potion', 200], ['blue_potion', 200], ['green_herb', 50]]) if (ITEMS[e[0]]) addItem(e[0], e[1], true);
     recalc(); pl.hp = pl.d.maxHp; pl.sp = pl.d.maxSp;
-    pl.options.bot = Object.assign(Bot.defaults(), { returnHome: false, avoidMvp: true });
+    pl.options.bot = Object.assign(Bot.defaults(), { returnHome: false, avoidMvp: !cfg.AUDIT, rest: !cfg.AUDIT });
     pl._gear = gear;
     return pl;
   };
   const potsOf = () => countItem('white_potion') + countItem('orange_potion');
   const spotOf = () => { const M = G.map, cx = M.w >> 1, cy = M.h >> 1; let best = null; for (let y = 3; y < M.h - 3; y++) for (let x = 3; x < M.w - 3; x++) { if (!M.walkable(x, y)) continue; let ok = true; for (let dy = -2; dy <= 2 && ok; dy++) for (let dx = -2; dx <= 2 && ok; dx++) if (!M.walkable(x + dx, y + dy)) ok = false; if (ok && (!best || Math.hypot(x - cx, y - cy) < Math.hypot(best[0] - cx, best[1] - cy))) best = [x, y]; } return best; };
-  const mapOfMob = id => Object.keys(MAP_DEFS).find(k => (MAP_DEFS[k].spawns || []).some(s => s[0] === id));
+  const mapOfMob = id => Object.keys(MAP_DEFS).find(k => MAP_DEFS[k].mvp === id || (MAP_DEFS[k].spawns || []).some(s => s[0] === id));
 
   // ตัวนับ (ห่อฟังก์ชันเกมครั้งเดียว)
   const T = { exp: 0, loot: 0, lootEtc: 0, lootGear: 0, dmg: 0, hits: 0, miss: 0, on: false, ttk: {}, src: {} };
-  const ge = gainExp; gainExp = function (b0) { if (T.on) T.exp += b0; return ge.apply(this, arguments); };
+  const ge = gainExp; gainExp = function (b0) { if (T.on) T.exp += b0; if(cfg.AUDIT)return; return ge.apply(this, arguments); };
+  const ps=paySkill;paySkill=function(cost){if(T.on)T.spUsed=(T.spUsed||0)+cost;return ps.apply(this,arguments);};
+  const rng=Math.random;
+  const seed = n => {let v=n;Math.random=()=>{v=(Math.imul(v,1664525)+1013904223)>>>0;return v/4294967296;};};
   const ai = addItem; addItem = function (id, qty = 1) { if (T.on && ITEMS[id]) { const v = Math.floor(ITEMS[id].price / 2) * qty; T.loot += v; if (isEquipType(ITEMS[id])) T.lootGear += v; else if (ITEMS[id].type === 'etc') T.lootEtc += v; } return ai.apply(this, arguments); };
   const dp = damagePlayer; damagePlayer = function (dmg) { if (T.on && !G.player.dead && dmg > 0) T.dmg += dmg; return dp.apply(this, arguments); };
   const ah = applyHit; applyHit = function (m, r) { if (T.on && r) { if (r.miss) T.miss++; else T.hits++; } return ah.apply(this, arguments); };
@@ -241,11 +263,12 @@ async function simCurve({ job, cfg }) {
 
   // ดวล: มอนทีละตัว เลือดเต็มทุกรอบ
   const duel = (lv, mobId) => {
-    const pl = build(lv), map = mapOfMob(mobId);
+    let pl = build(lv); const map = mapOfMob(mobId);
     changeMap(map, 1, 1); G.mobs = []; G.respawns = []; G.drops = [];
     const sp = spotOf(); teleportPlayer(sp[0] + 0.5, sp[1] + 0.5);
-    let time = 0, dmg = 0, deaths = 0, kills = 0; T.hits = 0; T.miss = 0;
+    let time = 0, dmg = 0, deaths = 0, kills = 0, remaining = 0, spLeft = 0; T.hits = 0; T.miss = 0; T.spUsed=0;
     for (let i = 0; i < cfg.DUEL_N; i++) {
+      if(cfg.AUDIT){G.time=1000;Bot.nextThink=0;seed(1040+i);pl=build(lv);G.fx=[];G.timers=[];G.allies=[];G.zones=[];G.traps=[];}
       G.mobs = []; G.respawns = []; pl.hp = pl.d.maxHp; pl.sp = pl.d.maxSp; pl.poisonUntil = 0; pl.buffs = pl.buffs || {};
       teleportPlayer(sp[0] + 0.5, sp[1] + 0.5);
       const m = spawnMob(mobId, { x: sp[0] + 3.5, y: sp[1] + 0.5 }); m.state = 'chase'; if (cfg.HPX) m.hp = m.maxHp = Math.round(m.maxHp * cfg.HPX); // C3: เลือดหนาขึ้น (ไฟต์ยาวพอวัด)
@@ -257,12 +280,14 @@ async function simCurve({ job, cfg }) {
         if (!Bot.on) Bot.toggle(true);
       }
       G.fastSim = false; T.on = false; Bot.toggle(false);
+      remaining += Math.max(0,m.hp)/m.maxHp*100;spLeft+=pl.sp/pl.d.maxSp*100;
       if (pl.dead) { respawnPlayer(true); pl.hp = pl.d.maxHp; }
       if (m.dead) kills++;
       time += t; dmg += T.dmg;
     }
     const d = pl.d;
-    return { ttk: time / Math.max(1, kills), dmgPctMin: Math.round(dmg / d.maxHp * 100 / Math.max(1, time) * 60), dmgPctKill: Math.round(dmg / d.maxHp * 100 / cfg.DUEL_N), hitPct: Math.round(T.hits / Math.max(1, T.hits + T.miss) * 100), deaths, kills,
+    return { ttk: kills === cfg.DUEL_N ? time / kills : null, duration:time/cfg.DUEL_N, trials:cfg.DUEL_N, dmgPctMin: Math.round(dmg / d.maxHp * 100 / Math.max(1, time) * 60), dmgPctKill: Math.round(dmg / d.maxHp * 100 / cfg.DUEL_N), hitPct: Math.round(T.hits / Math.max(1, T.hits + T.miss) * 100), deaths, kills,
+      remainingPct:remaining/cfg.DUEL_N, spLeftPct:spLeft/cfg.DUEL_N, spUsed:T.spUsed/cfg.DUEL_N,
       maxHp: d.maxHp, atk: d.statusAtk + d.weaponAtk, matk: d.matkMax, def: d.def, flee: d.flee, gear: pl._gear.join(' ') };
   };
   // ฟาร์ม: บอทล่าในแผนที่ (ไม่เอา MVP)
@@ -291,10 +316,11 @@ async function simCurve({ job, cfg }) {
 
   // ฝูง: มอน n ตัวพร้อมกันรอบตัว → เวลาล้างทั้งฝูง
   const duelPack = (lv, mobId, n) => {
-    const pl = build(lv), map = mapOfMob(mobId);
+    let pl = build(lv);const map = mapOfMob(mobId);
     changeMap(map, 1, 1); G.mobs = []; G.respawns = []; G.drops = [];
     const sp = spotOf(); let time = 0, dmg = 0, deaths = 0, kills = 0;
     for (let k = 0; k < Math.max(1, cfg.DUEL_N >> 1); k++) {
+      if(cfg.AUDIT){G.time=1000;Bot.nextThink=0;seed(2040+k);pl=build(lv);G.fx=[];G.timers=[];G.traps=[];}
       G.mobs = []; G.respawns = []; G.allies = []; G.zones = []; pl.hp = pl.d.maxHp; pl.sp = pl.d.maxSp; pl.poisonUntil = 0; pl.cds = {}; pl.buffs = {};
       teleportPlayer(sp[0] + 0.5, sp[1] + 0.5);
       const ms = []; for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; const m = spawnMob(mobId, { x: Math.floor(sp[0] + 0.5 + Math.cos(a) * 2.5), y: Math.floor(sp[1] + 0.5 + Math.sin(a) * 2.5) }); m.state = 'chase'; if (cfg.HPX) m.hp = m.maxHp = Math.round(m.maxHp * cfg.HPX * 0.5); ms.push(m); }
@@ -306,18 +332,19 @@ async function simCurve({ job, cfg }) {
       kills += ms.filter(m => m.dead).length; time += t; dmg += T.dmg;
     }
     const d = pl.d, runs = Math.max(1, cfg.DUEL_N >> 1);
-    return { ttk: time / runs, dmgPctMin: Math.round(dmg / d.maxHp * 100 / Math.max(1, time) * 60), dmgPctKill: Math.round(dmg / d.maxHp * 100 / Math.max(1, kills)), hitPct: Math.round(T.hits / Math.max(1, T.hits + T.miss) * 100), deaths, kills,
+    return { ttk: kills===runs*n ? time/runs : null, duration:time/runs, trials:runs, dmgPctMin: Math.round(dmg / d.maxHp * 100 / Math.max(1, time) * 60), dmgPctKill: Math.round(dmg / d.maxHp * 100 / Math.max(1, kills)), hitPct: Math.round(T.hits / Math.max(1, T.hits + T.miss) * 100), deaths, kills,
       maxHp: d.maxHp, atk: d.statusAtk + d.weaponAtk, matk: d.matkMax, def: d.def, flee: d.flee, gear: pl._gear.join(' ') };
   };
   const res = { job, duelCurve: {}, duelCh7: {}, duelPack: {}, farm: {} };
   if (cfg.ONLY !== 'farm') {
     for (const id of cfg.CURVE_MOBS) { const lv = MOBS[id].lv; res.duelCurve[`Lv${lv} vs ${id}`] = duel(lv, id); }
     for (const lv of cfg.CH7_LVS) for (const id of cfg.CH7_MOBS) res.duelCh7[`Lv${lv} vs ${id}(${MOBS[id].lv})`] = duel(lv, id);
-    for (const lv of cfg.PACK ? cfg.CH7_LVS : []) for (const id of cfg.PACK) res.duelPack[`Lv${lv} pack4 ${id}(${MOBS[id].lv})`] = duelPack(lv, id, 4);
+    for (const lv of cfg.PACK ? cfg.CH7_LVS : []) for (const id of cfg.PACK) res.duelPack[`Lv${lv} pack${cfg.PACK_N||4} ${id}(${MOBS[id].lv})`] = duelPack(lv, id, cfg.PACK_N||4);
   }
   if (cfg.ONLY !== 'duel') for (const [lv, map] of cfg.FARM) res.farm[`Lv${lv} ${map}`] = farm(lv, map, cfg.FARM_SECS);
   // คืนฟังก์ชันเดิม (รัน Class ถัดไปในหน้าเดียวกันจะห่อซ้ำ)
   gainExp = ge; addItem = ai; damagePlayer = dp; applyHit = ah; damageMob = dmf; killMob = km;
+  paySkill=ps;Math.random=rng;
   res.src = T.src;
   return res;
 }
