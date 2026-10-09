@@ -23,7 +23,8 @@
     s6_ult: 10, s6_ult_k: 0.5,
     // Warsinger
     w6_r: 8, w6_chorus_r: 12, w6_drain: 2, w6_solo: 1.5, w6_chorus_k: 0.85,
-    w6_hymn_r: 4, w6_hymn: lv => 0.35 + 0.07 * lv, w6_march: 20,
+    // Battle Hymn 42~70% → 30~50% (เดิม 0.35+0.07×Lv = ฝูง +15% — tests/runes_c3.js)
+    w6_hymn_r: 4, w6_hymn: lv => 0.25 + 0.05 * lv, w6_march: 20,
     w6_kenning_n: 3, w6_kenning_win: 8, w6_verse: 6,
     w6_cone: 5, w6_cone_cos: 0.7, w6_push: 1.5,
     w6_discord: 3, w6_discord_boss: 1, w6_echo: 0.5,

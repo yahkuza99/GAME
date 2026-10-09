@@ -29,7 +29,7 @@
     ram_k: 1.8, ram_stun: 2, wake_k: 0.25, wake_dur: 3, // รูน Longship Charge: Ram / Wake
     rb_r: 4, rb_cd: 0.6,                                // Raven Banner: ในธง คูลดาวน์ Longship ×0.6
     gr_k: 1.5, sb_k: 1.12, sb_dur: 6, sb_cos: 0.5,      // Gram Rend / Shieldwall Breaker (กรวย ±60°)
-    oh_hits: 4,                                         // Oath of the Hold: ตีติดกัน 4 ครั้ง = โมเมนตัม 1 ชั้น
+    oh_hits: 4, oh_max: 2,                              // Oath of the Hold: ตีติดกัน 4 ครั้ง = โมเมนตัม 1 ชั้น แต่จากการตีขึ้นได้ถึง 2 ชั้น (ชั้น 3 ต้องพุ่ง) — tests/runes_c3.js: ไม่จำกัด = เฉลี่ย +7~9% ไม่ว่าตีกี่ครั้ง
     ult_raid: 10,
   });
   const P = () => G.player;
@@ -268,14 +268,18 @@
     };
     stunPlayer._c3w3 = true;
   }
-  // Oath of the Hold: ตีโดนติดกัน 4 ครั้ง (ตีธรรมดาหรือสกิล) = โมเมนตัม 1 ชั้น
+  // Oath of the Hold: ตีโดนติดกัน K.oh_hits ครั้ง (ตีธรรมดาหรือสกิล) = โมเมนตัม 1 ชั้น
   if (typeof applyHit === 'function' && !applyHit._c3w3) {
     const f0 = applyHit;
     applyHit = function (m, r, opts) { // eslint-disable-line no-global-assign
       const out = f0.apply(this, arguments), p = G.player;
       if (p && r && isJob('jarl') && oath('jarls_command') === 'hold' && opts && opts.src && !opts.dot) {
         if (r.miss) p.c3hold = 0;
-        else if ((p.c3hold = (p.c3hold || 0) + 1) >= K.oh_hits) { p.c3hold = 0; C.momentum(); }
+        else if ((p.c3hold = (p.c3hold || 0) + 1) >= K.oh_hits) {
+          p.c3hold = 0;
+          const mb = p.rb && p.rb.c3w3_mom;
+          if (!(mb && mb.until > G.time && mb.stacks >= K.oh_max)) C.momentum(); else if (mb.stacks === K.oh_max) mb.until = G.time + K.jc_dur; // ชั้น 3 (จากการพุ่ง) ไม่ยืดให้
+        }
       }
       return out;
     };
@@ -403,8 +407,8 @@
       desc: () => L('Oath of the Raid — ฆ่าได้ภายใน 1.5 วิหลังพุ่ง Longship Charge = คูลดาวน์ Longship รีเซ็ตทันที (สายวิ่งฟาร์ม)', 'Oath of the Raid — a kill within 1.5s of a Longship Charge resets its cooldown at once (the farming path).'),
       mod: keepP('jarls_command') },
     { id: 'jarls_command.hold', name: 'Of the Hold', oath: 'hold', intent: 'single', glyph: 'ᛟ', col: '#c0a080',
-      short: `Oath: Momentum from ${K.oh_hits} hits in a row (not only from charging)`,
-      desc: () => L(`Oath of the Hold — ได้โมเมนตัมจากการตีโดนติดกัน ${K.oh_hits} ครั้งด้วย (ตีพลาด = นับใหม่) — สายยืนสู้บอส`, `Oath of the Hold — also gain Momentum from ${K.oh_hits} hits in a row (a miss resets the count) — the boss-fight path.`),
+      short: `Oath: Momentum from ${K.oh_hits} hits in a row (≤ ${K.oh_max} stacks)`,
+      desc: () => L(`Oath of the Hold — ได้โมเมนตัมจากการตีโดนติดกัน ${K.oh_hits} ครั้งด้วย (สูงสุด ${K.oh_max} ชั้น · ตีพลาด = นับใหม่) — สายยืนสู้บอส`, `Oath of the Hold — also gain Momentum from ${K.oh_hits} hits in a row (up to ${K.oh_max} stacks; a miss resets the count) — the boss-fight path.`),
       mod: keepP('jarls_command') },
   ]);
   Runes.add('longship_charge', [
