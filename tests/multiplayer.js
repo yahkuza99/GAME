@@ -24,7 +24,7 @@ async function player(ctx, user, opts = {}) {
 
 (async () => {
   // ปิดการลดความเร็วแท็บพื้นหลัง: ทั้งสองผู้เล่นต้องวิ่งพร้อมกันจริง
-  const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows'] });
+  const b = await chromium.launch({ executablePath: process.env.CHROME || '/opt/pw-browsers/chromium', args: ['--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows'] });
   const ctx = await b.newContext({ viewport: { width: 1100, height: 680 } });
   await ctx.addInitScript({ path: FAKE });
   await ctx.route(/fake\.supabase\.test\/auth\/v1\/settings/, r => r.fulfill({ status: 200, contentType: 'application/json', body: '{"mailer_autoconfirm":true}' }));

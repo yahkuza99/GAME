@@ -921,6 +921,7 @@ function mobAttack(m, target = G.player) {
   if (target !== G.player) {
     m.nextAtk = G.time + (m.def.atkDelay || 1.7); m.atkAnim = 1;
     faceTo(m, target.x, target.y);
+    if (target.remote) return; // บอสรุมหันไปตีผู้เล่นอื่น (js/raid.js): ดาเมจเกิดในเครื่องของคนนั้นเอง
     if (!U.chance(U.clamp(80 + m.def.hit - (target.flee || 0), 5, 95) / 100)) {
       addFloater(target.x, target.y - 1, 'Miss', '#a0c0ff'); return;
     }
@@ -1802,7 +1803,7 @@ function updateMob(m, dt) {
   }
   if (m.stunUntil > G.time) { m.moving = false; return; }
   if (m.allyTarget && (m.allyTarget.dead || !(m.allyTarget.hp > 0) || m.allyTarget.until <= G.time || !G.allies.includes(m.allyTarget))) m.allyTarget = null;
-  const target = m.allyTarget || p;
+  const target = m.allyTarget || (m.focus && !m.focus.dead ? m.focus : p); // m.focus = ผู้เล่นอื่นที่ถือความแค้นของบอสรุม (js/raid.js)
   const alive = !target.dead;
   const hidden = target === p && p.stealthUntil > G.time;
   const dist = U.dist(m.x, m.y, target.x, target.y);

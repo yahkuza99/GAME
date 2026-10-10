@@ -14,6 +14,9 @@
 
 const MM = {
   SIZE: Math.min(3, PARTY_MAX), // ขนาดปาร์ตี้ที่จับคู่ (ปรับได้ ไม่เกิน PARTY_MAX)
+  // Ancient (World Boss) = งานรุม (js/raid.js): ครบ SIZE คนก็ออกเดินทางได้ แต่ถ้าในคิวมีคนพร้อมมากกว่านั้นรับได้ถึง PARTY_MAX ในปาร์ตี้เดียว
+  //   + หลายปาร์ตี้ไปบอสตัวเดียวกันได้อยู่แล้ว (เลือดร่วมทั้งแผนที่) • ทีมเข้าคิว "เติมที่ว่าง" สำหรับ Ancient เติมได้ถึง PARTY_MAX
+  cap(t) { return /^wb:/.test(String(t || '')) ? PARTY_MAX : this.SIZE; },
   LV_WIN: 15,                   // ช่วงเลเวล ± Base Lv ของคนที่เข้าคิวก่อน (มาก่อนได้ก่อนภายในช่วงนี้)
   ACCEPT_SEC: 20, HB_MS: 2000, TIMEOUT_MS: 7000,
   GRACE_MS: 2500,               // เพิ่งเข้าคิว/เพิ่งต่อช่อง: รอฟังคิวของคนอื่นครบก่อนค่อยชวน (กันสองคนตั้งตัวเป็นหัวหน้าพร้อมกัน)
@@ -142,14 +145,14 @@ const MM = {
       if (!group) { UI.msg(L('คุณอยู่ในปาร์ตี้แล้ว — ให้หัวหน้าเลือก "เติมที่ว่าง" หรือออกจากปาร์ตี้ก่อน', 'You\'re already in a party — the leader can choose "Fill empty slots", or leave the party first.'), 'err'); return false; }
       if (!Party.isLeader()) { UI.msg(L('เฉพาะหัวหน้าปาร์ตี้ที่พาทีมเข้าคิวได้', 'Only the party leader can queue the team.'), 'err'); return false; }
       if (!this.autofill) { UI.msg(L('ปิด "รับคนนอกเติมทีม" อยู่ — เปิดก่อนถ้าจะให้ระบบเติมที่ว่าง', '"Accept auto-fill" is off — turn it on to let the queue fill your empty slots.'), 'err'); return false; }
-      if (Party.roster().length >= this.SIZE) { UI.msg(L(`ทีมมีครบ ${this.SIZE} คนแล้ว — กด "ไปทั้งทีมนี้" ได้เลย`, `Your team already has ${this.SIZE} — just use "Go as-is".`), 'info'); return false; }
+      if (Party.roster().length >= this.cap(t)) { UI.msg(L(`ทีมมีครบ ${this.cap(t)} คนแล้ว — กด "ไปทั้งทีมนี้" ได้เลย`, `Your team already has ${this.cap(t)} — just use "Go as-is".`), 'info'); return false; }
     } else group = false;
     this.join();
     this.me = { t, since: Date.now(), g: !!group, o: '' };
     this.hbKey = '';
     this.heartbeat(true);
     if (group) Party.sendChat(L(`[หาปาร์ตี้] เข้าคิวเติมทีม → ${this.label(t)}`, `[Matchmaking] Queued to fill the team → ${this.label(t)}`));
-    UI.msg(L(`🔎 เข้าคิวหาปาร์ตี้: ${this.label(t)} — ครบ ${this.SIZE} คนจะตั้งปาร์ตี้ให้อัตโนมัติ`, `🔎 Queued for ${this.label(t)} — a party forms automatically at ${this.SIZE} players`), 'party');
+    UI.msg(L(`🔎 เข้าคิวหาปาร์ตี้: ${this.label(t)} — ครบ ${this.SIZE} คนจะตั้งปาร์ตี้ให้อัตโนมัติ${this.cap(t) > this.SIZE ? ` (Ancient รับได้ถึง ${this.cap(t)} คน)` : ''}`, `🔎 Queued for ${this.label(t)} — a party forms automatically at ${this.SIZE} players${this.cap(t) > this.SIZE ? ` (Ancient takes up to ${this.cap(t)})` : ''}`), 'party');
     Sound.play('click');
     this.render(true);
     return true;
@@ -192,11 +195,11 @@ const MM = {
     const used = new Set(), out = [];
     for (const u of free) {
       if (used.has(u.id)) continue;
-      const need = this.SIZE - u.n;
-      if (need <= 0) continue;
+      const need = this.SIZE - u.n, room = this.cap(u.t) - u.n;
+      if (need <= 0 && !(u.g && room > 0)) continue;
       const cand = free.filter(e => e !== u && !used.has(e.id) && this.fits(u, e));
-      if (cand.length < need) continue;
-      const fill = cand.slice(0, need);
+      if (cand.length < Math.max(1, need)) continue;
+      const fill = cand.slice(0, Math.max(need, Math.min(cand.length, room)));
       used.add(u.id); for (const e of fill) used.add(e.id);
       out.push({ lead: u, fill });
     }
@@ -227,7 +230,7 @@ const MM = {
   // มีคนปฏิเสธ/หลุด → เติมจากคิว (คนเดี่ยวที่ยังว่าง มาก่อนได้ก่อน) · ไม่มีใครให้เติม = ยกเลิก ทุกคนกลับเข้าคิวตำแหน่งเดิม
   refill() {
     const P = this.prop, s = this.self();
-    const need = this.SIZE - s.n - P.mem.size;
+    const need = Math.min(this.SIZE, this.cap(s.t)) - s.n - P.mem.size;
     if (need <= 0) return;
     const cand = [...this.entries.values()].filter(e => !e.o && !P.mem.has(e.id) && this.fits(s, e))
       .sort((a, b) => (a.since - b.since) || (a.id < b.id ? -1 : 1)).slice(0, need);
@@ -334,7 +337,7 @@ const MM = {
       const bad = !this.online() ? L('หลุดจากโหมดออนไลน์ — ออกจากคิวแล้ว', 'Went offline — left the queue.')
         : !this.me.g && Party.party && !this.offer ? L('คุณเข้าปาร์ตี้แล้ว — ออกจากคิวหาปาร์ตี้', 'You joined a party — left the matchmaking queue.')
         : this.me.g && (!Party.party || !Party.isLeader()) ? L('ไม่ได้เป็นหัวหน้าปาร์ตี้แล้ว — ทีมออกจากคิว', 'You\'re no longer the party leader — the team left the queue.')
-        : this.me.g && !this.prop && Party.roster().length >= this.SIZE ? L('ทีมครบแล้ว — ออกจากคิว', 'Your team is full — left the queue.') : '';
+        : this.me.g && !this.prop && Party.roster().length >= this.cap(this.me.t) ? L('ทีมครบแล้ว — ออกจากคิว', 'Your team is full — left the queue.') : '';
       if (bad) this.leave(false, bad);
     }
     if (this.offer) {
@@ -408,7 +411,7 @@ const MM = {
         P ? h('span', { class: 'mm-wait' }, L(`จับคู่ได้แล้ว รอตอบรับ ${[...P.mem.values()].filter(m => m.st === 'yes').length}/${P.mem.size}`, `Matched — ${[...P.mem.values()].filter(m => m.st === 'yes').length}/${P.mem.size} accepted`)) : null,
         h('button', { type: 'button', class: 'btn danger mm-leave', onclick: () => this.leave() }, L('ออกจากคิว', 'Leave Queue'))));
     }
-    body.append(h('div', { class: 'py-sec' }, h('span', {}, L('เลือกเป้าหมาย', 'Choose a Target')), h('small', {}, L(`จับคู่ ${this.SIZE} คน · เลเวลห่างไม่เกิน ±${this.LV_WIN}`, `${this.SIZE} per party · within ±${this.LV_WIN} Base Lv`))));
+    body.append(h('div', { class: 'py-sec' }, h('span', {}, L('เลือกเป้าหมาย', 'Choose a Target')), h('small', {}, L(`จับคู่ ${this.SIZE} คน (Ancient ถึง ${PARTY_MAX}) · เลเวลห่างไม่เกิน ±${this.LV_WIN}`, `${this.SIZE} per party (Ancient up to ${PARTY_MAX}) · within ±${this.LV_WIN} Base Lv`))));
     const list = h('div', { class: 'mm-list' });
     targets.forEach(([t, name, sub], i) => list.append(h('button', { type: 'button', class: 'mm-row' + (this.sel === t ? ' on' : ''), 'data-t': t, 'aria-pressed': this.sel === t ? 'true' : 'false',
       onclick: () => { this.sel = t; this.render(true); } },
@@ -420,15 +423,15 @@ const MM = {
       return;
     }
     if (lead) {
-      const n = Party.roster().length, mode = (m, title, sub, dis) => h('label', { class: 'mm-mode' + (this.mode === m ? ' on' : '') + (dis ? ' off' : '') },
+      const n = Party.roster().length, cap = this.cap(this.sel), mode = (m, title, sub, dis) => h('label', { class: 'mm-mode' + (this.mode === m ? ' on' : '') + (dis ? ' off' : '') },
         h('input', { type: 'radio', name: 'mm-mode', value: m, checked: this.mode === m ? 'checked' : false, disabled: dis ? 'disabled' : false, onchange: () => { this.mode = m; this.render(true); } }),
         h('span', {}, h('b', {}, title), h('small', {}, sub)));
       body.append(h('div', { class: 'py-sec' }, h('span', {}, L(`ทีมของคุณ ${n} คน`, `Your team: ${n}`)), h('small', {}, L('ค่าเริ่มต้น = ไปทั้งทีมนี้', 'Default = go as-is'))),
         mode('asis', L('ไปทั้งทีมนี้', 'Go as-is'), L('ไม่เข้าคิว ไม่รับคนนอก — นำทางทั้งทีมไปที่บอส', 'No queue, no strangers — navigate the whole team to the boss')),
-        mode('fill', L('เติมที่ว่างจากคิว', 'Fill empty slots'), n >= this.SIZE ? L(`ทีมครบ ${this.SIZE} คนแล้ว`, `Team already has ${this.SIZE}`) : L(`รับคนเดี่ยวในคิวเติม ${this.SIZE - n} ที่ (หัวหน้ายังเป็นคุณ)`, `Solo players fill ${this.SIZE - n} slot(s) (you stay leader)`), !this.autofill || n >= this.SIZE),
+        mode('fill', L('เติมที่ว่างจากคิว', 'Fill empty slots'), n >= cap ? L(`ทีมครบ ${cap} คนแล้ว`, `Team already has ${cap}`) : L(`รับคนเดี่ยวในคิวเติม ${cap - n} ที่ (หัวหน้ายังเป็นคุณ)`, `Solo players fill ${cap - n} slot(s) (you stay leader)`), !this.autofill || n >= cap),
         h('label', { class: 'opt mm-fill' }, h('input', { type: 'checkbox', checked: this.autofill ? 'checked' : false, onchange: e => this.setAutofill(e.target.checked) }),
           L(' รับคนนอกเติมทีมอัตโนมัติ (ปิด = ทีมนี้ไม่มีคนนอกเข้ามา)', ' Accept auto-fill (off = no strangers ever join this team)')));
-      if (this.mode === 'fill' && (!this.autofill || n >= this.SIZE)) this.mode = 'asis';
+      if (this.mode === 'fill' && (!this.autofill || n >= cap)) this.mode = 'asis';
     }
     const go = lead && this.mode === 'asis'
       ? h('button', { type: 'button', class: 'btn primary mm-go', onclick: () => this.goAsIs(this.sel) }, L('นำทีมไปที่บอส', 'Lead Team to Boss'))

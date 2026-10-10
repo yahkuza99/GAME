@@ -2,6 +2,7 @@
 globalThis.EXTRA = async (A, B, ok) => {
   // บังคับให้อยู่ในช่วงเวลาที่บอสโลกปรากฏ (ทดสอบได้ทุกเวลา)
   for (const P of [A, B]) await P.evaluate(async () => {
+    if (typeof Raid !== 'undefined') Raid.BONUS_PER = 0; // ตัวเลขดาเมจตรงตัว: ปิดโบนัสผู้ช่วย (js/raid.js — ทดสอบแยกใน tests/raid.js)
     WB.WINDOW = WB.PERIOD; WB.st = {}; try { localStorage.removeItem('nm_wb'); } catch (e) {}
     const pl = G.player; pl.job = 'einherjar'; pl.baseLv = 40; pl.stats.vit = 90; recalc(); pl.hp = pl.d.maxHp;
     changeMap('mistlake', 20, 20); await new Promise(r => setTimeout(r, 300));
@@ -47,7 +48,7 @@ globalThis.EXTRA = async (A, B, ok) => {
   await B.waitForFunction(() => WB.live(), null, { timeout: 8000 }).catch(() => {});
   const hb2 = await B.evaluate(() => WB.live() && WB.live().hp);
   ok('ผู้เล่นตายแล้วกลับมา บอสไม่เลือดเต็ม', hb2 === max - TOT, String(hb2));
-  await B.evaluate(() => damageMob(WB.live(), 1)); // B กลับมาร่วมตีต่อ (บอสใหม่ในเครื่อง B ต้องนับว่าร่วมตี)
+  await B.evaluate(() => damageMob(WB.live(), Raid.need(WB.live()))); // B กลับมาร่วมตีต่อ ให้ถึงเกณฑ์รางวัล (js/raid.js: ≥ 0.5% เลือดบอส)
   // A ปิดฉาก → B เห็นบอสตายและได้ EXP
   const expB = await B.evaluate(() => G.player.baseExp + G.player.baseLv * 1e9);
   await A.evaluate(() => damageMob(WB.live(), 1e9));

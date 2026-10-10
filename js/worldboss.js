@@ -208,7 +208,7 @@ const WB = {
   // คนอื่นปิดฉาก: ถ้าเราร่วมตี ได้รางวัลเต็ม • ไม่ได้ตี แค่หายไป
   remoteKill(m) {
     m.wbRemote = true;
-    if (m.wbMine > 0) killMob(m);
+    if (typeof Raid !== 'undefined' ? Raid.earned(m) : m.wbMine > 0) killMob(m); // ถึงเกณฑ์ดาเมจ (js/raid.js: ≥ 0.5% เลือดบอส)
     else { m.dead = true; m.deathT = 0; m.hp = 0; this.onKilled(m); }
   },
 

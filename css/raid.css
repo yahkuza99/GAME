@@ -1,0 +1,64 @@
+/* รุมบอส (js/raid.js) — แถบบอสเป็นตัวเลขล้วน ไม่มีหลอดสัดส่วน · มุมมน ≤ 8px · ไม่ถ่างตัวอักษร */
+#raid-bar { position: fixed; z-index: 21; left: 50%; transform: translateX(-50%); top: calc(64px + var(--st, 0px)); width: min(460px, calc(100vw - 24px));
+  display: flex; flex-direction: column; gap: 5px; padding: 8px 10px; border-radius: 8px; color: #f2f6fb;
+  background: rgba(10, 12, 20, .86); border: 1px solid rgba(255, 200, 90, .55); box-shadow: 0 10px 28px -12px rgba(0, 0, 0, .85); font-size: 13px; line-height: 1.35; }
+#raid-bar.wb { border-color: rgba(255, 120, 70, .75); }
+#raid-bar[hidden] { display: none; }
+#hud.hud-min #raid-bar { display: none; }
+.rb-a { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.rb-a > small { flex: none; padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; color: #2a1802; background: #ffc85a; }
+#raid-bar.wb .rb-a > small { color: #fff; background: #c8442a; }
+.rb-nm { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rb-hp { flex: none; display: flex; align-items: baseline; gap: 6px; font-variant-numeric: tabular-nums; }
+.rb-hp b { font-size: 18px; color: #ffd36a; }
+.rb-hp small { font-size: 12px; color: #b8c4d2; }
+.rb-b { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.rb-h { font-size: 13px; }
+.rb-h b { font-size: 17px; color: #6ff3ff; font-variant-numeric: tabular-nums; }
+.rb-bonus { font-size: 12.5px; color: #a8b6c6; }
+.rb-bonus.on { color: #9dff8a; font-weight: 600; }
+.rb-tg { font-size: 12.5px; color: #d6dde6; }
+.rb-tg b { color: #ffb38a; }
+.rb-call { margin-left: auto; padding: 5px 12px; font-size: 13px; border-radius: 6px; }
+.rb-call[disabled] { opacity: .6; cursor: default; }
+
+/* โทสต์รวมพล (เห็นทุกแผนที่) */
+#raid-call { position: fixed; left: 50%; transform: translateX(-50%); top: calc(232px + var(--st, 0px)); z-index: 906; width: min(470px, calc(100vw - 20px));
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 8px; color: #e8f4ff;
+  background: rgba(24, 8, 6, .95); border: 1px solid rgba(255, 120, 70, .75); box-shadow: 0 16px 40px -12px rgba(0, 0, 0, .9); }
+#raid-call[hidden] { display: none; }
+.rc-t { flex: 1; min-width: 190px; display: flex; flex-direction: column; gap: 2px; font-size: 13.5px; line-height: 1.45; }
+.rc-t small { font-size: 12.5px; font-weight: 700; color: #ff9a6a; }
+.rc-t b { color: #fff; }
+.rc-n { font-size: 12.5px; color: #c8d2de; }
+.rc-n b { color: #ffd36a; font-variant-numeric: tabular-nums; }
+.rc-sec { min-width: 28px; text-align: center; font-size: 18px; font-variant-numeric: tabular-nums; color: #ff9a6a; }
+.rc-go { padding: 7px 16px; font-size: 13.5px; color: #2a1802 !important; background: linear-gradient(#ffe19a, #e8b04a) !important; border-radius: 6px; }
+.rc-x { flex: none; width: 30px; height: 30px; border-radius: 6px; font-size: 18px; color: #e8f4ff; background: transparent; border: 1px solid rgba(255, 255, 255, .25); cursor: pointer; }
+
+/* การ์ดสรุปหลังปราบ MVP ด้วยกัน (+ บรรทัดรางวัลในการ์ด Ancient เดิม) */
+#raid-result { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; pointer-events: none; }
+#raid-result[hidden] { display: none; }
+.rr-card { position: relative; pointer-events: auto; width: min(390px, 100%); padding: 16px 16px 12px; border-radius: 8px; color: #f4f7fb;
+  background: rgba(10, 14, 22, .96); border: 1px solid rgba(255, 200, 90, .55); box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .9); }
+.rr-x { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, .2); background: rgba(255, 255, 255, .06); color: #c6d0dc; font-size: 18px; line-height: 1; cursor: pointer; }
+.rr-k { font-size: 12.5px; font-weight: 600; color: #ffd98a; }
+.rr-t { font-size: 19px; font-weight: 600; line-height: 1.35; margin: 2px 36px 10px 0; }
+.rr-me { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
+.rr-me > div, .raid-res-c > div { padding: 6px 8px; border-radius: 6px; background: rgba(111, 243, 255, .08); border: 1px solid rgba(111, 243, 255, .25); }
+.rr-me small, .raid-res-c small { display: block; font-size: 11.5px; color: #8fb8c8; }
+.rr-me b, .raid-res-c b { font-size: 16px; color: #6ff3ff; font-variant-numeric: tabular-nums; }
+.rr-me b i { font-style: normal; font-size: 11px; color: #8a98aa; margin-left: 2px; }
+.raid-res { margin: 0 0 10px; }
+.raid-res-c { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.raid-res p { margin: 6px 0 0; font-size: 13px; line-height: 1.45; }
+.raid-res p.ok { color: #9dff8a; }
+.raid-res p.no { color: #ffb38a; }
+#raid-result .wbr-list { display: grid; gap: 2px; font-size: 12.5px; }
+#raid-result .wbr-list .wbt-r { grid-template-columns: 20px minmax(0, 1fr) auto 46px; line-height: 20px; }
+
+@media (max-width: 560px) {
+  #raid-bar { top: calc(192px + var(--st, 0px)); padding: 6px 8px; } /* มือถือ: ใต้แถบสถานะ/เควสต์ ไม่ทับมินิแมพ */
+  .rb-call { padding: 6px 12px; }
+  #raid-call { top: calc(284px + var(--st, 0px)); }
+}
