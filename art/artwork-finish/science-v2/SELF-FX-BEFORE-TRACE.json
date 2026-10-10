@@ -1,0 +1,18 @@
+{
+  "debugger": [
+    "{\"type\":\"heal\",\"src\":null,\"dur\":1.1,\"owned\":false}"
+  ],
+  "nativeEvents": [
+    {
+      "type": "skill_art",
+      "id": "light_of_freyja",
+      "owned": true
+    },
+    {
+      "type": "heal",
+      "id": null,
+      "owned": false
+    }
+  ],
+  "withSourceOwned": true
+}

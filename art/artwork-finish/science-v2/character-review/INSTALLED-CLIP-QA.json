@@ -1,0 +1,251 @@
+{
+  "job": "runecaster",
+  "gender": "f",
+  "clip": "installed-lab.mp4",
+  "nativeLab": true,
+  "poses": [
+    {
+      "action": "idle",
+      "direction": 0,
+      "at": 0.073
+    },
+    {
+      "action": "idle",
+      "direction": 1,
+      "at": 0.8445
+    },
+    {
+      "action": "idle",
+      "direction": 2,
+      "at": 1.6045999999046325
+    },
+    {
+      "action": "idle",
+      "direction": 3,
+      "at": 2.3660999999046326
+    },
+    {
+      "action": "idle",
+      "direction": 4,
+      "at": 3.141299999952316
+    },
+    {
+      "action": "idle",
+      "direction": 5,
+      "at": 3.913899999856949
+    },
+    {
+      "action": "idle",
+      "direction": 6,
+      "at": 4.681299999952317
+    },
+    {
+      "action": "idle",
+      "direction": 7,
+      "at": 5.444199999809265
+    },
+    {
+      "action": "walk",
+      "direction": 0,
+      "at": 6.2445
+    },
+    {
+      "action": "walk",
+      "direction": 1,
+      "at": 7.018899999856949
+    },
+    {
+      "action": "walk",
+      "direction": 2,
+      "at": 7.790899999856949
+    },
+    {
+      "action": "walk",
+      "direction": 3,
+      "at": 8.562599999904632
+    },
+    {
+      "action": "walk",
+      "direction": 4,
+      "at": 9.341099999904632
+    },
+    {
+      "action": "walk",
+      "direction": 5,
+      "at": 10.106199999809265
+    },
+    {
+      "action": "walk",
+      "direction": 6,
+      "at": 10.869099999904632
+    },
+    {
+      "action": "walk",
+      "direction": 7,
+      "at": 11.640299999952317
+    },
+    {
+      "action": "attack",
+      "direction": 0,
+      "at": 12.432
+    },
+    {
+      "action": "attack",
+      "direction": 1,
+      "at": 13.202099999904632
+    },
+    {
+      "action": "attack",
+      "direction": 2,
+      "at": 13.961899999856948
+    },
+    {
+      "action": "attack",
+      "direction": 3,
+      "at": 14.728699999809265
+    },
+    {
+      "action": "attack",
+      "direction": 4,
+      "at": 15.496299999952317
+    },
+    {
+      "action": "attack",
+      "direction": 5,
+      "at": 16.264
+    },
+    {
+      "action": "attack",
+      "direction": 6,
+      "at": 17.028399999856948
+    },
+    {
+      "action": "attack",
+      "direction": 7,
+      "at": 17.789299999952316
+    },
+    {
+      "action": "hurt",
+      "direction": 0,
+      "at": 18.566599999904632
+    },
+    {
+      "action": "hurt",
+      "direction": 1,
+      "at": 19.33289999985695
+    },
+    {
+      "action": "hurt",
+      "direction": 2,
+      "at": 20.09759999990463
+    },
+    {
+      "action": "hurt",
+      "direction": 3,
+      "at": 20.863699999809263
+    },
+    {
+      "action": "hurt",
+      "direction": 4,
+      "at": 21.62839999985695
+    },
+    {
+      "action": "hurt",
+      "direction": 5,
+      "at": 22.39189999985695
+    },
+    {
+      "action": "hurt",
+      "direction": 6,
+      "at": 23.16439999985695
+    },
+    {
+      "action": "hurt",
+      "direction": 7,
+      "at": 23.9325
+    },
+    {
+      "action": "sit",
+      "direction": 0,
+      "at": 24.697699999809267
+    },
+    {
+      "action": "sit",
+      "direction": 1,
+      "at": 25.462699999809264
+    },
+    {
+      "action": "sit",
+      "direction": 2,
+      "at": 26.225099999904632
+    },
+    {
+      "action": "sit",
+      "direction": 3,
+      "at": 26.995
+    },
+    {
+      "action": "sit",
+      "direction": 4,
+      "at": 27.765299999952315
+    },
+    {
+      "action": "sit",
+      "direction": 5,
+      "at": 28.534099999904633
+    },
+    {
+      "action": "sit",
+      "direction": 6,
+      "at": 29.2935
+    },
+    {
+      "action": "sit",
+      "direction": 7,
+      "at": 30.066199999809264
+    },
+    {
+      "action": "dead",
+      "direction": 0,
+      "at": 30.831199999809265
+    },
+    {
+      "action": "dead",
+      "direction": 1,
+      "at": 31.60059999990463
+    },
+    {
+      "action": "dead",
+      "direction": 2,
+      "at": 32.36519999980926
+    },
+    {
+      "action": "dead",
+      "direction": 3,
+      "at": 33.128699999809264
+    },
+    {
+      "action": "dead",
+      "direction": 4,
+      "at": 33.892
+    },
+    {
+      "action": "dead",
+      "direction": 5,
+      "at": 34.664
+    },
+    {
+      "action": "dead",
+      "direction": 6,
+      "at": 35.42589999985695
+    },
+    {
+      "action": "dead",
+      "direction": 7,
+      "at": 36.191299999952314
+    }
+  ],
+  "actualSkillCast": "fire_rune",
+  "storageIsolated": true,
+  "errors": []
+}

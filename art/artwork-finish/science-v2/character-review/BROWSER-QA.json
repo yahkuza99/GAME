@@ -1,0 +1,13 @@
+{
+  "checks": 267,
+  "nativeDirections": 8,
+  "nativeActions": 7,
+  "generatedCells": 160,
+  "errors": [],
+  "artworkAccepted": false,
+  "installedInGame": true,
+  "remaining": [
+    "complete per-frame visual acceptance",
+    "other jobs and male sets"
+  ]
+}

@@ -1,0 +1,1496 @@
+{
+  "skills": [
+    {
+      "id": "fire_rune",
+      "source": "skill-identity-1.png",
+      "concept": "A compact molten plasma injection impact: orange-hot liquid jet curling into a small splatter, titanium injector head, NOT explosion sphere",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 248
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 250
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 247
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 106
+        }
+      ]
+    },
+    {
+      "id": "ice_rune",
+      "source": "skill-identity-1.png",
+      "concept": "A cryogenic dart shattering into long angular ice fragments and cold white vapor; icy needle initially, NOT round bubble",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 248
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 250
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 247
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 243
+        }
+      ]
+    },
+    {
+      "id": "thunder_rune",
+      "source": "skill-identity-1.png",
+      "concept": "Twin industrial electrodes bracketing a fierce single vertical electrical discharge, white core fork and blue sparks",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 243
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 242
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 249
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 244
+        }
+      ]
+    },
+    {
+      "id": "earth_rune",
+      "source": "skill-identity-1.png",
+      "concept": "A mechanical ground-driver piston stamping a fractured earth impact with angular stone chips and ground compression",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 243
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 238
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 249
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 245
+        }
+      ]
+    },
+    {
+      "id": "meteor_rune",
+      "source": "skill-identity-2-clean.png",
+      "concept": "A single tungsten orbital capsule seen falling diagonally, then heavy ground crater blast of molten chunks and steel fragments",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 40
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 40
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 39
+        }
+      ]
+    },
+    {
+      "id": "frost_nova",
+      "source": "skill-identity-2-clean.png",
+      "concept": "A cryogenic pressure release: short squat coolant canister opening into radial ice shards and cold low ground vapor",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 12
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 7
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 3
+        }
+      ]
+    },
+    {
+      "id": "chain_lightning",
+      "source": "skill-identity-2-clean.png",
+      "concept": "A thin lateral jagged Tesla lightning filament arcing between three small conductor sparks, no ball, no pillar",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 12
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 12
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 38
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 38
+        }
+      ]
+    },
+    {
+      "id": "rune_barrier",
+      "source": "skill-identity-2-clean.png",
+      "concept": "A transparent curved electromagnetic shield dome, visible segmented blue industrial ribs and emitter pods at feet",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 2
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 17
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 17
+        }
+      ]
+    },
+    {
+      "id": "fire_pillar",
+      "source": "skill-identity-3.png",
+      "concept": "Three vertically stretched red orange plasma furnace jets emerging from heavy mechanical ground nozzles, tall narrow silhouette",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 2
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 19
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 250
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 159
+        }
+      ]
+    },
+    {
+      "id": "glacial_cage",
+      "source": "skill-identity-3.png",
+      "concept": "A rigid ice containment enclosure: four opaque chunky frozen cooling pylons joined by frosty horizontal bars",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 2
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 19
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 250
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 159
+        }
+      ]
+    },
+    {
+      "id": "thunder_wake",
+      "source": "skill-identity-3.png",
+      "concept": "A staggered series of FOUR small electrical relay impacts sweeping left-to-right in a broken zigzag trail",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 2
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 250
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 23
+        }
+      ]
+    },
+    {
+      "id": "astral_focus",
+      "source": "skill-identity-3.png",
+      "concept": "A compact capacitor bank charging: two cyan energy cells, metallic shell and rising charge indicators, bright contained electric core",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 3
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "soul_drain",
+      "source": "skill-identity-4-clean.png",
+      "concept": "Nanotech energy siphon: curved silver nanobot stream sweeping inward toward a teal collection nozzle, moving inward not exploding",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 3
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 24
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "hex_of_hel",
+      "source": "skill-identity-4-clean.png",
+      "concept": "A corrosive fluid injector: green black chemical needle bursting into viscous acid droplets and angular corroding metal fragments",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 3
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 24
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 6
+        }
+      ]
+    },
+    {
+      "id": "dark_nova",
+      "source": "skill-identity-4-clean.png",
+      "concept": "A dense cloud of dark titanium nanites expanding outward from a bursting faceted black capsule, cyan points within",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 7
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 243
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 4
+        }
+      ]
+    },
+    {
+      "id": "void_lance",
+      "source": "skill-identity-4-clean.png",
+      "concept": "A narrow violet-white scientific particle beam impact with two metallic accelerator rails and piercing elongated core",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 2
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 243
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 16
+        }
+      ]
+    },
+    {
+      "id": "blight_brand",
+      "source": "skill-identity-5.png",
+      "concept": "A small adhesive corrosion marker: triangular industrial patch stuck on a corroding steel surface, yellow caution stripe, subtle green leakage",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 239
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 250
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 189
+        }
+      ]
+    },
+    {
+      "id": "soul_tether",
+      "source": "skill-identity-5.png",
+      "concept": "Two docking emitters connected by a braided cyan nanobot transfer cable, two-ended horizontal silhouette and tiny moving packets",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 248
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 248
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 250
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 229
+        }
+      ]
+    },
+    {
+      "id": "nightfall",
+      "source": "skill-identity-5.png",
+      "concept": "A collapsed particle field: six clusters of dark nanites pulled inward into a dense black central sink, clearly inward motion",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 248
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 248
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 204
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 229
+        }
+      ]
+    },
+    {
+      "id": "forbidden_exchange",
+      "source": "skill-identity-5.png",
+      "concept": "Twin red and cyan battery cartridges exchanging crossing energy packets through two separate curved conduits; asymmetrical compact silhouette",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 5
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "rune_circle",
+      "source": "skill-identity-6.png",
+      "concept": "Four silver field amplifier antennas arranged around a squat generator, thin technical scan lines BETWEEN equipment, NO magic circle",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "ragnarok_verse",
+      "source": "skill-identity-6.png",
+      "concept": "Three staggered orbital bombardment capsules with distinct hot orange, ice cyan, electric blue contact blasts, broad asymmetric cluster",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 2
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 3
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 2
+        }
+      ]
+    },
+    {
+      "id": "odins_spear_rune",
+      "source": "skill-identity-6.png",
+      "concept": "A long brass-titanium railgun penetrator striking: elongated horizontal steel spear with sharp white shock tip and a trailing line of metal sparks",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 249
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 250
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 250
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 237
+        }
+      ]
+    },
+    {
+      "id": "sap_ward",
+      "source": "skill-identity-6.png",
+      "concept": "Three thick opaque blue cryogenic shield plates standing upright in a shallow arc, frosty edges and small coolant couplings",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 249
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 250
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 250
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 237
+        }
+      ]
+    },
+    {
+      "id": "blink_glyph",
+      "source": "skill-identity-7.png",
+      "concept": "A phase displacement gate: two vertical short silver emitter posts, a sheared cyan afterimage streak passing through them, no ring no magic",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "convergence_seal",
+      "source": "skill-identity-7.png",
+      "concept": "Four sharply angled containment emitters focusing their narrow beams INWARD into a dense white convergence point, compact square frame",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 2
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "triune_lance",
+      "source": "skill-identity-7.png",
+      "concept": "Three parallel small lance cores orange cyan and blue piercing together, distinct separated trails and sharp three-tip impact",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 5
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 52
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 229
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "root_transit",
+      "source": "skill-identity-7.png",
+      "concept": "A paired ground-node transit system: two low hexagonal docking pads connected by a diagonal trail of segmented cyan data packets",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 5
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 52
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 229
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "light_of_freyja",
+      "source": "skill-identity-8.png",
+      "concept": "Two small medical repair drones with white shells and articulated tiny tool arms, delicate green repair beams pointing inward to a riveted small chassis patch",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 0
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "blessing_of_odin",
+      "source": "skill-identity-8.png",
+      "concept": "A triple performance booster pack with brass housings and small three vertical acceleration exhaust plumes, compact gold and cyan",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 44
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 168
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "holy_spear",
+      "source": "skill-identity-8.png",
+      "concept": "A single crisp white cyan photon lance: clean pointed luminous rod with metallic collimator collar and thin gold contact flare",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 44
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 250
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 247
+        }
+      ]
+    },
+    {
+      "id": "divine_shield",
+      "source": "skill-identity-8.png",
+      "concept": "A single broad upright riot-shield shaped transparent cyan energy panel with steel rim, central vertical spine and rounded rectangular silhouette",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 3
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 250
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "great_restoration",
+      "source": "skill-identity-9.png",
+      "concept": "Three advanced reconstruction drones assembling a larger fragmented titanium chassis plate using three precise green welding beams, scattered parts aligning",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 0
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 0
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "fate_weave",
+      "source": "skill-identity-9.png",
+      "concept": "Three offset overlapping predictive shield panels, each slim vertical pale green transparent plane with blue corner emitters, stepped silhouette",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 2
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 4
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "ragnarok_light",
+      "source": "skill-identity-9.png",
+      "concept": "Four photon projectors firing outward white-cyan beams creating a broad low radial photon flash, industrial optical lenses clearly visible",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 3
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 28
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 249
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 4
+        }
+      ]
+    },
+    {
+      "id": "skuld_judgment",
+      "source": "skill-identity-9.png",
+      "concept": "An overhead compact silver irradiation source projecting one narrow vertical white light column and a small concentrated ground burn, very tall slim",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 3
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 28
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 249
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 4
+        }
+      ]
+    },
+    {
+      "id": "fate_anchor",
+      "source": "skill-identity-10.png",
+      "concept": "Three sturdy mechanical stabilizer feet linked by taut cyan cables to a central anchor clamp, grounded triangular rig, no floating shield",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "cleansing_thread",
+      "source": "skill-identity-10.png",
+      "concept": "A medical decontamination scanner: two white vertical small rails with one horizontal green scan beam moving downward, faint cleaned particulate haze",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "woven_sanctuary",
+      "source": "skill-identity-10.png",
+      "concept": "A ground medical station with one white green repair hub and four small attending drones in a wide rectangle, green equipment light, no circles",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "severed_fate",
+      "source": "skill-identity-10.png",
+      "concept": "A signal jammer breaking three short blue communication wave strips into disconnected sharp segments, asymmetric white static flecks and black signal interference module",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 2
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 4
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 4
+        }
+      ]
+    },
+    {
+      "id": "holy_fist",
+      "source": "skill-identity-11.png",
+      "concept": "A single reinforced steel gauntlet strike flash: compact brass knuckle impact with short forward orange compression sparks, no slash",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 2
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 7
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "triple_palm",
+      "source": "skill-identity-11.png",
+      "concept": "Three sequential steel palm compression impacts, each a distinct small orange-white burst at staggered positions, broad triangular three-hit silhouette",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 2
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 7
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "divine_burst",
+      "source": "skill-identity-11.png",
+      "concept": "A heavy mechanical pressure burst: squat piston core releasing two wide elliptical AIR pressure shockwaves and dust fragments, no fire",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 96
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 96
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 232
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 232
+        }
+      ]
+    },
+    {
+      "id": "zen_body",
+      "source": "skill-identity-11.png",
+      "concept": "Two slim coolant pump cartridges venting soft WHITE cooling streams and blue condensation downward, calm compact symmetric equipment",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "consecrated_combo",
+      "source": "skill-identity-12.png",
+      "concept": "Four closely spaced armored palm impulse strikes sweeping an ascending diagonal, alternating small white orange contact sparks, distinctive diagonal progression",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 5
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 17
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 172
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 3
+        }
+      ]
+    },
+    {
+      "id": "breath_of_battle",
+      "source": "skill-identity-12.png",
+      "concept": "Four angled steel heat vents forcefully exhausting sharp white steam jets outward, squat wide silhouette and bronze heat fins",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 5
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 17
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 172
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 6
+        }
+      ]
+    },
+    {
+      "id": "temple_counter",
+      "source": "skill-identity-12.png",
+      "concept": "Two slanted defensive titanium forearm plates closing into a V deflector with a reversed incoming white impact streak, no dome",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    },
+    {
+      "id": "sunbreak_palm",
+      "source": "skill-identity-12.png",
+      "concept": "One powerful golden reinforced palm impact sending a single narrow forward pressure cone and stone grit, strong wedge silhouette, no laser no slash",
+      "frames": [
+        {
+          "frame": 0,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 1,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 2,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        },
+        {
+          "frame": 3,
+          "sourceOpaqueEdgePixels": 0,
+          "opaqueThreshold": 250,
+          "maximumSoftEdgeAlpha": 1
+        }
+      ]
+    }
+  ],
+  "active": 48,
+  "frames": 192,
+  "artworkAccepted": false,
+  "method": "built-in imagegen; mechanical extraction only"
+}

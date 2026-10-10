@@ -1,0 +1,9 @@
+{
+  "debugger": [
+    "{\"src\":\"meteor_rune\",\"kind\":\"impact\",\"owns\":true,\"texture\":true,\"fastSim\":false}"
+  ],
+  "differential": {
+    "native": false,
+    "alternate": true
+  }
+}

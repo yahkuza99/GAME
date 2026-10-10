@@ -1,0 +1,2929 @@
+{
+  "baseCommit": "deff727e55b5532b8feec655a267ac7d8be82ad1",
+  "acceptedRuntime": "Valkyrie female 10 actions, 8 directions, 208 cells. Runtime assets were already committed.",
+  "installedArtisticReviewOpen": "Science active artwork 48 skills; individual atlases installed, overall artistic acceptance remains open.",
+  "experimentalNotInstalled": "Warden male idle-eight-v1; do not use as runtime art.",
+  "historicalEvidence": "Existing recordings certify their recorded source versions; not a fresh recapture of new gameplay changes.",
+  "files": {
+    "art/artwork-finish/class3/warden-m/idle-eight-v1-candidate.png": {
+      "bytes": 2382632,
+      "sha256": "3f370b9cfa9b0c433321f267830a9ef1bc07e6b5759f98a5018b7361dd39414b"
+    },
+    "art/artwork-finish/class3/warden-m/idle-eight-v1.PROMPT.txt": {
+      "bytes": 2190,
+      "sha256": "e506ac63900f6a3d2e952a4d8d4be4e7883dee0320a7b3fba2877f3f8b2fcf90"
+    },
+    "art/artwork-finish/class3/warden-m/idle-eight-v1.REVIEW.json": {
+      "bytes": 964,
+      "sha256": "9a13d76993ad0548058db579e97de97fee2cb878431b70dbb20d1298f8ee97b2"
+    },
+    "art/artwork-finish/class3/warden-m/job-reference.webp": {
+      "bytes": 105182,
+      "sha256": "3241f50df45fec21fe7e3e0678366cafc76fcc65cddd7bcdab85d4fb1e317428"
+    },
+    "art/artwork-finish/review/STATUS.json": {
+      "bytes": 5590,
+      "sha256": "58898f025cf081f470c563bbff8bd1f9fd075b38bf57e9de015a4e8890bb9833"
+    },
+    "art/artwork-finish/review/index.html": {
+      "bytes": 9510,
+      "sha256": "131f05d16193f3563c7d5b491a70f9e98a6bbc26848124bb3ffac0d67fcbc5dc"
+    },
+    "art/artwork-finish/review/native-valkyrie/CLIP-QA.json": {
+      "bytes": 4639,
+      "sha256": "2d484b0b867a075ef861facc4c938c6ebd6ad4ab88229f48f40086a78c92a388"
+    },
+    "art/artwork-finish/review/native-valkyrie/EVIDENCE-PAGE-QA.json": {
+      "bytes": 159,
+      "sha256": "91932b90e69a71b2ef82744b25d68568b5927eff66341433e8847f2f64c6d88e"
+    },
+    "art/artwork-finish/review/native-valkyrie/INSTALLATION.json": {
+      "bytes": 3294,
+      "sha256": "02900c362c2691a8d4a71c55460e39dba64dc54cc2435d4dbde347ac94a53863"
+    },
+    "art/artwork-finish/review/native-valkyrie/INSTALLED-CLIP-QA.json": {
+      "bytes": 8292,
+      "sha256": "b99f04a566754d211384453cdea2872326f007fcfff661a52292309a2937c41d"
+    },
+    "art/artwork-finish/review/native-valkyrie/PERFORMANCE.json": {
+      "bytes": 660,
+      "sha256": "155e7d27a79692c117f5394cac96e432f0380b94a950b500d8943f1a9d0e4a7b"
+    },
+    "art/artwork-finish/review/native-valkyrie/QA.json": {
+      "bytes": 54030,
+      "sha256": "39e5672e494305042595aefb660e2ac22b8ad246a2ffedb8886c563ec0145cd7"
+    },
+    "art/artwork-finish/review/native-valkyrie/REVIEW.md": {
+      "bytes": 5171,
+      "sha256": "0a1596630bcf0ce80418028c141b7d565e97ace489926621fc9dfbe7a021739a"
+    },
+    "art/artwork-finish/review/native-valkyrie/attack-native.png": {
+      "bytes": 1214625,
+      "sha256": "cd7f8817adc07cdaf41f774ffd72795363ed68744ec938ee67ee15ee2219a291"
+    },
+    "art/artwork-finish/review/native-valkyrie/buff-native.png": {
+      "bytes": 530511,
+      "sha256": "09bdd58d4580df7c9401bb69e66dbd5ecc064cd6ef41ec2c40dfd3da6d6c6ffb"
+    },
+    "art/artwork-finish/review/native-valkyrie/candidate-lab.mp4": {
+      "bytes": 690637,
+      "sha256": "f35acf95a7be58ac564c71e46d497e357d05ee0140fda80103ed7454a5ea3c77"
+    },
+    "art/artwork-finish/review/native-valkyrie/candidate-lab.webm": {
+      "bytes": 2854757,
+      "sha256": "73e2aa0d33557344b36a708381cb6989e4b07f35b3c733d73bb0817cd6fe08d1"
+    },
+    "art/artwork-finish/review/native-valkyrie/dead-native.png": {
+      "bytes": 904891,
+      "sha256": "6a2f10633bf7a675f758fd80bf6398953028bd9c523cf2417fea31f37e6c8dbe"
+    },
+    "art/artwork-finish/review/native-valkyrie/evidence-page-landscape.png": {
+      "bytes": 144285,
+      "sha256": "f5d1a4d7a518a95507096c006b880175dcf38b6f2194101ec71023030c5f1386"
+    },
+    "art/artwork-finish/review/native-valkyrie/evidence-page-portrait.png": {
+      "bytes": 64381,
+      "sha256": "a52c26f4abff5f3c6dbdc4d63144fa9460e3027f05f2f482b6d5b880387f84d5"
+    },
+    "art/artwork-finish/review/native-valkyrie/first_aid-native.png": {
+      "bytes": 502880,
+      "sha256": "c435deed623427b80d321c8cdcf8ba0521f47d6f3e6f30855b020c9551430ce6"
+    },
+    "art/artwork-finish/review/native-valkyrie/hurt-native.png": {
+      "bytes": 544437,
+      "sha256": "3ad0825ac85e4c06294811ba96e9d6b775dbda9ff5a0027b54bd40c206c398e8"
+    },
+    "art/artwork-finish/review/native-valkyrie/idle-native.png": {
+      "bytes": 238199,
+      "sha256": "4531a5c504e9382f2c6123207a9cd1d77daa2cfec7baded7c453792dd74688fb"
+    },
+    "art/artwork-finish/review/native-valkyrie/index.html": {
+      "bytes": 4191,
+      "sha256": "002580d2055ea786c5fab37f7818a2a47f3fb8d3d2887ba2f4f38750daa80d05"
+    },
+    "art/artwork-finish/review/native-valkyrie/installed-clip-still.png": {
+      "bytes": 67835,
+      "sha256": "c3c04219dfa2983520fa44af73029fea82ca108b32f307ad8182b8883a776471"
+    },
+    "art/artwork-finish/review/native-valkyrie/installed-lab.mp4": {
+      "bytes": 1606944,
+      "sha256": "4a77542fbcb2a7833b8a77fc7a04f336376a19f03fbeb13ca685e0a1cb03db2d"
+    },
+    "art/artwork-finish/review/native-valkyrie/installed-lab.webm": {
+      "bytes": 6991005,
+      "sha256": "5502adacacfeb82b85f5f88b7a90715e533917f2a7cfe8df771e307478bc3822"
+    },
+    "art/artwork-finish/review/native-valkyrie/installed-skills-native-contact.png": {
+      "bytes": 222179,
+      "sha256": "6866c63755e348f8a6621ed870e8c6e33eafd05339864f7f0bce5b25148cc898"
+    },
+    "art/artwork-finish/review/native-valkyrie/installed-skills-video-contact.png": {
+      "bytes": 233492,
+      "sha256": "f7187094009ed9b89e27d90bf3d6dc0858fab1783519afca3523f38c192e9e05"
+    },
+    "art/artwork-finish/review/native-valkyrie/lab-landscape-economy.png": {
+      "bytes": 130814,
+      "sha256": "42a114f5068841d028ff263c40401d48afa74ae9c218cb80808b019fdc6bb8f4"
+    },
+    "art/artwork-finish/review/native-valkyrie/lab-landscape.png": {
+      "bytes": 130286,
+      "sha256": "30533544767a6f402f2b037128210c8485b282261e62003c4b4d69f4297dbbd0"
+    },
+    "art/artwork-finish/review/native-valkyrie/lab-portrait-economy.png": {
+      "bytes": 113955,
+      "sha256": "93cb630f439132abf0c5d9830bce2b2d26f2b934c75afbd4ea6cf04a71eb2498"
+    },
+    "art/artwork-finish/review/native-valkyrie/lab-portrait.png": {
+      "bytes": 112929,
+      "sha256": "d03bedeefec8c96d00d4ceb8f9f9e0685d49a478cec6dcb4339ce2d32ec9f939"
+    },
+    "art/artwork-finish/review/native-valkyrie/shield-native.png": {
+      "bytes": 1197153,
+      "sha256": "ebb5decc5636a5407f6496252ed6d265df953a386e3d68d60906823f5f95690d"
+    },
+    "art/artwork-finish/review/native-valkyrie/shield_throw-native.png": {
+      "bytes": 522596,
+      "sha256": "adeba158f9bd54749d6791bac6a354bacec2508ef7601ac2ffa78d4bb55c84bb"
+    },
+    "art/artwork-finish/review/native-valkyrie/sit-native.png": {
+      "bytes": 242121,
+      "sha256": "581151d27f4de438393843039370b08f85d2b2c07fead4bf74ae0fe61699d80a"
+    },
+    "art/artwork-finish/review/native-valkyrie/skill-aegis_step-native.png": {
+      "bytes": 74043,
+      "sha256": "8747e7016961c079d28fa9dec994d27de487921038361fee2825c809dfe1e0a5"
+    },
+    "art/artwork-finish/review/native-valkyrie/skill-einherjar_guard-native.png": {
+      "bytes": 117997,
+      "sha256": "333080d2686f5ea2dda59ae17406fb07d26172627b96f92604fc484857f68f32"
+    },
+    "art/artwork-finish/review/native-valkyrie/skill-first_aid-native.png": {
+      "bytes": 65297,
+      "sha256": "efc2f2edbd2daa2d612cc4c5f338dfcffd3df1c27bce654f6420ef50b7b7d471"
+    },
+    "art/artwork-finish/review/native-valkyrie/skill-judgment_quake-native.png": {
+      "bytes": 284839,
+      "sha256": "ca7c4aba05e51fb9b9b05fdf8b2a9022025b82600acdf7bd5af1ce110a74a089"
+    },
+    "art/artwork-finish/review/native-valkyrie/skill-oath_anchor-native.png": {
+      "bytes": 173997,
+      "sha256": "14072ee9a832689e4c0ee26cc91ab9cc99a2389eb3f88a1646700915b035e703"
+    },
+    "art/artwork-finish/review/native-valkyrie/skill-radiant_rebuke-native.png": {
+      "bytes": 107691,
+      "sha256": "03bb893243a1cc2e8f6969556de5eff5b04623db02c1de4f11199d37be5e1e87"
+    },
+    "art/artwork-finish/review/native-valkyrie/skill-shield_slam-native.png": {
+      "bytes": 68538,
+      "sha256": "7977ec8ed67cd838cfc6ac7e00592f5bb4c0e6133de063e54ffdc764e3dd8cb7"
+    },
+    "art/artwork-finish/review/native-valkyrie/skill-shield_throw-native.png": {
+      "bytes": 84496,
+      "sha256": "1be115999ef2439f3a992e10a82137b2b1aa5bf25961fa2d869f8bfa8ad56aa6"
+    },
+    "art/artwork-finish/review/native-valkyrie/skill-spear_of_valhalla-native.png": {
+      "bytes": 74361,
+      "sha256": "e731984b89af29e9abd7762f690127ffa8806de0d3aaa760946b007aee97d71f"
+    },
+    "art/artwork-finish/review/native-valkyrie/skill-valhallas_call-native.png": {
+      "bytes": 80138,
+      "sha256": "a102dcd6001c37761f281ef7ff0d442275363b7743d44e57a9de8335a0adbd6e"
+    },
+    "art/artwork-finish/review/native-valkyrie/skill-war_cry-native.png": {
+      "bytes": 104599,
+      "sha256": "88729fdc199c46654e0060efa5d33cd40cf57ebf4e8114d675db3f2389c86c0f"
+    },
+    "art/artwork-finish/review/native-valkyrie/skill-whirlwind-native.png": {
+      "bytes": 71255,
+      "sha256": "4a8038b49b9f00be0436edc0951862d76dbb09e2ea6ecf13ef384ecec3520a4f"
+    },
+    "art/artwork-finish/review/native-valkyrie/skill-wings_of_mercy-native.png": {
+      "bytes": 75825,
+      "sha256": "5c142131ab93a845b3d539f8df398540460513a40bd55b1783f98d22a5bee455"
+    },
+    "art/artwork-finish/review/native-valkyrie/unit-preview-clip-still.png": {
+      "bytes": 70136,
+      "sha256": "bd1bb7287d0511e2de15c2143e3c1e95be604f110b6a8d844737d526072fe168"
+    },
+    "art/artwork-finish/review/native-valkyrie/unit-preview.mp4": {
+      "bytes": 71441,
+      "sha256": "d96f2fc580ca8fdebdb1d815f59cf2796905eddbdcf417d9efe89482eea54968"
+    },
+    "art/artwork-finish/review/native-valkyrie/unit-preview.png": {
+      "bytes": 235199,
+      "sha256": "393cd4b874655c3c2c78e7ff880253a36efffcc42a20e4103190d5a66c7d13ea"
+    },
+    "art/artwork-finish/review/native-valkyrie/unit-preview.webm": {
+      "bytes": 329727,
+      "sha256": "3d7058fb85122fd5f9f5720b353002f5b1f380971f3154235fa41e3b29f07d7d"
+    },
+    "art/artwork-finish/review/native-valkyrie/walk-native.png": {
+      "bytes": 967764,
+      "sha256": "799b39ec8e02db4178d9f98fbfc84779aae9d4fb958662e5bd2570fc0c06b35a"
+    },
+    "art/artwork-finish/review/valkyrie-f-attack-v4/attack-review-strip.webp": {
+      "bytes": 1205270,
+      "sha256": "a0f1d334734e1e7144d72e4788b5c90443d453d90e219861e2f97b9137d226d8"
+    },
+    "art/artwork-finish/review/valkyrie-f-buff-v2/buff-review-strip.webp": {
+      "bytes": 529390,
+      "sha256": "43ae4ea4197b3b613d6b4dc93fd5adcfe7fc5b8fbf95667467026618a9bc58c9"
+    },
+    "art/artwork-finish/review/valkyrie-f-dead-v2/dead-review-strip.webp": {
+      "bytes": 865276,
+      "sha256": "3312da8b22225982f14d0d61ab6e2762c13e3243f69118db9ae190ab20b030aa"
+    },
+    "art/artwork-finish/review/valkyrie-f-first-aid-v3/first_aid-review-strip.webp": {
+      "bytes": 487772,
+      "sha256": "6dcda9c988c21684b6aa076110d5682d83e79c3b3b39151d61636ae1191a57a9"
+    },
+    "art/artwork-finish/review/valkyrie-f-hurt-v2/hurt-review-strip.webp": {
+      "bytes": 533264,
+      "sha256": "d2f1118360c3af61c59a6083dcb0feaf99b0d294751ae5cb6f34a5db1ff91bed"
+    },
+    "art/artwork-finish/review/valkyrie-f-idle/idle-review-strip.webp": {
+      "bytes": 222166,
+      "sha256": "28b9c1962f5f64d44a1b867688d3811693cb0db6aa4de4c1bec01af38bf1daa9"
+    },
+    "art/artwork-finish/review/valkyrie-f-shield-throw-v4/shield_throw-review-strip.webp": {
+      "bytes": 519552,
+      "sha256": "67659afa87e7d3ab288c24f25605cf36282d1c2b30814325be0ff10e22fc58c9"
+    },
+    "art/artwork-finish/review/valkyrie-f-shield-v9/shield-review-strip.webp": {
+      "bytes": 1180156,
+      "sha256": "0a7e87d63e2480d280cf82b5a91de722cd8efb6d692e24a445a0dd60c0eb404c"
+    },
+    "art/artwork-finish/review/valkyrie-f-sit/sit-review-strip.webp": {
+      "bytes": 224188,
+      "sha256": "90967ce5c9f82edfee38f264145eabd8e8950b68d231844f6832843149bb816e"
+    },
+    "art/artwork-finish/review/valkyrie-f-walk-v9/walk-review-strip.webp": {
+      "bytes": 938620,
+      "sha256": "f863e6fb1ffaf43b8fd0d1fa26d708feda7b106109e97c549e982079d79b4a00"
+    },
+    "art/artwork-finish/science-v2/FX-SOURCE-QA-v2.json": {
+      "bytes": 3201,
+      "sha256": "931d83252c006ea156132f7745bae5e3f79799563e866c26f0b2eca23187b0c1"
+    },
+    "art/artwork-finish/science-v2/FX-SOURCE-QA.json": {
+      "bytes": 3195,
+      "sha256": "bd2a649772d7f83a40170c3b21942ca8c134b64c3198fcac63b725e933228d97"
+    },
+    "art/artwork-finish/science-v2/NATIVE-FX-QA.json": {
+      "bytes": 116,
+      "sha256": "f1d37d9744b5b339ff6b3a928ffc2415ffb9238383267f503a6227c160d772c3"
+    },
+    "art/artwork-finish/science-v2/ORBITAL-DEBUG.md": {
+      "bytes": 4517,
+      "sha256": "c0cfbdf180df6bde3c861d5cce75f5cdaa0d0ee52dcc1b535dda6d129e471eaf"
+    },
+    "art/artwork-finish/science-v2/ORBITAL-QA-before.json": {
+      "bytes": 536,
+      "sha256": "b1d5a96fa158d1827d8a18b71364014e2fdb4d49750df923856cbf22c1f65457"
+    },
+    "art/artwork-finish/science-v2/ORBITAL-QA.json": {
+      "bytes": 763,
+      "sha256": "b9764aad8d38c575b96d73078c9a1ce75ddf203dc04d703bd2e638f41a8a87b3"
+    },
+    "art/artwork-finish/science-v2/ORBITAL-TRACE.json": {
+      "bytes": 200,
+      "sha256": "d004023f1ef2496cd1657f73a2d57c1d6ad2149acd6452ba469157506e5e3d1a"
+    },
+    "art/artwork-finish/science-v2/PLAN.md": {
+      "bytes": 12820,
+      "sha256": "911cf71a245a5328823becdc1507eb204338be8ea310b88c87975977727fe4d9"
+    },
+    "art/artwork-finish/science-v2/PROJECTILE-SOURCE-QA.json": {
+      "bytes": 6087,
+      "sha256": "f7c032bbac50c38568694036ffb2b6d1a2902679bcda24a841be7bdd108f6717"
+    },
+    "art/artwork-finish/science-v2/SELF-FX-BEFORE-TRACE.json": {
+      "bytes": 323,
+      "sha256": "b583789cb9caa90a25567e33abfa4780c7a26fcbc700094e293d55689605086c"
+    },
+    "art/artwork-finish/science-v2/SELF-FX-QA.json": {
+      "bytes": 229,
+      "sha256": "e45edcb000602129fc7d954f9f8802b94b193d49eb1ca52a96a67100ff18d048"
+    },
+    "art/artwork-finish/science-v2/SKILL-IDENTITY-ARTWORK.md": {
+      "bytes": 3638,
+      "sha256": "735b8099f560a4266aa5fd3b452c8b94d96244e58f97adf76df8c894299acfc3"
+    },
+    "art/artwork-finish/science-v2/SKILL-IDENTITY-QA.json": {
+      "bytes": 43484,
+      "sha256": "f0e9e3a4fc7ab236ae5fbcc4b9846c385951a5c6eddf24baa026113ad97605a0"
+    },
+    "art/artwork-finish/science-v2/SKILL-IDENTITY-TEST.json": {
+      "bytes": 168,
+      "sha256": "345dba9c9ce276695c36a08b4a0dd7f6c5e0f7b61aea76138b4ef682414e6d26"
+    },
+    "art/artwork-finish/science-v2/all-active-latest.log": {
+      "bytes": 55,
+      "sha256": "5fc6d329e860f2064b6cc4e8129c4ad5a5ff8f567fffe13a4303cd5879a348c5"
+    },
+    "art/artwork-finish/science-v2/character-review/BROWSER-QA.json": {
+      "bytes": 271,
+      "sha256": "ff76ff7c6e4b06e27f17debf44163a48dfc7de1eaaffc3cdf87d3fa483041a70"
+    },
+    "art/artwork-finish/science-v2/character-review/COMPLETION-DEBUG.md": {
+      "bytes": 3843,
+      "sha256": "dd67daf45705c37a9432a0eeb9f8fa8463055f1f17b24300b44d3b8b8920486e"
+    },
+    "art/artwork-finish/science-v2/character-review/COMPLETION-QA.json": {
+      "bytes": 3647,
+      "sha256": "f7db87a55d5ca730a5886d3e8fce45a6d557d8a6831e47c555cbb79102e1b5dc"
+    },
+    "art/artwork-finish/science-v2/character-review/CRISP-QA.json": {
+      "bytes": 1166,
+      "sha256": "c09d30b8a579e780b516b199343eb2ba6b6094f18e9f421c55ebab300bb2c978"
+    },
+    "art/artwork-finish/science-v2/character-review/HURT-QA.json": {
+      "bytes": 3220,
+      "sha256": "8022925e6e490474bb290710221adbcd58087231d18a86492dec22a033c22c75"
+    },
+    "art/artwork-finish/science-v2/character-review/INSTALLATION-QA.json": {
+      "bytes": 92268,
+      "sha256": "5e60b16bc7f8fe1f51e370ab42761028d71d3909bd1fbd816614c696a20c2e41"
+    },
+    "art/artwork-finish/science-v2/character-review/INSTALLATION.json": {
+      "bytes": 2732,
+      "sha256": "9f6a3d0baa6895099e0a0b2053d3edcc4d937d115829b78db9495476c5586533"
+    },
+    "art/artwork-finish/science-v2/character-review/INSTALLED-CLIP-QA.json": {
+      "bytes": 4631,
+      "sha256": "e993636d494b4eac2bc7f11a967b9ee10cf8891bc13df51cc56992d1ed2a03db"
+    },
+    "art/artwork-finish/science-v2/character-review/OPERATE-AFTER-TRACE.json": {
+      "bytes": 1777,
+      "sha256": "70eea9462a43f4f9f11a280640be18182f010f3a8b36f5ea21db80c8f8f60793"
+    },
+    "art/artwork-finish/science-v2/character-review/OPERATE-BEFORE-TRACE.json": {
+      "bytes": 1731,
+      "sha256": "87a599619a78c22eee481c63a69c66cb6f6f56a37d451dca3578a92d2b9247f4"
+    },
+    "art/artwork-finish/science-v2/character-review/QA.json": {
+      "bytes": 23811,
+      "sha256": "4bb50df98739b459d5e3986fe7d3958b2ef7d2466a059386b389355e52f7a584"
+    },
+    "art/artwork-finish/science-v2/character-review/WALK-AFTER-TRACE.json": {
+      "bytes": 6503,
+      "sha256": "f7c19a9b9984c04133c99317943eeb9978e7fb0b8ec18185f6d77f5011b6e7cd"
+    },
+    "art/artwork-finish/science-v2/character-review/WALK-BEFORE-TRACE.json": {
+      "bytes": 6429,
+      "sha256": "b0b88ae349d4788b11e345d08dda99bb539f1c0c0d2dcb96877e9025e70ed697"
+    },
+    "art/artwork-finish/science-v2/character-review/WALK-DEBUG.md": {
+      "bytes": 2706,
+      "sha256": "2f43591c6735b4fa9e3c77fe1999993bcf119e7785293614df698f54dc43c3cf"
+    },
+    "art/artwork-finish/science-v2/character-review/WALK-NO-LIFT-TRACE.json": {
+      "bytes": 6286,
+      "sha256": "600d9200a7157b2a37c80396e494fa5c08b7c3265c1f99bd5f4717b8755f02bf"
+    },
+    "art/artwork-finish/science-v2/character-review/WALK-QA.json": {
+      "bytes": 5755,
+      "sha256": "7df9913d9031c1a5aa8a2e9c0213766d344bbec6a33f5f6212a519bda4244c7a"
+    },
+    "art/artwork-finish/science-v2/character-review/anim_science_field_f_attack.webp": {
+      "bytes": 996984,
+      "sha256": "6be0b0fbdd77f1845f975013ef8cbba76bda9a568f32dd92159995cfaed62698"
+    },
+    "art/artwork-finish/science-v2/character-review/anim_science_field_f_dead.webp": {
+      "bytes": 890758,
+      "sha256": "f3951a60e0e2c53243f19f3fca7dbd9e13cc55803a973542be60a22a123147b0"
+    },
+    "art/artwork-finish/science-v2/character-review/anim_science_field_f_hurt.webp": {
+      "bytes": 557820,
+      "sha256": "2baf8205eb77e01e7ca3c3fd6168abf369aeb6eea6b2e6b589ab83687f37cf6e"
+    },
+    "art/artwork-finish/science-v2/character-review/anim_science_field_f_idle.webp": {
+      "bytes": 247388,
+      "sha256": "54e2ac30cad74bbea5586ba03b3ed138c81c550b1b390bfcc8980ec91aaf9597"
+    },
+    "art/artwork-finish/science-v2/character-review/anim_science_field_f_idle_crisp.webp": {
+      "bytes": 149578,
+      "sha256": "9d2b9308028150edf8c93a68ab2cd6a841840badf0f03a55f13475623d085f92"
+    },
+    "art/artwork-finish/science-v2/character-review/anim_science_field_f_operate.webp": {
+      "bytes": 1007004,
+      "sha256": "7eab4c5c9085b57881d9c808ee83ce667996fe1449cddd735423b4c93e4df226"
+    },
+    "art/artwork-finish/science-v2/character-review/anim_science_field_f_operate_v2.webp": {
+      "bytes": 964432,
+      "sha256": "781d2208507bfb42eef863166871c597504646330ce1402cd3c38d8ba30443c1"
+    },
+    "art/artwork-finish/science-v2/character-review/anim_science_field_f_sit.webp": {
+      "bytes": 219348,
+      "sha256": "1b921769c8c35b2f996473685410de9badd82acf9dd2cdb697e66d3b0be30979"
+    },
+    "art/artwork-finish/science-v2/character-review/anim_science_field_f_walk.webp": {
+      "bytes": 1103472,
+      "sha256": "04e2e93171e38877525d0ff151d3b90f95a899da343d7ab3a5ed3ba52321a44c"
+    },
+    "art/artwork-finish/science-v2/character-review/anim_science_field_f_walk_v5.webp": {
+      "bytes": 918006,
+      "sha256": "99c1db38fb941b41c50d1bc8f95c34d729ab49903a8e458f4433a8539c1584e0"
+    },
+    "art/artwork-finish/science-v2/character-review/attack-isolated.png": {
+      "bytes": 38180,
+      "sha256": "bee38b5ecef60174fda4de71153ebcfdba2ddb2cfdeb5cfd4a9a035815cf493f"
+    },
+    "art/artwork-finish/science-v2/character-review/attack-native-preview.png": {
+      "bytes": 341401,
+      "sha256": "c7ab807c7db576a6eed1e08cf25efe8c79c475017efd700613d02cfd9c132651"
+    },
+    "art/artwork-finish/science-v2/character-review/attack-source-cell.png": {
+      "bytes": 38901,
+      "sha256": "64fd33537c5f1cec2484dfb34c1e48c6cc10c70a8c7c02ea8a0af1611c442bdb"
+    },
+    "art/artwork-finish/science-v2/character-review/attack.png": {
+      "bytes": 1029391,
+      "sha256": "181da635b92e939a98f524e6ca5a48651d4886e0eeab54441ed70d667c907a9a"
+    },
+    "art/artwork-finish/science-v2/character-review/crisp-skills-desktop.png": {
+      "bytes": 240503,
+      "sha256": "56ae7ebf495cc2f02dcb59c8adb5fb89b0ca452db231ac93c51d032daa24191a"
+    },
+    "art/artwork-finish/science-v2/character-review/crisp-skills-mobile.png": {
+      "bytes": 336660,
+      "sha256": "24527d823569a16dca8ae7a88d25a04a7fe8fad67c7104e7c0217ee04ddcb39c"
+    },
+    "art/artwork-finish/science-v2/character-review/crisp-style-desktop.png": {
+      "bytes": 147223,
+      "sha256": "cb306ef2c00daff9c24b253ced7b64ad35a19765f6756e9548e7eb1f8dc4d031"
+    },
+    "art/artwork-finish/science-v2/character-review/crisp-style-mobile.png": {
+      "bytes": 152676,
+      "sha256": "d53fb671cf6b07c9deb637954b2dbda13e756ef1bce267a1f950e65ddded3cb3"
+    },
+    "art/artwork-finish/science-v2/character-review/dead-completion.png": {
+      "bytes": 957637,
+      "sha256": "75623111a30c740db374d715819028244bdc809d58b44fba62d5805cf25aa183"
+    },
+    "art/artwork-finish/science-v2/character-review/dead-native-preview.png": {
+      "bytes": 311544,
+      "sha256": "1ea0fed061b77b2d76d684fd1eeef426ac9266b6e2ce70d6f1f503761ac0ef24"
+    },
+    "art/artwork-finish/science-v2/character-review/export-check.png": {
+      "bytes": 312853,
+      "sha256": "3ee0528cbf6caa29ab4d5b7408be8a530d80d645d235147738ed3ca2a2c1e3d5"
+    },
+    "art/artwork-finish/science-v2/character-review/hurt-native-preview.png": {
+      "bytes": 359550,
+      "sha256": "78dbdc8c1e2e0dbb32c613db7e650f17955419d4a643a1e407b66184346ec2be"
+    },
+    "art/artwork-finish/science-v2/character-review/hurt-native.mp4": {
+      "bytes": 680588,
+      "sha256": "b96f24486e2f35918fe0ba785725e7675e67ffd9ca0ea94f3d2ee72e38b1b1d6"
+    },
+    "art/artwork-finish/science-v2/character-review/hurt-native.webm": {
+      "bytes": 1166242,
+      "sha256": "9f977bc4027307d6458aa5c8c9dc8b1c2bad44c18cfe5a64d0de004a113d9753"
+    },
+    "art/artwork-finish/science-v2/character-review/hurt-transition-0.png": {
+      "bytes": 136279,
+      "sha256": "4eaa15b21e985628bfa65c625fff8fff1b4d2d60bab8e96f6070700137e7ff3f"
+    },
+    "art/artwork-finish/science-v2/character-review/hurt-transition-1.png": {
+      "bytes": 134747,
+      "sha256": "843fe4d38d2cb667c34bb957a62bd13363ed7349af924d7cc23a1afc73a41e71"
+    },
+    "art/artwork-finish/science-v2/character-review/hurt-transition-2.png": {
+      "bytes": 133937,
+      "sha256": "7fea602ceca39e57cc81c827ed8c0f7d54a9ef9ecde694fe98189c651f4419a7"
+    },
+    "art/artwork-finish/science-v2/character-review/hurt-transition-3.png": {
+      "bytes": 138467,
+      "sha256": "e8f59c3ed89b7b59b5306543c92e06e15207301f28998efacc61af6989901fb0"
+    },
+    "art/artwork-finish/science-v2/character-review/hurt-transition-4.png": {
+      "bytes": 130758,
+      "sha256": "7bfd6de28b56ce433233492de5ca92597a96b37d0a6767abcbba06ecbce88451"
+    },
+    "art/artwork-finish/science-v2/character-review/hurt-transition-5.png": {
+      "bytes": 133492,
+      "sha256": "9917bf0fbcbb66016eab667f5895b62eea65cf3b367524c589de405e34c6dbca"
+    },
+    "art/artwork-finish/science-v2/character-review/hurt-transition-6.png": {
+      "bytes": 119550,
+      "sha256": "59037db83fd0f1e8c5abf7a3e04fb5a7debd422880cd9ffb3e04f82287fa65c9"
+    },
+    "art/artwork-finish/science-v2/character-review/hurt-transition-7.png": {
+      "bytes": 138470,
+      "sha256": "8d23d5d3a1c6dd086ba80186b5e7bcf013cc051f78770011299ea638838eb1fb"
+    },
+    "art/artwork-finish/science-v2/character-review/hurt-transition-board.jpg": {
+      "bytes": 142633,
+      "sha256": "c629ca1c194ffeb7aa227e57016a08aea90240802410126764fe0a2b80a874ec"
+    },
+    "art/artwork-finish/science-v2/character-review/idle-native-preview.png": {
+      "bytes": 345445,
+      "sha256": "bf9101c7c7a39bcd23293a3b0db4d9fcbfbed1297fc0de43a2de3cc5ed49a66d"
+    },
+    "art/artwork-finish/science-v2/character-review/idle.png": {
+      "bytes": 267481,
+      "sha256": "b16b56bf0d2ec1af3a53fe44db439fd5ca58f6363ce4082b73aad77fe8a4dc57"
+    },
+    "art/artwork-finish/science-v2/character-review/index.html": {
+      "bytes": 7145,
+      "sha256": "e5f9f5df9d0e048707e4f7f8f2d39b8c67e06dee5f84d2c2d38ea2609446baaa"
+    },
+    "art/artwork-finish/science-v2/character-review/installed-clip-still.png": {
+      "bytes": 63488,
+      "sha256": "bcf79390435bbb3638b74d8e09c6f030d7f4ea0bd9ee4a4aa3e8ea5eac17f71e"
+    },
+    "art/artwork-finish/science-v2/character-review/installed-lab-landscape.png": {
+      "bytes": 118399,
+      "sha256": "7a57afd5ea06ccfc7a6b93c64095ebda68b969e61e552f7a197bdf74e34e70e6"
+    },
+    "art/artwork-finish/science-v2/character-review/installed-lab-portrait.png": {
+      "bytes": 115237,
+      "sha256": "8f36ae2cfee2c863fe8e22c27dc2fc8485f013119c9916efc228268f397493e5"
+    },
+    "art/artwork-finish/science-v2/character-review/installed-lab.mp4": {
+      "bytes": 571267,
+      "sha256": "6c77c8a63458de855126951fb3e2425836acfe35b8a5d05baa5e35a2289a7661"
+    },
+    "art/artwork-finish/science-v2/character-review/installed-lab.webm": {
+      "bytes": 2767297,
+      "sha256": "56d52083dd70bdb5df54d1b595fb0669391a3e0cb4a60c299c8024ea9792131a"
+    },
+    "art/artwork-finish/science-v2/character-review/installed-native-board.png": {
+      "bytes": 1887824,
+      "sha256": "3e5a88ad4ef84acfd0fef96002a3dcd979cf983a9861432d5eb25286445d340e"
+    },
+    "art/artwork-finish/science-v2/character-review/installed-unit-preview.png": {
+      "bytes": 274314,
+      "sha256": "1dc46d861bb56aa871e2053a0f95615370cfbc022f1b55be046dd32ba54b867a"
+    },
+    "art/artwork-finish/science-v2/character-review/operate-after-board.jpg": {
+      "bytes": 69228,
+      "sha256": "55b0a5677c0a23d6b038bfbd5456ef60f3da88de6fcfafacd274a18aff3a8989"
+    },
+    "art/artwork-finish/science-v2/character-review/operate-before-board.jpg": {
+      "bytes": 67882,
+      "sha256": "c64132c6b4b718012473e2a71b2dc30733748594d10ffa03a67e9f84883b3fbc"
+    },
+    "art/artwork-finish/science-v2/character-review/operate-completion.png": {
+      "bytes": 997775,
+      "sha256": "c98d82ba13bbd801681a8af38a8b7e786b9c8e434620242b913a46b55444b014"
+    },
+    "art/artwork-finish/science-v2/character-review/operate-native-preview.png": {
+      "bytes": 342072,
+      "sha256": "5b4c8684ea972662586e7f09bd3d80fd8d38579de8073049b640dce3affeb52e"
+    },
+    "art/artwork-finish/science-v2/character-review/operate.png": {
+      "bytes": 1016479,
+      "sha256": "f2ed12e7efc28aae7a1b93fc22dbdb113684393a735aeec77257ff7433647d1a"
+    },
+    "art/artwork-finish/science-v2/character-review/sit-completion.png": {
+      "bytes": 251220,
+      "sha256": "dde64c7923bb19952ff853321561b8b8e2a08b1af877f146f6765a48aab3b3bf"
+    },
+    "art/artwork-finish/science-v2/character-review/sit-native-preview.png": {
+      "bytes": 331692,
+      "sha256": "584275193acd5d16160267adc9e45f765399cbc20d2a1601dcde69a389080962"
+    },
+    "art/artwork-finish/science-v2/character-review/skill-review.html": {
+      "bytes": 4586,
+      "sha256": "861fbc2cd96071669b69152f8afa29b43b76fb684c84d99705c26dcd3fd6aab8"
+    },
+    "art/artwork-finish/science-v2/character-review/style-review.html": {
+      "bytes": 5143,
+      "sha256": "e95dca6792ba8dbe24c7052e13167d39921459ee21b3bc434b924117df5c0f15"
+    },
+    "art/artwork-finish/science-v2/character-review/walk-after-board.jpg": {
+      "bytes": 219161,
+      "sha256": "f127a6afa45600ce3fd3b95bee720efc1ef02a4de971fde15190a0cb424c2979"
+    },
+    "art/artwork-finish/science-v2/character-review/walk-before-board.jpg": {
+      "bytes": 240350,
+      "sha256": "2ad954bef96406cfc6e89216a455c254fe457a6fb1a7cf6679eb4f250cca6b67"
+    },
+    "art/artwork-finish/science-v2/character-review/walk-native-preview.png": {
+      "bytes": 330524,
+      "sha256": "079929774d7d9146745de8a697dd621befe3012357b6d78e9be344cd0a603e95"
+    },
+    "art/artwork-finish/science-v2/character-review/walk-native.mp4": {
+      "bytes": 512447,
+      "sha256": "7a88fb8a9f9e990390591f8a24ac1a4af42680b1dc7121838d16df3627bfb8bf"
+    },
+    "art/artwork-finish/science-v2/character-review/walk-native.webm": {
+      "bytes": 1115308,
+      "sha256": "f1e25da54133703ad73a76fae937fb8844616475ce4466c32bac83530b7fab56"
+    },
+    "art/artwork-finish/science-v2/character-review/walk-no-lift-board.jpg": {
+      "bytes": 239982,
+      "sha256": "5bb86d976a5c8d8fa8b9cf932880ad92d997bb2dedb7e43a7e3d8d12e1cdf568"
+    },
+    "art/artwork-finish/science-v2/character-review/walk.png": {
+      "bytes": 1078863,
+      "sha256": "0a52539a65e4497b2ac9e366edfb313e97947d87751cdeeff66a95cfd09d87db"
+    },
+    "art/artwork-finish/science-v2/lab-orbital-latest.log": {
+      "bytes": 91,
+      "sha256": "5849b70c6997442b9f5f8fb6c37b0adecace0e1824f2d7c8f1d51ef7b8dd9c43"
+    },
+    "art/artwork-finish/science-v2/orbital-flight-cell.png": {
+      "bytes": 46853,
+      "sha256": "0390057e86c022c003fb1f563631de44b40360c821faa2c311e58737c022d55c"
+    },
+    "art/artwork-finish/science-v2/orbital-latest.log": {
+      "bytes": 536,
+      "sha256": "1c12f802e2a233b6092fb7375491053a0cbd3362673cfa1f51deb5ebcdd7aaa6"
+    },
+    "art/artwork-finish/science-v2/orbital-native-timeline.png": {
+      "bytes": 114468,
+      "sha256": "33234225a27df0c72bf32be7270a874a17a4455549d47b247669e6ebf358fffe"
+    },
+    "art/artwork-finish/science-v2/raster-latest.log": {
+      "bytes": 100,
+      "sha256": "2164e6e2122d6a63a8339ccc5797a7d70f6082cce6f970545c2c965f6cb077d8"
+    },
+    "art/artwork-finish/science-v2/record-export.log": {
+      "bytes": 260,
+      "sha256": "078d2b901f86880568edc61657065f1d69d4f68b6ae358c62fc8131ca3e89a24"
+    },
+    "art/artwork-finish/science-v2/review-export.log": {
+      "bytes": 60,
+      "sha256": "64a27a7e4bad69683d6952e3d9e297a11787afa6efc376ef12acb6f5eec4bd75"
+    },
+    "art/artwork-finish/science-v2/skill-review/CLIP-QA.json": {
+      "bytes": 5888,
+      "sha256": "19e2af0baedb6c925bb73dcef61a1f7b11bbd5a36151f990d53caef2453e6a52"
+    },
+    "art/artwork-finish/science-v2/skill-review/VIEWER-QA.json": {
+      "bytes": 159,
+      "sha256": "dbc4c78fcb078ccc47c82a196cb067602ff3a632a15b4a9eb5601ad09fdda3fe"
+    },
+    "art/artwork-finish/science-v2/skill-review/astral_focus-0.png": {
+      "bytes": 28691,
+      "sha256": "2e583cb69cbb30e4b1ce0d76b328f2f4cd787d6a889fdff5456e2307d6f6547b"
+    },
+    "art/artwork-finish/science-v2/skill-review/astral_focus-1.png": {
+      "bytes": 33886,
+      "sha256": "361bd14187b981aef5b2a10088b3d54b1ff011601147c55428aac7b4a37c554a"
+    },
+    "art/artwork-finish/science-v2/skill-review/astral_focus-2.png": {
+      "bytes": 36213,
+      "sha256": "ab2bf068ed34995f32be59ee73aad74a965168f8513dd38c52652872665d8257"
+    },
+    "art/artwork-finish/science-v2/skill-review/astral_focus-3.png": {
+      "bytes": 36295,
+      "sha256": "e77b43971485a59f49a9b400e8a739eab36388ac82a4d3e75b16b82657e16a3d"
+    },
+    "art/artwork-finish/science-v2/skill-review/astral_focus-4.png": {
+      "bytes": 36384,
+      "sha256": "075877574a6ac2d9e0cb09f8adde3044731eeb428e8b3658ac815c97a3215f6f"
+    },
+    "art/artwork-finish/science-v2/skill-review/astral_focus-5.png": {
+      "bytes": 31177,
+      "sha256": "998ade17761ad4c38b3435a277b7666c128a702d97af7d805959ae52737415cd"
+    },
+    "art/artwork-finish/science-v2/skill-review/astral_focus-6.png": {
+      "bytes": 31067,
+      "sha256": "c71dec53c175ab330be108823e1b5521daa6dfecd6f19c66b313a4858483f57f"
+    },
+    "art/artwork-finish/science-v2/skill-review/astral_focus-7.png": {
+      "bytes": 30986,
+      "sha256": "5abdd60199a2ebe88f1aa199dba657a5b7528ed32c2b94f9c6b3a5403ea04387"
+    },
+    "art/artwork-finish/science-v2/skill-review/astral_focus-8.png": {
+      "bytes": 30923,
+      "sha256": "c77dd72df8cf66654c5ecf43796a0a2bd9e430bc5f9a54dd30377498f5822a3e"
+    },
+    "art/artwork-finish/science-v2/skill-review/blessing_of_odin-0.png": {
+      "bytes": 26859,
+      "sha256": "1c40a2ee724ee9738d4b317acfe23f2dcaa14ad18087e235ad35ee36135fc172"
+    },
+    "art/artwork-finish/science-v2/skill-review/blessing_of_odin-1.png": {
+      "bytes": 32098,
+      "sha256": "3427463501a5816aa3105d145fa3707ead66b1ea88bb3e9c91d30a373c8eddca"
+    },
+    "art/artwork-finish/science-v2/skill-review/blessing_of_odin-2.png": {
+      "bytes": 34582,
+      "sha256": "0c9bed61fe77a65cea333d960d9b7d528c44d92b4c6f0312ab71ee760e7cfc3b"
+    },
+    "art/artwork-finish/science-v2/skill-review/blessing_of_odin-3.png": {
+      "bytes": 34644,
+      "sha256": "cf1fa5b7a550decb1aff1d11d6f82f83ceb7adfd87d11523195715190ac99c1b"
+    },
+    "art/artwork-finish/science-v2/skill-review/blessing_of_odin-4.png": {
+      "bytes": 34820,
+      "sha256": "32b51aedbb7baef722811e5c29cad7b8389a72d2d8061e9f418cb21b97872dd3"
+    },
+    "art/artwork-finish/science-v2/skill-review/blessing_of_odin-5.png": {
+      "bytes": 32109,
+      "sha256": "3b5451226d27992b03fc3d6c6a9598dd121ff53a329280b4d9457c93988d554e"
+    },
+    "art/artwork-finish/science-v2/skill-review/blessing_of_odin-6.png": {
+      "bytes": 31136,
+      "sha256": "5838c7cc5571f400acf76a1f1cac7ab8e52b5cdf103aa4e1c8e4cd33fa406c0b"
+    },
+    "art/artwork-finish/science-v2/skill-review/blessing_of_odin-7.png": {
+      "bytes": 31012,
+      "sha256": "3578e3124053583f5b5c51980c703cc123256096e1421c4fdada5bda4f6ebec5"
+    },
+    "art/artwork-finish/science-v2/skill-review/blessing_of_odin-8.png": {
+      "bytes": 30984,
+      "sha256": "e54c60cc83367b157ac8698513a390dc37105f9585d899213bbfa1aaf2afb657"
+    },
+    "art/artwork-finish/science-v2/skill-review/blight_brand-0.png": {
+      "bytes": 32960,
+      "sha256": "4a5e3af19b2173f23e951ec0488d2680dbc8222209bc788200c8fc7e8257e7ca"
+    },
+    "art/artwork-finish/science-v2/skill-review/blight_brand-1.png": {
+      "bytes": 39860,
+      "sha256": "1470af795878457203c694b86d88bfc9e0be79822a953609ce1e0e3b8eaa9f64"
+    },
+    "art/artwork-finish/science-v2/skill-review/blight_brand-2.png": {
+      "bytes": 42740,
+      "sha256": "f5bd2b67ab2c9247875d32b094b28a4e802fd5c5fc10f4190c653a52537f6723"
+    },
+    "art/artwork-finish/science-v2/skill-review/blight_brand-3.png": {
+      "bytes": 41637,
+      "sha256": "a43b80c0c245dd1da965c1186ad92afdb02d6518253c14350acd4fd53b0a0cd3"
+    },
+    "art/artwork-finish/science-v2/skill-review/blight_brand-4.png": {
+      "bytes": 41712,
+      "sha256": "23adeac5a49572c7f3af2b0ae97bb89c70b404ce2cf9e203c3ab855463a38086"
+    },
+    "art/artwork-finish/science-v2/skill-review/blight_brand-5.png": {
+      "bytes": 33525,
+      "sha256": "f49cd15bf9d119ca901e6127f306adf26cc3056532bdfcbba647477731c63dd3"
+    },
+    "art/artwork-finish/science-v2/skill-review/blight_brand-6.png": {
+      "bytes": 36589,
+      "sha256": "40491a9da91992e6ce9cd9f0c320b9844545f3dad1ac274748e0960c4f3bf84e"
+    },
+    "art/artwork-finish/science-v2/skill-review/blight_brand-7.png": {
+      "bytes": 34701,
+      "sha256": "e1f46dd531ab6e78493bf57ff65232caad844fe5aeacdfeb81e8b9aacf1cd8aa"
+    },
+    "art/artwork-finish/science-v2/skill-review/blight_brand-8.png": {
+      "bytes": 34920,
+      "sha256": "2329317fc088d829f63de58ef577c359e65f827dcaf68f0276c0db19d0ee2582"
+    },
+    "art/artwork-finish/science-v2/skill-review/blink_glyph-0.png": {
+      "bytes": 34923,
+      "sha256": "292a297f3e7d673a7de12f6d232b85e1851de9a4ccaa88a6b27e3274e7b9c5a1"
+    },
+    "art/artwork-finish/science-v2/skill-review/blink_glyph-1.png": {
+      "bytes": 44350,
+      "sha256": "700cba888f62df3aaf25fceab0ddd7aade8caf15c222fcbeb438970f443de504"
+    },
+    "art/artwork-finish/science-v2/skill-review/blink_glyph-2.png": {
+      "bytes": 48235,
+      "sha256": "45c25e8dc406c7112b22466e565fc5a2e43245cc88e83c7991611b66b4b41e33"
+    },
+    "art/artwork-finish/science-v2/skill-review/blink_glyph-3.png": {
+      "bytes": 43864,
+      "sha256": "0f244f3d1ee2c8066e81d4839b9a813113565217b1f396ddea2cf89467d979d7"
+    },
+    "art/artwork-finish/science-v2/skill-review/blink_glyph-4.png": {
+      "bytes": 41078,
+      "sha256": "167b80becfe659b15f5f0096f1381fc86733f9a8416dbb2257a1e481439f3ba8"
+    },
+    "art/artwork-finish/science-v2/skill-review/blink_glyph-5.png": {
+      "bytes": 31056,
+      "sha256": "623833f7095017890a641cae2107cfe016b7b6b5e7512272e262f55e0f44ecf5"
+    },
+    "art/artwork-finish/science-v2/skill-review/blink_glyph-6.png": {
+      "bytes": 31039,
+      "sha256": "ad28268aeae7d5ac6ad9d57e715aea8737a926ea53d1679aa6a210cc1eb23efb"
+    },
+    "art/artwork-finish/science-v2/skill-review/blink_glyph-7.png": {
+      "bytes": 31340,
+      "sha256": "587696a0f3f4dece10a4db5e4a0ebab9233359c6788b3407bd3ae2269db3f9f6"
+    },
+    "art/artwork-finish/science-v2/skill-review/blink_glyph-8.png": {
+      "bytes": 31200,
+      "sha256": "8e39fbf4d528e5a1ef08412df9920cae7ca5443f331365e215be5955e5178b9c"
+    },
+    "art/artwork-finish/science-v2/skill-review/breath_of_battle-0.png": {
+      "bytes": 31338,
+      "sha256": "cd1717bc7b28cf0640b5c811945367a3c1c9703de7624a292f082bba2bf9b82d"
+    },
+    "art/artwork-finish/science-v2/skill-review/breath_of_battle-1.png": {
+      "bytes": 36492,
+      "sha256": "7ee57144066ab56bdae9e67c6c36872bb94f9ae621debd5627468e91a7094511"
+    },
+    "art/artwork-finish/science-v2/skill-review/breath_of_battle-2.png": {
+      "bytes": 38354,
+      "sha256": "0d8052d7e6c2e902feec3b1272f6dcc9e43a79a6cb4a6879b14385be194d6691"
+    },
+    "art/artwork-finish/science-v2/skill-review/breath_of_battle-3.png": {
+      "bytes": 38297,
+      "sha256": "ba127e78017eb63f9d24d491cdefc1fbef84997c06cea836c4eccd5dae66409d"
+    },
+    "art/artwork-finish/science-v2/skill-review/breath_of_battle-4.png": {
+      "bytes": 38446,
+      "sha256": "f00c807420405b7c8502df4a1c5efb01ea47fc95e3c2029a9fd30180515e5b82"
+    },
+    "art/artwork-finish/science-v2/skill-review/breath_of_battle-5.png": {
+      "bytes": 30759,
+      "sha256": "ef797da03f5e025d631c564e27e37122bb6fb7056dc2bed1db9659c93caccc15"
+    },
+    "art/artwork-finish/science-v2/skill-review/breath_of_battle-6.png": {
+      "bytes": 30815,
+      "sha256": "782305cbf63f7fdf0953ca586dc35f049bda0895c615d915a347ff62d8b73ea1"
+    },
+    "art/artwork-finish/science-v2/skill-review/breath_of_battle-7.png": {
+      "bytes": 30985,
+      "sha256": "5f6f1496ed24ecbd872df5d4c4da251b5c13c6ae557aef3f3695ca7ade4a4f1c"
+    },
+    "art/artwork-finish/science-v2/skill-review/breath_of_battle-8.png": {
+      "bytes": 31065,
+      "sha256": "b6453ed0429cfda9c57a624ea909e31942f88c6518ffa89ea2f32ae4c7cf3193"
+    },
+    "art/artwork-finish/science-v2/skill-review/catalog.json": {
+      "bytes": 103194,
+      "sha256": "9db6e5d5744b9fcb0eb2f6905aba9771b90c2506bd663da42d5efd272bc078e4"
+    },
+    "art/artwork-finish/science-v2/skill-review/chain_lightning-0.png": {
+      "bytes": 36570,
+      "sha256": "383509f7a6fd22ac417f587d29322f4cf9ca7c89dd3a64a008130b976ab8b59c"
+    },
+    "art/artwork-finish/science-v2/skill-review/chain_lightning-1.png": {
+      "bytes": 42372,
+      "sha256": "f16becccbc7b35d990a47b2c4fa56510661080a3cc9213b812bb4ac320edfed5"
+    },
+    "art/artwork-finish/science-v2/skill-review/chain_lightning-2.png": {
+      "bytes": 50145,
+      "sha256": "f8f89e771b3de6bd7b9e58f3c46f36ba753c95bf11ccead33b57383ef29aca0d"
+    },
+    "art/artwork-finish/science-v2/skill-review/chain_lightning-3.png": {
+      "bytes": 52175,
+      "sha256": "9dc8578c81ebd2d70a3ab7d54d2bc39a33c20a66134ad574b9867d75fe18f8de"
+    },
+    "art/artwork-finish/science-v2/skill-review/chain_lightning-4.png": {
+      "bytes": 50775,
+      "sha256": "3d35b158434dad8ec0d618128443263b2c030fda8a4b28ad1126c88e5b9becf7"
+    },
+    "art/artwork-finish/science-v2/skill-review/chain_lightning-5.png": {
+      "bytes": 47041,
+      "sha256": "7cfe84a6714e5139ab1d2482f5f91e12e76c83409193718ef484f78f02965c30"
+    },
+    "art/artwork-finish/science-v2/skill-review/chain_lightning-6.png": {
+      "bytes": 33841,
+      "sha256": "fa6059757d9554a7e9a8f9c385b6f285da8b0af50fad5ac7b16ff0b744d0c4ff"
+    },
+    "art/artwork-finish/science-v2/skill-review/chain_lightning-7.png": {
+      "bytes": 33837,
+      "sha256": "9631f3bb7582ed82dca0a5d23ef0391c3f8103762e0da83e28c8f286315fec67"
+    },
+    "art/artwork-finish/science-v2/skill-review/chain_lightning-8.png": {
+      "bytes": 33724,
+      "sha256": "da75d85dfefca87c0101253d7fd4fb145097446bc2f45775be29c2c94cffaf63"
+    },
+    "art/artwork-finish/science-v2/skill-review/cleansing_thread-0.png": {
+      "bytes": 32429,
+      "sha256": "d1a50789c49987cfa6e40886b750fcf456d97e5e4487f33494d794f2aff1ba0f"
+    },
+    "art/artwork-finish/science-v2/skill-review/cleansing_thread-1.png": {
+      "bytes": 37566,
+      "sha256": "db5fc6da2f84be9f66c796aa8fc3286074d814fe2353a428da8710412f734773"
+    },
+    "art/artwork-finish/science-v2/skill-review/cleansing_thread-2.png": {
+      "bytes": 39449,
+      "sha256": "e3b2786a1d7369d678a5c8762627a48ff3e0e227f000e69c879303c09b0a64e6"
+    },
+    "art/artwork-finish/science-v2/skill-review/cleansing_thread-3.png": {
+      "bytes": 39385,
+      "sha256": "9bba2a97f6a30c762c8ccec0c4aa012cc303cea937fb9dc41b96313f7ba3e7f1"
+    },
+    "art/artwork-finish/science-v2/skill-review/cleansing_thread-4.png": {
+      "bytes": 39471,
+      "sha256": "a945c4cc909642dcf8bfb3842859d7333d31c6a1494ffa3d92f30c975138241c"
+    },
+    "art/artwork-finish/science-v2/skill-review/cleansing_thread-5.png": {
+      "bytes": 30949,
+      "sha256": "d942443c90892639756601108202a6e0b9f22c53754052639dbc2b1ed8cbecf4"
+    },
+    "art/artwork-finish/science-v2/skill-review/cleansing_thread-6.png": {
+      "bytes": 31047,
+      "sha256": "9da088d28276eca9a5744ecdeb8fa0bbe136a4daad1d2b0cd43c94d63c6cb967"
+    },
+    "art/artwork-finish/science-v2/skill-review/cleansing_thread-7.png": {
+      "bytes": 30905,
+      "sha256": "b7f24b9500d3689b7f831977fef56e99ce60892b5c13e4e0dcfc3faf5c825adf"
+    },
+    "art/artwork-finish/science-v2/skill-review/cleansing_thread-8.png": {
+      "bytes": 30954,
+      "sha256": "0a61d55ce3bafa2cf01d119245274919c5f77989516be294f6437d80407da11c"
+    },
+    "art/artwork-finish/science-v2/skill-review/consecrated_combo-0.png": {
+      "bytes": 35713,
+      "sha256": "4397ab17fa3aa72bfe228f8ce045cc1880e091b20e56a1846b6882cb24aafbf9"
+    },
+    "art/artwork-finish/science-v2/skill-review/consecrated_combo-1.png": {
+      "bytes": 40194,
+      "sha256": "b94ccf46329f5d75fcd1cd8b33c069b67351df354bca55c47adfc397a0cab1f1"
+    },
+    "art/artwork-finish/science-v2/skill-review/consecrated_combo-2.png": {
+      "bytes": 43453,
+      "sha256": "d9be06df0c38a224c064fa902597b597a0d2d52b90ee63138592076d724584f2"
+    },
+    "art/artwork-finish/science-v2/skill-review/consecrated_combo-3.png": {
+      "bytes": 45854,
+      "sha256": "95278358990e18991b1392d207ee0dde6ca45a8fc86449e5f9b834d01524840e"
+    },
+    "art/artwork-finish/science-v2/skill-review/consecrated_combo-4.png": {
+      "bytes": 44055,
+      "sha256": "85c25cb439c912af274b25941ed1216b467a46bed23c6bb3fbdb4185d42726c9"
+    },
+    "art/artwork-finish/science-v2/skill-review/consecrated_combo-5.png": {
+      "bytes": 38524,
+      "sha256": "af4c9b21abe7d5df2f3e8bfb3a58339cabc04ac16dd36f873c0c897ed9970a13"
+    },
+    "art/artwork-finish/science-v2/skill-review/consecrated_combo-6.png": {
+      "bytes": 33926,
+      "sha256": "d5a4bf9902f176a72f9b0965c215ebb982f42cdbe16f58385ec494e854c829f4"
+    },
+    "art/artwork-finish/science-v2/skill-review/consecrated_combo-7.png": {
+      "bytes": 33418,
+      "sha256": "7ab574d20e67d2a0dfb1a775f21a2bebc1b2898c7c9c9dcec32c67b29a16eb97"
+    },
+    "art/artwork-finish/science-v2/skill-review/consecrated_combo-8.png": {
+      "bytes": 33453,
+      "sha256": "f95cd6286e044851bd2ad42e8cdf5d9fe74dc39dc57116687d0720e9731d3ff1"
+    },
+    "art/artwork-finish/science-v2/skill-review/convergence_seal-0.png": {
+      "bytes": 55795,
+      "sha256": "cdbedc9d5f9638f0015c6f9853a3f44283de1de99b76744619a0c21caa0c4fb3"
+    },
+    "art/artwork-finish/science-v2/skill-review/convergence_seal-1.png": {
+      "bytes": 69288,
+      "sha256": "3c6afee407da3187ffe1bd8dffc39591971bc9484fe0b08b745790f1f78c705b"
+    },
+    "art/artwork-finish/science-v2/skill-review/convergence_seal-2.png": {
+      "bytes": 76285,
+      "sha256": "2a65b3db4ac55bdfd4a5216716ecfd98b837bfa402fc60511447fdcc8b420443"
+    },
+    "art/artwork-finish/science-v2/skill-review/convergence_seal-3.png": {
+      "bytes": 76569,
+      "sha256": "1a392b240000bd0781a361b6ca9a9f721008bdd6663e13454fbffc750a499860"
+    },
+    "art/artwork-finish/science-v2/skill-review/convergence_seal-4.png": {
+      "bytes": 76710,
+      "sha256": "bfc6403103974961fd0fac217323e78c9a57922e7192da80049be4300a519dd7"
+    },
+    "art/artwork-finish/science-v2/skill-review/convergence_seal-5.png": {
+      "bytes": 69816,
+      "sha256": "0ec2f9caae1c3ae487f0b664228369098e4fad308a1e60f81450078f40e3eec3"
+    },
+    "art/artwork-finish/science-v2/skill-review/convergence_seal-6.png": {
+      "bytes": 76925,
+      "sha256": "3efd2d4da7c609a5933f06331b1670aaeca52e1a1b9b42ac18afdf4f2581a06d"
+    },
+    "art/artwork-finish/science-v2/skill-review/convergence_seal-7.png": {
+      "bytes": 76816,
+      "sha256": "f72a603c4f8e92f6e56289ce46a5076e18950c889507a936eb2bd78d7bc4d6c2"
+    },
+    "art/artwork-finish/science-v2/skill-review/convergence_seal-8.png": {
+      "bytes": 69372,
+      "sha256": "8779f9e35607327e46240cfbaa8832468bd0000aebccb6eb6d5777ea667bfb67"
+    },
+    "art/artwork-finish/science-v2/skill-review/dark_nova-0.png": {
+      "bytes": 39102,
+      "sha256": "885f847bba6d36ffe6e21ad4d4e7b6346c842d5827529dc43ab0bcb9b3d96e2f"
+    },
+    "art/artwork-finish/science-v2/skill-review/dark_nova-1.png": {
+      "bytes": 43220,
+      "sha256": "9047d11b061d88239dfd4ab7a79ddb5aaf3bfd26b8a05dc108177daf4ed69329"
+    },
+    "art/artwork-finish/science-v2/skill-review/dark_nova-2.png": {
+      "bytes": 58790,
+      "sha256": "618d53ced9e077f13aaef9b47081165ff8196a69e485d49234acd7e49795cb7c"
+    },
+    "art/artwork-finish/science-v2/skill-review/dark_nova-3.png": {
+      "bytes": 73482,
+      "sha256": "84867d72cb88305994707a6eabd0919e6c936fe1fdb4b535ddbc52a14be678f2"
+    },
+    "art/artwork-finish/science-v2/skill-review/dark_nova-4.png": {
+      "bytes": 74539,
+      "sha256": "8336ada79b75067e1754642375c21312f5b107295a167914d059e5ba35ca8fbd"
+    },
+    "art/artwork-finish/science-v2/skill-review/dark_nova-5.png": {
+      "bytes": 55691,
+      "sha256": "9bf38ab422bfe3f6217a5743f41ea0d2124e478802a3695619376062fb52a994"
+    },
+    "art/artwork-finish/science-v2/skill-review/dark_nova-6.png": {
+      "bytes": 38437,
+      "sha256": "7f7c59c472b26481f8032fdf720877153b939905981288711e394c03c8e1e741"
+    },
+    "art/artwork-finish/science-v2/skill-review/dark_nova-7.png": {
+      "bytes": 38788,
+      "sha256": "70d8b2dc7437604eb83a31366a57bde56e7a1821486b2553dce97a2e2269551a"
+    },
+    "art/artwork-finish/science-v2/skill-review/dark_nova-8.png": {
+      "bytes": 37558,
+      "sha256": "5fbe25f930c8d7a9d5cd14add81e3809fc18b289cb598fe13297c578e025ff51"
+    },
+    "art/artwork-finish/science-v2/skill-review/desktop.png": {
+      "bytes": 385514,
+      "sha256": "1c223982ac4ac4f11a34cdd922b9402f8905e3eced2474dc3e75014e8dfe546b"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_burst-0.png": {
+      "bytes": 41056,
+      "sha256": "861e2c72d4e278a065583ff3e2ce8c0360882af58c870134442d19c8ee632a85"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_burst-1.png": {
+      "bytes": 45182,
+      "sha256": "0199912a79a5ac7af54d2b2bf108cc0ff82e4eaa65fd584f47c1e86a1103ac1d"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_burst-2.png": {
+      "bytes": 58839,
+      "sha256": "e4cfc5e1208caa4f4d4bf7b14209e67e3e078caf66a4388bba30b63516263e01"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_burst-3.png": {
+      "bytes": 72352,
+      "sha256": "4ccb9e91ff7674d6ce0c2ba5ff5111c55e0d1561df7cdf4f97f02a3d2938bf10"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_burst-4.png": {
+      "bytes": 72325,
+      "sha256": "a5b1cabc546d011740c70b285c3417fc1db650494599c1bdca62b8c438942e6b"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_burst-5.png": {
+      "bytes": 33572,
+      "sha256": "5d5e41a104a00fa77819e619476fd9367b718f9d9293cf3ca98f168cf64f55fd"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_burst-6.png": {
+      "bytes": 33495,
+      "sha256": "8b3bd372a06a515fcc22354f5069459d6fab16e502da4d969f15df869389f947"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_burst-7.png": {
+      "bytes": 33733,
+      "sha256": "6b7ae04a60e735b24bbacebf32a2a3314b52ed054464b6fc945e518890ce4518"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_burst-8.png": {
+      "bytes": 33627,
+      "sha256": "f95442545549c98fbdcc67844fa791919d88f3f9d49cdd079a829f3458bfca97"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_shield-0.png": {
+      "bytes": 35213,
+      "sha256": "a4562e6b65d7d2edd47e740701f17a603d9d7b42942ec844a649d40e9aedcd59"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_shield-1.png": {
+      "bytes": 40401,
+      "sha256": "02bcf7993be34dcb745f14c7c601b5e1e0855a27b073572cd4276d4ba80ba5f2"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_shield-2.png": {
+      "bytes": 43972,
+      "sha256": "2286d990784dd766f253fd84ea454fa4513fa10245cad80d302393027f0500ab"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_shield-3.png": {
+      "bytes": 43962,
+      "sha256": "3c9e35ad589235dcf3ac68c356acc7ec20a8784a863f9cf3eaf07ebf4d531df3"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_shield-4.png": {
+      "bytes": 44033,
+      "sha256": "06797cdb13e57946977c5c176db7d6d047e42489ed99e2c8496a987ab90d0500"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_shield-5.png": {
+      "bytes": 53456,
+      "sha256": "5fdf3236011d2722c4b77f9d98679af4a9e060c0ddc6d879e7922a9725be29f3"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_shield-6.png": {
+      "bytes": 31104,
+      "sha256": "3237e8df1e49220229811fdc38355244d6c69d49985272a75f627c06b50d308e"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_shield-7.png": {
+      "bytes": 31282,
+      "sha256": "d6741697145afba656510c6b055191b7885a33345a50a341b480f613c368f99e"
+    },
+    "art/artwork-finish/science-v2/skill-review/divine_shield-8.png": {
+      "bytes": 31224,
+      "sha256": "9126db569e5d55628c663c26ff7c46c55741d7441e5c72cd71fea31f32348966"
+    },
+    "art/artwork-finish/science-v2/skill-review/earth_rune-0.png": {
+      "bytes": 37578,
+      "sha256": "ede906825a3a9e66428971a2d1f03cbb653a66a78b8876c4d2eccb6ace23ff93"
+    },
+    "art/artwork-finish/science-v2/skill-review/earth_rune-1.png": {
+      "bytes": 50638,
+      "sha256": "75361066a333e4c89f645539742c544d79fff195467cef8cf162c7ee046f84f5"
+    },
+    "art/artwork-finish/science-v2/skill-review/earth_rune-2.png": {
+      "bytes": 58899,
+      "sha256": "d0215bb129417566c2532af54e41225059b3a43bc2aabd04e9af445dcfb1d6fd"
+    },
+    "art/artwork-finish/science-v2/skill-review/earth_rune-3.png": {
+      "bytes": 67599,
+      "sha256": "878f55c581ae4b59b856a17227389720a5208638e901507319907bc1bfbd3baa"
+    },
+    "art/artwork-finish/science-v2/skill-review/earth_rune-4.png": {
+      "bytes": 59887,
+      "sha256": "41f96e1c535931a46141d37cddec088a91d505048d57654ab809bbc623ddb7c1"
+    },
+    "art/artwork-finish/science-v2/skill-review/earth_rune-5.png": {
+      "bytes": 54242,
+      "sha256": "d164454d8ba5405a3d86523721c8ec4cbc32865e9fc4e3b7f9d7580674f30e2a"
+    },
+    "art/artwork-finish/science-v2/skill-review/earth_rune-6.png": {
+      "bytes": 38192,
+      "sha256": "1893e66c15376608035031d84bd715e55c82bf7103eaa57bd2b336c56ac9d75e"
+    },
+    "art/artwork-finish/science-v2/skill-review/earth_rune-7.png": {
+      "bytes": 36985,
+      "sha256": "3d67ffdeb2c2569d2377f1c75c41f1b3dbf3e995ea37034d351047a78cb9bc03"
+    },
+    "art/artwork-finish/science-v2/skill-review/earth_rune-8.png": {
+      "bytes": 36796,
+      "sha256": "a599479b88e87f08889f6cace3f8b3122dea982c63087bb1aeb9578658416a2b"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_anchor-0.png": {
+      "bytes": 33890,
+      "sha256": "ef9d9b991eacb5a1c9f1300af09b39879ecab719e2870a297db989d17b713ef0"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_anchor-1.png": {
+      "bytes": 38819,
+      "sha256": "4d9a514082f7f979f388c2a4f765da719dc0d1c4edc502e501823e5f3bd76485"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_anchor-2.png": {
+      "bytes": 40420,
+      "sha256": "2cb557850f13021ccd7be5dac4751fe13eb19924b3c66effa1a4b5182f0040fc"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_anchor-3.png": {
+      "bytes": 40369,
+      "sha256": "48dbfb2c6463eb50549ee07b78e2bf4597518827f930e6fc6bb2b3774a30bbba"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_anchor-4.png": {
+      "bytes": 40431,
+      "sha256": "7bda5926ccf71187beffbf73e13809a06feee6602930db146e3bb17931338eb2"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_anchor-5.png": {
+      "bytes": 30914,
+      "sha256": "06ae8b232b959b16e54be4494a6f25f1613fe35907ee776ab9a4dcb0a11c629e"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_anchor-6.png": {
+      "bytes": 30818,
+      "sha256": "9f91ba038b818646c10e8e8dda42d9cc9d2901722e943399d0568954371ef8fe"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_anchor-7.png": {
+      "bytes": 30710,
+      "sha256": "7ace67591cc3ed1c47462f8b3ea6fe2741fab67a60798874a9381749adcc0b3a"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_anchor-8.png": {
+      "bytes": 30713,
+      "sha256": "9b1c4472c91485d59f65064a3a4c614327b3c25d5880312ee6b164dbd0f03980"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_weave-0.png": {
+      "bytes": 34439,
+      "sha256": "efb9406df856ce416386e8964273cd3815e6d8025f61154c68aa5f3f14ad1f1a"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_weave-1.png": {
+      "bytes": 39643,
+      "sha256": "effd27cf23312c15bebaaf8da0dc1f7973044be941ac93a67d005f35cfb24eb6"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_weave-2.png": {
+      "bytes": 45141,
+      "sha256": "af60f32b329e6ac144a3b7c4919bbdfd64b465d5b0cfbb8d391b5a340ed4a952"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_weave-3.png": {
+      "bytes": 45018,
+      "sha256": "c1204cd51d7b712f5b74eb52127bf1e97116e5add24e970ff16d89f7e08c5e8a"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_weave-4.png": {
+      "bytes": 45137,
+      "sha256": "2db17e1ea9353340c619ff43f8922dc182c69e11e044a033ee54d6ca7179d081"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_weave-5.png": {
+      "bytes": 45613,
+      "sha256": "177f6f67944fa0214a0905690e792679c40032943ba23333ea120580ed8a06a0"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_weave-6.png": {
+      "bytes": 31303,
+      "sha256": "ceed870e0437da667a2784e5aa46c87559157bf5ae884e2549f159fc9638e116"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_weave-7.png": {
+      "bytes": 31059,
+      "sha256": "8c1c742c1cba69398ca8e84918157a80a290c0ac42ffc620b8dd8df33ed48cd7"
+    },
+    "art/artwork-finish/science-v2/skill-review/fate_weave-8.png": {
+      "bytes": 31120,
+      "sha256": "9a2e4fb3b97756d73cffd2e16c68a7bf807b37966cd8f746afd5bfd050561aba"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_pillar-0.png": {
+      "bytes": 46091,
+      "sha256": "c6938940f11fcef12e9809e3917869a1c8a019257591213d0bad8f2b7c858c22"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_pillar-1.png": {
+      "bytes": 55763,
+      "sha256": "51ba9bdfc45f3daeea5f61a929db34ce6abbc7ae5421e6e4853a298c56756a0e"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_pillar-2.png": {
+      "bytes": 63212,
+      "sha256": "9f2fae06f49dd71a0bc666e2b925df80031e6f9dd58e591de97ac7250a95e0c3"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_pillar-3.png": {
+      "bytes": 63523,
+      "sha256": "c5d1366cf7f4434cf448c78a9f81ed5fb6f3330c41c19ea387fbd886c125c29c"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_pillar-4.png": {
+      "bytes": 63630,
+      "sha256": "8ab566fcdc218292d961d5a2f7fadbe7e9b79481cfea63d37c682fd7ff659492"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_pillar-5.png": {
+      "bytes": 59202,
+      "sha256": "14937d96c49dd5c2644bc826ee0d37e4906a2fb859073f61355ba9c6478677ff"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_pillar-6.png": {
+      "bytes": 71028,
+      "sha256": "74d07f19195110de4af49ac8e038e583b5e128d42784763a764c63851616e077"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_pillar-7.png": {
+      "bytes": 83980,
+      "sha256": "432efcb2e3b3ff8de41fd31fb608e421956a5940e33ba842260d1323a3d3deee"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_pillar-8.png": {
+      "bytes": 37439,
+      "sha256": "4a8eb28ff0b5bbe1ea333ab37f980fbd85d3dd6b057db8b8a81aea226d709ee2"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_rune-0.png": {
+      "bytes": 29775,
+      "sha256": "f32d0c0445d97a012383a46506a3256997b7ef0595827ecce5db12a72cd4e515"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_rune-1.png": {
+      "bytes": 34840,
+      "sha256": "1f85cb4d5f3c63bf58f1a82c501cdb9922f16a2df06801755aef28e1d77d0325"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_rune-2.png": {
+      "bytes": 38728,
+      "sha256": "fa57fd438295a93b2bbf56a7f66f1d394662040d6191ea8d954c0008c7ba46f8"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_rune-3.png": {
+      "bytes": 39778,
+      "sha256": "fe151ee9a8ab2e0b59aa31a1c46aba93c26c64a9f43d6c1010d65c67e5e0ccf8"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_rune-4.png": {
+      "bytes": 39721,
+      "sha256": "b8f09b9705a791ed604a6084f80f0534619aad879031abbe68a9fa4b460c2f48"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_rune-5.png": {
+      "bytes": 39706,
+      "sha256": "df9e14a23e1472a14800c51392fcdf989032166ea1813148d8591c14ece08348"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_rune-6.png": {
+      "bytes": 34548,
+      "sha256": "d722140f7e3595156684555009351a87bce59591e1a17e56034b3d2054f9e76d"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_rune-7.png": {
+      "bytes": 35247,
+      "sha256": "7d97a43f03e66275cf437301366b26d2082e0a3bb5ff9b5f247881d1e0f82650"
+    },
+    "art/artwork-finish/science-v2/skill-review/fire_rune-8.png": {
+      "bytes": 35059,
+      "sha256": "a1481559f34405989ef99d6dd2b289dde4ffd813f8e887d73c638444faa351f5"
+    },
+    "art/artwork-finish/science-v2/skill-review/forbidden_exchange-0.png": {
+      "bytes": 30778,
+      "sha256": "00d1c5a94122f1788d72e938b1be3060b03c0f2d2db7fb921c1c7d7ee70cb66d"
+    },
+    "art/artwork-finish/science-v2/skill-review/forbidden_exchange-1.png": {
+      "bytes": 35911,
+      "sha256": "cf03cc628a1e3285c4567b2da56e12fcf8f32fb5e1751aab0ee3bd35c56faafd"
+    },
+    "art/artwork-finish/science-v2/skill-review/forbidden_exchange-2.png": {
+      "bytes": 38641,
+      "sha256": "862c2f6d05562ff10540c339434fe8820f257cdaa07a33e922ed8b14844d2017"
+    },
+    "art/artwork-finish/science-v2/skill-review/forbidden_exchange-3.png": {
+      "bytes": 38146,
+      "sha256": "38d8e9edf15c26f7eae6e63db08a9b4dfe669c29112ffbcdad7009a843fb0d8a"
+    },
+    "art/artwork-finish/science-v2/skill-review/forbidden_exchange-4.png": {
+      "bytes": 38261,
+      "sha256": "198fcaa2bff996a29d01f29c1d43b6ec8d588bb5da386503865ff9f34e302c50"
+    },
+    "art/artwork-finish/science-v2/skill-review/forbidden_exchange-5.png": {
+      "bytes": 31083,
+      "sha256": "119d9ce6efccf7a827b37b131f795546c71fc96a77e1782b7160570bb04a8f62"
+    },
+    "art/artwork-finish/science-v2/skill-review/forbidden_exchange-6.png": {
+      "bytes": 31211,
+      "sha256": "11e28984415eec3bbd77948f737652afcc0db0ba75b2a0e69113bfe1787d4389"
+    },
+    "art/artwork-finish/science-v2/skill-review/forbidden_exchange-7.png": {
+      "bytes": 30987,
+      "sha256": "b164ee8059885dfeb698c398f27203f04657f2bd4e75762daab10dbfcc2c3f9e"
+    },
+    "art/artwork-finish/science-v2/skill-review/forbidden_exchange-8.png": {
+      "bytes": 31130,
+      "sha256": "358cc232c356359bf09c5f30461afa721b0a2f08174cf5b64defe9bd2a4bdcad"
+    },
+    "art/artwork-finish/science-v2/skill-review/frost_nova-0.png": {
+      "bytes": 37382,
+      "sha256": "d5f7eb38ab445f8b1d42f7074848764650d034e88b9f7db8f744ceba3f32673a"
+    },
+    "art/artwork-finish/science-v2/skill-review/frost_nova-1.png": {
+      "bytes": 42568,
+      "sha256": "ec21d990243b6535acfbd056ac68ce3008a2623690b90c91baa4d4c41ec3600a"
+    },
+    "art/artwork-finish/science-v2/skill-review/frost_nova-2.png": {
+      "bytes": 91208,
+      "sha256": "70481b7d597feccc83358cb632876e2b0d305356d1e0bbd7f86a3decb5dcbc86"
+    },
+    "art/artwork-finish/science-v2/skill-review/frost_nova-3.png": {
+      "bytes": 104336,
+      "sha256": "ca389148ddfb076c25edeeb7fdc49263e41c8ad70dda25f525e38ea0fea63404"
+    },
+    "art/artwork-finish/science-v2/skill-review/frost_nova-4.png": {
+      "bytes": 106747,
+      "sha256": "5999469ac71ae16325482217982be657d03d9f4b68dd0aedb58b04b77b6322f7"
+    },
+    "art/artwork-finish/science-v2/skill-review/frost_nova-5.png": {
+      "bytes": 62130,
+      "sha256": "8034a50d25db499f182ac53e8e5ce2de96b66ab8fbeebe83f7ca7ea3aa0c4fc7"
+    },
+    "art/artwork-finish/science-v2/skill-review/frost_nova-6.png": {
+      "bytes": 38451,
+      "sha256": "485e1db61929c124f31051315d7099a508f325fa2cb1531869e8134b2cf42637"
+    },
+    "art/artwork-finish/science-v2/skill-review/frost_nova-7.png": {
+      "bytes": 38440,
+      "sha256": "c8c9a9fe688ee41e9d3ddc2c0e3f2409b1c5a1220b5147f1d51302823ed3faf9"
+    },
+    "art/artwork-finish/science-v2/skill-review/frost_nova-8.png": {
+      "bytes": 36820,
+      "sha256": "ae2a685d65ecfd9b0c12514cbcd62caeaaae6c1a9b4112ca163eafd16d141915"
+    },
+    "art/artwork-finish/science-v2/skill-review/galdr-board.jpg": {
+      "bytes": 44997,
+      "sha256": "7c679122b8bd6eac14dba983abb007be65addc14fdc4c7499de4fb748202f45a"
+    },
+    "art/artwork-finish/science-v2/skill-review/galdr-video-check.png": {
+      "bytes": 75636,
+      "sha256": "e0ad801a8c029ce9524fde932b71c9c677cfb0d353d55ba1b49906f23f9ea1c2"
+    },
+    "art/artwork-finish/science-v2/skill-review/galdr.mp4": {
+      "bytes": 977443,
+      "sha256": "715376aa8ddc576be03e54a86db72650fea0f3e0b9d8868dc7206519e314442a"
+    },
+    "art/artwork-finish/science-v2/skill-review/galdr.webm": {
+      "bytes": 3695369,
+      "sha256": "501dd031e6b30b662a9e495f71439b3ccea3e7f1995f7d4cdf9b7dc317cda8ac"
+    },
+    "art/artwork-finish/science-v2/skill-review/glacial_cage-0.png": {
+      "bytes": 57439,
+      "sha256": "5d67c81bf6ba78cdd16771817d0088b2e5b72104dbffaefa683f635f2e41b496"
+    },
+    "art/artwork-finish/science-v2/skill-review/glacial_cage-1.png": {
+      "bytes": 63819,
+      "sha256": "c66d5c04674faffeaf350b6934a7aa9c0fd686d6171a20d5890969e00ce20190"
+    },
+    "art/artwork-finish/science-v2/skill-review/glacial_cage-2.png": {
+      "bytes": 76136,
+      "sha256": "df79795c11669d16a170234d833b2d0dd4aa966db8d338ccd5279abad436abe8"
+    },
+    "art/artwork-finish/science-v2/skill-review/glacial_cage-3.png": {
+      "bytes": 88245,
+      "sha256": "53d1223e82d94e2fa4801dcad63976c6ff8250ad647fd05b1a5686546b4163ed"
+    },
+    "art/artwork-finish/science-v2/skill-review/glacial_cage-4.png": {
+      "bytes": 87954,
+      "sha256": "63d35f2660c833652cc44b729237c45270bc740db8b6af5ddd417156a6aaba72"
+    },
+    "art/artwork-finish/science-v2/skill-review/glacial_cage-5.png": {
+      "bytes": 38160,
+      "sha256": "76434bb7676a5fde0fa7aa31e83db909f07b713799217642914cd7c7d6a7ebe8"
+    },
+    "art/artwork-finish/science-v2/skill-review/glacial_cage-6.png": {
+      "bytes": 38616,
+      "sha256": "500eb5424d98905bb3ec7d0baf9f43713b8e42830a3b5e7ad10df30cdb8e0861"
+    },
+    "art/artwork-finish/science-v2/skill-review/glacial_cage-7.png": {
+      "bytes": 37966,
+      "sha256": "5cda6677d199548db3fc5d2a12adab555acbc4c9f11bf334d829abab8d311492"
+    },
+    "art/artwork-finish/science-v2/skill-review/glacial_cage-8.png": {
+      "bytes": 36557,
+      "sha256": "574301046daae33ebf69200b0f54fab78ce19b905deafa0b84bb611e1ecfba73"
+    },
+    "art/artwork-finish/science-v2/skill-review/great_restoration-0.png": {
+      "bytes": 37932,
+      "sha256": "9d6084331c083b99a319f7fab6df2cf40e33cc527ef379b3617abfbdf1d87b47"
+    },
+    "art/artwork-finish/science-v2/skill-review/great_restoration-1.png": {
+      "bytes": 42913,
+      "sha256": "94d1066e02f77ca54c6842543748e0f8ec38d0ebf01a15db63d58f9592b9ad0a"
+    },
+    "art/artwork-finish/science-v2/skill-review/great_restoration-2.png": {
+      "bytes": 48817,
+      "sha256": "9d59a42f390952fad404429ddccc9c381e5982fe9eafcef3cd0cc10ee2dfa372"
+    },
+    "art/artwork-finish/science-v2/skill-review/great_restoration-3.png": {
+      "bytes": 46680,
+      "sha256": "0958c13db214328c10104806177d087f0343b91bdec4f25ec1a7ca133fcc1db4"
+    },
+    "art/artwork-finish/science-v2/skill-review/great_restoration-4.png": {
+      "bytes": 46720,
+      "sha256": "1b260e1465cac36794a23a584622c6f10ad8147386919419b04f12ade063233f"
+    },
+    "art/artwork-finish/science-v2/skill-review/great_restoration-5.png": {
+      "bytes": 50473,
+      "sha256": "a5b14400107f794ba004b164ced5c6e0b59d61959dfe00c2e78cc11e9428166e"
+    },
+    "art/artwork-finish/science-v2/skill-review/great_restoration-6.png": {
+      "bytes": 43493,
+      "sha256": "d3ae1d36cba50cc78aaf63451b5a5d04b0e519d945b9cfb6dbc45a69e4dbcbea"
+    },
+    "art/artwork-finish/science-v2/skill-review/great_restoration-7.png": {
+      "bytes": 30743,
+      "sha256": "03af71a176f29cdd49233499be959600aa094f4aec32b089c23efb4b47e63099"
+    },
+    "art/artwork-finish/science-v2/skill-review/great_restoration-8.png": {
+      "bytes": 30633,
+      "sha256": "30d38869cc1fef354a9d2d9ceaa6112e0928bab6ccc523bf049c430d4d201fd4"
+    },
+    "art/artwork-finish/science-v2/skill-review/gythja-board.jpg": {
+      "bytes": 37955,
+      "sha256": "7af3f4e60d45e4d9b8ab8fab639bceaa689b4f566eac4427207169a79bbc26ca"
+    },
+    "art/artwork-finish/science-v2/skill-review/gythja.mp4": {
+      "bytes": 536254,
+      "sha256": "d16ee54557d7ef097277c15dee3eefd6751728c075d30b2a119964a368ff4454"
+    },
+    "art/artwork-finish/science-v2/skill-review/gythja.webm": {
+      "bytes": 2782176,
+      "sha256": "2abeec1dfdbb0c52a5cd96a3a440b5424fec21ee0644130e567b3a48091205a1"
+    },
+    "art/artwork-finish/science-v2/skill-review/hex_of_hel-0.png": {
+      "bytes": 33833,
+      "sha256": "66ef5108f456d9de9a7beb3df54edc4905136b71c05220b0c6298c70720176ed"
+    },
+    "art/artwork-finish/science-v2/skill-review/hex_of_hel-1.png": {
+      "bytes": 36949,
+      "sha256": "7dbfd679359644c07f15dd93dccc21aacc4e7e49687f725ace1cee10ee53b396"
+    },
+    "art/artwork-finish/science-v2/skill-review/hex_of_hel-2.png": {
+      "bytes": 37998,
+      "sha256": "4f1f5a09807a7947bc2e545f47b45e4f001a99fd4a10b5ac48ca3e7371b32dc8"
+    },
+    "art/artwork-finish/science-v2/skill-review/hex_of_hel-3.png": {
+      "bytes": 53111,
+      "sha256": "41233b2a181ac78f7575b80a05d7d85eb4f337a3698a56a46f3317976ceb9e5c"
+    },
+    "art/artwork-finish/science-v2/skill-review/hex_of_hel-4.png": {
+      "bytes": 56427,
+      "sha256": "11c153b16ad4fbd86bcbc56671598d39887393fbb18f3ad75b35016895348123"
+    },
+    "art/artwork-finish/science-v2/skill-review/hex_of_hel-5.png": {
+      "bytes": 49577,
+      "sha256": "d9c25078f6f768da29ec981df3da373c9153cacb8175b13259ae60b5d23432a4"
+    },
+    "art/artwork-finish/science-v2/skill-review/hex_of_hel-6.png": {
+      "bytes": 40806,
+      "sha256": "1e2c63ed951aa8f997477ed05b3bfb582db67ef4d4a628e34d6a2d13f4653fb7"
+    },
+    "art/artwork-finish/science-v2/skill-review/hex_of_hel-7.png": {
+      "bytes": 37869,
+      "sha256": "f14955f5157666f91e2b24679ae3e54edf16dd67aafb40d51f4a09be10eedc30"
+    },
+    "art/artwork-finish/science-v2/skill-review/hex_of_hel-8.png": {
+      "bytes": 37850,
+      "sha256": "75c4e0f258a9d1ca0107ec9f2d633a1e406daf193d82601bbc07b273db10cd37"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_fist-0.png": {
+      "bytes": 29882,
+      "sha256": "a76f58c73604cc3eaff6cf9616cbda27fc1f2db4d7268db549590fe1be15642e"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_fist-1.png": {
+      "bytes": 36682,
+      "sha256": "aa8d5a82dafa813c2c8dc662de06cbd0198e4af11028a64db3a5a897aeeb6cf9"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_fist-2.png": {
+      "bytes": 38691,
+      "sha256": "7fb81507c94693a554805e8c76d1534226d09df59705229ae61ae65154e53961"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_fist-3.png": {
+      "bytes": 36562,
+      "sha256": "2b3a8601765f9a0d1db8b22b1f0165415244afa7c58c018defc606906e27ab67"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_fist-4.png": {
+      "bytes": 36994,
+      "sha256": "8158c14693f5821a30600abb68dee980febd0c1cdd1f0e55c4e9f57c23eb20ab"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_fist-5.png": {
+      "bytes": 33609,
+      "sha256": "91793687bd1065e5d78e2a686328b87cabc65cba23048d28d6b049f65ec955d0"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_fist-6.png": {
+      "bytes": 33590,
+      "sha256": "fdb8e51e23359b7eb79a622f2bf7a30f4552347071fc4a7f2648fc0b2d5215fe"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_fist-7.png": {
+      "bytes": 33097,
+      "sha256": "c43928b6da4c8466789fb81e287709b1eb5f358ece7d3dd3acf8e3b5f2761ef6"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_fist-8.png": {
+      "bytes": 33180,
+      "sha256": "0ba0c75c2552e84117a2ae7ead0b7251fccb5e4356e225a6f75a48dd01c754fd"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_spear-0.png": {
+      "bytes": 30222,
+      "sha256": "7984778917e4ace9cd7a3442172c699dce304d9bd9a2fabfd584962d075523d0"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_spear-1.png": {
+      "bytes": 40771,
+      "sha256": "9993577d22537afa9cae78a32973b66fb0a9c83d2ae4dc25d960741882d730c7"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_spear-2.png": {
+      "bytes": 33125,
+      "sha256": "46f2957f532de9fe2262aa722504d2feae5ad6dfe503eba3f8b902de101417f6"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_spear-3.png": {
+      "bytes": 35377,
+      "sha256": "cdb8d9e6a6f83a6baae6396a292fe2aff4a879e725e17732d10b96ee29b4ed57"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_spear-4.png": {
+      "bytes": 34429,
+      "sha256": "5b490d537732d8c2dac36cbe326fe24751801417c0f9f8c5341a2999aee3513b"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_spear-5.png": {
+      "bytes": 32997,
+      "sha256": "19a6a830bd84f88987879b1907b664b28128fada7448ea1c0b42d598aa38bf67"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_spear-6.png": {
+      "bytes": 33069,
+      "sha256": "ae4e5084129f572ff13d8a6409258fcad9be6b5424664e07423e8bddf1dda323"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_spear-7.png": {
+      "bytes": 32840,
+      "sha256": "9688c71e146ce6a08f27f4c54bfd5281363f31cbfaa57ccc22e94275daa85af5"
+    },
+    "art/artwork-finish/science-v2/skill-review/holy_spear-8.png": {
+      "bytes": 32951,
+      "sha256": "dbec2269cca1048218f5ecbe5f94cb38c3b3b0b146f54cdae88717d7df437de5"
+    },
+    "art/artwork-finish/science-v2/skill-review/ice_rune-0.png": {
+      "bytes": 30276,
+      "sha256": "66c169afa02a66e8c510e7a1a46dcfd5c3db2fe5ff4ebcfdb2a85d58c56bdaad"
+    },
+    "art/artwork-finish/science-v2/skill-review/ice_rune-1.png": {
+      "bytes": 35517,
+      "sha256": "e69ad79f2fbf87a8d77633a3a3ac6718f4c05e09c337ac13396d20950a244e81"
+    },
+    "art/artwork-finish/science-v2/skill-review/ice_rune-2.png": {
+      "bytes": 38160,
+      "sha256": "77e054d96be09af97115373281d4e4586dc28405d2420a792925df61ee3090e6"
+    },
+    "art/artwork-finish/science-v2/skill-review/ice_rune-3.png": {
+      "bytes": 39187,
+      "sha256": "c735f94e37c8df636580157f90f6ea85f3143d3d4a9df8ea6bbce46c0097a3a6"
+    },
+    "art/artwork-finish/science-v2/skill-review/ice_rune-4.png": {
+      "bytes": 39632,
+      "sha256": "cb79e5d0bbaecc8a253936742dc78921e2262316badc9023b8cb692de5f2df64"
+    },
+    "art/artwork-finish/science-v2/skill-review/ice_rune-5.png": {
+      "bytes": 44059,
+      "sha256": "4148eca20fc11535a32672de03cc72efcf474b6ef6a6560af0230af080e478c4"
+    },
+    "art/artwork-finish/science-v2/skill-review/ice_rune-6.png": {
+      "bytes": 34194,
+      "sha256": "bc933112932c75e58a9478531569f0a02166ef35ee8a61665ef5ff3370a39d39"
+    },
+    "art/artwork-finish/science-v2/skill-review/ice_rune-7.png": {
+      "bytes": 33845,
+      "sha256": "066250fc5d28c9004e1a6e9e4a22a1a811469f417663d7d181102a9fcfad80ab"
+    },
+    "art/artwork-finish/science-v2/skill-review/ice_rune-8.png": {
+      "bytes": 34019,
+      "sha256": "f6a2d7b33b40518a248d596bc3e228d3c6922f7b2e3c126512ef36084b32a4ce"
+    },
+    "art/artwork-finish/science-v2/skill-review/identity-contact-sheet.jpg": {
+      "bytes": 106414,
+      "sha256": "d22b2fe2c99cd4962942efff96b644b73dc0aaeb952e1b4f9484807ec53bdc45"
+    },
+    "art/artwork-finish/science-v2/skill-review/index.html": {
+      "bytes": 5501,
+      "sha256": "d2850941642353af46b93679df457a74288cedddd667862a590b71bd07742d28"
+    },
+    "art/artwork-finish/science-v2/skill-review/individual-effects-board.jpg": {
+      "bytes": 262724,
+      "sha256": "0929871c1710b939e8c549ec55141ccc33ea5aab824f91e39aefa24a40fd9acd"
+    },
+    "art/artwork-finish/science-v2/skill-review/light_of_freyja-0.png": {
+      "bytes": 28535,
+      "sha256": "d5ae0d2b9a24f71404e1e6a5fd90fa2868351b664d5ae5e1ddb569b7d37d479e"
+    },
+    "art/artwork-finish/science-v2/skill-review/light_of_freyja-1.png": {
+      "bytes": 33725,
+      "sha256": "445cf3ec76d6274ce6ccf1afd6da5a3113634f0de07ae8ece33b742edefac8b8"
+    },
+    "art/artwork-finish/science-v2/skill-review/light_of_freyja-2.png": {
+      "bytes": 36489,
+      "sha256": "cf3cc092ccc933220260098db30ad57e518c9c6d3e0f766cbe3d48da858a8f51"
+    },
+    "art/artwork-finish/science-v2/skill-review/light_of_freyja-3.png": {
+      "bytes": 36122,
+      "sha256": "70f64d94041cd9ba5a14508041398b9959c204ce23e179ff98670a0803bb6c85"
+    },
+    "art/artwork-finish/science-v2/skill-review/light_of_freyja-4.png": {
+      "bytes": 36249,
+      "sha256": "6abbb8f79fba5c5a834818c4745b43190728df565506ba402c7446a7b1cab01a"
+    },
+    "art/artwork-finish/science-v2/skill-review/light_of_freyja-5.png": {
+      "bytes": 33932,
+      "sha256": "a56e606686fb09a69189ebecf859ad88bd2cae5bc849e7bb5240751fdd0aee48"
+    },
+    "art/artwork-finish/science-v2/skill-review/light_of_freyja-6.png": {
+      "bytes": 30726,
+      "sha256": "6d60332e99539c6e5e4f36b2d687841e1fc79e3f7c700f8eee3a1c241e05dd64"
+    },
+    "art/artwork-finish/science-v2/skill-review/light_of_freyja-7.png": {
+      "bytes": 30930,
+      "sha256": "95e6a54ceb9d3488e52106aff9495d1aae5d4c489962da326f360953c0b4d231"
+    },
+    "art/artwork-finish/science-v2/skill-review/light_of_freyja-8.png": {
+      "bytes": 30866,
+      "sha256": "59ae67fc13c3162e6474fee73406ccd3f139b5595c33badf5f0b71fadbad0ab2"
+    },
+    "art/artwork-finish/science-v2/skill-review/meteor_rune-0.png": {
+      "bytes": 33046,
+      "sha256": "4571a02e7a9cbe25e2e9b736767affc0de9abcb66123a6bdc4e712e8ca57ee64"
+    },
+    "art/artwork-finish/science-v2/skill-review/meteor_rune-1.png": {
+      "bytes": 44666,
+      "sha256": "9c65b0704dfe1f7014c29784624cad9792c341ee3047e3c442944e3ade442f40"
+    },
+    "art/artwork-finish/science-v2/skill-review/meteor_rune-2.png": {
+      "bytes": 47417,
+      "sha256": "d0b536e2e6c3314ad0016e709e733204db7f43080c383b5eaf6f9c1a34791876"
+    },
+    "art/artwork-finish/science-v2/skill-review/meteor_rune-3.png": {
+      "bytes": 41057,
+      "sha256": "dded7674fff2ff176cc28094a3f4d10e5c9ba1f34c87765c849fbfd3ea320d9c"
+    },
+    "art/artwork-finish/science-v2/skill-review/meteor_rune-4.png": {
+      "bytes": 74612,
+      "sha256": "6b3b64ef87d6b5536edffe4eefad280e181939b325674cdda87acc67f0593cbf"
+    },
+    "art/artwork-finish/science-v2/skill-review/meteor_rune-5.png": {
+      "bytes": 54055,
+      "sha256": "196eb4fe1d6efb4be3c033e034077301e8c91ea4fb3dcd235dac51ee2bf9cba9"
+    },
+    "art/artwork-finish/science-v2/skill-review/meteor_rune-6.png": {
+      "bytes": 50669,
+      "sha256": "9cedcdcea78dc02fd24a46ba507322023df9023cd274edd701d6025220871678"
+    },
+    "art/artwork-finish/science-v2/skill-review/meteor_rune-7.png": {
+      "bytes": 38855,
+      "sha256": "4dcc30733d15c974c648bba2955cf82207a78a4d7ee878e57a091feea68dcdd9"
+    },
+    "art/artwork-finish/science-v2/skill-review/meteor_rune-8.png": {
+      "bytes": 36990,
+      "sha256": "f3f84e4812ae907d395282991612b94caa3d132739e266ac43380e338e5b0116"
+    },
+    "art/artwork-finish/science-v2/skill-review/nightfall-0.png": {
+      "bytes": 87088,
+      "sha256": "0cf8b4603059d7c7654c4979f89e50f18652a5efb72998ffada220b76e986c19"
+    },
+    "art/artwork-finish/science-v2/skill-review/nightfall-1.png": {
+      "bytes": 100903,
+      "sha256": "583f5eceb632c92973cf3ad31d494662906d21c6cecef34d3bcd4ab7f23ff068"
+    },
+    "art/artwork-finish/science-v2/skill-review/nightfall-2.png": {
+      "bytes": 100861,
+      "sha256": "ba023f45ea361e152938eb517475141eebf032225335292bcc81245014a8bf9c"
+    },
+    "art/artwork-finish/science-v2/skill-review/nightfall-3.png": {
+      "bytes": 101868,
+      "sha256": "5bf74d6b0fa50b76ab7a7414453a14a5f73846cf08efc223a2f30a8bb1b5c0e3"
+    },
+    "art/artwork-finish/science-v2/skill-review/nightfall-4.png": {
+      "bytes": 98952,
+      "sha256": "b3fa503644c47c05e1bb7b9e173352d5cdbb2657937210769ee8bc06b47ee0f4"
+    },
+    "art/artwork-finish/science-v2/skill-review/nightfall-5.png": {
+      "bytes": 38435,
+      "sha256": "185f364f11dd94f93e841f2a407bc7c79dc4dc01a12f0131cdd0168ff4cbbb1d"
+    },
+    "art/artwork-finish/science-v2/skill-review/nightfall-6.png": {
+      "bytes": 38507,
+      "sha256": "c57095dc159519d7b3384324f145ce6f0056c939bfa9d929061f9346ca4d0ec5"
+    },
+    "art/artwork-finish/science-v2/skill-review/nightfall-7.png": {
+      "bytes": 36991,
+      "sha256": "fe91efb1ac4cdc98cf02659e47d720bfeeafa2efb772a5a8843584d9ab6c9680"
+    },
+    "art/artwork-finish/science-v2/skill-review/nightfall-8.png": {
+      "bytes": 36862,
+      "sha256": "95b4db63c2c492c0a4b05371a05f0bf47c5a6f00de1c53ec5c17a1420d25dda1"
+    },
+    "art/artwork-finish/science-v2/skill-review/norn-board.jpg": {
+      "bytes": 40802,
+      "sha256": "f6cd56e0e44a07a5892c46742f34f73504bf7cfdc2ae5637b44da77f0b68f238"
+    },
+    "art/artwork-finish/science-v2/skill-review/norn.mp4": {
+      "bytes": 655530,
+      "sha256": "83661f77e63fe14e07565a5316e2cfacbc952cd07e07ee382cb9aead4f9c071a"
+    },
+    "art/artwork-finish/science-v2/skill-review/norn.webm": {
+      "bytes": 3245471,
+      "sha256": "83bdab29f6ada22c038ef3fff530b6c37b5d00e7f7a328ba3bbc9ab9b9d4e9db"
+    },
+    "art/artwork-finish/science-v2/skill-review/odins_spear_rune-0.png": {
+      "bytes": 45947,
+      "sha256": "1f787ff1c46241b28b32aa8aa11389d7f716d4588e7c52b9df14e4a2a02607dd"
+    },
+    "art/artwork-finish/science-v2/skill-review/odins_spear_rune-1.png": {
+      "bytes": 58806,
+      "sha256": "39a45001523624cd133e2a05f024900adc3d44c0ab1967971878fbcd251d4b19"
+    },
+    "art/artwork-finish/science-v2/skill-review/odins_spear_rune-2.png": {
+      "bytes": 67643,
+      "sha256": "9f0abd48856299669573921891b7ae795e2861a15ca5a57acaae749988a2c2ac"
+    },
+    "art/artwork-finish/science-v2/skill-review/odins_spear_rune-3.png": {
+      "bytes": 57231,
+      "sha256": "2762c976ac36c11107227e8b9e67776148661c1850aec228d05f0d743d7b58b7"
+    },
+    "art/artwork-finish/science-v2/skill-review/odins_spear_rune-4.png": {
+      "bytes": 45884,
+      "sha256": "d4940e2d4a265535dc52bf4d5fd6fa07833d7e22bf0727194484087bc2b804b1"
+    },
+    "art/artwork-finish/science-v2/skill-review/odins_spear_rune-5.png": {
+      "bytes": 34058,
+      "sha256": "ff4159fa2064086f7564ca724814d63626a72ef6d093c79f0b5ef72c95c18a41"
+    },
+    "art/artwork-finish/science-v2/skill-review/odins_spear_rune-6.png": {
+      "bytes": 34027,
+      "sha256": "64c3ba65637bf2397dae8f05c50f93fd56ebefd767c811ea4899b92d8e6d13f5"
+    },
+    "art/artwork-finish/science-v2/skill-review/odins_spear_rune-7.png": {
+      "bytes": 33512,
+      "sha256": "251ab6e576ee5f198034eb6ec86d06a782cf6dc13b1c784e5bc0b4adeb9c6df5"
+    },
+    "art/artwork-finish/science-v2/skill-review/odins_spear_rune-8.png": {
+      "bytes": 33565,
+      "sha256": "4bcc2377a8f2a67bea9bbdc874cd2164ffbee88929d39043dbc9de39c179f02a"
+    },
+    "art/artwork-finish/science-v2/skill-review/portrait.png": {
+      "bytes": 266365,
+      "sha256": "b6cb485245c3fab3703eb5d0b6640656d07c9702fa86db43900bf4b2c7f14bed"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_light-0.png": {
+      "bytes": 55531,
+      "sha256": "16c6f4c847fca6d2c5ab23c1b42c63f9c461b69633b07d016cc3c9dc04d35c7b"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_light-1.png": {
+      "bytes": 57259,
+      "sha256": "621999a3d83ddfa0efa3b65da2d86d4e26fdeed5f3bdc4e23570b3d30ab9ba93"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_light-2.png": {
+      "bytes": 89306,
+      "sha256": "7ec37da2b63d78de2fceee98799a0adb9bc1169102aa746636dbe12621cdf880"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_light-3.png": {
+      "bytes": 97936,
+      "sha256": "6f311d8c3f2d3bf92eb6a26f0ebfa79e9d65743e78b0ed33ef1fc9b3d8a9b9ec"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_light-4.png": {
+      "bytes": 97676,
+      "sha256": "6d8f939257e7e31748fa62a5679bc600c9d872a218831f2a8fc8d1b9ac123e29"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_light-5.png": {
+      "bytes": 86040,
+      "sha256": "1958057a6dcebf4915ee2fdf525e14bc3c6b49761acfc82e17e026f20496f7da"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_light-6.png": {
+      "bytes": 36720,
+      "sha256": "3e349d415cf044d902db74769ace8b7b00f1ffface3bddedb338a477058d5828"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_light-7.png": {
+      "bytes": 36855,
+      "sha256": "1c451bda907c88e3f6de3b08d66316e554697b82810a180c0d0cecc4707c2546"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_light-8.png": {
+      "bytes": 36617,
+      "sha256": "bfc90a68a5c1824e515801df2c44abd583b60192b6b1e407e03e8be521c92592"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_verse-0.png": {
+      "bytes": 27372,
+      "sha256": "00ce7b6b1c987b03e07f31abbae95942ba71cc91c2e7660b597e8a91596a94d3"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_verse-1.png": {
+      "bytes": 54336,
+      "sha256": "e4969290e763951dfae6e9598a756f1d6ee9002cfab37d25f81daa939eb906a0"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_verse-2.png": {
+      "bytes": 56449,
+      "sha256": "c5e1b7d665be7cf8f22c7c5dcfc064ef3f051a730c9ed8c73224b75f3851cedd"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_verse-3.png": {
+      "bytes": 74420,
+      "sha256": "c93f4553ec8c9ba0fe23cb9e49aec92d057f6836b30b9ec28135fa5a47f045a5"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_verse-4.png": {
+      "bytes": 73932,
+      "sha256": "4ab055b62b34fc13f61e24d4e775c9c192e781ea7728e093cf4337b241f9e200"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_verse-5.png": {
+      "bytes": 73497,
+      "sha256": "51dda694305dd47f93a07941c5a531a9d66cab6009d0b097378dab70e9af0456"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_verse-6.png": {
+      "bytes": 77161,
+      "sha256": "0db23a41b486150a44402495c46b3b5728fdd6961b9f9346ee47c868c34991e8"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_verse-7.png": {
+      "bytes": 38356,
+      "sha256": "d0fb289242a8a50a077d8138eea7832c09389c3b2f8fe90c9e159df5bc5a0967"
+    },
+    "art/artwork-finish/science-v2/skill-review/ragnarok_verse-8.png": {
+      "bytes": 37220,
+      "sha256": "bfa51a3eaad6cb580b54ee94194561ad53414a36ed0e438a70764fd27daa3226"
+    },
+    "art/artwork-finish/science-v2/skill-review/root_transit-0.png": {
+      "bytes": 27794,
+      "sha256": "cd9a6865b03abe7d6b9c624faa28f8a1d63fd44a46dffc7798709011c02116ab"
+    },
+    "art/artwork-finish/science-v2/skill-review/root_transit-1.png": {
+      "bytes": 31924,
+      "sha256": "469ca69223a14f703f9bd7a2f979eefdeb3c69e6aecfcdb3d33c89a9be437cfa"
+    },
+    "art/artwork-finish/science-v2/skill-review/root_transit-2.png": {
+      "bytes": 34278,
+      "sha256": "d37cc8b9955af749d49a14b535bec7fc78c88e720203ce24e8cb205eed0037ba"
+    },
+    "art/artwork-finish/science-v2/skill-review/root_transit-3.png": {
+      "bytes": 33777,
+      "sha256": "0d6a2fb4fe1b45b257d1c855bbc900d6e15e8bbc3b15682e16ae97f2bd54a088"
+    },
+    "art/artwork-finish/science-v2/skill-review/root_transit-4.png": {
+      "bytes": 33878,
+      "sha256": "ac452e33a3fc0d0b266d875f630accc277b228baee67d3d73146ad57f36426ba"
+    },
+    "art/artwork-finish/science-v2/skill-review/root_transit-5.png": {
+      "bytes": 29884,
+      "sha256": "f664eeb8d73d3228446ce78ccd644044f4217ea877265b74100037789566137d"
+    },
+    "art/artwork-finish/science-v2/skill-review/root_transit-6.png": {
+      "bytes": 29941,
+      "sha256": "55992328c53d841c515ca950960b195cfc903220d3f9f1ab378d717689ae2e20"
+    },
+    "art/artwork-finish/science-v2/skill-review/root_transit-7.png": {
+      "bytes": 30085,
+      "sha256": "a3efbd76f88091ec2189e34498308b6742673e9da35bd9163635621a821a4942"
+    },
+    "art/artwork-finish/science-v2/skill-review/root_transit-8.png": {
+      "bytes": 30130,
+      "sha256": "e63c105ec166b360efcbb9061cd0efcecc024aa297743cc8985c553cccc112f4"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_barrier-0.png": {
+      "bytes": 47654,
+      "sha256": "5cc4c81119e6fe1f4e490585d6d9f4ce17951dba1dceff72645e177c750e06f5"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_barrier-1.png": {
+      "bytes": 52076,
+      "sha256": "cde63a801deee8a457201a415bb4018c00270f80ab305bd6936dd78700463e03"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_barrier-2.png": {
+      "bytes": 58972,
+      "sha256": "8b51b9037b76495d6c402cfec784ea9e5b4ec992ca50c3a0777abf0debf94967"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_barrier-3.png": {
+      "bytes": 58940,
+      "sha256": "50341f946800fceeb7eda751e3c37b3b2d298ac7a3eb4806e411c4a9dcdc06cd"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_barrier-4.png": {
+      "bytes": 59059,
+      "sha256": "3b37d43b6d4ed333416b05c3157b300220cadfd8efa5dfc0b3d38193b39a6678"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_barrier-5.png": {
+      "bytes": 60953,
+      "sha256": "9d7c515fa5ecd9f1c32687c5ccc5283f45b6a22fbfaab7b49bcfbdab8b8c5320"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_barrier-6.png": {
+      "bytes": 31415,
+      "sha256": "b30ff6474bfeeae561ff7c585f7e89f1d44aff0e100188ff32dfddbf33e30e73"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_barrier-7.png": {
+      "bytes": 31570,
+      "sha256": "dd153763e718e4724c7573ca53174b0fa8d993b0393f3f5ae7c183fe86dc6a5e"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_barrier-8.png": {
+      "bytes": 31445,
+      "sha256": "ff5c4d41bcaaf691929b6d1ca783b4673052998cac591a6d4284ef238196fc4f"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_circle-0.png": {
+      "bytes": 44062,
+      "sha256": "32b439253a19153f4c8af40773c3cdd7e6799638a1f1f9c75ed7e61dd7d81dd6"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_circle-1.png": {
+      "bytes": 51860,
+      "sha256": "6029a575d3e6a644e7bdbe3ae5163d3eb34418ade23aad04e9298eecbc1154ea"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_circle-2.png": {
+      "bytes": 57018,
+      "sha256": "1532d7b903c81f2460bf3f948af9670af5fa8ebc1ef38ad189557f0006a867a1"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_circle-3.png": {
+      "bytes": 57793,
+      "sha256": "a3a63b6f28a8a5b56f620b3e86f2c8130713161ea6f9bdf393411d19da61d7d9"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_circle-4.png": {
+      "bytes": 56934,
+      "sha256": "f91281e6347c069cc0a8a0504d3b034afce6f378da7c3b6b88b21fad94a09e0b"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_circle-5.png": {
+      "bytes": 55213,
+      "sha256": "00ec7f7ab5f9a1945a456501a6442286ead70a0feebf2f2cc4e7ed4c825e5dbb"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_circle-6.png": {
+      "bytes": 55307,
+      "sha256": "c3492b264b168b9f11d4d9d6fc2fb9ba39bae26ffa5974436221b8ccd09a01d4"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_circle-7.png": {
+      "bytes": 55400,
+      "sha256": "b4308490584758e2d95eacac3300b0ef3dc8aa13f53be6b86b90fe5f37d7a424"
+    },
+    "art/artwork-finish/science-v2/skill-review/rune_circle-8.png": {
+      "bytes": 63956,
+      "sha256": "a5cacbcf6efe5370f1249a6eb2a7f1aae09dc43d856a3fd50a696d61957e1290"
+    },
+    "art/artwork-finish/science-v2/skill-review/runecaster-board.jpg": {
+      "bytes": 21874,
+      "sha256": "9bdd776c42d7d129de6812c8569f234bedc312ae8813b361f99f18b7ce550430"
+    },
+    "art/artwork-finish/science-v2/skill-review/runecaster.mp4": {
+      "bytes": 476209,
+      "sha256": "aeebb3a30dc12c7f2b5c78a82478bf36ee89aec24346ed6b1d682887f09c5d57"
+    },
+    "art/artwork-finish/science-v2/skill-review/runecaster.webm": {
+      "bytes": 1959273,
+      "sha256": "adf27e4e20d62ed3e0410fee7681ef2c5c746cb0bcbbd0c087e10a291e48082e"
+    },
+    "art/artwork-finish/science-v2/skill-review/runelord-board.jpg": {
+      "bytes": 44081,
+      "sha256": "99909dad0f9998f7714c7cd24ee567dccbe88ad2dd092db69d2de98884526b0b"
+    },
+    "art/artwork-finish/science-v2/skill-review/runelord.mp4": {
+      "bytes": 840012,
+      "sha256": "20416cf13b8ee7119cf4fa9b8ac0bf701604cf818431af6c9aa684714dce23b2"
+    },
+    "art/artwork-finish/science-v2/skill-review/runelord.webm": {
+      "bytes": 3414490,
+      "sha256": "e048192e914f9846d2bd8e1ca01f3059c25ca4c2eb31842498672e66bf95d1a7"
+    },
+    "art/artwork-finish/science-v2/skill-review/sap_ward-0.png": {
+      "bytes": 45321,
+      "sha256": "fa178501833d5b781f90acdca75c1a56f7edac895df5c6bb3648e1dbd3b4bced"
+    },
+    "art/artwork-finish/science-v2/skill-review/sap_ward-1.png": {
+      "bytes": 50059,
+      "sha256": "16bb80e249e11b8595af01b8db2c74fdadb7a19657a6d101c7f522fd658904f3"
+    },
+    "art/artwork-finish/science-v2/skill-review/sap_ward-2.png": {
+      "bytes": 57224,
+      "sha256": "54e7d60b05f61d1013b567e7f00ab92f92a656f643972ddbff6d121ee2669546"
+    },
+    "art/artwork-finish/science-v2/skill-review/sap_ward-3.png": {
+      "bytes": 57298,
+      "sha256": "57a0de8858658b5dd0a94a338171da97f0e16ff07fa55556be999424192478d0"
+    },
+    "art/artwork-finish/science-v2/skill-review/sap_ward-4.png": {
+      "bytes": 57395,
+      "sha256": "c6a30bde6be43931635721aafddc880d20c5a3e4adc086c369a2723bb12f4fd2"
+    },
+    "art/artwork-finish/science-v2/skill-review/sap_ward-5.png": {
+      "bytes": 60012,
+      "sha256": "5b4724d027096379a81e3e245d08758258a2ffe264ae20f9889b78578569e634"
+    },
+    "art/artwork-finish/science-v2/skill-review/sap_ward-6.png": {
+      "bytes": 31632,
+      "sha256": "d770121b70835e79ab7c495be6d3c608c0289a0846fa3592b5c040c7871c4e9f"
+    },
+    "art/artwork-finish/science-v2/skill-review/sap_ward-7.png": {
+      "bytes": 31559,
+      "sha256": "9f0f1cdac7a1de5e0975964559d73848b3c6f322ae0e9d2761855182dcbb422b"
+    },
+    "art/artwork-finish/science-v2/skill-review/sap_ward-8.png": {
+      "bytes": 31697,
+      "sha256": "9f0cc3b895c4931c7e2de82586ad21bd644af475ef2d08a22ce7a8b56b5318f3"
+    },
+    "art/artwork-finish/science-v2/skill-review/seidr-board.jpg": {
+      "bytes": 39917,
+      "sha256": "6425424998c0e6d1850a0be3a692e9a893d06e595ad4a516240c99ce78170a34"
+    },
+    "art/artwork-finish/science-v2/skill-review/seidr.mp4": {
+      "bytes": 775665,
+      "sha256": "f225f4a0a266ac3ee14c90aa6e2c09d056ecaf940349282b17c492a3cd468b12"
+    },
+    "art/artwork-finish/science-v2/skill-review/seidr.webm": {
+      "bytes": 3381370,
+      "sha256": "2671b366a5812ed226a20e10a1db2b69296d20c246e4a396df5371846c1a14de"
+    },
+    "art/artwork-finish/science-v2/skill-review/severed_fate-0.png": {
+      "bytes": 44861,
+      "sha256": "e79cd8303d2aa7d95215818e84cb7bbb44f6f4c6ec93a8f1ec39c9baf9671a89"
+    },
+    "art/artwork-finish/science-v2/skill-review/severed_fate-1.png": {
+      "bytes": 54380,
+      "sha256": "a95362d1f946861bf0f2c4c080517001dff3f1e2f17a91e29719e92b611e2b97"
+    },
+    "art/artwork-finish/science-v2/skill-review/severed_fate-2.png": {
+      "bytes": 57503,
+      "sha256": "af199effaf08e2f95c132e94c6e1b9dc630af8f13a5d2324da6dac3d05c935c3"
+    },
+    "art/artwork-finish/science-v2/skill-review/severed_fate-3.png": {
+      "bytes": 57928,
+      "sha256": "8a3965063cf5a87feb2bc45d06ea4dbd1a54991c18cc1aa66895c3f7cefb9bdf"
+    },
+    "art/artwork-finish/science-v2/skill-review/severed_fate-4.png": {
+      "bytes": 57759,
+      "sha256": "aaaba6d83af09deea244f8320b06efd34b1e0b2a98f1bcc699a92cb594df07b0"
+    },
+    "art/artwork-finish/science-v2/skill-review/severed_fate-5.png": {
+      "bytes": 33453,
+      "sha256": "f6f87563cf39e0708dbfebecba550ffb531dd3641c3672784b587cb7ee685bae"
+    },
+    "art/artwork-finish/science-v2/skill-review/severed_fate-6.png": {
+      "bytes": 33212,
+      "sha256": "921e30aa60703243c38b907950e8cfeb10f6251da463a8925a7ac543f4bf3515"
+    },
+    "art/artwork-finish/science-v2/skill-review/severed_fate-7.png": {
+      "bytes": 33203,
+      "sha256": "5ba7fa4a2c0ec0fb456504201e7f5e46b2e76ed12f0c6a15db3b00a597948f08"
+    },
+    "art/artwork-finish/science-v2/skill-review/severed_fate-8.png": {
+      "bytes": 32834,
+      "sha256": "d68493d300209acd1b7830d7d3a5347a52eaab62171caf5c58049930829b7c51"
+    },
+    "art/artwork-finish/science-v2/skill-review/skuld_judgment-0.png": {
+      "bytes": 31253,
+      "sha256": "c842b56bce96ea6dc5c6f57a34798f2df64735bc3bcd8292d97ed5994748427d"
+    },
+    "art/artwork-finish/science-v2/skill-review/skuld_judgment-1.png": {
+      "bytes": 35541,
+      "sha256": "96a006625c48c42b2eca0a3f10765273f38c058f86f5b3bd203d571868a235da"
+    },
+    "art/artwork-finish/science-v2/skill-review/skuld_judgment-2.png": {
+      "bytes": 41371,
+      "sha256": "b118b973368553b60e7e25f50891c9e8eb41b7022b8f708eee59c2ce70b1d032"
+    },
+    "art/artwork-finish/science-v2/skill-review/skuld_judgment-3.png": {
+      "bytes": 42452,
+      "sha256": "3e42b9ee412c90a9a4ce878390d15df14607d86cbda76dd2a6a12c980d485211"
+    },
+    "art/artwork-finish/science-v2/skill-review/skuld_judgment-4.png": {
+      "bytes": 41360,
+      "sha256": "06593924c3fa2344e6cc2be74412c3f456af0462e6bde11901bd5cf33e9211a1"
+    },
+    "art/artwork-finish/science-v2/skill-review/skuld_judgment-5.png": {
+      "bytes": 43305,
+      "sha256": "4eaafead06a64f60fe17e3d50705b5fff81c5f5d6491e32c3e4198730236b38e"
+    },
+    "art/artwork-finish/science-v2/skill-review/skuld_judgment-6.png": {
+      "bytes": 33254,
+      "sha256": "81f370c4686b7283f4bbd946dd7aac757958028b4a40b684a59bf3dea88575a1"
+    },
+    "art/artwork-finish/science-v2/skill-review/skuld_judgment-7.png": {
+      "bytes": 33541,
+      "sha256": "d486d6179025ad9669663078e252ef6fcb77b49ae4ac0380546b7812a6ca7dde"
+    },
+    "art/artwork-finish/science-v2/skill-review/skuld_judgment-8.png": {
+      "bytes": 33230,
+      "sha256": "cd3b7c596d598f74111b02200c5115b4dd45572ee74a29d6c78bec81a7fbe4fb"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_drain-0.png": {
+      "bytes": 27950,
+      "sha256": "b02c538aeac5db82afeee778349e773e59b675295dd3a170fc3a8ee95f569f10"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_drain-1.png": {
+      "bytes": 36704,
+      "sha256": "504369a30138c0f61d6765c0920620116045d4b41d8d6ea778f626005ed84a01"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_drain-2.png": {
+      "bytes": 43259,
+      "sha256": "d1da6e54f4475977685732bee68b0ad75b34a198f622ad66a391d39ebb3a582d"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_drain-3.png": {
+      "bytes": 39885,
+      "sha256": "dff8eca62612d76c35ff6ccee8d07a2c1ea16384894b420c73f997633b52a0c1"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_drain-4.png": {
+      "bytes": 38259,
+      "sha256": "5ff42b383b6acd39d382767b7059511ac6dcf5965468b6142f895568d28f0219"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_drain-5.png": {
+      "bytes": 34018,
+      "sha256": "24d110d7bc60f485c202d3e672030f31dcad340a822893c04229890e266e32d6"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_drain-6.png": {
+      "bytes": 33725,
+      "sha256": "0a7fc793f9a618077dcb95c852c8987f9c2048a74ced5ac1b9e3ab1d6f80f30d"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_drain-7.png": {
+      "bytes": 33542,
+      "sha256": "710a070a2e4ef1443d68edba64608edea7427ab9f6615e468a68aba200d7350e"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_drain-8.png": {
+      "bytes": 33598,
+      "sha256": "c27b7d2655d1d12051d47324e96e1cb1043b6d957e87cd6b183833d06ffd1599"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_tether-0.png": {
+      "bytes": 33775,
+      "sha256": "09b6420a639399333c1655a5f23e83b67700174825e71f4533e178d6a5e31f7b"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_tether-1.png": {
+      "bytes": 40833,
+      "sha256": "5f7bcf5463b570114a1718b771a7736a16f17bb03a39b76635fb5d155d81085e"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_tether-2.png": {
+      "bytes": 44887,
+      "sha256": "2cc93c4a6a226a3a195779873db02c03eb7ec225f2b57cbd4bc15f8d044f449a"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_tether-3.png": {
+      "bytes": 46500,
+      "sha256": "0633c047463848ed1cb1a75c2d680c986d77217e81bcda4e28f1df91c7912877"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_tether-4.png": {
+      "bytes": 46406,
+      "sha256": "6e42ba3db4c871bbdaa468a39e065478edbf79dde46e07d31406a7c9fc1576f3"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_tether-5.png": {
+      "bytes": 39337,
+      "sha256": "277e9f986fdc6fcd57c9f02c8016bef0654d4836f15de28cd22f5f21486e08bf"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_tether-6.png": {
+      "bytes": 33572,
+      "sha256": "d3ee35d22e944d29631d96de360f1ef90fa83f53feb8a29635b803716976fb73"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_tether-7.png": {
+      "bytes": 33717,
+      "sha256": "7dba263c0c8885cb571d536fa64d8aebe9c677062ff70671696c7a2f4f7ace95"
+    },
+    "art/artwork-finish/science-v2/skill-review/soul_tether-8.png": {
+      "bytes": 33571,
+      "sha256": "e66383454fc0b9c0df9f7c646562ecdddbe5a1248cdd7954056f6a17f6a20600"
+    },
+    "art/artwork-finish/science-v2/skill-review/sunbreak_palm-0.png": {
+      "bytes": 52554,
+      "sha256": "e3c4bf1b7395d8f485fd16af9384d7a0d001c81ce9961365f7ac9bc0ec5884e7"
+    },
+    "art/artwork-finish/science-v2/skill-review/sunbreak_palm-1.png": {
+      "bytes": 64167,
+      "sha256": "b0d960655832fb0f0e361076701e6f93f36fc451d01fdd6367784b871ff3b193"
+    },
+    "art/artwork-finish/science-v2/skill-review/sunbreak_palm-2.png": {
+      "bytes": 70772,
+      "sha256": "d2a6c4063675bddf9dfaeb09938837d3febb5360498fed686f3d26b39f190366"
+    },
+    "art/artwork-finish/science-v2/skill-review/sunbreak_palm-3.png": {
+      "bytes": 76610,
+      "sha256": "aca701d98b9513e156c8dbb39e48a2a7a01d4b6ab8825432719cd306193f3eb7"
+    },
+    "art/artwork-finish/science-v2/skill-review/sunbreak_palm-4.png": {
+      "bytes": 71586,
+      "sha256": "13a0a3bb68e2de1637b167f8df41c1239a270577b4fe0f09fea402e57e3dc7f2"
+    },
+    "art/artwork-finish/science-v2/skill-review/sunbreak_palm-5.png": {
+      "bytes": 37803,
+      "sha256": "d171518630311cc6c8c56a63371a8c1457ca81f05d466d33c62faaafd23bc29b"
+    },
+    "art/artwork-finish/science-v2/skill-review/sunbreak_palm-6.png": {
+      "bytes": 37658,
+      "sha256": "b37616e1166b0e4d935036ef9d83184e8187cc3031d13dd50068e438e68fd194"
+    },
+    "art/artwork-finish/science-v2/skill-review/sunbreak_palm-7.png": {
+      "bytes": 36703,
+      "sha256": "cd1069114deb6c085c489248417455caa8c28c2f904ee7d7223af2cd5201eda0"
+    },
+    "art/artwork-finish/science-v2/skill-review/sunbreak_palm-8.png": {
+      "bytes": 36755,
+      "sha256": "087b50013b1e5ab14e9f4f11f7e1ec72509914598d7dd2809e80961c577c59b1"
+    },
+    "art/artwork-finish/science-v2/skill-review/temple_counter-0.png": {
+      "bytes": 30330,
+      "sha256": "bd4a4301d28622e69665252136d18b53a3785f288ebcb5abdc647cb6108f6d63"
+    },
+    "art/artwork-finish/science-v2/skill-review/temple_counter-1.png": {
+      "bytes": 35604,
+      "sha256": "d78212598c3571c776d67d3836a0074397efc9ca431b5342c18681a073c7e8fb"
+    },
+    "art/artwork-finish/science-v2/skill-review/temple_counter-2.png": {
+      "bytes": 37566,
+      "sha256": "09a08a74313a1ff8259ea3b14105f31fd43464cca030df3407547d08a38ebef7"
+    },
+    "art/artwork-finish/science-v2/skill-review/temple_counter-3.png": {
+      "bytes": 37585,
+      "sha256": "aabdcc367dbdbe518615c4da78bdf1e32bd7bc62ce6d9190afef9c6e6e9cb78f"
+    },
+    "art/artwork-finish/science-v2/skill-review/temple_counter-4.png": {
+      "bytes": 37720,
+      "sha256": "1b4bd00fa74fe4e6d713012fbc737c554969eaf3059dd172227cb5d81af95db5"
+    },
+    "art/artwork-finish/science-v2/skill-review/temple_counter-5.png": {
+      "bytes": 31048,
+      "sha256": "a5e31cf32d798cb864c51f994b1d84654f7853a0d11ba6c59af7aa53ec4f8e7d"
+    },
+    "art/artwork-finish/science-v2/skill-review/temple_counter-6.png": {
+      "bytes": 30882,
+      "sha256": "053239fb731a6cc8f3eb4fd1cc0e605d839605a29be67ba3e3e70fb488aa2f99"
+    },
+    "art/artwork-finish/science-v2/skill-review/temple_counter-7.png": {
+      "bytes": 31056,
+      "sha256": "b6c7e9c2ca509e843ae91e00223c3eb3f485073d37a4cc2b027c8840ce403b0d"
+    },
+    "art/artwork-finish/science-v2/skill-review/temple_counter-8.png": {
+      "bytes": 30821,
+      "sha256": "80b9a97fefbee2e834dc71f22503fe5188905053b5a1f9692603ac837df5f946"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_rune-0.png": {
+      "bytes": 49325,
+      "sha256": "013d346be332de26a537e1482a581c6a4ede67480e7fffa64656189b0c304568"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_rune-1.png": {
+      "bytes": 68429,
+      "sha256": "f9e3c76db7cc2d264d0a6d64ed4bacb291c5ac8eaeaae57feee61d1e6b1c4fa5"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_rune-2.png": {
+      "bytes": 61059,
+      "sha256": "970b4ead9a8fe30165538f48826706913b9c325b14eece4ec8625abd3e66f49b"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_rune-3.png": {
+      "bytes": 61416,
+      "sha256": "f18fea3591a96d0116ec115e2b9cbfbaedbc66df8fd33c49fc97b511e669bd5d"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_rune-4.png": {
+      "bytes": 61457,
+      "sha256": "2638477561ed6808e0f54d9d7b0030f589297efed2195f639e3105362aec4838"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_rune-5.png": {
+      "bytes": 44967,
+      "sha256": "b15868802c4624db30ab3957b8fb74e0b6c6a06ad63e44ec58c1d8d1605e53df"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_rune-6.png": {
+      "bytes": 37488,
+      "sha256": "02adbfb0301aeb653e53ab3d2f8ab767ce059b8531bdc66d0883118ab8f8abd5"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_rune-7.png": {
+      "bytes": 37349,
+      "sha256": "502394cccf35f57ee8151296a42412ca90c5b0f4f4fdb8c8ff9f7acc0413c8b7"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_rune-8.png": {
+      "bytes": 36772,
+      "sha256": "672241135cda2125a7e1f6d078f1df1f63e10fd1ff1e2db80952110bc4ded830"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_wake-0.png": {
+      "bytes": 46651,
+      "sha256": "3240fb00a4970f66bf8abe4e87187421cdcf2526b4228de3b6a6d82ae73e4400"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_wake-1.png": {
+      "bytes": 58960,
+      "sha256": "a22e06fa84f17238b57cbae94048dcd0b1132bd0b64a2cf38c887db707678b61"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_wake-2.png": {
+      "bytes": 63606,
+      "sha256": "2152a4c6684dcefc65610722c29a6eaa7c636bda8440d5360aa32d066fcbbe72"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_wake-3.png": {
+      "bytes": 71913,
+      "sha256": "8f3507503ca9596aef94a2e8323be650b18540a5f345bd383c284cd152d496eb"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_wake-4.png": {
+      "bytes": 73654,
+      "sha256": "3a668d688f2916c494639c1f5e6a4da309a6633825f64f9d7e220034334313ee"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_wake-5.png": {
+      "bytes": 63235,
+      "sha256": "5f23fba10d1ed4c86cd8f0bdcda0ab0fa19db1eb56bd708511075cacf74658b3"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_wake-6.png": {
+      "bytes": 36909,
+      "sha256": "89fa18262f721d5b0902e6ce3fb652dc838da5e9bd2a71465898070ef1e2f323"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_wake-7.png": {
+      "bytes": 36889,
+      "sha256": "cc1c0f9620e62385293298e6ee31352167004128af94faa28ffd713af34210ea"
+    },
+    "art/artwork-finish/science-v2/skill-review/thunder_wake-8.png": {
+      "bytes": 36157,
+      "sha256": "857ad0b46c24ea7647f5948fc5aaa8cba9b7b327d8a435bee10b020bc5764ad3"
+    },
+    "art/artwork-finish/science-v2/skill-review/triple_palm-0.png": {
+      "bytes": 32760,
+      "sha256": "1cf45bd011c3d2be47eaac1d1557fddd04d6d7829521c0dad4da123948497652"
+    },
+    "art/artwork-finish/science-v2/skill-review/triple_palm-1.png": {
+      "bytes": 38626,
+      "sha256": "64d644008e81fa13f92a05aaf8a553bedb673cbb70db42e08be9ee06c742831e"
+    },
+    "art/artwork-finish/science-v2/skill-review/triple_palm-2.png": {
+      "bytes": 43270,
+      "sha256": "600ad74a30d0c1d379b02dc6ef5c017af3595451d7eb1242e1968ed268e0b9ed"
+    },
+    "art/artwork-finish/science-v2/skill-review/triple_palm-3.png": {
+      "bytes": 43291,
+      "sha256": "c693432651ef04e9d1dcc1a1d4b5757a5d44ab2dba5e5011840ae1956663b0c4"
+    },
+    "art/artwork-finish/science-v2/skill-review/triple_palm-4.png": {
+      "bytes": 40108,
+      "sha256": "73ab2a231f87cae89ab68260434168b950a8dfb95a18905ac442146c91af80fb"
+    },
+    "art/artwork-finish/science-v2/skill-review/triple_palm-5.png": {
+      "bytes": 33608,
+      "sha256": "bf491a7bb30a57267bb2d3284b40f6d0e026fd5a765154d83de7177769edb1cc"
+    },
+    "art/artwork-finish/science-v2/skill-review/triple_palm-6.png": {
+      "bytes": 33722,
+      "sha256": "ecf5b50f5357fb831a5a0308fd29ce7e2b4a06278d8a8f6f619a8cc32ac7a217"
+    },
+    "art/artwork-finish/science-v2/skill-review/triple_palm-7.png": {
+      "bytes": 33628,
+      "sha256": "4145085dfd6cb1477e9aa689f85ca18dd489f7c722b6e08b328873601284a574"
+    },
+    "art/artwork-finish/science-v2/skill-review/triple_palm-8.png": {
+      "bytes": 33388,
+      "sha256": "ad7493510387cfc782e635b3c7d038b97520ce531748f0b35318794c7d7feda1"
+    },
+    "art/artwork-finish/science-v2/skill-review/triune_lance-0.png": {
+      "bytes": 43822,
+      "sha256": "a57b8243d1f43084d2c937d21e58518b3943da5564462a967f38b88df29e302a"
+    },
+    "art/artwork-finish/science-v2/skill-review/triune_lance-1.png": {
+      "bytes": 54852,
+      "sha256": "d9b31e381fc0fb35829740349a7fe1936b72d2d66294f4eec340788714cf3271"
+    },
+    "art/artwork-finish/science-v2/skill-review/triune_lance-2.png": {
+      "bytes": 61818,
+      "sha256": "1e04d691e194e84722fd326c7f269c4ac9eb57a5d24012b8fb7593bf8a8c4ab2"
+    },
+    "art/artwork-finish/science-v2/skill-review/triune_lance-3.png": {
+      "bytes": 65459,
+      "sha256": "88d459190e762a4d7213989bfd73e90cf35abfa64da4f7b629b490110bc75b36"
+    },
+    "art/artwork-finish/science-v2/skill-review/triune_lance-4.png": {
+      "bytes": 65565,
+      "sha256": "43f4cb2d3af1cafb0a56d01277e7326899bfa7c3b6e8988b15e3d9f6caa5cbbd"
+    },
+    "art/artwork-finish/science-v2/skill-review/triune_lance-5.png": {
+      "bytes": 54652,
+      "sha256": "0fde798b45d05b42996bbe967a37be729e69469e82efbef172ea3505482c6b26"
+    },
+    "art/artwork-finish/science-v2/skill-review/triune_lance-6.png": {
+      "bytes": 34114,
+      "sha256": "b79f7001cb4904373945224ba1127cd36c104f7b05cc5afe846109f035361e49"
+    },
+    "art/artwork-finish/science-v2/skill-review/triune_lance-7.png": {
+      "bytes": 33588,
+      "sha256": "ac103dba15aecbc757559e94178a9922284911e6bfd59f6e5ba18723c416e75c"
+    },
+    "art/artwork-finish/science-v2/skill-review/triune_lance-8.png": {
+      "bytes": 33586,
+      "sha256": "7428b3367789dec6b2704f153adecf304f8e292783b02460f2b81f0be951869a"
+    },
+    "art/artwork-finish/science-v2/skill-review/void_lance-0.png": {
+      "bytes": 28432,
+      "sha256": "bc420015688ea60fdd0a1812f77d7fefdb67a66b096329d6cb19d1d1ffcf6e94"
+    },
+    "art/artwork-finish/science-v2/skill-review/void_lance-1.png": {
+      "bytes": 43783,
+      "sha256": "718891bcfb04bc453122ef13ef8a33abecc56dc9daee286e90f31888cdb4ea36"
+    },
+    "art/artwork-finish/science-v2/skill-review/void_lance-2.png": {
+      "bytes": 45500,
+      "sha256": "ef2fcc27aaf6973afc5058ee7f0718f8f53da0a52771c13cf10cdebd77207861"
+    },
+    "art/artwork-finish/science-v2/skill-review/void_lance-3.png": {
+      "bytes": 47721,
+      "sha256": "e9aaf47653843dca166300887b8e203b9ab2b1b0e326570972f88c1fb710b9c4"
+    },
+    "art/artwork-finish/science-v2/skill-review/void_lance-4.png": {
+      "bytes": 46960,
+      "sha256": "9b1ab168aff03dfd9a21c7f36053b8c0968346631481ddadb6ddc648ffd332c5"
+    },
+    "art/artwork-finish/science-v2/skill-review/void_lance-5.png": {
+      "bytes": 33785,
+      "sha256": "21f072a274ca63b2d22dfd6894d7db2e7338cf0d7d8a05dbdb5883f51658087c"
+    },
+    "art/artwork-finish/science-v2/skill-review/void_lance-6.png": {
+      "bytes": 33769,
+      "sha256": "328f7dffe92e3d2b187f76412b6e34ff4c2b963d43a3e7f48028c302ce4d7569"
+    },
+    "art/artwork-finish/science-v2/skill-review/void_lance-7.png": {
+      "bytes": 33664,
+      "sha256": "d4346f6cb52aa7a36bd1175b0d2f9e44a852e2b1bc5bb7fb65af34727ffa24e6"
+    },
+    "art/artwork-finish/science-v2/skill-review/void_lance-8.png": {
+      "bytes": 33324,
+      "sha256": "b6dd745253a1ff3408cf9b6fa3f55017857ded721aa227191e23f91bc6389965"
+    },
+    "art/artwork-finish/science-v2/skill-review/volva-board.jpg": {
+      "bytes": 21419,
+      "sha256": "70d7f8d267568e659007a9e7518b5ae2af6dc18a348b93fe4799d0759893eb95"
+    },
+    "art/artwork-finish/science-v2/skill-review/volva.mp4": {
+      "bytes": 249012,
+      "sha256": "5eaf4e6bacfe2bcd971e2476a1341e65cc0712e68c0e4107fa4cfd3eb4da77a9"
+    },
+    "art/artwork-finish/science-v2/skill-review/volva.webm": {
+      "bytes": 1328681,
+      "sha256": "e3f748bc62b83d16eba18411d250c94710e5b2cfc6bfc022a81c82d5b431ba55"
+    },
+    "art/artwork-finish/science-v2/skill-review/woven_sanctuary-0.png": {
+      "bytes": 43845,
+      "sha256": "69d0897affe37a827b5b039758d22d143eefc5b455a4c3b76ccce7b37ca3c888"
+    },
+    "art/artwork-finish/science-v2/skill-review/woven_sanctuary-1.png": {
+      "bytes": 53971,
+      "sha256": "9f62d033d4bf037811e45055535fede5a552eacbbbe4b6c139c07575c5857971"
+    },
+    "art/artwork-finish/science-v2/skill-review/woven_sanctuary-2.png": {
+      "bytes": 56694,
+      "sha256": "999a7e9f6220f460ac966a2d3452bec3a020187b1b0834b964417e23b5de232b"
+    },
+    "art/artwork-finish/science-v2/skill-review/woven_sanctuary-3.png": {
+      "bytes": 56354,
+      "sha256": "79d977da0927d4c8a206cfe118454379340f9d3b8408b951a8c972f81d317507"
+    },
+    "art/artwork-finish/science-v2/skill-review/woven_sanctuary-4.png": {
+      "bytes": 56432,
+      "sha256": "bbfc60d19ec55701abd763a3ef56fbcbfb21760402fe262722fcc7907a11c9af"
+    },
+    "art/artwork-finish/science-v2/skill-review/woven_sanctuary-5.png": {
+      "bytes": 54957,
+      "sha256": "89cc6e16d71f4bf1d148a9ff792cbcecbc6c8ceed65ab487e221836c26302690"
+    },
+    "art/artwork-finish/science-v2/skill-review/woven_sanctuary-6.png": {
+      "bytes": 70270,
+      "sha256": "e545e16a330ef8aeb3fe39bd50ba6da141b918405b0922a639ddafbb217548f2"
+    },
+    "art/artwork-finish/science-v2/skill-review/woven_sanctuary-7.png": {
+      "bytes": 70244,
+      "sha256": "d5bdf7f575c62f376f01af34c820e30c71dfe2fe1dd22686ef3958bc8bc871f1"
+    },
+    "art/artwork-finish/science-v2/skill-review/woven_sanctuary-8.png": {
+      "bytes": 54730,
+      "sha256": "aa4ee3a0a8fe47b61772590501122e3b9af45f98b879b0036ac32ed37884f146"
+    },
+    "art/artwork-finish/science-v2/skill-review/zen_body-0.png": {
+      "bytes": 26607,
+      "sha256": "04fb5cfb9e0028b6b4cbf22c4dd1d4e93c2156ffd865ecf688d846d31e3524de"
+    },
+    "art/artwork-finish/science-v2/skill-review/zen_body-1.png": {
+      "bytes": 31963,
+      "sha256": "41060d3876049d90fc8d52caa3655afcf2941917cb915a7e6f9a24d874e3bcea"
+    },
+    "art/artwork-finish/science-v2/skill-review/zen_body-2.png": {
+      "bytes": 35986,
+      "sha256": "c4c2e63354743c97dd4982bf734454c934c265018101aef6521424a53b5485ec"
+    },
+    "art/artwork-finish/science-v2/skill-review/zen_body-3.png": {
+      "bytes": 35992,
+      "sha256": "115d87c7d879f9cc7ae55d512e2c4807907b18b0b6e91ae4ea6f0256b5050ca1"
+    },
+    "art/artwork-finish/science-v2/skill-review/zen_body-4.png": {
+      "bytes": 36123,
+      "sha256": "55ceefa3823c3dc4bc6b84a7bd7c338ce1017252c93e5cb2078910c975d9f02f"
+    },
+    "art/artwork-finish/science-v2/skill-review/zen_body-5.png": {
+      "bytes": 35185,
+      "sha256": "06fb7e4427e3479487d1fd5e6aeba0562cd5bd848dc7ba25ffc5073b73ec996d"
+    },
+    "art/artwork-finish/science-v2/skill-review/zen_body-6.png": {
+      "bytes": 31291,
+      "sha256": "8294a61a9398f5bfbdef4f0dc38d765e0e6bfa9d28f51c8ee4eeb050c960b843"
+    },
+    "art/artwork-finish/science-v2/skill-review/zen_body-7.png": {
+      "bytes": 31116,
+      "sha256": "830455bba3cb7bfcf6cd42d16d6dd868b5766ce79b625a77db5870b5bf7f5179"
+    },
+    "art/artwork-finish/science-v2/skill-review/zen_body-8.png": {
+      "bytes": 31082,
+      "sha256": "1b626c945c07b7744c5a29eb4d9a3793f5adafd765a4bff0fd3abb61c0c8e737"
+    },
+    "art/artwork-finish/science-v2/source/completion-plan-2.json": {
+      "bytes": 5844,
+      "sha256": "4584c2e09fdbf10d05d456e54ab91967a05f831d6e4ad41a49953aeaf08290d3"
+    },
+    "art/artwork-finish/science-v2/source/completion-plan-3.json": {
+      "bytes": 5611,
+      "sha256": "e5df2aa78ab5e808335342c920cea94051e31627ea9591887db155863b548e5f"
+    },
+    "art/artwork-finish/science-v2/source/completion-plan-4.json": {
+      "bytes": 1694,
+      "sha256": "95820553e518c7c50b55c07b951ad7f91b65a64b50dac19565194c0ce4a217d3"
+    },
+    "art/artwork-finish/science-v2/source/completion-plan.json": {
+      "bytes": 5612,
+      "sha256": "b1906b1f98e12a27057fa2f6c6ff7e39e6816c27fe002407d2af4c0fff88ed29"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-attack-N-v1.PROMPT.txt": {
+      "bytes": 797,
+      "sha256": "739a8c63700370b6377eac8d5a0e01d74dfd119035046a8ab55657d342f23954"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-attack-N-v1.png": {
+      "bytes": 1313001,
+      "sha256": "ae036f3e99dbc695232dec0a67479294d3616c41c6c95298fff5eb90d91363c0"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-attack-robot-v2.PROMPT.txt": {
+      "bytes": 746,
+      "sha256": "05be624e9d6243866778eba98b0e1b7519f62081773b263730181e52bf78c9ce"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-attack-robot-v2.png": {
+      "bytes": 2246133,
+      "sha256": "b180e0011a70de19d94a89953f8619206ecc26f959d2a51d81014efb9ebe995c"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-attack-v1.PROMPT.txt": {
+      "bytes": 1250,
+      "sha256": "b0a7ff4ee107c61d4f3c7b4c95519955f4e19d3e1b5474625a4234b304b1b310"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-attack-v1.png": {
+      "bytes": 2167735,
+      "sha256": "963e15396583067deabee0bfdc84fb1330cf6142f4842afc3886b49e38152c73"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-dead-0-v1.png": {
+      "bytes": 2426626,
+      "sha256": "691e2642b31a160e44438cd9c67b4fe327c1db9a4b4a510f3be9526c298ca2b8"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-dead-0-v1.prompt.txt": {
+      "bytes": 1847,
+      "sha256": "e5826e26fbd473026e600c481ebc2b53c387db51feb4444e677189ea42e4a1d4"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-dead-4-v1.png": {
+      "bytes": 1330878,
+      "sha256": "08ac3a557fd8e28afdef5d7eaa8cc6a61c22883bce3bd455ac0072b1173b3ac7"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-dead-4-v1.prompt.txt": {
+      "bytes": 1865,
+      "sha256": "f3b593d84fbce26d4236f56d5acf6174b3e51f837e8dcc2f2103bda49f7a39ae"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-dead-N-v2.png": {
+      "bytes": 1269422,
+      "sha256": "58c2e8ca16f592d5b800f6cbeb77105c28e1a65fca1e70ec0e8a99097a1fd17b"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-dead-N-v2.prompt.txt": {
+      "bytes": 1539,
+      "sha256": "4b714102ece75af66d7f0e4a9a377d65cb3461ad28998f23111dba7063e001c5"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-dead-NW-v2.png": {
+      "bytes": 1105788,
+      "sha256": "068217f4e8d59830fa512da2da640c9d322269b338af78abb9fb0e6bd3ee5f93"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-dead-NW-v2.prompt.txt": {
+      "bytes": 1535,
+      "sha256": "9b05ea9cc0e7b9540ac0d17ef8442ee31ad9b1cf27931194abd8fc256fdc00c4"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-dead-W-v2.png": {
+      "bytes": 1177506,
+      "sha256": "f46b822f323b98fc2ea2ed51343dfb9838ab98f5355b5978d23d92fa2ef6da8f"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-dead-W-v2.prompt.txt": {
+      "bytes": 1500,
+      "sha256": "9968e2af78e2a0536a0d2c91de0bc2601ec62fae95afc19a71ce85abb9258322"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-hurt-story-v1.png": {
+      "bytes": 1174028,
+      "sha256": "86c51024c8b562a65ba5368aabfc3916ba3d3e680a5c77b884f7ccd69492d2dc"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-hurt-story-v1.prompt.txt": {
+      "bytes": 2752,
+      "sha256": "e5111f5b9ef11a4a7cca2696d07d47e7bc7b7af1b1dcd49710990cfae93ef650"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-idle-N-completion-reference.png": {
+      "bytes": 51984,
+      "sha256": "2efbdfe0729ba44dfa071d49fdf95f6a2041e6b70ec335649cf6c854cb863523"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-idle-N-reference.png": {
+      "bytes": 38748,
+      "sha256": "1339045773367cf3417fe49d838902c7578e871bc4ffe2943686cfe9951d9e86"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-idle-NE-completion-reference.png": {
+      "bytes": 58251,
+      "sha256": "4c948ca26bf47f234acf8e0682d54832e39905a3f3cc8aea37f1cb2e6739a7c9"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-idle-NW-completion-reference.png": {
+      "bytes": 39558,
+      "sha256": "978b16003557686a5bf5751c6ea5d1eed53d81db6d97dbf58ae754e69ef27982"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-idle-S-reference.png": {
+      "bytes": 43973,
+      "sha256": "37ee95f66a31ddca7787365385bea496bceda822bcd065432e04ab2fd10b35b4"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-idle-W-completion-reference.png": {
+      "bytes": 41829,
+      "sha256": "44c6d676715e77c469d932aa66ec49ba187de39ca7b8d099daa73ef051c971fd"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-idle-crisp-v1.png": {
+      "bytes": 1781331,
+      "sha256": "89f8a70af711c480ea4f9c46158776d8bbe8742b0945e41ed202191d364e2f22"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-idle-crisp-v1.prompt.txt": {
+      "bytes": 1970,
+      "sha256": "020003e6db8f50d708472fd120b074165c110c612a8d8258b0cd49ae7c4e5c76"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-idle-robot-v2.PROMPT.txt": {
+      "bytes": 1068,
+      "sha256": "1c13937d40ab84cdc51fb4f7f116ee048c21c5e1d6631f52cf804a9b9a1f95ff"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-idle-robot-v2.png": {
+      "bytes": 610845,
+      "sha256": "edabf66be15100a40180c7dbd48d311ccb8b273ddf7fcd3629312c2e17308f8b"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-idle-v1.PROMPT.txt": {
+      "bytes": 1243,
+      "sha256": "275a5c634d6a3912e280a57580925a30bf0b5f0508beefd9b0884ed8d08bf986"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-idle-v1.png": {
+      "bytes": 538741,
+      "sha256": "bbd677f07fae4ab68e8b645c691646c1c171153ab08994b75476136f3388ab8d"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-operate-N-v2.png": {
+      "bytes": 1615174,
+      "sha256": "dca5ce007e3f36ba28cfcf78087736b4604f743a60ae8b0e0a72938ec904153d"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-operate-N-v2.prompt.txt": {
+      "bytes": 1555,
+      "sha256": "acdc27870a0b17dbe7e07b964b8fce421872f8497e0c7d6c9d1bf3a1e7e2cbf6"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-operate-NE-v2.png": {
+      "bytes": 1756216,
+      "sha256": "2beb2f62ced3a4ec5c00d360744d1691e9ac4e9cf4b2e3664b4a47202f796432"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-operate-NE-v2.prompt.txt": {
+      "bytes": 1591,
+      "sha256": "549cc91e8b8c153f2366769d737326384e900b4b334693ff931b88c04d8003db"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-operate-NW-v1.PROMPT.txt": {
+      "bytes": 843,
+      "sha256": "246fef6c3634784f9593c95363cece58fb353e70044f5ca987055acd511c9cc7"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-operate-NW-v1.png": {
+      "bytes": 1521087,
+      "sha256": "b949b680a2e71390a60396050f810e0ef7300ebf80ae914aa14e9e9fa51cc7c9"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-operate-robot-v1.PROMPT.txt": {
+      "bytes": 995,
+      "sha256": "5e76cc35d0bcb0fde2a7eb80393c90598f608d060b5723b656d5f0d8b7430880"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-operate-robot-v1.png": {
+      "bytes": 2208235,
+      "sha256": "49650b054c020c99a476f22298a0513051d40377eb650ead1bcc19ee02f8935e"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-sit-N-NE-v2.png": {
+      "bytes": 1296851,
+      "sha256": "28b4c0a4485ae60d08af7191bb04c4c86ef4a910bbecf53bbd5d8ab2bee3a2c0"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-sit-N-NE-v2.prompt.txt": {
+      "bytes": 1211,
+      "sha256": "728faddd9b960542e90140ec8c574489d6f9d3c16ae1056566c99380f937f975"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-sit-NW-v2.png": {
+      "bytes": 1271577,
+      "sha256": "8da2c140643a8f2c81282ba513812cabe5b1cb0e46870cb40925aa780b3dc1b8"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-sit-NW-v2.prompt.txt": {
+      "bytes": 1124,
+      "sha256": "e8634fd6e0ef54ca3a995066d6255e8f51850bddc3dd307f217874bd72154988"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-sit-v1.png": {
+      "bytes": 833262,
+      "sha256": "1616d26e9f4909343b7871c6758df16b7d6511c7be891776827c81194ee2d060"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-sit-v1.prompt.txt": {
+      "bytes": 1440,
+      "sha256": "03b189d5a997666aa22fcf5f5689a39ebf46f431883944be4b54a3c3cd4439b3"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-N-passB-v1.png": {
+      "bytes": 628008,
+      "sha256": "133ee9575cba7c144a95238f5186b637276bd7073ec52bd6156281371dfbe33a"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-N-passB-v1.prompt.txt": {
+      "bytes": 830,
+      "sha256": "53d66932ae4cc69935c1754b76537ade849ba545f74cab629244a3a3adb062a4"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-N-v1.png": {
+      "bytes": 1150865,
+      "sha256": "d425bedd8d503d26883299a988f367d61a3080a48464861f7ab3eb94f9577546"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-N-v1.prompt.txt": {
+      "bytes": 1155,
+      "sha256": "95a155747617a56d7bdf1fd96a1524ff190c61056df9a922c1404589761b1674"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-S-v1.png": {
+      "bytes": 1481508,
+      "sha256": "94dac4f64c330505197fd13cfd5285a8ae33e3b9bd1e67e9e1ea5ccaed39a8f2"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-S-v1.prompt.txt": {
+      "bytes": 1220,
+      "sha256": "1f68b627697ee29b8400a7593ff742d4eb470ceddade679c115502ae7316b9fd"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-robot-v2.PROMPT.txt": {
+      "bytes": 1180,
+      "sha256": "0c751ea8cbe298336559901fff370de9e53456a1d77da000a4a89a8a4ccbf7c9"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-robot-v2.png": {
+      "bytes": 2693905,
+      "sha256": "bcd72d6dbf637ea1ee53300e94907678ed2d10e58708c83a8a4cb7dbbb9ed35a"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-robot-v3.png": {
+      "bytes": 2540727,
+      "sha256": "5f397c43e0aa54bf50b28df38234cf3122c985c9c086b18a6c3dc0d3d83909a9"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-robot-v3.prompt.txt": {
+      "bytes": 975,
+      "sha256": "7624ed8a58795df7f4742d739ea6c8f22c5479dda843b9761efe9ecc76cec826"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-robot-v4.png": {
+      "bytes": 2022362,
+      "sha256": "3a38f61e168d13e764a442572984f46fb6b35fddf026db7b38acf4910e0ccdf2"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-robot-v4.prompt.txt": {
+      "bytes": 1909,
+      "sha256": "81e4059a77b9afb2b0d24d578ced77cf9ac2ba89391174ef9c7e20753b884486"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-robot-v5.png": {
+      "bytes": 2010419,
+      "sha256": "5e5678871292463ea2e2e9101a45e1d692fe7876698f8520faaca48bd9638295"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-robot-v5.prompt.txt": {
+      "bytes": 1487,
+      "sha256": "e165ba7916e989574b62ecc0bcef857d24eadf2b72401c2cb01087f775281add"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-v1.PROMPT.txt": {
+      "bytes": 1212,
+      "sha256": "556dcd0949580936a03f118dc1b0d4c8b5ca542fc6de73b9a42cd4f303dc914e"
+    },
+    "art/artwork-finish/science-v2/source/field-scientist-f-walk-v1.png": {
+      "bytes": 2544676,
+      "sha256": "eab0d48c5f2197a4f75ed5c6945698a5e7af3d25e2944b2810d736da19996f8d"
+    },
+    "art/artwork-finish/science-v2/source/reference-field-f-N.png": {
+      "bytes": 60994,
+      "sha256": "c39968b0e6a362a0217ac95ba161fc2bd2b72d75e0e44541c98e86d4e2fa3169"
+    },
+    "art/artwork-finish/science-v2/source/reference-field-f-NW.png": {
+      "bytes": 72288,
+      "sha256": "e29ac6dbdb277d41d3fbd43fe392ef2a7a434eadbdea5c78e82101b5790fc7ec"
+    },
+    "art/artwork-finish/science-v2/source/science-effects-crisp-v1.png": {
+      "bytes": 1986731,
+      "sha256": "facb186f74fd96f4b63ed88aa4715242095a9fb39cd03c808c22c244381299a9"
+    },
+    "art/artwork-finish/science-v2/source/science-effects-crisp-v1.prompt.txt": {
+      "bytes": 2158,
+      "sha256": "d404b726b0e6ec89a8ed1750246010b439a3c33f7b2739d7420886f1b4c29441"
+    },
+    "art/artwork-finish/science-v2/source/science-effects-crisp-v2.png": {
+      "bytes": 1080184,
+      "sha256": "9b01dc7f496e1971923784b074c9f318d0ca271a2db7a686523cddf740453911"
+    },
+    "art/artwork-finish/science-v2/source/science-effects-crisp-v2.prompt.txt": {
+      "bytes": 3111,
+      "sha256": "d426e9f848e068e8c771f7d2732010105c51f5ccdec106f912ed44db29e30d1f"
+    },
+    "art/artwork-finish/science-v2/source/science-effects-v1.PROMPT.txt": {
+      "bytes": 1518,
+      "sha256": "3938774945eed18f15cb6b3c1d92760fec91c7da546be9a3bc5d149647a38b82"
+    },
+    "art/artwork-finish/science-v2/source/science-effects-v1.png": {
+      "bytes": 2565118,
+      "sha256": "8b30af30f003a7d3e4d9698336291afb413859b83cd3af56f84555cc3b8fc958"
+    },
+    "art/artwork-finish/science-v2/source/science-effects-v2.PROMPT.txt": {
+      "bytes": 769,
+      "sha256": "91967a155e440c606342429260b1dc8ec460c9e7739aa273e1c4e6e599467fe6"
+    },
+    "art/artwork-finish/science-v2/source/science-effects-v2.png": {
+      "bytes": 2203799,
+      "sha256": "b427bc118e026cf615b065ba7c95ac74f08b0ff729a243791edc4296e798a20d"
+    },
+    "art/artwork-finish/science-v2/source/science-projectiles-v1.png": {
+      "bytes": 1289207,
+      "sha256": "f44bb3029b44e8c8e00a28247522977b5d1dfdb9ddc96a884a11a3a8064f35cd"
+    },
+    "art/artwork-finish/science-v2/source/science-projectiles-v1.prompt.txt": {
+      "bytes": 2339,
+      "sha256": "d890e8672eed222851197be1b47473afeff90783f3206f61b37909d4843ea2c7"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-1.png": {
+      "bytes": 2541434,
+      "sha256": "adb5299e3cc45499f9fd8a9f0449e49c14567953fe76ee667e3b536b030baeb6"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-1.prompt.txt": {
+      "bytes": 1406,
+      "sha256": "878cdd134e6ca6ca4c747d796600330bf8cf420136b0d635a599e687c723e973"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-10.png": {
+      "bytes": 1717581,
+      "sha256": "9b872cb27f9117f0f79d12d4bf17cff20e0764111563b84714ab9a4aa2967d27"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-10.prompt.txt": {
+      "bytes": 1836,
+      "sha256": "9517db74d79b043ca569f3e8ac08d696327e333de02c13c19a0cb7e9d8ad8051"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-11.png": {
+      "bytes": 2269559,
+      "sha256": "cab40c12a38f8a15f935248c925a54cf81112fe42f03c7dc515c72dc6927cf82"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-11.prompt.txt": {
+      "bytes": 1787,
+      "sha256": "4476b509af22ad5ae74dee2c3b36311fbcdb4c18289ac24f4b825d75154c68e8"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-12.png": {
+      "bytes": 1713415,
+      "sha256": "d47ada8ae01889eb1960b8f0bf715ce55101598a826ef2be577c794946519db5"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-12.prompt.txt": {
+      "bytes": 1796,
+      "sha256": "0c517c8b1fe535f5cac22f28374b64e3eea3914392dd9a610bfaa76129327b73"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-2-clean.png": {
+      "bytes": 2568001,
+      "sha256": "fbe3ef3aa000410714435fd3573701252c02912a8282b781fad864fb6ad4b39c"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-2-clean.prompt.txt": {
+      "bytes": 879,
+      "sha256": "0175716ddcab6d98c4768afb6d0c398565fa8148375ca48ab77a6af99d565525"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-2.png": {
+      "bytes": 2501965,
+      "sha256": "8e61c00a4ecda8806b58f96b37f17d3fa3a9ce317deb398f4b351f2bda804f7c"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-2.prompt.txt": {
+      "bytes": 1380,
+      "sha256": "e8407b591b786eac68ac290d0e901b254fff47e723533fe181ba32412ebf2825"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-3.png": {
+      "bytes": 2478352,
+      "sha256": "7c725ab39387e4aa2fa94eb6e65faf6e3f5ebad0b1943d7d503c46f9ca45ebc4"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-3.prompt.txt": {
+      "bytes": 1389,
+      "sha256": "23cb2b10e9aa9844840ea2f458a4d4b4c29c34a6ee5e2fda76c20bad68f08f6c"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-4-clean.png": {
+      "bytes": 1957386,
+      "sha256": "08842a3da49fa1388942b3949ee21679b836acf666b9efb4e44b9b0e549aa22c"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-4-clean.prompt.txt": {
+      "bytes": 879,
+      "sha256": "0175716ddcab6d98c4768afb6d0c398565fa8148375ca48ab77a6af99d565525"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-4.png": {
+      "bytes": 1966651,
+      "sha256": "170ee3dad334fe4e60a8f46359664f1e0609930c94d4d0163fb9d138f8b6ed05"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-4.prompt.txt": {
+      "bytes": 1405,
+      "sha256": "9755df0fe9e10033af9664784dcfd6356877140316c1ea3d25a76af775e7c03d"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-5.png": {
+      "bytes": 2338522,
+      "sha256": "4bbcdf727f296bb29611109826d42a5d01068d5bc1122e5edc6fe32baaaa5ac7"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-5.prompt.txt": {
+      "bytes": 1452,
+      "sha256": "b0f01700136e2ae34b3297291b9b729673670157c2f17b859fcd5280f706d45d"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-6.png": {
+      "bytes": 2476116,
+      "sha256": "c2d653f284f3c449fd871f876debcd6254149fc14c6a6a24d161e41c01367bf8"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-6.prompt.txt": {
+      "bytes": 1452,
+      "sha256": "08c83ae0db91423718b0677fb621df99227a838bf48522265dd555a9755066b8"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-7.png": {
+      "bytes": 2149138,
+      "sha256": "f6ebd88f2b4a5e625346cc595cb5aed4fbadcd74c41b99249ede02ffc262bf78"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-7.prompt.txt": {
+      "bytes": 1677,
+      "sha256": "aced4b284ecb0f8a1e7b9bbddf554a286a39fc9fb2cd4d3489cd945c10c30823"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-8.png": {
+      "bytes": 2163747,
+      "sha256": "df39fccd3e3ac1aff2fc739ef4e7f8e02bbca277ccff687eec5e3bbda5e93e14"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-8.prompt.txt": {
+      "bytes": 1709,
+      "sha256": "0d2a68216e10fc3f8bb63d2bf8908b7dd14b39c3c3466c15b685d905609f918a"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-9.png": {
+      "bytes": 2229141,
+      "sha256": "c95cfae0ce274f768b6df8c6b024f3c6f40949628536549d3e0549cbc7ce1070"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-9.prompt.txt": {
+      "bytes": 1737,
+      "sha256": "d718bfa32c080f19ff980df23060ccf0936ef6c2f511cedecba781f20e608c4a"
+    },
+    "art/artwork-finish/science-v2/source/skill-identity-plan.json": {
+      "bytes": 8584,
+      "sha256": "8d11783c87c43d163a605bd5e98980914b8ec71bfee03af923428b3bbd746d77"
+    },
+    "art/artwork-finish/science-v2/viewer-latest.log": {
+      "bytes": 75,
+      "sha256": "648206d931206c63f44d23a4c539de95cb1098e92b503777a8fb6fbc813badac"
+    },
+    "tools/package_art_handoff.py": {
+      "bytes": 2235,
+      "sha256": "e8c65e55cfe7e70c7e7ae8fc477fbfd8f176cbc890a6af74725d2f6ad21e4fe0"
+    }
+  }
+}

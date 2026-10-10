@@ -1,0 +1,186 @@
+{
+  "status": "installed; native runtime verified; full frame acceptance pending",
+  "installedInGame": true,
+  "artworkAccepted": false,
+  "generatedCells": 160,
+  "newCells": 48,
+  "actions": 7,
+  "rows": [
+    {
+      "action": "operate",
+      "direction": 6,
+      "source": "operate-N-v2",
+      "frames": 4,
+      "sharedScale": 0.21739130434782608,
+      "recoveryHeight": 150
+    },
+    {
+      "action": "operate",
+      "direction": 7,
+      "source": "operate-NE-v2",
+      "frames": 4,
+      "sharedScale": 0.23219814241486067,
+      "recoveryHeight": 150
+    },
+    {
+      "action": "sit",
+      "direction": 0,
+      "frames": 1,
+      "seatedHeight": 120,
+      "sharedScale": 0.5769230769230769
+    },
+    {
+      "action": "sit",
+      "direction": 1,
+      "frames": 1,
+      "seatedHeight": 120,
+      "sharedScale": 0.5970149253731343
+    },
+    {
+      "action": "sit",
+      "direction": 2,
+      "frames": 1,
+      "seatedHeight": 120,
+      "sharedScale": 0.5853658536585366
+    },
+    {
+      "action": "sit",
+      "direction": 3,
+      "frames": 1,
+      "seatedHeight": 120,
+      "sharedScale": 0.5911330049261084
+    },
+    {
+      "action": "sit",
+      "direction": 4,
+      "frames": 1,
+      "seatedHeight": 120,
+      "sharedScale": 0.5853658536585366
+    },
+    {
+      "action": "sit",
+      "direction": 5,
+      "frames": 1,
+      "seatedHeight": 120,
+      "sharedScale": 0.12861736334405144
+    },
+    {
+      "action": "sit",
+      "direction": 6,
+      "frames": 1,
+      "seatedHeight": 120,
+      "sharedScale": 0.16689847009735745
+    },
+    {
+      "action": "sit",
+      "direction": 7,
+      "frames": 1,
+      "seatedHeight": 120,
+      "sharedScale": 0.16689847009735745
+    },
+    {
+      "action": "dead",
+      "direction": 0,
+      "frames": 4,
+      "sharedScale": 0.6097560975609756,
+      "heights": [
+        150.0,
+        128.05,
+        98.78,
+        68.29
+      ]
+    },
+    {
+      "action": "dead",
+      "direction": 1,
+      "frames": 4,
+      "sharedScale": 0.6097560975609756,
+      "heights": [
+        150.0,
+        128.05,
+        101.22,
+        71.34
+      ]
+    },
+    {
+      "action": "dead",
+      "direction": 2,
+      "frames": 4,
+      "sharedScale": 0.6198347107438017,
+      "heights": [
+        150.0,
+        129.55,
+        102.27,
+        70.04
+      ]
+    },
+    {
+      "action": "dead",
+      "direction": 3,
+      "frames": 4,
+      "sharedScale": 0.6437768240343348,
+      "heights": [
+        150.0,
+        131.97,
+        103.0,
+        75.97
+      ]
+    },
+    {
+      "action": "dead",
+      "direction": 4,
+      "frames": 4,
+      "sharedScale": 0.2964426877470356,
+      "heights": [
+        150.0,
+        115.61,
+        90.71,
+        65.51
+      ]
+    },
+    {
+      "action": "dead",
+      "direction": 5,
+      "frames": 4,
+      "sharedScale": 0.28142589118198874,
+      "heights": [
+        150.0,
+        119.32,
+        93.15,
+        57.13
+      ]
+    },
+    {
+      "action": "dead",
+      "direction": 6,
+      "frames": 4,
+      "sharedScale": 0.2533783783783784,
+      "heights": [
+        150.0,
+        122.13,
+        103.13,
+        66.39
+      ]
+    },
+    {
+      "action": "dead",
+      "direction": 7,
+      "frames": 4,
+      "sharedScale": 0.6122448979591837,
+      "heights": [
+        150.0,
+        115.1,
+        97.96,
+        66.73
+      ]
+    }
+  ],
+  "unchangedOperateRows": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "job": "valkyrie",
+  "gender": "f",
+  "ownActions": 10,
+  "frameCells": 208,
+  "reviewedForInstallation": true,
+  "installed": true,
+  "installedRuntimeVerified": true,
+  "classSetComplete": true,
+  "actions": [
+    {
+      "action": "idle",
+      "file": "anim_valkyrie_f_idle_v1.webp",
+      "source": "valkyrie-f-idle/idle-review-strip.webp",
+      "sha256": "28b9c1962f5f64d44a1b867688d3811693cb0db6aa4de4c1bec01af38bf1daa9"
+    },
+    {
+      "action": "walk",
+      "file": "anim_valkyrie_f_walk_v1.webp",
+      "source": "valkyrie-f-walk-v9/walk-review-strip.webp",
+      "sha256": "f863e6fb1ffaf43b8fd0d1fa26d708feda7b106109e97c549e982079d79b4a00"
+    },
+    {
+      "action": "attack",
+      "file": "anim_valkyrie_f_attack_v1.webp",
+      "source": "valkyrie-f-attack-v4/attack-review-strip.webp",
+      "sha256": "a0f1d334734e1e7144d72e4788b5c90443d453d90e219861e2f97b9137d226d8"
+    },
+    {
+      "action": "shield",
+      "file": "anim_valkyrie_f_shield_v1.webp",
+      "source": "valkyrie-f-shield-v9/shield-review-strip.webp",
+      "sha256": "0a7e87d63e2480d280cf82b5a91de722cd8efb6d692e24a445a0dd60c0eb404c"
+    },
+    {
+      "action": "first_aid",
+      "file": "anim_valkyrie_f_first_aid_v1.webp",
+      "source": "valkyrie-f-first-aid-v3/first_aid-review-strip.webp",
+      "sha256": "6dcda9c988c21684b6aa076110d5682d83e79c3b3b39151d61636ae1191a57a9"
+    },
+    {
+      "action": "buff",
+      "file": "anim_valkyrie_f_buff_v1.webp",
+      "source": "valkyrie-f-buff-v2/buff-review-strip.webp",
+      "sha256": "43ae4ea4197b3b613d6b4dc93fd5adcfe7fc5b8fbf95667467026618a9bc58c9"
+    },
+    {
+      "action": "shield_throw",
+      "file": "anim_valkyrie_f_shield_throw_v1.webp",
+      "source": "valkyrie-f-shield-throw-v4/shield_throw-review-strip.webp",
+      "sha256": "67659afa87e7d3ab288c24f25605cf36282d1c2b30814325be0ff10e22fc58c9"
+    },
+    {
+      "action": "hurt",
+      "file": "anim_valkyrie_f_hurt_v1.webp",
+      "source": "valkyrie-f-hurt-v2/hurt-review-strip.webp",
+      "sha256": "d2f1118360c3af61c59a6083dcb0feaf99b0d294751ae5cb6f34a5db1ff91bed"
+    },
+    {
+      "action": "sit",
+      "file": "anim_valkyrie_f_sit_v1.webp",
+      "source": "valkyrie-f-sit/sit-review-strip.webp",
+      "sha256": "90967ce5c9f82edfee38f264145eabd8e8950b68d231844f6832843149bb816e"
+    },
+    {
+      "action": "dead",
+      "file": "anim_valkyrie_f_dead_v1.webp",
+      "source": "valkyrie-f-dead-v2/dead-review-strip.webp",
+      "sha256": "3312da8b22225982f14d0d61ab6e2762c13e3243f69118db9ae190ab20b030aa"
+    }
+  ],
+  "visualBasis": "All ten native 208-cell contact boards, own eight-direction UnitPreview, corrected NW/S/NE headings and footfall, complete equipment margins, NE two-arm ownership, identity-scaled N prone final pose.",
+  "remaining": [],
+  "fullGoalComplete": false,
+  "acceptedScope": "Valkyrie female own directional animation set only",
+  "evidence": [
+    "QA.json",
+    "INSTALLED-CLIP-QA.json",
+    "installed-lab.mp4",
+    "unit-preview.mp4",
+    "installed-skills-native-contact.png",
+    "PERFORMANCE.json"
+  ],
+  "performanceLimit": "Local CPU render submission cost in studio, not weak-device FPS certification or global effect stress acceptance"
+}

@@ -1,0 +1,3850 @@
+{
+  "rows": [
+    {
+      "job": "runecaster",
+      "id": "rune_mastery",
+      "name": "Energy Calibration",
+      "type": "passive",
+      "profile": {
+        "id": "rune_mastery",
+        "family": "plasma",
+        "mode": "passive",
+        "size": 32,
+        "motif": "calibration",
+        "projectile": "plasma",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "ชำนาญโมดูล MATK +5% และลดเวลาชาร์จ 6% ต่อเลเวล",
+      "mechanic": null
+    },
+    {
+      "job": "runecaster",
+      "id": "fire_rune",
+      "name": "Plasma Injector",
+      "type": "active",
+      "profile": {
+        "id": "fire_rune",
+        "family": "plasma",
+        "mode": "bolt",
+        "size": 78,
+        "motif": "injector",
+        "projectile": "plasma",
+        "passiveReason": null
+      },
+      "description": "โมดูลเพลิง 160~280% MATK ธาตุไฟ และเผาไหม้ต่อเนื่อง",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "fire_rune-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "fire_rune-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 6,
+          "image": "fire_rune-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 6,
+          "image": "fire_rune-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 6,
+          "image": "fire_rune-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 1,
+          "image": "fire_rune-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "fire_rune-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 1,
+          "image": "fire_rune-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 1,
+          "image": "fire_rune-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "firebolt::fire_rune",
+        "skill_art:fire:fire_rune",
+        "hit::"
+      ],
+      "spentSP": 25,
+      "damage": 100
+    },
+    {
+      "job": "runecaster",
+      "id": "ice_rune",
+      "name": "Cryo Injector",
+      "type": "active",
+      "profile": {
+        "id": "ice_rune",
+        "family": "cryo",
+        "mode": "bolt",
+        "size": 82,
+        "motif": "reservoir",
+        "projectile": "cryo",
+        "passiveReason": null
+      },
+      "description": "หอกน้ำแข็ง 135~235% MATK ธาตุน้ำ และทำให้ศัตรูช้าลงครึ่งหนึ่ง",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "ice_rune-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "ice_rune-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 6,
+          "image": "ice_rune-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 6,
+          "image": "ice_rune-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 6,
+          "image": "ice_rune-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 1,
+          "image": "ice_rune-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "ice_rune-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "ice_rune-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "ice_rune-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "coldbolt::ice_rune",
+        "skill_art:ice:ice_rune",
+        "hit::"
+      ],
+      "spentSP": 23,
+      "damage": 47
+    },
+    {
+      "job": "runecaster",
+      "id": "thunder_rune",
+      "name": "Tesla Discharge",
+      "type": "active",
+      "profile": {
+        "id": "thunder_rune",
+        "family": "tesla",
+        "mode": "discharge",
+        "size": 130,
+        "motif": "electrodes",
+        "projectile": "tesla",
+        "passiveReason": null
+      },
+      "description": "สายฟ้าแห่งธอร์ ฟาดทุกตัวในรัศมี 2 ช่องรอบเป้าหมาย 110~190% ธาตุลม",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 6,
+          "image": "thunder_rune-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 7,
+          "image": "thunder_rune-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 8,
+          "image": "thunder_rune-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 10,
+          "image": "thunder_rune-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 10,
+          "image": "thunder_rune-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 1,
+          "image": "thunder_rune-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "thunder_rune-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "thunder_rune-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "thunder_rune-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "elemental:lightning:thunder_rune",
+        "lightning::thunder_rune",
+        "hit::"
+      ],
+      "spentSP": 47,
+      "damage": 38
+    },
+    {
+      "job": "runecaster",
+      "id": "earth_rune",
+      "name": "Seismic Driver",
+      "type": "active",
+      "profile": {
+        "id": "earth_rune",
+        "family": "rail",
+        "mode": "seismic",
+        "size": 105,
+        "motif": "ground-driver",
+        "projectile": "rail",
+        "passiveReason": null
+      },
+      "description": "โมดูลแผ่นดินยกหินขึ้นรอบเป้า 1.5 ช่อง 145~245% ธาตุดิน อาจทำให้มึน",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "earth_rune-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 10,
+          "image": "earth_rune-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 10,
+          "image": "earth_rune-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 7,
+          "image": "earth_rune-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 7,
+          "image": "earth_rune-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 1,
+          "image": "earth_rune-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "earth_rune-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "earth_rune-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "earth_rune-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        ":rock_spikes:earth_rune",
+        "hit::",
+        ":imp:earth_rune"
+      ],
+      "spentSP": 25,
+      "damage": 49
+    },
+    {
+      "job": "runecaster",
+      "id": "runic_ward",
+      "name": "Insulation Matrix",
+      "type": "passive",
+      "profile": {
+        "id": "runic_ward",
+        "family": "photon",
+        "mode": "barrier",
+        "size": 86,
+        "motif": "insulation",
+        "projectile": "photon",
+        "passiveReason": null
+      },
+      "description": "เกราะโมดูลรอบกาย MaxHP +4%×Lv, MaxSP +4%×Lv และ MDEF +2×Lv (ตัวบางน้อยลง)",
+      "mechanic": null
+    },
+    {
+      "job": "galdr",
+      "id": "galdr_focus",
+      "name": "Thermal Control",
+      "type": "passive",
+      "profile": {
+        "id": "galdr_focus",
+        "family": "plasma",
+        "mode": "passive",
+        "size": 32,
+        "motif": "thermal-control",
+        "projectile": "plasma",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "สมาธิแห่งบทขับ MATK +4%×Lv, MaxSP +4%×Lv และชาร์จเร็วขึ้น 3%×Lv",
+      "mechanic": null
+    },
+    {
+      "job": "galdr",
+      "id": "meteor_rune",
+      "name": "Orbital Strike",
+      "type": "active",
+      "profile": {
+        "id": "meteor_rune",
+        "family": "orbital",
+        "mode": "orbital",
+        "size": 210,
+        "motif": "orbital-capsule",
+        "projectile": "rail",
+        "passiveReason": null
+      },
+      "description": "เรียกอุกกาบาตโมดูลตกใส่ รัศมี 2.5 ช่อง 185~325% ธาตุไฟ อาจติดไฟ",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "meteor_rune-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "meteor_rune-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 4,
+          "image": "meteor_rune-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 4,
+          "image": "meteor_rune-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 10,
+          "image": "meteor_rune-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 4,
+          "image": "meteor_rune-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 1,
+          "image": "meteor_rune-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 2,
+          "image": "meteor_rune-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "meteor_rune-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        ":meteor:meteor_rune",
+        "hit::",
+        ":imp:meteor_rune"
+      ],
+      "spentSP": 55,
+      "damage": 78
+    },
+    {
+      "job": "galdr",
+      "id": "frost_nova",
+      "name": "Cryogenic Pulse",
+      "type": "active",
+      "profile": {
+        "id": "frost_nova",
+        "family": "cryo",
+        "mode": "pulse",
+        "size": 142,
+        "motif": "cryo-pulse",
+        "projectile": "cryo",
+        "passiveReason": null
+      },
+      "description": "ระเบิดน้ำแข็งรอบตัว 3 ช่อง 145~245% และทำให้ศัตรูช้าลง",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "frost_nova-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "frost_nova-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 11,
+          "image": "frost_nova-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 9,
+          "image": "frost_nova-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 9,
+          "image": "frost_nova-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "frost_nova-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "frost_nova-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "frost_nova-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "frost_nova-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        ":frost_nova:frost_nova",
+        "skill_art:ice:frost_nova",
+        "hit::",
+        ":imp:frost_nova"
+      ],
+      "spentSP": 33,
+      "damage": 59
+    },
+    {
+      "job": "galdr",
+      "id": "chain_lightning",
+      "name": "Tesla Chain",
+      "type": "active",
+      "profile": {
+        "id": "chain_lightning",
+        "family": "tesla",
+        "mode": "chain",
+        "size": 102,
+        "motif": "tesla-chain",
+        "projectile": "tesla",
+        "passiveReason": null
+      },
+      "description": "สายฟ้าฟาดซ้ำ 3 ครั้ง ครั้งละ 80~140% ธาตุลม",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 6,
+          "image": "chain_lightning-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 6,
+          "image": "chain_lightning-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 7,
+          "image": "chain_lightning-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 9,
+          "image": "chain_lightning-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 9,
+          "image": "chain_lightning-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "chain_lightning-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "chain_lightning-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "chain_lightning-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "chain_lightning-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        ":chain:chain_lightning",
+        "skill_art:lightning:chain_lightning",
+        "hit::"
+      ],
+      "spentSP": 33,
+      "damage": 99
+    },
+    {
+      "job": "galdr",
+      "id": "rune_barrier",
+      "name": "Electromagnetic Shield",
+      "type": "active",
+      "profile": {
+        "id": "rune_barrier",
+        "family": "photon",
+        "mode": "barrier",
+        "size": 118,
+        "motif": "electromagnetic",
+        "projectile": "photon",
+        "passiveReason": null
+      },
+      "description": "ม่านโมดูลป้องกัน MDEF +4×Lv, DEF +3×Lv และ MaxHP +3%×Lv",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "rune_barrier-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 5,
+          "image": "rune_barrier-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 5,
+          "image": "rune_barrier-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 5,
+          "image": "rune_barrier-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 5,
+          "image": "rune_barrier-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "rune_barrier-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "rune_barrier-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "rune_barrier-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "rune_barrier-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "skill_art:shield:rune_barrier",
+        ":rune_barrier:rune_barrier"
+      ],
+      "spentSP": 26,
+      "damage": 0
+    },
+    {
+      "job": "galdr",
+      "id": "ember_memory",
+      "name": "Heat Retention",
+      "type": "passive",
+      "profile": {
+        "id": "ember_memory",
+        "family": "plasma",
+        "mode": "passive",
+        "size": 32,
+        "motif": "heat-retention",
+        "projectile": "plasma",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "พลังงานไฟโดนเป้าเดิมสะสม 3 ชั้น; ไฟแต่ละชั้นเพิ่ม 1% ต่อ Lv หมดใน 6 วินาที • สาย ไฟคุมพื้นที่",
+      "mechanic": "element_repeat"
+    },
+    {
+      "job": "galdr",
+      "id": "frost_fracture",
+      "name": "Cryo Fracture",
+      "type": "passive",
+      "profile": {
+        "id": "frost_fracture",
+        "family": "cryo",
+        "mode": "passive",
+        "size": 32,
+        "motif": "fracture-bonus",
+        "projectile": "cryo",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "พลังงานน้ำใส่ศัตรูที่ Slow แรงขึ้น 4% ต่อ Lv • สาย น้ำแข็งหยุดฝูง",
+      "mechanic": "slow_bonus"
+    },
+    {
+      "job": "galdr",
+      "id": "storm_conductor",
+      "name": "Conductive Circuit",
+      "type": "passive",
+      "profile": {
+        "id": "storm_conductor",
+        "family": "tesla",
+        "mode": "passive",
+        "size": 32,
+        "motif": "conductive-refund",
+        "projectile": "tesla",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "พลังงานสายฟ้าโดนเป้าที่สองขึ้นไปคืน SP 0.4% ต่อ Lv ต่อเป้า สูงสุด 3 ครั้งต่อการชาร์จ • สาย สายฟ้าส่งต่อ",
+      "mechanic": "chain_refund"
+    },
+    {
+      "job": "galdr",
+      "id": "fire_pillar",
+      "name": "Plasma Column",
+      "type": "active",
+      "profile": {
+        "id": "fire_pillar",
+        "family": "plasma",
+        "mode": "pillar",
+        "size": 155,
+        "motif": "plasma-column",
+        "projectile": "plasma",
+        "passiveReason": null
+      },
+      "description": "ปักเสาไฟ 2 ช่อง 4 วินาที เผา 4 จังหวะ; พื้นที่ไม่ติดตามเป้า • สาย ไฟคุมพื้นที่ • Job 8+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "fire_pillar-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 5,
+          "image": "fire_pillar-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 11,
+          "image": "fire_pillar-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 8,
+          "image": "fire_pillar-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 8,
+          "image": "fire_pillar-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 1,
+          "image": "fire_pillar-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 7,
+          "image": "fire_pillar-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 4,
+          "image": "fire_pillar-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "fire_pillar-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:fire_pillar",
+        "class_expansion:field:fire_pillar",
+        "hit::",
+        "class_expansion:impact:fire_pillar"
+      ],
+      "spentSP": 20,
+      "damage": 68
+    },
+    {
+      "job": "galdr",
+      "id": "glacial_cage",
+      "name": "Cryo Containment",
+      "type": "active",
+      "profile": {
+        "id": "glacial_cage",
+        "family": "cryo",
+        "mode": "containment",
+        "size": 162,
+        "motif": "cryo-containment",
+        "projectile": "cryo",
+        "passiveReason": null
+      },
+      "description": "วงกรงน้ำแข็ง 2.5 ช่อง กระแทกและ Slow 3 วินาที; บอส Slow สั้น • สาย น้ำแข็งหยุดฝูง • Job 15+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 9,
+          "image": "glacial_cage-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 11,
+          "image": "glacial_cage-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 8,
+          "image": "glacial_cage-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 8,
+          "image": "glacial_cage-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 8,
+          "image": "glacial_cage-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "glacial_cage-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "glacial_cage-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "glacial_cage-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "glacial_cage-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:glacial_cage",
+        "class_expansion:burst_area:glacial_cage",
+        "hit::",
+        "class_expansion:impact:glacial_cage"
+      ],
+      "spentSP": 22,
+      "damage": 47
+    },
+    {
+      "job": "galdr",
+      "id": "thunder_wake",
+      "name": "Conductive Cascade",
+      "type": "active",
+      "profile": {
+        "id": "thunder_wake",
+        "family": "tesla",
+        "mode": "chain",
+        "size": 122,
+        "motif": "conductive-cascade",
+        "projectile": "tesla",
+        "passiveReason": null
+      },
+      "description": "สายฟ้าส่งต่อสูงสุด 4 เป้าในระยะ 3 ช่อง; แต่ละเป้าโดนครั้งเดียว • สาย สายฟ้าส่งต่อ • Job 25+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "thunder_wake-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 6,
+          "image": "thunder_wake-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 6,
+          "image": "thunder_wake-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 8,
+          "image": "thunder_wake-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 8,
+          "image": "thunder_wake-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "thunder_wake-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "thunder_wake-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "thunder_wake-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "thunder_wake-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:thunder_wake",
+        "class_expansion:projectile:thunder_wake",
+        "hit::",
+        "class_expansion:impact:thunder_wake"
+      ],
+      "spentSP": 2,
+      "damage": 33
+    },
+    {
+      "job": "galdr",
+      "id": "astral_focus",
+      "name": "Capacitor Focus",
+      "type": "active",
+      "profile": {
+        "id": "astral_focus",
+        "family": "tesla",
+        "mode": "recharge",
+        "size": 64,
+        "motif": "capacitor-focus",
+        "projectile": "tesla",
+        "passiveReason": null
+      },
+      "description": "ตั้งสมาธิฟื้น SP 8–16% MaxSP คูลดาวน์ 24 วินาที ใช้ขณะต่อสู้ได้ • สาย สายฟ้าส่งต่อ • Job 35+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "astral_focus-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "astral_focus-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 4,
+          "image": "astral_focus-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 4,
+          "image": "astral_focus-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 4,
+          "image": "astral_focus-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "astral_focus-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "astral_focus-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "astral_focus-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "astral_focus-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:astral_focus"
+      ],
+      "spentSP": 0,
+      "damage": 0
+    },
+    {
+      "job": "seidr",
+      "id": "seidr_lore",
+      "name": "Nanomaterial Research",
+      "type": "passive",
+      "profile": {
+        "id": "seidr_lore",
+        "family": "nano",
+        "mode": "passive",
+        "size": 32,
+        "motif": "nanomaterial",
+        "projectile": "nano",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "ตำราเซดร์ MATK +3%×Lv, ชาร์จเร็วขึ้น 4%×Lv และ MaxSP +6×Lv",
+      "mechanic": null
+    },
+    {
+      "job": "seidr",
+      "id": "soul_drain",
+      "name": "Energy Siphon",
+      "type": "active",
+      "profile": {
+        "id": "soul_drain",
+        "family": "nano",
+        "mode": "drain",
+        "size": 76,
+        "motif": "energy-siphon",
+        "projectile": "nano",
+        "passiveReason": null
+      },
+      "description": "ดูดชีวพลังงานศัตรู 195~335% ธาตุมืด",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "soul_drain-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 6,
+          "image": "soul_drain-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 6,
+          "image": "soul_drain-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 5,
+          "image": "soul_drain-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 5,
+          "image": "soul_drain-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 1,
+          "image": "soul_drain-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "soul_drain-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "soul_drain-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "soul_drain-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        ":drain:soul_drain",
+        "hit::",
+        ":imp:soul_drain",
+        ":drain_back:soul_drain"
+      ],
+      "spentSP": 18,
+      "damage": 80
+    },
+    {
+      "job": "seidr",
+      "id": "hex_of_hel",
+      "name": "Corrosive Injection",
+      "type": "active",
+      "profile": {
+        "id": "hex_of_hel",
+        "family": "nano",
+        "mode": "corrosion",
+        "size": 102,
+        "motif": "corrosive-injection",
+        "projectile": "corrosive",
+        "passiveReason": null
+      },
+      "description": "สารกัดกร่อนของเฮล รัศมี 1.5 ช่อง 120~200% และทำให้ติดพิษ 7~11 วินาที",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "hex_of_hel-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "hex_of_hel-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 4,
+          "image": "hex_of_hel-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 10,
+          "image": "hex_of_hel-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 10,
+          "image": "hex_of_hel-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 4,
+          "image": "hex_of_hel-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 1,
+          "image": "hex_of_hel-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "hex_of_hel-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "hex_of_hel-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        ":hex:hex_of_hel",
+        "hit::",
+        ":imp:hex_of_hel"
+      ],
+      "spentSP": 33,
+      "damage": 600055
+    },
+    {
+      "job": "seidr",
+      "id": "dark_nova",
+      "name": "Nanite Detonation",
+      "type": "active",
+      "profile": {
+        "id": "dark_nova",
+        "family": "nano",
+        "mode": "pulse",
+        "size": 138,
+        "motif": "nanite-detonation",
+        "projectile": "nano",
+        "passiveReason": null
+      },
+      "description": "ระเบิดความมืดรอบตัว 3 ช่อง 170~290% และทำให้ช้าลง",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "dark_nova-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "dark_nova-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 6,
+          "image": "dark_nova-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 10,
+          "image": "dark_nova-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 9,
+          "image": "dark_nova-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "dark_nova-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "dark_nova-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "dark_nova-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "dark_nova-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        ":dark_nova:dark_nova",
+        "hit::",
+        ":imp:dark_nova"
+      ],
+      "spentSP": 35,
+      "damage": 79
+    },
+    {
+      "job": "seidr",
+      "id": "void_lance",
+      "name": "Particle Lance",
+      "type": "active",
+      "profile": {
+        "id": "void_lance",
+        "family": "nano",
+        "mode": "lance",
+        "size": 116,
+        "motif": "particle-lance",
+        "projectile": "nano",
+        "passiveReason": null
+      },
+      "description": "หอกความว่างเปล่า เป้าเดียว 315~535% ธาตุชีวพลังงาน ไม่พลาด",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "void_lance-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 5,
+          "image": "void_lance-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 4,
+          "image": "void_lance-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 4,
+          "image": "void_lance-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 4,
+          "image": "void_lance-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "void_lance-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "void_lance-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "void_lance-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "void_lance-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        ":void_lance:void_lance",
+        "hit::",
+        ":imp:void_lance"
+      ],
+      "spentSP": 40,
+      "damage": 32
+    },
+    {
+      "job": "seidr",
+      "id": "creeping_corruption",
+      "name": "Corrosion Propagation",
+      "type": "passive",
+      "profile": {
+        "id": "creeping_corruption",
+        "family": "nano",
+        "mode": "passive",
+        "size": 32,
+        "motif": "corrosion-bonus",
+        "projectile": "nano",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "พลังงานมืดใส่เป้าที่มีสารกัดกร่อน Blight หรือพิษ แรงขึ้น 4% ต่อ Lv • สาย สารกัดกร่อนเสื่อมสลาย",
+      "mechanic": "dot_bonus"
+    },
+    {
+      "job": "seidr",
+      "id": "soul_harvest",
+      "name": "Energy Recovery",
+      "type": "passive",
+      "profile": {
+        "id": "soul_harvest",
+        "family": "nano",
+        "mode": "passive",
+        "size": 32,
+        "motif": "kill-recovery",
+        "projectile": "nano",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "ฆ่าศัตรูจริงคืน SP 1% ต่อ Lv คูลดาวน์ 3 วินาที ไม่ทำงานกับหุ่นฝึก • สาย ดูดชีวพลังงาน",
+      "mechanic": "kill_sp"
+    },
+    {
+      "job": "seidr",
+      "id": "curse_weaver",
+      "name": "Nanite Networking",
+      "type": "passive",
+      "profile": {
+        "id": "curse_weaver",
+        "family": "nano",
+        "mode": "passive",
+        "size": 32,
+        "motif": "alternate-signal",
+        "projectile": "nano",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "สลับสกิลมืดคนละสกิลภายใน 5 วินาที ทำให้สกิลที่สองแรงขึ้น 3% ต่อ Lv; ใช้ท่าเดิมไม่เกิดผล • สาย พลังงานต้องห้าม",
+      "mechanic": "alternate_skill"
+    },
+    {
+      "job": "seidr",
+      "id": "blight_brand",
+      "name": "Corrosion Marker",
+      "type": "active",
+      "profile": {
+        "id": "blight_brand",
+        "family": "nano",
+        "mode": "corrosion",
+        "size": 62,
+        "motif": "corrosion-marker",
+        "projectile": "corrosive",
+        "passiveReason": null
+      },
+      "description": "ประทับสารกัดกร่อนมืด 5 วินาที ดาเมจ 5 จังหวะ ไม่ซ้อนสารกัดกร่อนเดียวกัน • สาย สารกัดกร่อนเสื่อมสลาย • Job 8+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 6,
+          "image": "blight_brand-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 6,
+          "image": "blight_brand-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 5,
+          "image": "blight_brand-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 5,
+          "image": "blight_brand-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 5,
+          "image": "blight_brand-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "blight_brand-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 1,
+          "image": "blight_brand-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 1,
+          "image": "blight_brand-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 1,
+          "image": "blight_brand-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:blight_brand",
+        "hit::",
+        "class_expansion:impact:blight_brand"
+      ],
+      "spentSP": 16,
+      "damage": 87
+    },
+    {
+      "job": "seidr",
+      "id": "soul_tether",
+      "name": "Transfer Link",
+      "type": "active",
+      "profile": {
+        "id": "soul_tether",
+        "family": "nano",
+        "mode": "drain",
+        "size": 88,
+        "motif": "transfer-link",
+        "projectile": "nano",
+        "passiveReason": null
+      },
+      "description": "สายใยดูดชีวพลังงาน 3 จังหวะ รักษา 8% ของดาเมจจริงที่ทำได้ • สาย ดูดชีวพลังงาน • Job 15+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "soul_tether-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 6,
+          "image": "soul_tether-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 6,
+          "image": "soul_tether-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 8,
+          "image": "soul_tether-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 8,
+          "image": "soul_tether-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "soul_tether-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "soul_tether-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "soul_tether-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "soul_tether-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:soul_tether",
+        "class_expansion:projectile:soul_tether",
+        "hit::",
+        "class_expansion:impact:soul_tether"
+      ],
+      "spentSP": 15,
+      "damage": 72
+    },
+    {
+      "job": "seidr",
+      "id": "nightfall",
+      "name": "Particle Collapse",
+      "type": "active",
+      "profile": {
+        "id": "nightfall",
+        "family": "nano",
+        "mode": "collapse",
+        "size": 172,
+        "motif": "particle-collapse",
+        "projectile": "nano",
+        "passiveReason": null
+      },
+      "description": "เปิดรอยแยกมืด 3 ช่อง กระแทกเป็นวงและ Slow 2 วินาที • สาย พลังงานต้องห้าม • Job 25+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 9,
+          "image": "nightfall-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 11,
+          "image": "nightfall-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 8,
+          "image": "nightfall-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 8,
+          "image": "nightfall-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 8,
+          "image": "nightfall-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "nightfall-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "nightfall-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "nightfall-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "nightfall-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:nightfall",
+        "class_expansion:burst_area:nightfall",
+        "hit::",
+        "class_expansion:impact:nightfall"
+      ],
+      "spentSP": 25,
+      "damage": 60
+    },
+    {
+      "job": "seidr",
+      "id": "forbidden_exchange",
+      "name": "Emergency Power Exchange",
+      "type": "active",
+      "profile": {
+        "id": "forbidden_exchange",
+        "family": "nano",
+        "mode": "exchange",
+        "size": 72,
+        "motif": "power-exchange",
+        "projectile": "nano",
+        "passiveReason": null
+      },
+      "description": "แลก HP 8% MaxHP เพื่อคืน SP 12–24% MaxSP ใช้ไม่ได้เมื่อ HP ไม่พอ • สาย ดูดชีวพลังงาน • Job 35+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "forbidden_exchange-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "forbidden_exchange-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 4,
+          "image": "forbidden_exchange-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 4,
+          "image": "forbidden_exchange-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 4,
+          "image": "forbidden_exchange-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "forbidden_exchange-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "forbidden_exchange-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "forbidden_exchange-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "forbidden_exchange-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:forbidden_exchange"
+      ],
+      "spentSP": 0,
+      "damage": 0
+    },
+    {
+      "job": "runelord",
+      "id": "root_script",
+      "name": "Adaptive Circuit",
+      "type": "passive",
+      "profile": {
+        "id": "root_script",
+        "family": "photon",
+        "mode": "passive",
+        "size": 32,
+        "motif": "adaptive-circuit",
+        "projectile": "photon",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "อักษรราก MATK +2%×Lv และชาร์จเร็วขึ้น 2%×Lv • ชาร์จพลังงานต่างธาตุจากลูกก่อน = Resonance พลังงานลูกนั้นแรงขึ้น +2%×Lv",
+      "mechanic": null
+    },
+    {
+      "job": "runelord",
+      "id": "rune_circle",
+      "name": "Amplifier Node",
+      "type": "active",
+      "profile": {
+        "id": "rune_circle",
+        "family": "photon",
+        "mode": "node",
+        "size": 156,
+        "motif": "amplifier-node",
+        "projectile": "photon",
+        "passiveReason": null
+      },
+      "description": "วางวงโมดูลใต้เป้า รัศมี 2.2~3 ช่อง 10 วินาที (มีได้ 2 วง) • พลังงานที่ตกใส่ศัตรูในวงจะระเบิดซ้ำ 12~20% ของดาเมจ",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "rune_circle-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "rune_circle-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 4,
+          "image": "rune_circle-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 4,
+          "image": "rune_circle-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 4,
+          "image": "rune_circle-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 1,
+          "image": "rune_circle-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 1,
+          "image": "rune_circle-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 1,
+          "image": "rune_circle-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 1,
+          "image": "rune_circle-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "c3:circle:"
+      ],
+      "spentSP": 28,
+      "damage": 0
+    },
+    {
+      "job": "runelord",
+      "id": "ragnarok_verse",
+      "name": "Tri-Phase Bombardment",
+      "type": "active",
+      "profile": {
+        "id": "ragnarok_verse",
+        "family": "orbital",
+        "mode": "bombardment",
+        "size": 166,
+        "motif": "three-phase",
+        "projectile": "rail",
+        "passiveReason": null
+      },
+      "description": "ชาร์จบทแรกนาร็อก 3 วินาที ไฟ → น้ำแข็ง → สายฟ้า ตก 3 ระลอก รัศมี 4 ช่อง ระลอกละ 112~180% (ธาตุต่างกันทุกระลอก = Resonance ได้ครบ)",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 3,
+          "image": "ragnarok_verse-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 7,
+          "image": "ragnarok_verse-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 7,
+          "image": "ragnarok_verse-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 4,
+          "image": "ragnarok_verse-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 4,
+          "image": "ragnarok_verse-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 5,
+          "image": "ragnarok_verse-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 8,
+          "image": "ragnarok_verse-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "ragnarok_verse-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "ragnarok_verse-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "c3:verse:",
+        "hit::",
+        "lightning::"
+      ],
+      "spentSP": 42,
+      "damage": 154
+    },
+    {
+      "job": "runelord",
+      "id": "odins_spear_rune",
+      "name": "Railgun Lance",
+      "type": "active",
+      "profile": {
+        "id": "odins_spear_rune",
+        "family": "rail",
+        "mode": "lance",
+        "size": 144,
+        "motif": "railgun-lance",
+        "projectile": "rail",
+        "passiveReason": null
+      },
+      "description": "หอกโมดูลของระบบ 290~490% ไม่มีวันพลาด • เป้าที่ยืนในวงโมดูลโดน ×1.2",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 6,
+          "image": "odins_spear_rune-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 6,
+          "image": "odins_spear_rune-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 5,
+          "image": "odins_spear_rune-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 4,
+          "image": "odins_spear_rune-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 4,
+          "image": "odins_spear_rune-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "odins_spear_rune-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "odins_spear_rune-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "odins_spear_rune-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "odins_spear_rune-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        ":valhalla_spear:odins_spear_rune",
+        "hit::",
+        ":imp:odins_spear_rune"
+      ],
+      "spentSP": 46,
+      "damage": 167
+    },
+    {
+      "job": "runelord",
+      "id": "sap_ward",
+      "name": "Cryo Shield",
+      "type": "active",
+      "profile": {
+        "id": "sap_ward",
+        "family": "cryo",
+        "mode": "barrier",
+        "size": 106,
+        "motif": "cryo-shield",
+        "projectile": "cryo",
+        "passiveReason": null
+      },
+      "description": "โล่น้ำเลี้ยง 8 วินาที ดูดซับดาเมจ 150~270% ของ MATK • โล่แตก = ระเบิดน้ำแข็งรอบตัว 2.5 ช่อง 120~200% และทำให้ช้า",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "sap_ward-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 5,
+          "image": "sap_ward-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 5,
+          "image": "sap_ward-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 5,
+          "image": "sap_ward-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 5,
+          "image": "sap_ward-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "sap_ward-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "sap_ward-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "sap_ward-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "sap_ward-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "skill_art:shield:sap_ward",
+        ":rune_barrier:sap_ward"
+      ],
+      "spentSP": 33,
+      "damage": 0
+    },
+    {
+      "job": "runelord",
+      "id": "blink_glyph",
+      "name": "Phase Transit",
+      "type": "active",
+      "profile": {
+        "id": "blink_glyph",
+        "family": "photon",
+        "mode": "transit",
+        "size": 68,
+        "motif": "phase-transit",
+        "projectile": "photon",
+        "passiveReason": null
+      },
+      "description": "วาร์ปไปกลางวงโมดูลของตัวเองที่ใกล้ที่สุด (ไม่มีวง = พุ่งไปข้างหน้า 4.2~5 ช่อง หนีจากศัตรู)",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "blink_glyph-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 5,
+          "image": "blink_glyph-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 5,
+          "image": "blink_glyph-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 5,
+          "image": "blink_glyph-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 5,
+          "image": "blink_glyph-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "blink_glyph-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "blink_glyph-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "blink_glyph-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "blink_glyph-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "c3:blink:"
+      ],
+      "spentSP": 6,
+      "damage": 0
+    },
+    {
+      "job": "runelord",
+      "id": "circle_custodian",
+      "name": "Node Maintenance",
+      "type": "passive",
+      "profile": {
+        "id": "circle_custodian",
+        "family": "photon",
+        "mode": "passive",
+        "size": 32,
+        "motif": "node-maintenance",
+        "projectile": "photon",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "ยืนใน module Circle ของตัวเอง สกิลพลังงานแรงขึ้น 3% ต่อ Lv • สาย วงโมดูลควบคุม",
+      "mechanic": "inside_circle"
+    },
+    {
+      "job": "runelord",
+      "id": "elemental_braid",
+      "name": "Phase Coupling",
+      "type": "passive",
+      "profile": {
+        "id": "elemental_braid",
+        "family": "tesla",
+        "mode": "passive",
+        "size": 32,
+        "motif": "phase-coupling",
+        "projectile": "tesla",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "สลับธาตุพลังงานใน 5 วินาที พลังงานที่สองแรงขึ้น 3% ต่อ Lv; ซ้ำธาตุไม่เพิ่ม • สาย สลับธาตุ",
+      "mechanic": "alternate_element"
+    },
+    {
+      "job": "runelord",
+      "id": "root_recollection",
+      "name": "Charge Recovery",
+      "type": "passive",
+      "profile": {
+        "id": "root_recollection",
+        "family": "tesla",
+        "mode": "passive",
+        "size": 32,
+        "motif": "charge-recovery",
+        "projectile": "tesla",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "ชาร์จพลังงานหลังเดินจริงครบ 3 ช่องคืน SP 1% ต่อ Lv MaxSP แล้วเริ่มสะสมใหม่ คูลดาวน์ 4 วินาที • สาย เคลื่อนผ่านโมดูล",
+      "mechanic": "move_cast_sp"
+    },
+    {
+      "job": "runelord",
+      "id": "convergence_seal",
+      "name": "Convergence Node",
+      "type": "active",
+      "profile": {
+        "id": "convergence_seal",
+        "family": "photon",
+        "mode": "node",
+        "size": 176,
+        "motif": "convergence-node",
+        "projectile": "photon",
+        "passiveReason": null
+      },
+      "description": "วางตราบรรจบธาตุ 3 ช่อง 5 วินาที กระแทก Neutral 5 จังหวะ • สาย วงโมดูลควบคุม • Job 8+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "convergence_seal-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 5,
+          "image": "convergence_seal-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 11,
+          "image": "convergence_seal-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 8,
+          "image": "convergence_seal-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 8,
+          "image": "convergence_seal-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 1,
+          "image": "convergence_seal-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 7,
+          "image": "convergence_seal-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 4,
+          "image": "convergence_seal-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 4,
+          "image": "convergence_seal-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:convergence_seal",
+        "class_expansion:field:convergence_seal",
+        "hit::",
+        "class_expansion:impact:convergence_seal"
+      ],
+      "spentSP": 30,
+      "damage": 125
+    },
+    {
+      "job": "runelord",
+      "id": "triune_lance",
+      "name": "Tri-Phase Lance",
+      "type": "active",
+      "profile": {
+        "id": "triune_lance",
+        "family": "rail",
+        "mode": "lance",
+        "size": 126,
+        "motif": "three-phase-lance",
+        "projectile": "rail",
+        "passiveReason": null
+      },
+      "description": "หอกสามธาตุ Fire → Water → Wind เป้าเดียว 3 จังหวะ • สาย สลับธาตุ • Job 15+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "triune_lance-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 6,
+          "image": "triune_lance-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 6,
+          "image": "triune_lance-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 8,
+          "image": "triune_lance-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 8,
+          "image": "triune_lance-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "triune_lance-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "triune_lance-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "triune_lance-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "triune_lance-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:triune_lance",
+        "class_expansion:projectile:triune_lance",
+        "hit::",
+        "class_expansion:impact:triune_lance"
+      ],
+      "spentSP": 20,
+      "damage": 158
+    },
+    {
+      "job": "runelord",
+      "id": "root_transit",
+      "name": "Node Transit",
+      "type": "active",
+      "profile": {
+        "id": "root_transit",
+        "family": "photon",
+        "mode": "transit",
+        "size": 86,
+        "motif": "node-transit",
+        "projectile": "photon",
+        "passiveReason": null
+      },
+      "description": "ก้าวผ่านรากตามทิศที่หันสูงสุด 4 ช่อง แล้วได้เกราะ 6–24% MaxHP 4 วินาที • สาย เคลื่อนผ่านโมดูล • Job 25+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "root_transit-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "root_transit-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 4,
+          "image": "root_transit-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 4,
+          "image": "root_transit-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 4,
+          "image": "root_transit-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "root_transit-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "root_transit-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "root_transit-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "root_transit-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:root_transit"
+      ],
+      "spentSP": 18,
+      "damage": 0
+    },
+    {
+      "job": "volva",
+      "id": "sanctuary",
+      "name": "Medical Training",
+      "type": "passive",
+      "profile": {
+        "id": "sanctuary",
+        "family": "medical",
+        "mode": "passive",
+        "size": 32,
+        "motif": "maintenance",
+        "projectile": "medical",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "แสงคุ้มครอง ฟื้นฟู HP เพิ่ม 1.5~3.5% ของ MaxHP ทุกรอบ, MDEF +1 ต่อเลเวล",
+      "mechanic": null
+    },
+    {
+      "job": "volva",
+      "id": "light_of_freyja",
+      "name": "Nanobot Repair",
+      "type": "active",
+      "profile": {
+        "id": "light_of_freyja",
+        "family": "medical",
+        "mode": "repair",
+        "size": 76,
+        "motif": "nanobot-repair",
+        "projectile": "medical",
+        "passiveReason": null
+      },
+      "description": "แสงของระบบีระบบ ฟื้นฟู HP ตาม Base Lv และ INT (คลิกมอนสเตอร์อมตะเพื่อทำร้าย)",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "light_of_freyja-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 5,
+          "image": "light_of_freyja-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 5,
+          "image": "light_of_freyja-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 5,
+          "image": "light_of_freyja-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 5,
+          "image": "light_of_freyja-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "light_of_freyja-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "light_of_freyja-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "light_of_freyja-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "light_of_freyja-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "skill_art:light:light_of_freyja",
+        "heal::light_of_freyja"
+      ],
+      "spentSP": 26,
+      "damage": 0
+    },
+    {
+      "job": "volva",
+      "id": "blessing_of_odin",
+      "name": "Performance Booster",
+      "type": "active",
+      "profile": {
+        "id": "blessing_of_odin",
+        "family": "photon",
+        "mode": "booster",
+        "size": 68,
+        "motif": "performance",
+        "projectile": "photon",
+        "passiveReason": null
+      },
+      "description": "ระบบบูสต์ STR, INT, DEX +2×Lv นาน 90~210 วินาที",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "blessing_of_odin-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 5,
+          "image": "blessing_of_odin-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 5,
+          "image": "blessing_of_odin-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 5,
+          "image": "blessing_of_odin-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 5,
+          "image": "blessing_of_odin-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "blessing_of_odin-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "blessing_of_odin-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "blessing_of_odin-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "blessing_of_odin-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "skill_art:light:blessing_of_odin",
+        "buff::blessing_of_odin"
+      ],
+      "spentSP": 40,
+      "damage": 0
+    },
+    {
+      "job": "volva",
+      "id": "holy_spear",
+      "name": "Photon Lance",
+      "type": "active",
+      "profile": {
+        "id": "holy_spear",
+        "family": "photon",
+        "mode": "lance",
+        "size": 105,
+        "motif": "photon-lance",
+        "projectile": "photon",
+        "passiveReason": null
+      },
+      "description": "หอกแสงโฟตอน 160~280% MATK รุนแรงมากกับอมตะ",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "holy_spear-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "holy_spear-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 5,
+          "image": "holy_spear-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 5,
+          "image": "holy_spear-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 5,
+          "image": "holy_spear-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "holy_spear-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "holy_spear-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "holy_spear-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "holy_spear-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "holy::holy_spear",
+        "hit::"
+      ],
+      "spentSP": 23,
+      "damage": 3
+    },
+    {
+      "job": "volva",
+      "id": "divine_shield",
+      "name": "Photon Shield",
+      "type": "active",
+      "profile": {
+        "id": "divine_shield",
+        "family": "photon",
+        "mode": "barrier",
+        "size": 108,
+        "motif": "body-shield",
+        "projectile": "photon",
+        "passiveReason": null
+      },
+      "description": "โล่โฟตอน DEF +4×Lv และ MDEF +4×Lv",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "divine_shield-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 5,
+          "image": "divine_shield-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 5,
+          "image": "divine_shield-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 5,
+          "image": "divine_shield-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 5,
+          "image": "divine_shield-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "divine_shield-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "divine_shield-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "divine_shield-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "divine_shield-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "skill_art:light:divine_shield",
+        ":hex_shield:divine_shield"
+      ],
+      "spentSP": 26,
+      "damage": 0
+    },
+    {
+      "job": "volva",
+      "id": "freyjas_grace",
+      "name": "Biometric Feedback",
+      "type": "passive",
+      "profile": {
+        "id": "freyjas_grace",
+        "family": "medical",
+        "mode": "passive",
+        "size": 32,
+        "motif": "feedback",
+        "projectile": "medical",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "ระบบบูสต์ ฮีลแรงขึ้น 6%×Lv, MaxSP +4%×Lv และ MDEF +1×Lv",
+      "mechanic": null
+    },
+    {
+      "job": "norn",
+      "id": "wyrd_thread",
+      "name": "Biometric Link",
+      "type": "passive",
+      "profile": {
+        "id": "wyrd_thread",
+        "family": "medical",
+        "mode": "passive",
+        "size": 32,
+        "motif": "biometric-link",
+        "projectile": "medical",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "เส้นด้ายแห่งเวิร์ด ฮีลแรงขึ้น 5%×Lv, INT +2×Lv และ MDEF +1×Lv",
+      "mechanic": null
+    },
+    {
+      "job": "norn",
+      "id": "great_restoration",
+      "name": "Tissue Reconstruction",
+      "type": "active",
+      "profile": {
+        "id": "great_restoration",
+        "family": "medical",
+        "mode": "repair",
+        "size": 112,
+        "motif": "chassis-reconstruction",
+        "projectile": "medical",
+        "passiveReason": null
+      },
+      "description": "ฟื้นฟูครั้งใหญ่ HP มากกว่า Light of Freyja ราว 1.5 เท่า (ขึ้นกับ INT)",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "great_restoration-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 5,
+          "image": "great_restoration-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 5,
+          "image": "great_restoration-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 5,
+          "image": "great_restoration-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 5,
+          "image": "great_restoration-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "great_restoration-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 1,
+          "image": "great_restoration-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "great_restoration-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "great_restoration-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "skill_art:light:great_restoration",
+        ":restoration:great_restoration"
+      ],
+      "spentSP": 55,
+      "damage": 0
+    },
+    {
+      "job": "norn",
+      "id": "fate_weave",
+      "name": "Predictive Shield",
+      "type": "active",
+      "profile": {
+        "id": "fate_weave",
+        "family": "photon",
+        "mode": "barrier",
+        "size": 102,
+        "motif": "predictive-shield",
+        "projectile": "photon",
+        "passiveReason": null
+      },
+      "description": "ทอสัญญาณให้ตนเอง AGI, VIT, LUK +2×Lv และ FLEE +2×Lv (ซ้อนกับ enhancement of Odin ได้)",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "fate_weave-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 5,
+          "image": "fate_weave-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 5,
+          "image": "fate_weave-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 5,
+          "image": "fate_weave-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 5,
+          "image": "fate_weave-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "fate_weave-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "fate_weave-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "fate_weave-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "fate_weave-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "skill_art:light:fate_weave",
+        ":fate:fate_weave"
+      ],
+      "spentSP": 44,
+      "damage": 0
+    },
+    {
+      "job": "norn",
+      "id": "ragnarok_light",
+      "name": "Photon Pulse",
+      "type": "active",
+      "profile": {
+        "id": "ragnarok_light",
+        "family": "photon",
+        "mode": "pulse",
+        "size": 174,
+        "motif": "photon-pulse",
+        "projectile": "photon",
+        "passiveReason": null
+      },
+      "description": "แสงแห่งวันสิ้นโลกตกลงพื้นที่ รัศมี 2 ช่อง 160~280% ธาตุโฟตอน",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "ragnarok_light-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "ragnarok_light-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 11,
+          "image": "ragnarok_light-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 11,
+          "image": "ragnarok_light-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 8,
+          "image": "ragnarok_light-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "ragnarok_light-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "ragnarok_light-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "ragnarok_light-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "ragnarok_light-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        ":ragnarok_light:ragnarok_light",
+        "skill_art:light:ragnarok_light",
+        "hit::",
+        ":imp:ragnarok_light"
+      ],
+      "spentSP": 46,
+      "damage": 45
+    },
+    {
+      "job": "norn",
+      "id": "skuld_judgment",
+      "name": "Targeted Irradiation",
+      "type": "active",
+      "profile": {
+        "id": "skuld_judgment",
+        "family": "photon",
+        "mode": "irradiation",
+        "size": 126,
+        "motif": "targeted-irradiation",
+        "projectile": "photon",
+        "passiveReason": null
+      },
+      "description": "คำพิพากษาของสคูลด์ เป้าเดียว 290~490% ธาตุโฟตอน ไม่พลาด",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "skuld_judgment-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "skuld_judgment-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 6,
+          "image": "skuld_judgment-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 6,
+          "image": "skuld_judgment-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 6,
+          "image": "skuld_judgment-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "skuld_judgment-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "skuld_judgment-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "skuld_judgment-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "skuld_judgment-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        ":judgment:skuld_judgment",
+        "skill_art:light:skuld_judgment",
+        "hit::"
+      ],
+      "spentSP": 36,
+      "damage": 73
+    },
+    {
+      "job": "norn",
+      "id": "woven_overflow",
+      "name": "Recovery Overflow",
+      "type": "passive",
+      "profile": {
+        "id": "woven_overflow",
+        "family": "photon",
+        "mode": "passive",
+        "size": 32,
+        "motif": "overflow-barrier",
+        "projectile": "photon",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "ฮีลล้นกลายเป็นเกราะ 8% ต่อ Lv ของส่วนล้น สูงสุด 20% MaxHP 8 วินาที • สาย ทอเกราะ",
+      "mechanic": "overheal_barrier"
+    },
+    {
+      "job": "norn",
+      "id": "restoration_cycle",
+      "name": "Repair Cycle",
+      "type": "passive",
+      "profile": {
+        "id": "restoration_cycle",
+        "family": "medical",
+        "mode": "passive",
+        "size": 32,
+        "motif": "repair-refund",
+        "projectile": "medical",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "ฮีลที่ฟื้น HP จริงคืน SP 0.5% ต่อ Lv MaxSP คูลดาวน์ 3 วินาที • สาย ฟื้นฟู",
+      "mechanic": "heal_sp"
+    },
+    {
+      "job": "norn",
+      "id": "fates_balance",
+      "name": "Homeostasis",
+      "type": "passive",
+      "profile": {
+        "id": "fates_balance",
+        "family": "photon",
+        "mode": "passive",
+        "size": 32,
+        "motif": "system-stability",
+        "projectile": "photon",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "ฮีลที่ฟื้น HP จริงสะสม 3 ชั้น; สกิล photon ถัดไปใช้ชั้นทั้งหมด เพิ่มดาเมจ 2% ต่อ Lv ต่อชั้น • สาย พิพากษาสัญญาณ",
+      "mechanic": "heal_charge"
+    },
+    {
+      "job": "norn",
+      "id": "fate_anchor",
+      "name": "Stabilizer Anchor",
+      "type": "active",
+      "profile": {
+        "id": "fate_anchor",
+        "family": "photon",
+        "mode": "barrier",
+        "size": 122,
+        "motif": "stabilizer-anchor",
+        "projectile": "photon",
+        "passiveReason": null
+      },
+      "description": "ผูกสมอสัญญาณ สร้างเกราะ 10–18% MaxHP 8 วินาที • สาย ทอเกราะ • Job 8+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "fate_anchor-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "fate_anchor-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 4,
+          "image": "fate_anchor-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 4,
+          "image": "fate_anchor-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 4,
+          "image": "fate_anchor-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "fate_anchor-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "fate_anchor-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "fate_anchor-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "fate_anchor-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:fate_anchor"
+      ],
+      "spentSP": 20,
+      "damage": 0
+    },
+    {
+      "job": "norn",
+      "id": "cleansing_thread",
+      "name": "Decontamination Link",
+      "type": "active",
+      "profile": {
+        "id": "cleansing_thread",
+        "family": "medical",
+        "mode": "repair",
+        "size": 82,
+        "motif": "decontamination",
+        "projectile": "medical",
+        "passiveReason": null
+      },
+      "description": "รักษา 8–16% MaxHP และล้าง Slow/Stun ไม่ล้างการโจมตีที่กำลังเกิด • สาย ฟื้นฟู • Job 15+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "cleansing_thread-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "cleansing_thread-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 4,
+          "image": "cleansing_thread-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 4,
+          "image": "cleansing_thread-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 4,
+          "image": "cleansing_thread-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "cleansing_thread-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "cleansing_thread-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "cleansing_thread-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "cleansing_thread-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:cleansing_thread"
+      ],
+      "spentSP": 12,
+      "damage": 0
+    },
+    {
+      "job": "norn",
+      "id": "woven_sanctuary",
+      "name": "Medical Station",
+      "type": "active",
+      "profile": {
+        "id": "woven_sanctuary",
+        "family": "medical",
+        "mode": "station",
+        "size": 154,
+        "motif": "medical-station",
+        "projectile": "medical",
+        "passiveReason": null
+      },
+      "description": "วงฟื้นฟูรอบตัว 3 ช่อง 5 วินาที รักษา 2–4% MaxHP ต่อวินาทีเมื่ออยู่ในวง • สาย ฟื้นฟู • Job 25+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "woven_sanctuary-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 5,
+          "image": "woven_sanctuary-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 5,
+          "image": "woven_sanctuary-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 5,
+          "image": "woven_sanctuary-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 5,
+          "image": "woven_sanctuary-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 1,
+          "image": "woven_sanctuary-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 1,
+          "image": "woven_sanctuary-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 1,
+          "image": "woven_sanctuary-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 1,
+          "image": "woven_sanctuary-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:woven_sanctuary",
+        "class_expansion:field:woven_sanctuary"
+      ],
+      "spentSP": 25,
+      "damage": 0
+    },
+    {
+      "job": "norn",
+      "id": "severed_fate",
+      "name": "Signal Disruption",
+      "type": "active",
+      "profile": {
+        "id": "severed_fate",
+        "family": "photon",
+        "mode": "disrupt",
+        "size": 116,
+        "motif": "signal-disruption",
+        "projectile": "photon",
+        "passiveReason": null
+      },
+      "description": "ตัดด้ายสัญญาณด้วยพลังงาน photon; เป้าต่ำกว่า 30% HP รับดาเมจเพิ่ม 30% • สาย พิพากษาสัญญาณ • Job 35+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "severed_fate-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 6,
+          "image": "severed_fate-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 6,
+          "image": "severed_fate-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 5,
+          "image": "severed_fate-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 5,
+          "image": "severed_fate-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "severed_fate-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "severed_fate-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "severed_fate-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "severed_fate-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:severed_fate",
+        "class_expansion:projectile:severed_fate",
+        "hit::",
+        "class_expansion:impact:severed_fate"
+      ],
+      "spentSP": 14,
+      "damage": 33
+    },
+    {
+      "job": "gythja",
+      "id": "iron_faith",
+      "name": "Kinetic Conditioning",
+      "type": "passive",
+      "profile": {
+        "id": "iron_faith",
+        "family": "rail",
+        "mode": "passive",
+        "size": 32,
+        "motif": "conditioning",
+        "projectile": "rail",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "ศรัทธาเหล็ก DEF +2×Lv, ดาเมจกายภาพ +4%×Lv, MaxHP +3%×Lv และความเร็วโจมตี +2%×Lv",
+      "mechanic": null
+    },
+    {
+      "job": "gythja",
+      "id": "holy_fist",
+      "name": "Impact Punch",
+      "type": "active",
+      "profile": {
+        "id": "holy_fist",
+        "family": "rail",
+        "mode": "kinetic",
+        "size": 72,
+        "motif": "impact-punch",
+        "projectile": "rail",
+        "passiveReason": null
+      },
+      "description": "หมัดโฟตอน 240~400% ธาตุโฟตอน (แรงมากกับอมตะ/ปีศาจ)",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "holy_fist-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 5,
+          "image": "holy_fist-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 4,
+          "image": "holy_fist-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 4,
+          "image": "holy_fist-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 4,
+          "image": "holy_fist-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "holy_fist-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "holy_fist-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "holy_fist-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "holy_fist-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "hit::",
+        ":holy_fist:holy_fist"
+      ],
+      "spentSP": 9,
+      "damage": 209
+    },
+    {
+      "job": "gythja",
+      "id": "triple_palm",
+      "name": "Triple Impulse",
+      "type": "active",
+      "profile": {
+        "id": "triple_palm",
+        "family": "rail",
+        "mode": "combo",
+        "size": 88,
+        "motif": "triple-impulse",
+        "projectile": "rail",
+        "passiveReason": null
+      },
+      "description": "ฝ่ามือสามจังหวะ 3 ครั้ง ครั้งละ 110~190% ไม่พลาด",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "triple_palm-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 7,
+          "image": "triple_palm-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 8,
+          "image": "triple_palm-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 7,
+          "image": "triple_palm-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 6,
+          "image": "triple_palm-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "triple_palm-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "triple_palm-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "triple_palm-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "triple_palm-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "hit::",
+        ":palm:triple_palm"
+      ],
+      "spentSP": 14,
+      "damage": 300
+    },
+    {
+      "job": "gythja",
+      "id": "divine_burst",
+      "name": "Kinetic Burst",
+      "type": "active",
+      "profile": {
+        "id": "divine_burst",
+        "family": "rail",
+        "mode": "pulse",
+        "size": 148,
+        "motif": "kinetic-burst",
+        "projectile": "rail",
+        "passiveReason": null
+      },
+      "description": "ระเบิดพลังศรัทธาทั้งหมดใส่เป้าเดียว 480~800% ธาตุโฟตอน ไม่พลาด",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 5,
+          "image": "divine_burst-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 5,
+          "image": "divine_burst-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 4,
+          "image": "divine_burst-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 4,
+          "image": "divine_burst-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 4,
+          "image": "divine_burst-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "divine_burst-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "divine_burst-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "divine_burst-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "divine_burst-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "hit::",
+        ":divine_burst:divine_burst"
+      ],
+      "spentSP": 52,
+      "damage": 509
+    },
+    {
+      "job": "gythja",
+      "id": "zen_body",
+      "name": "Breathing Control",
+      "type": "active",
+      "profile": {
+        "id": "zen_body",
+        "family": "medical",
+        "mode": "regulation",
+        "size": 62,
+        "motif": "thermal-regulation",
+        "projectile": "medical",
+        "passiveReason": null
+      },
+      "description": "กายสงบ DEF +3×Lv, MaxHP +3%×Lv และฟื้น HP ต่อรอบ +1%×Lv",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "zen_body-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "zen_body-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 4,
+          "image": "zen_body-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 4,
+          "image": "zen_body-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 4,
+          "image": "zen_body-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 1,
+          "image": "zen_body-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "zen_body-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "zen_body-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "zen_body-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        ":zen:zen_body"
+      ],
+      "spentSP": 25,
+      "damage": 0
+    },
+    {
+      "job": "gythja",
+      "id": "palm_rhythm",
+      "name": "Impulse Rhythm",
+      "type": "passive",
+      "profile": {
+        "id": "palm_rhythm",
+        "family": "rail",
+        "mode": "passive",
+        "size": 32,
+        "motif": "impulse-rhythm",
+        "projectile": "rail",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "สลับสกิลหมัด photon คนละท่าภายใน 5 วินาที ท่าที่สองแรงขึ้น 3% ต่อ Lv • สาย หมัดต่อเนื่อง",
+      "mechanic": "alternate_skill"
+    },
+    {
+      "job": "gythja",
+      "id": "measured_breath",
+      "name": "Oxygen Efficiency",
+      "type": "passive",
+      "profile": {
+        "id": "measured_breath",
+        "family": "medical",
+        "mode": "passive",
+        "size": 32,
+        "motif": "coolant-efficiency",
+        "projectile": "medical",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "สกิลหมัด photon โดนทุก 3 จังหวะคืน SP 0.5% ต่อ Lv คูลดาวน์ 2 วินาที • สาย สะสมลมหายใจ",
+      "mechanic": "third_hit_sp"
+    },
+    {
+      "job": "gythja",
+      "id": "temple_reversal",
+      "name": "Counterforce",
+      "type": "passive",
+      "profile": {
+        "id": "temple_reversal",
+        "family": "rail",
+        "mode": "passive",
+        "size": 32,
+        "motif": "counterforce",
+        "projectile": "rail",
+        "passiveReason": "Use the native stat, charge, shield, HP/SP or damage result; no invented cast or damage flash."
+      },
+      "description": "รับดาเมจโดยตรงสะสมสูงสุด 2 ชั้น; หมัด photon ถัดไปใช้ทั้งหมดเพิ่มดาเมจ 4% ต่อ Lv ต่อชั้น • สาย สวนกลับ",
+      "mechanic": "hurt_charge"
+    },
+    {
+      "job": "gythja",
+      "id": "consecrated_combo",
+      "name": "Impact Combination",
+      "type": "active",
+      "profile": {
+        "id": "consecrated_combo",
+        "family": "rail",
+        "mode": "combo",
+        "size": 76,
+        "motif": "impact-combination",
+        "projectile": "rail",
+        "passiveReason": null
+      },
+      "description": "หมัด photon ต่อเนื่อง 4 จังหวะ เป้าตายหยุดส่งหมัด • สาย หมัดต่อเนื่อง • Job 8+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 6,
+          "image": "consecrated_combo-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 8,
+          "image": "consecrated_combo-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 9,
+          "image": "consecrated_combo-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 8,
+          "image": "consecrated_combo-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 10,
+          "image": "consecrated_combo-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 2,
+          "image": "consecrated_combo-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "consecrated_combo-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "consecrated_combo-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "consecrated_combo-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:consecrated_combo",
+        "hit::",
+        "class_expansion:impact:consecrated_combo"
+      ],
+      "spentSP": 5,
+      "damage": 163
+    },
+    {
+      "job": "gythja",
+      "id": "breath_of_battle",
+      "name": "Combat Respiration",
+      "type": "active",
+      "profile": {
+        "id": "breath_of_battle",
+        "family": "medical",
+        "mode": "regulation",
+        "size": 88,
+        "motif": "combat-venting",
+        "projectile": "medical",
+        "passiveReason": null
+      },
+      "description": "คืน SP 6–14% MaxSP และฟื้น HP 5–9% MaxHP • สาย สะสมลมหายใจ • Job 15+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "breath_of_battle-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "breath_of_battle-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 4,
+          "image": "breath_of_battle-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 4,
+          "image": "breath_of_battle-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 4,
+          "image": "breath_of_battle-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "breath_of_battle-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "breath_of_battle-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "breath_of_battle-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "breath_of_battle-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:breath_of_battle"
+      ],
+      "spentSP": 0,
+      "damage": 0
+    },
+    {
+      "job": "gythja",
+      "id": "temple_counter",
+      "name": "Reactive Counter",
+      "type": "active",
+      "profile": {
+        "id": "temple_counter",
+        "family": "photon",
+        "mode": "barrier",
+        "size": 86,
+        "motif": "reactive-counter",
+        "projectile": "photon",
+        "passiveReason": null
+      },
+      "description": "ตั้งการ์ดรับแรง สร้างเกราะ 8–16% MaxHP 5 วินาที • สาย สวนกลับ • Job 25+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 4,
+          "image": "temple_counter-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 4,
+          "image": "temple_counter-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 4,
+          "image": "temple_counter-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 4,
+          "image": "temple_counter-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 4,
+          "image": "temple_counter-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "temple_counter-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "temple_counter-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "temple_counter-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "temple_counter-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:temple_counter"
+      ],
+      "spentSP": 12,
+      "damage": 0
+    },
+    {
+      "job": "gythja",
+      "id": "sunbreak_palm",
+      "name": "Shock Palm",
+      "type": "active",
+      "profile": {
+        "id": "sunbreak_palm",
+        "family": "rail",
+        "mode": "kinetic",
+        "size": 132,
+        "motif": "shock-palm",
+        "projectile": "rail",
+        "passiveReason": null
+      },
+      "description": "ผลักฝ่ามือ photon ตามแนว 3 ช่อง กระแทกทุกเป้าในแนว • สาย หมัดต่อเนื่อง • Job 35+",
+      "mechanic": null,
+      "samples": [
+        {
+          "at": 0.05,
+          "events": 9,
+          "image": "sunbreak_palm-0.png"
+        },
+        {
+          "at": 0.15,
+          "events": 11,
+          "image": "sunbreak_palm-1.png"
+        },
+        {
+          "at": 0.3,
+          "events": 7,
+          "image": "sunbreak_palm-2.png"
+        },
+        {
+          "at": 0.419,
+          "events": 7,
+          "image": "sunbreak_palm-3.png"
+        },
+        {
+          "at": 0.45,
+          "events": 7,
+          "image": "sunbreak_palm-4.png"
+        },
+        {
+          "at": 0.8,
+          "events": 0,
+          "image": "sunbreak_palm-5.png"
+        },
+        {
+          "at": 1.3,
+          "events": 0,
+          "image": "sunbreak_palm-6.png"
+        },
+        {
+          "at": 2.5,
+          "events": 0,
+          "image": "sunbreak_palm-7.png"
+        },
+        {
+          "at": 4.5,
+          "events": 0,
+          "image": "sunbreak_palm-8.png"
+        }
+      ],
+      "events": [
+        "juice::",
+        "class_expansion:cast:sunbreak_palm",
+        "class_expansion:projectile:sunbreak_palm",
+        "hit::",
+        "class_expansion:impact:sunbreak_palm"
+      ],
+      "spentSP": 8,
+      "damage": 135
+    }
+  ],
+  "active": 48,
+  "passive": 24
+}

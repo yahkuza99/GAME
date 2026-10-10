@@ -1,0 +1,296 @@
+{
+  "jobs": [
+    {
+      "job": "runecaster",
+      "casts": [
+        {
+          "id": "fire_rune",
+          "draws": 375,
+          "at": 0.11
+        },
+        {
+          "id": "ice_rune",
+          "draws": 397,
+          "at": 4.02
+        },
+        {
+          "id": "thunder_rune",
+          "draws": 636,
+          "at": 7.67
+        },
+        {
+          "id": "earth_rune",
+          "draws": 428,
+          "at": 11.81
+        }
+      ],
+      "clip": "runecaster.mp4",
+      "bytes": 476209
+    },
+    {
+      "job": "runelord",
+      "casts": [
+        {
+          "id": "rune_circle",
+          "draws": 509,
+          "at": 0.06
+        },
+        {
+          "id": "ragnarok_verse",
+          "draws": 737,
+          "at": 3.22
+        },
+        {
+          "id": "odins_spear_rune",
+          "draws": 350,
+          "at": 7.46
+        },
+        {
+          "id": "sap_ward",
+          "draws": 388,
+          "at": 11.02
+        },
+        {
+          "id": "blink_glyph",
+          "draws": 241,
+          "at": 13.94
+        },
+        {
+          "id": "convergence_seal",
+          "draws": 950,
+          "at": 16.85
+        },
+        {
+          "id": "triune_lance",
+          "draws": 572,
+          "at": 20.19
+        },
+        {
+          "id": "root_transit",
+          "draws": 172,
+          "at": 23.38
+        }
+      ],
+      "clip": "runelord.mp4",
+      "bytes": 840012
+    },
+    {
+      "job": "norn",
+      "casts": [
+        {
+          "id": "great_restoration",
+          "draws": 508,
+          "at": 0.02
+        },
+        {
+          "id": "fate_weave",
+          "draws": 390,
+          "at": 3.51
+        },
+        {
+          "id": "ragnarok_light",
+          "draws": 661,
+          "at": 6.45
+        },
+        {
+          "id": "skuld_judgment",
+          "draws": 571,
+          "at": 10.53
+        },
+        {
+          "id": "fate_anchor",
+          "draws": 170,
+          "at": 14.71
+        },
+        {
+          "id": "cleansing_thread",
+          "draws": 170,
+          "at": 17.61
+        },
+        {
+          "id": "woven_sanctuary",
+          "draws": 574,
+          "at": 20.54
+        },
+        {
+          "id": "severed_fate",
+          "draws": 287,
+          "at": 23.48
+        }
+      ],
+      "clip": "norn.mp4",
+      "bytes": 655530
+    },
+    {
+      "job": "gythja",
+      "casts": [
+        {
+          "id": "holy_fist",
+          "draws": 158,
+          "at": 0.02
+        },
+        {
+          "id": "triple_palm",
+          "draws": 343,
+          "at": 3.06
+        },
+        {
+          "id": "divine_burst",
+          "draws": 216,
+          "at": 6.05
+        },
+        {
+          "id": "zen_body",
+          "draws": 256,
+          "at": 9.06
+        },
+        {
+          "id": "consecrated_combo",
+          "draws": 593,
+          "at": 11.97
+        },
+        {
+          "id": "breath_of_battle",
+          "draws": 170,
+          "at": 14.91
+        },
+        {
+          "id": "temple_counter",
+          "draws": 170,
+          "at": 17.82
+        },
+        {
+          "id": "sunbreak_palm",
+          "draws": 419,
+          "at": 20.73
+        }
+      ],
+      "clip": "gythja.mp4",
+      "bytes": 536254
+    },
+    {
+      "job": "volva",
+      "casts": [
+        {
+          "id": "light_of_freyja",
+          "draws": 356,
+          "at": 0.02
+        },
+        {
+          "id": "blessing_of_odin",
+          "draws": 358,
+          "at": 3.04
+        },
+        {
+          "id": "holy_spear",
+          "draws": 307,
+          "at": 5.98
+        },
+        {
+          "id": "divine_shield",
+          "draws": 377,
+          "at": 9.84
+        }
+      ],
+      "clip": "volva.mp4",
+      "bytes": 249012
+    },
+    {
+      "job": "galdr",
+      "casts": [
+        {
+          "id": "meteor_rune",
+          "draws": 485,
+          "at": 0.02
+        },
+        {
+          "id": "frost_nova",
+          "draws": 453,
+          "at": 4.15
+        },
+        {
+          "id": "chain_lightning",
+          "draws": 1310,
+          "at": 7.31
+        },
+        {
+          "id": "rune_barrier",
+          "draws": 388,
+          "at": 10.8
+        },
+        {
+          "id": "fire_pillar",
+          "draws": 958,
+          "at": 13.74
+        },
+        {
+          "id": "glacial_cage",
+          "draws": 426,
+          "at": 17.07
+        },
+        {
+          "id": "thunder_wake",
+          "draws": 858,
+          "at": 20.3
+        },
+        {
+          "id": "astral_focus",
+          "draws": 170,
+          "at": 23.47
+        }
+      ],
+      "clip": "galdr.mp4",
+      "bytes": 977443
+    },
+    {
+      "job": "seidr",
+      "casts": [
+        {
+          "id": "soul_drain",
+          "draws": 351,
+          "at": 0.02
+        },
+        {
+          "id": "hex_of_hel",
+          "draws": 426,
+          "at": 3.39
+        },
+        {
+          "id": "dark_nova",
+          "draws": 349,
+          "at": 6.58
+        },
+        {
+          "id": "void_lance",
+          "draws": 336,
+          "at": 9.73
+        },
+        {
+          "id": "blight_brand",
+          "draws": 453,
+          "at": 13.52
+        },
+        {
+          "id": "soul_tether",
+          "draws": 519,
+          "at": 16.49
+        },
+        {
+          "id": "nightfall",
+          "draws": 421,
+          "at": 19.45
+        },
+        {
+          "id": "forbidden_exchange",
+          "draws": 103,
+          "at": 22.74
+        }
+      ],
+      "clip": "seidr.mp4",
+      "bytes": 775665
+    }
+  ],
+  "active": 48,
+  "storageIsolated": true,
+  "errors": []
+}

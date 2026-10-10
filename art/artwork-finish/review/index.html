@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="th"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Advanced animation review</title>
+<style>
+body{margin:0;background:#18272b;color:#edf4ed;font:15px system-ui}main{max-width:1100px;margin:auto;padding:16px}h1{font-size:20px}p{color:#bfd0ca}select,button{font:inherit;padding:8px;background:#304548;color:white;border:1px solid #6c8884;border-radius:6px}header{display:flex;gap:10px;flex-wrap:wrap}#grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:16px}article{background:#22383b;border:1px solid #48615d;border-radius:8px;padding:10px}canvas{width:100%;height:auto;display:block}output{font:12px monospace;color:#b8d7c9}strong{color:#ffd48a}
+</style>
+<main><h1>Valkyrie F — animation review</h1>
+<p><strong>ชุด Valkyrie หญิงติดตั้งแล้ว</strong> ใช้ Anim.pick และ Anim.draw ของเกม เปรียบเทียบแผ่นภาพที่ติดตั้งขนาด 68px กับภาพขยาย 150px · <a href="native-valkyrie/index.html">คลิปและหลักฐานเกมจริง</a></p>
+<header><label>ท่า <select id="action"><option>idle</option><option selected>walk</option><option>attack</option><option>shield</option><option>first_aid</option><option>buff</option><option>shield_throw</option><option>hurt</option></select></label><label><input id="raw" type="checkbox"> ดูทุกเฟรมตามลำดับ (เทียบกับจังหวะในเกม)</label><button id="pause">หยุด</button><label>เฟรม <input id="frame" type="range" min="0" max="3" value="0"></label></header>
+<p id="note"></p><section id="grid"></section><p><a href="native-valkyrie/candidate-lab.mp4">คลิปจาก Lab จริงของภาพเตรียมติดตั้ง</a> · <a href="native-valkyrie/unit-preview.mp4">คลิป Unit Preview</a> · <a href="native-valkyrie/REVIEW.md">ผลตรวจและงานที่ยังเหลือ</a></p></main>
+<script>
+const Art={imgs:{},get(k){return this.imgs[k]||null}};
+const Sprites={shadow(g,x,y,w,h,a){g.save();g.fillStyle=`rgba(0,0,0,${a})`;g.beginPath();g.ellipse(x,y,w,h,0,0,Math.PI*2);g.fill();g.restore()}};
+</script><script src="../../../js/anim.js"></script><script>
+const names=['E','SE','S','SW','W','NW','N','NE'];
+const candidates={idle:'valkyrie-f-idle/idle-review-strip.webp',walk:'valkyrie-f-walk-v2/walk-review-strip.webp',attack:'valkyrie-f-attack/attack-review-strip.webp',shield:'valkyrie-f-shield-v2/shield-review-strip.webp',first_aid:'valkyrie-f-first-aid/first_aid-review-strip.webp',buff:'valkyrie-f-buff/buff-review-strip.webp',shield_throw:'valkyrie-f-shield-throw-v2/shield_throw-review-strip.webp'};
+ candidates.walk='valkyrie-f-walk-v9/walk-review-strip.webp';
+ candidates.attack='valkyrie-f-attack-v4/attack-review-strip.webp';
+ candidates.shield='valkyrie-f-shield-v9/shield-review-strip.webp';
+ candidates.first_aid='valkyrie-f-first-aid-v3/first_aid-review-strip.webp';
+ candidates.buff='valkyrie-f-buff-v2/buff-review-strip.webp';
+ candidates.shield_throw='valkyrie-f-shield-throw-v4/shield_throw-review-strip.webp';
+ candidates.hurt='valkyrie-f-hurt-v2/hurt-review-strip.webp';
+ candidates.sit='valkyrie-f-sit/sit-review-strip.webp';
+ candidates.dead='valkyrie-f-dead-v2/dead-review-strip.webp';
+for(const action of ['sit','dead'])document.querySelector('#action').add(new Option(action,action));
+const notes={idle:'ภาพยืนยังรอตรวจร่วมกับท่าอื่นและในเกมจริง',walk:'ยังต้องตรวจ SE frame 0 และจังหวะก้าวของ E',attack:'ยังรอตรวจความต่อเนื่องของมือและอาวุธ',shield:'ยังไม่ผ่านทิศเฉียง SE/SW/NW; ตัวเล่นรองรับท่า 4 เฟรมแล้ว แต่ภาพยังไม่ผ่าน',first_aid:'ท่าย่อตัวรักษาแยกสองเฟรม ยังรอตรวจต่อเนื่องกับชุดท่าอื่นและในเกมจริง',buff:'ท่ายกดาบบัฟ ยังรอตรวจต่อเนื่องกับชุดอื่น',shield_throw:'แก้ NW ให้หันซ้ายบนด้วยภาพอ้างอิงทิศเดียวแล้ว ยังรอตรวจต่อเนื่องกับชุดอื่นและในเกมจริง'};
+notes.hurt='แก้ NE ด้วยภาพอ้างอิงทิศเดียวแล้ว ยังรอตรวจต่อเนื่องกับชุดอื่น';
+notes.walk='แก้ SW/NW ให้คงมุมเฉียงและสลับเท้ารับน้ำหนักแล้ว รอตรวจลูปและความต่อเนื่องกับท่าอื่น';
+notes.attack='แก้ S/NE/NW แล้ว ดาบขยับผ่านง้าง ฟันและคืนท่า รอตรวจต่อเนื่องกับชุดอื่น';
+notes.shield='แก้ SE/SW/NW/NE ให้คงมุมเฉียงแล้ว ยังรอตรวจต้นแขน NE เท้า ศีรษะ และความต่อเนื่องกับท่าอื่น';
+notes.first_aid='แก้ NE/NW ให้คงมุมหมวกแล้ว รอตรวจท่าซ่อมและความต่อเนื่องกับชุดอื่น';
+notes.buff='แก้ NE ยกดาบด้านหลังขวาแล้ว ยังรอความต่อเนื่องกับชุดอื่น';
+notes.shield_throw='แก้ NW/NE แล้ว ยังรอตรวจแขนขว้างกับแขนถือดาบและความต่อเนื่องกับชุดอื่น';
+notes.sit='ท่านั่ง 8 ทิศ จัดตัวเตี้ยลงตามขาที่พับ รอเทียบศีรษะและตำแหน่งพื้นกับชุดอื่น';
+notes.dead='ท่าล้มมีภาพร่างครบ 8 ทิศ × 4 เฟรม ผ่านการตรวจช่องภาพ/ขอบ รอความต่อเนื่องกับชุดอื่น เกมจริง และ Unit Preview';
+for(const action of Object.keys(candidates))notes[action]='ตรวจภาพและทิศในเกมจริงแล้ว ดูคลิปชุดติดตั้งและภาพการใช้สกิลได้ในหน้าหลักฐาน งาน Rune และชุดอาชีพอื่นยังอยู่ใน Goal รวม';
+const canvases=names.map(n=>{const a=document.createElement('article');a.innerHTML=`<b>${n}</b><canvas width="240" height="300"></canvas><output></output>`;document.querySelector('#grid').append(a);return a.querySelector('canvas')});
+let paused=false,fixed=0;
+document.querySelector('#pause').onclick=()=>{paused=!paused;document.querySelector('#pause').textContent=paused?'เล่นต่อ':'หยุด'};
+document.querySelector('#frame').oninput=e=>{fixed=Number(e.target.value);paused=true;document.querySelector('#pause').textContent='เล่นต่อ'};
+function render(t){const action=document.querySelector('#action').value,raw=document.querySelector('#raw').checked,img=Art.get(`anim_valkyrie_f_${action}`);if(!img)return;
+const n=Math.round(img.width/240),u=paused?Math.min(fixed,n-1)/n:(t%1.2)/1.2;
+document.querySelector('#note').textContent=notes[action];
+canvases.forEach((c,dir)=>{const g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);g.fillStyle='#b2c2b6';g.font='12px system-ui';g.fillText('68px game size',14,16);g.fillText('150px inspection',14,133);g.strokeStyle='#577773';[105,285].forEach(y=>{g.beginPath();g.moveTo(0,y);g.lineTo(240,y);g.stroke()});
+const st={dir,moving:action==='walk',atk:action==='attack'?Math.max(.0001,1-u):0,skill:['shield','first_aid','buff','shield_throw'].includes(action)?Math.max(.0001,1-u):0,skillAction:action,meleeFamily:'einherjar'};
+st.hurt=action==='hurt'?Math.max(.0001,1-u):0;
+st.sit=action==='sit';st.dead=action==='dead';st.deathT=u*.5;
+let frame;
+if(raw||paused){frame=Math.min(n-1,Math.floor(u*n));[ [105,68],[285,150] ].forEach(([y,h])=>{const k=h/150;g.drawImage(img,frame*240,dir*240,240,240,120-120*k,y-220*k,240*k,240*k)})}
+else{const p=Anim.pick('valkyrie_f',st,t);frame=p.f;Anim.draw(g,120,105,'valkyrie_f',st,t,68);Anim.draw(g,120,285,'valkyrie_f',st,t,150)}
+c.nextElementSibling.textContent=`${raw||paused?'source':'runtime'} frame ${frame}/${n-1}`});
+}
+window.reviewReady=Promise.all(Object.entries(candidates).map(([a,path])=>new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>{Art.imgs[`anim_valkyrie_f_${a}`]=img;resolve()};img.onerror=()=>reject(Error(path));img.src=path}))).then(()=>{window.reviewLoaded=true;function tick(ms){render(ms/1000);requestAnimationFrame(tick)}requestAnimationFrame(tick)});
+window.renderReview=render;
+</script></html>

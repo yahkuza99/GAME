@@ -1,0 +1,47 @@
+{
+  "accepted": false,
+  "installed": false,
+  "directionsClaimed": 8,
+  "size": [
+    1024,
+    1536
+  ],
+  "mode": "RGBA",
+  "alphaExtrema": [
+    0,
+    254
+  ],
+  "review": [
+    "Alpha/background needs further inspection; do not crop or install before validating edge transparency.",
+    "Head/body proportion is too tall for 70 px chibi sprite; simplify and enlarge head.",
+    "East pose not a strict side profile; north-east shield/right-hand continuity requires redrawing."
+  ],
+  "referenceCommit": "f891af8",
+  "next": "Generate approved single front chibi model first, then consistent independently drawn eight directions.",
+  "backgroundSamples": {
+    "(0, 0)": [
+      2,
+      1,
+      1,
+      0
+    ],
+    "(512, 5)": [
+      19,
+      16,
+      10,
+      0
+    ],
+    "(512, 750)": [
+      79,
+      69,
+      48,
+      0
+    ],
+    "(30, 750)": [
+      28,
+      25,
+      17,
+      0
+    ]
+  }
+}

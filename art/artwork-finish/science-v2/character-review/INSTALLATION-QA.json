@@ -1,0 +1,1857 @@
+{
+  "rows": [
+    {
+      "requested": "idle",
+      "d": 0,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 0,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+          "args": [
+            0,
+            0,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "walk",
+      "d": 0,
+      "key": "runecaster_f",
+      "action": "walk",
+      "row": 0,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+          "args": [
+            480,
+            0,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "attack",
+      "d": 0,
+      "key": "runecaster_f",
+      "action": "attack",
+      "row": 0,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "canvas",
+          "args": [
+            -120,
+            -220,
+            240,
+            240
+          ]
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+          "args": [
+            240,
+            0,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "buff",
+      "d": 0,
+      "key": "runecaster_f",
+      "action": "buff",
+      "row": 0,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+          "args": [
+            480,
+            0,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "hurt",
+      "d": 0,
+      "key": "runecaster_f",
+      "action": "hurt",
+      "row": 0,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+          "args": [
+            240,
+            0,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "sit",
+      "d": 0,
+      "key": "runecaster_f",
+      "action": "sit",
+      "row": 0,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+          "args": [
+            0,
+            0,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "dead",
+      "d": 0,
+      "key": "runecaster_f",
+      "action": "dead",
+      "row": 0,
+      "frame": 3,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:23)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+          "args": [
+            720,
+            0,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "idle",
+      "d": 1,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 1,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+          "args": [
+            0,
+            240,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "walk",
+      "d": 1,
+      "key": "runecaster_f",
+      "action": "walk",
+      "row": 1,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+          "args": [
+            480,
+            240,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "attack",
+      "d": 1,
+      "key": "runecaster_f",
+      "action": "attack",
+      "row": 1,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "canvas",
+          "args": [
+            -120,
+            -220,
+            240,
+            240
+          ]
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+          "args": [
+            240,
+            240,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "buff",
+      "d": 1,
+      "key": "runecaster_f",
+      "action": "buff",
+      "row": 1,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+          "args": [
+            480,
+            240,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "hurt",
+      "d": 1,
+      "key": "runecaster_f",
+      "action": "hurt",
+      "row": 1,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+          "args": [
+            240,
+            240,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "sit",
+      "d": 1,
+      "key": "runecaster_f",
+      "action": "sit",
+      "row": 1,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+          "args": [
+            0,
+            240,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "dead",
+      "d": 1,
+      "key": "runecaster_f",
+      "action": "dead",
+      "row": 1,
+      "frame": 3,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:23)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+          "args": [
+            720,
+            240,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "idle",
+      "d": 2,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 2,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+          "args": [
+            0,
+            480,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "walk",
+      "d": 2,
+      "key": "runecaster_f",
+      "action": "walk",
+      "row": 2,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+          "args": [
+            480,
+            480,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "attack",
+      "d": 2,
+      "key": "runecaster_f",
+      "action": "attack",
+      "row": 2,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "canvas",
+          "args": [
+            -120,
+            -220,
+            240,
+            240
+          ]
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+          "args": [
+            240,
+            480,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "buff",
+      "d": 2,
+      "key": "runecaster_f",
+      "action": "buff",
+      "row": 2,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+          "args": [
+            480,
+            480,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "hurt",
+      "d": 2,
+      "key": "runecaster_f",
+      "action": "hurt",
+      "row": 2,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+          "args": [
+            240,
+            480,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "sit",
+      "d": 2,
+      "key": "runecaster_f",
+      "action": "sit",
+      "row": 2,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+          "args": [
+            0,
+            480,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "dead",
+      "d": 2,
+      "key": "runecaster_f",
+      "action": "dead",
+      "row": 2,
+      "frame": 3,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:23)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+          "args": [
+            720,
+            480,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "idle",
+      "d": 3,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 3,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+          "args": [
+            0,
+            720,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "walk",
+      "d": 3,
+      "key": "runecaster_f",
+      "action": "walk",
+      "row": 3,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+          "args": [
+            480,
+            720,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "attack",
+      "d": 3,
+      "key": "runecaster_f",
+      "action": "attack",
+      "row": 3,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "canvas",
+          "args": [
+            -120,
+            -220,
+            240,
+            240
+          ]
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+          "args": [
+            240,
+            720,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "buff",
+      "d": 3,
+      "key": "runecaster_f",
+      "action": "buff",
+      "row": 3,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+          "args": [
+            480,
+            720,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "hurt",
+      "d": 3,
+      "key": "runecaster_f",
+      "action": "hurt",
+      "row": 3,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+          "args": [
+            240,
+            720,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "sit",
+      "d": 3,
+      "key": "runecaster_f",
+      "action": "sit",
+      "row": 3,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+          "args": [
+            0,
+            720,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "dead",
+      "d": 3,
+      "key": "runecaster_f",
+      "action": "dead",
+      "row": 3,
+      "frame": 3,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:23)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+          "args": [
+            720,
+            720,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "idle",
+      "d": 4,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 4,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+          "args": [
+            0,
+            960,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "walk",
+      "d": 4,
+      "key": "runecaster_f",
+      "action": "walk",
+      "row": 4,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+          "args": [
+            480,
+            960,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "attack",
+      "d": 4,
+      "key": "runecaster_f",
+      "action": "attack",
+      "row": 4,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "canvas",
+          "args": [
+            -120,
+            -220,
+            240,
+            240
+          ]
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+          "args": [
+            240,
+            960,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "buff",
+      "d": 4,
+      "key": "runecaster_f",
+      "action": "buff",
+      "row": 4,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+          "args": [
+            480,
+            960,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "hurt",
+      "d": 4,
+      "key": "runecaster_f",
+      "action": "hurt",
+      "row": 4,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+          "args": [
+            240,
+            960,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "sit",
+      "d": 4,
+      "key": "runecaster_f",
+      "action": "sit",
+      "row": 4,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+          "args": [
+            0,
+            960,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "dead",
+      "d": 4,
+      "key": "runecaster_f",
+      "action": "dead",
+      "row": 4,
+      "frame": 3,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:23)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+          "args": [
+            720,
+            960,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "idle",
+      "d": 5,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 5,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+          "args": [
+            0,
+            1200,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "walk",
+      "d": 5,
+      "key": "runecaster_f",
+      "action": "walk",
+      "row": 5,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+          "args": [
+            480,
+            1200,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "attack",
+      "d": 5,
+      "key": "runecaster_f",
+      "action": "attack",
+      "row": 5,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "canvas",
+          "args": [
+            -120,
+            -220,
+            240,
+            240
+          ]
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+          "args": [
+            240,
+            1200,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "buff",
+      "d": 5,
+      "key": "runecaster_f",
+      "action": "buff",
+      "row": 5,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+          "args": [
+            480,
+            1200,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "hurt",
+      "d": 5,
+      "key": "runecaster_f",
+      "action": "hurt",
+      "row": 5,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+          "args": [
+            240,
+            1200,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "sit",
+      "d": 5,
+      "key": "runecaster_f",
+      "action": "sit",
+      "row": 5,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+          "args": [
+            0,
+            1200,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "dead",
+      "d": 5,
+      "key": "runecaster_f",
+      "action": "dead",
+      "row": 5,
+      "frame": 3,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:23)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+          "args": [
+            720,
+            1200,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "idle",
+      "d": 6,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 6,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+          "args": [
+            0,
+            1440,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "walk",
+      "d": 6,
+      "key": "runecaster_f",
+      "action": "walk",
+      "row": 6,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+          "args": [
+            480,
+            1440,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "attack",
+      "d": 6,
+      "key": "runecaster_f",
+      "action": "attack",
+      "row": 6,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "canvas",
+          "args": [
+            -120,
+            -220,
+            240,
+            240
+          ]
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+          "args": [
+            240,
+            1440,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "buff",
+      "d": 6,
+      "key": "runecaster_f",
+      "action": "buff",
+      "row": 6,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+          "args": [
+            480,
+            1440,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "hurt",
+      "d": 6,
+      "key": "runecaster_f",
+      "action": "hurt",
+      "row": 6,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+          "args": [
+            240,
+            1440,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "sit",
+      "d": 6,
+      "key": "runecaster_f",
+      "action": "sit",
+      "row": 6,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+          "args": [
+            0,
+            1440,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "dead",
+      "d": 6,
+      "key": "runecaster_f",
+      "action": "dead",
+      "row": 6,
+      "frame": 3,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:23)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+          "args": [
+            720,
+            1440,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "idle",
+      "d": 7,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 7,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7",
+          "args": [
+            0,
+            1680,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "walk",
+      "d": 7,
+      "key": "runecaster_f",
+      "action": "walk",
+      "row": 7,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_walk_science_v2.webp?v=99c1db38fb94",
+          "args": [
+            480,
+            1680,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "attack",
+      "d": 7,
+      "key": "runecaster_f",
+      "action": "attack",
+      "row": 7,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "canvas",
+          "args": [
+            -120,
+            -220,
+            240,
+            240
+          ]
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_attack_science_v2.webp?v=6be0b0fbdd77",
+          "args": [
+            240,
+            1680,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "buff",
+      "d": 7,
+      "key": "runecaster_f",
+      "action": "buff",
+      "row": 7,
+      "frame": 2,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_buff_science_v2.webp?v=781d2208507b",
+          "args": [
+            480,
+            1680,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "hurt",
+      "d": 7,
+      "key": "runecaster_f",
+      "action": "hurt",
+      "row": 7,
+      "frame": 1,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_hurt_science_v2.webp?v=2baf8205eb77",
+          "args": [
+            240,
+            1680,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "sit",
+      "d": 7,
+      "key": "runecaster_f",
+      "action": "sit",
+      "row": 7,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:79)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_sit_science_v2.webp?v=1b921769c8c3",
+          "args": [
+            0,
+            1680,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    },
+    {
+      "requested": "dead",
+      "d": 7,
+      "key": "runecaster_f",
+      "action": "dead",
+      "row": 7,
+      "frame": 3,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+      "drawn": [
+        {
+          "method": "fill",
+          "stack": "Error\n    at g.<computed> [as fill] (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:4:120)\n    at Sprites.shadow (http://127.0.0.1:8787/js/sprites.js?v=202610060812:11:64)\n    at Object.draw (http://127.0.0.1:8787/js/anim.js?v=20261006-science-character:298:23)\n    at Anim.draw (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:3:300)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/sprites.js?v=202610060812:938:10)\n    at wrapped (http://127.0.0.1:8787/js/pose.js?v=202610060812:508:33)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/fx2.js?v=202610060812:1561:142)\n    at Sprites.drawPlayer (http://127.0.0.1:8787/js/character-lab-bridge.js?v=202610060812:14:82)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:7:75)\n    at eval (eval at <anonymous> (eval at evaluate (:311:30)), <anonymous>:11:266)"
+        },
+        {
+          "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_dead_science_v2.webp?v=f3951a60e0e2",
+          "args": [
+            720,
+            1680,
+            240,
+            240,
+            -120,
+            -220,
+            240,
+            240
+          ]
+        }
+      ]
+    }
+  ],
+  "preview": [
+    {
+      "d": 0,
+      "solid": 9978,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 0,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7"
+    },
+    {
+      "d": 1,
+      "solid": 9742,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 1,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7"
+    },
+    {
+      "d": 2,
+      "solid": 9734,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 2,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7"
+    },
+    {
+      "d": 3,
+      "solid": 10286,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 3,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7"
+    },
+    {
+      "d": 4,
+      "solid": 9798,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 4,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7"
+    },
+    {
+      "d": 5,
+      "solid": 9517,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 5,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7"
+    },
+    {
+      "d": 6,
+      "solid": 8850,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 6,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7"
+    },
+    {
+      "d": 7,
+      "solid": 10210,
+      "key": "runecaster_f",
+      "action": "idle",
+      "row": 7,
+      "frame": 0,
+      "flip": false,
+      "lift": 0,
+      "source": "http://127.0.0.1:8787/assets/anim_runecaster_f_idle_science_v2.webp?v=54e2ac30cad7"
+    }
+  ],
+  "walkMotion": true,
+  "installedInGame": true,
+  "nativeSpritesDraws": 56,
+  "unitPreviewDraws": 8,
+  "viewports": [
+    1400,
+    390
+  ],
+  "errors": [],
+  "storageIsolated": true,
+  "nativeSkillCast": true
+}

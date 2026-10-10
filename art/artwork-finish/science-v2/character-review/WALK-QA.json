@@ -1,0 +1,204 @@
+{
+  "sources": [
+    "field-scientist-f-walk-robot-v5.png",
+    "field-scientist-f-walk-S-v1.png",
+    "field-scientist-f-walk-N-v1.png",
+    "field-scientist-f-walk-N-passB-v1.png"
+  ],
+  "frames": [
+    {
+      "direction": 0,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "sha256": "6bdbb90e515b47cf128f69340d794cdba294c839c6c3665ab1af9e2d9e4fa255"
+    },
+    {
+      "direction": 0,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "sha256": "55c1ebe2d99dd810adb2cfeb2b008d515e546bde1ccba8b7d0f7cfef79e6f079"
+    },
+    {
+      "direction": 0,
+      "frame": 2,
+      "sourceSolidEdges": 0,
+      "sha256": "d4687095516aef5a276eaeb7a741b9f2f3423ab9d94683cbb07f40e5a4617d84"
+    },
+    {
+      "direction": 0,
+      "frame": 3,
+      "sourceSolidEdges": 0,
+      "sha256": "03ff75e38a5b40da3e9e496bf063d8b5e43c59c268bca29db1d2a2ed5da7fceb"
+    },
+    {
+      "direction": 1,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "sha256": "95805be56d7fb1202c30d9566a9a611f72824ef8581c7caa30737ee4204c040b"
+    },
+    {
+      "direction": 1,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "sha256": "e426acd09a523c03830e2c9714398ce7ef125004803634bab7a98c6b3acc06df"
+    },
+    {
+      "direction": 1,
+      "frame": 2,
+      "sourceSolidEdges": 0,
+      "sha256": "ad1b99efe18122c24915daf425cbe5852a8b573ae35faad6528a582cc911fcf6"
+    },
+    {
+      "direction": 1,
+      "frame": 3,
+      "sourceSolidEdges": 0,
+      "sha256": "1afcbb7ba44931b892b3caafe3a94fb9a8ac637c467025b083d479950a518b8f"
+    },
+    {
+      "direction": 2,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "sha256": "32eb14fd0c9745f2bd8826e5d3340e63c11dd52c34c31bde24acd9cd0a154d3e"
+    },
+    {
+      "direction": 2,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "sha256": "63975ffc69a1aed19aa151f56bb563a1d0a0ceb42389418e71eb68b9b6b323f8"
+    },
+    {
+      "direction": 2,
+      "frame": 2,
+      "sourceSolidEdges": 0,
+      "sha256": "6a18620e64bfec6597c8a3ed35257548b5ad2f37e6a28196a316650715c39ca0"
+    },
+    {
+      "direction": 2,
+      "frame": 3,
+      "sourceSolidEdges": 0,
+      "sha256": "50bb382013cfa4e932a96c3a9a28e9a2f7556024ef542ffa63d3be0543bd3f43"
+    },
+    {
+      "direction": 3,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "sha256": "9f5ecc8a0cbf59ae6c7f140dde84d16d31301cc38b2ddd768d03d20813bdb2b9"
+    },
+    {
+      "direction": 3,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "sha256": "472e4c78122a91f8e0f5c814dafcc2fecbde9849b90447c8fb0676271ef457b9"
+    },
+    {
+      "direction": 3,
+      "frame": 2,
+      "sourceSolidEdges": 0,
+      "sha256": "33bd7ad5230cce2142bc59e983820a6437ffadaa1d77d6c3e7561703c411f2e8"
+    },
+    {
+      "direction": 3,
+      "frame": 3,
+      "sourceSolidEdges": 0,
+      "sha256": "d46e394c33421ae5e1030954bb7b9d9b9b97180bf36d75bb337683ff983e856b"
+    },
+    {
+      "direction": 4,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "sha256": "329143e4bb5bafc8f2434bb2a06d6e16daea72fe7eba5e0ff0c07869a9943b05"
+    },
+    {
+      "direction": 4,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "sha256": "57d97b8697de688a94cb9b04757113306e1003d036ffb6926724e432dee2f9d8"
+    },
+    {
+      "direction": 4,
+      "frame": 2,
+      "sourceSolidEdges": 0,
+      "sha256": "38ad1ed35c8cdb24a069516740788456e62c0363e9abec4024520a393752cf39"
+    },
+    {
+      "direction": 4,
+      "frame": 3,
+      "sourceSolidEdges": 0,
+      "sha256": "72d01e30c2f11d08c963d7f397ff794214a77e29154d8c6877850f32d5fa0334"
+    },
+    {
+      "direction": 5,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "sha256": "6cfc49a536c6deb6e1712a4949c69a2d41ee487191c7f428136e7453b90b8e77"
+    },
+    {
+      "direction": 5,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "sha256": "db1fa28e573ca59729fa02ce3f4133e5a5ca8d33396e5a61f97920849a318588"
+    },
+    {
+      "direction": 5,
+      "frame": 2,
+      "sourceSolidEdges": 0,
+      "sha256": "a9795acfe1461e60a054bdc3b603723606edb99ae83a7c5b22da8a873f251e49"
+    },
+    {
+      "direction": 5,
+      "frame": 3,
+      "sourceSolidEdges": 0,
+      "sha256": "8f50de2b0d4b4978caccf66dc14bf3490c0dd287c82eff13b22e68b80ef9131e"
+    },
+    {
+      "direction": 6,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "sha256": "985c4ee3eb3047af403beadae9ab1457558194d6526aa2b0c93490697347dc53"
+    },
+    {
+      "direction": 6,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "sha256": "57ac64391bda2f0df95e8c38b267b1aede695ef36f13b37a7c074b3ce01559a5"
+    },
+    {
+      "direction": 6,
+      "frame": 2,
+      "sourceSolidEdges": 0,
+      "sha256": "81115c847dbc02892ea5038f25eacb1f0d615f37e2a6da4c7ad01d3418a951a1"
+    },
+    {
+      "direction": 6,
+      "frame": 3,
+      "sourceSolidEdges": 0,
+      "sha256": "d9c0983c22972eb7c47a70d98cbb6f4ac003074ad0833c7db7b153094a5bd746"
+    },
+    {
+      "direction": 7,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "sha256": "132c32c8036b28af63b094b7b6931bb4253bd5a8c6b0a53d7f02442ac94c6f42"
+    },
+    {
+      "direction": 7,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "sha256": "6eaa0dae1a07e5bf02143c4521b69127c25bea044af0ac109b7f884b2226fbfc"
+    },
+    {
+      "direction": 7,
+      "frame": 2,
+      "sourceSolidEdges": 0,
+      "sha256": "66eee7a900b1f71048b493459bdcb5aebf0754ed224bceeeffcebf1451b09b15"
+    },
+    {
+      "direction": 7,
+      "frame": 3,
+      "sourceSolidEdges": 0,
+      "sha256": "645baf29310d581781047cb205585f770a5693735c797f5a4fafb00787ded520"
+    }
+  ],
+  "installedInGame": false,
+  "status": "native review candidate"
+}

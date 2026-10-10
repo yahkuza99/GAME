@@ -1,0 +1,78 @@
+{
+  "debugger": [
+    "{\"key\":\"science_field_f\",\"state\":{\"dir\":0,\"moving\":false,\"walkLift\":false,\"walkTime\":0.0072,\"atk\":0,\"skill\":0.99,\"skillKind\":\"buff\",\"hurt\":0,\"outline\":false},\"time\":0.01}"
+  ],
+  "nativeFrames": [
+    {
+      "d": 6,
+      "samples": [
+        {
+          "row": 6,
+          "frame": 0,
+          "flip": false,
+          "action": "idle"
+        },
+        {
+          "row": 6,
+          "frame": 0,
+          "flip": false,
+          "action": "buff"
+        },
+        {
+          "row": 6,
+          "frame": 1,
+          "flip": false,
+          "action": "buff"
+        },
+        {
+          "row": 6,
+          "frame": 2,
+          "flip": false,
+          "action": "buff"
+        },
+        {
+          "row": 6,
+          "frame": 3,
+          "flip": false,
+          "action": "buff"
+        }
+      ]
+    },
+    {
+      "d": 7,
+      "samples": [
+        {
+          "row": 7,
+          "frame": 0,
+          "flip": false,
+          "action": "idle"
+        },
+        {
+          "row": 7,
+          "frame": 0,
+          "flip": false,
+          "action": "buff"
+        },
+        {
+          "row": 7,
+          "frame": 1,
+          "flip": false,
+          "action": "buff"
+        },
+        {
+          "row": 7,
+          "frame": 2,
+          "flip": false,
+          "action": "buff"
+        },
+        {
+          "row": 7,
+          "frame": 3,
+          "flip": false,
+          "action": "buff"
+        }
+      ]
+    }
+  ],
+  "disproof": "All source rows and frames reached without flip; source pixels retain the same incorrect heading without any renderer transform."
+}

@@ -1,0 +1,327 @@
+{
+  "debugger": [
+    "{\"key\":\"science_field_f\",\"state\":{\"dir\":0,\"moving\":true,\"walkTime\":0.036,\"atk\":0,\"skill\":0,\"skillKind\":\"buff\",\"hurt\":0,\"outline\":false},\"time\":0.05,\"width\":960,\"height\":1920,\"cycle\":0.72}"
+  ],
+  "nativeFrames": [
+    {
+      "d": 0,
+      "samples": [
+        {
+          "index": 0,
+          "row": 0,
+          "frame": 0,
+          "flip": false,
+          "action": "idle"
+        },
+        {
+          "index": 1,
+          "row": 0,
+          "frame": 0,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 2,
+          "row": 0,
+          "frame": 1,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 3,
+          "row": 0,
+          "frame": 2,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 4,
+          "row": 0,
+          "frame": 3,
+          "flip": false,
+          "action": "walk"
+        }
+      ]
+    },
+    {
+      "d": 1,
+      "samples": [
+        {
+          "index": 0,
+          "row": 1,
+          "frame": 0,
+          "flip": false,
+          "action": "idle"
+        },
+        {
+          "index": 1,
+          "row": 1,
+          "frame": 0,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 2,
+          "row": 1,
+          "frame": 1,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 3,
+          "row": 1,
+          "frame": 2,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 4,
+          "row": 1,
+          "frame": 3,
+          "flip": false,
+          "action": "walk"
+        }
+      ]
+    },
+    {
+      "d": 2,
+      "samples": [
+        {
+          "index": 0,
+          "row": 2,
+          "frame": 0,
+          "flip": false,
+          "action": "idle"
+        },
+        {
+          "index": 1,
+          "row": 2,
+          "frame": 0,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 2,
+          "row": 2,
+          "frame": 1,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 3,
+          "row": 2,
+          "frame": 2,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 4,
+          "row": 2,
+          "frame": 3,
+          "flip": false,
+          "action": "walk"
+        }
+      ]
+    },
+    {
+      "d": 3,
+      "samples": [
+        {
+          "index": 0,
+          "row": 3,
+          "frame": 0,
+          "flip": false,
+          "action": "idle"
+        },
+        {
+          "index": 1,
+          "row": 3,
+          "frame": 0,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 2,
+          "row": 3,
+          "frame": 1,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 3,
+          "row": 3,
+          "frame": 2,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 4,
+          "row": 3,
+          "frame": 3,
+          "flip": false,
+          "action": "walk"
+        }
+      ]
+    },
+    {
+      "d": 4,
+      "samples": [
+        {
+          "index": 0,
+          "row": 4,
+          "frame": 0,
+          "flip": false,
+          "action": "idle"
+        },
+        {
+          "index": 1,
+          "row": 4,
+          "frame": 0,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 2,
+          "row": 4,
+          "frame": 1,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 3,
+          "row": 4,
+          "frame": 2,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 4,
+          "row": 4,
+          "frame": 3,
+          "flip": false,
+          "action": "walk"
+        }
+      ]
+    },
+    {
+      "d": 5,
+      "samples": [
+        {
+          "index": 0,
+          "row": 5,
+          "frame": 0,
+          "flip": false,
+          "action": "idle"
+        },
+        {
+          "index": 1,
+          "row": 5,
+          "frame": 0,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 2,
+          "row": 5,
+          "frame": 1,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 3,
+          "row": 5,
+          "frame": 2,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 4,
+          "row": 5,
+          "frame": 3,
+          "flip": false,
+          "action": "walk"
+        }
+      ]
+    },
+    {
+      "d": 6,
+      "samples": [
+        {
+          "index": 0,
+          "row": 6,
+          "frame": 0,
+          "flip": false,
+          "action": "idle"
+        },
+        {
+          "index": 1,
+          "row": 6,
+          "frame": 0,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 2,
+          "row": 6,
+          "frame": 1,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 3,
+          "row": 6,
+          "frame": 2,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 4,
+          "row": 6,
+          "frame": 3,
+          "flip": false,
+          "action": "walk"
+        }
+      ]
+    },
+    {
+      "d": 7,
+      "samples": [
+        {
+          "index": 0,
+          "row": 7,
+          "frame": 0,
+          "flip": false,
+          "action": "idle"
+        },
+        {
+          "index": 1,
+          "row": 7,
+          "frame": 0,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 2,
+          "row": 7,
+          "frame": 1,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 3,
+          "row": 7,
+          "frame": 2,
+          "flip": false,
+          "action": "walk"
+        },
+        {
+          "index": 4,
+          "row": 7,
+          "frame": 3,
+          "flip": false,
+          "action": "walk"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "measurement": "actual R.render CPU submission cost, walking studio scene",
+  "hardware": "local headless Chrome, current machine",
+  "weakHardwareFPSCertified": false,
+  "rows": [
+    {
+      "samples": 180,
+      "medianMs": 0.20000004768371582,
+      "p95Ms": 0.5999999046325684,
+      "maxMs": 1.9000000953674316,
+      "canvas": [
+        778,
+        621
+      ],
+      "quality": "high"
+    },
+    {
+      "samples": 180,
+      "medianMs": 0.10000014305114746,
+      "p95Ms": 0.5,
+      "maxMs": 2.1999998092651367,
+      "canvas": [
+        778,
+        621
+      ],
+      "quality": "low"
+    }
+  ],
+  "errors": []
+}

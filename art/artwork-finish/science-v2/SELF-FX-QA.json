@@ -1,0 +1,14 @@
+[
+  {
+    "id": "light_of_freyja",
+    "pictures": 1,
+    "src": "light_of_freyja",
+    "duration": 1.1
+  },
+  {
+    "id": "blessing_of_odin",
+    "pictures": 1,
+    "src": "blessing_of_odin",
+    "duration": 1
+  }
+]
