@@ -1,0 +1,11 @@
+[
+  {
+    "id": "sit-N-NE-v2",
+    "refs": [
+      "C:/Users/User/Documents/ChatGPT/GAME/art/artwork-finish/science-v2/source/field-scientist-f-idle-N-completion-reference.png",
+      "C:/Users/User/Documents/ChatGPT/GAME/art/artwork-finish/science-v2/source/field-scientist-f-idle-NE-completion-reference.png"
+    ],
+    "prompt": "Create exactly TWO separate full-body resting seated sprites in ONE horizontal row. LEFT sprite faces straight AWAY NORTH, exact heading of first reference, symmetrical back of head and rear shoulders, no face/visor visible. RIGHT sprite faces AWAY RIGHT NORTHEAST, exact heading of second reference, back-right head/shoulders, narrow right visor edge only, compact emitter points RIGHT. Same original female robot RO chibi design and scale as references, cobalt long hair with brass band, ivory sleeves, black steel mechanical armor legs, silver boots and cyan belt canisters, compact silver/cyan emitter. Smooth manufactured face with one cyan visor no eyes or mouth. Both sit with hips on the ground, bent folded legs and visible boots, equipment resting across lap held firmly. Maintain full head/torso proportions, shorten overall silhouette through folded legs only. Preserve original refined sprite style, readable at 70px. All equipment/hair/feet completely inside image. Wide transparent gap at least 20% of image width between sprites and 10% clear outer margins. Transparent background. No additional characters, text, labels, grid, ground, shadows, chairs, magic, effects, particles or motion lines.",
+    "path": "C:\\Users\\User\\.codex\\generated_images\\01a104be-11e0-7c30-b456-182b55455392\\exec-4caa6aa3-b3d1-49b3-b5e6-346cf3053646.png"
+  }
+]

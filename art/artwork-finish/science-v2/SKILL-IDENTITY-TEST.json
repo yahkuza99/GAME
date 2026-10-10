@@ -1,0 +1,9 @@
+{
+  "checks": 816,
+  "active": 48,
+  "frames": 192,
+  "distinctAtlases": 48,
+  "distinctSilhouettes": 48,
+  "alphaPreserved": true,
+  "artworkAccepted": false
+}

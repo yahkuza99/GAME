@@ -1,0 +1,40 @@
+{
+  "source": "meteor_rune",
+  "frames": [
+    {
+      "t": 0.1,
+      "textures": 1,
+      "contactError": 8.244284870112355e-06,
+      "phase": "flight"
+    },
+    {
+      "t": 0.419,
+      "textures": 1,
+      "contactError": 3.295238777486062e-05,
+      "phase": "flight"
+    },
+    {
+      "t": 0.42,
+      "textures": 1,
+      "contactError": null,
+      "phase": "impact"
+    },
+    {
+      "t": 0.65,
+      "textures": 1,
+      "contactError": null,
+      "phase": "impact"
+    },
+    {
+      "t": 1.3,
+      "textures": 1,
+      "contactError": null,
+      "phase": "impact"
+    }
+  ],
+  "damageBeforeImpact": false,
+  "damageAtImpact": true,
+  "originalImpact": 0.42,
+  "fixedGround": true,
+  "secondaryDraws": 0
+}

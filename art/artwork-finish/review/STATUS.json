@@ -1,0 +1,143 @@
+{
+  "class": "valkyrie",
+  "gender": "f",
+  "status": "installed_accepted_motion_set",
+  "installed": true,
+  "realGameAccepted": true,
+  "unitPreviewAccepted": true,
+  "requiredActions": [
+    "idle",
+    "walk",
+    "attack",
+    "buff",
+    "first_aid",
+    "shield",
+    "shield_throw",
+    "hurt",
+    "sit",
+    "dead"
+  ],
+  "missingCompleteActions": [],
+  "completeCandidateActions": 10,
+  "partialCandidateActions": [],
+  "candidateFrameCells": 208,
+  "actions": {
+    "idle": {
+      "frames": 1,
+      "strip": "valkyrie-f-idle/idle-review-strip.webp",
+      "pending": []
+    },
+    "walk": {
+      "frames": 4,
+      "strip": "valkyrie-f-walk-v9/walk-review-strip.webp",
+      "fixed": [
+        "SE frame 0 heading replaced; other 31 frame cells preserved",
+        "SW/NW yaw corrected; SW passing and opposite left-contact frames independently corrected; six other direction rows preserved",
+        "NW lifted left boot and planted right support generated independently; only direction 5 frame 1 replaced",
+        "E contact/passing cycle regenerated from own pure-right idle reference"
+      ],
+      "pending": []
+    },
+    "attack": {
+      "frames": 4,
+      "strip": "valkyrie-f-attack-v4/attack-review-strip.webp",
+      "pending": [],
+      "fixed": [
+        "NE row 7 rear-right heading corrected; S row 2 frontal heading corrected; each patch preserves other seven rows",
+        "NW four-frame physical sword cut with back-left heading regenerated; seven other rows preserved"
+      ]
+    },
+    "shield": {
+      "frames": 4,
+      "strip": "valkyrie-f-shield-v9/shield-review-strip.webp",
+      "fixed": [
+        "SE heading/shield extension corrected; original other seven rows preserved",
+        "source v3 clipped boundaries repaired via built-in imagegen v4 spacing edit",
+        "SW row 3 corrected with isolated reference; original other seven rows preserved",
+        "NW row 5 corrected with isolated reference; v4 spacing edit restores complete sword tip and source margins; original other seven rows preserved",
+        "NE rear-right heading corrected using isolated reference; original other seven rows preserved",
+        "NE middle frames now retain near sword pauldron; hidden far shield arm uses visible forearm without duplicate shoulder cap"
+      ],
+      "pending": []
+    },
+    "first_aid": {
+      "frames": 2,
+      "strip": "valkyrie-f-first-aid-v3/first_aid-review-strip.webp",
+      "pending": [],
+      "fixed": [
+        "NE rear-right heading corrected using isolated reference; original other seven rows preserved",
+        "NW braced shallow self-maintenance crouch regenerated with constant back-left helmet yaw"
+      ]
+    },
+    "buff": {
+      "frames": 2,
+      "strip": "valkyrie-f-buff-v2/buff-review-strip.webp",
+      "pending": [],
+      "fixed": [
+        "NE rear-right heading corrected using isolated reference; original other seven rows preserved"
+      ]
+    },
+    "shield_throw": {
+      "frames": 2,
+      "strip": "valkyrie-f-shield-throw-v4/shield_throw-review-strip.webp",
+      "fixed": [
+        "NW direction replaced; other seven rows preserved",
+        "NE rear-right heading corrected using isolated reference; original other seven rows preserved",
+        "S head frontal and foreshortened left release aimed toward viewer; right hand retains sword"
+      ],
+      "pending": []
+    },
+    "hurt": {
+      "frames": 2,
+      "strip": "valkyrie-f-hurt-v2/hurt-review-strip.webp",
+      "fixed": [
+        "NE heading corrected with single-direction reference; other seven rows preserved"
+      ],
+      "pending": []
+    },
+    "sit": {
+      "frames": 1,
+      "strip": "valkyrie-f-sit/sit-review-strip.webp",
+      "targetBodyHeight": 130,
+      "pending": []
+    },
+    "dead": {
+      "frames": 4,
+      "strip": "valkyrie-f-dead-v2/dead-review-strip.webp",
+      "presentDirections": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "missingDirections": [],
+      "fixed": [
+        "S opaque contact regenerated with spacing",
+        "SE source border clipping repaired",
+        "all 32 source/native frame bounds pass",
+        "N final frame fully prone with extended legs, helmet identity scale anchored to idle width"
+      ],
+      "pending": []
+    }
+  },
+  "nextWork": "Valkyrie M: own idle eight directions staged; finish gait directions, all remaining required actions, native game/preview/economy evidence. Other 26 advanced gender sets and global Rune/active/passive reviews remain pending.",
+  "scopeStillOutstanding": "Male Valkyrie and other advanced job/gender motion sets, 80 Rune option reviews, 54 active identity reviews, full real-game/Unit Preview recordings and responsive/economy acceptance.",
+  "unitPreviewIdleStagingEvidence": "unit-preview-evidence/QA.json",
+  "visualContinuityFindings": {
+    "accepted": [
+      "Ten native boards and installed motion reviewed; corrections are recorded in native-valkyrie/REVIEW.md."
+    ]
+  },
+  "nativeCandidateEvidence": "native-valkyrie/QA.json",
+  "nativeCandidateClip": "native-valkyrie/candidate-lab.mp4",
+  "nativeUnitPreviewClip": "native-valkyrie/unit-preview.mp4",
+  "classSetComplete": true,
+  "fullGoalComplete": false,
+  "nativeInstalledEvidence": "native-valkyrie/QA.json",
+  "nativeInstalledClip": "native-valkyrie/installed-lab.mp4",
+  "nativeSkillClipEvidence": "native-valkyrie/INSTALLED-CLIP-QA.json"
+}

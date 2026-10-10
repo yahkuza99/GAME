@@ -1,0 +1,65 @@
+{
+  "job": "runecaster",
+  "gender": "f",
+  "actions": [
+    {
+      "action": "idle",
+      "key": "anim_runecaster_f_idle",
+      "file": "anim_runecaster_f_idle_science_v2.webp",
+      "source": "art/artwork-finish/science-v2/character-review/anim_science_field_f_idle.webp",
+      "sha256": "54e2ac30cad74bbea5586ba03b3ed138c81c550b1b390bfcc8980ec91aaf9597"
+    },
+    {
+      "action": "walk",
+      "key": "anim_runecaster_f_walk",
+      "file": "anim_runecaster_f_walk_science_v2.webp",
+      "source": "art/artwork-finish/science-v2/character-review/anim_science_field_f_walk_v5.webp",
+      "sha256": "99c1db38fb941b41c50d1bc8f95c34d729ab49903a8e458f4433a8539c1584e0"
+    },
+    {
+      "action": "attack",
+      "key": "anim_runecaster_f_attack",
+      "file": "anim_runecaster_f_attack_science_v2.webp",
+      "source": "art/artwork-finish/science-v2/character-review/anim_science_field_f_attack.webp",
+      "sha256": "6be0b0fbdd77f1845f975013ef8cbba76bda9a568f32dd92159995cfaed62698"
+    },
+    {
+      "action": "cast",
+      "key": "anim_runecaster_f_cast",
+      "file": "anim_runecaster_f_cast_science_v2.webp",
+      "source": "art/artwork-finish/science-v2/character-review/anim_science_field_f_operate_v2.webp",
+      "sha256": "781d2208507bfb42eef863166871c597504646330ce1402cd3c38d8ba30443c1"
+    },
+    {
+      "action": "buff",
+      "key": "anim_runecaster_f_buff",
+      "file": "anim_runecaster_f_buff_science_v2.webp",
+      "source": "art/artwork-finish/science-v2/character-review/anim_science_field_f_operate_v2.webp",
+      "sha256": "781d2208507bfb42eef863166871c597504646330ce1402cd3c38d8ba30443c1"
+    },
+    {
+      "action": "hurt",
+      "key": "anim_runecaster_f_hurt",
+      "file": "anim_runecaster_f_hurt_science_v2.webp",
+      "source": "art/artwork-finish/science-v2/character-review/anim_science_field_f_hurt.webp",
+      "sha256": "2baf8205eb77e01e7ca3c3fd6168abf369aeb6eea6b2e6b589ab83687f37cf6e"
+    },
+    {
+      "action": "sit",
+      "key": "anim_runecaster_f_sit",
+      "file": "anim_runecaster_f_sit_science_v2.webp",
+      "source": "art/artwork-finish/science-v2/character-review/anim_science_field_f_sit.webp",
+      "sha256": "1b921769c8c35b2f996473685410de9badd82acf9dd2cdb697e66d3b0be30979"
+    },
+    {
+      "action": "dead",
+      "key": "anim_runecaster_f_dead",
+      "file": "anim_runecaster_f_dead_science_v2.webp",
+      "source": "art/artwork-finish/science-v2/character-review/anim_science_field_f_dead.webp",
+      "sha256": "f3951a60e0e2c53243f19f3fca7dbd9e13cc55803a973542be60a22a123147b0"
+    }
+  ],
+  "installedInGame": true,
+  "runtimeVerified": true,
+  "otherClassSetsCompleted": false
+}

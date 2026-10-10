@@ -1,0 +1,166 @@
+{
+  "frames": [
+    {
+      "family": "plasma",
+      "frame": 0,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "plasma",
+      "frame": 1,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "plasma",
+      "frame": 2,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "plasma",
+      "frame": 3,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "cryo",
+      "frame": 0,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "cryo",
+      "frame": 1,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "cryo",
+      "frame": 2,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "cryo",
+      "frame": 3,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "tesla",
+      "frame": 0,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "tesla",
+      "frame": 1,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "tesla",
+      "frame": 2,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "tesla",
+      "frame": 3,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "nano",
+      "frame": 0,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "nano",
+      "frame": 1,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "nano",
+      "frame": 2,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "nano",
+      "frame": 3,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "photon",
+      "frame": 0,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "photon",
+      "frame": 1,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "photon",
+      "frame": 2,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "photon",
+      "frame": 3,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "medical",
+      "frame": 0,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "medical",
+      "frame": 1,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "medical",
+      "frame": 2,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "medical",
+      "frame": 3,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "rail",
+      "frame": 0,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "rail",
+      "frame": 1,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "rail",
+      "frame": 2,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "rail",
+      "frame": 3,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "orbital",
+      "frame": 0,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "orbital",
+      "frame": 1,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "orbital",
+      "frame": 2,
+      "sourceSolidEdgePixels": 0
+    },
+    {
+      "family": "orbital",
+      "frame": 3,
+      "sourceSolidEdgePixels": 0
+    }
+  ],
+  "source": "C:\\Users\\User\\Documents\\ChatGPT\\GAME\\art\\artwork-finish\\science-v2\\source\\science-effects-crisp-v2.png",
+  "artworkAccepted": false
+}

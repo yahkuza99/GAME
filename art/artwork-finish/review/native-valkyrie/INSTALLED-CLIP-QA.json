@@ -1,0 +1,358 @@
+{
+  "job": "valkyrie",
+  "gender": "f",
+  "clip": "installed-lab.mp4",
+  "nativeLab": true,
+  "poses": [
+    {
+      "action": "idle",
+      "direction": 0,
+      "at": 0.02740000009536743
+    },
+    {
+      "action": "idle",
+      "direction": 1,
+      "at": 0.8092000000476837
+    },
+    {
+      "action": "idle",
+      "direction": 2,
+      "at": 1.5927999999523164
+    },
+    {
+      "action": "idle",
+      "direction": 3,
+      "at": 2.3762999999523164
+    },
+    {
+      "action": "idle",
+      "direction": 4,
+      "at": 3.153299999952316
+    },
+    {
+      "action": "idle",
+      "direction": 5,
+      "at": 3.924
+    },
+    {
+      "action": "idle",
+      "direction": 6,
+      "at": 4.696099999904632
+    },
+    {
+      "action": "idle",
+      "direction": 7,
+      "at": 5.465099999904632
+    },
+    {
+      "action": "walk",
+      "direction": 0,
+      "at": 6.258799999952316
+    },
+    {
+      "action": "walk",
+      "direction": 1,
+      "at": 7.027099999904633
+    },
+    {
+      "action": "walk",
+      "direction": 2,
+      "at": 7.800400000095367
+    },
+    {
+      "action": "walk",
+      "direction": 3,
+      "at": 8.577700000047683
+    },
+    {
+      "action": "walk",
+      "direction": 4,
+      "at": 9.346700000047683
+    },
+    {
+      "action": "walk",
+      "direction": 5,
+      "at": 10.121200000047684
+    },
+    {
+      "action": "walk",
+      "direction": 6,
+      "at": 10.884599999904633
+    },
+    {
+      "action": "walk",
+      "direction": 7,
+      "at": 11.660200000047684
+    },
+    {
+      "action": "attack",
+      "direction": 0,
+      "at": 12.462
+    },
+    {
+      "action": "attack",
+      "direction": 1,
+      "at": 13.234599999904633
+    },
+    {
+      "action": "attack",
+      "direction": 2,
+      "at": 14.007
+    },
+    {
+      "action": "attack",
+      "direction": 3,
+      "at": 14.779700000047685
+    },
+    {
+      "action": "attack",
+      "direction": 4,
+      "at": 15.5425
+    },
+    {
+      "action": "attack",
+      "direction": 5,
+      "at": 16.317599999904633
+    },
+    {
+      "action": "attack",
+      "direction": 6,
+      "at": 17.084799999952317
+    },
+    {
+      "action": "attack",
+      "direction": 7,
+      "at": 17.860799999952317
+    },
+    {
+      "action": "hurt",
+      "direction": 0,
+      "at": 18.639599999904632
+    },
+    {
+      "action": "hurt",
+      "direction": 1,
+      "at": 19.406200000047683
+    },
+    {
+      "action": "hurt",
+      "direction": 2,
+      "at": 20.179200000047683
+    },
+    {
+      "action": "hurt",
+      "direction": 3,
+      "at": 20.947599999904632
+    },
+    {
+      "action": "hurt",
+      "direction": 4,
+      "at": 21.714200000047683
+    },
+    {
+      "action": "hurt",
+      "direction": 5,
+      "at": 22.47859999990463
+    },
+    {
+      "action": "hurt",
+      "direction": 6,
+      "at": 23.252299999952317
+    },
+    {
+      "action": "hurt",
+      "direction": 7,
+      "at": 24.023200000047684
+    },
+    {
+      "action": "sit",
+      "direction": 0,
+      "at": 24.786200000047685
+    },
+    {
+      "action": "sit",
+      "direction": 1,
+      "at": 25.56859999990463
+    },
+    {
+      "action": "sit",
+      "direction": 2,
+      "at": 26.330799999952315
+    },
+    {
+      "action": "sit",
+      "direction": 3,
+      "at": 27.095299999952317
+    },
+    {
+      "action": "sit",
+      "direction": 4,
+      "at": 27.875
+    },
+    {
+      "action": "sit",
+      "direction": 5,
+      "at": 28.639599999904632
+    },
+    {
+      "action": "sit",
+      "direction": 6,
+      "at": 29.415700000047682
+    },
+    {
+      "action": "sit",
+      "direction": 7,
+      "at": 30.186200000047684
+    },
+    {
+      "action": "dead",
+      "direction": 0,
+      "at": 30.9545
+    },
+    {
+      "action": "dead",
+      "direction": 1,
+      "at": 31.716900000095368
+    },
+    {
+      "action": "dead",
+      "direction": 2,
+      "at": 32.49509999990463
+    },
+    {
+      "action": "dead",
+      "direction": 3,
+      "at": 33.27359999990463
+    },
+    {
+      "action": "dead",
+      "direction": 4,
+      "at": 34.07
+    },
+    {
+      "action": "dead",
+      "direction": 5,
+      "at": 34.851700000047686
+    },
+    {
+      "action": "dead",
+      "direction": 6,
+      "at": 35.62129999995231
+    },
+    {
+      "action": "dead",
+      "direction": 7,
+      "at": 36.4
+    }
+  ],
+  "actualSkillCasts": [
+    {
+      "id": "first_aid",
+      "action": "first_aid",
+      "direction": 7,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "at": 37.476700000047686
+    },
+    {
+      "id": "spear_of_valhalla",
+      "action": "attack",
+      "direction": 6,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "at": 40.266
+    },
+    {
+      "id": "einherjar_guard",
+      "action": "buff",
+      "direction": 7,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "at": 43.076900000095364
+    },
+    {
+      "id": "judgment_quake",
+      "action": "attack",
+      "direction": 7,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "at": 46.213200000047685
+    },
+    {
+      "id": "valhallas_call",
+      "action": "buff",
+      "direction": 7,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "at": 48.8935
+    },
+    {
+      "id": "aegis_step",
+      "action": "buff",
+      "direction": 7,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "at": 51.84909999990463
+    },
+    {
+      "id": "radiant_rebuke",
+      "action": "attack",
+      "direction": 7,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "at": 54.323
+    },
+    {
+      "id": "oath_anchor",
+      "action": "buff",
+      "direction": 7,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "at": 57.13820000004768
+    },
+    {
+      "id": "wings_of_mercy",
+      "action": "buff",
+      "direction": 7,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "at": 59.72079999995232
+    },
+    {
+      "id": "shield_slam",
+      "action": "shield",
+      "direction": 7,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "at": 62.32540000009537
+    },
+    {
+      "id": "war_cry",
+      "action": "buff",
+      "direction": 7,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "at": 64.92290000009537
+    },
+    {
+      "id": "whirlwind",
+      "action": "attack",
+      "direction": 7,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "at": 67.50590000009537
+    },
+    {
+      "id": "shield_throw",
+      "action": "shield_throw",
+      "direction": 7,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "at": 70.14770000004768
+    }
+  ],
+  "sourcePaths": {
+    "idle": "/assets/anim_valkyrie_f_idle_v1.webp",
+    "walk": "/assets/anim_valkyrie_f_walk_v1.webp",
+    "attack": "/assets/anim_valkyrie_f_attack_v1.webp",
+    "shield": "/assets/anim_valkyrie_f_shield_v1.webp",
+    "first_aid": "/assets/anim_valkyrie_f_first_aid_v1.webp",
+    "buff": "/assets/anim_valkyrie_f_buff_v1.webp",
+    "shield_throw": "/assets/anim_valkyrie_f_shield_throw_v1.webp",
+    "hurt": "/assets/anim_valkyrie_f_hurt_v1.webp",
+    "sit": "/assets/anim_valkyrie_f_sit_v1.webp",
+    "dead": "/assets/anim_valkyrie_f_dead_v1.webp"
+  },
+  "installed": true,
+  "nativeStagingOnly": false,
+  "storageIsolated": true,
+  "errors": [],
+  "timelineClock": "Approximate wall-time offsets; capture-stream timestamps can differ. Directly captured skill-<id>-native.png establishes exact labelled event evidence."
+}

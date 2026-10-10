@@ -1,0 +1,1964 @@
+{
+  "proof": [
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 0,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 1,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 2,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 3,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 4,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 5,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 6,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 7,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 0,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 0,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.06
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 0,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.31333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 0,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.56
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 1,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 1,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.06
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 1,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.31333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 1,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.56
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 2,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 2,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.06
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 2,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.31333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 2,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.56
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 3,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 3,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.06
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 3,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.31333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 3,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.56
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 4,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 4,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.06
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 4,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.31333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 4,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.56
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 5,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 5,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.06
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 5,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.31333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 5,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.56
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 6,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 6,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.06
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 6,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.31333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 6,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.56
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 7,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 7,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.06
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 7,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.31333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "walk",
+      "row": 7,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_walk_v1.webp?v=f863e6fb1ffa",
+      "phase": 0.56
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 0,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 0,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.29333333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 0,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.44
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 0,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.5533333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 1,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 1,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.29333333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 1,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.44
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 1,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.5533333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 2,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 2,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.29333333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 2,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.44
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 2,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.5533333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 3,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 3,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.29333333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 3,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.44
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 3,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.5533333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 4,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 4,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.29333333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 4,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.44
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 4,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.5533333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 5,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 5,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.29333333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 5,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.44
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 5,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.5533333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 6,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 6,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.29333333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 6,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.44
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 6,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.5533333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 7,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 7,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.29333333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 7,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.44
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "attack",
+      "row": 7,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_attack_v1.webp?v=a0f1d334734e",
+      "phase": 0.5533333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 0,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 0,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.1
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 0,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.30666666666666664
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 0,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 1,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 1,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.1
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 1,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.30666666666666664
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 1,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 2,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 2,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.1
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 2,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.30666666666666664
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 2,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 3,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 3,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.1
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 3,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.30666666666666664
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 3,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 4,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 4,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.1
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 4,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.30666666666666664
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 4,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 5,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 5,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.1
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 5,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.30666666666666664
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 5,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 6,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 6,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.1
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 6,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.30666666666666664
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 6,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 7,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 7,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.1
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 7,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.30666666666666664
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield",
+      "row": 7,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_v1.webp?v=0a7e87d63e24",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 0,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 0,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0.2
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 1,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 1,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0.2
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 2,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 2,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0.2
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 3,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 3,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0.2
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 4,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 4,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0.2
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 5,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 5,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0.2
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 6,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 6,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0.2
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 7,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "first_aid",
+      "row": 7,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_first_aid_v1.webp?v=6dcda9c988c2",
+      "phase": 0.2
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 0,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 0,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 1,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 1,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 2,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 2,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 3,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 3,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 4,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 4,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 5,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 5,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 6,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 6,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 7,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "buff",
+      "row": 7,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_buff_v1.webp?v=43ae4ea4197b",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 0,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 0,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0.08666666666666667
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 1,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 1,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0.08666666666666667
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 2,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 2,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0.08666666666666667
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 3,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 3,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0.08666666666666667
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 4,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 4,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0.08666666666666667
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 5,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 5,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0.08666666666666667
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 6,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 6,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0.08666666666666667
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 7,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "shield_throw",
+      "row": 7,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_shield_throw_v1.webp?v=67659afa87e7",
+      "phase": 0.08666666666666667
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 0,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 0,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 1,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 1,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 2,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 2,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 3,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 3,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 4,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 4,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 5,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 5,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 6,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 6,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 7,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "hurt",
+      "row": 7,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_hurt_v1.webp?v=d2f1118360c3",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "sit",
+      "row": 0,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_sit_v1.webp?v=90967ce5c9f8",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "sit",
+      "row": 1,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_sit_v1.webp?v=90967ce5c9f8",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "sit",
+      "row": 2,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_sit_v1.webp?v=90967ce5c9f8",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "sit",
+      "row": 3,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_sit_v1.webp?v=90967ce5c9f8",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "sit",
+      "row": 4,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_sit_v1.webp?v=90967ce5c9f8",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "sit",
+      "row": 5,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_sit_v1.webp?v=90967ce5c9f8",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "sit",
+      "row": 6,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_sit_v1.webp?v=90967ce5c9f8",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "sit",
+      "row": 7,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_sit_v1.webp?v=90967ce5c9f8",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 0,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 0,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.25333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 0,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 0,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.7533333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 1,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 1,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.25333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 1,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 1,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.7533333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 2,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 2,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.25333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 2,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 2,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.7533333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 3,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 3,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.25333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 3,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 3,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.7533333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 4,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 4,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.25333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 4,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 4,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.7533333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 5,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 5,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.25333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 5,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 5,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.7533333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 6,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 6,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.25333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 6,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 6,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.7533333333333333
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 7,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 7,
+      "frame": 1,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.25333333333333335
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 7,
+      "frame": 2,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.5
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "dead",
+      "row": 7,
+      "frame": 3,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_dead_v1.webp?v=3312da8b2222",
+      "phase": 0.7533333333333333
+    }
+  ],
+  "preview": [
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 0,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f"
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 1,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f"
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 2,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f"
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 3,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f"
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 4,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f"
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 5,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f"
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 6,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f"
+    },
+    {
+      "key": "valkyrie_f",
+      "action": "idle",
+      "row": 7,
+      "frame": 0,
+      "flip": false,
+      "source": "http://127.0.0.1:8787/assets/anim_valkyrie_f_idle_v1.webp?v=28b9c1962f5f"
+    }
+  ],
+  "nativeStagingOnly": false,
+  "installed": true,
+  "artAccepted": true,
+  "liveRenderer": "Sprites.drawPlayer",
+  "unitPreview": "UnitPreview.draw",
+  "unitPreviewClip": "unit-preview.mp4",
+  "storageIsolated": true,
+  "errors": [],
+  "sourcePaths": {
+    "idle": "/assets/anim_valkyrie_f_idle_v1.webp",
+    "walk": "/assets/anim_valkyrie_f_walk_v1.webp",
+    "attack": "/assets/anim_valkyrie_f_attack_v1.webp",
+    "shield": "/assets/anim_valkyrie_f_shield_v1.webp",
+    "first_aid": "/assets/anim_valkyrie_f_first_aid_v1.webp",
+    "buff": "/assets/anim_valkyrie_f_buff_v1.webp",
+    "shield_throw": "/assets/anim_valkyrie_f_shield_throw_v1.webp",
+    "hurt": "/assets/anim_valkyrie_f_hurt_v1.webp",
+    "sit": "/assets/anim_valkyrie_f_sit_v1.webp",
+    "dead": "/assets/anim_valkyrie_f_dead_v1.webp"
+  },
+  "economyChecked": true,
+  "manualReview": "Native ten action boards, all eight preview headings, installed Lab motion clip and all 13 directly captured native skill scenes inspected; corrected E/SW/NW gait, NE shield arm origin, N prone perspective and equipment bounds accepted for this set."
+}

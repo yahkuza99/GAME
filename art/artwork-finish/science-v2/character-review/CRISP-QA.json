@@ -1,0 +1,56 @@
+{
+  "source": "field-scientist-f-idle-crisp-v1.png",
+  "frames": [
+    {
+      "direction": 0,
+      "sourceSolidEdges": 0,
+      "height": 150,
+      "sourceAlphaPreserved": true
+    },
+    {
+      "direction": 1,
+      "sourceSolidEdges": 0,
+      "height": 150,
+      "sourceAlphaPreserved": true
+    },
+    {
+      "direction": 2,
+      "sourceSolidEdges": 0,
+      "height": 150,
+      "sourceAlphaPreserved": true
+    },
+    {
+      "direction": 3,
+      "sourceSolidEdges": 0,
+      "height": 150,
+      "sourceAlphaPreserved": true
+    },
+    {
+      "direction": 4,
+      "sourceSolidEdges": 0,
+      "height": 150,
+      "sourceAlphaPreserved": true
+    },
+    {
+      "direction": 5,
+      "sourceSolidEdges": 0,
+      "height": 150,
+      "sourceAlphaPreserved": true
+    },
+    {
+      "direction": 6,
+      "sourceSolidEdges": 0,
+      "height": 150,
+      "sourceAlphaPreserved": true
+    },
+    {
+      "direction": 7,
+      "sourceSolidEdges": 0,
+      "height": 150,
+      "sourceAlphaPreserved": true
+    }
+  ],
+  "standingOnly": true,
+  "installedInGame": false,
+  "artworkAccepted": false
+}

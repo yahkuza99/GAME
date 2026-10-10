@@ -1,0 +1,755 @@
+{
+  "status": "draft_direction_and_continuity_review",
+  "installed": false,
+  "characterAccepted": false,
+  "actions": {
+    "idle": {
+      "source": "field-scientist-f-idle-robot-v2.png",
+      "frames": [
+        {
+          "direction": 0,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "aba7b4ea292ffbd9a480870693a9a01cb11c3b7f43ab4b4f6df81db0d76c9ca2"
+        },
+        {
+          "direction": 1,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "7a0e54d7e3d7f2754823d7f3dc48ec4468352a43d9fb26e3e86ebfa4a795d34c"
+        },
+        {
+          "direction": 2,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "a35fb3e1139cf4c8e471c1807558cc6992b20692df780c2359cad8fb3168e37f"
+        },
+        {
+          "direction": 3,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "b5bd7b213416d753c01dbe6edb9e6c38340a403341903c5c53e35f73e51ba0a5"
+        },
+        {
+          "direction": 4,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "f1af753da6a81976882b8d276fb4981469d1da34a201cf9bd462969bc0f19736"
+        },
+        {
+          "direction": 5,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "df273f33708480e2a7ff0c5d5d3e7923c6e3b4ab86fa8514eea20b4c2c47e134"
+        },
+        {
+          "direction": 6,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "940299a2d0e7dde8cd687108e425028a84abbd4bbed367f228beb9a828aa15d1"
+        },
+        {
+          "direction": 7,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "0f17ee83d0169b9adc8881e6f892b153909ef16f97bceff5743dd521aab60a73"
+        }
+      ]
+    },
+    "walk": {
+      "source": "field-scientist-f-walk-robot-v3.png",
+      "frames": [
+        {
+          "direction": 0,
+          "frame": 0,
+          "height": 149.52,
+          "sourceSolidEdges": 0,
+          "sha256": "478ce5edcf38082c27a5821cea52de93a26c1721c65b5068cbdc8a53b0a4950e"
+        },
+        {
+          "direction": 0,
+          "frame": 1,
+          "height": 148.57,
+          "sourceSolidEdges": 0,
+          "sha256": "429e668e3c4b80855b1ed686e7504cbcd0392c01a206aef307429457df6f7298"
+        },
+        {
+          "direction": 0,
+          "frame": 2,
+          "height": 151.43,
+          "sourceSolidEdges": 0,
+          "sha256": "e724a65d5d48434113564e2ecc648461d53e90fc0d3ec0639e5653630c9ea4ec"
+        },
+        {
+          "direction": 0,
+          "frame": 3,
+          "height": 150.48,
+          "sourceSolidEdges": 0,
+          "sha256": "3ca743834b61270a6cff50c0c454545c8708a70e5fc5533c255f25b20a43dead"
+        },
+        {
+          "direction": 1,
+          "frame": 0,
+          "height": 150.45,
+          "sourceSolidEdges": 0,
+          "sha256": "9426d5a2dcd029cc3f5816bbbfd67230c72d16a48c00546af68fd01e786dc901"
+        },
+        {
+          "direction": 1,
+          "frame": 1,
+          "height": 150.45,
+          "sourceSolidEdges": 0,
+          "sha256": "6318bbeefd7e279b48c134776e545657e0d191dae298910e3f781b64c580791e"
+        },
+        {
+          "direction": 1,
+          "frame": 2,
+          "height": 149.55,
+          "sourceSolidEdges": 0,
+          "sha256": "b68936a00cbec02dde0c035f6529cd2ef0a45ab97ec08a4c6d739cd47737eff8"
+        },
+        {
+          "direction": 1,
+          "frame": 3,
+          "height": 146.85,
+          "sourceSolidEdges": 0,
+          "sha256": "326a8d2dde04cf8535b16bc8ef039eab9afc5f3053b6d63c8062910506ea6ca0"
+        },
+        {
+          "direction": 2,
+          "frame": 0,
+          "height": 149.57,
+          "sourceSolidEdges": 0,
+          "sha256": "7af041842ea64e9a3ee901d529d7409b0e3d4c810630cfae1153141be52a4821"
+        },
+        {
+          "direction": 2,
+          "frame": 1,
+          "height": 149.57,
+          "sourceSolidEdges": 0,
+          "sha256": "79c1492d43aed66e6f956f6fa39435e2a546263724deea25061364113077e577"
+        },
+        {
+          "direction": 2,
+          "frame": 2,
+          "height": 151.29,
+          "sourceSolidEdges": 0,
+          "sha256": "50a017512f6ae89e30f8c993311e4ad1218e9c7f6d86c53d30b055d8bdf354ab"
+        },
+        {
+          "direction": 2,
+          "frame": 3,
+          "height": 150.43,
+          "sourceSolidEdges": 0,
+          "sha256": "43463635660bfd28bbdbd93f4bcab6468fefcb13517913955ecc6f4e2324c398"
+        },
+        {
+          "direction": 3,
+          "frame": 0,
+          "height": 149.57,
+          "sourceSolidEdges": 0,
+          "sha256": "0227874007485e804c536b9b3bd3a922217428f235d4f459f5972bb461acf525"
+        },
+        {
+          "direction": 3,
+          "frame": 1,
+          "height": 149.57,
+          "sourceSolidEdges": 0,
+          "sha256": "59a6fe72ac6c894cb563575d84a08633d603023c07a43650dfcf5144481be964"
+        },
+        {
+          "direction": 3,
+          "frame": 2,
+          "height": 151.3,
+          "sourceSolidEdges": 0,
+          "sha256": "e9083648a4bae11fa40124fb8b05b370fa504f67d11d92e367d5a8c46facaf42"
+        },
+        {
+          "direction": 3,
+          "frame": 3,
+          "height": 150.43,
+          "sourceSolidEdges": 0,
+          "sha256": "0c8375c040dbe612a00c4b31d136b51fbe329361adc68ef62409ecca7b54e67f"
+        },
+        {
+          "direction": 4,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "f5e49da703dc634dcf25e959b2bc380ab77c26dae17664ae8c2f13f03c3e281b"
+        },
+        {
+          "direction": 4,
+          "frame": 1,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "5eda346f3ba57cbb87562f1cdb008e31eddb56d68fd2c50d951f7c1d06d7f10b"
+        },
+        {
+          "direction": 4,
+          "frame": 2,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "119925fba16582295301df03e8b032918f1ef53e413eee8ea4b4bb313edff6da"
+        },
+        {
+          "direction": 4,
+          "frame": 3,
+          "height": 149.16,
+          "sourceSolidEdges": 0,
+          "sha256": "aa55540a0c77131e9654d3846e52b03974548729c1d187786fc17ea8f2576c7a"
+        },
+        {
+          "direction": 5,
+          "frame": 0,
+          "height": 149.58,
+          "sourceSolidEdges": 0,
+          "sha256": "30f11c8c1c12acc2deadfc9f2d183a6f4615d4a4e8a69656178a44b0b5698a4d"
+        },
+        {
+          "direction": 5,
+          "frame": 1,
+          "height": 150.42,
+          "sourceSolidEdges": 0,
+          "sha256": "304b32ce6345d0e1a104ffbcded0234b8703de9314ffb08645b219faa8af9641"
+        },
+        {
+          "direction": 5,
+          "frame": 2,
+          "height": 149.58,
+          "sourceSolidEdges": 0,
+          "sha256": "5e0aca53c6f455f9e10bef07016d2e3e998dafb4a241e3595cae59d743eb670d"
+        },
+        {
+          "direction": 5,
+          "frame": 3,
+          "height": 150.42,
+          "sourceSolidEdges": 0,
+          "sha256": "86ecd3a7959db609f5a533477faaad5a44578935aeb04d8a8c3b4792fe3d2ab1"
+        },
+        {
+          "direction": 6,
+          "frame": 0,
+          "height": 150.84,
+          "sourceSolidEdges": 0,
+          "sha256": "782d75b806497a4e915f6c51bcb7ca64aefa065216d0b27cf1ee9f87c53ed633"
+        },
+        {
+          "direction": 6,
+          "frame": 1,
+          "height": 149.16,
+          "sourceSolidEdges": 0,
+          "sha256": "a73c67489efe05be0445fac3bb84347a456731855af9b6eeabd51d25c17dda19"
+        },
+        {
+          "direction": 6,
+          "frame": 2,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "8214c0c23643f07e5761c7344c2d9c2880ad18aa01025ba982731f8dbfbcccab"
+        },
+        {
+          "direction": 6,
+          "frame": 3,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "c1b12698e70dec9025f1db7dd67962ff466caae8ea7881583a7d892a02e0c187"
+        },
+        {
+          "direction": 7,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "da3285a65f692edae5f5029b0f1176b58820275f6c489ecb568c63641990d19e"
+        },
+        {
+          "direction": 7,
+          "frame": 1,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "6392516d0d7aa8332a8f4688fd38d0b14943c2acece3b867585801f82b840863"
+        },
+        {
+          "direction": 7,
+          "frame": 2,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "d573c249b7212021d372533829458dd6771a7d4ae746f08c24db1a26afb6767e"
+        },
+        {
+          "direction": 7,
+          "frame": 3,
+          "height": 148.34,
+          "sourceSolidEdges": 0,
+          "sha256": "ee09abda215e48d35f4a2768ceff8c44084888b25a6570bf3693e9bbb7e8dbb9"
+        }
+      ]
+    },
+    "attack": {
+      "source": "field-scientist-f-attack-robot-v2.png",
+      "frames": [
+        {
+          "direction": 0,
+          "frame": 0,
+          "height": 149.25,
+          "sourceSolidEdges": 0,
+          "sha256": "d6cc8e3281a13d8d56a9526987c833768e2c946b6cacabc6a657b1e41bf78a81"
+        },
+        {
+          "direction": 0,
+          "frame": 1,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "479aa7de45c188ecab7dd84f9d3dfe84339b383ac708a24830b62412578534ba"
+        },
+        {
+          "direction": 0,
+          "frame": 2,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "80886313c116903307c3cdbc0cfd5b1ffa4b1f36c105af4101e23550909e023c"
+        },
+        {
+          "direction": 0,
+          "frame": 3,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "6f3ee5d8fb03f44573fe4e405f987d5720d04e7604501f5f5c83371c1b49599d"
+        },
+        {
+          "direction": 1,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "8ae8939d9e7c33dbfbb8e9646f4e02539282189756f3d2af9e502749a63c5d38"
+        },
+        {
+          "direction": 1,
+          "frame": 1,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "8b680f161c321754d5aee25630688662cb1fc23e771e2309e351ce9e542f7a65"
+        },
+        {
+          "direction": 1,
+          "frame": 2,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "370366d3f732fa1657f36435470dcc878837417344ebd7d916adbb81e14c6da6"
+        },
+        {
+          "direction": 1,
+          "frame": 3,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "15159adfb885a859e8723a6d931565f621717128c47ccf6715282bbc5c8d737e"
+        },
+        {
+          "direction": 2,
+          "frame": 0,
+          "height": 149.26,
+          "sourceSolidEdges": 0,
+          "sha256": "b8d0ad7a3e805b744749601bb122071ec9545a0036c30289728b9d804137a655"
+        },
+        {
+          "direction": 2,
+          "frame": 1,
+          "height": 150.74,
+          "sourceSolidEdges": 0,
+          "sha256": "456c1c2ff20bbd034e5162d4ad5a68c341d0c753f31ed8dba1b36043fbe938c3"
+        },
+        {
+          "direction": 2,
+          "frame": 2,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "c799c88f00f7a62c8c253bbd97c18bc9bf80f9a29d818b94a299a12ea145b32a"
+        },
+        {
+          "direction": 2,
+          "frame": 3,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "f74ac787dd70898a18f48cf412e9155eedadfbb23b95eb86139fecd4ef721871"
+        },
+        {
+          "direction": 3,
+          "frame": 0,
+          "height": 151.12,
+          "sourceSolidEdges": 0,
+          "sha256": "baffa6b275295a0f17c3f4c352f7e8bca1632b9a610c60a8d476d519376cb63d"
+        },
+        {
+          "direction": 3,
+          "frame": 1,
+          "height": 150.37,
+          "sourceSolidEdges": 0,
+          "sha256": "3e94258fd7e9c06f0f1866e02eceb4f811d111810a992431e2558f1cea173755"
+        },
+        {
+          "direction": 3,
+          "frame": 2,
+          "height": 149.63,
+          "sourceSolidEdges": 0,
+          "sha256": "38b5d24a8f7739aba29bb453e7775b5c49885c17db72ee05ad99581179b360a9"
+        },
+        {
+          "direction": 3,
+          "frame": 3,
+          "height": 149.63,
+          "sourceSolidEdges": 0,
+          "sha256": "1e0395d3373c1f22d77bd93c4a9f65b7a9798f7b3513d4f832f37508bc6d2b6b"
+        },
+        {
+          "direction": 4,
+          "frame": 0,
+          "height": 149.64,
+          "sourceSolidEdges": 0,
+          "sha256": "0085e05f65cf93dd0dd59d3cee116323240d6320ffead3a066cf0c4f1f754fb6"
+        },
+        {
+          "direction": 4,
+          "frame": 1,
+          "height": 150.36,
+          "sourceSolidEdges": 0,
+          "sha256": "0765e730a32f2928b3a1504945318e8735c8621674263c97e8f07fd114645c4d"
+        },
+        {
+          "direction": 4,
+          "frame": 2,
+          "height": 149.64,
+          "sourceSolidEdges": 0,
+          "sha256": "70c8a2739f0c9683343859d5c11988c0e9faf240d57f05aa960c55f17f63f8e4"
+        },
+        {
+          "direction": 4,
+          "frame": 3,
+          "height": 150.36,
+          "sourceSolidEdges": 0,
+          "sha256": "b59bb47e2279ba11064877417b15401946ae1b10ef0dc20bf8525ff0f60775dd"
+        },
+        {
+          "direction": 5,
+          "frame": 0,
+          "height": 149.66,
+          "sourceSolidEdges": 0,
+          "sha256": "fd5e861db2873ee7be2e689562ffbd3a76dacc69bfe53bbbf06ca683b1660ef2"
+        },
+        {
+          "direction": 5,
+          "frame": 1,
+          "height": 150.34,
+          "sourceSolidEdges": 0,
+          "sha256": "4c89377da74dffba349e34e24b022258e4e01041624aa0562a821a409c3233ad"
+        },
+        {
+          "direction": 5,
+          "frame": 2,
+          "height": 150.34,
+          "sourceSolidEdges": 0,
+          "sha256": "8c7e47f1b910b8580e813f152ae54d2ddf902f0b340201a36d3fdef68fee4f62"
+        },
+        {
+          "direction": 5,
+          "frame": 3,
+          "height": 148.97,
+          "sourceSolidEdges": 0,
+          "sha256": "d8c837b92893010a04c4dbd5214db3b1a6f9a82a1162758c89fedee9e5ca6709"
+        },
+        {
+          "direction": 6,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "56ca77341c3b5bbd9f13a2114f4c929a1bb0a69e0be64004bfb5d5fcc13f9f73"
+        },
+        {
+          "direction": 6,
+          "frame": 1,
+          "height": 150.52,
+          "sourceSolidEdges": 0,
+          "sha256": "e54e2cc69c8fb68af8a79c1651157d866f4da6883622555563f00da90e4ef7f0"
+        },
+        {
+          "direction": 6,
+          "frame": 2,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "8846ab974b9c024c60ad7eaafd0e886f68a85ccb56bc1143db7bde5c2450e64c"
+        },
+        {
+          "direction": 6,
+          "frame": 3,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "8632949e20010fa08d30d7ebaa91576dcd17229df33dfbe9fec97055b8e41dfc"
+        },
+        {
+          "direction": 7,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "48f596ef9d7d50448bde6d2e8e1aed17cf5ab3920301f1befeb4a8ec4ed18644"
+        },
+        {
+          "direction": 7,
+          "frame": 1,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "b3ed607c7effe359ccaf5d294be1f25ed9d4d05070fd58febe58e12af0d6ea07"
+        },
+        {
+          "direction": 7,
+          "frame": 2,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "8b36977e7d2f79f8b99834961258da1cb42a40a6425aa193e78cf1cc221baeb4"
+        },
+        {
+          "direction": 7,
+          "frame": 3,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "5250fb9d55190054cc47122d03ed26935cb76d7a3691b555415edd0a089d0513"
+        }
+      ]
+    },
+    "operate": {
+      "source": "field-scientist-f-operate-robot-v1.png",
+      "frames": [
+        {
+          "direction": 0,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "473d185b3c15d34c99085604ad73833cb95fff222670485c11f2b00cc7bc1415"
+        },
+        {
+          "direction": 0,
+          "frame": 1,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "a0fb4676241c35f7fa6410299906174fb204a6450ad8dfa4f7369de5f1de95c2"
+        },
+        {
+          "direction": 0,
+          "frame": 2,
+          "height": 149.2,
+          "sourceSolidEdges": 0,
+          "sha256": "a3e9a9913a2e404146dc1f131fd922511825c2d4b5ed169fdc4421773c67ebeb"
+        },
+        {
+          "direction": 0,
+          "frame": 3,
+          "height": 150.8,
+          "sourceSolidEdges": 0,
+          "sha256": "c1fdee9a9de958dede89ffbbf68d14c0654103933e9134df6738c29adb8c133a"
+        },
+        {
+          "direction": 1,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "74d5078c3353153efb29aa3e0708890a98a31db415518db71ac05c683a23c573"
+        },
+        {
+          "direction": 1,
+          "frame": 1,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "c857ca55d96aa6b6684a3a12222276d91fb2f034abfcb6bcf210258e6db1e47a"
+        },
+        {
+          "direction": 1,
+          "frame": 2,
+          "height": 150.77,
+          "sourceSolidEdges": 0,
+          "sha256": "db868d33c55cfcb705075b3be412d6c4515919fea667fb705b840df8d5076cf7"
+        },
+        {
+          "direction": 1,
+          "frame": 3,
+          "height": 149.23,
+          "sourceSolidEdges": 0,
+          "sha256": "6100cb55daefb21b9a030647367d0715cff9d0709197e739ea9b475c8d69d091"
+        },
+        {
+          "direction": 2,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "1f6098f8f5254b4a26d80f7efe54533594042bdc0c85115c1e3f8190a5c8630f"
+        },
+        {
+          "direction": 2,
+          "frame": 1,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "40e1c91f43d343e6e336f4e8553ea49b6181b498ec58a07c470fa1950388c8f3"
+        },
+        {
+          "direction": 2,
+          "frame": 2,
+          "height": 150.74,
+          "sourceSolidEdges": 0,
+          "sha256": "fed7065de501465d6d7877d706776ec9746cf1e7fe3a336a50b9f35c9b84da16"
+        },
+        {
+          "direction": 2,
+          "frame": 3,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "5029bd049f37114c26a5b502b97a32182f38f8c1a7a6cd74783feab70ff2361a"
+        },
+        {
+          "direction": 3,
+          "frame": 0,
+          "height": 149.26,
+          "sourceSolidEdges": 0,
+          "sha256": "647c395b68fae68b44c020b0464155ee5f71020df3a0e30d6dfc6dd893aa25ca"
+        },
+        {
+          "direction": 3,
+          "frame": 1,
+          "height": 150.74,
+          "sourceSolidEdges": 0,
+          "sha256": "887a6df81906bef3c34c3c6a90aaab4627f3d1a612e8b57bac704ecf5d751dc7"
+        },
+        {
+          "direction": 3,
+          "frame": 2,
+          "height": 149.26,
+          "sourceSolidEdges": 0,
+          "sha256": "ee6eac151b1074d9c9061873a369240c7fb891bba7c744d76f86256ab575da33"
+        },
+        {
+          "direction": 3,
+          "frame": 3,
+          "height": 150.74,
+          "sourceSolidEdges": 0,
+          "sha256": "459d33fc463b4d21c6183d4089978de0c8a43809eee707d5b9cc0f02042e30ac"
+        },
+        {
+          "direction": 4,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "0dc85a4f18047ba16b343d0a316724d7f397963d05c78d3f02a609764ec05c4c"
+        },
+        {
+          "direction": 4,
+          "frame": 1,
+          "height": 150.71,
+          "sourceSolidEdges": 0,
+          "sha256": "31a8a1f09d852b400a49347b86a5246f5b9d4c32826667c9c1ee77109daa4591"
+        },
+        {
+          "direction": 4,
+          "frame": 2,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "cf81cfcfeba9e798624d75368c9a9f84c35bb244c353c86d0a471bb6073b8e84"
+        },
+        {
+          "direction": 4,
+          "frame": 3,
+          "height": 149.29,
+          "sourceSolidEdges": 0,
+          "sha256": "964430e686112b61689521e83ac97f33e16409376eb644ef8fc384d89a1cdb80"
+        },
+        {
+          "direction": 5,
+          "frame": 0,
+          "height": 150.13,
+          "sourceSolidEdges": 0,
+          "sha256": "a42a29d6d463de855aa2cf72639309b5d963715b27907e5649efea64d748253f"
+        },
+        {
+          "direction": 5,
+          "frame": 1,
+          "height": 149.87,
+          "sourceSolidEdges": 0,
+          "sha256": "4a492b4edd90eea6fc15859ad173aaba434ed00f53c2f93b9a72c632f5d1a2d2"
+        },
+        {
+          "direction": 5,
+          "frame": 2,
+          "height": 149.61,
+          "sourceSolidEdges": 0,
+          "sha256": "ea89df6a8ee1572453b00578549fafe773fb5a1c2b593f3a3121b55f75e89b13"
+        },
+        {
+          "direction": 5,
+          "frame": 3,
+          "height": 150.39,
+          "sourceSolidEdges": 0,
+          "sha256": "b140ca25f33aff9bcc0bb9b7bcc868681509e2c6806a63660f182554d10fb653"
+        },
+        {
+          "direction": 6,
+          "frame": 0,
+          "height": 150.7,
+          "sourceSolidEdges": 0,
+          "sha256": "ca4556cc2592c5e55cde1fe52e924ac9868f5aa05242e0d537d46250e52ce744"
+        },
+        {
+          "direction": 6,
+          "frame": 1,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "7e1cd3aee181ad6e4be4867ee7c16ac1f51889f7aeed34e863002a4ecffcd021"
+        },
+        {
+          "direction": 6,
+          "frame": 2,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "812839472297923960881a278976881f495041ecc89fca2a4b2280dfcfd8717d"
+        },
+        {
+          "direction": 6,
+          "frame": 3,
+          "height": 148.6,
+          "sourceSolidEdges": 0,
+          "sha256": "1dc327651af49081a1df80cf95fd4621895f7de2373b642cc134a0be038a19ab"
+        },
+        {
+          "direction": 7,
+          "frame": 0,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "039061fda86d665980bc034a0213261e48aa075c925210ae542642f69f44826d"
+        },
+        {
+          "direction": 7,
+          "frame": 1,
+          "height": 151.42,
+          "sourceSolidEdges": 0,
+          "sha256": "8c0569f70438993c9a5df5b15181ef5e43faf80e690d5a546af92549a20228dd"
+        },
+        {
+          "direction": 7,
+          "frame": 2,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "5046179fae9518042b18402f6c744a714f0b5d6f09481cb31caf77cbdf9ba04f"
+        },
+        {
+          "direction": 7,
+          "frame": 3,
+          "height": 150.0,
+          "sourceSolidEdges": 0,
+          "sha256": "37ca2cf175c52e7985907ea9160c5b91627689ac0d798da50ebe51b36dc6fed9"
+        }
+      ]
+    }
+  }
+}

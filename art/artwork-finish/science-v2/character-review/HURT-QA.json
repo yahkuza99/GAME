@@ -1,0 +1,137 @@
+{
+  "source": "field-scientist-f-hurt-story-v1.png",
+  "frames": [
+    {
+      "direction": 0,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "height": 147.5,
+      "sharedDirectionScale": 0.8333333333333334,
+      "idleHeight": 150
+    },
+    {
+      "direction": 0,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "height": 150.0,
+      "sharedDirectionScale": 0.8333333333333334,
+      "idleHeight": 150
+    },
+    {
+      "direction": 1,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "height": 149.21,
+      "sharedDirectionScale": 0.7853403141361257,
+      "idleHeight": 150
+    },
+    {
+      "direction": 1,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "height": 150.0,
+      "sharedDirectionScale": 0.7853403141361257,
+      "idleHeight": 150
+    },
+    {
+      "direction": 2,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "height": 149.23,
+      "sharedDirectionScale": 0.7653061224489796,
+      "idleHeight": 150
+    },
+    {
+      "direction": 2,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "height": 150.0,
+      "sharedDirectionScale": 0.7653061224489796,
+      "idleHeight": 150
+    },
+    {
+      "direction": 3,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "height": 149.23,
+      "sharedDirectionScale": 0.7653061224489796,
+      "idleHeight": 150
+    },
+    {
+      "direction": 3,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "height": 150.0,
+      "sharedDirectionScale": 0.7653061224489796,
+      "idleHeight": 150
+    },
+    {
+      "direction": 4,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "height": 149.26,
+      "sharedDirectionScale": 0.7389162561576355,
+      "idleHeight": 150
+    },
+    {
+      "direction": 4,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "height": 150.0,
+      "sharedDirectionScale": 0.7389162561576355,
+      "idleHeight": 150
+    },
+    {
+      "direction": 5,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "height": 147.77,
+      "sharedDirectionScale": 0.7425742574257426,
+      "idleHeight": 150
+    },
+    {
+      "direction": 5,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "height": 150.0,
+      "sharedDirectionScale": 0.7425742574257426,
+      "idleHeight": 150
+    },
+    {
+      "direction": 6,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "height": 149.24,
+      "sharedDirectionScale": 0.7575757575757576,
+      "idleHeight": 150
+    },
+    {
+      "direction": 6,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "height": 150.0,
+      "sharedDirectionScale": 0.7575757575757576,
+      "idleHeight": 150
+    },
+    {
+      "direction": 7,
+      "frame": 0,
+      "sourceSolidEdges": 0,
+      "height": 150.0,
+      "sharedDirectionScale": 0.7425742574257426,
+      "idleHeight": 150
+    },
+    {
+      "direction": 7,
+      "frame": 1,
+      "sourceSolidEdges": 0,
+      "height": 150.0,
+      "sharedDirectionScale": 0.7425742574257426,
+      "idleHeight": 150
+    }
+  ],
+  "themeBrief": "../../STORY-ART-DIRECTION.md",
+  "installedInGame": false,
+  "artworkAccepted": false,
+  "status": "native review candidate"
+}
