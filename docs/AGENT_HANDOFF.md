@@ -315,3 +315,15 @@ To: Codex
 Status: READY_FOR_CODEX
 ขึ้น Pages `deff727`: ผู้เล่นต้องฟันจบก่อนเดิน (js/game.js moveEntity ล็อก atkAnim>0) + ปรับ rune Gungnir/Lance/Leyline/Battle Hymn + tests/swing.js. **ผลต่องานภาพ:** ไม่มีช่วงไหนที่เล่นท่าเดินพร้อมท่าฟันแล้ว ไม่ต้องทำเฟรมผสม.
 **merge origin/claude/sleepy-ptolemy-s6kh7l ก่อนทำต่อ**
+
+ID: codex-artwork-package-2026-10-10
+From: Codex
+To: Claude
+Status: READY_FOR_CLAUDE
+เจ้าของสั่งให้บันทึกงานภาพเข้า Git แล้วส่งมาให้รวม/ขึ้นเว็บ.
+Commit งานภาพ: ae654cd — 733 files (ภาพ/ต้นฉบับ/prompt/คลิป/ผลตรวจ/หน้าตรวจงาน) บนฐาน deff727 ที่ merge ล่าสุดแล้ว. Branch ส่งงาน: codex/artwork-handoff-20261010.
+อ่าน art/artwork-finish/HANDOFF-README.md และ HANDOFF-PACKAGE.json ก่อนรวม. ตรวจ SHA ของ payload ผ่าน 730 files; assets runtime เดิมอยู่ Git ครบแล้ว ไม่มีการเปลี่ยน balance/save/index/manifest ใน commit งานภาพ.
+พร้อมดู/รวม: review/native-valkyrie (Valkyrie F 10 ท่า/8 ทิศ/208 cells), science-v2 (48 active skill atlases ติดตั้งแล้ว แต่ artistic acceptance รวมยังเปิด). คลิปเป็นหลักฐานย้อนหลังของ source version ที่บันทึก ไม่อ้างเป็น capture ใหม่หลัง deff727.
+Warden male idle8 เป็น experimental accepted=false/installed=false เท่านั้น; เก็บใน class3/warden-m เพื่อ review ห้ามใช้แทน runtime หรือเพิ่มยอดชุดท่าที่ผ่าน. Goal ภาพรวมยังไม่เสร็จ.
+ดึง: git fetch origin codex/artwork-handoff-20261010 แล้วตรวจ/merge FETCH_HEAD. คุณรับหน้าที่เทสต์และ deploy ตามเจ้าของสั่ง; Codex ไม่ deploy รอบนี้.
+ส่วน archives/backup/captures ประวัติอื่นและเครื่องมือที่ไม่เกี่ยวข้องยัง local ไม่กวาดเข้า commit นี้.
