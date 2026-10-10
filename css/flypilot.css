@@ -1,0 +1,16 @@
+/* Fly Pilot (js/flypilot.js): ปุ่ม "แมลงวัน" เหนือปุ่ม AUTO + กรอบตัวเลข — มุมเหลี่ยม (≤ 8px) ไม่มีแถบสัดส่วน */
+#fly-btn {
+  position: fixed; z-index: 27; left: 0; top: 0; min-width: 56px; height: 26px; padding: 0 8px; margin: 0;
+  border: 1px solid var(--c-gold, #c9a25a); border-radius: 6px; background: rgba(36, 23, 11, 0.9); color: #fbe6b2;
+  font: 600 13px/1 var(--f-body, "Noto Sans Thai", sans-serif); cursor: pointer; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+#fly-btn b { font: inherit; }
+#fly-btn:hover { filter: brightness(1.15); }
+#fly-btn.on { background: #2f8f6a; border-color: #d8ffe9; color: #fff; }
+#fly-btn.locked { opacity: 0.5; filter: grayscale(0.6); }
+#fly-btn[hidden], #fly-ov[hidden] { display: none; }
+#fly-ov {
+  position: fixed; z-index: 27; left: 0; top: 0; padding: 5px 8px; border: 1px solid rgba(232, 196, 120, 0.55); border-radius: 6px;
+  background: rgba(20, 13, 6, 0.86); color: #fbe6b2; pointer-events: none; white-space: pre;
+  font: 500 13px/1.35 var(--f-body, "Noto Sans Thai", sans-serif); font-variant-numeric: tabular-nums;
+}
