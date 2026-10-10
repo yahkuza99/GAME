@@ -23,7 +23,7 @@ const Class3 = (() => {
     ot_up: 0.2, ot_down: 0.2,                      // of Three Tongues: ต่างธาตุจากลูกก่อน +20% / ธาตุซ้ำ −20% (แทน Resonance)
     // รูน Rune Circle
     sg_echo: 0.75, sg_root: 1.5, sg_root_boss: 0.5, // Snare Glyph: ระเบิดซ้ำเหลือครึ่ง • ตรึงตัวที่เดินเข้า 1.5 วิ (บอส/ผู้เล่น: ช้า 0.5 วิ)
-    ley_r: 2, ley_echo: 0.25,                      // Leyline: วงเล็ก 2 ช่องเดินตามตัวเรา • ระเบิดซ้ำ 25% (tests/runes_c3.js: เต็มแรง ฝูง +21~25% / 50% +16% / 30% +12.2%)
+    ley_r: 2, ley_echo: 0.15,                      // Leyline: วงเล็ก 2 ช่องเดินตามตัวเรา • ระเบิดซ้ำ 25% (tests/runes_c3.js: เต็มแรง ฝูง +21~25% / 50% +16% / 30% +12.2%)
     // Oath — Packlord (Pack Blood)
     op_n: 5, op_self: 0.08,                        // of the Pack: หมา 5 ตัว • ตัวเราเบาลง 12%
     ol_ch: 0.25, ol_k: 0.8, ol_aspd: 12,           // of the Lone Wolf: ไม่มีหมา • ตีปกติ 25% ตีซ้ำ (80%) • หอน = ASPD +12% 10 วิ

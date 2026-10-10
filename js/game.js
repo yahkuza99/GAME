@@ -692,6 +692,7 @@ function faceTo(e, tx, ty) {
 function moveEntity(e, dt, speed) {
   let step = speed * dt;
   e.moving = false;
+  if (e === G.player && e.atkAnim > 0) return; // ทำทีละอย่าง: ท่าฟันยังไม่จบ = ยืนฟันให้จบก่อน แล้วค่อยเดิน (ไม่ไถลไปพร้อมท่าฟัน)
   if (e.flinchUntil > G.time) return; // กระตุก (โดนตีตอนเดิน): หยุดแค่การเดิน — ตี/ร่าย/ใช้สกิลได้ตามปกติ แล้วเดินต่อทางเดิม
   while (step > 0 && e.path.length) {
     const n = e.path[0];

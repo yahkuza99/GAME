@@ -408,8 +408,8 @@ Runes.watchCombat = function () {
     // Völva
     sa_weak: 0.25, sa_rad: 0.43,
     lf_daze: 1.5, lf_fav: 0.68,
-    bo_raven: 0.659, bo_storm: 0.35,
-    hs_lance: 0.62, hs_judg: 0.72,
+    bo_raven: 0.659, bo_storm: 0.31,
+    hs_lance: 0.6, hs_judg: 0.72,
     ds_ret: 0.5, ds_shell: 0.25,
     fg_smite: 0.847, fg_cap: 0.25,
     // Loki's Trickster
