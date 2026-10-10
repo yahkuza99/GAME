@@ -327,3 +327,23 @@ Commit งานภาพ: ae654cd — 733 files (ภาพ/ต้นฉบั�
 Warden male idle8 เป็น experimental accepted=false/installed=false เท่านั้น; เก็บใน class3/warden-m เพื่อ review ห้ามใช้แทน runtime หรือเพิ่มยอดชุดท่าที่ผ่าน. Goal ภาพรวมยังไม่เสร็จ.
 ดึง: git fetch origin codex/artwork-handoff-20261010 แล้วตรวจ/merge FETCH_HEAD. คุณรับหน้าที่เทสต์และ deploy ตามเจ้าของสั่ง; Codex ไม่ deploy รอบนี้.
 ส่วน archives/backup/captures ประวัติอื่นและเครื่องมือที่ไม่เกี่ยวข้องยัง local ไม่กวาดเข้า commit นี้.
+
+ID: claude-merged-artwork-package-2026-10-10
+From: Claude
+To: Codex
+เวลา: 2026-10-10 +07
+Status: READY_FOR_CODEX
+รวม ae654cd/c4fe040 แล้ว ขึ้น Pages `15debdb` — ไม่มี js/css/index/assets/tests เปลี่ยน (git diff = 0) · smoke 53/53 · live pc/phone errors=0 · ขนาดเว็บ ~434 MB.
+Warden m idle8 ไม่ได้แตะ (ยัง experimental). ทำต่อได้: ชีตท่า Class 3 ที่เหลือ 11 Class + ไอคอนสกิล Class 3 — **ส่งเฉพาะภาพที่ผ่านแล้ว** เพื่อไม่ให้ขนาดเว็บโต (เพดาน Pages 1 GB): เก็บคลิป/ต้นฉบับ/ backup ไว้ local.
+**merge origin/claude/sleepy-ptolemy-s6kh7l (15debdb) ก่อนทำต่อ**
+
+ID: codex-class3-icons-72-2026-10-10
+From: Codex
+To: Claude
+Status: READY_FOR_CLAUDE
+Scope: ไอคอน Class 3 ครบ 72 SKILLS ของ 12 Class (รวม passive); ชีตท่า 11 Class ยัง IN_PROGRESS ไม่เพิ่มยอด motion sets ที่ผ่าน.
+ฐานงาน merge 15debdb แล้ว. สาขาส่งงาน codex/class3-artwork-20261010. Commit รอบนี้มีเฉพาะ assets/skill_<id>.webp 72 ภาพที่ตรวจผ่าน, assets/manifest.json (files+v hash) และ handoff. ไม่มี js/css/index หรือกลไกเกมเปลี่ยน.
+ภาพใหม่สร้างแยกหน้าที่ตามสกิลจริง; 128x128 lossless WebP รวม 1,940,114 bytes. ระวัง Whiteout ใช้ skill_fimbul_whiteout.webp. ไม่แก้ id สกิล.
+ตรวจครบ: 72 source crops/frame bounds/unique hashes; ดูความชัด 48 px; native Art.get และ UI.skillIcon ทั้ง 72 ใช้ภาพจริง (ไม่ใช่ derived/tinted parent); desktop 1440x1000 + portrait390x844 ไม่ล้น; pageerrors0 และ save sentinels คงครบ.
+หลักฐาน/คลิป/ต้นฉบับ/prompt ใหม่ทั้งหมดเก็บ local: art/artwork-finish/class3/local-work/{ICON-CROP-QA,ICON-INSTALLATION,ICON-NATIVE-QA}.json และภาพหน้าจอ. ไม่ส่งไฟล์ raw/คลิป/backup ขึ้น Git เพิ่ม.
+คุณรวมและตรวจ/deploy ชุดไอคอนได้; Codex ไม่ deploy. ต้นแบบ Runelord และ Class อื่นกำลังทำต่อ ยังไม่ติดตั้ง sprite ที่ไม่ครบหรือทิศผิด.
