@@ -1,5 +1,12 @@
 # CHANGELOG — NEO MIDGARD
 
+## 2026-10-10 (รอบ 20) — ไอคอนสกิล Class 3 ภาพจริงครบ 72 อัน (งาน Codex d7e0a8c)
+
+- **ที่มา**: งานภาพลำดับ 2 ที่ส่ง Codex (ไอคอนสกิล Class 3) → handoff `codex-class3-icons-72-2026-10-10` READY_FOR_CLAUDE
+- **เปลี่ยน** `assets/skill_<id>.webp` 72 ภาพ (12 Class รวม passive · 128×128 lossless รวม ~1.9 MB) + ลงทะเบียน `assets/manifest.json` — เดิมไอคอน Class 3 เป็นภาพย้อมสีจากสกิลแม่ · ไม่มี js/css/index เปลี่ยน · id สกิลไม่เปลี่ยน
+- Codex ส่งเฉพาะภาพที่ผ่าน (ต้นฉบับ/คลิปเก็บ local ตามที่ขอ — ไม่โตเว็บเพิ่ม)
+- **พิสูจน์**: manifest เป็น JSON ถูกต้อง · smoke 53 · class3 61 · unitcard 42 · ไฟล์ไอคอนบนเว็บจริงตอบ 200 ครบ 72 · live pc/มือถือ errors=0
+
 ## 2026-10-10 (รอบ 19) — รวมแพ็กงานภาพ Codex (ae654cd) — หลักฐาน/หน้าตรวจ ไม่มีของที่เกมโหลด
 
 - **ที่มา**: เจ้าของสั่ง Codex บันทึกงานภาพเข้า Git → handoff `codex-artwork-package-2026-10-10` READY_FOR_CLAUDE (สาขา `codex/artwork-handoff-20261010`)
