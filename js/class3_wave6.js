@@ -20,7 +20,7 @@
     s6_cuts_shade: 1.2, s6_flick: 5, s6_flick_boss: 2,
     s6_venom: 1.35, s6_mask_dur: 2, s6_mask_k: 0.85,
     s6_trap_r: 2, s6_trap_k: 2.5,
-    s6_ult: 10, s6_ult_k: 0.5 * C.UP,
+    s6_ult: 10, s6_ult_k: 0.5,
     // Warsinger
     w6_r: 8, w6_chorus_r: 12, w6_drain: 2, w6_solo: 1.5, w6_chorus_k: 0.85,
     // Battle Hymn 42~70% → 30~50% (เดิม 0.35+0.07×Lv = ฝูง +15% — tests/runes_c3.js)

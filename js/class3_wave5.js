@@ -28,7 +28,7 @@
     o5_combo: 5, o5_window: 3, o5_free_k: 0.4,           // Holy Fist ฟรีแรง 40%
     o5_storm_k: 0.5, o5_storm_r: 2, o5_seal: 3, o5_seal_hits: 6,
     o5_lost_hp: 0.5, o5_lost_k: 1.15,
-    o5_ult: 8, o5_ult_every: 3, o5_ult_r: 2, o5_ult_k: 1.2 * C.UP,
+    o5_ult: 8, o5_ult_every: 3, o5_ult_r: 2, o5_ult_k: 1.2,
   });
   const P = () => G.player;
   const fast = () => !!G.fastSim;

@@ -397,7 +397,7 @@ const SHOTS = process.env.SHOTS || '';
     fresh(pl); pl.buffs = {}; executeSkill('leaf_recall', 5, null); damagePlayer(pl.d.maxHp * 5); o.leaf = !pl.dead && Math.abs(pl.hp - Math.round(pl.d.maxHp * 0.3)) <= 1 && !pl.buffs.leaf_recall;
     pl.combatAt = -99; Runes.set('well_of_urd', 'well_of_urd.skuld'); fresh(pl); const sk = C3.dummy(pl.x + 1, pl.y, 1e7); pl.hp = 1; healPlayer(Math.round(pl.d.maxHp * 0.1), 'test');
     o.skuld = (by.well_of_urd || 0) > 0; pl.combatAt = -99; Runes.set('well_of_urd', null);
-    pl.hp = 10; pl.ultKind = 'norns'; pl.ult = 100; Feel.ultFire(); o.norns = pl.hp === Math.min(pl.d.maxHp, 10 + Math.ceil(pl.d.maxHp * Feel.ULT_POWER)); // รอบ 26: ULT ฟื้น 25% (เดิมเต็ม) pl.c3ult = null;
+    pl.hp = 10; pl.ultKind = 'norns'; pl.ult = 100; Feel.ultFire(); o.norns = pl.hp === Math.min(pl.d.maxHp, 10 + Math.ceil(pl.d.maxHp * Feel.ULT_HEAL)); // รอบ 26: ULT ฟื้น 25% (เดิมเต็ม) pl.c3ult = null;
     // ----- Oathfist -----
     pl = C3.third('oathfist'); C3.arena('roots'); G.mobs = []; G.zones = []; G.allies = [];
     fresh(pl); pl.c3combo = null; if (pl.ricd) pl.ricd.c3w5_free = 0; const cm = C3.dummy(pl.x + 1, pl.y, 1e7);
@@ -415,7 +415,7 @@ const SHOTS = process.env.SHOTS || '';
     return o;
   });
   ok('Lifeweaver: Well of Urd overheal shield absorbs • Lifethread / Sap Spring heal over time', m5.well && m5.wellAbsorb && m5.thread && m5.spring, m5);
-  ok("Lifeweaver: Verdandi's Now clears/blocks stun • Norn Cut execute • Leaf Recall catches • Oath of Skuld • ULT heal x0.25", m5.now && m5.cut && m5.leaf && m5.skuld && m5.norns, m5);
+  ok("Lifeweaver: Verdandi's Now clears/blocks stun • Norn Cut execute • Leaf Recall catches • Oath of Skuld • ULT heal 25%", m5.now && m5.cut && m5.leaf && m5.skuld && m5.norns, m5);
   ok('Oathfist: 5-hit combo fires a free Holy Fist • Hundred Palms ends in a stun • Chain of Gleipnir pulls', m5.combo && m5.palms && m5.chain, m5);
   ok('Oathfist: Iron Vow blocks potions • Hand costs HP (Open Hand: no HP) • Lost Hand ×K below half • ULT holy fists', m5.vow && m5.hand && m5.open && m5.lost && m5.tyr, m5);
   // ============== Class 3 รอบ 6: Sixth Shadow / Warsinger ==============
@@ -435,7 +435,7 @@ const SHOTS = process.env.SHOTS || '';
     fresh(pl); Runes._crit = false; executeSkill('shadow_vanish', 5, null); C3.run(0.1); o.vanish = pl.stealthUntil > G.time && Runes._crit === true; Runes._crit = false; pl.stealthUntil = 0;
     pl.combatAt = -99; Runes.set('unsigned_mold', 'unsigned_mold.unmasked'); v.facing = 1; v.x = pl.x + 1; o.behind = Class3.behind(v) && physHit(v, 1, { skill: true }).crit === true;
     pl.combatAt = -99; Runes.set('unsigned_mold', null);
-    pl.ultKind = 'twelve'; pl.ult = 100; Feel.ultFire(); const w0 = by.twelve_shadows || 0; applyHit(v, { dmg: 100, phys: true }, { src: 'attack' }); C3.run(0.3); o.twelve = (by.twelve_shadows || 0) - w0 >= 100 * 0.5 * Feel.ULT_POWER - 1; // รอบ 26: เงาฟัน 50% x ULT_POWER (เดิม >= 50) pl.c3ult = null;
+    pl.ultKind = 'twelve'; pl.ult = 100; Feel.ultFire(); const w0 = by.twelve_shadows || 0; applyHit(v, { dmg: 100, phys: true }, { src: 'attack' }); C3.run(0.3); o.twelve = (by.twelve_shadows || 0) - w0 >= 50; pl.c3ult = null;
     G.allies = [];
     // ----- Warsinger -----
     pl = C3.third('warsinger'); C3.arena('roots'); G.mobs = []; G.zones = []; pl.rb = {}; pl.c3saga = null;

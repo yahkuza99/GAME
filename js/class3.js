@@ -16,8 +16,8 @@
 // ============================================================
 const Class3 = (() => {
   const C = {};
-  // UP = ตัวคูณสรรพคุณไม้ตาย (Feel.ULT_POWER = 0.25 — js/feel.js) • คูณ "ขนาด" ผล (ดาเมจ/ฮีล/%บัฟ) ไม่คูณเวลา/จำนวนตัว/ผลแบบเปิด-ปิด
-  const UP = C.UP = (typeof Feel !== 'undefined' && Feel.ULT_POWER != null) ? Feel.ULT_POWER : 1;
+  // UP = ตัวคูณ "การฟื้นฟู" ของไม้ตาย (Feel.ULT_HEAL = 0.25 — js/feel.js) • ใช้กับ ฮีล/ดูดเลือด เท่านั้น บัฟ/ดาเมจคงเดิม
+  const UP = C.UP = (typeof Feel !== 'undefined' && Feel.ULT_HEAL != null) ? Feel.ULT_HEAL : 1;
   const K = C.K = {
     verseGap: 0.55,             // วินาทีระหว่างระลอก Ragnarök Verse
     // Oath — Runelord (Root Script)
@@ -453,10 +453,10 @@ const Class3 = (() => {
       desc: L(`${K.ult_tree} วินาที: ร่ายทันที (ไม่ต้องร่าย) และไม่ใช้ SP`, `${K.ult_tree}s: instant casts and no SP cost`),
       fire(p, col) { p.c3ult = { kind: 'tree', until: G.time + K.ult_tree }; addFloater(p.x, p.y - 2, "TREE'S COMMAND!", col || '#7fe8ff', true); if (!fast()) C.fx({ kind: 'tree', ref: p, dur: K.ult_tree }); } };
     Feel.ULTS.howl = { job: 'packlord', name: 'RAGNARÖK HOWL', th: L('เสียงหอนแรกนาร็อก', 'Ragnarök Howl'),
-      desc: L(`${K.ult_howl} วินาที: เงาหมาป่าเพิ่ม ${K.ult_howl_n} ตัว (ดาเมจ ×${UP}) + ดูดเลือด ${K.ult_leech}% + กันมึน`, `${K.ult_howl}s: ${K.ult_howl_n} extra shadow wolves (damage ×${UP}) + ${K.ult_leech}% lifesteal + stun immunity`),
+      desc: L(`${K.ult_howl} วินาที: เงาหมาป่าเพิ่ม ${K.ult_howl_n} ตัว + ดูดเลือด ${K.ult_leech}% + กันมึน`, `${K.ult_howl}s: ${K.ult_howl_n} extra shadow wolves + ${K.ult_leech}% lifesteal + stun immunity`),
       fire(p, col) {
         p.c3ult = { kind: 'howl', until: G.time + K.ult_howl };
-        C.wolves(K.ult_howl_n, Math.max(1, lvOf('howl_of_the_pack')), SKILLS.howl_of_the_pack.c3wolves.pow(Math.max(1, lvOf('howl_of_the_pack'))) * UP, K.ult_howl, { ult: 1 });
+        C.wolves(K.ult_howl_n, Math.max(1, lvOf('howl_of_the_pack')), SKILLS.howl_of_the_pack.c3wolves.pow(Math.max(1, lvOf('howl_of_the_pack'))), K.ult_howl, { ult: 1 });
         recalc(); addFloater(p.x, p.y - 2, 'RAGNARÖK HOWL!', col || '#ff6a2a', true);
         if (!fast()) C.fx({ kind: 'howl', ref: p, dur: 1.2, big: 1 });
       } };

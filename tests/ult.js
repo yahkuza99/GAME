@@ -1,6 +1,6 @@
 'use strict';
 // ============================================================
-//  ไม้ตาย (ULT) รอบ 26: สรรพคุณ x0.25 (Feel.ULT_POWER) + บอทกดอัตโนมัติ (Bot.tryUlt, ใช้ร่วมกับ FlyPilot)
+//  ไม้ตาย (ULT) รอบ 26: การฟื้นฟู x0.25 (Feel.ULT_HEAL) + บอทกดอัตโนมัติ (Bot.tryUlt, ใช้ร่วมกับ FlyPilot)
 //  รัน:  NODE_PATH=$(npm root -g) node tests/ult.js
 // ============================================================
 const http = require('http'), fs = require('fs'), path = require('path');
@@ -34,33 +34,30 @@ function serve() {
     const pl = G.player, near = (a, b) => Math.abs(a - b) < 1e-6;
     document.querySelectorAll('.win:not(.hidden)').forEach(w => w.classList.add('hidden'));
     pl.job = 'einherjar'; pl.baseLv = 30; recalc(); pl.dead = false;
-    ok('ULT_POWER = 0.25', Feel.ULT_POWER === 0.25, Feel.ULT_POWER);
+    ok('ULT_HEAL = 0.25', Feel.ULT_HEAL === 0.25, Feel.ULT_HEAL);
 
-    // 1) FURY: บัฟ ATK% / MATK / ASPD ของ ULT = 25% ของเดิม (คำนวณ "เดิม" ด้วย ULT_POWER=1 เทียบ)
+    // 1) FURY / WAR CRY = ค่าเดิม 100% (เจ้าของ: ลดเฉพาะการฟื้นฟู) — ไม่ขยับตาม ULT_HEAL
     const buff = pw => {
-      Feel.ULT_POWER = pw; pl.ultBuffUntil = 0; recalc(); const b = { a: pl.d.atkPct, m: pl.d.matkMax, dl: pl.d.aspdDelay };
-      pl.ultBuffUntil = G.time + 10; recalc(); const r = { da: pl.d.atkPct - b.a, dm: pl.d.matkMax - b.m, dd: b.dl - pl.d.aspdDelay };
+      Feel.ULT_HEAL = pw; pl.ultBuffUntil = 0; recalc(); const b = { a: pl.d.atkPct, dl: pl.d.aspdDelay };
+      pl.ultBuffUntil = G.time + 10; recalc(); const r = { da: pl.d.atkPct - b.a, dd: b.dl - pl.d.aspdDelay };
       pl.ultBuffUntil = 0; recalc(); return r;
     };
-    const full = buff(1), quart = buff(0.25); Feel.ULT_POWER = 0.25;
-    ok('fury before = +25 ATK%', near(full.da, 25), full.da);
-    ok('fury ATK% after = 25% of before', near(quart.da, full.da * 0.25), `${quart.da} vs ${full.da}`);
-    ok('fury attack-delay cut after ~ 25% of before', Math.abs(quart.dd - full.dd * 0.25) <= 2, `${quart.dd} vs ${full.dd}`);
-    ok('fury MATK gain after ~ 25% of before', full.dm === 0 || Math.abs(quart.dm - full.dm * 0.25) <= 2, `${quart.dm} vs ${full.dm}`);
-
-    // 2) AEGIS: ฟื้น HP = 25% ของสูงสุด (เดิมเต็ม)
-    const aeg = pw => { Feel.ULT_POWER = pw; pl.ultKind = 'aegis'; pl.ult = 100; pl.hp = 1; pl.sp = 1; pl.invulnUntil = 0; Feel.ultFire(); return pl.hp - 1; };
-    const aFull = aeg(1), aQ = aeg(0.25); Feel.ULT_POWER = 0.25;
-    ok('aegis heal after = 25% of before', Math.abs(aQ - (pl.d.maxHp - 1) * 0.25) <= 1 && aFull === pl.d.maxHp - 1, `${aQ} vs ${aFull}`);
-
-    // 3) WAR CRY: speed + ATK%
+    const f1 = buff(1), fq = buff(0.25); Feel.ULT_HEAL = 0.25;
+    ok('fury ATK% +25 at full strength', near(fq.da, 25) && near(f1.da, 25), fq.da);
+    ok('fury attack-delay cut unchanged by ULT_HEAL', fq.dd === f1.dd && fq.dd > 0, `${fq.dd}`);
     pl.warcryUntil = 0; recalc(); const sp0 = pl.d.speed, ak0 = pl.d.atkPct; pl.warcryUntil = G.time + 10; recalc();
-    ok('war cry 15*0.25 ATK%, 25%*0.25 speed', near(pl.d.atkPct - ak0, 3.75) && near(pl.d.speed / sp0, 1.0625), `${pl.d.atkPct - ak0} ${pl.d.speed / sp0}`);
+    ok('war cry +15 ATK%, x1.25 speed (full)', near(pl.d.atkPct - ak0, 15) && near(pl.d.speed / sp0, 1.25), `${pl.d.atkPct - ak0} ${pl.d.speed / sp0}`);
     pl.warcryUntil = 0; recalc();
+
+    // 2) AEGIS: ฟื้น HP/SP = 25% ของสูงสุด (เดิมเต็ม) • อมตะ 4 วิ
+    const aeg = pw => { Feel.ULT_HEAL = pw; pl.ultKind = 'aegis'; pl.ult = 100; pl.hp = 1; pl.sp = 1; pl.invulnUntil = 0; Feel.ultFire(); return pl.hp - 1; };
+    const aFull = aeg(1), aQ = aeg(0.25); Feel.ULT_HEAL = 0.25;
+    ok('aegis heal after = 25% of before', Math.abs(aQ - (pl.d.maxHp - 1) * 0.25) <= 1 && aFull === pl.d.maxHp - 1, `${aQ} vs ${aFull}`);
+    ok('aegis invulnerable 4s', near(pl.invulnUntil - G.time, 4));
 
     // 4) ค่าคงที่ Class 3 ที่คูณแล้ว
     const K = Class3.K;
-    ok('Class 3 ULT constants scaled', near(K.ult_leech, 2) && near(K.ult_gate_k, 1.125) && near(K.ult_ymir_k, 1.125) && near(K.o5_ult_k, 0.3) && near(K.s6_ult_k, 0.125), JSON.stringify([K.ult_leech, K.ult_gate_k, K.ult_ymir_k, K.o5_ult_k, K.s6_ult_k]));
+    ok('Class 3: leech x0.25, damage ULT constants unchanged', near(K.ult_leech, 2) && near(K.ult_gate_k, 1.5) && near(K.ult_ymir_k, 1.5) && near(K.o5_ult_k, 1.2) && near(K.s6_ult_k, 0.5), JSON.stringify([K.ult_leech, K.ult_gate_k, K.ult_ymir_k, K.o5_ult_k, K.s6_ult_k]));
 
     // 5) บอท AUTO
     const setup = (mapId = 'wolfwood') => {
