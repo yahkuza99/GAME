@@ -403,7 +403,7 @@ R.render = () => {
   R._slots = []; // ป้ายชื่อหลบกัน (จองใหม่ทุกเฟรม)
   for (const n of G.npcs) {
     { const nx = n.x * TILE + TILE / 2, ny = R.tagSlot(nx, P((n.y + 0.5) * TILE + 10) + 14, R.nameW(g, n.name, 'npc', {})); R.name(g, nx, ny, n.name, 'npc'); }
-    if (n === talkN) R.name(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 32, Pad.enabled() ? L('แตะปุ่มโจมตีเพื่อคุย', 'Tap Attack to talk') : L('Space · คุย', 'Space · Talk'), 'hint');
+    if (n === talkN && R.talkHintOk(n.id === qNpc)) R.name(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) + 32, Pad.enabled() ? L('แตะปุ่มโจมตีเพื่อคุย', 'Tap Attack to talk') : L('Space · คุย', 'Space · Talk'), 'hint');
     if (n.id === qNpc) R.questMark(g, n.x * TILE + TILE / 2, P((n.y + 0.5) * TILE + 10) - 92, t); // เครื่องหมายเควสต์เหนือหัว NPC
     else if (n.emote && n.emote.until > G.time) Emote.draw(g, n.x * TILE + TILE / 2 + 4, P((n.y + 0.5) * TILE + 10) - 96, n.emote, t);
   }
@@ -936,6 +936,17 @@ R.NAME_STYLE = {
   self: { fill: '#fffaf0', size: 13, glow: 'rgba(255,214,120,0.55)' }, player: { fill: '#fff1cc', size: 12 }, party: { fill: '#9dffe0', size: 12, glow: 'rgba(61,255,200,0.35)' },
   npc: { fill: '#ffe6a6', size: 12 }, mob: { fill: '#ffffff', size: 12 }, mvp: { fill: '#ffd98a', size: 13, glow: 'rgba(255,90,70,0.7)' }, hint: { fill: '#fff3c4', size: 11 },
   mobsoft: { fill: 'rgba(255,255,255,0.82)', size: 9, weight: 500, stroke: 2.4, ink: 'rgba(20,12,6,0.62)', flat: true }, // ชื่อมอนทั่วไปแบบบาง ๆ (เจ้าของ 2026-10-03)
+};
+// ป้าย "Space · คุย / แตะปุ่มโจมตีเพื่อคุย" ใต้ชื่อ NPC = สอนผู้เล่นใหม่เท่านั้น: ไม่ขึ้นที่ NPC ของเควสต์ (เป้าหมายชัดอยู่แล้ว) •
+// ไม่ขึ้นอีกเมื่อเคยคุย NPC แล้ว (options.npcTalked ตั้งใน NPC.talk) • โชว์สะสมไม่เกิน 6 วิต่อตัวละคร (options.npcHintSeen) — บันทึกในเซฟแบบเพิ่มฟิลด์
+R.talkHintOk = isQuestNpc => {
+  const o = G.player.options;
+  if (o.npcTalked || o.npcHintSeen || isQuestNpc) return false;
+  const now = performance.now();
+  if (R._hintLast && now - R._hintLast < 250) R._hintAcc = (R._hintAcc || 0) + (now - R._hintLast);
+  R._hintLast = now;
+  if (R._hintAcc > 6000) { o.npcHintSeen = 1; return false; }
+  return true;
 };
 R.name = (g, x, y, text, kind, o = {}) => {
   const st = R.NAME_STYLE[kind] || R.NAME_STYLE.player, fill = o.fill || st.fill;
