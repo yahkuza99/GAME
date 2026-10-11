@@ -1,0 +1,10 @@
+/* ป้องกันล็อกอินซ้ำ (js/session_guard.js) — มุมมน ≤ 8px · ไม่ถ่างตัวอักษร · ตัวไม่เล็กกว่า 14px */
+#dup-kick { position: fixed; inset: 0; z-index: 200000; display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: rgba(6, 8, 14, .88); }
+#dup-kick .dk-card { width: min(440px, 100%); padding: 22px 20px 18px; border-radius: 8px; color: #f2f6fb; text-align: center;
+  background: #141a28; border: 1px solid rgba(255, 200, 90, .65); box-shadow: 0 18px 48px -14px rgba(0, 0, 0, .9); }
+#dup-kick h2 { margin: 0 0 12px; font-size: 20px; line-height: 1.6; font-weight: 700; color: #ffd36a; letter-spacing: 0; }
+#dup-kick p { margin: 0 0 18px; font-size: 15px; line-height: 1.7; color: #d6dde6; letter-spacing: 0; }
+#dup-kick button { min-height: 46px; padding: 8px 22px; border-radius: 8px; border: 1px solid #b98a2a; font-size: 16px; font-weight: 700;
+  color: #2a1802; background: #ffc85a; cursor: pointer; }
+#dup-kick button:hover, #dup-kick button:focus-visible { background: #ffd987; outline: 2px solid #fff3c4; outline-offset: 2px; }
