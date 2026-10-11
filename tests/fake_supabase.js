@@ -17,7 +17,12 @@
     const q = { table, filters: [], op: 'select', row: null };
     const run = () => {
       const d = db();
-      if (q.op === 'upsert') { if (table === 'characters') d.chars[q.row.user_id] = q.row; save(d); return { data: null, error: null }; }
+      if (q.op === 'upsert') {
+        // trigger characters_session_guard (supabase/migrations/20261011000000_single_session.sql)
+        const cur = d.sess && d.sess[q.row.user_id];
+        if (table === 'characters' && cur && q.row.sid !== cur) return { data: null, error: { code: 'P0001', message: 'stale_session' } };
+        if (table === 'characters') d.chars[q.row.user_id] = q.row; save(d); return { data: null, error: null };
+      }
       if (q.op === 'insert') {
         if (table === 'chat_messages') {
           const m = Object.assign({ id: Date.now(), user_id: session && session.user.id, name: session && session.user.user_metadata.username }, q.row);
@@ -97,7 +102,13 @@
       // name_available: เหมือน supabase/migrations/..._multi_char.sql — เช็กทั้งคอลัมน์ name และทุกช่องใน data.chars ของคนอื่น (ไม่สนตัวพิมพ์)
       const lc = s => String(s || '').trim().toLowerCase();
       const names = c => [c.name, ...((c.data && Array.isArray(c.data.chars)) ? c.data.chars.map(x => x && x.name) : [])].map(lc);
-      return { auth, from: query, rpc: (fn, args) => ok(fn === 'name_available' ? !Object.values(db().chars).some(c => names(c).includes(lc(args.n)) && (!session || c.user_id !== session.user.id)) : null),
+      // claim_session: เครื่องล่าสุดเป็นเจ้าของบัญชี (window.__noServerGuard = จำลองเซิร์ฟเวอร์ที่ยังไม่ได้รัน migration)
+      const claim = s => {
+        if (window.__noServerGuard) return Promise.resolve({ data: null, error: { code: 'PGRST202', message: 'Could not find the function public.claim_session' } });
+        if (!session) return Promise.resolve({ data: null, error: { message: 'not signed in' } });
+        const d = db(); d.sess = d.sess || {}; d.sess[session.user.id] = s; save(d); return ok(null);
+      };
+      return { auth, from: query, rpc: (fn, args) => fn === 'claim_session' ? claim(args.s) : ok(fn === 'name_available' ? !Object.values(db().chars).some(c => names(c).includes(lc(args.n)) && (!session || c.user_id !== session.user.id)) : null),
         channel, removeChannel(ch) { ch && ch._leave && ch._leave(); } };
     },
   };

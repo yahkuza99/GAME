@@ -173,7 +173,25 @@ const mirrorHas = (p, uid, z) => p.evaluate(([u, z]) => (localStorage.getItem('n
   await loginAndPlay(A, user);
   ok('A ล็อกอินใหม่ → B โดนเตะ (ใหม่ล่าสุดชนะ)', await until(B, () => SessionGuard.kicked && Online.kicked && !!document.getElementById('dup-kick'), null, 8000));
   ok('A ใหม่ไม่โดนเตะ', await notKickedFor(A, 1500));
-  ok('ไม่มี error ในหน้าเกม (ออนไลน์)', [A, B].every(p => !p.errs.length), [A, B].map(p => p.errs.join(' || ')).filter(Boolean).join(' ## '));
+
+  // ---- ฝั่งเซิร์ฟเวอร์: ไคลเอนต์ที่ถูกแก้ (ไม่ฟังช่องเตะ) ก็เซฟทับไม่ได้ ----
+  ok('เซิร์ฟเวอร์รับ claim ของ A แล้ว (เซฟแนบ sid)', await A.evaluate(() => SessionGuard.server === true));
+  await A.evaluate(() => { SessionGuard.recv = () => {}; window.__sb = Online.sb; }); // จำลองคนแก้โค้ด: ปิดตัวฟังการเตะ
+  const H = await open(BASE);
+  await loginAndPlay(H, user);
+  await H.evaluate(() => { G.player.zeny = 616161; saveGame(true, true); });
+  ok('H (เครื่องใหม่) เซฟได้', await until(H, u => { const d = JSON.parse(localStorage.getItem('fake_sb_db')); const r = d.chars[u]; return !!r && r.data.chars[r.data.active].zeny === 616161; }, uid, 15000));
+  ok('A ที่ถูกแก้ไม่ได้ยินการเตะ (ยังไม่โดนเตะ)', await A.evaluate(() => !SessionGuard.kicked));
+  const raw = await A.evaluate(async u => {
+    const a = await window.__sb.from('characters').upsert({ user_id: u, name: 'Aria', data: { v: 2, active: 0, chars: [] } });
+    const b2 = await window.__sb.from('characters').upsert({ user_id: u, name: 'Aria', data: { v: 2, active: 0, chars: [] }, sid: SessionGuard.sid });
+    return [a.error && a.error.message, b2.error && b2.error.message];
+  }, uid);
+  ok('ฐานข้อมูลปฏิเสธเซฟจากเครื่องเก่า ทั้งไม่แนบ sid และแนบ sid เก่า', raw[0] === 'stale_session' && raw[1] === 'stale_session', JSON.stringify(raw));
+  await A.evaluate(() => { G.player.zeny = 777777; saveGame(true, true); });
+  ok('A เซฟผ่านเกมโดนปฏิเสธ → เด้งออกเอง', await until(A, () => SessionGuard.kicked && !!document.getElementById('dup-kick'), null, 15000));
+  ok('คลาวด์ยังเป็นค่าของ H', (await dbZeny(H, uid)) === 616161, String(await dbZeny(H, uid)));
+  ok('ไม่มี error ในหน้าเกม (ออนไลน์)', [A, B, H].every(p => !p.errs.length), [A, B, H].map(p => p.errs.join(' || ')).filter(Boolean).join(' ## '));
   ok('ไม่มีคำขอไป Supabase จริง', real === 0, String(real));
   await ctx.close();
 

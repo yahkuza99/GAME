@@ -198,12 +198,19 @@ const Online = {
     const name = (act && act.name) || this.rowName;
     if (!name) return;
     this.saving = true;
+    // เซิร์ฟเวอร์รองรับกันล็อกอินซ้ำแล้ว → แนบ sid ของหน้านี้ (ฐานข้อมูลปฏิเสธถ้าเครื่องอื่น claim ทีหลัง)
+    const SG = typeof SessionGuard !== 'undefined' && SessionGuard.server ? { sid: SessionGuard.sid } : {};
     try {
-      let { error } = await this.sb.from('characters').upsert({ user_id: this.user.id, name, data, updated_at: new Date().toISOString() });
+      let { error } = await this.sb.from('characters').upsert({ user_id: this.user.id, name, data, updated_at: new Date().toISOString(), ...SG });
       // ชื่อชนกับคอลัมน์ name ของคนอื่น (เซิร์ฟเวอร์ที่ยังไม่อัปเดต name_available) → เก็บข้อมูลไว้ก่อนโดยคงชื่อเดิมของแถว
       if (error && this.rowName && name !== this.rowName && (error.code === '23505' || /duplicate|unique/i.test(error.message || ''))) {
-        ({ error } = await this.sb.from('characters').upsert({ user_id: this.user.id, name: this.rowName, data, updated_at: new Date().toISOString() }));
+        ({ error } = await this.sb.from('characters').upsert({ user_id: this.user.id, name: this.rowName, data, updated_at: new Date().toISOString(), ...SG }));
         if (!error) { UI.setNet('ok'); return; }
+      }
+      if (error && /stale_session/.test(error.message || '')) { // เครื่องอื่นเป็นเจ้าของบัญชีแล้ว: หยุดเซฟ + เด้งออก
+        this.saving = false;
+        if (typeof SessionGuard !== 'undefined') SessionGuard.kick();
+        return;
       }
       if (error) throw error;
       this.rowName = name;
