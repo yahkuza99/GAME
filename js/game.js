@@ -11,7 +11,7 @@ const G = {
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
 const SAVE_FIELDS = ['pvp', 'mvpAt', 'job1Lv', 'job2Lv', 'name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
-  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery', 'story', 'daily', 'gacha', 'runes', 'loadouts', 'hrunes', 'hrunesOwn', 'ptV', 'ptReset', 'ultKind'];
+  'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery', 'story', 'daily', 'gacha', 'runes', 'loadouts', 'hrunes', 'hrunesOwn', 'runesOwn', 'ptV', 'ptReset', 'ultKind'];
 
 // ------------------------------------------------------------
 //  สร้าง / บันทึก / โหลด
@@ -20,7 +20,7 @@ function newPlayer(name, gender, hair, look) {
   const p = {
     name, gender, hair, look: Object.assign({ head: gender === 'f' ? 'long' : 'spiky', color: '#e6e9ef', glow: '#7ad8ff', visor: 'band' }, look || {}), job: 'novice', baseLv: 1, jobLv: 1, baseExp: 0, jobExp: 0,
     stats: { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 }, statPoints: 48, skillPoints: 0,
-    skills: { first_aid: 1 }, passives: [], ptV: PASSIVE_VER, ptReset: 0, runes: {}, hrunes: [null, null], hrunesOwn: [], zeny: 500, inventory: [],
+    skills: { first_aid: 1 }, passives: [], ptV: PASSIVE_VER, ptReset: 0, runes: {}, runesOwn: [], hrunes: [null, null], hrunesOwn: [], zeny: 500, inventory: [],
     equip: { head: null, weapon: null, shield: null, armor: null, garment: null, shoes: null, acc: null, acc2: null },
     hotbar: [null, null, null, null, null, null, null, null], potbar: [null, null, null, null],
     map: HOME_MAP, x: 20.5, y: 24.5, save: { map: HOME_MAP, x: 20.5, y: 24.5 },
@@ -177,6 +177,7 @@ function loadGameFrom(data) {
   p.runes = typeof Runes !== 'undefined' ? Runes.sanitize(p.runes) : {}; // Rune Paths: เซฟเก่าไม่มี = ไม่มีรูน (สกิลแบบเดิม) • รูน/สกิลที่ไม่มีแล้วถูกตัดทิ้ง
   if (typeof HuntRunes !== 'undefined') HuntRunes.sanitize(p); // Hunt Rune (js/huntrunes.js): เซฟเก่าไม่มี = ว่าง • id ที่ไม่มี/ไม่ได้ซื้อ/Endow ซ้ำ ถูกตัดทิ้ง
   if (typeof Loadouts !== 'undefined') p.loadouts = Loadouts.sanitize(p.loadouts); // Loadouts (js/loadouts.js): เซฟเก่าไม่มี = 3 ช่องว่าง • ข้อมูลเสียถูกตัดทิ้ง
+  if (typeof RuneShop !== 'undefined') RuneShop.migrate(p, data); // Skill Rune ต้องซื้อก่อนใช้ (js/runeshop.js): เซฟเก่าไม่มี runesOwn = รูนที่ใช้อยู่ + ในชุด Builds ได้เป็นของตัวเอง
   Passive.migrate(p, data); // ต้นไม้ Passive แบบ D: id เดิมใช้ต่อ • id เสีย/ต่อแกนไม่ถึงถูกตัด (แต้มคืน) • เซฟก่อนรุ่นนี้ได้รีเซ็ตฟรี 1 ครั้ง
   // Legacy Class 3 saves without a recorded Class 2 level completed the old Job 26 cap.
   // Expanding that cap must not grant 24 unearned points or revoke their existing class.
@@ -1110,8 +1111,8 @@ function learnSkill(id) {
   // ปลดรูนสกิลครั้งแรก: บอกผู้เล่นว่าใส่ตรงไหน (เจ้าของงงว่าใส่ยังไง 2026-10-03)
   if (typeof Runes !== 'undefined' && p.skills[id] === Runes.UNLOCK && Runes.list(id).length) {
     UI.announce(L(`✦ ปลดล็อก Skill Rune ของ ${SKILLS[id].name}! ✦`, `✦ ${SKILLS[id].name} Skill Rune unlocked! ✦`));
-    UI.msg(L(`ᚱ เปิดเมนู Runes (Shift+R) แท็บ Skill Runes → เลือก ${SKILLS[id].name} → เลือกรูน 1 จาก 2 แบบแล้วกด Choose เพื่อเปลี่ยนวิธีเล่นของสกิล (เปลี่ยนฟรีนอกการต่อสู้ • ใต้การ์ดสกิลในหน้าต่าง Skills ก็เลือกได้)`,
-      `ᚱ Open Runes (Shift+R), Skill Runes tab → pick ${SKILLS[id].name} → choose 1 of 2 runes to change how the skill plays (free to swap out of combat • also under the skill in Skills)`), 'lvl');
+    UI.msg(L(`ᚱ เปิดเมนู Runes (Shift+R) แท็บ Skill Runes → เลือก ${SKILLS[id].name} → ซื้อรูน 1 จาก 2 แบบ (ที่ Brokk Forge-Bot ราคาปกติ • ซื้อทางไกลแพงกว่า) แล้วกด Choose เพื่อเปลี่ยนวิธีเล่นของสกิล (ซื้อครั้งเดียวเก็บตลอดไป • สลับฟรีนอกการต่อสู้)`,
+      `ᚱ Open Runes (Shift+R), Skill Runes tab → pick ${SKILLS[id].name} → buy 1 of 2 runes (normal price at Brokk Forge-Bot • remote costs more) and Choose it to change how the skill plays (buy once, keep forever • free to swap out of combat)`), 'lvl');
   }
   if (first && SKILLS[id].type === 'active') {
     const slot = p.hotbar.findIndex(h => !h);

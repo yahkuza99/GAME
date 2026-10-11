@@ -74,8 +74,10 @@ async function start(browser, port, vp, mobile) {
     ok('buy: not enough Volt refused', !HR.buy('hr_slay_brute') && !HR.owns('hr_slay_brute') && pl.zeny === 1000);
     pl.zeny = 1e6;
     for (const id of ids) HR.buy(id);
-    const spent = 1e6 - pl.zeny, total = HR.LIST.reduce((s, d) => s + d.price, 0);
-    ok('buy: every rune once, Volt deducted exactly', HR.own().length === ids.length && spent === total, { spent, total });
+    // รอบ 31: ราคาตามที่ยืน (js/runeshop.js) — ใกล้ Brokk = ราคาปกติ • ที่อื่น = ×RS_REMOTE_MUL (tests/runebuy.js ตรวจทั้งสองแบบ)
+    const mul = RuneShop.near() ? 1 : RS_REMOTE_MUL;
+    const spent = 1e6 - pl.zeny, total = HR.LIST.reduce((s, d) => s + Math.round(d.price * mul), 0);
+    ok('buy: every rune once, Volt deducted exactly (location price)', HR.own().length === ids.length && spent === total, { spent, total, mul });
     ok('buy: owning twice is refused (no double charge)', !HR.buy('hr_slay_brute') && pl.zeny === 1e6 - total);
     ok('runes are not inventory items (cannot be sold/dropped/traded)', !pl.inventory.some(e => ITEMS[e.id].type === 'hrune'));
 

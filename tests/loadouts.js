@@ -55,7 +55,7 @@ async function start(browser, port, vp, mobile) {
     // ---------- ตัวละครทดสอบ: Einherjar Lv 40 สกิลเต็ม ----------
     const setup = (job, lv = 40) => {
       Bot.toggle(false);
-      pl.dead = false; pl.job = job; pl.baseLv = lv; pl.jobLv = JOBS[job].jobMax; pl.skills = {}; pl.buffs = {}; pl.passives = []; pl.runes = {};
+      pl.dead = false; pl.job = job; pl.baseLv = lv; pl.jobLv = JOBS[job].jobMax; pl.skills = {}; pl.buffs = {}; pl.passives = []; pl.runes = {}; pl.runesOwn = Object.keys(Runes.BY_ID); // รอบ 31: Skill Rune ต้องซื้อก่อน — ชุดที่ข้ามรูนที่ยังไม่ซื้อ = tests/runebuy.js
       for (let j = job; j; j = JOBS[j].parent) for (const id of JOBS[j].skills) if (SKILLS[id] && !SKILLS[id].noLearn) pl.skills[id] = SKILLS[id].max;
       pl.stats = { str: 50, agi: 20, vit: 40, int: 5, dex: 20, luk: 5 };
       unequipInvalid(); recalc(); pl.hp = pl.d.maxHp; pl.sp = pl.d.maxSp; pl.combatAt = -99;

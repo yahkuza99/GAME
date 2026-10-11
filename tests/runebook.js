@@ -38,6 +38,7 @@ async function start(browser, port, vp, mobile) {
     document.querySelectorAll('.win:not(.hidden)').forEach(w => w.classList.add('hidden'));
     Bot.toggle(false);
     const pl = G.player; pl.job = 'einherjar'; pl.jobLv = 10; pl.baseLv = 20; pl.zeny = 1e6; pl.combatAt = -99; pl.runes = {}; pl.hrunes = [null, null]; pl.hrunesOwn = [];
+    pl.runesOwn = Object.keys(Runes.BY_ID); // รอบ 31: Skill Rune ต้องซื้อก่อน — เทสต์นี้ตรวจการเลือก/สลับ (การซื้อ = tests/runebuy.js)
     Object.assign(pl.skills, { whirlwind: 5, iron_body: 4, shield_slam: 2 });
     recalc();
   });

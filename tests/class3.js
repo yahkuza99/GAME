@@ -64,6 +64,7 @@ const SHOTS = process.env.SHOTS || '';
         Class3.st(pl).trial = { job: job3, stage: 'ascend' }; Class3.ascend(job3);
         pl.jobLv = 26; // Class 3 Job 26 (เพดาน 60 — ทดสอบที่จุดเดิม) pl.skillPoints = Math.max(0, totalSkillPoints(pl) - lineSkillsSpent(pl));
         for (const id of JOBS[job3].skills) if (!SKILLS[id].exp) pl.skills[id] = SKILLS[id].max; // ทดสอบ: ทุกสกิล Lv 5 (เกมจริงเลือกได้ 25 จาก 30)
+        pl.runesOwn = Object.keys(Runes.BY_ID); // รอบ 31: Skill Rune ต้องซื้อก่อน (ทดสอบ Oath จึงให้มีครบ — การซื้อ = tests/runebuy.js)
         recalc(); pl.hp = pl.d.maxHp; pl.sp = pl.d.maxSp;
         return pl;
       },

@@ -1,0 +1,71 @@
+/* ============================================================
+   ร้านรูน (js/runeshop.js — รอบ 31): ซื้อ Skill Rune / Hunt Rune • ราคาทางไกล +50% • หน้าต่างยืนยัน • แท็บ Skill Rune ในเตาของ Brokk
+   กติกาเจ้าของ: มุมมนไม่เกิน 8px • ไม่ถ่างตัวอักษรไทย • ไม่มีแถบหลอด/แถบสัดส่วน (ใช้ตัวเลข)
+   ============================================================ */
+
+/* ---------- หน้าต่าง Skills: ปุ่มรูนที่ยังไม่ซื้อ ---------- */
+.rn-opt.buy:not([disabled]) .rn-act { background: rgba(224, 160, 32, .22); border-color: #c8901a; color: #8a5a00; white-space: nowrap; }
+.rn-opt.buy.poor:not([disabled]) .rn-act { background: rgba(179, 50, 31, .1); border-color: #b3321f; color: #b3321f; }
+.rn-price { font-size: 12.5px; font-weight: 700; line-height: 1.45; color: #8a5a00; }
+.rn-price.remote { color: #a8560a; }
+.rn-opt.poor .rn-price { color: #b3321f; }
+.rn-gobrokk { margin: 5px 0 0; min-height: 36px; border-radius: 6px; }
+
+/* ---------- หน้าต่าง Runes ---------- */
+.rb-price { position: absolute; right: 12px; bottom: 10px; font-style: normal; font-weight: 800; font-size: 13px; line-height: 1.3; padding: 2px 8px; border-radius: 6px;
+  background: rgba(224, 160, 32, .2); border: 1px solid #c8901a; color: #7a4e00; }
+#w-runes .rb-gobrokk { min-height: 44px; }
+#w-runes .rb-card:has(.rb-price) { padding-bottom: 38px; } /* ป้ายราคามุมขวาล่าง อยู่ใต้คำอธิบาย ไม่ทับ */
+#w-runes .det-acts .rb-buyrune { white-space: normal; line-height: 1.35; }
+#w-runes .rb-confirm .rs-fee b, #w-confirm .rs-fee b { color: #a8560a; }
+#w-runes .rb-confirm .rs-miss b, #w-confirm .rs-miss b { color: #b3321f; }
+
+/* ---------- หน้าต่างยืนยันซื้อ (#w-confirm) ---------- */
+.rs-ask { display: flex; flex-direction: column; gap: 6px; }
+.rs-q { font-size: 15px; line-height: 1.45; }
+.rs-sub { font-size: 13px; line-height: 1.45; color: var(--ink-dim, #6b5a3c); margin-top: -4px; }
+.rs-kv { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; line-height: 1.5; }
+.rs-kv b { font-variant-numeric: tabular-nums; }
+.rs-base b { color: #2f7a3a; }
+.rs-note { font-size: 13px; line-height: 1.45; margin: 2px 0 0; color: var(--ink-dim, #6b5a3c); }
+.rs-acts { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.rs-acts .btn { min-height: 44px; border-radius: 6px; width: 100%; }
+.rs-acts .rs-ok[disabled] { color: #b3321f; opacity: 1; font-weight: 800; }
+
+/* ---------- เตาของ Brokk: แท็บ Skill Rune ---------- */
+.rs-list { display: flex; flex-direction: column; gap: 4px; }
+.rs-row { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 6px 10px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--line, rgba(120, 90, 40, .3)); background: var(--glass, rgba(255, 248, 230, .4)); }
+.rs-row.sel { border-color: #c8901a; border-width: 2px; padding: 5px 9px; }
+.rs-g { font-style: normal; font-size: 20px; line-height: 1; width: 24px; text-align: center; flex: none; text-shadow: 0 0 6px currentColor; }
+.rs-g.big { font-size: 34px; width: 44px; }
+.rs-t { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.rs-t b { font-size: 14px; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rs-t small { font-size: 12.5px; line-height: 1.4; color: var(--ink-dim, #6b5a3c); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rs-pr { flex: none; font-weight: 800; font-size: 13.5px; color: #7a4e00; font-variant-numeric: tabular-nums; }
+.rs-pr.poor { color: #b3321f; }
+.rs-own { flex: none; font-weight: 700; font-size: 13px; color: #2f7a3a; }
+.rs-desc { font-size: 14px; line-height: 1.55; margin: 8px 0; }
+.rs-info { font-size: 13.5px; line-height: 1.5; margin: 6px 0; color: var(--ink-dim, #6b5a3c); }
+.rs-top { display: flex; align-items: center; gap: 10px; }
+.rs-top small { display: block; font-size: 13px; line-height: 1.45; color: var(--ink-dim, #6b5a3c); }
+
+@media (max-width: 600px), (pointer: coarse) {
+  .rn-price, .rs-t small, .rs-sub, .rs-note { font-size: 14px; }
+  .rn-gobrokk { min-height: 44px; width: 100%; }
+  .rs-acts .btn { min-height: 48px; }
+  .rs-row { min-height: 56px; }
+  .rb-price { font-size: 14px; }
+}
+
+/* ธีมกระดาษ (body.visor .win …) ตั้งขนาดตัว/ปุ่มเล็กไว้ — ทับด้วยความเจาะจงสูงกว่า (แบบเดียวกับ css/runes.css รอบ 28) */
+body.visor .win .rn-row .rn-price { font-size: 12.5px; }
+body.visor .win .rn-row .btn.rn-gobrokk { min-height: 36px; height: auto; font-size: 13px; border-radius: 6px; white-space: normal; }
+body.visor #w-confirm .rs-ask .rs-kv, body.visor #w-confirm .rs-ask .rs-kv b { font-size: 14px; }
+body.visor #w-confirm .rs-ask .btn { min-height: 44px; height: auto; border-radius: 6px; white-space: normal; }
+@media (max-width: 600px), (pointer: coarse) {
+  body.visor .win .rn-row .rn-price { font-size: 14px; }
+  body.visor .win .rn-row .btn.rn-gobrokk { min-height: 48px; font-size: 14px; width: 100%; }
+  body.visor #w-confirm .rs-ask .btn { min-height: 48px; font-size: 14px; }
+  body.visor #w-confirm .rs-ask .rs-sub, body.visor #w-confirm .rs-ask .rs-note, body.visor #w-confirm .rs-ask .rs-q { font-size: 14px; }
+}
