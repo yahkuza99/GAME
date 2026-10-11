@@ -16,6 +16,8 @@
 // ============================================================
 const Class3 = (() => {
   const C = {};
+  // UP = ตัวคูณ "การฟื้นฟู" ของไม้ตาย (Feel.ULT_HEAL = 0.25 — js/feel.js) • ใช้กับ ฮีล/ดูดเลือด เท่านั้น บัฟ/ดาเมจคงเดิม
+  const UP = C.UP = (typeof Feel !== 'undefined' && Feel.ULT_HEAL != null) ? Feel.ULT_HEAL : 1;
   const K = C.K = {
     verseGap: 0.55,             // วินาทีระหว่างระลอก Ragnarök Verse
     // Oath — Runelord (Root Script)
@@ -31,7 +33,7 @@ const Class3 = (() => {
     sa_pow: 2.6, sa_size: 1.25,                    // Single Alpha: ตัวเดียว แรง ×2.6 เกาะเป้า
     ep_boom: 1.0, ep_r: 2,                         // Ember Pack: หมดเวลาระเบิดไฟ 2 ช่อง 100% ATK ต่อตัว
     // ไม้ตาย
-    ult_tree: 8, ult_howl: 10, ult_howl_n: 2, ult_leech: 8,
+    ult_tree: 8, ult_howl: 10, ult_howl_n: 2, ult_leech: 8 * UP,
   };
   const P = () => G.player;
   const fast = () => !!G.fastSim;

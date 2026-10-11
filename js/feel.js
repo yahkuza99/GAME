@@ -169,8 +169,12 @@ const Feel = (() => {
 
   // ---------- 6) ไม้ตาย (เกจ): BERSERK FURY / VALKYRIE AEGIS / WAR CRY ----------
   // ตีโดน +2 • ฆ่า +5 (CHAIN 5 ขึ้นไป +2 เพิ่ม) → เต็ม 100 กดปุ่ม/คีย์ T: คัตอินชื่อ Class + สโลว์ + คลื่นกระแทกรัศมี 5 ช่อง
-  // ดาเมจ = ตีแรง 3 เท่าของการตีปกติ (เลือกกายภาพหรือเวท ที่แรงกว่า) ใส่มอนทุกตัวในวง • ไม่ใช้ในลานประลอง/ตอนตาย • บอทไม่กดให้
+  // ดาเมจ = ตีแรง 3 เท่าของการตีปกติ (เลือกกายภาพหรือเวท ที่แรงกว่า) ใส่มอนทุกตัวในวง • ไม่ใช้ในลานประลอง/ตอนตาย • บอท AUTO/FlyPilot กดให้เองตามกฎ Bot.tryUlt (js/bot.js)
   const ULT_MAX = 100, ULT_R = 5;
+  // ULT_HEAL: ตัวคูณเฉพาะ "การฟื้นฟู" ของไม้ตาย (ฟื้น HP/SP, ฮีลต่อวิ, ดูดเลือด) — เจ้าของสั่ง 2026-10-11 ว่าเหลือ 1/4 (หมายถึง ฟื้นฟู)
+  // บัฟ/ดาเมจของไม้ตายเป็นค่าเดิม 100% • ไม้ตาย Class 3 (js/class3*.js) อ่านค่านี้ตอนโหลด (feel.js โหลดก่อน)
+  F.ULT_HEAL = 0.25; const P = F.ULT_HEAL; // P = ค่าตอนโหลด (ใช้กับข้อความ tooltip) • การคำนวณจริงอ่าน F.ULT_HEAL สด
+  const pc = (v) => Math.round(v * P * 100) / 100; // ตัวเลข % ที่แสดงใน tooltip
   const ULT_COL = { einherjar: '#ff6a5a', runecaster: '#6ec8ff', wildhunter: '#8cff7a', volva: '#ffd76e', trickster: '#c88aff', berserker: '#ff9a3a', novice: '#bff4ff' };
   F.ultCol = () => { const p = G.player, b = JOBS[p.job] && typeof jobRoot === 'function' ? jobRoot(p.job) : p.job; return ULT_COL[b] || '#ffd76e'; };
   F.ultGain = n => {
@@ -201,7 +205,7 @@ const Feel = (() => {
   // ไม้ตายแบบบัฟ ให้ผู้เล่นเลือกเอง (เจ้าของ: เน้นบัฟพื้นฐาน — ไม้ตายโจมตี RAGNARÖK/METEOR ถูกถอด 2026-10-02) (กดปุ่ม ULT ตอนเกจยังไม่เต็ม = เปิดตัวเลือก) • บันทึกใน p.ultKind
   F.ULTS = {
     fury: { name: 'BERSERK FURY', th: L('โหมดคลั่ง', 'Fury'), desc: L('10 วินาที: ATK/MATK +25% ตีเร็วขึ้น 30%', '10s: ATK/MATK +25%, attack speed +30%') },
-    aegis: { name: 'VALKYRIE AEGIS', th: L('โล่วาลคิรี', 'Aegis'), desc: L('ฟื้น HP/SP เต็ม + อมตะ 4 วินาที', 'Full HP/SP + invulnerable for 4s') },
+    aegis: { name: 'VALKYRIE AEGIS', th: L('โล่วาลคิรี', 'Aegis'), desc: L(`ฟื้น HP/SP ${pc(100)}% ของสูงสุด + อมตะ 4 วินาที`, `Restore ${pc(100)}% of max HP/SP + invulnerable for 4s`) },
     warcry: { name: 'WAR CRY', th: L('เสียงคำรามศึก', 'War Cry'), desc: L(`10 วินาที: ตัวเราและปาร์ตี้ในระยะ ${8} ช่อง ATK/MATK +15% เดินเร็วขึ้น 25%`, `10s: you and party members within ${8} cells get ATK/MATK +15% and +25% move speed`) },
   };
   // WAR CRY: บัฟทั้งปาร์ตี้รอบตัว (ส่งผ่านช่องปาร์ตี้ 'wcry' — js/party.js) • คนรับต้องอยู่แผนที่เดียวกัน ห่างไม่เกิน WARCRY_R ช่อง และไม่ใช่ลานประลอง
@@ -253,7 +257,7 @@ const Feel = (() => {
       p.ultBuffUntil = G.time + 10; recalc(); addFloater(p.x, p.y - 2, 'FURY!', col, true);
       setTimeout(() => { if (G.player === p) { recalc(); if (typeof UI !== 'undefined') UI.dirty(); } }, 10100);
     } else if (kind === 'aegis') {
-      p.hp = p.d.maxHp; p.sp = p.d.maxSp; p.invulnUntil = G.time + 4;
+      p.hp = Math.min(p.d.maxHp, p.hp + Math.ceil(p.d.maxHp * F.ULT_HEAL)); p.sp = Math.min(p.d.maxSp, p.sp + Math.ceil(p.d.maxSp * F.ULT_HEAL)); p.invulnUntil = G.time + 4;
       addFloater(p.x, p.y - 2, 'AEGIS!', '#fff1a8', true);
     } else if (kind === 'warcry') {
       F.warCryApply(null, col);

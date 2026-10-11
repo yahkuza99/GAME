@@ -397,7 +397,7 @@ const SHOTS = process.env.SHOTS || '';
     fresh(pl); pl.buffs = {}; executeSkill('leaf_recall', 5, null); damagePlayer(pl.d.maxHp * 5); o.leaf = !pl.dead && Math.abs(pl.hp - Math.round(pl.d.maxHp * 0.3)) <= 1 && !pl.buffs.leaf_recall;
     pl.combatAt = -99; Runes.set('well_of_urd', 'well_of_urd.skuld'); fresh(pl); const sk = C3.dummy(pl.x + 1, pl.y, 1e7); pl.hp = 1; healPlayer(Math.round(pl.d.maxHp * 0.1), 'test');
     o.skuld = (by.well_of_urd || 0) > 0; pl.combatAt = -99; Runes.set('well_of_urd', null);
-    pl.hp = 10; pl.ultKind = 'norns'; pl.ult = 100; Feel.ultFire(); o.norns = pl.hp === pl.d.maxHp; pl.c3ult = null;
+    pl.hp = 10; pl.ultKind = 'norns'; pl.ult = 100; Feel.ultFire(); o.norns = pl.hp === Math.min(pl.d.maxHp, 10 + Math.ceil(pl.d.maxHp * Feel.ULT_HEAL)); // รอบ 26: ULT ฟื้น 25% (เดิมเต็ม) pl.c3ult = null;
     // ----- Oathfist -----
     pl = C3.third('oathfist'); C3.arena('roots'); G.mobs = []; G.zones = []; G.allies = [];
     fresh(pl); pl.c3combo = null; if (pl.ricd) pl.ricd.c3w5_free = 0; const cm = C3.dummy(pl.x + 1, pl.y, 1e7);
@@ -415,7 +415,7 @@ const SHOTS = process.env.SHOTS || '';
     return o;
   });
   ok('Lifeweaver: Well of Urd overheal shield absorbs • Lifethread / Sap Spring heal over time', m5.well && m5.wellAbsorb && m5.thread && m5.spring, m5);
-  ok("Lifeweaver: Verdandi's Now clears/blocks stun • Norn Cut execute • Leaf Recall catches • Oath of Skuld • ULT full heal", m5.now && m5.cut && m5.leaf && m5.skuld && m5.norns, m5);
+  ok("Lifeweaver: Verdandi's Now clears/blocks stun • Norn Cut execute • Leaf Recall catches • Oath of Skuld • ULT heal 25%", m5.now && m5.cut && m5.leaf && m5.skuld && m5.norns, m5);
   ok('Oathfist: 5-hit combo fires a free Holy Fist • Hundred Palms ends in a stun • Chain of Gleipnir pulls', m5.combo && m5.palms && m5.chain, m5);
   ok('Oathfist: Iron Vow blocks potions • Hand costs HP (Open Hand: no HP) • Lost Hand ×K below half • ULT holy fists', m5.vow && m5.hand && m5.open && m5.lost && m5.tyr, m5);
   // ============== Class 3 รอบ 6: Sixth Shadow / Warsinger ==============

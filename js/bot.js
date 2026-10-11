@@ -18,7 +18,7 @@ const Bot = {
   defaults() {
     return { skills: {}, restHp: 35, restSp: 10, healAt: 60, useBuffs: true, avoidMvp: true,
       radius: 14, returnHome: true,
-      rest: true, style: 'skills', leash: false, skipMobs: {}, skillHp: {} };
+      rest: true, style: 'skills', leash: false, skipMobs: {}, skillHp: {}, useUlt: true };
   },
   cfg() {
     // แก้ "ในที่เดิม" เสมอ: ถ้าสร้างอ็อบเจกต์ใหม่ทุกครั้ง ค่าที่ผู้เล่นเพิ่งปรับ (ผ่านตัวเลื่อนที่ถืออ็อบเจกต์เก่า) จะหาย
@@ -290,6 +290,9 @@ const Bot = {
     // 6) สายระยะไกล: มอนประชิดตัว → ถอยไปที่โล่ง 2.5–4 ช่องก่อนยิงต่อ
     if (this.kite(t, threats)) return;
 
+    // 6.5) ไม้ตาย (ปุ่ม ULT): เกจเต็ม + กำลังสู้ตัวใหญ่/รุมเยอะ/เลือดใกล้หมด → กดทางเดียวกับปุ่มผู้เล่น (Feel.ultFire)
+    if (this.tryUlt(t, threats, hpPct)) return;
+
     // 7) ใช้สกิลโจมตี (โหมด "ตีปกติ" ข้าม)
     if (c.style !== 'basic') {
       const id = this.pickSkill(t, threats, hpPct, spPct);
@@ -488,6 +491,27 @@ const Bot = {
   danger(m) {
     const md = m.def, stun = md.stun ? 1 + md.stun[0] / 100 * md.stun[1] * Math.min(3, md.atk[1] * 4 / G.player.d.maxHp) : 1;
     return this.mobDps(m) * stun;
+  },
+
+  // ไม้ตายอัตโนมัติ (รอบ 26): คืน true ถ้ากดแล้ว • ใช้ร่วมกับ FlyPilot (js/flypilot.js) • ปิดได้ที่ cfg().useUlt=false
+  // เงื่อนไข: เกจเต็ม · ไม่ใช่ PvP/เมือง · ไม่ตาย/มึน/กำลังร่าย/กำลังฟันค้าง (ล็อกท่าฟัน p.atkAnim) · มีเป้าที่ "สู้อยู่จริง" ในระยะ 8 ช่อง
+  // แล้วแต่ชนิด: ฮีล (aegis/norns) = HP ≤ 40% และมีตัวรุม • ที่เหลือ = บอส/MVP/WB หรือมอนที่ไล่เราในระยะ 8 ตั้งแต่ 3 ตัว หรือ HP ≤ 30% ขณะโดนรุม
+  tryUlt(t, threats, hpPct) {
+    const p = G.player;
+    if (!p || p.dead || !t || t.dead || typeof Feel === 'undefined' || !Feel.ultFire) return false;
+    if (this.cfg().useUlt === false || (p.ult || 0) < 100) return false;
+    if (!G.map || G.map.def.pvp || G.map.def.kind === 'town' || NPC.busy) return false;
+    if (p.cast || p.atkAnim > 0 || isStunned()) return false;
+    const near = G.mobs.filter(m => !m.dead && !m.def.dummy && m.state === 'chase' && U.dist(m.x, m.y, p.x, p.y) <= 8);
+    const engaged = (t.state === 'chase' && U.dist(t.x, t.y, p.x, p.y) <= 8) || near.length > 0;
+    if (!engaged) return false;
+    const bossy = near.concat(t).some(m => m.def && (m.def.boss || m.isMvp || m.isWB) && !m.def.dummy);
+    const kind = Feel.ultKind(), heal = kind === 'aegis' || kind === 'norns';
+    const ok = heal ? (hpPct <= 40 && near.length > 0) : (bossy || near.length >= 3 || (hpPct <= 30 && near.length > 0));
+    if (!ok) return false;
+    Feel.ultFire();
+    this.progAt = Math.max(this.progAt, G.time - 1.5);
+    return true;
   },
 
   pickSkill(t, threats, hpPct, spPct) {

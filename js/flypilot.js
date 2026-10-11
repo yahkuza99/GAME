@@ -7,7 +7,7 @@
 //    หนี    : มอนพุ่งเข้าหา (LC4/LPLC2) → Giant Fiber (DNp01) → หมุนฟัน Whirlwind / ปีก Blink / ถอย
 //    กิน/นั่ง : หิว HP/SP = รสหวาน · กำลังสู้ = รสขม → MN9 (เซลล์สั่งงวงกิน) → สู้อยู่ = ดื่มยา · สงบ = นั่ง
 //  ทุกการกระทำผ่านฟังก์ชันเดียวกับที่ปุ่มผู้เล่น/บอทเรียก: playerWalkTo · p.target · beginSkill/useSkill · useItem · นั่ง (แบบ Bot.rest)
-//  ใช้สกิลไหน = Bot.pickSkill (ตั้งค่าสกิลของบอทมีผล) · ไม่แจกแต้ม Status/สกิลให้ (ผู้เล่นเลือกเอง เหมือน AUTO)
+//  ไม้ตาย (ULT) = Bot.tryUlt กฎเดียวกับบอท AUTO • ใช้สกิลไหน = Bot.pickSkill (ตั้งค่าสกิลของบอทมีผล) · ไม่แจกแต้ม Status/สกิลให้ (ผู้เล่นเลือกเอง เหมือน AUTO)
 //  ค่าคงที่ GL = "กาว" ชุดเดียวกับตัวทดลอง (flybrain/driver/run_rules.js) — ไม่ใช่ส่วนของสมอง
 // ============================================================
 const FlyPilot = {
@@ -188,6 +188,7 @@ const FlyPilot = {
     // 3) วงจรไล่เป้าทำงาน (DNa02 ซ้าย+ขวา) + มีมอนตรงหน้าในระยะสกิล → สกิลที่บอทเลือก (Bot.pickSkill)
     const tgt = this.frontMob(Math.max(p.d.range, 1.5) + 4.5, 45);
     if (this.ema.strike > GL.strikeThresh && tgt && now - this.strikeAt > 0.3 && G.time >= p.skillReadyAt) {
+      if (Bot.tryUlt(tgt, th, this.hpFrac() * 100)) { this.strikeAt = now; return; } // ไม้ตายอัตโนมัติเหมือนบอท AUTO (กฎเดียวกัน)
       const id = Bot.pickSkill(tgt, th, this.hpFrac() * 100, this.spFrac() * 100);
       if (id) {
         const sd = skillDef(id);
