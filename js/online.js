@@ -40,7 +40,7 @@ const Online = {
     if (why) { console.warn('เซิร์ฟเวอร์ออนไลน์ยังไม่พร้อม — ใช้บัญชีในเครื่อง:', why); this.local = true; this.sb = null; this.offlineWhy = why; }
   },
   // online = เชื่อมเซิร์ฟเวอร์จริง (เห็นผู้เล่นอื่น แชทรวม เซฟคลาวด์) • loggedIn = ล็อกอินบัญชีแล้ว (รวมบัญชีในเครื่อง)
-  get online() { return this.enabled && !this.local && !!this.user; },
+  get online() { return this.enabled && !this.local && !!this.user && !this.kicked; }, // kicked = บัญชีนี้ถูกอีกหน้าล็อกอินทับ (js/session_guard.js)
   get loggedIn() { return this.enabled && !!this.user; },
 
   // ---------------- บัญชีในเครื่อง (ไม่มีเซิร์ฟเวอร์) ----------------
@@ -75,6 +75,7 @@ const Online = {
     this.user = { id: 'local:' + username.toLowerCase(), local: true };
     this.username = username;
     this.lsSet(this.LS.session, username);
+    if (typeof SessionGuard !== 'undefined') SessionGuard.start(this.user.id);
   },
 
   // ---------------- บัญชี ----------------
@@ -125,6 +126,7 @@ const Online = {
   setUser(user, username) {
     this.user = user;
     this.username = username || (user.user_metadata && user.user_metadata.username) || String(user.email || '').split('@')[0];
+    if (typeof SessionGuard !== 'undefined') SessionGuard.start(user.id);
   },
   // รอจนบันทึกคลาวด์ที่ค้างอยู่ส่งเสร็จ (ก่อนเปลี่ยนตัวละคร/ออกจากระบบ) — สำเนาในเครื่องเขียนไว้แล้วเสมอ
   async flushAll(ms = 4000) {
@@ -137,6 +139,7 @@ const Online = {
   },
   async logout() {
     await this.flushAll();
+    if (typeof SessionGuard !== 'undefined') SessionGuard.stop();
     this.rowName = null;
     if (this.local) { try { localStorage.removeItem(this.LS.session); } catch (e) { /* ignore */ } this.user = null; return; }
     this.leaveMap();
@@ -149,6 +152,7 @@ const Online = {
   // คืน "ก้อนบัญชี" { v: 2, active, chars: [...] } (เซฟรุ่นเก่าตัวเดียวถูกห่อเป็นช่องแรก — ดู Acct ใน game.js)
   async loadCharacter() {
     if (this.local) return Acct.wrap(this.lsGet(this.LS.char(this.username), null));
+    if (typeof SessionGuard !== 'undefined') await SessionGuard.settle(); // รอให้หน้าเก่า (ถ้ามี) หยุดเซฟก่อนอ่านเซฟ
     const { data, error } = await this.sb.from('characters').select('name, data').eq('user_id', this.user.id).maybeSingle();
     if (error) throw new Error(this.errText(error));
     this.rowName = data ? data.name : null;
@@ -173,7 +177,7 @@ const Online = {
   },
   // บันทึกแบบหน่วงเวลา (รวมหลายครั้งเป็นครั้งเดียว)
   queueSave(data, immediate) {
-    if (!this.loggedIn) return;
+    if (!this.loggedIn || this.kicked) return;
     if (this.local) { this.lsSet(this.LS.char(this.username), data); return; }
     // สำเนาในเครื่องทุกครั้ง: ถ้าปิดแอปก่อนเซฟคลาวด์ทัน (หน่วง 4 วิ) ครั้งหน้าจะใช้สำเนาที่ใหม่กว่า
     this.lsSet(this.mirrorKey(), data);

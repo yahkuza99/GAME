@@ -393,11 +393,14 @@ function showTitle() {
   hideTitlePanels();
   // การ์ดล็อกอินขึ้นทันที (เดิมรอเช็กเซิร์ฟเวอร์ออนไลน์ ~1.5 วิหลังโหลดสคริปต์) — เฉพาะคนที่ไม่มีเซสชันค้าง (มีเซสชัน = ข้ามไปเลือกตัวละคร ไม่กะพริบ)
   //   สมัคร/ล็อกอินรอเซิร์ฟเวอร์เองอยู่แล้ว (Online.login/register await ready) • ปุ่มเล่นแบบไม่ล็อกอินกดได้ทันที
+  let kickedBack = false; // กดกลับจากหน้าต่าง "บัญชีถูกล็อกอินทับ" → ไม่กู้เซสชันอัตโนมัติ (ไม่งั้นจะไปแย่งอีกหน้ากลับ)
+  try { kickedBack = sessionStorage.getItem('nm_dupkick') === '1'; sessionStorage.removeItem('nm_dupkick'); } catch (e) { /* โหมดส่วนตัว */ }
   let hasSession = false;
   try { hasSession = !!localStorage.getItem(Online.LS.session) || Object.keys(localStorage).some(k => /^sb-.+-auth-token$/.test(k)); } catch (e) { /* โหมดส่วนตัว */ }
+  if (kickedBack) hasSession = false;
   const early = !hasSession && back !== 'offline';
   if (early) showAuth();
-  Online.restore().then(ok => {
+  (kickedBack ? Promise.resolve(false) : Online.restore()).then(ok => {
     if (ok) afterLogin();
     else if (back === 'offline') enterOffline();
     else if (!early) showAuth();
