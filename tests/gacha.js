@@ -186,7 +186,7 @@ async function rollUi(p, multi) {
     // epic: ประกาศ ★ … from Norn's Wheel
     const ann = await p.evaluate(() => {
       const rnd = Math.random; Math.random = () => 0; Gacha.st().pity = GACHA_CONFIG.pity.every - 1;
-      const res = Gacha.roll(false); Math.random = rnd; Gacha.anim = null; Gacha.report(res, false);
+      const res = Gacha.roll(false); Math.random = rnd; Gacha.anim = null; UI._bannerUntil = 0; Gacha.report(res, false); // ป้ายชื่อแผนที่ทำให้ประกาศรอคิว (UI.announce) — ทดสอบตัวประกาศทันที
       return { rank: res[0].rank, text: document.querySelector('#announce').textContent };
     });
     ok('Epic+ prize is announced ("★ … from Norn\'s Wheel")', ann.rank >= 3 && /★/.test(ann.text) && /วงล้อนอร์น/.test(ann.text), ann.text);
@@ -218,7 +218,10 @@ async function rollUi(p, multi) {
       let t0 = tk(); damageMob(m, 1e12); out.killer = tk() - t0;
       // ผู้ร่วมตี (อีกเครื่องปิดฉาก)
       WB.st = {}; G.mobs = G.mobs.filter(x => !x.isWB); m = await live();
-      m.wbMine = 500; t0 = tk(); WB.remoteKill(m); out.helper = tk() - t0;
+      // รอบ 21 (รุมบอส): ได้รางวัลเมื่อดาเมจถึงเกณฑ์ Raid.need(m) (Ancient ≥ 0.5% เลือดบอส)
+      m.wbMine = Math.ceil(Raid.need(m)) + 1; t0 = tk(); WB.remoteKill(m); out.helper = tk() - t0;
+      WB.st = {}; G.mobs = G.mobs.filter(x => !x.isWB); m = await live();
+      m.wbMine = Math.max(1, Math.floor(Raid.need(m)) - 1); t0 = tk(); WB.remoteKill(m); out.tiny = tk() - t0;
       // ไม่ได้ร่วมตี
       WB.st = {}; G.mobs = G.mobs.filter(x => !x.isWB); m = await live();
       m.wbMine = 0; t0 = tk(); WB.remoteKill(m); out.idle = tk() - t0;
@@ -227,7 +230,8 @@ async function rollUi(p, multi) {
       return out;
     });
     ok('World Boss: the killer gets 3 Sigils', wb.spawned && wb.killer === wb.n, JSON.stringify(wb));
-    ok('World Boss: every participant (remote kill) gets 3 Sigils', wb.helper === wb.n, JSON.stringify(wb));
+    ok('World Boss: every participant who reached the damage threshold (remote kill) gets 3 Sigils', wb.helper === wb.n, JSON.stringify(wb));
+    ok('World Boss: a participant below the 0.5% threshold gets no Sigils', wb.tiny === 0, JSON.stringify(wb));
     ok('World Boss: players who never hit it get none', wb.idle === 0, JSON.stringify(wb));
 
     // ---- NPC ในเมือง ----
