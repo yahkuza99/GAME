@@ -83,13 +83,15 @@ const RuneShop = {
   },
 
   // ---------- ซื้อ (คืน true/false) — ราคาคิดตอนกดยืนยัน (เดินเข้า/ออกระยะ Brokk ระหว่างนั้นได้ราคาตามจริง) ----------
-  buy(kind, id) {
+  // maxPrice = ราคาที่ผู้เล่นเห็นในหน้าต่างยืนยัน — ราคาตอนกดแพงกว่าที่เห็น (เดินออกจากระยะ Brokk) = ไม่ซื้อ ให้ดูราคาใหม่ก่อน
+  buy(kind, id, maxPrice) {
     const p = G.player;
     if (kind === 'hunt') { if (!HuntRunes.def(id)) return false; }
     else if (!Runes.BY_ID[id]) return false;
     if (this.owns(kind, id)) { UI.msg(L('มีรูนนี้อยู่แล้ว', 'You already own this rune.'), 'info'); return false; }
     const q = this.quote(kind, id);
-    if (q.miss > 0) { UI.msg(this.missText(q), 'err'); return false; }
+    if (maxPrice != null && q.price > maxPrice) { UI.msg(L(`ราคาเปลี่ยนเป็น ${U.fmt(q.price)} ${CUR} (ออกนอกระยะ Brokk) — กดซื้อใหม่เพื่อยืนยันราคานี้`, `Price changed to ${U.fmt(q.price)} ${CUR} (left Brokk's range) — tap buy again to confirm.`), 'err'); return false; }
+    if (!(p.zeny >= q.price)) { UI.msg(this.missText(q), 'err'); return false; } // รวมกรณีเงินเสีย (NaN)
     p.zeny -= q.price;
     if (kind === 'hunt') HuntRunes.own(p).push(id); else this.own(p).push(id);
     if (typeof Sound !== 'undefined') Sound.play('buy');
@@ -135,7 +137,7 @@ const RuneShop = {
       h('p', { class: 'rs-note' }, L('ซื้อครั้งเดียว เก็บตลอดไป', 'Buy once, keep forever')),
       h('div', { class: 'rs-acts' },
         btn('primary rs-ok', q.miss > 0 ? L(`ขาดอีก ${U.fmt(q.miss)}`, `${U.fmt(q.miss)} short`) : L(`ยืนยันซื้อ ${U.fmt(q.price)}`, `Buy ${U.fmt(q.price)}`),
-          () => { const ok = this.buy(kind, id); this.close(); if (ok && after) after(); }, q.miss > 0),
+          () => { const ok = this.buy(kind, id, q.price); this.close(); if (ok && after) after(); }, q.miss > 0),
         q.near ? null : btn('rs-go', L(`ไปซื้อที่ Brokk ${U.fmt(q.base)}`, `Go to Brokk · ${U.fmt(q.base)}`), () => this.goBrokk()),
         btn('rs-no', L('ยกเลิก', 'Cancel'), () => this.close()))));
     w.classList.remove('hidden'); w.style.zIndex = ++UI.z + 1000;
