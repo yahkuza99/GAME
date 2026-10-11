@@ -108,7 +108,36 @@
         if (!session) return Promise.resolve({ data: null, error: { message: 'not signed in' } });
         const d = db(); d.sess = d.sess || {}; d.sess[session.user.id] = s; save(d); return ok(null);
       };
-      return { auth, from: query, rpc: (fn, args) => fn === 'claim_session' ? claim(args.s) : ok(fn === 'name_available' ? !Object.values(db().chars).some(c => names(c).includes(lc(args.n)) && (!session || c.user_id !== session.user.id)) : null),
+      // ระบบเพื่อน: เหมือน supabase/migrations/20261012010000_friends.sql (window.__noFriendsServer = เซิร์ฟเวอร์ที่ยังไม่ได้รัน migration)
+      const friend = (fn, args) => {
+        if (window.__noFriendsServer) return Promise.resolve({ data: null, error: { code: 'PGRST202', message: `Could not find the function public.${fn}` } });
+        if (!session) return Promise.resolve({ data: null, error: { message: 'not signed in' } });
+        // เก็บแยกคีย์ (ไม่ปนกับก้อน db ที่ทุกแท็บเขียนทับทั้งก้อนตอนเซฟตัวละคร — localStorage ข้ามแท็บส่งค่าแบบ async)
+        const FK = 'fake_sb_friends', d = db(), me = session.user.id;
+        const fr = { friends: (() => { try { return JSON.parse(localStorage.getItem(FK)) || []; } catch (e) { return []; } })() };
+        const saveF = () => localStorage.setItem(FK, JSON.stringify(fr.friends));
+        const F = fr.friends, rel = (a, b) => F.find(r => r.user_id === a && r.friend_id === b);
+        const nameOf = id => (d.chars[id] || {}).name || null;
+        if (fn === 'friend_list') return ok(F.filter(r => r.user_id === me || r.friend_id === me).map(r => {
+          const id = r.user_id === me ? r.friend_id : r.user_id;
+          return { id, name: nameOf(id), status: r.status, dir: r.status === 'accepted' ? 'both' : r.user_id === me ? 'out' : 'in', created_at: r.created_at };
+        }));
+        if (fn === 'friend_accept') { const r = rel(args.id, me); if (r && r.status === 'pending') { r.status = 'accepted'; saveF(); return ok(true); } return ok(false); }
+        if (fn === 'friend_remove') { const n = F.length; fr.friends = F.filter(r => !((r.user_id === me && r.friend_id === args.id) || (r.user_id === args.id && r.friend_id === me))); saveF(); return ok(fr.friends.length < n); }
+        if (fn === 'friend_request') {
+          const q = lc(args.n); if (!q || q.length > 24) return ok({ ok: false, why: 'bad_name' });
+          const row = Object.values(d.chars).find(c => names(c).includes(q)); if (!row) return ok({ ok: false, why: 'not_found' });
+          const other = row.user_id, shown = [row.name, ...((row.data && Array.isArray(row.data.chars)) ? row.data.chars.map(x => x && x.name) : [])].find(x => lc(x) === q) || row.name;
+          if (other === me) return ok({ ok: false, why: 'self' });
+          const back = rel(other, me);
+          if (back && back.status === 'pending') { back.status = 'accepted'; saveF(); return ok({ ok: true, id: other, name: shown, status: 'accepted' }); }
+          if (back || rel(me, other)) return ok({ ok: false, why: 'exists', id: other, status: (back || rel(me, other)).status });
+          F.push({ user_id: me, friend_id: other, status: 'pending', created_at: new Date().toISOString() }); saveF();
+          return ok({ ok: true, id: other, name: shown, status: 'pending' });
+        }
+        return ok(null);
+      };
+      return { auth, from: query, rpc: (fn, args) => fn === 'claim_session' ? claim(args.s) : /^friend_/.test(fn) ? friend(fn, args || {}) : ok(fn === 'name_available' ? !Object.values(db().chars).some(c => names(c).includes(lc(args.n)) && (!session || c.user_id !== session.user.id)) : null),
         channel, removeChannel(ch) { ch && ch._leave && ch._leave(); } };
     },
   };

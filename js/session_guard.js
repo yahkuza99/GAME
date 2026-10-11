@@ -98,7 +98,7 @@ const SessionGuard = {
     const sb = Online.sb;
     if (sb) {
       if (typeof sb.removeAllChannels === 'function') { try { sb.removeAllChannels(); } catch (e) { /* ignore */ } }
-      else for (const c of [Online.chatChannel, this.ch, window.Market && Market.ch, window.Party && Party.social, window.Raid && Raid.rch, window.Trade && Trade.ch]) { if (c) { try { sb.removeChannel(c); } catch (e) { /* ignore */ } } }
+      else for (const c of [Online.chatChannel, this.ch, window.Market && Market.ch, typeof Social !== 'undefined' && Social.ch, window.Party && Party.social, window.Raid && Raid.rch, window.Trade && Trade.ch]) { if (c) { try { sb.removeChannel(c); } catch (e) { /* ignore */ } } }
     }
     Online.chatChannel = null; this.ch = null; Online.sb = null;
     if (this.bc) { try { this.bc.close(); } catch (e) { /* ignore */ } this.bc = null; }

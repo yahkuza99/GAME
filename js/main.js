@@ -324,12 +324,22 @@ function hideTitlePanels() {
   $('#title').classList.remove('creating', 'selecting');
   csConfirmClose();
 }
-function authNote() { return Online.local ? L('บัญชีเก็บในเบราว์เซอร์นี้ • ตัวละครแยกตามบัญชี', 'Accounts are stored in this browser • Characters are saved per account') : L('บัญชีออนไลน์ • เล่นได้ทุกเครื่อง', 'Online account • Play from any device'); }
+// เว็บจริงเป็นเกมออนไลน์อย่างเดียว (รอบ 36 — เจ้าของ: "ไม่เอาออฟไลน์") • บัญชีในเครื่อง/เล่นไม่ล็อกอิน เหลือเฉพาะเครื่องนักพัฒนา (Online.offlineAllowed)
+function authNote() {
+  if (Online.local) return L('บัญชีเก็บในเบราว์เซอร์นี้ (โหมดทดสอบ) • ตัวละครแยกตามบัญชี', 'Accounts are stored in this browser (test mode) • Characters are saved per account');
+  if (Online.down) return L('เชื่อมต่อเซิร์ฟเวอร์เกมไม่ได้ตอนนี้ — กดเข้าสู่ระบบอีกครั้งเพื่อลองใหม่', 'Cannot reach the game server right now — press Log In again to retry');
+  return L('IRON VALHALLA เป็นเกมออนไลน์ — ล็อกอินบัญชีเดียว เล่นต่อได้ทุกเครื่อง ตัวละครเซฟบนเซิร์ฟเวอร์', 'IRON VALHALLA is an online game — one account, play from any device, characters saved on the server');
+}
+function authChrome() { // ปุ่มเล่นออฟไลน์ + หัวการ์ด ตามโหมด
+  $('#au-offline').classList.toggle('hidden', !Online.offlineAllowed());
+  $('#au-kicker').textContent = Online.local ? L('บัญชีในเครื่อง (ทดสอบ)', 'Local account (test)') : L('บัญชีออนไลน์', 'Online account');
+}
 function showAuth() {
   hideTitlePanels();
   Acct.data = null;
   $('#auth').classList.remove('hidden');
   $('#au-note').textContent = authNote();
+  authChrome();
   if (!matchMedia('(pointer: coarse)').matches) $('#au-user').focus();
 }
 function setAuthMode(m) {
@@ -362,6 +372,7 @@ async function afterLogin() {
   showCharSel();
 }
 function enterOffline() {
+  if (!Online.offlineAllowed()) { showAuth(); return; } // เว็บจริง: ไม่มีโหมดเล่นไม่ล็อกอิน
   Acct.data = Acct.readLocal();
   showCharSel();
 }
@@ -374,7 +385,8 @@ function bindAuth() {
     if (authMode === 'register' && pw !== $('#au-pass2').value) { err.textContent = L('รหัสผ่านทั้งสองช่องไม่ตรงกัน', 'Passwords do not match.'); return; }
     btn.disabled = true; err.textContent = authMode === 'register' ? L('กำลังสมัคร...', 'Registering...') : L('กำลังเข้าสู่ระบบ...', 'Logging in...');
     try {
-      if (authMode === 'register') await Online.register(u, pw); else await Online.login(u, pw);
+      try { if (authMode === 'register') await Online.register(u, pw); else await Online.login(u, pw); }
+      finally { $('#au-note').textContent = authNote(); authChrome(); } // เซิร์ฟเวอร์ล่ม/กลับมา → ข้อความใต้การ์ดตามจริง
       err.textContent = '';
       $('#au-pass').value = ''; $('#au-pass2').value = '';
       await afterLogin();
@@ -405,6 +417,7 @@ function showTitle() {
   let hasSession = false;
   try { hasSession = !!localStorage.getItem(Online.LS.session) || Object.keys(localStorage).some(k => /^sb-.+-auth-token$/.test(k)); } catch (e) { /* โหมดส่วนตัว */ }
   if (kickedBack) hasSession = false;
+  if (back === 'offline' && !Online.offlineAllowed()) back = null;
   const early = !hasSession && back !== 'offline';
   if (early) showAuth();
   (kickedBack ? Promise.resolve(false) : Online.restore()).then(ok => {
@@ -414,6 +427,7 @@ function showTitle() {
     else if (!$('#auth').classList.contains('hidden')) { // ยังอยู่หน้าล็อกอิน: อัปเดตข้อความ/แท็บตามผลเช็กเซิร์ฟเวอร์ (ถ้ายังไม่ได้พิมพ์อะไร)
       if (!$('#au-user').value && !$('#au-pass').value) setAuthMode(Online.local && !Object.keys(Online.lsGet(Online.LS.accounts, {})).length ? 'register' : 'login');
       $('#au-note').textContent = authNote();
+      authChrome();
     }
   });
 }
@@ -490,7 +504,9 @@ function renderCharSel() {
   $('#btn-new').classList.toggle('primary', !n);
   const imp = csImportable();
   $('#cs-import').classList.toggle('hidden', !imp.length || n >= Acct.MAX);
-  $('#cs-import').textContent = L(`ย้ายตัวละครที่เล่นแบบไม่ล็อกอินเข้าบัญชีนี้ (${imp.map(x => x.name).join(', ')})`, `Move offline characters into this account (${imp.map(x => x.name).join(', ')})`);
+  const impNames = imp.map(x => x.c.name).join(', ');
+  $('#cs-import').textContent = Online.local ? L(`ย้ายตัวละครที่เล่นแบบไม่ล็อกอินเข้าบัญชีนี้ (${impNames})`, `Move offline characters into this account (${impNames})`)
+    : L(`นำตัวละครออฟไลน์เข้าบัญชีออนไลน์ (${impNames})`, `Bring offline characters into this online account (${impNames})`);
   csFaceAt = 0;
 }
 // รายละเอียดตัวที่เลือก (ใต้ภาพตัวละคร) + ปุ่มเข้าเกม
@@ -526,20 +542,81 @@ function csPlay(i) {
   Acct.data.active = i;
   startGame(p, false);
 }
-// บัญชีในเครื่องใหม่: ตัวละครที่เคยเล่นแบบไม่ล็อกอิน (ยังไม่อยู่ในบัญชีนี้) ย้ายเข้าได้
+// ตัวละครออฟไลน์ในเบราว์เซอร์นี้ → ย้ายเข้าบัญชีที่ล็อกอินอยู่ (รอบ 36)
+//  แหล่ง: เล่นแบบไม่ล็อกอิน (SAVE_KEY) + บัญชีในเครื่อง (nm_accounts → nm_char_<user>) — บัญชีในเครื่องดูเฉพาะตอนล็อกอินออนไลน์
+//  ย้ายได้ครั้งเดียวต่อตัว: จดใน localStorage OFFLINE_IMPORT_KEY { '<แหล่ง>|<ชื่อ>': { at, to, name } } • ไม่ลบเซฟต้นทาง
+//  ตัวที่ย้ายเข้าบัญชีออนไลน์ติดป้าย importedOffline = เวลา (+ importedFrom) ให้ระบบตรวจเซฟฝั่งเซิร์ฟเวอร์แยกตรวจได้
+const OFFLINE_IMPORT_KEY = 'iv_offline_imported';
+function offlineChars() {
+  const out = [], add = (src, c) => { if (c && typeof c === 'object' && c.name) out.push({ src, c, key: `${src}|${String(c.name).toLowerCase()}` }); };
+  for (const c of Acct.readLocal().chars) add('guest', c);
+  if (!Online.local) {
+    const acc = Online.lsGet(Online.LS.accounts, {});
+    for (const k of Object.keys(acc && typeof acc === 'object' ? acc : {})) for (const c of Acct.wrap(Online.lsGet(Online.LS.char(k), null)).chars) add('local:' + k, c);
+  }
+  return out;
+}
 function csImportable() {
-  if (!Online.local || !Online.loggedIn || !Acct.data) return [];
-  return Acct.readLocal().chars.filter(c => !Acct.hasName(c.name));
+  if (!Online.loggedIn || !Acct.data) return [];
+  const done = Online.lsGet(OFFLINE_IMPORT_KEY, {}) || {}, seen = new Set();
+  return offlineChars().filter(x => {
+    const n = String(x.c.name).toLowerCase();
+    if (done[x.key] || Acct.hasName(x.c.name) || seen.has(n)) return false;
+    seen.add(n); return true;
+  });
 }
 async function csImport() {
   const imp = csImportable();
-  for (const c of imp) {
-    if (Acct.chars.length >= Acct.MAX) break;
-    if (!(await Online.nameAvailable(c.name).catch(() => false))) continue;
+  if (!imp.length) return;
+  if (Online.local) { await csImportRun(imp); return; } // โหมดทดสอบ (บัญชีในเครื่อง): ย้ายทันทีแบบเดิม
+  csImportAsk(imp);
+}
+// บัญชีออนไลน์: เลือกตัวที่จะนำเข้า (ไม่เกินช่องว่าง) แล้วยืนยัน — ทำได้ครั้งเดียวต่อตัว
+function csImportAsk(imp) {
+  const box = $('#cs-confirm'); box.innerHTML = '';
+  const free = Acct.MAX - Acct.chars.length, pick = new Set(imp.slice(0, free).map(x => x.key));
+  const go = h('button', { type: 'button', class: 'tbtn small primary', id: 'cs-imp-go' }, '');
+  const paint = () => { go.textContent = L(`นำเข้า ${pick.size} ตัว`, `Import ${pick.size}`); go.disabled = !pick.size; };
+  const rows = imp.map(x => {
+    const b = h('button', { type: 'button', class: 'cs-imp-pick', 'data-key': x.key, 'aria-pressed': pick.has(x.key) ? 'true' : 'false' },
+      h('b', {}, x.c.name), h('span', {}, `${JOBS[csJob(x.c)].name} · Lv ${x.c.baseLv || 1} · ${x.src === 'guest' ? L('เล่นแบบไม่ล็อกอิน', 'guest play') : L(`บัญชีในเครื่อง ${x.src.slice(6)}`, `local account ${x.src.slice(6)}`)}`));
+    b.onclick = () => {
+      if (pick.has(x.key)) pick.delete(x.key);
+      else if (pick.size < free) pick.add(x.key);
+      else { $('#cs-err').textContent = L(`เหลือช่องว่าง ${free} ช่อง`, `Only ${free} free slot${free === 1 ? '' : 's'}`); return; }
+      b.setAttribute('aria-pressed', pick.has(x.key) ? 'true' : 'false'); paint();
+    };
+    return b;
+  });
+  go.onclick = async () => { go.disabled = true; await csImportRun(imp.filter(x => pick.has(x.key))); };
+  paint();
+  box.append(
+    h('div', { class: 'cs-cf-text' }, h('b', {}, L('นำตัวละครออฟไลน์เข้าบัญชีออนไลน์', 'Bring offline characters online')),
+      h('span', {}, L(`เกมเป็นออนไลน์อย่างเดียวแล้ว — ตัวละครที่เคยเล่นในเครื่องนี้ย้ายเข้าบัญชี ${Online.username} ได้ครั้งเดียว (ช่องว่าง ${free} ช่อง) ตัวที่ย้ายจะติดป้ายว่ามาจากโหมดออฟไลน์`,
+        `The game is online-only now — characters played on this device can be moved into ${Online.username} once (${free} free slot${free === 1 ? '' : 's'}). Moved characters are marked as imported from offline play.`))),
+    h('div', { class: 'cs-imp-list' }, rows),
+    h('div', { class: 'cs-cf-btns' }, h('button', { type: 'button', class: 'tbtn small', onclick: () => csConfirmClose() }, L('ไว้ทีหลัง', 'Later')), go));
+  box.classList.add('imp');
+  box.classList.remove('hidden');
+  $('#charsel').classList.add('confirming');
+}
+async function csImportRun(list) {
+  const done = Online.lsGet(OFFLINE_IMPORT_KEY, {}) || {}, got = [], skip = [];
+  for (const x of list) {
+    if (Acct.chars.length >= Acct.MAX) { skip.push(L(`${x.c.name} (ช่องเต็ม)`, `${x.c.name} (no free slot)`)); continue; }
+    if (Acct.hasName(x.c.name)) continue;
+    if (!(await Online.nameAvailable(x.c.name).catch(() => false))) { skip.push(L(`${x.c.name} (ชื่อนี้มีคนใช้แล้ว)`, `${x.c.name} (name taken)`)); continue; }
+    const at = Date.now(), c = Online.local ? x.c : Object.assign({}, x.c, { importedOffline: at, importedFrom: x.src === 'guest' ? 'guest' : 'local' });
     Acct.data.chars.push(c);
+    done[x.key] = { at, to: Online.user && Online.user.id, name: c.name };
+    got.push(c.name);
+    if (!Online.local) console.info('[offline-import]', c.name, 'from', x.src, '->', Online.user && Online.user.id, new Date(at).toISOString());
   }
-  Acct.persist(true, true);
+  Online.lsSet(OFFLINE_IMPORT_KEY, done);
+  if (got.length) Acct.persist(true, true);
+  csConfirmClose();
   showCharSel(Math.max(0, Acct.chars.length - 1));
+  if (!Online.local) $('#cs-err').textContent = [got.length ? L(`นำเข้าแล้ว: ${got.join(', ')}`, `Imported: ${got.join(', ')}`) : '', skip.length ? L(`นำเข้าไม่ได้: ${skip.join(', ')}`, `Not imported: ${skip.join(', ')}`) : ''].filter(Boolean).join(' • ');
 }
 // ลบตัวละคร: ต้องพิมพ์ชื่อตัวละครให้ตรงก่อนจึงกดลบได้ (กันลบโดยไม่ตั้งใจ)
 function csAskDelete(i) {
@@ -566,7 +643,7 @@ function csAskDelete(i) {
 }
 function csConfirmClose() {
   const box = $('#cs-confirm'); if (!box) return;
-  box.classList.add('hidden'); box.innerHTML = '';
+  box.classList.add('hidden'); box.classList.remove('imp'); box.innerHTML = '';
   $('#charsel').classList.remove('confirming');
 }
 function openCreate() {

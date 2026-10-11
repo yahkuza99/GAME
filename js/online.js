@@ -16,12 +16,29 @@ const Online = {
     this.enabled = true;
     if (window.CHARACTER_LAB === true) { this.local = true; return; }
     if (['localhost','127.0.0.1','[::1]'].includes(location.hostname) && new URLSearchParams(location.search).get('local-test') === '1') { this.local = true; return; }
-    if (!cfg.url || !cfg.anonKey) { this.local = true; return; }
-    if (!window.supabase || !window.supabase.createClient) { console.warn('โหลด Supabase ไม่สำเร็จ — ใช้บัญชีในเครื่อง'); this.local = true; return; }
+    // เว็บจริง (ไม่ใช่เครื่องนักพัฒนา) = ออนไลน์อย่างเดียว: ไม่มีเซิร์ฟเวอร์ → แจ้ง "เชื่อมต่อไม่ได้" แทนการถอยไปบัญชีในเครื่อง (รอบ 36)
+    if (!cfg.url || !cfg.anonKey) { if (this.offlineAllowed()) this.local = true; else this.down = 'no config'; return; }
+    if (!window.supabase || !window.supabase.createClient) { if (this.offlineAllowed()) { console.warn('โหลด Supabase ไม่สำเร็จ — ใช้บัญชีในเครื่อง'); this.local = true; } else this.down = 'no supabase-js'; return; }
     this.sb = window.supabase.createClient(cfg.url, cfg.anonKey, { auth: { persistSession: true, autoRefreshToken: true } });
     this.ready = this.probe(cfg);
   },
   ready: Promise.resolve(),
+  down: '', // เว็บจริง: เหตุที่เชื่อมเซิร์ฟเวอร์ไม่ได้ (ว่าง = ปกติ) — ล็อกอิน/สมัครจะลองเช็กใหม่ทุกครั้ง
+  // เล่นออฟไลน์ / บัญชีในเครื่อง ได้เฉพาะเครื่องนักพัฒนา (localhost, *.test, file:) — เทสต์จำลองเว็บจริงด้วย window.__IV_PROD_HOST = true
+  // เจ้าของสั่ง (รอบ 36): "ไม่เอาออฟไลน์ ดูเหมือนจะเป็นปัญหา"
+  offlineAllowed() {
+    if (window.__IV_PROD_HOST === true) return false;
+    if (window.CHARACTER_LAB === true || location.protocol === 'file:') return true;
+    const hn = location.hostname;
+    return ['localhost', '127.0.0.1', '[::1]', ''].includes(hn) || /\.test$/.test(hn);
+  },
+  // เว็บจริงที่เซิร์ฟเวอร์ล่ม/ยังไม่พร้อม: เช็กใหม่ก่อนล็อกอินทุกครั้ง (ไม่ติดค้างว่าล่มตลอดไป)
+  async needServer() {
+    await this.ready;
+    if (!this.down) return;
+    if (this.sb) { this.ready = this.probe(window.ONLINE_CONFIG || {}); await this.ready; }
+    if (this.down) throw new Error(L('เชื่อมต่อเซิร์ฟเวอร์เกมไม่ได้ — ตรวจอินเทอร์เน็ตแล้วลองใหม่อีกครั้ง', 'Cannot reach the game server — check your connection and try again.'));
+  },
   // ตรวจว่าเซิร์ฟเวอร์พร้อมจริง (มีตาราง + ปิดยืนยันอีเมล + เชื่อมได้) ไม่พร้อม = ถอยไปใช้บัญชีในเครื่อง ผู้เล่นไม่ติดค้าง
   async probe(cfg) {
     const ctrl = new AbortController(), t = setTimeout(() => ctrl.abort(), 6000);
@@ -37,6 +54,8 @@ const Online = {
       }
     } catch (e) { why = 'เชื่อมต่อไม่ได้: ' + (e && e.message || e); }
     clearTimeout(t);
+    this.down = '';
+    if (why && !this.offlineAllowed()) { console.warn('เซิร์ฟเวอร์ออนไลน์ยังไม่พร้อม:', why); this.down = why; this.offlineWhy = why; return; }
     if (why) { console.warn('เซิร์ฟเวอร์ออนไลน์ยังไม่พร้อม — ใช้บัญชีในเครื่อง:', why); this.local = true; this.sb = null; this.offlineWhy = why; }
   },
   // online = เชื่อมเซิร์ฟเวอร์จริง (เห็นผู้เล่นอื่น แชทรวม เซฟคลาวด์) • loggedIn = ล็อกอินบัญชีแล้ว (รวมบัญชีในเครื่อง)
@@ -94,7 +113,7 @@ const Online = {
   async register(username, password) {
     if (!this.validUsername(username)) throw new Error(L('ชื่อผู้ใช้ต้องเป็น a-z, 0-9 หรือ _ ยาว 3-16 ตัว', 'Username must be 3-16 characters: a-z, 0-9 or _.'));
     if (password.length < 6) throw new Error(L('รหัสผ่านต้องยาวอย่างน้อย 6 ตัวอักษร', 'Password must be at least 6 characters.'));
-    await this.ready;
+    await this.needServer();
     if (this.local) return this.localRegister(username, password);
     const { data, error } = await this.sb.auth.signUp({ email: this.emailFor(username), password, options: { data: { username } } });
     if (error) throw new Error(this.errText(error));
@@ -103,7 +122,7 @@ const Online = {
   },
   async login(username, password) {
     if (!this.validUsername(username)) throw new Error(L('ชื่อผู้ใช้ไม่ถูกต้อง', 'Invalid username.'));
-    await this.ready;
+    await this.needServer();
     if (this.local) return this.localLogin(username, password);
     const { data, error } = await this.sb.auth.signInWithPassword({ email: this.emailFor(username), password });
     if (error) throw new Error(this.errText(error));
@@ -112,6 +131,7 @@ const Online = {
   async restore() {
     if (!this.enabled) return false;
     await this.ready;
+    if (this.down) return false;
     if (this.local) {
       const u = this.lsGet(this.LS.session, null), acc = this.lsGet(this.LS.accounts, {});
       if (u && acc[String(u).toLowerCase()]) { this.setLocal(acc[String(u).toLowerCase()].name); return true; }
