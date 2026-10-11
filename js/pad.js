@@ -116,7 +116,8 @@ const Pad = {
     const drop = G.drops.find(d => U.dist(p.x, p.y, d.x, d.y) < 2.2);
     if (drop && !(p.target && !p.target.dead)) { p.pickTarget = drop; p.path = []; return; }
     if (p.target && !p.target.dead && U.dist(p.x, p.y, p.target.x, p.target.y) < 14) { p.repathAt = 0; return; }
-    const m = this.nearestMob();
+    const lk = p.lockTarget; // เป้าเดิมก่อนเดินเอง (ยังอยู่ในระยะ) มาก่อนตัวใกล้สุด
+    const m = lk && !lk.dead && G.mobs.includes(lk) && U.dist(p.x, p.y, lk.x, lk.y) < 14 ? lk : this.nearestMob();
     if (m) { p.skillTarget = null; p.manualSkillLock = false; p.target = m; p.oneHit = p.options.noCtrl === false ? m : null; p.pickTarget = null; p.npcTarget = null; p.repathAt = 0; } // /nc ปิด = กดปุ่มตี 1 ที
     else if (npc) { p.npcTarget = npc; p.path = []; }
     else UI.msg(L('ไม่มีเป้าหมายใกล้ ๆ — เดินออกไปหามอนสเตอร์ก่อน', 'No target nearby — go find some monsters first'), 'info');

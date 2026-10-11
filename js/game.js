@@ -1150,7 +1150,7 @@ function skillTargetValid(id, t) {
 function skillLockTarget() {
   const p = G.player;
   const valid = m => m && !m.dead && G.mobs.includes(m);
-  for (const m of [p.target, p.skillIntent && p.skillIntent.tgt, p.cast && p.cast.target, p.skillTarget]) {
+  for (const m of [p.target, p.skillIntent && p.skillIntent.tgt, p.cast && p.cast.target, p.skillTarget, p.lockTarget]) {
     if (valid(m) && U.dist(p.x, p.y, m.x, m.y) < 14) return m;
   }
   const hovered = G.hover && G.hover.kind === 'mob' && G.hover.ref;
@@ -1187,9 +1187,10 @@ function useSkill(id) {
       UI.msg(L('ไม่มีเป้าหมายใกล้ ๆ — คลิกมอนสเตอร์หรือกด Space เมื่อเข้าใกล้', 'No target nearby — click a monster or press Space when closer.'), 'info');
       return;
     }
-    const cur = p.target && !p.target.dead ? p.target : (p.skillTarget && !p.skillTarget.dead ? p.skillTarget : (G.hover && G.hover.kind === 'mob' ? G.hover.ref : null));
+    const kept = p.lockTarget && !p.lockTarget.dead && G.mobs.includes(p.lockTarget) && U.dist(p.x, p.y, p.lockTarget.x, p.lockTarget.y) < 14 ? p.lockTarget : null; // เป้าเดิมก่อนเดินเอง
+    const cur = p.target && !p.target.dead ? p.target : (p.skillTarget && !p.skillTarget.dead ? p.skillTarget : ((G.hover && G.hover.kind === 'mob' ? G.hover.ref : null) || kept));
     // แบบ RO: กดสกิล → โหมดเล็ง → คลิก/แตะมอน • กดปุ่มเดิมซ้ำ = ใช้กับเป้าปัจจุบัน (หรือตัวใกล้สุด)
-    const locked = [p.target, p.skillIntent && p.skillIntent.tgt, p.cast && p.cast.target, p.skillTarget].find(m => m && !m.dead && G.mobs.includes(m));
+    const locked = [p.target, p.skillIntent && p.skillIntent.tgt, p.cast && p.cast.target, p.skillTarget, kept].find(m => m && !m.dead && G.mobs.includes(m));
     const quick = p.options.noShift && locked; // /ns: มีเป้าอยู่แล้ว = ยิงใส่เป้าทันที ไม่ต้องคลิกเล็ง
     if ((p.options.noShift === false || p.options.skillAim !== false) && G.pendingSkill !== id && !quick) {
       if (G.time < p.skillReadyAt) { skillDelayHint(); return; }

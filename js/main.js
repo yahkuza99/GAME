@@ -19,10 +19,17 @@ function toggleFullscreen() {
   setTimeout(() => UI.dirty(), 300);
 }
 
+// เดินเอง (จอย/คลิกพื้น) เลิกไล่ตี แต่จำ "เป้าเดิม" ไว้ — กดตี/สกิลต่อจากนั้นใช้ตัวเดิมก่อน ไม่สลับไปตัวใกล้สุด (เจ้าของ 2026-10-11)
+function rememberTarget(p) {
+  const t = p.target || p.skillTarget || (p.skillIntent && p.skillIntent.tgt);
+  if (t && !t.dead && t.kind !== 'ground' && G.mobs.includes(t)) p.lockTarget = t;
+}
+
 // เดินไปยังช่องที่คลิกบนแผนที่ (หาเส้นทางยาวข้ามแผนที่ได้)
 function mapWalkTo(tx, ty) {
   const p = G.player;
   tx = U.clamp(tx, 0, G.map.w - 1); ty = U.clamp(ty, 0, G.map.h - 1);
+  rememberTarget(p);
   p.target = null; p.skillTarget = null; p.manualSkillLock = false; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.cast = null; p.sitting = false;
   Bot.manualOverride(); Nav.cancel(true);
   p.path = findPath(G.map, Math.floor(p.x), Math.floor(p.y), tx, ty, 20000);
@@ -47,6 +54,7 @@ function stepMove(dx, dy) {
   if (!G.started || p.dead || p.cast) return;
   if (G.time < (p.kbAt || 0)) return;
   p.kbAt = G.time + 0.08;
+  rememberTarget(p);
   p.target = null; p.skillTarget = null; p.manualSkillLock = false; p.pickTarget = null; p.npcTarget = null; p.skillIntent = null; p.sitting = false;
   Bot.manualOverride(); Nav.cancel(true);
   const cx = Math.floor(p.x), cy = Math.floor(p.y);
