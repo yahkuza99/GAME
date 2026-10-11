@@ -2025,32 +2025,41 @@ const UI = {
     });
     body.append(grid, h('div', { class: 'hint' }, L('พิมพ์ /คำสั่ง ในแชตก็ได้ เช่น /lv /gg /thx • คอม: Alt+1..9', 'Or type a /command in chat, e.g. /lv /gg /thx • PC: Alt+1..9')));
   },
+  // หน้าต่างเควสต์ (แท็บ Story): ลำดับ = รับรางวัลได้เลย → เควสต์หลัก → เควสต์เสริม (js/quest.js แทรก) → ค่าหัว → สำเร็จแล้ว
+  //   ไม่มีแถบสัดส่วน — ใช้ตัวเลข a/b + ✓ • ปุ่มหลักของแต่ละการ์ดสูง ≥ 44px (มือถือ) • ปุ่มรับรางวัลมาจาก QuestUI (js/questui.js)
   renderQuest() {
     const body = $('#w-quest .win-body'), q = Quest.current(), s = Quest.state();
     const [a, b] = Quest.progress(q);
     const bs = Bounty.state();
-    const key = `${s.i}|${a}|${b}|${bs ? bs.list.map(x => x.got + (x.claimed ? 'c' : '')).join(',') : ''}`;
+    const QU = typeof QuestUI !== 'undefined' ? QuestUI : null, ready = QU ? QU.list() : [];
+    const key = `${s.i}|${a}|${b}|${bs ? bs.list.map(x => x.got + (x.claimed ? 'c' : '')).join(',') : ''}|${ready.map(r => r.key).join(',')}`;
     if (body.dataset.key === key) return;
     body.dataset.key = key; body.innerHTML = '';
     const head = (ic, t, extra) => h('div', { class: 'dsec-h' }, ivIconEl(ic), h('span', {}, t), extra || null);
+    const go = (t, label) => h('button', { type: 'button', class: 'btn q-go', onclick: e => { e.stopPropagation(); if (t) { Nav.goTo(t); this.close('w-quest'); } } }, ivIconEl('nav'), label || L('ไปเลย', 'Go'));
+    if (ready.length) body.append(h('div', { class: 'q-card q-claim' }, head('crown', L('พร้อมรับรางวัล', 'Ready to claim'), h('b', { class: 'q-claim-n' }, String(ready.length))),
+      h('div', { class: 'q-clist' }, ...ready.map(r => h('div', { class: 'q-crow', 'data-qkey': r.key },
+        h('div', { class: 'q-ctxt' }, h('b', {}, '✓ ', r.title), r.sub ? h('span', {}, r.sub) : null, r.where ? h('small', {}, r.where) : null),
+        h('button', { type: 'button', class: 'btn big primary q-claim-btn', onclick: () => { Sound.play('click'); QU.claim(r); } }, ivIconEl('crown'), r.btn || L('รับรางวัล', 'Claim reward')))))));
     if (q) {
+      const done = b > 0 && a >= b;
       body.append(h('div', { class: 'q-card q-main' },
         q.ch ? h('div', { class: 'q-chapter' }, Quest.chapterText(q)) : null,
         h('h4', {}, ivIconEl('quest'), h('span', {}, q.title)), h('p', { class: 'q-desc' }, q.desc),
-        h('div', { class: 'q-obj' }, h('span', { class: 'q-k' }, L('เป้าหมาย', 'Objective')), h('b', {}, Quest.objText(q)),
-          b > 1 ? h('span', { class: 'q-bar' }, h('i', { style: `width:${Math.round(a / b * 100)}%` })) : null),
+        h('div', { class: 'q-obj' + (done ? ' ok' : '') }, h('span', { class: 'q-k' }, L('เป้าหมาย', 'Objective')), h('b', {}, done ? '✓ ' : '', Quest.objText(q))),
         h('div', { class: 'q-rw' }, h('span', { class: 'q-k' }, L('รางวัล', 'Reward')), h('span', {}, Quest.rewardText(q))),
-        h('div', { class: 'opt-btns' }, h('button', { class: 'btn primary', onclick: () => { Quest.go(); this.close('w-quest'); } }, ivIconEl('nav'), L('นำทางไปทำเควสต์', 'Go to quest')))));
+        h('div', { class: 'opt-btns' }, h('button', { class: 'btn big primary q-main-go', onclick: () => { Quest.go(); this.close('w-quest'); } }, ivIconEl('nav'), L('นำทางไปทำเควสต์', 'Go to quest')))));
     } else body.append(h('div', { class: 'q-card q-main' }, h('div', { class: 'q-chapter' }, L('บทที่ 6 — รากที่ถูกแทะ', 'Chapter 6 — The Gnawed Root')), h('h4', {}, ivIconEl('crown'), h('span', {}, L('เร็ว ๆ นี้', 'Coming Soon'))), h('p', { class: 'q-desc' }, L('เสียงแทะยังดังอยู่ใต้โพรง... ระหว่างรอ ออกล่า MVP และเก็บชิปหายากต่อได้เลย!', 'The gnawing still echoes beneath the hollow... Until then, hunt MVPs and keep collecting rare chips!'))));
+    // ค่าหัวที่ครบแล้วแต่ยังไม่ส่ง อยู่ในการ์ด "พร้อมรับรางวัล" ด้านบน — ที่นี่เหลือแค่งานที่ยังทำอยู่/ส่งแล้ว
+    const brows = bs ? bs.list.filter(x => x.claimed || x.got < x.n).map(x => h('div', { class: 'q-bnt' + (x.claimed ? ' done' : '') },
+      h('span', { class: 'q-bic' }, x.claimed ? '✓' : ''), h('span', { class: 'q-bt' }, Bounty.line(x), h('small', {}, x.claimed ? L('รับรางวัลแล้ว', 'Claimed') : `${U.fmt(x.zeny)} ${CUR}`)),
+      x.claimed ? null : go(Quest.navTarget({ obj: { type: 'kill', mob: x.mob } })))) : [];
     body.append(h('div', { class: 'q-card q-bounty' }, head('sword', L('งานล่าค่าหัววันนี้', 'Daily Bounties')),
-      bs ? h('div', { class: 'q-blist' }, bs.list.map(x => h('div', { class: 'q-bnt' + (x.claimed ? ' done' : x.got >= x.n ? ' ready' : '') },
-        h('span', { class: 'q-bic' }, x.claimed ? '✓' : x.got >= x.n ? '!' : ''), h('span', { class: 'q-bt' }, Bounty.line(x)), h('b', {}, `${U.fmt(x.zeny)} ${CUR}`),
-        h('span', { class: 'q-bar' }, h('i', { style: `width:${Math.round(Math.min(x.got, x.n) / x.n * 100)}%` })))))
+      bs ? (brows.length ? h('div', { class: 'q-blist' }, ...brows) : null)
         : h('p', { class: 'q-note' }, L(`เปิดที่ Base Lv ${BOUNTY_MIN_LV} — รับงานที่ Guard Unit Rolf ในเมือง`, `Unlocks at Base Lv ${BOUNTY_MIN_LV} — take bounties from Guard Unit Rolf in town`)),
       bs ? h('p', { class: 'q-note' }, L('ส่งงานที่ Guard Unit Rolf • ทำครบ 3 งานได้โบนัส • งานใหม่ทุกวัน', 'Turn in to Guard Unit Rolf • bonus for all 3 • new bounties daily')) : null));
     const done = QUESTS.filter(x => s.done.includes(x.id));
-    body.append(h('details', { class: 'q-done' }, h('summary', {}, ivIconEl('confirm'), h('span', {}, L(`สำเร็จแล้ว ${s.done.length}/${QUESTS.length}`, `Completed ${s.done.length}/${QUESTS.length}`)),
-      h('span', { class: 'q-dbar' }, h('i', { style: `width:${Math.round(s.done.length / Math.max(1, QUESTS.length) * 100)}%` }))),
+    body.append(h('details', { class: 'q-done' }, h('summary', {}, ivIconEl('confirm'), h('span', {}, L(`สำเร็จแล้ว ${s.done.length}/${QUESTS.length}`, `Completed ${s.done.length}/${QUESTS.length}`))),
       done.length ? h('div', { class: 'q-dlist' }, ...done.map(x => h('b', {}, `✔ ${x.title}`))) : h('p', { class: 'q-note' }, L('ยังไม่มี — ทำเควสต์แรกให้สำเร็จก่อน', 'None yet — finish your first quest'))));
   },
   renderNav() {
