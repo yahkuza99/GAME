@@ -534,21 +534,24 @@ const Side = {
     return true;
   },
   // NPC.talk เรียกก่อนสคริปต์ของ NPC: ส่งงานที่ครบ (บทพูด say) แล้วเสนองานใหม่ทีละ 1
+  // คืน true ถ้าการคุยครั้งนี้ส่ง/รับ/เสนอเควสต์เสริม (NPC.talk ใช้ข้ามเมนูบริการทั่วไป)
   async npcTalk(n) {
-    if (!G.player) return;
+    if (!G.player) return false;
     const nm = `[${n.name}]`;
+    let did = false;
     for (const q of this.all()) {
       const st = this.step(q);
       if (!st || st.to !== n.id || !this.ready(q)) continue;
       if (st.say) await UI.say(nm, st.say);
-      this.advance(q);
+      this.advance(q); did = true;
     }
     const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
     const q = this.all().find(x => x.giver === n.id && this.available(x) && !((this.snooze[x.id] || 0) > now));
-    if (!q) return;
+    if (!q) return did;
     const c = await UI.menu(nm, L(`${q.offer}<br><br>📜 เควสต์เสริม ${B(q.title)} (ไม่บังคับ)<br>รางวัล: ${Quest.rewardText(q)}`, `${q.offer}<br><br>📜 Side quest ${B(q.title)} (optional)<br>Reward: ${Quest.rewardText(q)}`),
       [L('รับเควสต์', 'Accept'), L('ไว้ก่อน', 'Not now')]);
     if (c === 0) this.accept(q); else this.snooze[q.id] = now + this.SNOOZE_MS;
+    return true;
   },
 
   // ---------- หน้าต่างเควสต์: การ์ดเควสต์เสริม (ใต้เควสต์หลัก) ----------

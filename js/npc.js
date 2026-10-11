@@ -22,12 +22,15 @@ const NPC = {
     try {
       const q0 = Quest.current();
       Quest.onTalk(n.id); UI.illust(`npc_${n.id}`);
+      let handled = Quest.current() !== q0;
       // เควสต์เสริม (js/quest.js Side): ส่ง/รับก่อนสคริปต์ปกติ — ข้ามรอบที่เควสต์หลักเพิ่งสำเร็จที่ NPC ตัวนี้ (ให้บทพูดเนื้อเรื่องมาก่อน)
-      if (typeof Side !== 'undefined' && Quest.current() === q0) await Side.npcTalk(n);
+      if (typeof Side !== 'undefined' && Quest.current() === q0) handled = (await Side.npcTalk(n)) || handled;
+      // คุยครั้งนี้ใช้ไปกับเควสต์แล้ว (ส่ง/รับ/คืบหน้า) → สคริปต์ไม่เปิดเมนูบริการทั่วไปต่อ (รีเซ็ต/ร้าน/เซฟ) — เจ้าของ 2026-10-12 "Mimir AI ยังมาถามว่าจะรีเซ็ตไหม"
+      this.questHandled = handled;
       await fn(n);
     }
     catch (e) { if (e !== 'closed') console.error(e); }
-    finally { if (this.sid === sid) { this.busy = false; UI.dlgClose(); UI.illust(null); } }
+    finally { this.questHandled = false; if (this.sid === sid) { this.busy = false; UI.dlgClose(); UI.illust(null); } }
   },
   scripts: {},
 };
@@ -42,6 +45,7 @@ NPC.scripts.bifrost = async n => {
     : qDone('mvp1')
     ? L('ข้าจดจำเสียงราก... มันยืดลงไปทางใต้ ช้า ๆ ทางโพรงของเฮล ข้าไม่รู้ว่าดีหรือร้าย<br>ข้าคือผู้ควบคุม <b>ไบฟรอสต์</b> — บันทึกจุดกู้คืน และส่งเจ้าข้ามพื้นที่', 'I remember the voice of the roots... they are stretching south, slowly, toward Hel\'s Hollow. I do not know if that is good or ill.<br>I am the keeper of the <b>Bifrost</b> — I record your recovery point and send you across the lands.')
     : L('ข้าจดจำ... ทุกอย่าง จำนวนใบไม้ที่ส่งออกไป จำนวนครั้งที่เจ้ากลับมา<br>ข้าคือผู้ควบคุม <b>ไบฟรอสต์</b> เครือข่ายสายรุ้ง — บันทึกจุดกู้คืนของเจ้า และส่งเจ้าข้ามพื้นที่ได้', 'I remember... everything. How many leaves were sent out. How many times you came back.<br>I am the keeper of the <b>Bifrost</b>, the rainbow network — I record your recovery point and can send you across the lands.');
+  if (NPC.questHandled) return; // เพิ่งส่ง/รับเควสต์ในการคุยครั้งนี้
   const c = await UI.menu(nm, greet, [L('บันทึกจุดเกิด (Save)', 'Set Save Point (Save)'), L('ข้ามสะพานสายรุ้ง (เทเลพอร์ต)', 'Cross the Rainbow Bridge (Teleport)'), 'Cancel']);
   if (c === 0) {
     p.save = { map: G.map.id, x: n.x + 0.5, y: n.y + 1.5 };
@@ -142,6 +146,7 @@ NPC.scripts.jobmaster = async n => {
   const greet = qDone('hollow5') ? L(`${p.name}... เจ้าได้ยินสิ่งที่อยู่ใต้โพรงแล้ว ข้าบันทึกไว้แล้วว่าเจ้าคือใบแรก — และเจ้ายังไปต่อ<br>แม่พิมพ์ขั้นต่อไปยังไม่ถูกบันทึก แต่ปัญญาของข้าช่วยเจ้าได้เรื่องหนึ่ง:`, `${p.name}... you have heard what lies beneath the Hollow. I have recorded that you are the First Leaf — and that you go on.<br>The next mold has yet to be recorded, but my wisdom can aid you in one matter:`)
     : nj ? L(`${JOBS[p.job].name} ผู้สานต่อ... แม่พิมพ์ชั้นที่สอง (${B(nj.map(j => JOBS[j].name).join(' หรือ '))}) จะตื่นเมื่อเจ้ามี ${B('Base Lv ' + SECOND_JOB_REQ.base)} และ ${B('Job Lv ' + SECOND_JOB_REQ.job)} (ตอนนี้ ${p.baseLv} / ${p.jobLv})<br>ระหว่างนี้ ปัญญาของข้าช่วยเจ้าได้เรื่องหนึ่ง:`, `${JOBS[p.job].name}, inheritor... the second tier of your mold (${B(nj.map(j => JOBS[j].name).join(' or '))}) will awaken once you reach ${B('Base Lv ' + SECOND_JOB_REQ.base)} and ${B('Job Lv ' + SECOND_JOB_REQ.job)} (currently ${p.baseLv} / ${p.jobLv}).<br>Until then, my wisdom can aid you in one matter:`)
     : L(`${JOBS[p.job].name}... แม่พิมพ์ของเจ้าตื่นครบทั้งสองชั้นแล้ว ข้าบันทึกท่าของเจ้าไว้ทุกครั้งที่เจ้าสู้<br>ปัญญาของข้าช่วยเจ้าได้เรื่องหนึ่ง:`, `${JOBS[p.job].name}... both tiers of your mold have awakened. I record your techniques every time you fight.<br>My wisdom can aid you in one matter:`);
+  if (NPC.questHandled) return; // เพิ่งส่ง/รับเควสต์ในการคุยครั้งนี้
   const i = await UI.menu(nm, greet, [L(`รีเซ็ตสกิล (5,000 ${CUR})`, `Reset Skills (5,000 ${CUR})`), L(`รีเซ็ตสเตตัส (10,000 ${CUR})`, `Reset Stats (10,000 ${CUR})`), L('ไม่เป็นไร', 'No, thank you')]);
   if (i === 0 || i === 1) {
     const cost = i === 0 ? 5000 : 10000;
@@ -157,6 +162,7 @@ NPC.scripts.jobmaster = async n => {
 
 async function shopNpc(n, key, greet) {
   const nm = `[${n.name}]`;
+  if (NPC.questHandled) return; // เพิ่งส่ง/รับเควสต์ในการคุยครั้งนี้
   const i = await UI.menu(nm, greet, ['Buy', 'Sell', 'Cancel']);
   if (i > 1) return;
   UI.dlgClose();
@@ -237,6 +243,7 @@ NPC.scripts.guide = async n => {
     : !qDone('lv30') ? L(`${p.name}... ข้าเรียกชื่อเจ้าได้แล้วสินะ หมวกเขานี่ไม่ใช่ของข้า — เป็นของคู่หูที่ล้มนอกรัศมีรากในคืนนั้น<br>ข้าให้งานใกล้เมืองเพราะไม่อยากให้ใครเดินลงโพรงอีก... มีอะไรให้ข้าช่วย?`, `${p.name}... Guess I can call you by name now. This horned helm isn't mine — it belonged to my partner, who fell beyond the roots' reach that night.<br>I hand out work near town because I don't want anyone else walking down into the Hollow... What do you need?`)
     : L(`${p.name} — ข้าไม่ห้ามเจ้าอีกแล้ว (เขาแตะหมวกเขาเบา ๆ) แค่กลับมา<br>มีอะไรให้ข้าช่วย?`, `${p.name} — I won't stop you anymore. (He gently touches his horned helm.) Just come back.<br>What do you need?`);
   for (;;) {
+    if (NPC.questHandled) return; // เพิ่งส่ง/รับเควสต์ในการคุยครั้งนี้
     let i = await UI.menu(nm, greet,
       [L('งานล่าค่าหัวประจำวัน', 'Daily Bounties') + (Bounty.ready().length ? L(` (ส่งได้ ${Bounty.ready().length})`, ` (${Bounty.ready().length} ready)`) : ''), L('วิธีควบคุม', 'Controls'), L('แผนที่รอบเมือง', 'Maps Around Town'), L('ผู้คนในเมือง', 'People in Town'), L('Class อัปเกรดทั้ง 6', 'The 6 Upgrade Classes'), 'Tips', L('ขอบคุณ', 'Thanks')]);
     if (i === 0) { await NPC.bountyBoard(nm); continue; }
