@@ -412,3 +412,8 @@ body #map-banner.mini { transform: translateX(-50%) !important; }
 @media (max-width: 760px), (max-height: 520px) { body #map-banner .mb-story { display: none !important; } }
 @media (max-height: 520px) { body #map-banner, body #map-banner.has-img, body.visor #map-banner, body.visor #map-banner.has-img { top: calc(env(safe-area-inset-top, 0px) + 46px) !important; } }
 @media (prefers-reduced-motion: reduce) { body #map-banner.show { animation-duration: 2s !important; } }
+/* แท็บบอสในหน้านำทาง (ทุกอุปกรณ์) */
+#w-nav .boss-row .tag.boss-mvp { background: #ffc85a; color: #2a1802; border-radius: 4px; padding: 0 5px; }
+#w-nav .boss-row .tag.boss-wb { background: #a77bff; color: #12052a; border-radius: 4px; padding: 0 5px; }
+#w-nav .boss-row.on .boss-st { color: #2f8f3a; }
+#w-nav .boss-row.off .boss-st { color: #8a6a3a; font-weight: 600; }

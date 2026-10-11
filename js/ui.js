@@ -2073,10 +2073,10 @@ const UI = {
   renderNav() {
     const body = $('#w-nav .win-body');
     // แท็บล่าเก็บเลเวลมีนับถอยหลัง MVP/จำนวนที่ล่า → อัปเดตทุก 5 วิ (ตำแหน่งเลื่อนถูกจำไว้)
-    const key = this.navTab + '|' + G.map.id + '|' + G.player.baseLv + (this.navTab === 'mob' ? '|' + Math.floor(G.time / 5) : '');
+    const key = this.navTab + '|' + G.map.id + '|' + G.player.baseLv + (this.navTab === 'mob' ? '|' + Math.floor(G.time / 5) : this.navTab === 'boss' ? '|' + Math.floor(Date.now() / 1000) : '');
     if (body.dataset.key === key) return;
     body.dataset.key = key; body.innerHTML = '';
-    const tabs = [['mob', 'Leveling'], ['here', 'This Map'], ['place', 'Places'], ['map', 'Maps']];
+    const tabs = [['mob', 'Leveling'], ['boss', 'Bosses'], ['here', 'This Map'], ['place', 'Places'], ['map', 'Maps']];
     body.append(h('div', { class: 'tabs' }, ...tabs.map(([k, l]) => h('button', { class: 'tab' + (this.navTab === k ? ' on' : ''), onclick: () => { this.navTab = k; body.dataset.key = ''; this.renderNav(); } }, l))));
     const list = h('div', { class: 'nav-list' });
     const row = (t, sub, extra) => h('button', { class: 'nav-row' + (t.map === G.map.id ? ' here' : ''), onclick: () => Nav.goTo(t) },
@@ -2084,8 +2084,35 @@ const UI = {
     if (this.navTab === 'here') for (const t of Nav.here()) list.append(row(t, L(`${t.sub} • ${Math.round(t.d)} ช่อง`, `${t.sub} • ${Math.round(t.d)} tiles`)));
     else if (this.navTab === 'place') for (const t of Nav.places()) list.append(row(t, MAP_DEFS[t.map].name));
     else if (this.navTab === 'map') for (const t of Nav.maps()) list.append(row(t, `${t.thai}${t.level ? ` • Lv ${t.level}` : ''}`, t.map === G.map.id ? L('อยู่ที่นี่', 'Here') : null));
+    else if (this.navTab === 'boss') this.renderBossList(list);
     else this.renderHuntList(list);
     body.append(list, h('div', { class: 'hint' }, L('แตะแล้วตัวละครจะเดินไปเองและเริ่มตี ข้ามแผนที่ได้ • แตะพื้นเพื่อยกเลิก', 'Tap to auto-walk there and attack, even across maps • tap the ground to cancel')));
+  },
+  // แท็บบอส (เจ้าของ 2026-10-11 "Navigation เพิ่ม boss mvp ด้วยว่าเกิดหรือยัง"): MVP ทุกแผนที่ + Ancient (World Boss)
+  //  MVP = คูลดาวน์ของเรา (mvpLeft — เกิดเมื่อเข้าแผนที่ถ้าครบเวลา) / อยู่ในแผนที่นี้ตอนนี้ = เห็นเลือดจริง • Ancient = รอบเวลาเดียวกันทั้งเกม (WB.cycleOf)
+  renderBossList(list) {
+    const fmt = s => { s = Math.max(0, Math.ceil(s)); const m = Math.floor(s / 60); return m >= 60 ? `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}` : `${m}:${String(s % 60).padStart(2, '0')}`; };
+    const row = (t, kind, status, cls) => h('button', { class: 'nav-row boss-row ' + cls + (t.map === G.map.id ? ' here' : ''), onclick: () => Nav.goTo(t) },
+      h('span', { class: 'nav-n' }, h('span', { class: 'tag boss-' + kind }, kind === 'wb' ? 'ANCIENT' : 'MVP'), ' ', t.name, h('small', {}, ` Lv ${t.lv}`)),
+      h('span', { class: 'nav-s' }, `${MAP_DEFS[t.map].name} • `, h('b', { class: 'boss-st' }, status)));
+    const out = [];
+    for (const id in MAP_DEFS) {
+      const d = MAP_DEFS[id], mv = d.mvp && MOBS[d.mvp]; if (!mv) continue;
+      const live = id === G.map.id && G.mobs.find(m => m.isMvp && !m.dead && !m.isWB);
+      const left = mvpLeft(id);
+      const st = live ? [L(`อยู่ · เลือด ${Math.ceil(live.hp / live.maxHp * 100)}%`, `Alive · ${Math.ceil(live.hp / live.maxHp * 100)}% HP`), 'on']
+        : left <= 0 ? [L('พร้อมเกิด (เข้าแผนที่แล้วเจอ)', 'Ready (spawns when you enter)'), 'on'] : [L(`เกิดใน ${fmt(left)}`, `Respawns in ${fmt(left)}`), 'off'];
+      out.push([mv.lv, row({ kind: 'mob', map: id, mobId: d.mvp, name: mv.name, lv: mv.lv }, 'mvp', st[0], st[1])]);
+    }
+    if (typeof WB !== 'undefined') for (const id in WB.MAPS) {
+      const b = MOBS[WB.id(id)]; if (!b || !MAP_DEFS[id]) continue;
+      const cy = WB.cycleOf(id), now = Date.now(), s = WB.st && WB.st[id], dead = s && s.cycle === cy.c && s.dead;
+      const open = now >= cy.start && now < cy.end && !dead;
+      const st = open ? [L(`อยู่ · หายใน ${fmt((cy.end - now) / 1000)}`, `Up · leaves in ${fmt((cy.end - now) / 1000)}`), 'on'] : [L(`เกิดใน ${fmt((cy.next - now) / 1000)}`, `Spawns in ${fmt((cy.next - now) / 1000)}`), 'off'];
+      out.push([b.lv + 0.5, row({ kind: 'map', map: id, name: b.name, lv: b.lv }, 'wb', st[0], st[1])]);
+    }
+    out.sort((a, b) => a[0] - b[0]);
+    list.append(h('div', { class: 'hunt-head' }, h('b', {}, L('บอส', 'Bosses')), h('span', {}, L('MVP นับเวลาเกิดของคุณเอง · Ancient เกิดพร้อมกันทั้งเกม', 'MVP timers are yours · Ancients spawn for everyone'))), ...out.map(x => x[1]));
   },
   // รายการล่าเก็บเลเวล: จัดกลุ่มตามความเหมาะกับเลเวลผู้เล่น แตะเพื่อเดินไปตีทันที
   renderHuntList(list) {
