@@ -331,38 +331,55 @@ Runes.iconImg = function (rid) {
 Runes.INTENT = { single: () => L('เป้าเดี่ยว', 'Single'), pack: () => L('ฝูง', 'Pack'), both: () => L('รอบด้าน', 'Any') };
 // สรุป 1 บรรทัด (อังกฤษ — เจ้าของ: รายละเอียดรูนเป็นอังกฤษ / UI แบบ minimal) • ไม่มี short = คำอธิบายเต็ม (หน้าต่าง Runes ตัดเหลือบรรทัดแรกด้วย CSS เหมือนเดิม)
 Runes.shortOf = function (r) { return !r ? '' : r.short || (typeof r.desc === 'function' ? r.desc() : r.desc || ''); };
+// แถวรูนใต้สกิลในหน้าต่าง Skills (เจ้าของ 2026-10-11 "Skill rune ทำให้ง่ายด้วย"):
+//  • รูน 2 แบบเป็นปุ่มใหญ่ (มือถือสูง ≥ 56px) • ชื่อ + ผลภาษาไทย 1 บรรทัด (js/runes_th.js) • ขวา = "เลือก" / "ใช้อยู่ ✓"
+//  • แตะ 1 ครั้ง = ใช้รูนนั้น • แตะรูนที่ใช้อยู่ = ถอด • ล็อก = บอกว่าขาดอีกกี่ Lv • ระหว่างต่อสู้ = บอกว่าอีกกี่วิถึงเปลี่ยนได้ (กดแล้วมีข้อความเดิมจาก Runes.set)
+//  • ปลดแล้วยังไม่เลือก = ป้าย "!" ที่ชื่อสกิล (และเมนู Skills — js/runebook.js)
+Runes.needLv = function (id) { return Math.max(0, this.UNLOCK - ((G.player.skills[id] || 0))); };
+Runes.lockText = function (id) { const n = this.needLv(id); return L(`🔒 ปลดที่ Skill Lv ${this.UNLOCK} — อีก ${n} Lv`, `🔒 Unlocks at Skill Lv ${this.UNLOCK} — ${n} more Lv`); };
+Runes.busyText = function () { const n = Math.max(1, Math.ceil(this.combatLeft())); return L(`⚔ กำลังต่อสู้ — เปลี่ยนรูนได้ในอีก ${n} วิ (หยุดตี/โดนตี ${this.COMBAT} วิ)`, `⚔ In combat — you can swap runes in ${n}s (${this.COMBAT}s after the last hit)`); };
+// สกิลที่ปลดรูนแล้วแต่ยังไม่ได้เลือก (Class ปัจจุบัน + สายก่อนหน้า)
+Runes.newIds = function () {
+  const p = G.player, out = [];
+  if (!p || typeof JOBS === 'undefined' || typeof jobLine !== 'function') return out;
+  for (const j of ['novice', ...jobLine(p.job)]) for (const id of (JOBS[j] && JOBS[j].skills) || []) if (this.list(id).length >= 2 && (p.skills[id] || 0) >= this.UNLOCK && !this.chosen(id) && !out.includes(id)) out.push(id);
+  return out;
+};
 Runes.skillRow = function (list, id) {
   const r2 = this.list(id); if (r2.length < 2 || typeof h !== 'function') return;
   const p = G.player, lv = p.skills[id] || 0, cur = this.chosen(id), open = lv >= this.UNLOCK, busy = !this.canChange();
   if (!list.querySelector('.rn-help')) {
     list.prepend(h('div', { class: 'rn-help' },
-      h('b', {}, 'ᚱ Rune Paths'),
-      h('span', {}, L(` — สกิล Lv ${this.UNLOCK} ปลดรูนชั้น I: เลือก 1 จาก 2 (หรือไม่เลือก) เปลี่ยนวิธีเล่นของสกิล • เปลี่ยนได้ฟรีทุกที่ ยกเว้นระหว่างต่อสู้`,
-        ` — Skill Lv ${this.UNLOCK} unlocks tier-I runes: pick 1 of 2 (or none) to change how the skill plays • free to swap anywhere, except in combat`)),
-      busy ? h('em', { class: 'rn-busy-t' }, L(` ⚔ กำลังต่อสู้ — เปลี่ยนได้ในอีก ${Math.ceil(this.combatLeft())} วิ`, ` ⚔ In combat — swap in ${Math.ceil(this.combatLeft())}s`)) : null,
-      typeof Runebook !== 'undefined' ? h('button', { type: 'button', class: 'btn small rn-manage', title: `Runes (${Runebook.KEY})`, onclick: e => { e.stopPropagation(); Runebook.open('skill'); } }, L(`จัดการใน Runes (${Runebook.KEY})`, `Manage in Runes (${Runebook.KEY})`)) : null)); // หน้าต่าง Runes รวมทั้งสองระบบ (js/runebook.js)
+      h('b', {}, 'ᚱ Skill Rune'),
+      h('span', {}, L(` — สกิล Lv ${this.UNLOCK} ปลดรูน 2 แบบ • แตะรูนเพื่อใช้ แตะอีกครั้งเพื่อถอด • เปลี่ยนฟรีนอกการต่อสู้`,
+        ` — Skill Lv ${this.UNLOCK} unlocks 2 runes • tap one to use it, tap again to remove • free to swap out of combat`)),
+      typeof Runebook !== 'undefined' ? h('button', { type: 'button', class: 'btn small rn-manage', title: `Runes (${Runebook.KEY})`, onclick: e => { e.stopPropagation(); Runebook.open('skill'); } }, L(`ดูทั้งหมดใน Runes (${Runebook.KEY})`, `All in Runes (${Runebook.KEY})`)) : null)); // หน้าต่าง Runes รวมทั้งสองระบบ (js/runebook.js)
   }
-  const row = h('div', { class: 'rn-row' + (open ? '' : ' locked') + (busy ? ' busy' : ''), 'data-skill': id },
+  // "!" ที่ชื่อสกิล (แถวสกิลอยู่ก่อนแถวรูนเสมอ — js/ui.js renderSkills)
+  const prev = list.lastElementChild, nm = open && !cur && prev ? prev.querySelector('.sk-name') : null;
+  if (nm && !nm.querySelector('.rn-bang')) nm.prepend(h('i', { class: 'rn-bang', title: L('ปลดรูนแล้ว — ยังไม่ได้เลือก', 'Runes unlocked — none chosen') }, '!'));
+  const row = h('div', { class: 'rn-row' + (open ? '' : ' locked') + (busy ? ' busy' : '') + (open && !cur ? ' new' : ''), 'data-skill': id },
     h('div', { class: 'rn-head' },
-      h('span', { class: 'rn-tier' }, 'ᚱ RUNE I'),
-      h('span', { class: 'rn-state' }, !open ? L(`🔒 ปลดที่ ${SKILLS[id].name} Lv ${this.UNLOCK}`, `🔒 Unlocks at ${SKILLS[id].name} Lv ${this.UNLOCK}`)
-        : cur ? `${cur.glyph || 'ᚱ'} ${cur.name}` : L('ไม่ใส่รูน (สกิลแบบเดิม)', 'No rune (original skill)'))),
+      h('span', { class: 'rn-state' }, !open ? this.lockText(id)
+        : cur ? L(`ᚱ ใช้อยู่: ${cur.name}`, `ᚱ Using: ${cur.name}`) : L('! ปลดรูนแล้ว — แตะเลือก 1 แบบ', '! Runes unlocked — tap one'))),
+    open && busy ? h('div', { class: 'rn-busy' }, this.busyText()) : null,
     h('div', { class: 'rn-opts' }, ...r2.map(r => {
       const on = cur === r;
       return h('button', { type: 'button', class: 'rn-opt' + (on ? ' on' : ''), 'data-rune': r.id, 'aria-pressed': on ? 'true' : 'false', disabled: open ? false : 'disabled',
-        title: on ? L('แตะอีกครั้งเพื่อถอดรูน', 'Tap again to remove the rune') : L('แตะเพื่อใส่รูนนี้', 'Tap to socket this rune'),
+        title: (on ? L('แตะอีกครั้งเพื่อถอดรูน', 'Tap again to remove the rune') : L('แตะเพื่อใช้รูนนี้', 'Tap to use this rune')) + '\n' + r.desc(),
         onclick: e => { e.stopPropagation(); if (this.set(id, on ? null : r.id) && typeof UI !== 'undefined') UI.renderSkills(); } },
-        h('span', { class: 'rn-top' },
-          h('i', { class: 'rn-g', style: `color:${r.col || 'inherit'}` }, r.glyph || 'ᚱ'),
-          h('b', { class: 'rn-n' }, r.name)),
-        h('span', { class: 'rn-d', title: r.desc() }, h('small', { class: 'rn-tag ' + r.intent }, this.INTENT[r.intent]()), ' ', this.shortOf(r)));
+        h('i', { class: 'rn-g', style: `color:${r.col || 'inherit'}` }, r.glyph || 'ᚱ'),
+        h('span', { class: 'rn-txt' },
+          h('span', { class: 'rn-top' }, h('b', { class: 'rn-n' }, r.name), h('small', { class: 'rn-tag ' + r.intent }, this.INTENT[r.intent]())),
+          h('span', { class: 'rn-d' }, this.thOf ? this.thOf(r) : this.shortOf(r))),
+        h('span', { class: 'rn-act' }, !open ? '🔒' : on ? L('ใช้อยู่ ✓', 'In use ✓') : L('เลือก', 'Pick')));
     })));
   list.append(row);
 };
-// รีเฟรชหน้าต่างสกิลเมื่อสถานะ "อยู่ในการต่อสู้" เปลี่ยน (ปุ่มรูนล็อก/ปลดเอง)
+// รีเฟรชหน้าต่างสกิลเมื่อสถานะ "อยู่ในการต่อสู้" เปลี่ยน + นับถอยหลังทุกวินาที (ข้อความ "เปลี่ยนได้ในอีก N วิ")
 Runes.watchCombat = function () {
-  const busy = !this.canChange();
-  if (busy !== this._busy) { this._busy = busy; if (typeof UI !== 'undefined' && UI.isOpen && UI.isOpen('w-skills')) UI.dirty(); }
+  const left = Math.ceil(this.combatLeft());
+  if (left !== this._busy) { this._busy = left; if (typeof UI !== 'undefined' && UI.isOpen && UI.isOpen('w-skills')) UI.dirty(); }
 };
 
 // วาดภาพรูนผ่าน R.drawFx (แบบเดียวกับ juice.js) — ต่อเมื่อ render.js โหลดแล้ว

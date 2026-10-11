@@ -5,7 +5,8 @@
 //  • สมุดเปิด (UI.book): หน้าซ้าย = รายการ • หน้าขวา = รายละเอียด + ปุ่ม • มือถือแนวตั้ง = หน้าเดียว รายการ → รายละเอียด → กลับ
 //  • ไม่มีแถบ "วิธีใช้" (เจ้าของ 2026-10-03: "Rune ไม่ต้องใส่วิธีใช้") — จุดแดงบนแท็บ = มีรูนที่ยังใส่ได้
 //  • ใช้ตรรกะเดิมทั้งหมด: Runes.set / HuntRunes.set (ล็อกระหว่างต่อสู้ 5 วิ เหมือนเดิม) — ไม่แตะสมดุล/เซฟ/id
-//  • ซื้อ Hunt Rune ยังซื้อที่ Brokk เท่านั้น — ที่นี่มีปุ่มเปิดเตาของ Brokk (ถ้ายืนใกล้) หรือนำทางไปหา (Nav)
+//  • ซื้อ Hunt Rune ได้ที่นี่เลยทุกที่ (เจ้าของ 2026-10-11 "เพิ่มความสะดวกในการซื้อ") — กดซื้อ → ยืนยัน (+ ตัวเลือก "ซื้อแล้วใส่ช่องเลย") • Volt ไม่พอ = บอกว่าขาดเท่าไร
+//    เตาของ Brokk ยังขายเหมือนเดิม • ราคา = HuntRunes (HR_PRICE_MUL)
 //  • ทางเข้า: เมนู "Runes" • Shift+R (R = กาชาอยู่แล้ว) • การ์ด Hunt Rune ใน Status • แท็บ Runes ในกระเป๋า • ลิงก์ในหน้าต่าง Skills
 //  • #w-hrunes เดิม (data-open / UI.open / UI.toggle) → เปิดหน้าต่างนี้ที่แท็บ Hunt Runes แทน
 //  หน้าต่าง: #w-runes (index.html) • CSS: css/runebook.css (ใช้ token จาก css/tokens.css)
@@ -20,6 +21,8 @@ const Runebook = {
   hrSel: null,       // Hunt Rune ที่เลือก
   filter: 'all',     // all | slayer | endow | cond
   det: false,        // มือถือ: อยู่หน้ารายละเอียด
+  buyAsk: null,      // Hunt Rune ที่กดซื้อแล้ว รอยืนยัน
+  buyAuto: true,     // ยืนยันซื้อแล้วใส่ช่องว่างเลย
   _key: '',
 
   // ---------- เปิด ----------
@@ -46,9 +49,7 @@ const Runebook = {
   skLv(id) { return G.player.skills[id] || 0; },
   skOpen(id) { return this.skLv(id) >= Runes.UNLOCK; },
   busy() { return typeof Runes !== 'undefined' && !Runes.canChange(); },
-  busyText() { const n = Math.ceil(Runes.combatLeft()); return L(`⚔ กำลังต่อสู้ — เปลี่ยนรูนได้อีกใน ${n} วิ`, `⚔ In combat — you can swap runes in ${n}s`); },
-  // Brokk ยืนอยู่ใกล้ (ระยะเดียวกับที่เตาของเขาปิดเอง)
-  brokkNear() { const p = G.player; return (G.npcs || []).find(n => n.id === 'refine' && U.dist(p.x, p.y, n.x, n.y) <= 6) || null; },
+  busyText() { return Runes.busyText(); },
   // สิ่งที่ยังทำได้ (จุดแจ้งเตือนบนแท็บ)
   todo() {
     const p = G.player, HR = typeof HuntRunes !== 'undefined' ? HuntRunes : null;
@@ -60,9 +61,9 @@ const Runebook = {
 
   // ---------- วาด ----------
   key() {
-    const p = G.player, n = this.brokkNear();
-    return JSON.stringify([this.tab, this.skSel, this.skPick === undefined ? '~' : this.skPick, this.hrSel, this.filter, this.det, p.job, p.skills, p.runes, p.hrunes, p.hrunesOwn,
-      p.baseLv, p.zeny, Math.ceil(Runes.combatLeft()), typeof LANG !== 'undefined' ? LANG : '', UI.narrow(), !!n]);
+    const p = G.player;
+    return JSON.stringify([this.tab, this.skSel, this.skPick === undefined ? '~' : this.skPick, this.hrSel, this.buyAsk, this.buyAuto, this.filter, this.det, p.job, p.skills, p.runes, p.hrunes, p.hrunesOwn,
+      p.baseLv, p.zeny, Math.ceil(Runes.combatLeft()), typeof LANG !== 'undefined' ? LANG : '', UI.narrow()]);
   },
   render(force) {
     const body = document.querySelector('#w-runes .win-body');
@@ -98,7 +99,7 @@ const Runebook = {
   huntIcon(id, cls) { return h('span', { class: 'rb-ic' + (cls ? ' ' + cls : '') }, h('img', { src: itemIconUrl(id), alt: '', draggable: 'false' })); },
   // การ์ดที่ไม่ได้เลือก: r.short แยก 2 บรรทัดสั้น — ผลหลัก (บน) / สิ่งที่แลก (ล่าง จางกว่า) ตัดที่ " · " • ชี้ค้าง = คำอธิบายเต็ม
   shortEl(r) {
-    const [eff, ...cost] = r.short.split(' · ');
+    const [eff, ...cost] = Runes.thOf(r).split(' · '); // ไทย 1 บรรทัด (js/runes_th.js) • ภาษาอังกฤษ = r.short เดิม
     return h('span', { class: 'rb-card-d rb-short', title: r.desc() }, h('span', { class: 'rb-eff' }, eff), cost.length ? h('span', { class: 'rb-cost' }, cost.join(' · ')) : null);
   },
   back() { return UI.bookBack(() => { this.det = false; this.skPick = undefined; this.render(); }); },
@@ -116,7 +117,7 @@ const Runebook = {
     } else {
       const rows = ids.map(id => {
         const s = SKILLS[id], lv = this.skLv(id), open = this.skOpen(id), cur = Runes.chosen(id);
-        const sub = !open ? `🔒 Skill Lv ${Runes.UNLOCK}` + (lv ? L(` · ตอนนี้ Lv ${lv}`, ` · now Lv ${lv}`) : L(' · ยังไม่ได้เรียน', ' · not learned'))
+        const sub = !open ? Runes.lockText(id)
           : cur ? `${cur.glyph || 'ᚱ'} ${cur.name}` : L('ปลดแล้ว — ยังไม่ได้เลือกรูน', 'Unlocked — no rune chosen yet');
         // ขวา: เบ้ารูนเล็ก (รูนที่ใช้อยู่ / แม่กุญแจ / ว่างรอเลือก)
         const mark = !open ? h('span', { class: 'rb-mark lock', title: `Skill Lv ${Runes.UNLOCK}` }, UI.ico('lock'))
@@ -166,8 +167,8 @@ const Runebook = {
       h('div', { class: 'det-top rb-sk-top' }, UI.skillIcon(id), h('div', {},
         h('h3', { class: 'dname' }, s.name),
         h('small', {}, `Skill Lv ${lv}/${s.max} · ` + (!open ? L(`ปลดรูนที่ Lv ${Runes.UNLOCK}`, `Runes unlock at Lv ${Runes.UNLOCK}`) : cur ? `Rune: ${cur.name}` : L('ยังไม่ได้เลือกรูน', 'No rune chosen'))))),
-      !open ? this.note(L(`อัป ${s.name} ให้ถึง Lv ${Runes.UNLOCK} ในหน้าต่าง Skills (S) ก่อน — ตอนนี้ Lv ${lv} • ดูรูนทั้ง 2 แบบล่วงหน้าได้ด้านล่าง`,
-        `Raise ${s.name} to Lv ${Runes.UNLOCK} in the Skills window (S) first — now Lv ${lv} • you can preview both runes below`), 'rb-lock-note') : null,
+      !open ? this.note(L(`อัป ${s.name} ให้ถึง Lv ${Runes.UNLOCK} ในหน้าต่าง Skills (S) ก่อน — อีก ${Runes.needLv(id)} Lv (ตอนนี้ Lv ${lv}) • ดูรูนทั้ง 2 แบบล่วงหน้าได้ด้านล่าง`,
+        `Raise ${s.name} to Lv ${Runes.UNLOCK} in the Skills window (S) first — ${Runes.needLv(id)} more Lv (now Lv ${lv}) • you can preview both runes below`), 'rb-lock-note') : null,
       open && busy ? this.note(this.busyText(), 'rb-busy') : null,
       h('div', { class: 'rb-cards' + (open ? '' : ' off') }, card(null), ...list.map(card)),
       pick && Runes.BY_ID[pick] && Runes.BY_ID[pick].short ? h('details', { class: 'det-more rb-more' }, h('summary', {}, 'Details'), h('p', {}, Runes.BY_ID[pick].desc())) : null,
@@ -182,7 +183,7 @@ const Runebook = {
     const owned = all.filter(d => HR.owns(d.id)), shop = all.filter(d => !HR.owns(d.id));
     if (this.hrSel && !HR.def(this.hrSel)) this.hrSel = null;
     const sel = this.hrSel || (narrow ? null : s.find(Boolean) || (HR.LIST.find(d => HR.owns(d.id)) || HR.LIST[0]).id);
-    const pick = id => { this.hrSel = id; this.det = true; this.render(); };
+    const pick = id => { this.hrSel = id; this.buyAsk = null; this.det = true; this.render(); };
     // แผ่นหิน: ไอคอนรูน 64px บนซ้าย + สถานะขวาบน (✓ ช่อง / Owned / ราคา) • ชื่อ + ชนิด · ผล
     const row = d => {
       const at = s.indexOf(d.id), own = HR.owns(d.id), r = typeof LOOT !== 'undefined' ? LOOT.rarityOf(d.id) : 'common';
@@ -198,18 +199,18 @@ const Runebook = {
     const pills = h('div', { class: 'pills rb-filter' }, [['all', 'All'], ['slayer', 'Slayer'], ['endow', 'Endow'], ['cond', 'Conditional']].map(([k, l]) =>
       h('button', { type: 'button', class: 'pill' + (this.filter === k ? ' on' : ''), 'data-f': k, onclick: () => { this.filter = k; this.render(); } }, l)));
     const list = [h('div', { class: 'rb-sec' }, h('span', {}, L(`รูนของคุณ (${owned.length})`, `Your runes (${owned.length})`))),
-      owned.length ? h('div', { class: 'rb-tiles' }, owned.map(row)) : h('div', { class: 'rb-none' }, L('ยังไม่มีในหมวดนี้ — ซื้อได้ที่ Brokk (รายการด้านล่าง)', 'None here yet — Brokk sells them (list below)')),
-      shop.length ? h('div', { class: 'rb-sec' }, h('span', {}, L(`ซื้อได้ที่ Brokk Forge-Bot (${shop.length})`, `At Brokk's forge (${shop.length})`))) : null,
+      owned.length ? h('div', { class: 'rb-tiles' }, owned.map(row)) : h('div', { class: 'rb-none' }, L('ยังไม่มีในหมวดนี้ — แตะรูนด้านล่างเพื่อซื้อได้เลย', 'None here yet — tap a rune below to buy it')),
+      shop.length ? h('div', { class: 'rb-sec' }, h('span', {}, L(`ซื้อได้เลยที่นี่ (${shop.length})`, `Buy here (${shop.length})`))) : null,
       shop.length ? h('div', { class: 'rb-tiles' }, shop.map(row)) : null];
     const left = [pills, h('div', { class: 'irows rb-list' }, list),
       h('div', { class: 'book-foot' }, h('span', { class: 'bf-count' }, L('ซื้อครั้งเดียวเก็บตลอดไป • ใส่/ถอดฟรี', 'Buy once, keep forever • socketing is free')), h('span', { class: 'coin-pill' }, h('i', { class: 'coin' }), U.fmt(p.zeny)))];
     const right = [this.back(), this.sockets(sel, busy)];
     if (busy) right.push(this.note(this.busyText(), 'rb-busy'));
     if (sel) {
-      const d = HR.def(sel), own = HR.owns(sel), acts = own ? [0, 1].map(i => this.sockBtn(i, sel, busy)) : [this.brokkBtn(sel)];
+      const d = HR.def(sel), own = HR.owns(sel), acts = own ? [0, 1].map(i => this.sockBtn(i, sel, busy)) : this.buyActs(sel, busy);
       const note = own ? L('ใส่/ถอดฟรีทุกที่ ยกเว้นระหว่างต่อสู้ • ทำงานเองทุกครั้งที่ตี (ไม่ต้องกดใช้)', 'Free to swap anywhere, except in combat • works on its own whenever you hit')
-        : L(`ยังไม่มี — ซื้อที่ Brokk Forge-Bot ใน Neo Eldheim (แท็บ Hunt Rune ในเตา) ราคา ${U.fmt(d.price)} ${CUR} • ซื้อครั้งเดียวเก็บตลอดไป`,
-          `Not owned — buy it from Brokk Forge-Bot in Neo Eldheim (Hunt Rune tab at his forge) for ${U.fmt(d.price)} ${CUR} • buy once, keep forever`);
+        : L(`ยังไม่มี — ซื้อได้เลยตรงนี้ ${U.fmt(d.price)} ${CUR} (หรือที่เตาของ Brokk) • ซื้อครั้งเดียวเก็บตลอดไป`,
+          `Not owned — buy it right here for ${U.fmt(d.price)} ${CUR} (or at Brokk's forge) • buy once, keep forever`);
       right.push(...UI.itemDetail(HR.entry(sel), acts, note, { noPrice: true, lead: [HR.infoSec(d)] }));
     } else right.push(UI.emptyState('hrune', L('เลือกรูนทางซ้าย', 'Pick a rune on the left'), L('Slayer = ตีเผ่านั้นแรงขึ้น • Endow = เปลี่ยนธาตุการโจมตี • Conditional = แรงขึ้นตามสถานการณ์', 'Slayer = bonus vs a race • Endow = change your attack element • Conditional = bonus in a situation')));
     return { left, right, det: this.det && !!sel };
@@ -243,16 +244,48 @@ const Runebook = {
       onclick: () => { if (HR.set(i, on ? null : id)) this.render(true); } },
     lock ? `🔒 Slot ${n} · Lv ${HR.UNLOCK[i]}` : on ? `Remove from ${n}` : `Socket in ${n}`);
   },
-  // ยังไม่มีรูน: ยืนใกล้ Brokk = เปิดเตาของเขาที่แท็บ Hunt Rune (รูนนี้) • ไม่ใกล้ = นำทางไปหา
-  brokkBtn(id) {
-    const n = this.brokkNear();
-    if (n) return h('button', { type: 'button', class: 'btn big primary rb-brokk', 'data-go': 'forge', onclick: () => {
-      UI.openForge(n); if (UI.forge) { HuntRunes.filter = 'all'; Object.assign(UI.forge, { tab: 'hrune', hsel: id, det: true }); UI.renderForge(); }
-    } }, ivIconEl('forge'), L('ซื้อที่เตาของ Brokk', "Buy at Brokk's forge"));
-    const t = typeof Nav !== 'undefined' ? Nav.places().find(x => x.npcId === 'refine') : null;
-    return h('button', { type: 'button', class: 'btn big primary rb-brokk', 'data-go': 'nav', disabled: t ? false : 'disabled', onclick: () => {
-      Nav.goTo(t); if (Nav.target) UI.close('w-runes');
-    } }, ivIconEl('nav'), L('นำทางไป Brokk', 'Navigate to Brokk'));
+  // ---------- ซื้อ Hunt Rune ที่นี่ ----------
+  // ช่องว่างที่ใส่รูนนี้ได้ทันที (ปลดแล้ว ว่าง และไม่ชน Endow 2 อัน) • ไม่มี = -1
+  freeSlot(id) {
+    const HR = HuntRunes, s = HR.slots(), d = HR.def(id);
+    if (!d) return -1;
+    for (let i = 0; i < 2; i++) {
+      if (!HR.unlocked(i) || s[i]) continue;
+      const o = HR.def(s[1 - i]);
+      if (d.kind === 'endow' && o && o.kind === 'endow') continue;
+      return i;
+    }
+    return -1;
+  },
+  // ปุ่มซื้อ: ราคา / ขาดเท่าไร → แตะ = กล่องยืนยัน (ราคา + เหลือหลังซื้อ + "ซื้อแล้วใส่ช่องเลย") → ยืนยัน = หักเงินพอดีราคา
+  buyActs(id, busy) {
+    const HR = HuntRunes, d = HR.def(id), p = G.player, miss = d.price - p.zeny;
+    if (miss > 0) return [h('div', { class: 'rb-buy-wrap' }, h('button', { type: 'button', class: 'btn big rb-buy poor', 'data-miss': String(miss), disabled: 'disabled' },
+      L(`ขาดอีก ${U.fmt(miss)} ${CUR}`, `${U.fmt(miss)} ${CUR} short`)),
+    h('div', { class: 'rb-buy-have' }, L(`ราคา ${U.fmt(d.price)} • มีอยู่ ${U.fmt(p.zeny)} ${CUR}`, `Price ${U.fmt(d.price)} • you have ${U.fmt(p.zeny)} ${CUR}`)))];
+    if (this.buyAsk !== id) return [h('button', { type: 'button', class: 'btn big primary rb-buy', onclick: () => { this.buyAsk = id; this.render(); } },
+      ivIconEl('shop'), L(`ซื้อ · ${U.fmt(d.price)} ${CUR}`, `Buy · ${U.fmt(d.price)} ${CUR}`))];
+    const slot = this.freeSlot(id), auto = slot >= 0 && this.buyAuto;
+    return [h('div', { class: 'rb-confirm', role: 'group', 'aria-label': L('ยืนยันการซื้อ', 'Confirm purchase') },
+      h('b', { class: 'rb-confirm-q' }, L(`ซื้อ ${d.name}?`, `Buy ${d.name}?`)),
+      h('div', { class: 'rb-confirm-kv' }, h('span', {}, L('ราคา', 'Price')), h('b', {}, `${U.fmt(d.price)} ${CUR}`)),
+      h('div', { class: 'rb-confirm-kv' }, h('span', {}, L('เหลือหลังซื้อ', 'Left after')), h('b', {}, `${U.fmt(p.zeny - d.price)} ${CUR}`)),
+      slot >= 0 ? h('button', { type: 'button', class: 'rb-auto' + (auto ? ' on' : ''), role: 'checkbox', 'aria-checked': auto ? 'true' : 'false', 'data-slot': String(slot),
+        onclick: () => { this.buyAuto = !this.buyAuto; this.render(); } },
+      h('i', { class: 'rb-box' }, auto ? '✓' : ''), h('span', {}, L(`ซื้อแล้วใส่ช่อง ${HR.slotName(slot)} เลย`, `Socket in slot ${HR.slotName(slot)} right away`),
+        busy && auto ? h('small', {}, L(' (ใส่ได้หลังพ้นการต่อสู้)', ' (after combat)')) : null))
+        : h('div', { class: 'rb-buy-have' }, L('ไม่มีช่องว่างตอนนี้ — ซื้อเก็บไว้ แล้วใส่แทนอันเดิมได้ทีหลัง', 'No free slot now — keep it and swap it in later')),
+      h('div', { class: 'rb-confirm-acts' },
+        h('button', { type: 'button', class: 'btn big primary rb-buy-ok', onclick: () => this.confirmBuy(id) }, L('ยืนยันซื้อ', 'Confirm')),
+        h('button', { type: 'button', class: 'btn big rb-buy-no', onclick: () => { this.buyAsk = null; this.render(); } }, L('ยกเลิก', 'Cancel'))))];
+  },
+  confirmBuy(id) {
+    const HR = HuntRunes, slot = this.freeSlot(id), auto = slot >= 0 && this.buyAuto;
+    this.buyAsk = null;
+    if (!HR.buy(id)) { this.render(true); return false; }
+    if (auto) HR.set(slot, id); // ระหว่างต่อสู้ = ข้อความเดิมของ HuntRunes.set (รูนอยู่ในรายการแล้ว ใส่ทีหลังได้)
+    this.hrSel = id; this.render(true);
+    return true;
   },
 
   // ---------- ลิงก์จากที่อื่น ----------
@@ -273,6 +306,40 @@ const Runebook = {
     if (sk) sk.after(b); else m.append(b);
   },
 
+  // ---------- "!" รูนสกิลที่เพิ่งปลด ----------
+  // เมนู Skills (+ ปุ่มเปิดเมนู) ติด "!" เมื่อมีสกิลที่เพิ่งปลดรูนแต่ยังไม่เลือก • เปิดหน้าต่าง Skills แล้ว = รับทราบ (ไม่ติดซ้ำจนกว่าจะปลดสกิลใหม่)
+  // ที่รับทราบเก็บในเบราว์เซอร์ต่อชื่อตัวละคร (ไม่แตะเซฟเกม) • อ่าน/เขียนไม่ได้ = จำแค่รอบนี้
+  _ack: null, _ackName: '',
+  ackSet() {
+    const nm = (G.player && G.player.name) || '';
+    if (!this._ack || this._ackName !== nm) {
+      this._ackName = nm; this._ack = new Set();
+      try { const a = JSON.parse(localStorage.getItem('iv_rune_new_ack:' + nm) || '[]'); if (Array.isArray(a)) a.forEach(x => this._ack.add(String(x))); } catch (e) { /* ไม่มีที่เก็บ */ }
+    }
+    return this._ack;
+  },
+  ackSave() { try { localStorage.setItem('iv_rune_new_ack:' + this._ackName, JSON.stringify([...this._ack].slice(-200))); } catch (e) { /* ไม่มีที่เก็บ */ } },
+  newUnseen() { const a = this.ackSet(); return Runes.newIds().filter(id => !a.has(id)); },
+  markMenu() {
+    const m = document.getElementById('menubar'); if (!m) return;
+    let fresh = this.newUnseen();
+    if (fresh.length && UI.isOpen('w-skills')) { const a = this.ackSet(); fresh.forEach(id => a.add(id)); this.ackSave(); fresh = []; }
+    const on = fresh.length > 0, b = m.querySelector('[data-win="w-skills"]'), f = m.querySelector('.menu-fold');
+    if (b) { b.classList.toggle('rn-new', on); if (on) b.title = L('Skills — มีรูนสกิลปลดใหม่ (S)', 'Skills — new skill runes unlocked (S)'); }
+    if (f) f.classList.toggle('rn-new', on);
+  },
+  markSkillTabs() {
+    const tabs = document.querySelectorAll('#w-skills .sk-tabs .tab'), p = G.player;
+    if (!tabs.length || !p) return;
+    const jobs = p.job === 'novice' ? ['novice'] : ['novice', ...jobLine(p.job).reverse()], fresh = Runes.newIds();
+    tabs.forEach((t, i) => {
+      const j = jobs[i], has = !!j && fresh.some(id => (JOBS[j].skills || []).includes(id));
+      const cur = t.querySelector('.rn-bang');
+      if (has && !cur) t.append(h('i', { class: 'rn-bang', title: L('ปลดรูนแล้ว — ยังไม่ได้เลือก', 'Runes unlocked — none chosen') }, '!'));
+      else if (!has && cur) cur.remove();
+    });
+  },
+
   install() {
     if (typeof document === 'undefined' || typeof UI === 'undefined') return;
     // UI.open: #w-hrunes เดิม → หน้าต่างนี้ (แท็บ Hunt Runes) • เปิด #w-runes ใหม่จากเมนู = หน้ารายการ
@@ -285,6 +352,9 @@ const Runebook = {
     };
     const rw0 = UI.renderWindows;
     UI.renderWindows = function (force) { const d = this.isDirty || force, r = rw0.call(this, force); if (d && this.isOpen('w-runes')) Runebook.render(); return r; };
+    // หน้าต่าง Skills: "!" บนแท็บ Class ที่มีสกิลปลดรูนแล้วแต่ยังไม่เลือก (แถวสกิลติด "!" เองใน Runes.skillRow)
+    const rs0 = UI.renderSkills;
+    UI.renderSkills = function (...a) { const r = rs0.apply(this, a); try { Runebook.markSkillTabs(); } catch (err) { console.error(err); } return r; };
     const ri0 = UI.renderInv;
     UI.renderInv = function (...a) { const r = ri0.apply(this, a); if (this.invTab === 'hrune') Runebook.invLink(); return r; };
     if (typeof UIKit !== 'undefined' && !UIKit.BOOKS.includes('w-runes')) UIKit.BOOKS.push('w-runes'); // สมุดเปิดบนคอม: แชทจางลง
@@ -298,6 +368,7 @@ const Runebook = {
     });
     // นับถอยหลังล็อกต่อสู้ / Brokk ใกล้-ไกล (วาดใหม่เฉพาะเมื่อมีอะไรเปลี่ยน)
     setInterval(() => { if (typeof G !== 'undefined' && G.started && G.player && UI.isOpen('w-runes')) { try { this.render(); } catch (err) { console.error(err); } } }, 400);
+    setInterval(() => { if (typeof G !== 'undefined' && G.started && G.player) { try { this.markMenu(); } catch (err) { console.error(err); } } }, 500);
   },
 };
 Runebook.install();

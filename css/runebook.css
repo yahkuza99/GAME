@@ -250,3 +250,28 @@ body.visor .win .rb-sock .rb-rm { flex: none; width: 100%; min-height: 26px; }
   body.visor .win .rb-filter .pill { --pq: 6px; min-height: 32px; padding-left: 8px; padding-right: 8px; font-size: var(--fs-xs); }
 }
 @media (prefers-reduced-motion: reduce) { .rb-card, .rb-tile { transition: none; } .rb-card:hover, .rb-tile:hover { transform: none !important; } }
+
+/* ---------- ซื้อ Hunt Rune ที่นี่ (2026-10-11 "เพิ่มความสะดวกในการซื้อ") — กล่องยืนยัน มุม ≤ 8px ไม่ถ่างตัวอักษร ---------- */
+.rb-buy .ivi { width: 18px; height: 18px; }
+.rb-buy-wrap { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+#w-runes .btn.rb-buy.poor, #w-runes .btn.rb-buy.poor:disabled { opacity: 1; filter: none; color: var(--c-bad, #b3321f); font-weight: 800; }
+.rb-buy-have { font-size: 13px; line-height: 1.45; color: var(--ink-dim, #6b5a3c); text-align: center; margin-top: 4px; }
+.rb-confirm { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 8px; border: 2px solid #c8901a; background: rgba(255, 236, 190, 0.55); }
+.rb-confirm-q { font-size: 15px; line-height: 1.4; }
+.rb-confirm-kv { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; line-height: 1.45; }
+.rb-confirm-kv b { font-variant-numeric: tabular-nums; }
+.rb-auto { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 8px; border-radius: 6px; cursor: pointer; text-align: left;
+  font: inherit; font-size: 14px; color: inherit; background: rgba(255, 255, 255, 0.55); border: 1px solid rgba(150, 105, 45, 0.45); }
+.rb-auto .rb-box { flex: none; width: 22px; height: 22px; border-radius: 4px; border: 2px solid #8a5a12; display: grid; place-items: center; font-style: normal; font-weight: 900; color: #fff; }
+.rb-auto.on .rb-box { background: #2f8f5a; border-color: #2f8f5a; }
+.rb-auto small { font-size: 13px; opacity: 0.8; }
+.rb-confirm-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.rb-confirm-acts .btn { min-height: 44px; }
+@media (max-width: 760px) {
+  .rb-buy-have, .rb-auto small { font-size: 14px; }
+  .rb-buy, .rb-confirm-acts .btn { min-height: 48px; }
+}
+@media (max-width: 760px), (pointer: coarse) {
+  body.visor #w-runes .rb-confirm .btn, body.visor #w-runes .rb-buy, body.visor #w-runes .rb-auto { min-height: 48px; height: auto; }
+  body.visor #w-runes .rb-confirm, body.visor #w-runes .rb-buy-have { font-size: 14px; }
+}

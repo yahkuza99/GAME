@@ -69,7 +69,7 @@ async function start(browser, port, vp, mobile) {
     const ids = HR.LIST.map(d => d.id);
     ok('catalogue: 8 Slayer (7 races + Human) + 6 Endow + 4 Conditional', HR.LIST.filter(d => d.kind === 'slayer').length === 8 && HR.LIST.filter(d => d.kind === 'endow').length === 6 && HR.LIST.filter(d => d.kind === 'cond').length === 4, ids);
     ok('items: new ids, type hrune, English only, valid rarity', ids.every(id => ITEMS[id] && ITEMS[id].type === 'hrune' && !/[฀-๿]/.test(ITEMS[id].name + ITEMS[id].desc) && RARITY[ITEMS[id].rarity]));
-    ok('prices: Slayer/Endow 1500–4000, Conditional 6000', HR.LIST.every(d => d.kind === 'cond' ? d.price === 6000 : d.price >= 1500 && d.price <= 4000), HR.LIST.map(d => d.id + ':' + d.price));
+    ok('prices: ×2 (HR_PRICE_MUL, 2026-10-11) — Slayer/Endow 3000–8000, Conditional 12000', HR_PRICE_MUL === 2 && HR.LIST.every(d => d.price === d.basePrice * 2 && (d.kind === 'cond' ? d.price === 12000 : d.price >= 3000 && d.price <= 8000)), HR.LIST.map(d => d.id + ':' + d.price));
     pl.hrunesOwn = []; pl.zeny = 1000;
     ok('buy: not enough Volt refused', !HR.buy('hr_slay_brute') && !HR.owns('hr_slay_brute') && pl.zeny === 1000);
     pl.zeny = 1e6;

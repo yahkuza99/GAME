@@ -3,7 +3,7 @@
 //  ทดสอบหน้าต่าง Runes (js/runebook.js) ด้วย Playwright:
 //  ทางเข้า (เมนู / Shift+R / การ์ด Status / แท็บ Runes ในกระเป๋า / ลิงก์ในหน้าต่าง Skills / #w-hrunes เดิม)
 //  • เลือก Skill Rune ที่นี่ = ผลเดียวกับหน้าต่าง Skills (Runes.set) • ใส่/ถอด Hunt Rune • ล็อกระหว่างต่อสู้ • สถานะล็อก (Skill Lv 4 / Base Lv 15·35)
-//  • ยังไม่มีรูน = ปุ่มไป Brokk (ไม่มีปุ่มซื้อในหน้าต่างนี้) • ประกาศปลดล็อกพูดถึง Runes • มือถือ: รายการ → รายละเอียด → กลับ
+//  • ยังไม่มีรูน = ปุ่มซื้อในหน้าต่างนี้ (ยืนยันก่อน — 2026-10-11) • เตาของ Brokk ยังขาย • ประกาศปลดล็อกพูดถึง Runes • มือถือ: รายการ → รายละเอียด → กลับ
 //  รัน:  NODE_PATH=$(npm root -g) node tests/runebook.js   (เปิดเซิร์ฟเวอร์เอง)
 //  ภาพหน้าจอ: SHOTS=<โฟลเดอร์> NODE_PATH=$(npm root -g) node tests/runebook.js
 // ============================================================
@@ -221,23 +221,20 @@ async function start(browser, port, vp, mobile) {
     W().querySelector('.rb-filter .pill[data-f="endow"]').click(); await wait(30);
     r.endow = [...W().querySelectorAll('.rb-tile[data-hr]')].every(x => HR.def(x.dataset.hr).kind === 'endow') && W().querySelectorAll('.rb-tile[data-hr]').length === 6;
     W().querySelector('.rb-filter .pill[data-f="all"]').click(); await wait(30);
-    // ยังไม่มี: ไม่มีปุ่มซื้อ/ใส่ • ปุ่มไป Brokk (ไกล = นำทาง)
+    // ยังไม่มี (2026-10-11): ซื้อได้ที่นี่เลยทุกที่ — ปุ่มซื้อ (ราคา) → กล่องยืนยัน • ยกเลิก = ไม่เสียเงิน (ซื้อจริงทดสอบใน tests/runeeasy.js)
     changeMap('meadow', 28.5, 28.5); await wait(200);
     Runebook.open('hunt', 'hr_giant'); await wait(50);
-    const go = W().querySelector('.rb-brokk');
-    r.notOwned = !W().querySelector('.rb-sock-btn') && !!go && go.dataset.go === 'nav' && /Brokk/.test(W().querySelector('.det-note').textContent) && !/Forge ·/.test(W().textContent);
-    go.click(); await wait(30);
-    r.nav = !!Nav.target && Nav.target.npcId === 'refine' && !UI.isOpen('w-runes');
-    Nav.cancel(true);
-    r.zenyKept = pl.zeny === z0 && !HR.owns('hr_giant');
-    // ใกล้ Brokk = เปิดเตาของเขาที่แท็บ Hunt Rune (รูนนี้)
+    const buy = W().querySelector('.rb-buy');
+    r.notOwned = !W().querySelector('.rb-sock-btn') && !!buy && !buy.disabled && buy.textContent.includes(U.fmt(HR.def('hr_giant').price)) && !W().querySelector('.rb-brokk');
+    buy.click(); await wait(30);
+    r.confirm = !!W().querySelector('.rb-confirm .rb-buy-ok') && pl.zeny === z0;
+    W().querySelector('.rb-buy-no').click(); await wait(30);
+    r.zenyKept = pl.zeny === z0 && !HR.owns('hr_giant') && !W().querySelector('.rb-confirm');
+    // เตาของ Brokk ยังขายเหมือนเดิม
     changeMap(HOME_MAP, 20.5, 24.5); await wait(200);
     const brokk = G.npcs.find(n => n.id === 'refine'); pl.x = brokk.x + 0.5; pl.y = brokk.y + 1.5; pl.path = [];
-    Runebook.open('hunt', 'hr_giant'); await wait(50);
-    const go2 = W().querySelector('.rb-brokk');
-    r.nearBtn = !!go2 && go2.dataset.go === 'forge';
-    go2.click(); await wait(50);
-    r.forge = UI.isOpen('w-forge') && UI.forge && UI.forge.tab === 'hrune' && UI.forge.hsel === 'hr_giant';
+    UI.openForge(brokk); UI.forge.tab = 'hrune'; UI.forge.hsel = 'hr_giant'; UI.forge.det = true; UI.renderForge(); await wait(50);
+    r.forge = UI.isOpen('w-forge') && !!document.querySelector('#w-forge .hr-buy');
     UI.close('w-forge'); UI.close('w-runes');
     return r;
   });
@@ -248,8 +245,8 @@ async function start(browser, port, vp, mobile) {
   ok('hunt tab: combat lock — socket/remove disabled + notice, slots unchanged', hr.busyBtns && hr.busyKept, hr);
   ok('hunt tab: Base Lv 10 → both sockets locked ("Base Lv 15")', hr.allLocked);
   ok('hunt tab: Slayer / Endow / Conditional filter', hr.endow);
-  ok('hunt tab: not owned → no buy here, "Navigate to Brokk" uses Navi', hr.notOwned && hr.nav && hr.zenyKept, hr);
-  ok('hunt tab: next to Brokk → opens his forge on the Hunt Rune tab with that rune', hr.nearBtn && hr.forge, hr);
+  ok('hunt tab: not owned → Buy button with price here (anywhere) → confirm box; Cancel spends nothing', hr.notOwned && hr.confirm && hr.zenyKept, hr);
+  ok("hunt tab: Brokk's forge still sells Hunt Runes", hr.forge, hr);
 
   // ---------- 4) ข้อความปลดล็อก + Novice ----------
   const misc = await p.evaluate(async () => {
