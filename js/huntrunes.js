@@ -3,7 +3,8 @@
 //  Hunt Rune — ตีแรงแบบมีเงื่อนไข (แนวการ์ด/Endow ของ RO) แยกจาก Rune Paths (js/runes.js)
 //  เจ้าของ 2026-10-03: "มีรูนประเภทตีแรงขึ้นได้ อาจจะเป็นการชนะทาง หรือตีศัตรูชนิดได้แรงขึ้นแบบ RO" • "อิสระเป็นของผู้เล่น"
 //  • ช่อง 2 ช่องต่อตัวละคร: ช่อง I ปลดที่ Base Lv 15 • ช่อง II ที่ Base Lv 35 • สลับฟรีนอกการต่อสู้ (กติกา 5 วิ เดียวกับ Runes.combatLeft)
-//  • ซื้อครั้งเดียวเก็บตลอดไปที่ Brokk Forge-Bot (แท็บ Hunt Rune ในเตาตีเหล็ก) — ไม่ใช่ของในกระเป๋า ขาย/ทิ้ง/แลกไม่ได้
+//  • ซื้อครั้งเดียวเก็บตลอดไป — ที่หน้าต่าง Runes ได้ทุกที่ (js/runebook.js) หรือที่ Brokk Forge-Bot (แท็บ Hunt Rune ในเตา) — ไม่ใช่ของในกระเป๋า ขาย/ทิ้ง/แลกไม่ได้
+//  • ราคา = ราคาฐาน × HR_PRICE_MUL (2) → 3,000–12,000 Volt
 //  • ชนิด: Slayer (ตามเผ่า +20% กาย+เวท) • Endow (เปลี่ยนธาตุตีปกติ/สกิลที่ไม่มีธาตุ → ใช้ ELEM_TABLE จริง ได้ทั้งแรงขึ้นและเบาลง)
 //          • เงื่อนไข: Giant Slayer / Executioner / Ambusher / Pack Breaker
 //  • ซ้อนแบบคูณกับดาเมจเดิม • เงื่อนไขเดียวกันไม่ซ้อนสองครั้ง • Endow ได้แค่ 1 อัน • โบนัส Hunt Rune รวมต่อครั้งไม่เกิน +45%
@@ -14,6 +15,8 @@
 //  หน้าต่าง: ใส่ช่องที่หน้าต่าง Runes (js/runebook.js — #w-hrunes เดิมเปิดไปที่นั่น) • แท็บ Runes ในกระเป๋า • แท็บ Hunt Rune ในเตาของ Brokk • CSS: css/huntrunes.css
 // ============================================================
 
+// ราคา: ตัวเลขใน build() = ราคาฐานเดิม × HR_PRICE_MUL (เจ้าของ 2026-10-11 "เพิ่มราคารูนอีก" → ×2) — ปรับราคาทุกตัวที่นี่ที่เดียว
+const HR_PRICE_MUL = 2;
 const HR_UNLOCK = [15, 35], HR_CAP = 0.45, HR_SLAY = 0.20, HR_SLAY_PVP = 0.20; // กติกาเดียวทุกที่ (เจ้าของ: ไม่แยก PvE/PvP) — Human Slayer แรงเท่า Slayer อื่น
 // เส้นรูน (กล่อง 10×14) วาดเองทั้งหมด — ไม่พึ่งฟอนต์ Runic
 const HR_GLYPH = {
@@ -43,7 +46,7 @@ const HuntRunes = {
 
   // ---------- ข้อมูล ----------
   add(d) {
-    d.price = d.price | 0;
+    d.basePrice = d.price | 0; d.price = Math.round(d.basePrice * HR_PRICE_MUL);
     this.DEFS[d.id] = d; this.LIST.push(d);
     ITEMS[d.id] = { id: d.id, name: d.name, type: 'hrune', price: d.price, rarity: d.rarity, icon: { s: 'hrune', c: d.col, g: d.glyph }, desc: d.desc };
   },
@@ -198,7 +201,7 @@ const HuntRunes = {
     const p = G.player, d = this.def(id);
     if (!d) return false;
     if (this.owns(id)) { UI.msg(L('มีรูนนี้อยู่แล้ว', 'You already own this rune.'), 'info'); return false; }
-    if (p.zeny < d.price) { UI.msg(L(`${CUR} ไม่พอ (ต้องใช้ ${U.fmt(d.price)})`, `Not enough ${CUR} (needs ${U.fmt(d.price)}).`), 'err'); return false; }
+    if (p.zeny < d.price) { UI.msg(L(`${CUR} ไม่พอ — ขาดอีก ${U.fmt(d.price - p.zeny)} (ราคา ${U.fmt(d.price)})`, `Not enough ${CUR} — ${U.fmt(d.price - p.zeny)} short (price ${U.fmt(d.price)}).`), 'err'); return false; }
     p.zeny -= d.price; this.own(p).push(id);
     if (typeof Sound !== 'undefined') Sound.play('buy');
     UI.msg(L(`ได้รับ ${d.name} — ใส่ช่องได้ที่เมนู Runes (Shift+R) → Hunt Runes`, `Obtained ${d.name} — socket it in Runes (Shift+R) → Hunt Runes.`), 'sys');
@@ -213,7 +216,7 @@ const HuntRunes = {
     if (!this.unlocked(i)) return err(L(`ช่อง ${i ? 'II' : 'I'} ปลดที่ Base Lv ${HR_UNLOCK[i]}`, `Slot ${i ? 'II' : 'I'} unlocks at Base Lv ${HR_UNLOCK[i]}.`));
     if (!this.canChange()) return err(this.busyMsg());
     if (id && !d) return false;
-    if (d && !this.owns(id)) return err(L('ยังไม่มีรูนนี้ — ซื้อได้ที่ Brokk Forge-Bot', "You don't own this rune yet — Brokk Forge-Bot forges them."));
+    if (d && !this.owns(id)) return err(L('ยังไม่มีรูนนี้ — ซื้อได้ที่หน้าต่าง Runes (Shift+R) หรือ Brokk Forge-Bot', "You don't own this rune yet — buy it in Runes (Shift+R) or from Brokk Forge-Bot."));
     if (s[i] === (id || null)) return false;
     const other = s[1 - i];
     if (d && other === id) s[1 - i] = s[i]; // ใส่ตัวที่อยู่อีกช่อง = สลับช่อง
@@ -303,7 +306,7 @@ const HuntRunes = {
       const d = this.def(cur), own = this.owns(cur), e = this.entry(cur);
       const acts = own ? [h('button', { type: 'button', class: 'btn big primary', 'data-open': typeof Runebook !== 'undefined' ? null : 'w-hrunes', onclick: () => { if (typeof Runebook !== 'undefined') Runebook.open('hunt', cur); } }, 'Socket in Runes…')]
         : [h('button', { type: 'button', class: 'btn big primary hr-buy', disabled: p.zeny < d.price ? 'disabled' : false, onclick: () => { if (this.buy(cur)) UI.renderForge(); } },
-          ivIconEl('shop'), `Forge · ${U.fmt(d.price)} ${CUR}`)];
+          ivIconEl('shop'), p.zeny < d.price ? L(`${CUR} ไม่พอ — ขาดอีก ${U.fmt(d.price - p.zeny)}`, `${U.fmt(d.price - p.zeny)} ${CUR} short`) : `Forge · ${U.fmt(d.price)} ${CUR}`)];
       right = [back, ...UI.itemDetail(e, acts, own ? L('มีแล้ว — ใส่ช่องได้ที่เมนู Runes (Shift+R) → Hunt Runes', 'Owned — socket it in Runes (Shift+R) → Hunt Runes')
         : L(`Brokk ตีรูนให้ ${U.fmt(d.price)} ${CUR} • ปลดช่อง I ที่ Base Lv ${HR_UNLOCK[0]}, ช่อง II ที่ Lv ${HR_UNLOCK[1]}`, `Brokk forges it for ${U.fmt(d.price)} ${CUR} • slot I unlocks at Base Lv ${HR_UNLOCK[0]}, slot II at Lv ${HR_UNLOCK[1]}`),
       { noPrice: true, lead: [this.infoSec(d)] })];
