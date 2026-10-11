@@ -2,10 +2,11 @@
 // ============================================================
 //  ระบบนำทาง: เลือกจุดหมาย (NPC / แผนที่ / มอนสเตอร์) แล้วเดินไปเอง
 //  ข้ามแผนที่ได้ (หาเส้นทางผ่านประตูด้วย BFS) มีลูกศรชี้ทางและป้ายบอกระยะ
+//  จุดหมายที่มี t.hunt (เควสต์ล่า/เก็บของ) → ถึงตัวมอนแล้วส่งต่อให้ QuestHunt ล่าเฉพาะตัวนั้นจนครบ (js/questhunt.js)
 // ============================================================
 
 const Nav = {
-  target: null, // { kind:'npc'|'map'|'mob'|'tile', map, x, y, name, npcId, mobId }
+  target: null, // { kind:'npc'|'map'|'mob'|'tile', map, x, y, name, npcId, mobId, hunt? }
   repathAt: 0, doneAt: 0,
 
   // ---------- จุดหมายที่เลือกได้ ----------
@@ -60,6 +61,7 @@ const Nav = {
   goTo(t) {
     const p = G.player;
     if (!G.started || !p || p.dead) return;
+    QuestHunt.stop('nav', true); // นำทางใหม่ = เลิกล่าตามเควสต์เดิม
     if (t.kind === 'map' && t.map === G.map.id) { UI.msg(L(`คุณอยู่ที่ ${t.name} แล้ว`, `You are already at ${t.name}`), 'info'); return; }
     if (this.route(G.map.id, t.map) === null) { UI.msg(L('หาเส้นทางไปที่นั่นไม่ได้', 'No route to that destination'), 'err'); return; }
     this.target = t; this.repathAt = 0; this.doneAt = 0;
@@ -71,6 +73,7 @@ const Nav = {
     this.updatePill();
   },
   cancel(silent) {
+    if (QuestHunt.cur) QuestHunt.stop('cancel'); // เดินเอง/จอย/แตะพื้น/กด × = หยุดล่าตามเควสต์
     if (!this.target) return;
     // ผู้เล่นยกเลิกเอง (แตะพื้น/จอย) ระหว่างบอทเดินไปเติมของ = คืนการควบคุมให้ผู้เล่น
     this.target = null;
@@ -99,6 +102,7 @@ const Nav = {
 
   update() {
     const p = G.player, t = this.target;
+    if (QuestHunt.cur && !t) QuestHunt.update();
     if (!t || !G.started || p.dead) return;
     if (p.target || p.npcTarget || p.cast) return; // กำลังสู้/คุยอยู่ ปล่อยให้เสร็จก่อน
     Bot.manualOverride();
@@ -106,10 +110,12 @@ const Nav = {
     if (t.kind === 'map' && t.map === G.map.id) { UI.msg(L(`ถึง ${MAP_DEFS[t.map].name} แล้ว`, `Arrived at ${MAP_DEFS[t.map].name}`), 'info'); this.target = null; this.updatePill(); return; }
     const wp = this.waypoint();
     if (!wp) { this.cancel(); return; }
+    if (t.hunt && wp.none) { this.target = null; QuestHunt.start(t.hunt); this.updatePill(); return; } // ถึงแผนที่แล้วแต่ยังไม่มีตัว → ไปรอที่แหล่งเกิด
     const d = U.dist(p.x, p.y, wp.x + 0.5, wp.y + 0.5);
     const npc = wp.npc ? G.npcs.find(n => n.id === t.npcId) : null;
     const arrived = wp.npc ? npc && NPC.inTalkRange(npc, p) : d <= (wp.mob ? 4 : 0.8);
     if (arrived && !wp.portal) {
+      if (t.hunt && (wp.mob || wp.none)) { this.target = null; QuestHunt.start(t.hunt); this.updatePill(); return; } // ล่าเฉพาะมอนเควสต์จนครบ
       if (npc) { p.npcTarget = npc; p.path = []; }
       else if (wp.mob) { p.target = wp.mob; p.repathAt = 0; UI.msg(L(`ถึงตัว ${t.name} แล้ว — เริ่มโจมตี`, `Reached ${t.name} — attacking`), 'info'); }
       else if (wp.none) UI.msg(L(`มาถึง ${MAP_DEFS[t.map].name} แล้ว แต่ยังไม่พบ ${t.name} ในตอนนี้ ลองเดินหารอบ ๆ`, `Arrived at ${MAP_DEFS[t.map].name}, but no ${t.name} is around right now — try searching nearby`), 'info');
@@ -137,6 +143,12 @@ const Nav = {
   updatePill() {
     const el = $('#nav-pill'); if (!el) return;
     const t = this.target;
+    if (!t && QuestHunt.cur) { // ป้ายโหมดล่าตามเควสต์: "ล่า X 4/12 · แตะเพื่อหยุด" (แตะทั้งป้าย = หยุด)
+      const ht = QuestHunt.pillText(), tx = $('#nav-text');
+      if (tx.textContent !== ht) tx.textContent = ht;
+      el.classList.add('qh'); el.hidden = false; return;
+    }
+    el.classList.remove('qh');
     if (!t) { el.hidden = true; return; }
     const wp = this.waypoint();
     const d = wp ? Math.round(U.dist(G.player.x, G.player.y, wp.x + 0.5, wp.y + 0.5)) : 0;

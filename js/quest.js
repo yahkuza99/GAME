@@ -199,9 +199,9 @@ const Quest = {
     const mobT = id => { for (const m in MAP_DEFS) if ((MAP_DEFS[m].spawns || []).some(s => s[0] === id) || MAP_DEFS[m].mvp === id) return { kind: 'mob', map: m, mobId: id, name: MOBS[id].name }; return null; };
     switch (o.type) {
       case 'talk': case 'event': case 'job': return npcT(o.npc || 'jobmaster');
-      case 'kill': return mobT(o.mob);
-      case 'collect': return mobT(o.mob);
-      case 'hit': return { kind: 'mob', map: HOME_MAP, mobId: 'training_dummy', name: MOBS.training_dummy.name };
+      case 'kill': return this.hunt(q, mobT(o.mob));
+      case 'collect': return this.hunt(q, mobT(o.mob));
+      case 'hit': return this.hunt(q, { kind: 'mob', map: HOME_MAP, mobId: 'training_dummy', name: MOBS.training_dummy.name });
       case 'jobLv': case 'baseLv': { // แนะนำที่ล่าตามเลเวล
         const lv = G.player.baseLv;
         return lv < 8 ? mobT('pudding') : lv < 16 ? mobT('stumpling') : lv < 24 ? mobT('ashtail') : mobT('draugr');
@@ -210,6 +210,14 @@ const Quest = {
       case 'skill': return null;
     }
     return null;
+  },
+  // เควสต์หลักที่ต้องล่า/เก็บ/ตีหุ่น: ถึงแล้วล่าเฉพาะตัวนั้นจนครบ (js/questhunt.js) • เควสต์หลักสำเร็จเองเมื่อครบ ไม่ต้องกลับไปส่ง
+  hunt(q, t) {
+    if (!t || !q || !q.id || !this.is(q.id) || typeof QuestHunt === 'undefined') return t;
+    const id = q.id;
+    return QuestHunt.attach(t, { title: q.title, prog: () => (this.is(id) ? this.progress() : null),
+      done: () => { if (!this.is(id)) return true; const [a, b] = this.progress(); return a >= b; },
+      note: () => L(`✅ ครบแล้ว — เควสต์ "${q.title}" สำเร็จ`, `✅ Done — quest "${q.title}" complete`) });
   },
   go() { const t = this.navTarget(); if (t) Nav.goTo(t); else if (this.current() && this.current().obj.type === 'skill') UI.open('w-skills'); },
 
@@ -262,7 +270,8 @@ const Quest = {
     if (!q || G.player.options.questTrack === false) { el.hidden = true; return; }
     el.hidden = false;
     const [a, b] = this.progress(q);
-    const key = `${q.id}|${a}|${b}|${G.player.baseLv}|${G.player.jobLv}`;
+    const side = typeof Side !== 'undefined' ? Side.active().slice(0, 3) : [];
+    const key = `${q.id}|${a}|${b}|${G.player.baseLv}|${G.player.jobLv}|${side.map(x => `${x.id}:${Side.objText(x)}`).join(',')}|${LANG}`;
     if (el.dataset.key === key) return;
     el.dataset.key = key;
     el.dataset.ch = this.chapterText(q); // ป้ายบท (HUD แบบ Visor แสดงแทนคำว่า QUEST)
@@ -270,6 +279,9 @@ const Quest = {
     el.append(
       h('div', { class: 'qt-title' }, h('span', { class: 'qt-ic' }, '📜'), q.title),
       h('div', { class: 'qt-obj' }, this.objText(q), b > 1 ? h('span', { class: 'qt-bar' }, h('i', { style: `width:${Math.round(a / b * 100)}%` })) : null),
+      // เควสต์เสริมที่รับไว้ (สูงสุด 3): แตะบรรทัด = นำทางไปทำขั้นนั้น (ล่า/เก็บ = ล่าเฉพาะตัวนั้นจนครบ • ครบแล้ว = ไปส่งที่ NPC)
+      ...side.map(x => h('button', { type: 'button', class: 'qt-side', 'data-side': x.id, title: L('แตะเพื่อนำทาง', 'Tap to navigate'),
+        onclick: e => { e.stopPropagation(); Sound.play('click'); Side.go(x); } }, ivIconEl('nav'), h('span', {}, h('b', {}, x.title), ` ${Side.objText(x)}`))),
     );
   },
 };
@@ -324,6 +336,14 @@ const Bounty = {
     }
     addFloater(p.x, p.y - 1.8, 'BOUNTY CLEAR!', '#ffd34a', true); Sound.play('quest'); UI.dirty(); saveGame();
     return msg;
+  },
+  // ปุ่ม "ไปเลย" ของค่าหัว: ล่าเฉพาะตัวนั้นจนครบ แล้วนำทางกลับไปส่งที่ Rolf (ถึงแล้วเปิดบอร์ดค่าหัวเลย — QuestUI.board)
+  navTarget(b) {
+    const t = Quest.navTarget({ obj: { type: 'kill', mob: b.mob } });
+    if (!t || typeof QuestHunt === 'undefined' || b.claimed || b.got >= b.n) return t;
+    const live = () => { const s = this.state(); return !!s && s.list.includes(b) && !b.claimed; };
+    return QuestHunt.attach(t, { title: L('งานล่าค่าหัว', 'Bounty'), prog: () => [Math.min(b.got, b.n), b.n], done: () => !live() || b.got >= b.n,
+      after: () => { if (!live() || b.got < b.n) return null; if (typeof QuestUI !== 'undefined') QuestUI.board = performance.now() + 5 * 60e3; return QuestHunt.npcT('guide'); } });
   },
   line(b) { const m = MOBS[b.mob], map = this.mapOf(b.mob); return `${m.name} ${Math.min(b.got, b.n)}/${b.n}${map ? ` • ${MAP_DEFS[map].name}` : ''}`; },
 };
@@ -429,11 +449,32 @@ const Side = {
     const what = st.type === 'kill' ? MOBS[st.mob].name : ITEMS[st.item].name;
     return a >= b ? L(`${what} ${a}/${b} — ส่งที่ ${to}`, `${what} ${a}/${b} — turn in to ${to}`) : `${what} ${a}/${b}`;
   },
+  // จุดนำทางของขั้นปัจจุบัน — ทุกชนิดขั้นต้องมีที่ไป: ล่า/เก็บ = ไปที่มอนแล้วล่าเฉพาะตัวนั้นจนครบ (js/questhunt.js) แล้วนำทางกลับไปส่ง
+  //   คุย/ตรวจดู/ครบแล้ว = ไปหา NPC `to` (ถึงแล้วเปิดบทสนทนา) • ชนิดที่ลงทะเบียน nav เอง (เช่น lore) ใช้ของมัน • หาไม่เจอ = ไปหา NPC `to`
   navTarget(q) {
     const st = this.step(q); if (!st) return null;
-    const X = this.STEPS[st.type]; if (X && X.nav && !this.ready(q)) return X.nav(st);
-    const o = this.ready(q) ? { type: 'talk', npc: st.to } : { type: st.type, mob: st.mob, npc: st.to };
-    return Quest.navTarget({ obj: o });
+    const ready = this.ready(q), toNpc = () => (st.to ? Quest.navTarget({ obj: { type: 'talk', npc: st.to } }) : null);
+    const X = this.STEPS[st.type]; if (X && X.nav && !ready) return X.nav(st) || toNpc();
+    if (ready || (st.type !== 'kill' && st.type !== 'collect')) return toNpc();
+    const t = Quest.navTarget({ obj: { type: st.type, mob: st.mob } });
+    if (!t || typeof QuestHunt === 'undefined') return t || toNpc();
+    const k = this.rec(q.id).k || 0, same = () => this.isActive(q.id) && (this.rec(q.id).k || 0) === k;
+    return QuestHunt.attach(t, { title: q.title, prog: () => (same() ? this.progress(q) : null), done: () => !same() || this.ready(q),
+      after: () => (same() && this.ready(q) ? this.navTarget(q) : null) });
+  },
+  // แตะเควสต์เสริม (แถบติดตามบนจอ): ครบแล้ว + อยู่ใกล้ NPC = ส่งเลย • ไม่งั้นนำทางไปทำขั้นปัจจุบัน
+  go(q) {
+    const st = this.step(q); if (!st) return;
+    if (this.ready(q) && st.to) { this.goNpc(st.to); return; }
+    const t = this.navTarget(q); if (t) Nav.goTo(t);
+  },
+  // ไปหา NPC ที่มีเควสต์เสริมให้รับ: อยู่ใกล้ = เปิดบทสนทนาเลย • ไกล = นำทางไปแล้วเปิดเอง (เหมือนปุ่มรับรางวัลใน js/questui.js)
+  goNpc(id) {
+    const p = G.player, n = G.npcs.find(x => x.id === id);
+    UI.close('w-quest');
+    if (n && NPC.inTalkRange(n, p)) { NPC.talk(n); return; }
+    const t = Quest.navTarget({ obj: { type: 'talk', npc: id } });
+    if (t) Nav.goTo(t);
   },
   changed() { Quest.dirty = true; UI.dirty(); },
 
@@ -523,11 +564,21 @@ const Side = {
     const rows = act.filter(q => !this.claimable(q)).map(q => h('div', { class: 'q-bnt' },
       h('span', { class: 'q-bic' }, ''), h('span', { class: 'q-bt' }, h('b', {}, q.title), h('small', {}, this.objText(q))),
       h('button', { type: 'button', class: 'btn q-go', onclick: e => { e.stopPropagation(); const t = this.navTarget(q); if (t) { Nav.goTo(t); UI.close('w-quest'); } } }, ivIconEl('nav'), L('ไปเลย', 'Go'))));
-    const notes = [];
-    if (av.length) notes.push(L(`มีงานเสริมรออยู่ที่: ${[...new Set(av.map(q => this.npcName(q.giver)))].join(', ')}`, `Side quests waiting with: ${[...new Set(av.map(q => this.npcName(q.giver)))].join(', ')}`));
-    notes.push(L(`สำเร็จแล้ว ${nDone}/${all.length} • ไม่บังคับ — คุยกับ NPC เพื่อรับ/ส่ง`, `Completed ${nDone}/${all.length} • optional — talk to NPCs to accept/turn in`));
+    // งานที่รอรับ: 1 แถวต่อ NPC ผู้ให้ + ปุ่มนำทาง (ถึงแล้วเปิดบทสนทนา เสนองานให้รับ)
+    const givers = [...new Set(av.map(q => q.giver))].filter(id => Quest.navTarget({ obj: { type: 'talk', npc: id } }));
+    const avRows = givers.map(id => {
+      const qs = av.filter(q => q.giver === id), t = Quest.navTarget({ obj: { type: 'talk', npc: id } });
+      const names = qs.slice(0, 2).map(q => q.title).join(', ') + (qs.length > 2 ? ` +${qs.length - 2}` : '');
+      return h('div', { class: 'q-bnt q-avail', 'data-npc': id },
+        h('span', { class: 'q-bic' }, '!'), h('span', { class: 'q-bt' }, h('b', {}, this.npcName(id)), h('small', {}, `${names} • ${MAP_DEFS[t.map].name}`)),
+        h('button', { type: 'button', class: 'btn q-go q-avail-go', onclick: e => { e.stopPropagation(); Sound.play('click'); this.goNpc(id); } }, ivIconEl('nav'), L('ไปรับ', 'Go')));
+    });
+    const note = L(`สำเร็จแล้ว ${nDone}/${all.length} • ไม่บังคับ — คุยกับ NPC เพื่อรับ/ส่ง`, `Completed ${nDone}/${all.length} • optional — talk to NPCs to accept/turn in`);
     return h('div', { class: 'q-card q-bounty q-side' }, h('div', { class: 'dsec-h' }, ivIconEl('quest'), h('span', {}, L('เควสต์เสริม', 'Side Quests'))),
-      rows.length ? h('div', { class: 'q-blist' }, ...rows) : null, h('p', { class: 'q-note' }, ...notes.flatMap((t, i) => (i ? [h('br'), t] : [t]))));
+      rows.length ? h('div', { class: 'q-blist' }, ...rows) : null,
+      avRows.length ? h('div', { class: 'q-avh' }, L('มีงานเสริมรอรับที่', 'Side quests waiting with')) : null,
+      avRows.length ? h('div', { class: 'q-blist q-avlist' }, ...avRows) : null,
+      h('p', { class: 'q-note' }, note));
   },
 };
 // หน้าต่างเควสต์ (UI.renderQuest ใน js/ui.js): แทรกการ์ดเควสต์เสริมต่อจากเควสต์หลัก • key ของหน้าต่างเดิมไม่รวมเควสต์เสริม → ล้าง key เมื่อเควสต์เสริมเปลี่ยน

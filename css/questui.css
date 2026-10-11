@@ -110,3 +110,21 @@ body.pad-mode #w-quest .q-go { font-size: 15px !important; }
   background: linear-gradient(180deg, #ffe69c, #e3a43a); color: #3b2204; font: 700 14px/1.4 var(--f-body, sans-serif); cursor: pointer; text-align: left; }
 #quest-track .qd-chip .ivi { width: 18px; height: 18px; flex: none; }
 #quest-track.qt-daily .qd-chip { display: flex !important; }
+
+/* ---- เควสต์เสริม: งานที่รอรับ = แถวต่อ NPC + ปุ่ม "ไปรับ" (js/quest.js Side.card) ---- */
+#w-quest .q-avh { margin: 10px 0 2px; font-weight: 700; font-size: 14px; line-height: 1.5; color: var(--c-ink, inherit); }
+#w-quest .q-avail .q-bic { font-size: 14px; color: #3b2204; background: linear-gradient(180deg, #ffe69c, #e3a43a); border-color: #b5802a; font-weight: 700; }
+
+/* ---- แถบติดตามบนจอ: บรรทัดเควสต์เสริม แตะ = นำทาง ---- */
+#quest-track .qt-side { display: flex; align-items: flex-start; gap: 6px; width: 100%; margin-top: 4px; padding: 4px 6px; min-height: 32px; border: 1px solid var(--c-line, rgba(255,255,255,.15)); border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06); color: inherit; font: inherit; font-size: 12px; line-height: 1.4; text-align: left; cursor: pointer; letter-spacing: normal; }
+#quest-track .qt-side:hover { border-color: var(--c-gold, #ffd34a); }
+#quest-track .qt-side .ivi { width: 14px; height: 14px; flex: none; margin-top: 2px; }
+#quest-track .qt-side b { font-weight: 700; }
+#quest-track.qt-daily .qt-side { display: none !important; }
+body.pad-mode #quest-track .qt-side { display: none; } /* มือถือ: การ์ดบนจอเล็ก/ซ่อน — ใช้ปุ่ม "ไปเลย" ในหน้าต่างเควสต์แทน */
+
+/* ---- ป้ายล่าตามเควสต์ (js/questhunt.js): "ล่า X a/b · แตะเพื่อหยุด" — ทั้งป้ายกดหยุดได้ ---- */
+#nav-pill.qh { cursor: pointer; font-size: 14px; min-height: 40px; border-left-color: #ffd34a; letter-spacing: normal; }
+body.pad-mode #nav-pill.qh, body.visor #nav-pill.qh { font-size: 14px; }
+#nav-pill.qh .nav-ic { filter: hue-rotate(160deg); }
