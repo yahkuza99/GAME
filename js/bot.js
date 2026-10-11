@@ -81,7 +81,7 @@ const Bot = {
   manualOverride() {
     if (!this.on) return;
     this.manual = true; this.userTgt = null;
-    this.pauseUntil = G.time + 3;
+    this.pauseUntil = G.time + 0.3; // ปล่อยจอย/เดินถึงแล้ว → บอทกลับมาทันที (เดิม 3 วิ — เจ้าของ 2026-10-11 "ไม่ควรดีเลย์")
     this.resting = false;
     this.tgt = null;
   },
@@ -228,7 +228,7 @@ const Bot = {
     this.nextThink = G.time + 0.2;
     if (this.only && typeof QuestHunt !== 'undefined') { QuestHunt.update(); if (!this.on) return; } // ครบ/หยุดระหว่างจำลองย้อนหลังก็ตามทัน
     if (this.manual) {
-      if (this.manualBusy()) this.pauseUntil = Math.max(this.pauseUntil, G.time + (this.userTgt ? 0.4 : 3));
+      if (this.manualBusy()) this.pauseUntil = Math.max(this.pauseUntil, G.time + (this.userTgt ? 0.4 : 0.3));
       else if (G.time >= this.pauseUntil) { this.manual = false; this.userTgt = null; if (c.leash) this.setAnchor(true); }
     }
     if (G.time < this.pauseUntil || NPC.busy) return;

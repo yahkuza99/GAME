@@ -38,6 +38,11 @@ const HudC = {
     this.els.net = h('i', { class: 'hc-net', hidden: '' });
     this.els.pts = h('i', { class: 'hc-pts', hidden: '', title: L('แต้มที่ยังไม่ได้ใช้ (แตะชิปเพื่อเปิด Status)', 'Unspent points (tap to open Status)') });
     bi.append(this.els.pts);
+    this.els.volt = h('i', { class: 'hc-volt only-hudc' }); // เงินตัวเล็กใต้ SP (เจ้าของ 2026-10-11)
+    ($('.bi-main', bi) || bi).append(this.els.volt);
+    // หลอด Base/Job บาง ๆ ใต้เงิน (เจ้าของ 2026-10-11 "เพิ่มหลอด base job")
+    this.els.bx = h('i', { class: 'hc-xb base' }, h('i', {})); this.els.jx = h('i', { class: 'hc-xb job' }, h('i', {}));
+    ($('.bi-main', bi) || bi).append(this.els.bx, this.els.jx);
     this.els.chip = bi;
     $('.bi-face', bi).append(this.els.net);
     bi.addEventListener('click', e => {
@@ -190,7 +195,7 @@ const HudC = {
     const p = G.player, $i = id => document.getElementById(id);
     // MVP / Ancient
     const mv = $i('mm-mvp'), wb = $i('mm-wb');
-    this.mirror(this.els.mvp, mv); this.mirror(this.els.wb, wb);
+    this.mirror(this.els.mvp, mv, 'mvp'); this.mirror(this.els.wb, wb, 'wb');
     // เควสต์
     const q = Quest.current(), ql = this.els.qline;
     if (q && p.options.questTrack !== false) {
@@ -201,6 +206,12 @@ const HudC = {
     // ป้ายแต้มค้างบนชิป: ตัวเลขรวม (Status + Skill + Passive)
     const n = (p.statPoints || 0) + (p.skillPoints || 0) + Math.max(0, Passive.free(p)), nt = n > 0 ? '+' + n : '';
     if (this.els.pts.textContent !== nt) { this.els.pts.textContent = nt; this.els.pts.hidden = !nt; }
+    const vt = `${U.fmt(p.zeny || 0)} Volt`; if (this.els.volt.textContent !== vt) this.els.volt.textContent = vt;
+    for (const [el, src, lb] of [[this.els.bx, 'bi-bexp-t', 'Base ' + p.baseLv], [this.els.jx, 'bi-jexp-t', 'Job ' + p.jobLv]]) {
+      const tx = ((document.getElementById(src) || {}).textContent || '0').trim(), w = Math.max(0, Math.min(100, parseFloat(tx) || 0)) + '%';
+      if (el.firstChild.style.width !== w) el.firstChild.style.width = w;
+      const ti = `${lb} · ${tx}`; if (el.title !== ti) el.title = ti;
+    }
     // จุดสถานะเน็ต
     const net = $i('net');
     if (net) { this.els.net.hidden = net.hidden; this.els.net.className = 'hc-net ' + net.className.replace(/\bnet\b/, '').trim(); this.els.net.title = net.title; }
@@ -224,9 +235,16 @@ const HudC = {
     }
     this.stack();
   },
-  mirror(dst, src) {
-    const t = src && !src.hidden ? src.textContent : '';
-    if (dst.textContent !== t) dst.textContent = t;
+  // ป้ายบอส: MVP (ทอง) / Ancient (ม่วง) ต่างกันชัด + เลขเลือดจริงเมื่อบอสอยู่ในแมพนี้ (เจ้าของ 2026-10-11)
+  mirror(dst, src, kind) {
+    const t = src && !src.hidden ? src.textContent.replace(/^[^\p{L}\p{N}]+/u, '').trim() : '';
+    const m = t && G.mobs ? G.mobs.find(x => !x.dead && (kind === 'wb' ? x.isWB : x.isMvp)) : null;
+    const hp = m ? `${U.fmt(Math.max(0, Math.round(m.hp)))} / ${U.fmt(m.maxHp)}` : '';
+    const key = t + '|' + hp;
+    if (dst.dataset.k !== key) {
+      dst.dataset.k = key; dst.textContent = '';
+      if (t) dst.append(h('b', { class: 'hc-kind' }, kind === 'wb' ? 'ANCIENT' : 'MVP'), h('span', { class: 'hc-bt' }, t.replace(/^(MVP|Ancient)\s*[·:]?\s*/i, '')), hp ? h('em', { class: 'hc-hp' }, hp) : '');
+    }
     dst.hidden = !t;
     dst.classList.toggle('alive', !!(src && src.classList.contains('alive')));
     if (src && src.title) dst.title = src.title;
@@ -240,10 +258,13 @@ const HudC = {
     const t = p && [p.target, p.skillTarget, p.skillIntent && p.skillIntent.tgt].find(m => m && m.def && !m.dead && !m.isPlayer);
     if (!t || document.getElementById('hud').classList.contains('hud-min')) { if (!el.hidden) el.hidden = true; return; }
     const pct = Math.max(0, Math.ceil(t.hp / t.maxHp * 100)), er = typeof HuntRunes !== 'undefined' ? HuntRunes.targetTag(t) : '';
-    const key = `${t.def.name}|${t.def.lv}|${pct}|${er}`;
+    // มอนธรรมดา: ชื่อ + เลือดเท่านั้น (เจ้าของ 2026-10-11) · บอส (MVP/Ancient): + Lv ธาตุ เผ่า
+    const boss = !!(t.isMvp || t.isWB), hpN = `${U.fmt(Math.max(0, Math.round(t.hp)))} / ${U.fmt(t.maxHp)}`;
+    const key = `${t.def.name}|${t.def.lv}|${pct}|${er}|${boss ? hpN : ''}`;
     if (el.dataset.k !== key) {
       el.dataset.k = key; el.innerHTML = '';
-      el.append(h('b', {}, t.def.name), h('span', {}, ` Lv ${t.def.lv} · `), h('em', {}, `${pct}%`), er ? h('span', { class: 'hc-er' }, ` · ${er}`) : null);
+      if (boss) el.append(h('b', {}, t.def.name), h('span', {}, ` Lv ${t.def.lv} · `), h('em', {}, `${pct}% · ${hpN}`), er ? h('span', { class: 'hc-er' }, ` · ${er}`) : null);
+      else el.append(h('b', {}, t.def.name), h('span', {}, ' · '), h('em', {}, `${pct}%`));
       el.classList.toggle('boss', !!(t.isMvp || t.isWB));
     }
     el.hidden = false;

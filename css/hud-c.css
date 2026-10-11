@@ -154,7 +154,8 @@ body.visor.hudc #hud #raid-bar .rb-a { align-items: center !important; gap: 6px 
 body.visor.hudc #hud #raid-bar .rb-a > small { display: none !important; } /* ชิป MVP/Ancient ด้านบนบอกชนิดแล้ว — ให้ชื่อบอสมีที่ */
 body.visor.hudc #hud #raid-bar .rb-nm { font-size: 14px !important; }
 body.visor.hudc #hud #raid-bar .rb-hp b { font-size: 16px !important; }
-body.visor.hudc #hud #raid-bar .rb-hp small, body.visor.hudc #hud #raid-bar .rb-tg { display: none !important; }
+body.visor.hudc #hud #raid-bar .rb-tg { display: none !important; }
+body.visor.hudc #hud #raid-bar .rb-hp small { display: inline !important; font-size: 13px !important; } /* เลขเลือดจริง (เจ้าของ 2026-10-11) */
 body.visor.hudc #hud #raid-bar .rb-fold { width: 44px !important; height: 44px !important; margin: 0 -6px 0 0 !important; border-radius: 8px !important; font-size: 16px !important; }
 body.visor.hudc #hud #raid-bar .rb-b { gap: 4px 8px !important; min-height: 44px; align-items: center; }
 body.visor.hudc #hud #raid-bar :is(.rb-h, .rb-bonus) { font-size: 14px !important; }
@@ -345,3 +346,31 @@ body.visor.hudc #hud :is(#auto-btn, #ult-btn) { width: 50px !important; height: 
 body.visor.hudc #hud #ult-btn { right: calc(70px + var(--hc-r)) !important; }
 body.visor.hudc #hud :is(#auto-btn, #ult-btn) :is(b, small) { font-size: 13px !important; }
 body.visor.hudc #hud #pad-atk { width: 78px !important; height: 78px !important; }
+
+/* ป้ายบอสบนจอ: MVP = ทอง · Ancient = ม่วง (แยกด้วยสี+ป้ายคำ ไม่ใช้สีอย่างเดียว) + เลขเลือดบรรทัดสอง */
+body.visor.hudc #hud :is(#hc-mvp, #hc-wb) { display: flex !important; flex-wrap: wrap; align-items: center; gap: 2px 6px; white-space: normal; height: auto; }
+body.visor.hudc #hud :is(#hc-mvp, #hc-wb)[hidden] { display: none !important; }
+body.visor.hudc #hud :is(#hc-mvp, #hc-wb) .hc-kind { flex: none; padding: 0 5px; border-radius: 4px; font: 700 13px/18px var(--f-num, sans-serif); }
+body.visor.hudc #hud :is(#hc-mvp, #hc-wb) .hc-bt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 60px; }
+body.visor.hudc #hud :is(#hc-mvp, #hc-wb) .hc-hp { flex: 1 0 100%; font: 700 13px/1.2 var(--f-num, sans-serif); font-style: normal; font-variant-numeric: tabular-nums; }
+body.visor.hudc #hud #hc-mvp { border-color: #e8b04a !important; background: rgba(48, 30, 6, 0.78) !important; color: #ffe7a0 !important; }
+body.visor.hudc #hud #hc-mvp .hc-kind { background: #ffc85a; color: #2a1802; }
+body.visor.hudc #hud #hc-mvp .hc-hp { color: #ffd36a; }
+body.visor.hudc #hud #hc-wb { border-color: #a77bff !important; background: rgba(30, 14, 52, 0.8) !important; color: #e6d8ff !important; }
+body.visor.hudc #hud #hc-wb .hc-kind { background: #a77bff; color: #12052a; }
+body.visor.hudc #hud #hc-wb .hc-hp { color: #d4bcff; }
+body.visor.hudc #hud #hc-wb.alive { border-color: #c9a6ff !important; color: #f0e6ff !important; box-shadow: 0 0 8px rgba(167, 123, 255, 0.55); }
+body.visor.hudc #hud #hc-mvp.alive { border-color: #ffd34a !important; color: #ffe7a0 !important; box-shadow: 0 0 8px rgba(255, 200, 90, 0.5); }
+body.visor.hudc #hud #raid-bar .rb-a { flex-wrap: wrap !important; }
+body.visor.hudc #hud #raid-bar.wb { border-color: #a77bff !important; background: rgba(30, 14, 52, 0.78) !important; }
+body:not(.hudc) .hc-volt { display: none !important; }
+body.visor.hudc #hud #basic-info { height: auto !important; min-height: 44px; }
+body.visor.hudc #hud #basic-info .hc-volt { display: block; font: 600 13px/1.2 var(--f-num, sans-serif); font-style: normal; color: #ffd36a; white-space: nowrap; }
+body:not(.hudc) .hc-xb { display: none !important; }
+body.visor.hudc #hud #basic-info .hc-xb { display: block; position: relative; width: 100%; min-width: 108px; height: 4px; margin-top: 2px; border-radius: 2px; background: rgba(0, 0, 0, 0.45); overflow: hidden; }
+body.visor.hudc #hud #basic-info .hc-xb > i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 2px; }
+body.visor.hudc #hud #basic-info .hc-xb.base > i { background: #ffd36a; }
+body.visor.hudc #hud #basic-info .hc-xb.job > i { background: #b98aff; }
+/* คอลัมน์ซ้าย/ขวาไม่ชนกัน: แต่ละฝั่งไม่เกินครึ่งจอ */
+body.visor.hudc #hud #raid-bar { width: min(200px, calc(50vw - 14px)) !important; }
+body.visor.hudc #hud #hc-qline { max-width: min(190px, calc(50vw - 14px)); }

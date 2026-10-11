@@ -1359,6 +1359,11 @@ const UI = {
     const list = this.invTab === 'hrune' ? owned : p.inventory.filter(e => tabType(e) === this.invTab);
     if (this.selItem && !list.includes(this.selItem)) { this.selItem = null; this.bookDet = false; }
     const e = this.selItem || (this.narrow() ? null : list[0]) || null;
+    // ข้อมูลเหมือนเดิม = ไม่สร้าง DOM ใหม่ (เดิมทุก UI.dirty() สร้างใหม่หมด → ภาพอาวุธในรายละเอียดกะพริบ — เจ้าของ 2026-10-11)
+    let sig = '';
+    try { sig = JSON.stringify([this.invTab, this.bookDet, this.narrow(), list.indexOf(e), p.zeny, p.inventory, p.equip, owned.length, L('th', 'en')]); } catch (x) { sig = ''; }
+    if (sig && sig === this._invSig && body.childElementCount) return;
+    this._invSig = sig;
     const pick = x => { this.selItem = x; this.bookDet = true; this.renderInv(); };
     const back = () => { this.bookDet = false; this.selItem = null; this.renderInv(); };
     // ช่องสี่เหลี่ยม: คลิก = ดูรายละเอียด • ดับเบิลคลิก = ใช้/สวม • ลากไปแถบลัด • ชี้แล้วกด Z C V F = ตั้งปุ่มลัด

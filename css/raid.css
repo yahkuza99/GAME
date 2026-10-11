@@ -2,12 +2,12 @@
 #raid-bar { position: fixed; z-index: 21; left: 50%; transform: translateX(-50%); top: calc(64px + var(--st, 0px)); width: min(460px, calc(100vw - 24px));
   display: flex; flex-direction: column; gap: 5px; padding: 8px 10px; border-radius: 8px; color: #f2f6fb;
   background: rgba(10, 12, 20, .86); border: 1px solid rgba(255, 200, 90, .55); box-shadow: 0 10px 28px -12px rgba(0, 0, 0, .85); font-size: 13px; line-height: 1.35; }
-#raid-bar.wb { border-color: rgba(255, 120, 70, .75); }
+#raid-bar.wb { border-color: rgba(167, 123, 255, .8); }
 #raid-bar[hidden] { display: none; }
 #hud.hud-min #raid-bar { display: none; }
 .rb-a { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
 .rb-a > small { flex: none; padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; color: #2a1802; background: #ffc85a; }
-#raid-bar.wb .rb-a > small { color: #fff; background: #c8442a; }
+#raid-bar.wb .rb-a > small { color: #12052a; background: #a77bff; }
 .rb-nm { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rb-hp { flex: none; display: flex; align-items: baseline; gap: 6px; font-variant-numeric: tabular-nums; }
 .rb-hp b { font-size: 18px; color: #ffd36a; }
@@ -65,7 +65,7 @@
   #raid-bar { left: calc(8px + var(--sl, 0px)); transform: none; top: calc(180px + var(--st, 0px)); width: min(236px, calc(100vw - 150px)); padding: 6px 8px; gap: 3px; font-size: 12px; }
   #raid-bar .rb-a { gap: 6px; }
   #raid-bar .rb-nm { font-size: 13px; }
-  #raid-bar .rb-hp small { display: none; }
+  #raid-bar .rb-hp small { font-size: 11px; } /* เลขเลือดจริงแสดงด้วย (เจ้าของ 2026-10-11) */
   #raid-bar .rb-hp b { font-size: 16px; }
   #raid-bar .rb-b { gap: 4px 8px; }
   #raid-bar .rb-h b { font-size: 15px; }
