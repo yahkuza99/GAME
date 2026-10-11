@@ -71,3 +71,6 @@ body.visor #hud #menubar .menu-grid > button { height: 48px; padding: 4px 2px; }
   body.visor #hud #basic-info .bi-main > .gauge, body.visor #hud #basic-info .bi-exp, body.visor #hud #basic-info .bi-foot { grid-column: 1 / -1; }
   body.visor #hud #basic-info .bi-money { grid-column: 1 / -1; grid-row: 6; }
 }
+/* ป้าย BASE/JOB กว้างตามตัวเลข (เจ้าของ 2026-10-11 "Base 25 ทับหลอด exp") — เลเวล 2–3 หลักไม่ล้นทับแถบ */
+body.visor #hud #basic-info .xrow { grid-template-columns: max-content minmax(0, 1fr) max-content !important; }
+body.visor #hud #basic-info .xrow label { width: auto !important; min-width: 0; }

@@ -177,7 +177,7 @@ async function startChar(p, name) {
     const ui = await p.evaluate(() => {
       const s = Daily.state(); s.claimed = false; for (const t of s.tasks) t.got = 0; Daily.changed(); Daily._tickAt = 0; Daily.tick(); Quest.dirty = true; Quest.tick();
       const r = {};
-      r.badge = (document.querySelector('#menubar button[data-win="w-quest"] .dl-badge') || {}).textContent;
+      r.badge = Daily.badgeText();
       r.chip = !!document.querySelector('#quest-track .dl-chip');
       document.querySelector('#quest-track .dl-chip').click();
       r.open = UI.isOpen('w-quest') && UI.questTab === 'daily';
@@ -185,7 +185,7 @@ async function startChar(p, name) {
       r.go = $$('#w-quest .dl-go').length;
       for (const t of s.tasks) t.got = t.n; Daily.changed(); UI.renderQuest();
       r.enabled = !document.querySelector('#w-quest .dl-claim').disabled;
-      r.badge2 = document.querySelector('#menubar button[data-win="w-quest"] .dl-badge').textContent;
+      r.badge2 = Daily.badgeText();
       // แท็บเนื้อเรื่องยังทำงาน
       document.querySelector('#w-quest [data-qtab="story"]').click(); r.story = !!document.querySelector('#w-quest .q-card h4') && !!document.querySelector('#w-quest .dl-tabs');
       document.querySelector('#w-quest [data-qtab="daily"]').click(); r.back = $$('#w-quest .dl-task').length === 3;
@@ -196,7 +196,7 @@ async function startChar(p, name) {
     ok('claim enabled when done; badge shows "!"', ui.enabled && ui.badge2 === '!');
     ok('Story/Daily tabs switch', ui.story && ui.back);
     await p.click('#w-quest .dl-claim'); await p.waitForTimeout(1600);
-    const rv = await p.evaluate(() => ({ shown: !!document.querySelector('#dl-reveal'), items: $$('#dl-reveal .dl-rv-it').length, claimed: Daily.state().claimed, badge: document.querySelector('#menubar button[data-win="w-quest"] .dl-badge').hidden }));
+    const rv = await p.evaluate(() => ({ shown: !!document.querySelector('#dl-reveal'), items: $$('#dl-reveal .dl-rv-it').length, claimed: Daily.state().claimed, badge: !Daily.badgeText() }));
     ok('claim button → reward reveal', rv.shown && rv.items >= 3 && rv.claimed && rv.badge, JSON.stringify(rv));
     await p.click('#dl-reveal .btn'); await p.waitForTimeout(400);
     ok('reveal closes', await p.evaluate(() => !document.querySelector('#dl-reveal')));
