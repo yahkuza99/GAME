@@ -169,8 +169,15 @@ const Feel = (() => {
 
   // ---------- 6) ไม้ตาย (เกจ): BERSERK FURY / VALKYRIE AEGIS / WAR CRY ----------
   // ตีโดน +2 • ฆ่า +5 (CHAIN 5 ขึ้นไป +2 เพิ่ม) → เต็ม 100 กดปุ่ม/คีย์ T: คัตอินชื่อ Class + สโลว์ + คลื่นกระแทกรัศมี 5 ช่อง
-  // ดาเมจ = ตีแรง 3 เท่าของการตีปกติ (เลือกกายภาพหรือเวท ที่แรงกว่า) ใส่มอนทุกตัวในวง • ไม่ใช้ในลานประลอง/ตอนตาย • บอทไม่กดให้
+  // ดาเมจ = ตีแรง 3 เท่าของการตีปกติ (เลือกกายภาพหรือเวท ที่แรงกว่า) ใส่มอนทุกตัวในวง • ไม่ใช้ในลานประลอง/ตอนตาย • บอท AUTO/FlyPilot กดให้เองตามกฎ Bot.tryUlt (js/bot.js)
   const ULT_MAX = 100, ULT_R = 5;
+  // ULT_POWER: ตัวคูณ "สรรพคุณ" ของไม้ตายทุกแบบ (เจ้าของสั่ง 2026-10-11: เหลือ 1/4) — คูณขนาดบัฟ/ดาเมจ/ฮีล ไม่คูณเวลาหรืออัตราชาร์จเกจ
+  // ไม้ตาย Class 3 (js/class3*.js) อ่านค่านี้ตอนโหลด (feel.js โหลดก่อน) • ค่า 1 = ของเดิมก่อนรอบ 26
+  F.ULT_POWER = 0.25; const P = F.ULT_POWER; // P = ค่าตอนโหลด (ใช้กับข้อความ tooltip) • การคำนวณจริงอ่าน F.ULT_POWER สด
+  F.ultScale = (v) => v * P;                      // ขนาดบัฟแบบ "จำนวน" (+25 → +6.25)
+  F.ultMul = (k) => 1 + (k - 1) * P;              // ตัวคูณ (×1.5 → ×1.125)
+  const FURY = { atk: 25, matk: 0.25, aspd: 0.3 }, WCRY = { atk: 15, matk: 0.15, spd: 0.25 };
+  const pc = (v) => Math.round(v * P * 100) / 100; // ตัวเลข % ที่แสดงใน tooltip
   const ULT_COL = { einherjar: '#ff6a5a', runecaster: '#6ec8ff', wildhunter: '#8cff7a', volva: '#ffd76e', trickster: '#c88aff', berserker: '#ff9a3a', novice: '#bff4ff' };
   F.ultCol = () => { const p = G.player, b = JOBS[p.job] && typeof jobRoot === 'function' ? jobRoot(p.job) : p.job; return ULT_COL[b] || '#ffd76e'; };
   F.ultGain = n => {
@@ -200,9 +207,9 @@ const Feel = (() => {
   };
   // ไม้ตายแบบบัฟ ให้ผู้เล่นเลือกเอง (เจ้าของ: เน้นบัฟพื้นฐาน — ไม้ตายโจมตี RAGNARÖK/METEOR ถูกถอด 2026-10-02) (กดปุ่ม ULT ตอนเกจยังไม่เต็ม = เปิดตัวเลือก) • บันทึกใน p.ultKind
   F.ULTS = {
-    fury: { name: 'BERSERK FURY', th: L('โหมดคลั่ง', 'Fury'), desc: L('10 วินาที: ATK/MATK +25% ตีเร็วขึ้น 30%', '10s: ATK/MATK +25%, attack speed +30%') },
-    aegis: { name: 'VALKYRIE AEGIS', th: L('โล่วาลคิรี', 'Aegis'), desc: L('ฟื้น HP/SP เต็ม + อมตะ 4 วินาที', 'Full HP/SP + invulnerable for 4s') },
-    warcry: { name: 'WAR CRY', th: L('เสียงคำรามศึก', 'War Cry'), desc: L(`10 วินาที: ตัวเราและปาร์ตี้ในระยะ ${8} ช่อง ATK/MATK +15% เดินเร็วขึ้น 25%`, `10s: you and party members within ${8} cells get ATK/MATK +15% and +25% move speed`) },
+    fury: { name: 'BERSERK FURY', th: L('โหมดคลั่ง', 'Fury'), desc: L(`10 วินาที: ATK/MATK +${pc(FURY.atk)}% ตีเร็วขึ้น ${pc(FURY.aspd * 100)}%`, `10s: ATK/MATK +${pc(FURY.atk)}%, attack speed +${pc(FURY.aspd * 100)}%`) },
+    aegis: { name: 'VALKYRIE AEGIS', th: L('โล่วาลคิรี', 'Aegis'), desc: L(`ฟื้น HP/SP ${pc(100)}% ของสูงสุด + อมตะ 4 วินาที`, `Restore ${pc(100)}% of max HP/SP + invulnerable for 4s`) },
+    warcry: { name: 'WAR CRY', th: L('เสียงคำรามศึก', 'War Cry'), desc: L(`10 วินาที: ตัวเราและปาร์ตี้ในระยะ ${8} ช่อง ATK/MATK +${pc(WCRY.atk)}% เดินเร็วขึ้น ${pc(WCRY.spd * 100)}%`, `10s: you and party members within ${8} cells get ATK/MATK +${pc(WCRY.atk)}% and +${pc(WCRY.spd * 100)}% move speed`) },
   };
   // WAR CRY: บัฟทั้งปาร์ตี้รอบตัว (ส่งผ่านช่องปาร์ตี้ 'wcry' — js/party.js) • คนรับต้องอยู่แผนที่เดียวกัน ห่างไม่เกิน WARCRY_R ช่อง และไม่ใช่ลานประลอง
   const WARCRY_R = 8, WARCRY_SEC = 10;
@@ -253,7 +260,7 @@ const Feel = (() => {
       p.ultBuffUntil = G.time + 10; recalc(); addFloater(p.x, p.y - 2, 'FURY!', col, true);
       setTimeout(() => { if (G.player === p) { recalc(); if (typeof UI !== 'undefined') UI.dirty(); } }, 10100);
     } else if (kind === 'aegis') {
-      p.hp = p.d.maxHp; p.sp = p.d.maxSp; p.invulnUntil = G.time + 4;
+      p.hp = Math.min(p.d.maxHp, p.hp + Math.ceil(p.d.maxHp * F.ULT_POWER)); p.sp = Math.min(p.d.maxSp, p.sp + Math.ceil(p.d.maxSp * F.ULT_POWER)); p.invulnUntil = G.time + 4;
       addFloater(p.x, p.y - 2, 'AEGIS!', '#fff1a8', true);
     } else if (kind === 'warcry') {
       F.warCryApply(null, col);
@@ -366,11 +373,11 @@ const Feel = (() => {
         const res = r0.apply(this, arguments);
         const p = G.player, d = p && p.d;
         if (d && p.ultBuffUntil > G.time) { // โหมดคลั่ง (ไม้ตาย fury)
-          d.atkPct += 25; d.matkMin = Math.floor(d.matkMin * 1.25); d.matkMax = Math.floor(d.matkMax * 1.25);
-          d.aspdDelay = Math.max(200, Math.floor(d.aspdDelay * 0.7)); d.aspd = Math.floor(200 - d.aspdDelay / 10);
+          d.atkPct += FURY.atk * F.ULT_POWER; d.matkMin = Math.floor(d.matkMin * (1 + FURY.matk * F.ULT_POWER)); d.matkMax = Math.floor(d.matkMax * (1 + FURY.matk * F.ULT_POWER));
+          d.aspdDelay = Math.max(200, Math.floor(d.aspdDelay * (1 - FURY.aspd * F.ULT_POWER))); d.aspd = Math.floor(200 - d.aspdDelay / 10);
         }
         if (d && p.warcryUntil > G.time && !(G.map && G.map.def.pvp)) { // เสียงคำรามศึก (ไม้ตาย warcry ของเราหรือของเพื่อนร่วมปาร์ตี้)
-          d.atkPct += 15; d.matkMin = Math.floor(d.matkMin * 1.15); d.matkMax = Math.floor(d.matkMax * 1.15); d.speed *= 1.25;
+          d.atkPct += WCRY.atk * F.ULT_POWER; d.matkMin = Math.floor(d.matkMin * (1 + WCRY.matk * F.ULT_POWER)); d.matkMax = Math.floor(d.matkMax * (1 + WCRY.matk * F.ULT_POWER)); d.speed *= 1 + WCRY.spd * F.ULT_POWER;
         }
         return res;
       };

@@ -28,7 +28,7 @@
     o5_combo: 5, o5_window: 3, o5_free_k: 0.4,           // Holy Fist ฟรีแรง 40%
     o5_storm_k: 0.5, o5_storm_r: 2, o5_seal: 3, o5_seal_hits: 6,
     o5_lost_hp: 0.5, o5_lost_k: 1.15,
-    o5_ult: 8, o5_ult_every: 3, o5_ult_r: 2, o5_ult_k: 1.2,
+    o5_ult: 8, o5_ult_every: 3, o5_ult_r: 2, o5_ult_k: 1.2 * C.UP,
   });
   const P = () => G.player;
   const fast = () => !!G.fastSim;
@@ -290,7 +290,7 @@
         C.weave(amt); healAllies(amt, K.l5_th_r);
       }
       if (p.c3well > 0 && !(p.c3wellUntil > G.time)) p.c3well = 0;
-      if (C.ultOn('norns') && G.time >= (p.c3nornsAt || 0)) { p.c3nornsAt = G.time + 0.5; C.weave(p.d.maxHp * 0.04); healAllies(p.d.maxHp * 0.04, 8); }
+      if (C.ultOn('norns') && G.time >= (p.c3nornsAt || 0)) { p.c3nornsAt = G.time + 0.5; C.weave(p.d.maxHp * 0.04 * C.UP); healAllies(p.d.maxHp * 0.04 * C.UP, 8); }
       if (buffOn('verdandis_now')) p.poisonUntil = 0;
     }; }
 
@@ -342,8 +342,8 @@
   // ------------------------------------------------------------
   if (typeof Feel !== 'undefined' && Feel.ULTS) {
     Feel.ULTS.norns = { job: 'lifeweaver', name: 'THREAD OF THE NORNS', th: L('ด้ายแห่งนอร์น', 'Thread of the Norns'),
-      desc: L(`ฟื้น HP เต็ม + ฮีลต่อเนื่อง ${K.l5_ult_regen} วินาที (ตัวเรา + ผู้ช่วยระยะ 8)`, `Restore full HP + heal over ${K.l5_ult_regen}s (you + allies within 8 cells)`),
-      fire(p, col) { p.c3ult = { kind: 'norns', until: G.time + K.l5_ult_regen }; p.c3nornsAt = 0; p.hp = p.d.maxHp; healAllies(1e9, 8); addFloater(p.x, p.y - 2, 'THREAD OF THE NORNS!', col || '#d8f0ff', true); } };
+      desc: L(`ฟื้น HP ${Math.round(C.UP * 100)}% ของสูงสุด + ฮีลต่อเนื่อง ${K.l5_ult_regen} วินาที (ฮีลต่อวิ ×${C.UP}) (ตัวเรา + ผู้ช่วยระยะ 8)`, `Restore ${Math.round(C.UP * 100)}% of max HP + heal over ${K.l5_ult_regen}s (regen ×${C.UP}) (you + allies within 8 cells)`),
+      fire(p, col) { p.c3ult = { kind: 'norns', until: G.time + K.l5_ult_regen }; p.c3nornsAt = 0; p.hp = Math.min(p.d.maxHp, p.hp + Math.ceil(p.d.maxHp * C.UP)); for (const a of G.allies) if (!a.dead && a.hp > 0 && a.maxHp && U.dist(a.x, a.y, p.x, p.y) <= 8) a.hp = Math.min(a.maxHp, a.hp + Math.ceil(a.maxHp * C.UP)); addFloater(p.x, p.y - 2, 'THREAD OF THE NORNS!', col || '#d8f0ff', true); } };
     Feel.ULTS.tyr = { job: 'oathfist', name: "TYR'S JUDGMENT", th: L('การพิพากษาของทีร์', "Tyr's Judgment"),
       desc: L(`${K.o5_ult} วินาที: ทุกหมัดเป็นธาตุศักดิ์สิทธิ์ + ตีโดนทุกครั้งที่ ${K.o5_ult_every} กระแทกรอบ ${K.o5_ult_r} ช่อง`, `${K.o5_ult}s: every fist turns Holy + every ${K.o5_ult_every}rd hit bursts within ${K.o5_ult_r} cells`),
       fire(p, col) { p.c3ult = { kind: 'tyr', until: G.time + K.o5_ult }; addFloater(p.x, p.y - 2, "TYR'S JUDGMENT!", col || '#ffd890', true); } };

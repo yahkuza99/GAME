@@ -18,14 +18,14 @@
     hx_rot_max: 3,                                  // Oath of Rot: ไม่กระโดด ซ้อน 3 ชั้น
     hx_release: 0.03, hx_release_cap: 0.3,          // Oath of Release: Harvest คืน HP 3% ต่อคำสาป (สูงสุด 30%)
     hx_contagion: 0.6, hx_doom: 1.6,                // รูน Plague Hex: Contagion ลามทันทีแรง 60% / Single Doom ไม่ลาม ×1.6
-    ult_gate: 10, ult_gate_k: 1.5,
+    ult_gate: 10, ult_gate_k: 1 + 0.5 * C.UP, // ×1.5 → ×1.125 (ไม้ตาย ×¼)
     // Worldbreaker
     yb_fury: 0.3, yb_cap: 0.4,                      // Ymir's Bones: 30% ของ HP ที่จ่ายเป็นค่าสกิล → สกิลถัดไปแรงขึ้น (สูงสุด +40%)
     ws_charge: 900,                                 // Worldsplitter ร่าย (ชาร์จ) 0.9 วิ (เดิม 1.2 — ตีเดี่ยวช้ากว่า Jotun)
     om_cd: 1.5, ob_hp: 1.5, ob_k: 1.05,             // Oath of the Mountain: ไม่เสีย HP คูลดาวน์ ×1.5 / of Blood: ค่า HP ×1.5 แรง ×1.05 (เดิม ×2 / ×1.15 = +15%/+12% • ×1.5/×1.1 ยังเฉลี่ย +8% — tests/runes_c3.js)
     qr_k: 0.6, qr_r: 3, fl_k: 0.3, fl_dur: 4, fl_r: 1.5, // รูน Worldsplitter: Quake Ring / Fault Line
     hide_hp: 0.5,                                   // Frost Hide: HP ค่าสกิล −50%
-    ult_ymir: 10, ult_ymir_k: 1.5,
+    ult_ymir: 10, ult_ymir_k: 1 + 0.5 * C.UP,
   });
   const P = () => G.player;
   const fast = () => !!G.fastSim;
