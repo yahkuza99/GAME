@@ -147,11 +147,13 @@ const Loadouts = {
     return '';
   },
   // ใส่รูนทั้งชุด (onlyUnlocked = ใส่เฉพาะสกิลที่ถึง Lv ปลดรูน — ใช้ตอนนำเข้าโค้ด)
+  // รูนที่ยังไม่ได้ซื้อ (รอบ 31 js/runeshop.js) = ข้ามเสมอ (สกิลนั้นไม่ใส่รูน) • คืนจำนวนที่ข้าม
   applyRunes(map, onlyUnlocked) {
     const p = G.player, next = {}, before = this.cleanRunes(p.runes);
     let skipped = 0;
     for (const k of Object.keys(map)) {
       if (onlyUnlocked && (p.skills[k] || 0) < Runes.UNLOCK) { skipped++; continue; }
+      if (typeof RuneShop !== 'undefined' && !RuneShop.ownsSkill(map[k])) { skipped++; continue; }
       next[k] = map[k];
     }
     for (const k of new Set([...Object.keys(before), ...Object.keys(next)])) if (before[k] !== next[k]) { if (p.buffs[k]) delete p.buffs[k]; Runes.clearSkill(k); }
@@ -201,13 +203,13 @@ const Loadouts = {
     if (!this.canSwitch()) return { ok: false, err: this.busyMsg() };
     const passErr = this.applyPassives(s.passives);
     const eq = this.applyEquip(s.equip);
-    this.applyRunes(s.runes, false);
+    const runeSkip = this.applyRunes(s.runes, false);
     this.applyBars(s);
     this.applyBot(s.bot);
     const hrSkip = s.hrunes && typeof HuntRunes !== 'undefined' ? HuntRunes.applyList(s.hrunes) : 0;
     L0.cur = i;
     recalc(); saveGame(); UI.dirty();
-    return Object.assign({ ok: true, passErr, hrSkip }, eq);
+    return Object.assign({ ok: true, passErr, hrSkip, runeSkip }, eq);
   },
   // ข้อความสรุปหลังสลับ (บอกชิ้นที่ข้ามชัดเจน)
   report(s, r) {
@@ -219,6 +221,7 @@ const Loadouts = {
     }
     if (r.failed.length) UI.msg(L(`สวมไม่ได้ (Class/เลเวล): ${r.failed.map(m => ITEMS[m.id].name).join(', ')}`, `Can't equip (Class/level): ${r.failed.map(m => ITEMS[m.id].name).join(', ')}`), 'err');
     if (r.passErr) UI.msg(r.passErr, 'err');
+    if (r.runeSkip) UI.msg(L(`ข้าม Skill Rune ${r.runeSkip} อัน (ยังไม่ได้ซื้อ)`, `Skipped ${r.runeSkip} Skill Rune(s) (not bought yet)`), 'err');
     if (r.hrSkip) UI.msg(L(`ข้าม Hunt Rune ${r.hrSkip} อัน (ยังไม่มี / ช่องยังไม่ปลด)`, `Skipped ${r.hrSkip} Hunt Rune(s) (not owned / slot locked)`), 'err');
     if (typeof Sound !== 'undefined') Sound.play('equip');
     if (typeof addFloater === 'function') addFloater(G.player.x, G.player.y - 1.8, `⚙ ${s.name}`, '#ffe08a', true);
@@ -305,7 +308,8 @@ const Loadouts = {
   // ใช้ได้แค่ไหนกับตัวละครนี้: Class ต้องตรง (หรือเป็น Class แม่ของเรา) ไม่งั้นดูอย่างเดียว
   check(b) {
     const p = G.player, classOk = this.line(p.job).includes(b.job), tot = Passive.total(p);
-    const runeOk = b.runes.filter(rid => (p.skills[Runes.BY_ID[rid].skill] || 0) >= Runes.UNLOCK).length;
+    const own = rid => typeof RuneShop === 'undefined' || RuneShop.ownsSkill(rid);
+    const runeOk = b.runes.filter(rid => (p.skills[Runes.BY_ID[rid].skill] || 0) >= Runes.UNLOCK && own(rid)).length;
     const hl = (b.hrunes || []).filter(Boolean), hrOk = typeof HuntRunes !== 'undefined' ? hl.filter(id => HuntRunes.owns(id)).length : 0;
     return { classOk, passOk: classOk && b.passives.length <= tot, passNeed: b.passives.length, passHave: tot, runeOk: classOk ? runeOk : 0, runeAll: b.runes.length, scriptOk: classOk && !!b.script,
       hrOk: classOk ? hrOk : 0, hrAll: hl.length };
@@ -409,9 +413,10 @@ const Loadouts = {
     // รูน
     const rl = h('ul', { class: 'lo-pv-list' });
     for (const rid of b.runes) {
-      const r = Runes.BY_ID[rid], lvOk = (p.skills[r.skill] || 0) >= Runes.UNLOCK;
-      rl.append(h('li', { class: c.classOk && !lvOk ? 'dim' : '', title: Runes.shortOf(r) }, `${SKILLS[r.skill].name} → `, h('b', {}, `${r.glyph || 'ᚱ'} ${r.name}`),
-        c.classOk && !lvOk ? h('small', {}, L(` (ต้อง ${SKILLS[r.skill].name} Lv ${Runes.UNLOCK})`, ` (needs Lv ${Runes.UNLOCK})`)) : null));
+      const r = Runes.BY_ID[rid], lvOk = (p.skills[r.skill] || 0) >= Runes.UNLOCK, own = typeof RuneShop === 'undefined' || RuneShop.ownsSkill(rid);
+      rl.append(h('li', { class: c.classOk && (!lvOk || !own) ? 'dim' : '', title: Runes.shortOf(r) }, `${SKILLS[r.skill].name} → `, h('b', {}, `${r.glyph || 'ᚱ'} ${r.name}`),
+        c.classOk && !lvOk ? h('small', {}, L(` (ต้อง ${SKILLS[r.skill].name} Lv ${Runes.UNLOCK})`, ` (needs Lv ${Runes.UNLOCK})`))
+          : c.classOk && !own ? h('small', {}, L(' (ยังไม่ได้ซื้อ — ข้าม)', ' (not bought — skipped)')) : null));
     }
     if (!b.runes.length) rl.append(h('li', { class: 'dim' }, L('ไม่ใส่รูน', 'No runes')));
     // Passive: จุดเด่น + ผลรวม
@@ -434,7 +439,7 @@ const Loadouts = {
     const opt = (k, label, can, why) => h('label', { class: 'lo-opt' + (can ? '' : ' off') },
       h('input', { type: 'checkbox', checked: can && sel[k] ? 'checked' : false, disabled: can ? false : 'disabled', onchange: e => { sel[k] = e.target.checked; } }), ' ', label, why ? h('small', {}, ' — ' + why) : null);
     box.append(h('div', { class: 'lo-opts' },
-      opt('runes', L(`Rune Paths (${c.runeOk}/${c.runeAll})`, `Rune Paths (${c.runeOk}/${c.runeAll})`), c.runeOk > 0, c.runeAll && c.runeOk < c.runeAll ? L('บางสกิลยังไม่ถึง Lv ปลดรูน', 'some skills are below the rune level') : !c.runeAll ? L('ไม่มีรูน', 'none') : ''),
+      opt('runes', L(`Rune Paths (${c.runeOk}/${c.runeAll})`, `Rune Paths (${c.runeOk}/${c.runeAll})`), c.runeOk > 0, c.runeAll && c.runeOk < c.runeAll ? L('บางสกิลยังไม่ถึง Lv ปลดรูน / รูนยังไม่ได้ซื้อ (ข้าม)', 'some skills are below the rune level / runes not bought (skipped)') : !c.runeAll ? L('ไม่มีรูน', 'none') : ''),
       opt('passives', 'Passive', c.passOk, c.passOk ? L('ฟรี (แทนที่ของเดิม)', 'free (replaces current)') : L(`ต้องใช้ ${c.passNeed} แต้ม มี ${c.passHave}`, `needs ${c.passNeed} pts, you have ${c.passHave}`)),
       opt('script', 'Battle Script', c.scriptOk, c.scriptOk ? L('แทนกฎ AUTO ปัจจุบัน', 'replaces your AUTO rules') : L('ไม่มี', 'none')),
       c.hrAll ? opt('hrunes', `Hunt Rune (${c.hrOk}/${c.hrAll})`, c.hrOk > 0, c.hrOk < c.hrAll ? L('บางอันยังไม่มี (ข้าม)', 'some not owned (skipped)') : '') : null));

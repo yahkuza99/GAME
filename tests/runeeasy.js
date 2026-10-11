@@ -39,6 +39,7 @@ async function start(browser, port, vp, mobile) {
     try { for (const k of Object.keys(localStorage)) if (k.startsWith('iv_rune_new_ack:')) localStorage.removeItem(k); } catch (e) { /* */ }
     Runebook._ack = null;
     const pl = G.player; pl.job = 'einherjar'; pl.jobLv = 10; pl.baseLv = 20; pl.zeny = 1e6; pl.combatAt = -99; pl.runes = {}; pl.hrunes = [null, null]; pl.hrunesOwn = [];
+    pl.runesOwn = Object.keys(Runes.BY_ID); // รอบ 31: Skill Rune ต้องซื้อก่อน — เทสต์นี้ตรวจการเลือก/สลับ จึงให้มีครบ (การซื้อ = tests/runebuy.js)
     Object.assign(pl.skills, { whirlwind: 5, iron_body: 4, shield_slam: 2 }); delete pl.skills.war_cry;
     recalc(); UI.skTab = 'einherjar';
   });
@@ -161,7 +162,7 @@ async function start(browser, port, vp, mobile) {
     const auto = W().querySelector('.rb-auto');
     r.autoDefault = !!auto && auto.getAttribute('aria-checked') === 'true' && auto.dataset.slot === '0';
     W().querySelector('.rb-buy-ok').click(); await wait(40); // แตะ 2: ยืนยัน
-    r.paid = pl.zeny === 20000 - HR.def('hr_exec').price;
+    r.paid = pl.zeny === 20000 - HR.def('hr_exec').price * RS_REMOTE_MUL; // รอบ 31: ไกล Brokk = ซื้อทางไกล ×1.5
     r.owned = HR.owns('hr_exec') && pl.hrunes[0] === 'hr_exec' && HR.active().some(d => d.id === 'hr_exec');
     // ไม่ติ๊ก "ใส่ช่องเลย" = ซื้ออย่างเดียว
     pl.baseLv = 35; pl.zeny = 10000;
@@ -170,7 +171,7 @@ async function start(browser, port, vp, mobile) {
     W().querySelector('.rb-auto').click(); await wait(30);
     r.unticked = W().querySelector('.rb-auto').getAttribute('aria-checked') === 'false';
     W().querySelector('.rb-buy-ok').click(); await wait(40);
-    r.noSocket = HR.owns('hr_slay_brute') && pl.hrunes[1] === null && pl.zeny === 10000 - HR.def('hr_slay_brute').price;
+    r.noSocket = HR.owns('hr_slay_brute') && pl.hrunes[1] === null && pl.zeny === 10000 - HR.def('hr_slay_brute').price * RS_REMOTE_MUL;
     Runebook.buyAuto = true;
     // ยกเลิก = ไม่เสียเงิน
     const z = pl.zeny;
@@ -179,7 +180,7 @@ async function start(browser, port, vp, mobile) {
     r.cancel = pl.zeny === z && !HR.owns('hr_endow_water');
     return r;
   });
-  ok('buy: Runes window sells Hunt Runes far from Brokk — Buy (price) → confirm (price + left after)', buy.far && /12,000/.test(buy.btn) && buy.staged && /12,000/.test(buy.confirmText) && /8,000/.test(buy.confirmText), buy);
+  ok('buy: Runes window sells Hunt Runes far from Brokk at the remote price — Buy (18,000, at Brokk 12,000) → confirm (price + fee + left after)', buy.far && /18,000/.test(buy.btn) && /12,000/.test(buy.btn) && buy.staged && /18,000/.test(buy.confirmText) && /6,000/.test(buy.confirmText) && /2,000/.test(buy.confirmText), buy);
   ok('buy: confirming deducts the exact price and "ซื้อแล้วใส่ช่อง I เลย" (on by default) sockets it', buy.autoDefault && buy.paid && buy.owned, buy);
   ok('buy: unticking "ใส่ช่องเลย" only buys; Cancel spends nothing', buy.unticked && buy.noSocket && buy.cancel, buy);
 
@@ -197,7 +198,7 @@ async function start(browser, port, vp, mobile) {
     UI.msg = m0; UI.close('w-runes');
     return r;
   });
-  ok('not enough Volt: button shows how much is missing (11,000), purchase refused with the missing amount', poor.disabled && poor.miss === '11000' && /ขาดอีก 11,000/.test(poor.text) && /12,000/.test(poor.have) && poor.refused && /11,000/.test(poor.msg), poor);
+  ok('not enough Volt: button shows how much is missing (17,000 remote), purchase refused with the missing amount', poor.disabled && poor.miss === '17000' && /ขาดอีก 17,000/.test(poor.text) && /18,000/.test(poor.have) && /12,000/.test(poor.have) && poor.refused && /17,000/.test(poor.msg), poor);
 
   // ---------- 7) เซฟเก่าโหลดเหมือนเดิม ----------
   const sv = await p.evaluate(() => {
@@ -206,10 +207,11 @@ async function start(browser, port, vp, mobile) {
     const data = JSON.parse(JSON.stringify(saveData()));
     const keys = Object.keys(data).sort().join(',');
     const q = loadGameFrom(data);
-    return { keys, runes: JSON.stringify(q.runes), hr: JSON.stringify(q.hrunes), own: JSON.stringify(q.hrunesOwn), saveKey: SAVE_KEY };
+    return { keys, runes: JSON.stringify(q.runes), hr: JSON.stringify(q.hrunes), own: JSON.stringify(q.hrunesOwn), sown: JSON.stringify(q.runesOwn), saveKey: SAVE_KEY };
   });
-  ok('old save: p.runes / p.hrunes / p.hrunesOwn load unchanged; SAVE_KEY unchanged; no new save fields', sv.runes === '{"whirlwind":"whirlwind.vortex","iron_body":"iron_body.retaliate"}' && sv.hr === '["hr_exec","hr_slay_brute"]'
-    && sv.own === '["hr_exec","hr_slay_brute"]' && sv.saveKey === 'ragnarok_web_save_v2' && !/rune(Ack|New|Seen)/i.test(sv.keys), sv);
+  // รอบ 31: ฟิลด์ใหม่ที่ตั้งใจเพิ่มมีแค่ runesOwn (Skill Rune ที่ซื้อแล้ว — เจ้าของสั่ง) • ห้ามมีฟิลด์ "เห็นแล้ว/ใหม่" ในเซฟ
+  ok('old save: p.runes / p.hrunes / p.hrunesOwn load unchanged; SAVE_KEY unchanged; only new save field = runesOwn', sv.runes === '{"whirlwind":"whirlwind.vortex","iron_body":"iron_body.retaliate"}' && sv.hr === '["hr_exec","hr_slay_brute"]'
+    && sv.own === '["hr_exec","hr_slay_brute"]' && sv.saveKey === 'ragnarok_web_save_v2' && !/rune(Ack|New|Seen)/i.test(sv.keys) && /(^|,)runesOwn(,|$)/.test(sv.keys) && /whirlwind\.vortex/.test(sv.sown), sv);
 
   // ---------- 8) มือถือ 390×844 + กติกาหน้าตา ----------
   const m = await start(browser, port, { width: 390, height: 844 }, true);
@@ -239,6 +241,13 @@ async function start(browser, port, vp, mobile) {
     opt.click(); await wait(40);
     r.tap = pl.runes.whirlwind === 'whirlwind.vortex';
     r.fits = document.getElementById('w-skills').getBoundingClientRect().right <= 390 + 0.5;
+    // รอบ 31: สภาพ "ยังไม่ซื้อ" (ป้ายราคา / ราคาทางไกล / ปุ่มไปซื้อที่ Brokk) + หน้าต่างยืนยันซื้อ ก็ต้องผ่านกติกาเดียวกัน
+    const own0 = pl.runesOwn; pl.runesOwn = []; UI.renderSkills(); await wait(40);
+    document.querySelectorAll('#w-skills .rn-row').forEach(x => check(x, 'skills-buy'));
+    r.buyRow = !!document.querySelector('#w-skills .rn-opt.buy') && !!document.querySelector('#w-skills .rn-gobrokk');
+    document.querySelector('#w-skills .rn-opt.buy:not([disabled])').click(); await wait(40);
+    const ask = document.querySelector('#w-confirm .rs-ask'); if (ask) check(ask, 'ask');
+    r.ask = !!ask; RuneShop.close(); pl.runesOwn = own0;
     UI.close('w-skills');
     pl.zeny = 50000; pl.combatAt = -99;
     Runebook.open('hunt', 'hr_exec'); await wait(60);
@@ -252,7 +261,7 @@ async function start(browser, port, vp, mobile) {
     return r;
   });
   ok('phone: Skills rune rows/confirm box follow owner UI rules (radius ≤ 8, no Thai letter-spacing, text ≥ 14px, buttons ≥ 44px, no bars)', ui.rows >= 6 && !ui.bad.length, ui.bad.slice(0, 6));
-  ok('phone: 1 tap equips from the Skills window; rune button ≥ 44px; window fits 390px', ui.tap && ui.optH >= 44 && ui.fits && ui.poorShown, ui);
+  ok('phone: 1 tap equips from the Skills window; rune button ≥ 44px; window fits 390px', ui.tap && ui.optH >= 44 && ui.fits && ui.poorShown && ui.buyRow && ui.ask, ui);
   ok('no page errors', !p._errors.length && !m._errors.length, [...p._errors, ...m._errors].slice(0, 3).join(' | '));
 
   await browser.close(); srv.close();

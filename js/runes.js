@@ -4,7 +4,7 @@
 //  • ทุกสกิลของ Class 1 มีรูน 2 แบบ ปลดเมื่อ Skill Lv 4 • เลือกได้ 0 หรือ 1 ต่อสกิล (เซฟใน p.runes = { skillId: runeId })
 //  • รูน = เปลี่ยน "วิธีเล่น" ของสกิล (แตกลูก ทิ้งพื้น ดึง ทะลุ กระโดด ตีดีเลย์ ติดรอย ฯลฯ) ไม่ใช่แค่ +%
 //  • Sidegrade: ไม่มีรูน / รูน A / รูน B แรงพอ ๆ กัน (tests/runes.js จำลอง DPS เดี่ยว + ฝูง 5 ตัว)
-//  • เปลี่ยนได้ทุกที่ฟรี ยกเว้นระหว่างต่อสู้ (ตีโดน/โดนตีภายใน 5 วิ)
+//  • ต้องซื้อรูนก่อน 1 ครั้ง (เก็บตลอดไป — p.runesOwn, ราคา/ร้าน js/runeshop.js) • สลับรูนที่มีแล้วได้ทุกที่ฟรี ยกเว้นระหว่างต่อสู้ (ตีโดน/โดนตีภายใน 5 วิ)
 //  ข้อมูลสกิลที่ใช้จริง = skillDef(id) (game.js) = SKILLS[id] + ส่วนที่รูนแก้ (ไม่แตะตัวเลขพื้นฐานของสกิล)
 // ============================================================
 const Runes = {
@@ -48,7 +48,7 @@ const Runes = {
     return out;
   },
 
-  // ---------- การเปลี่ยนรูน (อิสระเป็นของผู้เล่น: ฟรี ทุกที่ ยกเว้นระหว่างต่อสู้) ----------
+  // ---------- การเปลี่ยนรูน (ซื้อรูนแล้ว = สลับฟรี ทุกที่ ยกเว้นระหว่างต่อสู้ • การซื้อ/ราคาอยู่ที่ js/runeshop.js) ----------
   combatLeft() { const p = G.player; return Math.max(0, (p.combatAt == null ? -99 : p.combatAt) + this.COMBAT - G.time); },
   canChange() { return this.combatLeft() <= 0; },
   set(skill, rid) {
@@ -56,6 +56,8 @@ const Runes = {
     if (!this.TREE[skill]) return false;
     if (rid && (!this.BY_ID[rid] || this.BY_ID[rid].skill !== skill)) return false;
     if (rid && (p.skills[skill] || 0) < this.UNLOCK) { UI.msg(L(`ต้องอัป ${SKILLS[skill].name} ถึง Lv ${this.UNLOCK} ก่อน`, `${SKILLS[skill].name} must reach Lv ${this.UNLOCK} first.`), 'err'); return false; }
+    // ต้องซื้อก่อนใช้ (รอบ 31 — js/runeshop.js) • ถอด (rid = null) ได้เสมอ
+    if (rid && typeof RuneShop !== 'undefined' && !RuneShop.ownsSkill(rid)) { UI.msg(RuneShop.notOwnedText('skill', rid), 'err'); return false; }
     if (!this.canChange()) { UI.msg(L(`เปลี่ยนรูนระหว่างต่อสู้ไม่ได้ (รออีก ${Math.ceil(this.combatLeft())} วิ)`, `Can't change runes in combat (${Math.ceil(this.combatLeft())}s).`), 'err'); return false; }
     p.runes = p.runes || {};
     const cur = p.runes[skill] || null;
@@ -348,38 +350,51 @@ Runes.newIds = function () {
 Runes.skillRow = function (list, id) {
   const r2 = this.list(id); if (r2.length < 2 || typeof h !== 'function') return;
   const p = G.player, lv = p.skills[id] || 0, cur = this.chosen(id), open = lv >= this.UNLOCK, busy = !this.canChange();
+  const RS = typeof RuneShop !== 'undefined' ? RuneShop : null, owns = r => !RS || RS.ownsSkill(r.id), anyOwn = r2.some(owns);
   if (!list.querySelector('.rn-help')) {
     list.prepend(h('div', { class: 'rn-help' },
       h('b', {}, 'ᚱ Skill Rune'),
-      h('span', {}, L(` — สกิล Lv ${this.UNLOCK} ปลดรูน 2 แบบ • แตะรูนเพื่อใช้ แตะอีกครั้งเพื่อถอด • เปลี่ยนฟรีนอกการต่อสู้`,
-        ` — Skill Lv ${this.UNLOCK} unlocks 2 runes • tap one to use it, tap again to remove • free to swap out of combat`)),
+      h('span', {}, L(` — สกิล Lv ${this.UNLOCK} ปลดรูน 2 แบบ • ซื้อครั้งเดียวเก็บตลอดไป (ที่ Brokk ราคาปกติ • ซื้อทางไกลแพงกว่า) • แตะรูนเพื่อใช้ แตะอีกครั้งเพื่อถอด • สลับฟรีนอกการต่อสู้`,
+        ` — Skill Lv ${this.UNLOCK} unlocks 2 runes • buy once, keep forever (normal price at Brokk • remote costs more) • tap one to use it, tap again to remove • free to swap out of combat`)),
       typeof Runebook !== 'undefined' ? h('button', { type: 'button', class: 'btn small rn-manage', title: `Runes (${Runebook.KEY})`, onclick: e => { e.stopPropagation(); Runebook.open('skill'); } }, L(`ดูทั้งหมดใน Runes (${Runebook.KEY})`, `All in Runes (${Runebook.KEY})`)) : null)); // หน้าต่าง Runes รวมทั้งสองระบบ (js/runebook.js)
   }
   // "!" ที่ชื่อสกิล (แถวสกิลอยู่ก่อนแถวรูนเสมอ — js/ui.js renderSkills)
   const prev = list.lastElementChild, nm = open && !cur && prev ? prev.querySelector('.sk-name') : null;
   if (nm && !nm.querySelector('.rn-bang')) nm.prepend(h('i', { class: 'rn-bang', title: L('ปลดรูนแล้ว — ยังไม่ได้เลือก', 'Runes unlocked — none chosen') }, '!'));
+  const near = RS ? RS.near() : true;
   const row = h('div', { class: 'rn-row' + (open ? '' : ' locked') + (busy ? ' busy' : '') + (open && !cur ? ' new' : ''), 'data-skill': id },
     h('div', { class: 'rn-head' },
       h('span', { class: 'rn-state' }, !open ? this.lockText(id)
-        : cur ? L(`ᚱ ใช้อยู่: ${cur.name}`, `ᚱ Using: ${cur.name}`) : L('! ปลดรูนแล้ว — แตะเลือก 1 แบบ', '! Runes unlocked — tap one'))),
+        : cur ? L(`ᚱ ใช้อยู่: ${cur.name}`, `ᚱ Using: ${cur.name}`) : anyOwn ? L('! ปลดรูนแล้ว — แตะเลือก 1 แบบ', '! Runes unlocked — tap one')
+          : L('! ปลดรูนแล้ว — ซื้อ 1 แบบเพื่อใช้', '! Runes unlocked — buy one to use it'))),
     open && busy ? h('div', { class: 'rn-busy' }, this.busyText()) : null,
     h('div', { class: 'rn-opts' }, ...r2.map(r => {
-      const on = cur === r;
-      return h('button', { type: 'button', class: 'rn-opt' + (on ? ' on' : ''), 'data-rune': r.id, 'aria-pressed': on ? 'true' : 'false', disabled: open ? false : 'disabled',
-        title: (on ? L('แตะอีกครั้งเพื่อถอดรูน', 'Tap again to remove the rune') : L('แตะเพื่อใช้รูนนี้', 'Tap to use this rune')) + '\n' + r.desc(),
-        onclick: e => { e.stopPropagation(); if (this.set(id, on ? null : r.id) && typeof UI !== 'undefined') UI.renderSkills(); } },
+      const on = cur === r, own = owns(r), q = own ? null : RS.quote('skill', r.id, near);
+      // ยังไม่ซื้อ: แตะ = หน้าต่างยืนยันซื้อ (js/runeshop.js: ราคา / ค่าส่งทางไกล / เหลือหลังซื้อ) → ซื้อแล้วใส่ให้เลย • สกิลยังไม่ถึง Lv = ดูราคาได้ แต่กดไม่ได้
+      return h('button', { type: 'button', class: 'rn-opt' + (on ? ' on' : '') + (own ? '' : ' buy') + (q && q.miss > 0 ? ' poor' : ''), 'data-rune': r.id, 'data-own': own ? '1' : '0',
+        'aria-pressed': on ? 'true' : 'false', disabled: open ? false : 'disabled',
+        title: (on ? L('แตะอีกครั้งเพื่อถอดรูน', 'Tap again to remove the rune') : own ? L('แตะเพื่อใช้รูนนี้', 'Tap to use this rune') : RS.buyLabel('skill', r.id, q)) + '\n' + r.desc(),
+        onclick: e => {
+          e.stopPropagation();
+          if (!own && !on) { RS.ask('skill', r.id, () => { this.set(id, r.id); if (typeof UI !== 'undefined') UI.renderSkills(); }); return; }
+          if (this.set(id, on ? null : r.id) && typeof UI !== 'undefined') UI.renderSkills();
+        } },
         h('i', { class: 'rn-g', style: `color:${r.col || 'inherit'}` }, r.glyph || 'ᚱ'),
         h('span', { class: 'rn-txt' },
           h('span', { class: 'rn-top' }, h('b', { class: 'rn-n' }, r.name), h('small', { class: 'rn-tag ' + r.intent }, this.INTENT[r.intent]())),
-          h('span', { class: 'rn-d' }, this.thOf ? this.thOf(r) : this.shortOf(r))),
-        h('span', { class: 'rn-act' }, !open ? '🔒' : on ? L('ใช้อยู่ ✓', 'In use ✓') : L('เลือก', 'Pick')));
-    })));
+          h('span', { class: 'rn-d' }, this.thOf ? this.thOf(r) : this.shortOf(r)),
+          q ? h('span', { class: 'rn-price' + (q.near ? '' : ' remote') }, RS.buyLabel('skill', r.id, q)) : null),
+        h('span', { class: 'rn-act' }, !open ? '🔒' : on ? L('ใช้อยู่ ✓', 'In use ✓') : own ? L('เลือก', 'Pick') : RS.shortLabel('skill', r.id, q)));
+    })),
+    // ซื้อทางไกลแพงกว่า → ทางเลือกที่ถูกกว่า: นำทางไปหา Brokk
+    RS && open && !near && !r2.every(owns) ? h('button', { type: 'button', class: 'btn small rn-gobrokk', onclick: e => { e.stopPropagation(); RS.goBrokk(); } },
+      L(`ไปซื้อที่ Brokk — ราคาปกติ ${U.fmt(RS.quote('skill', r2[0].id, true).base)}`, `Buy at Brokk — normal price ${U.fmt(RS.quote('skill', r2[0].id, true).base)}`)) : null);
   list.append(row);
 };
-// รีเฟรชหน้าต่างสกิลเมื่อสถานะ "อยู่ในการต่อสู้" เปลี่ยน + นับถอยหลังทุกวินาที (ข้อความ "เปลี่ยนได้ในอีก N วิ")
+// รีเฟรชหน้าต่างสกิลเมื่อสถานะ "อยู่ในการต่อสู้" เปลี่ยน + นับถอยหลังทุกวินาที (ข้อความ "เปลี่ยนได้ในอีก N วิ") • เดินเข้า/ออกระยะ Brokk = ราคารูนเปลี่ยน
 Runes.watchCombat = function () {
-  const left = Math.ceil(this.combatLeft());
-  if (left !== this._busy) { this._busy = left; if (typeof UI !== 'undefined' && UI.isOpen && UI.isOpen('w-skills')) UI.dirty(); }
+  const left = Math.ceil(this.combatLeft()), near = typeof RuneShop !== 'undefined' && G.player ? RuneShop.near() : false;
+  if (left !== this._busy || near !== this._near) { this._busy = left; this._near = near; if (typeof UI !== 'undefined' && UI.isOpen && UI.isOpen('w-skills')) UI.dirty(); }
 };
 
 // วาดภาพรูนผ่าน R.drawFx (แบบเดียวกับ juice.js) — ต่อเมื่อ render.js โหลดแล้ว

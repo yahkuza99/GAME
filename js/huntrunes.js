@@ -3,7 +3,7 @@
 //  Hunt Rune — ตีแรงแบบมีเงื่อนไข (แนวการ์ด/Endow ของ RO) แยกจาก Rune Paths (js/runes.js)
 //  เจ้าของ 2026-10-03: "มีรูนประเภทตีแรงขึ้นได้ อาจจะเป็นการชนะทาง หรือตีศัตรูชนิดได้แรงขึ้นแบบ RO" • "อิสระเป็นของผู้เล่น"
 //  • ช่อง 2 ช่องต่อตัวละคร: ช่อง I ปลดที่ Base Lv 15 • ช่อง II ที่ Base Lv 35 • สลับฟรีนอกการต่อสู้ (กติกา 5 วิ เดียวกับ Runes.combatLeft)
-//  • ซื้อครั้งเดียวเก็บตลอดไป — ที่หน้าต่าง Runes ได้ทุกที่ (js/runebook.js) หรือที่ Brokk Forge-Bot (แท็บ Hunt Rune ในเตา) — ไม่ใช่ของในกระเป๋า ขาย/ทิ้ง/แลกไม่ได้
+//  • ซื้อครั้งเดียวเก็บตลอดไป — ที่ Brokk Forge-Bot (แท็บ Hunt Rune ในเตา / ยืนใกล้เขา) = ราคาปกติ • ซื้อทางไกลที่หน้าต่าง Runes = +50% (js/runeshop.js) — ไม่ใช่ของในกระเป๋า ขาย/ทิ้ง/แลกไม่ได้
 //  • ราคา = ราคาฐาน × HR_PRICE_MUL (2) → 3,000–12,000 Volt
 //  • ชนิด: Slayer (ตามเผ่า +20% กาย+เวท) • Endow (เปลี่ยนธาตุตีปกติ/สกิลที่ไม่มีธาตุ → ใช้ ELEM_TABLE จริง ได้ทั้งแรงขึ้นและเบาลง)
 //          • เงื่อนไข: Giant Slayer / Executioner / Ambusher / Pack Breaker
@@ -196,8 +196,9 @@ const HuntRunes = {
   canChange() { return typeof Runes === 'undefined' || Runes.canChange(); },
   combatLeft() { return typeof Runes !== 'undefined' ? Runes.combatLeft() : 0; },
   busyMsg() { const n = Math.ceil(this.combatLeft()); return L(`เปลี่ยน Hunt Rune ระหว่างต่อสู้ไม่ได้ (รออีก ${n} วิ)`, `Can't change Hunt Runes in combat (${n}s).`); },
-  // ซื้อ (คืน true/false) — ไม่เช็กระยะ NPC (เรียกจากเตาของ Brokk ซึ่งปิดเองเมื่อเดินห่าง)
+  // ซื้อ (คืน true/false) — ราคาตามที่ยืน (รอบ 31 js/runeshop.js): ใกล้ Brokk / เปิดเตาของเขาอยู่ = ราคาปกติ • ที่อื่น = ×RS_REMOTE_MUL (ค่าส่งทางไกล)
   buy(id) {
+    if (typeof RuneShop !== 'undefined') return RuneShop.buy('hunt', id);
     const p = G.player, d = this.def(id);
     if (!d) return false;
     if (this.owns(id)) { UI.msg(L('มีรูนนี้อยู่แล้ว', 'You already own this rune.'), 'info'); return false; }
@@ -216,7 +217,7 @@ const HuntRunes = {
     if (!this.unlocked(i)) return err(L(`ช่อง ${i ? 'II' : 'I'} ปลดที่ Base Lv ${HR_UNLOCK[i]}`, `Slot ${i ? 'II' : 'I'} unlocks at Base Lv ${HR_UNLOCK[i]}.`));
     if (!this.canChange()) return err(this.busyMsg());
     if (id && !d) return false;
-    if (d && !this.owns(id)) return err(L('ยังไม่มีรูนนี้ — ซื้อได้ที่หน้าต่าง Runes (Shift+R) หรือ Brokk Forge-Bot', "You don't own this rune yet — buy it in Runes (Shift+R) or from Brokk Forge-Bot."));
+    if (d && !this.owns(id)) return err(typeof RuneShop !== 'undefined' ? RuneShop.notOwnedText('hunt', id) : L('ยังไม่มีรูนนี้ — ซื้อได้ที่หน้าต่าง Runes (Shift+R) หรือ Brokk Forge-Bot', "You don't own this rune yet — buy it in Runes (Shift+R) or from Brokk Forge-Bot."));
     if (s[i] === (id || null)) return false;
     const other = s[1 - i];
     if (d && other === id) s[1 - i] = s[i]; // ใส่ตัวที่อยู่อีกช่อง = สลับช่อง

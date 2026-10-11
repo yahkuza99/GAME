@@ -2403,12 +2403,13 @@ const UI = {
     const n = f.npc; // เดินห่างจาก Brokk เกิน 6 ช่อง / ย้ายแมพ = ปิด
     if (n && n.x != null && (!G.npcs.includes(n) || U.dist(p.x, p.y, n.x, n.y) > 6)) { this.close('w-forge'); return; }
     const narrow = this.narrow();
-    const tabs = h('div', { class: 'pills' }, [['refine', 'Refine', 'hammer'], ['chips', 'Chips', 'chips'], ...(typeof HuntRunes !== 'undefined' ? [['hrune', 'Hunt Rune', 'hrune']] : [])].map(([k, l, ic]) =>
+    const tabs = h('div', { class: 'pills' }, [['refine', 'Refine', 'hammer'], ['chips', 'Chips', 'chips'], ...(typeof HuntRunes !== 'undefined' ? [['hrune', 'Hunt Rune', 'hrune']] : []), ...(typeof RuneShop !== 'undefined' ? [['srune', 'Skill Rune', 'rune']] : [])].map(([k, l, ic]) =>
       h('button', { type: 'button', class: 'pill' + (f.tab === k ? ' on' : ''), disabled: f.busy ? 'disabled' : false, onclick: () => { f.tab = k; f.det = false; f.last = null; this.renderForge(); } }, ivIconEl(ic), l)));
     const foot = (txt) => h('div', { class: 'book-foot' }, h('span', { class: 'bf-count' }, txt), h('span', { class: 'coin-pill' }, h('i', { class: 'coin' }), U.fmt(p.zeny)));
     const back = this.bookBack(() => { if (f.busy) return; f.det = false; this.renderForge(); });
     let left, right, det = false;
     if (f.tab === 'hrune' && typeof HuntRunes !== 'undefined') ({ left, right, det } = HuntRunes.forgeTab(f, tabs, foot, back)); // Hunt Rune (js/huntrunes.js)
+    else if (f.tab === 'srune' && typeof RuneShop !== 'undefined') ({ left, right, det } = RuneShop.forgeTab(f, tabs, foot, back)); // Skill Rune ราคาปกติ (js/runeshop.js — รอบ 31)
     else if (f.tab === 'refine') {
       const slots = EQUIP_SLOTS.filter(s => p.equip[s]);
       if (f.sel && !p.equip[f.sel]) { f.sel = null; f.det = false; }

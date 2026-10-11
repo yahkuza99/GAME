@@ -235,8 +235,12 @@ const BAND = 12, CAP = 15, MEAN = 7, CLASS_MEAN = 5;
     // กลับมาใช้ตัวละครเดิม
     G.player = pl; recalc();
     RSETUP('einherjar'); pl.runes = {}; pl.combatAt = -99; recalc();
+    // รอบ 31: ต้องซื้อรูนก่อน (js/runeshop.js — tests/runebuy.js ตรวจราคา/การซื้อ) → ที่นี่ให้มีทุกรูนแล้วตรวจกติกาการสลับเดิม
+    pl.runesOwn = [];
+    ok('unowned rune refused (round 31)', !Runes.set('shield_slam', 'shield_slam.charge') && !pl.runes.shield_slam);
+    pl.runesOwn = Object.keys(Runes.BY_ID);
     const z0 = pl.zeny;
-    ok('set rune (free, anywhere)', Runes.set('shield_slam', 'shield_slam.charge') && pl.runes.shield_slam === 'shield_slam.charge' && pl.zeny === z0 && G.map.def.kind !== 'town');
+    ok('set owned rune (swap is free, anywhere)', Runes.set('shield_slam', 'shield_slam.charge') && pl.runes.shield_slam === 'shield_slam.charge' && pl.zeny === z0 && G.map.def.kind !== 'town');
     const data = saveData();
     const back = loadGameFrom(JSON.parse(JSON.stringify(data)));
     ok('save: runes round-trip', back.runes.shield_slam === 'shield_slam.charge', back.runes);
