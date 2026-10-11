@@ -120,7 +120,7 @@
     rust_bloom: variant('moss_pudding', { name: 'Rust Bloom', lv: 58, hp: 4000, atk: [206, 256], def: 20, mdef: 40, vit: 58, flee: 72, hit: 138, exp: 3610, jexp: 2530, speed: 1.3,
       aggro: false, element: 'poison', race: 'formless', hue: -75, sat: 1.25, bri: 0.9, tint: ['#8a3a10', 0.35],
       lore: L('สนิมที่ไม่ได้เกาะอะไรอีกแล้ว มันงอกเป็นก้อนเหมือนดอกไม้ — และงอกเข้าหาแสงประกายเสมอ', 'Rust that no longer clings to anything. It grows in lumps like flowers — always toward the light of sparks.'),
-      drops: [['rust_petal', 0.5], ['moss_gel', 0.3], ['white_potion', 0.04], ['volt_ore', 0.045], ['rotbloom_rod', 0.02], ['wyrmhide_boots', 0.01], ['bloomheart_charm', 0.0025]] }),
+      drops: [['rust_petal', 0.5], ['moss_gel', 0.3], ['white_potion', 0.04], ['volt_ore', 0.045], ['rotbloom_rod', 0.02], ['bloomheart_charm', 0.0025]] }),
     hollow_shell: variant('archive_warden', { name: 'Hollow Shell', lv: 61, hp: 4300, atk: [220, 272], def: 35, mdef: 20, vit: 60, flee: 76, hit: 146, exp: 4100, jexp: 2870, speed: 1.6,
       aggro: true, stun: [8, 1.5], element: 'neutral', race: 'formless', hue: 110, sat: 0.4, bri: 0.85, tint: ['#5a4a6a', 0.3],
       lore: L('โครงร่างที่ Nidhogg คายทิ้งหลังกินประกายข้างในหมด ยังเดินตามคำสั่งสุดท้ายที่ไม่มีใครจำได้', 'A frame Nidhogg spat out after eating the spark inside. It still follows a last order no one remembers.'),
