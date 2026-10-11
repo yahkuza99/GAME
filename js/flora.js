@@ -698,7 +698,7 @@ const Flora = {
     for (let i = 0; i < s.length; i += 3) {
       if (s[i + 2] >= o.y + 0.3) continue;
       const dx = Math.abs(s[i] - x), cy = s[i + 1];
-      if (dx < Wd * 0.4 + 12 && cy > sy - H * 0.98 + 20 && cy - 56 < sy - H * 0.22) { target = 0.42; break; }
+      if (dx < Wd * 0.4 + 12 && cy > sy - H * 0.98 + 20 && cy - 56 < sy - H * 0.22) { target = 0.25; break; }
     }
     o.fa += (target - o.fa) * Math.min(1, this.dt * 9);
     const sway = Math.sin(t * 1.1 + o.r * 10) * (img.pine ? 0.016 : 0.012);
