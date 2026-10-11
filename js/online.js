@@ -153,6 +153,8 @@ const Online = {
   async loadCharacter() {
     if (this.local) return Acct.wrap(this.lsGet(this.LS.char(this.username), null));
     if (typeof SessionGuard !== 'undefined') await SessionGuard.settle(); // รอให้หน้าเก่า (ถ้ามี) หยุดเซฟก่อนอ่านเซฟ
+    // บัญชีที่ผู้ดูแลปฏิเสธ (player_bans — js/save_verify.js) → ไม่เข้าเกม ขึ้นเหตุผล
+    if (typeof SaveVerify !== 'undefined') { const ban = await SaveVerify.checkBan(); if (ban) { SaveVerify.showBan(ban); throw new Error(SaveVerify.banText(ban)); } }
     const { data, error } = await this.sb.from('characters').select('name, data').eq('user_id', this.user.id).maybeSingle();
     if (error) throw new Error(this.errText(error));
     this.rowName = data ? data.name : null;
@@ -191,6 +193,12 @@ const Online = {
   },
   async flushSave() {
     if (!this.online || !this.pendingSave || this.saving) return;
+    // เซฟเพิ่งถูกเซิร์ฟเวอร์ปฏิเสธ (js/save_verify.js) → เว้นช่วงก่อนลองใหม่ (สำเนาในเครื่องเขียนไว้แล้ว)
+    const wait = typeof SaveVerify !== 'undefined' ? SaveVerify.waitMs() : 0;
+    if (wait > 0) {
+      if (!this.saveTimer) { this.saveDue = performance.now() + wait; this.saveTimer = setTimeout(() => { this.saveTimer = null; this.flushSave(); }, wait); }
+      return;
+    }
     const data = this.pendingSave;
     this.pendingSave = null;
     // คอลัมน์ name = ชื่อตัวละครที่เล่นอยู่ (แชท/เช็กชื่อซ้ำใช้คอลัมน์นี้) • ไม่มีตัวละครเหลือ = คงชื่อเดิมของแถว
@@ -201,20 +209,28 @@ const Online = {
     // เซิร์ฟเวอร์รองรับกันล็อกอินซ้ำแล้ว → แนบ sid ของหน้านี้ (ฐานข้อมูลปฏิเสธถ้าเครื่องอื่น claim ทีหลัง)
     const SG = typeof SessionGuard !== 'undefined' && SessionGuard.server ? { sid: SessionGuard.sid } : {};
     try {
+      if (typeof SaveVerify !== 'undefined') await SaveVerify.flush(); // รายการโอน (ตลาด/แลกเปลี่ยน) ต้องถึงเซิร์ฟเวอร์ก่อนเซฟที่มีผลของมัน
       let { error } = await this.sb.from('characters').upsert({ user_id: this.user.id, name, data, updated_at: new Date().toISOString(), ...SG });
       // ชื่อชนกับคอลัมน์ name ของคนอื่น (เซิร์ฟเวอร์ที่ยังไม่อัปเดต name_available) → เก็บข้อมูลไว้ก่อนโดยคงชื่อเดิมของแถว
       if (error && this.rowName && name !== this.rowName && (error.code === '23505' || /duplicate|unique/i.test(error.message || ''))) {
         ({ error } = await this.sb.from('characters').upsert({ user_id: this.user.id, name: this.rowName, data, updated_at: new Date().toISOString(), ...SG }));
-        if (!error) { UI.setNet('ok'); return; }
+        if (!error) { UI.setNet('ok'); if (typeof SaveVerify !== 'undefined') SaveVerify.onSaveOk(); return; }
       }
       if (error && /stale_session/.test(error.message || '')) { // เครื่องอื่นเป็นเจ้าของบัญชีแล้ว: หยุดเซฟ + เด้งออก
         this.saving = false;
         if (typeof SessionGuard !== 'undefined') SessionGuard.kick();
         return;
       }
+      // เซิร์ฟเวอร์ไม่รับเซฟ (save_rejected:<กติกา> / banned) → เล่นต่อ เก็บไว้ลองใหม่ภายหลัง ไม่ทิ้งความคืบหน้า
+      if (error && typeof SaveVerify !== 'undefined' && SaveVerify.onSaveError(error)) {
+        if (!this.pendingSave) this.pendingSave = data;
+        UI.setNet('ok');
+        return;
+      }
       if (error) throw error;
       this.rowName = name;
       UI.setNet('ok');
+      if (typeof SaveVerify !== 'undefined') SaveVerify.onSaveOk();
     } catch (e) {
       UI.setNet('err');
       if (!this.pendingSave) this.pendingSave = data; // ลองใหม่รอบหน้า

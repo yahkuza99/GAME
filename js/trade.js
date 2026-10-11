@@ -358,6 +358,8 @@ const Trade = {
     const t = this.t;
     if (!this.owns(t.my.offer) || this.hash(this.mine()) !== t.my.hash) { this.abort('missing', true); return; }
     t.escrow = this.take(t.my.offer);
+    // บันทึกการแลกบนเซิร์ฟเวอร์ก่อนส่ง commit (js/save_verify.js) — อีกฝ่ายบันทึกตรงกัน = เซิร์ฟเวอร์ยอมให้ของ/เงินย้ายตามข้อตกลงนี้
+    if (typeof SaveVerify !== 'undefined') SaveVerify.trade(t.tid, t.peer, t.my.offer, t.their.offer);
     t.state = 'commit'; t.commitAt = Date.now();
     this.send('commit', { mine: t.my.hash, theirs: t.their.hash });
     if (t.their.commit) this.finish(); else this.render();
