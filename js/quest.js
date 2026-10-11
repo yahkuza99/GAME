@@ -419,6 +419,8 @@ const Side = {
     return [0, 1]; // talk: สำเร็จตอนคุยกับ NPC
   },
   ready(q) { const st = this.step(q); if (!st) return false; if (st.type === 'talk' || (this.STEPS[st.type] || {}).talk) return true; const [a, b] = this.progress(q); return a >= b; },
+  // ขั้นล่า/เก็บที่ครบแล้ว รอส่งที่ NPC (ขั้น "คุย" ไม่นับ — ยังไม่ได้ทำอะไรเสร็จ) • ใช้แยกการ์ด "พร้อมรับรางวัล" ในหน้าต่างเควสต์
+  claimable(q) { const st = this.step(q); return !!st && st.type !== 'talk' && !(this.STEPS[st.type] || {}).talk && this.ready(q); },
   objText(q) {
     const st = this.step(q); if (!st) return '';
     const [a, b] = this.progress(q), to = this.npcName(st.to);
@@ -517,13 +519,10 @@ const Side = {
   card() {
     const all = this.all(), act = this.active(), av = all.filter(q => this.available(q)), nDone = all.filter(q => this.isDone(q.id)).length;
     if (!act.length && !av.length && !nDone) return null;
-    const rows = act.map(q => {
-      const [a, b] = this.progress(q), rd = this.ready(q);
-      return h('div', { class: 'q-bnt' + (rd ? ' ready' : ''), role: 'button', tabindex: 0, style: 'cursor:pointer', title: L('นำทาง', 'Navigate'),
-        onclick: () => { const t = this.navTarget(q); if (t) { Nav.goTo(t); UI.close('w-quest'); } } },
-      h('span', { class: 'q-bic' }, rd ? '!' : ''), h('span', { class: 'q-bt' }, h('b', {}, q.title), ' — ', this.objText(q)), h('b', {}, '🧭'),
-      b > 1 ? h('span', { class: 'q-bar' }, h('i', { style: `width:${Math.round(Math.min(a, b) / b * 100)}%` })) : null);
-    });
+    // งานที่ครบแล้ว (พร้อมส่ง) อยู่ในการ์ด "พร้อมรับรางวัล" ด้านบน (js/questui.js) — ที่นี่เหลืองานที่ยังทำอยู่ • ไม่มีแถบสัดส่วน ใช้ตัวเลขใน objText
+    const rows = act.filter(q => !this.claimable(q)).map(q => h('div', { class: 'q-bnt' },
+      h('span', { class: 'q-bic' }, ''), h('span', { class: 'q-bt' }, h('b', {}, q.title), h('small', {}, this.objText(q))),
+      h('button', { type: 'button', class: 'btn q-go', onclick: e => { e.stopPropagation(); const t = this.navTarget(q); if (t) { Nav.goTo(t); UI.close('w-quest'); } } }, ivIconEl('nav'), L('ไปเลย', 'Go'))));
     const notes = [];
     if (av.length) notes.push(L(`มีงานเสริมรออยู่ที่: ${[...new Set(av.map(q => this.npcName(q.giver)))].join(', ')}`, `Side quests waiting with: ${[...new Set(av.map(q => this.npcName(q.giver)))].join(', ')}`));
     notes.push(L(`สำเร็จแล้ว ${nDone}/${all.length} • ไม่บังคับ — คุยกับ NPC เพื่อรับ/ส่ง`, `Completed ${nDone}/${all.length} • optional — talk to NPCs to accept/turn in`));

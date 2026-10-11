@@ -1,0 +1,112 @@
+/* ============================================================
+   หน้าต่างเควสต์ + ป้าย "เควสต์สำเร็จ!" (js/questui.js) — โหลดท้ายสุด ทับกฎเดิมเฉพาะ #w-quest
+   กติกาเจ้าของ: ไม่มีแถบสัดส่วน (ใช้ตัวเลข + ✓) • ไม่มีทรงแคปซูล (มุม ≤ 8px) • ไม่ถ่างตัวอักษรไทย
+   ตัวเล็กสุด 14px บนมือถือ • หัวข้อไทย line-height พอ (สระ/หางไม่ถูกตัด) • ปุ่มกด ≥ 44px
+   ============================================================ */
+
+/* ---- ไม่มีอะไรถูกตัด: การ์ดไม่หดตามความสูงหน้าต่าง — เลื่อนทั้งหน้าต่างทีเดียว ---- */
+#w-quest .win-body > * { flex-shrink: 0; }
+body.visor #w-quest .q-card { overflow: visible; }
+#w-quest .q-bar, #w-quest .q-dbar, #w-quest .dl-bar, #w-quest .lw-bar { display: none !important; }
+
+/* ---- ป้าย/ปุ่มมุมไม่เกิน 8px ---- */
+#w-quest :is(.q-chapter, .q-bic, .dl-tab-badge, .dl-rw, .tab, .btn, .q-claim-n) { border-radius: 6px !important; }
+#w-quest .win-body, #w-quest .win-body * { letter-spacing: normal !important; }
+#w-quest .q-dlist { max-height: none; overflow: visible; }
+
+/* ---- หัวข้อ/ข้อความ ---- */
+body.visor #w-quest .q-card h4 { line-height: 1.45; padding: 2px 0; }
+body.visor #w-quest .q-chapter { font-size: 13px; line-height: 1.5; padding: 3px 10px; }
+body.visor #w-quest .q-card > .dsec-h { line-height: 1.5; }
+body.visor #w-quest .q-obj b { color: var(--c-gold-ink); font-variant-numeric: tabular-nums; }
+body.visor #w-quest .q-obj.ok b { color: var(--c-ok); }
+#w-quest .q-note { line-height: 1.6; }
+
+/* ---- ปุ่มหลักของการ์ด ---- */
+body.visor #w-quest .q-main .opt-btns { margin-top: var(--s2); }
+body.visor #w-quest .q-main .opt-btns .btn { width: 100%; min-height: 48px; font-size: 16px; }
+#w-quest .btn .ivi { width: 18px; height: 18px; }
+#w-quest .q-go { min-height: 44px; min-width: 76px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
+
+/* ---- แถวค่าหัว/เควสต์เสริม: ข้อความ + ปุ่ม "ไปเลย" (ไม่มีแถบ) ---- */
+#w-quest .q-bnt { grid-template-columns: 22px minmax(0, 1fr) auto; grid-template-areas: "ic t go"; min-height: 52px; }
+#w-quest .q-bnt > .q-go { grid-area: go; }
+#w-quest .q-bt { grid-area: t; display: flex; flex-direction: column; gap: 2px; line-height: 1.45; min-width: 0; }
+#w-quest .q-bt small { color: var(--c-ink-2); font-size: 13px; line-height: 1.45; }
+#w-quest .q-bic { border-radius: 6px; }
+#w-quest .q-bnt.done .q-bt small { color: var(--c-ok); }
+
+/* ---- การ์ด "พร้อมรับรางวัล" (บนสุด) ---- */
+body.visor #w-quest .q-claim { border: 2px solid var(--c-gold); background: linear-gradient(180deg, #fff6dc, #fdebc0); box-shadow: 0 0 0 1px #fff3c8 inset, 0 4px 14px rgba(180, 120, 20, 0.28); }
+body.visor #w-quest .q-claim > .dsec-h { display: flex; align-items: center; gap: var(--s2); color: #6b3f06; font-weight: 700; }
+#w-quest .q-claim .dsec-h .ivi { color: #c48a1c; }
+#w-quest .q-claim-n { margin-left: auto; min-width: 26px; height: 26px; padding: 0 6px; display: grid; place-items: center; color: #fff; background: linear-gradient(180deg, #f0a53a, #c26a12);
+  font: 700 15px/1 var(--f-num, var(--f-body)); box-shadow: 0 0 0 1px #8a4a08; }
+#w-quest .q-clist { display: flex; flex-direction: column; }
+#w-quest .q-crow { display: flex; flex-direction: column; gap: var(--s2); padding: var(--s3); }
+#w-quest .q-crow + .q-crow { border-top: 1px dashed rgba(154, 109, 36, 0.45); }
+#w-quest .q-ctxt { display: flex; flex-direction: column; gap: 2px; line-height: 1.45; }
+#w-quest .q-ctxt b { color: var(--c-ink); font-size: 16px; font-weight: 700; }
+#w-quest .q-ctxt span { color: var(--c-gold-ink); font-size: 14px; }
+#w-quest .q-ctxt small { color: var(--c-ink-2); font-size: 13px; }
+body.visor #w-quest .q-claim-btn { width: 100%; min-height: 52px; font-size: 17px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+#w-quest .q-claim-btn .ivi { width: 20px; height: 20px; }
+@media (prefers-reduced-motion: no-preference) {
+  body:not(.fx-low) #w-quest .q-claim-btn { animation: qd-glow 1.6s ease-in-out infinite; }
+}
+@keyframes qd-glow { 0%, 100% { filter: none; } 50% { filter: brightness(1.12) drop-shadow(0 0 6px rgba(255, 200, 80, 0.85)); } }
+
+/* ---- มือถือ: ตัวเล็กสุด 14px ---- */
+body.pad-mode #w-quest .win-body { font-size: 15px; }
+body.pad-mode #w-quest :is(.q-note, .q-rw, .q-desc, .q-bt small, .q-ctxt small, .q-done, .dl-sub, .dl-reset, .dl-note, .hint, .lw-row, .lw-txt, .q-bnt > b) { font-size: 14px !important; }
+body.pad-mode #w-quest .q-chapter { font-size: 14px; }
+body.pad-mode #w-quest .q-desc { font-size: 15px !important; line-height: 1.6; }
+body.pad-mode #w-quest .q-card h4 { font-size: 19px; }
+body.pad-mode #w-quest .q-obj, body.pad-mode #w-quest .q-rw { grid-template-columns: 72px minmax(0, 1fr); font-size: 15px; }
+body.pad-mode #w-quest .q-k { font-size: 14px; }
+body.pad-mode #w-quest .q-bt { font-size: 15px; }
+body.pad-mode #w-quest .q-done summary { min-height: 48px; font-size: 15px; }
+body.pad-mode #w-quest .tab { min-height: 44px; font-size: 15px; }
+body.pad-mode #w-quest :is(.dl-tab-badge, .lw-badge, .q-card > .dsec-h, .q-card > .dsec-h span, .q-dlist b, .dl-pip small, .dl-best, .dl-streak small) { font-size: 14px !important; }
+body.pad-mode #w-quest .win-title, body.pad-mode #w-quest .win-title span { font-size: 15px !important; }
+body.pad-mode #w-quest .q-go { font-size: 15px !important; }
+
+/* ---- ป้าย "เควสต์สำเร็จ!" กลางบนจอ (แตะได้ ไม่บังปุ่มควบคุม) ---- */
+#qd-banner { position: fixed; left: 50%; top: calc(var(--st, 0px) + 132px); z-index: 60; transform: translate(-50%, -12px); opacity: 0; pointer-events: none;
+  display: flex; align-items: center; gap: 12px; width: max-content; max-width: min(520px, calc(100vw - 32px)); padding: 12px 20px 12px 14px; margin: 0;
+  border: 2px solid #c99a46; border-radius: 8px; background: linear-gradient(180deg, #fff8e6, #f6e0aa); color: #3b2614; text-align: left; cursor: pointer;
+  box-shadow: 0 0 0 1px #fff6dc inset, 0 8px 28px rgba(60, 30, 0, 0.45), 0 0 26px rgba(255, 200, 80, 0.55); font-family: var(--f-body, sans-serif);
+  transition: opacity .22s ease, transform .22s ease; }
+#qd-banner.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+#qd-banner .qd-ic { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 8px; background: linear-gradient(180deg, #ffe08a, #d99a2b); box-shadow: 0 0 0 1px #8a5a12; }
+#qd-banner .qd-ic .ivi { width: 26px; height: 26px; color: #4a2a04; }
+#qd-banner.done .qd-ic { background: linear-gradient(180deg, #a6e2a0, #4f9f4a); box-shadow: 0 0 0 1px #2e6b2a; }
+#qd-banner.done .qd-ic .ivi { color: #fff; }
+#qd-banner .qd-txt { display: flex; flex-direction: column; gap: 1px; min-width: 0; line-height: 1.4; }
+#qd-banner .qd-txt b { font-size: 20px; font-weight: 800; color: #7a3f00; }
+#qd-banner .qd-name { font-size: 16px; font-weight: 600; color: #3b2614; overflow-wrap: anywhere; }
+#qd-banner .qd-txt small { font-size: 14px; color: #8a5a12; font-weight: 600; }
+#qd-banner.ready .qd-txt small { color: #b3321f; }
+@media (min-width: 1100px) { #qd-banner { padding: 14px 26px 14px 16px; } #qd-banner .qd-txt b { font-size: 24px; } #qd-banner .qd-name { font-size: 18px; } #qd-banner .qd-txt small { font-size: 15px; } #qd-banner .qd-ic { width: 52px; height: 52px; } }
+@media (max-width: 760px) and (orientation: portrait) { #qd-banner { top: calc(var(--st, 0px) + 186px); } }
+@media (max-height: 520px) and (orientation: landscape) { #qd-banner { top: calc(var(--st, 0px) + 60px); } }
+@media (prefers-reduced-motion: reduce) { #qd-banner { transition: none; } #w-quest .q-claim-btn { animation: none; } }
+
+/* ---- ปุ่ม Quest เรืองทองจนกว่าจะรับรางวัล ---- */
+#menubar button[data-win="w-quest"].qd-ready { box-shadow: 0 0 0 2px #ffd34a, 0 0 14px rgba(255, 211, 74, 0.85) !important; }
+#menubar button[data-win="w-quest"].qd-ready .dl-badge { display: block !important; border-radius: 4px; }
+#qt-btn.qd-ready { box-shadow: 0 0 0 2px #ffd34a, 0 0 16px rgba(255, 200, 60, 0.9) !important; }
+@media (prefers-reduced-motion: no-preference) {
+  body:not(.fx-low) #menubar button[data-win="w-quest"].qd-ready, body:not(.fx-low) #qt-btn.qd-ready { animation: qd-btn 1.5s ease-in-out infinite; }
+}
+@keyframes qd-btn { 0%, 100% { filter: none; } 50% { filter: brightness(1.2); } }
+
+/* ---- แถบติดตามเควสต์บนจอ: ตัวเลข a/b อยู่ในข้อความแล้ว — ไม่มีแถบสัดส่วน ---- */
+#quest-track .qt-bar, #quest-track .qt-dl-bar { display: none !important; }
+
+/* ---- คอม: การ์ดเควสต์บนจอเรืองทอง + แถบ "รับรางวัลได้ N งาน" ---- */
+#quest-track.qd-ready { box-shadow: 0 0 0 2px #ffd34a, 0 0 18px rgba(255, 200, 60, 0.75) !important; }
+#quest-track .qd-chip { display: flex; align-items: center; gap: 6px; width: 100%; min-height: 36px; margin: 0 0 6px; padding: 6px 10px; border: 1px solid #b5802a; border-radius: 6px;
+  background: linear-gradient(180deg, #ffe69c, #e3a43a); color: #3b2204; font: 700 14px/1.4 var(--f-body, sans-serif); cursor: pointer; text-align: left; }
+#quest-track .qd-chip .ivi { width: 18px; height: 18px; flex: none; }
+#quest-track.qt-daily .qd-chip { display: flex !important; }
