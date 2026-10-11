@@ -132,7 +132,14 @@ const Daily = {
     const lv = G.player.baseLv;
     const near = () => { const m = this.huntMaps().sort((a, b) => Math.abs(this.mapLv(a) - lv) - Math.abs(this.mapLv(b) - lv))[0]; return m ? { kind: 'map', map: m, name: MAP_DEFS[m].name } : null; };
     switch (t.t) {
-      case 'hunt': { const m = this.mapOf(t.mob); return m ? { kind: 'mob', map: m, mobId: t.mob, name: MOBS[t.mob].name } : null; }
+      case 'hunt': { // ถึงแล้วล่าเฉพาะตัวนั้นจนครบ (js/questhunt.js)
+        const m = this.mapOf(t.mob); if (!m) return null;
+        const nt = { kind: 'mob', map: m, mobId: t.mob, name: MOBS[t.mob].name };
+        if (typeof QuestHunt === 'undefined' || this.done(t)) return nt;
+        const live = () => { const s = this.state(); return !!s && s.tasks.includes(t); };
+        return QuestHunt.attach(nt, { title: L('ภารกิจประจำวัน', 'Daily op'), prog: () => [Math.min(t.got, t.n), t.n], done: () => !live() || this.done(t),
+          note: () => { const s = this.state(); return s && this.canClaim(s) ? L('✅ ล่าครบแล้ว — ภารกิจประจำวันครบ 3/3 เปิดหีบได้ที่หน้าต่างเควสต์', '✅ Hunt done — all 3 daily ops complete; open your cache in the quest window') : null; } });
+      }
       case 'map': return { kind: 'map', map: t.map, name: MAP_DEFS[t.map].name };
       case 'skill': case 'loot': return near();
       case 'sell': return npc('tool');

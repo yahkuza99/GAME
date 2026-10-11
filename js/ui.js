@@ -54,7 +54,8 @@ const UI = {
     $('#death-here').onclick = () => respawnPlayer(true);
     $('#death-hide').onclick = () => { $('#death').classList.add('hidden'); $('#death-mini').classList.remove('hidden'); };
     $('#death-mini').onclick = () => { $('#death-mini').classList.add('hidden'); $('#death').classList.remove('hidden'); };
-    $('#nav-cancel').onclick = () => Nav.cancel();
+    $('#nav-cancel').onclick = e => { e.stopPropagation(); Nav.cancel(); };
+    $('#nav-pill').onclick = () => { if (QuestHunt.cur) { Sound.play('click'); Nav.cancel(); } }; // ป้าย "ล่า X · แตะเพื่อหยุด" (js/questhunt.js)
     // มือถือ: ปุ่มแชทเปิดช่องพิมพ์แบบลอย ปิดเมื่อส่งหรือแตะที่อื่น
     $('#chat-btn').onclick = () => { const c = $('#chat'); c.classList.toggle('typing'); if (c.classList.contains('typing')) $('#chat-input').focus(); };
     $('#chat-input').addEventListener('blur', () => setTimeout(() => $('#chat').classList.remove('typing'), 150));
@@ -2053,7 +2054,7 @@ const UI = {
     // ค่าหัวที่ครบแล้วแต่ยังไม่ส่ง อยู่ในการ์ด "พร้อมรับรางวัล" ด้านบน — ที่นี่เหลือแค่งานที่ยังทำอยู่/ส่งแล้ว
     const brows = bs ? bs.list.filter(x => x.claimed || x.got < x.n).map(x => h('div', { class: 'q-bnt' + (x.claimed ? ' done' : '') },
       h('span', { class: 'q-bic' }, x.claimed ? '✓' : ''), h('span', { class: 'q-bt' }, Bounty.line(x), h('small', {}, x.claimed ? L('รับรางวัลแล้ว', 'Claimed') : `${U.fmt(x.zeny)} ${CUR}`)),
-      x.claimed ? null : go(Quest.navTarget({ obj: { type: 'kill', mob: x.mob } })))) : [];
+      x.claimed ? null : go(Bounty.navTarget(x)))) : [];
     body.append(h('div', { class: 'q-card q-bounty' }, head('sword', L('งานล่าค่าหัววันนี้', 'Daily Bounties')),
       bs ? (brows.length ? h('div', { class: 'q-blist' }, ...brows) : null)
         : h('p', { class: 'q-note' }, L(`เปิดที่ Base Lv ${BOUNTY_MIN_LV} — รับงานที่ Guard Unit Rolf ในเมือง`, `Unlocks at Base Lv ${BOUNTY_MIN_LV} — take bounties from Guard Unit Rolf in town`)),

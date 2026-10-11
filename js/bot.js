@@ -13,6 +13,7 @@ const Bot = {
   tgt: null, tgtHp: 0, progAt: 0, stillAt: 0, lastX: 0, lastY: 0, wanderAt: 0, warnedTown: false,
   kiteAt: 0, kiteUntil: 0, fails: 0, failAt: 0, restMoveAt: 0, restMoveUntil: 0, pickSince: 0, badDrops: new Set(),
   intentRef: null, intentAt: 0, restForHp: false,
+  only: null, // ล่าตามเควสต์ (js/questhunt.js): id มอนเควสต์ — เลือกเป้าตัวใหม่ได้แค่ชนิดนี้ (ตัวที่ตีเราก่อนยังสู้กลับ) • ไม่สนวงล่า/รายการข้าม
   stats: null,
 
   defaults() {
@@ -68,7 +69,7 @@ const Bot = {
   },
   zone() {
     const c = this.cfg();
-    if (!c.leash) return null;
+    if (!c.leash || this.only) return null; // ล่าตามเควสต์: ตามมอนเควสต์ทั้งแมพ (วงล่าอาจไม่ครอบแหล่งเกิด)
     if (!this.anchor || this.anchor.map !== G.map.id) this.setAnchor(true); // เปลี่ยนแมพ = ตั้งศูนย์กลางใหม่
     return this.anchor && { x: this.anchor.x, y: this.anchor.y, r: c.radius };
   },
@@ -225,6 +226,7 @@ const Bot = {
     const p = G.player, c = this.cfg();
     if (!this.on || p.dead || G.time < this.nextThink) return;
     this.nextThink = G.time + 0.2;
+    if (this.only && typeof QuestHunt !== 'undefined') { QuestHunt.update(); if (!this.on) return; } // ครบ/หยุดระหว่างจำลองย้อนหลังก็ตามทัน
     if (this.manual) {
       if (this.manualBusy()) this.pauseUntil = Math.max(this.pauseUntil, G.time + (this.userTgt ? 0.4 : 3));
       else if (G.time >= this.pauseUntil) { this.manual = false; this.userTgt = null; if (c.leash) this.setAnchor(true); }
@@ -441,7 +443,7 @@ const Bot = {
   DANGER_W: 20, // ดาเมจที่คาดว่าจะโดนเต็มหลอด HP เทียบเท่าเวลากี่วินาที (ยิ่งมากยิ่งเลือกตัวที่ตีเบา)
   pickTarget(threats, c, hpPct) {
     const p = G.player;
-    const ok = m => !m.dead && !m.def.dummy && !(c.avoidMvp && m.isMvp && m.state !== 'chase') && !this.blacklist.has(m);
+    const ok = m => !m.dead && !m.def.dummy && !(c.avoidMvp && m.isMvp && m.state !== 'chase' && m.def.id !== this.only) && !this.blacklist.has(m);
     // 1) ตัวที่กำลังตีเรา: ตัวที่อยู่ในระยะตีถึงก่อน — เลือกตัวที่ "ล้มเร็วเทียบกับแรงที่มันตีเรา" (ลดดาเมจที่โดนรวมได้มากสุด) ไม่งั้นตัวใกล้สุด
     const reach = Math.max(p.d.range, 1.5) + 0.5;
     const th = threats.filter(ok);
@@ -450,11 +452,12 @@ const Bot = {
       return th.sort((a, b) => sc(a) - sc(b))[0];
     }
     // 2) ตัวใหม่ในขอบเขต
-    const z = this.zone(), skip = c.skipMobs || {};
+    const z = this.zone(), skip = this.only ? {} : c.skipMobs || {};
     const inRange = m => z ? U.dist(m.x, m.y, z.x, z.y) <= z.r : U.dist(m.x, m.y, p.x, p.y) <= c.radius;
     const low = hpPct < 60;
     // มอนที่ไม่ได้เลือกไว้: ไม่เข้าไปตีเอง (แต่ถ้ามันตีเราก่อน ยังสู้กลับด้านบน) • ไม่ไล่ตัวที่ยืนชิดวาร์ป (เดินไปแล้ววาร์ปหลุดแมพ)
     let cands = G.mobs.filter(m => ok(m) && !skip[m.def.id] && inRange(m) && !this.nearPortal(m.x, m.y, 2.5));
+    if (this.only) cands = cands.filter(m => m.def.id === this.only); // ล่าตามเควสต์: ตัวใหม่ = มอนเควสต์เท่านั้น
     // HP ต่ำ (< 60%): ไม่เลือกตัวเลเวลสูงกว่าเราเกิน 3 (ด้านล่าง: และไม่เลือกตัวที่จะลากพวกตีก่อนมารุม)
     if (low) cands = cands.filter(m => m.def.lv <= p.baseLv + 3);
     cands = cands.map(m => ({ m, d: U.dist(m.x, m.y, p.x, p.y) })).sort((a, b) => a.d - b.d).slice(0, 6);
@@ -638,10 +641,11 @@ const Bot = {
     }
     // ไม่ได้จำกัดวง: เดินไปทางมอนที่เลือกไว้ตัวใกล้สุด (นอกระยะค้นหา)
     if (!z) {
-      const skip = c.skipMobs || {};
+      const skip = this.only ? {} : c.skipMobs || {};
       let best = null, bd = Infinity;
       for (const m of G.mobs) {
-        if (m.dead || m.def.dummy || skip[m.def.id] || this.blacklist.has(m) || (c.avoidMvp && m.isMvp) || this.nearPortal(m.x, m.y, 4)) continue;
+        if (m.dead || m.def.dummy || skip[m.def.id] || this.blacklist.has(m) || (c.avoidMvp && m.isMvp && m.def.id !== this.only) || this.nearPortal(m.x, m.y, 4)) continue;
+        if (this.only && m.def.id !== this.only) continue;
         const d = U.dist(m.x, m.y, p.x, p.y);
         if (d < bd) { bd = d; best = m; }
       }
@@ -651,6 +655,7 @@ const Bot = {
         if (G.map.walkable(tx, ty) && !this.nearPortal(tx + 0.5, ty + 0.5, 4)) { playerWalkTo(tx, ty); return; }
         playerWalkTo(Math.floor(best.x), Math.floor(best.y)); this.wanderAt = G.time + 2; return;
       }
+      if (this.only && typeof QuestHunt !== 'undefined' && QuestHunt.roam()) return; // มอนเควสต์ยังไม่เกิด → ไปรอที่แหล่งเกิด
     }
     for (let i = 0; i < 20; i++) {
       const cx = z ? z.x : p.x, cy = z ? z.y : p.y, span = z ? Math.max(2, Math.floor(z.r * 0.8)) : 10;
