@@ -51,7 +51,7 @@ const MobAreas = {
     for (const a of this.list(map)) {
       g.fillStyle = a.color; g.strokeStyle = a.color; g.lineWidth=1.5*display;
       g.beginPath(); g.ellipse(a.x*scale,a.y*scale,a.rx*scale,a.ry*scale,0,0,Math.PI*2);
-      g.globalAlpha=.12; g.fill(); g.globalAlpha=.8; g.setLineDash([6*display,4*display]); g.stroke(); g.setLineDash([]); g.globalAlpha=1;
+      g.globalAlpha=.10; g.fill(); g.globalAlpha=1; // ไม่มีเส้นขอบพื้นที่ (เจ้าของ 2026-10-11 "เอาเส้นออก ดูดีกว่า") — เหลือสีจาง + เลขกำกับ
       g.beginPath(); g.arc(a.x*scale,a.y*scale,10*display,0,Math.PI*2); g.fill();
       g.fillStyle='#172018'; g.font=`bold ${12*display}px sans-serif`; g.textAlign='center'; g.textBaseline='middle'; g.fillText(a.index,a.x*scale,a.y*scale);
     }

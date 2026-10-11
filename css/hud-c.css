@@ -310,3 +310,38 @@ body.visor.hudc #w-map .opt-btns .btn[hidden] { display: none !important; }
 body.visor.hudc #fly-ov { font-size: 14px; }
 /* ป้ายชื่อแผนที่: กลางจอไม่บังปุ่มขวาบน */
 body.visor.hudc #hud #map-banner { top: calc(180px + var(--st, 0px)) !important; pointer-events: none; }
+
+/* ---------- รอบ 30b: ผอมลง (เจ้าของ 2026-10-11 "อ้วนไป") ----------
+   ป้ายข้อมูล (ไม่ใช่ปุ่มกดบ่อย) สูง 32–36px ตัว 13px · ปุ่มบน 42px · ช่องยา/สกิล 48px · พื้นโปร่งขึ้น
+   แถบรุมบอสขึ้นแล้ว = ซ่อนป้าย MVP ซ้ำ · ช่องยาว่างซ่อน (ใส่ยาผ่านกระเป๋า) */
+body.visor.hudc #hud #basic-info { height: 44px !important; padding: 3px 8px 3px 4px !important; background: rgba(42, 26, 12, 0.7) !important; }
+body.visor.hudc #hud #basic-info .bi-side, body.visor.hudc #hud #basic-info .bi-face, body.visor.hudc #hud #basic-info .bi-face canvas { width: 34px !important; height: 34px !important; }
+body.visor.hudc #hud #basic-info .gauge { height: 16px !important; }
+body.visor.hudc #hud #basic-info :is(.gauge span, .gauge b, [id$="-t"]) { font-size: 13px !important; }
+body.visor.hudc #hud :is(#qt-btn, #hc-map, #menubar) { width: 42px !important; height: 42px !important; }
+body.visor.hudc #hud #menubar .menu-fold { width: 42px !important; height: 42px !important; }
+body.visor.hudc #hud #qt-btn { right: calc(108px + var(--hc-r)) !important; }
+body.visor.hudc #hud #hc-map { right: calc(58px + var(--hc-r)) !important; }
+body.visor.hudc #hud :is(#qt-btn, #hc-map) { font-size: 13px !important; }
+body.visor.hudc #hud #menubar .menu-fold::before { font-size: 13px; }
+body.visor.hudc #hud #hc-qline { height: 34px; font-size: 13px !important; padding: 0 8px; background: rgba(42, 26, 12, 0.55) !important; }
+body.visor.hudc #hud :is(#hc-mvp, #hc-wb) { top: calc(56px + var(--st, 0px)); min-height: 32px; padding: 2px 8px; font-size: 13px !important; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: rgba(15, 12, 24, 0.7) !important; }
+body.visor.hudc #hud:has(#raid-bar:not([hidden])) #hc-mvp { display: none !important; }
+body.visor.hudc #hud #party-hud .ph-m, body.visor.hudc #hud #party-hud .ph-list > * { height: 34px !important; min-height: 34px !important; font-size: 13px !important; }
+body.visor.hudc #hud #raid-bar { padding: 2px 6px !important; background: rgba(10, 12, 20, 0.72) !important; }
+body.visor.hudc #hud #raid-bar .rb-a, body.visor.hudc #hud #raid-bar .rb-b { min-height: 32px; }
+body.visor.hudc #hud #raid-bar .rb-nm, body.visor.hudc #hud #raid-bar :is(.rb-h, .rb-bonus) { font-size: 13px !important; }
+body.visor.hudc #hud #raid-bar .rb-hp b, body.visor.hudc #hud #raid-bar .rb-h b { font-size: 14px !important; }
+body.visor.hudc #hud #raid-bar .rb-fold { width: 34px !important; height: 30px !important; font-size: 13px !important; }
+body.visor.hudc #hud #raid-bar .rb-call { height: 32px !important; min-height: 32px; font-size: 13px !important; }
+body.visor.hudc #hud #potbar { grid-template-columns: repeat(2, 48px) !important; grid-auto-rows: 48px; width: 102px !important; }
+body.visor.hudc #hud #potbar .hb { width: 48px !important; height: 48px !important; }
+body.visor.hudc #hud #potbar .hb.blank { display: none !important; }
+body.visor.hudc #hud #chat-btn { width: 42px !important; height: 42px !important; }
+body.visor.hudc #hud #hotbar .hb { width: 50px !important; height: 50px !important; }
+body.visor.hudc #hud #hotbar .hb.blank { opacity: 0.35; }
+body.visor.hudc #hud #hc-page { width: 42px; height: 42px; }
+body.visor.hudc #hud :is(#auto-btn, #ult-btn) { width: 50px !important; height: 50px !important; }
+body.visor.hudc #hud #ult-btn { right: calc(70px + var(--hc-r)) !important; }
+body.visor.hudc #hud :is(#auto-btn, #ult-btn) :is(b, small) { font-size: 13px !important; }
+body.visor.hudc #hud #pad-atk { width: 78px !important; height: 78px !important; }

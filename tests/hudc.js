@@ -66,8 +66,9 @@ function layoutChecks(name, L) {
     if (a.x < b.x + b.w - 0.5 && b.x < a.x + a.w - 0.5 && a.y < b.y + b.h - 0.5 && b.y < a.y + a.h - 0.5) ov.push(`${a.n} × ${b.n}`);
   }
   ok(`${name}: no two HUD controls overlap (${L.out.length} controls)`, !ov.length, ov.join(' | '));
-  const small = L.out.filter(c => !/joy-zone|raid-bar|nav-pill|skill-aim/.test(c.n) && (c.w < 44 || c.h < 44)).concat(L.subs.filter(c => c.w < 44 || c.h < 44));
-  ok(`${name}: every control ≥ 44px`, !small.length, small.map(c => `${c.n} ${Math.round(c.w)}×${Math.round(c.h)}`).join(' | '));
+  // รอบ 30b เจ้าของ "อ้วนไป": ปุ่มบนจอ ≥ 40px · ปุ่มย่อยในแถบ (พับ/รวมพล/✕) ≥ 30px
+  const small = L.out.filter(c => !/joy-zone|raid-bar|nav-pill|skill-aim|hc-mvp|hc-wb|hc-qline|ph-row/.test(c.n) && (c.w < 40 || c.h < 40)).concat(L.subs.filter(c => c.w < 30 || c.h < 30));
+  ok(`${name}: every control ≥ 40px (sub-buttons ≥ 30px)`, !small.length, small.map(c => `${c.n} ${Math.round(c.w)}×${Math.round(c.h)}`).join(' | '));
   const out = L.out.filter(c => c.x < -0.5 || c.y < -0.5 || c.x + c.w > L.W + 0.5 || c.y + c.h > L.H + 0.5);
   ok(`${name}: nothing outside the viewport`, !out.length, out.map(c => `${c.n} ${Math.round(c.x)},${Math.round(c.y)} ${Math.round(c.w)}×${Math.round(c.h)}`).join(' | '));
 }
@@ -79,7 +80,7 @@ const STYLE = () => {
   for (const r of roots) for (const e of [document.querySelector(r), ...document.querySelectorAll(r + ' *')]) {
     if (!e || !vis(e)) continue;
     const cs = getComputedStyle(e), txt = [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
-    if (txt && parseFloat(cs.fontSize) < 14 && !e.closest('#bi-lvbadge')) small.push(`${r} ${e.tagName}.${e.className}:${cs.fontSize}`);
+    if (txt && parseFloat(cs.fontSize) < 13 && !e.closest('#bi-lvbadge')) small.push(`${r} ${e.tagName}.${e.className}:${cs.fontSize}`);
     const rad = cs.borderTopLeftRadius; if (!e.closest('#joy-zone') && !e.classList.contains('hc-net') && (/%/.test(rad) ? parseFloat(rad) >= 50 : parseFloat(rad) > 8)) round.push(`${r} ${e.tagName}.${e.className}:${rad}`);
     if (txt && /[฀-๿]/.test(e.textContent) && parseFloat(cs.letterSpacing) > 0) spaced.push(`${r} ${e.className}`);
   }
@@ -120,14 +121,14 @@ const COMBAT = async () => {
     // ---- สำรวจ ----
     layoutChecks('phone explore', await p.evaluate(CONTROLS));
     const st = await p.evaluate(STYLE);
-    ok('phone explore: text ≥ 14px (Lv badge excepted), radius ≤ 8px, no Thai letter-spacing', !st.small.length && !st.round.length && !st.spaced.length, st);
+    ok('phone explore: text ≥ 13px (Lv badge excepted), radius ≤ 8px, no Thai letter-spacing', !st.small.length && !st.round.length && !st.spaced.length, st);
     const chip = await p.evaluate(() => { const b = document.getElementById('basic-info'), r = b.getBoundingClientRect(); return { hp: document.getElementById('bi-hp-t').textContent, fs: parseFloat(getComputedStyle(document.getElementById('bi-hp-t')).fontSize), lv: document.getElementById('bi-lvbadge').textContent, pts: (document.querySelector('#basic-info .hc-pts') || {}).textContent, x: r.x, y: r.y }; });
-    ok('phone: character chip top-left shows HP numbers ≥ 14px, Lv badge, unspent points', chip.x <= 12 && chip.y <= 12 && /\d+ \/ \d+/.test(chip.hp) && chip.fs >= 14 && chip.lv === '27' && /^\+\d+$/.test(chip.pts || ''), chip);
+    ok('phone: character chip top-left shows HP numbers ≥ 13px, Lv badge, unspent points', chip.x <= 12 && chip.y <= 12 && /\d+ \/ \d+/.test(chip.hp) && chip.fs >= 13 && chip.lv === '27' && /^\+\d+$/.test(chip.pts || ''), chip);
     await p.click('#basic-info');
     ok('phone: tap chip → Status', await p.evaluate(() => UI.isOpen('w-status')));
     await p.evaluate(() => UI.close('w-status'));
     const top3 = await p.evaluate(() => ['qt-btn', 'hc-map', 'menubar'].map(id => { const r = document.getElementById(id).getBoundingClientRect(); return [Math.round(r.right), Math.round(r.y), Math.round(r.width), Math.round(r.height)]; }));
-    ok('phone: Quest / แผนที่ / เมนู = three 48px buttons top-right', top3.every(r => r[2] === 48 && r[3] === 48 && r[1] <= 12) && top3[2][0] >= 380 && top3[0][0] < top3[1][0] && top3[1][0] < top3[2][0], top3);
+    ok('phone: Quest / แผนที่ / เมนู = three 42px buttons top-right', top3.every(r => r[2] === 42 && r[3] === 42 && r[1] <= 12) && top3[2][0] >= 330 && top3[0][0] < top3[1][0] && top3[1][0] < top3[2][0], top3);
     await p.click('#qt-btn'); await p.waitForTimeout(300);
     ok('phone: Quest button → quest book', await p.evaluate(() => UI.isOpen('w-quest') || UI.isOpen('w-dialog')));
     await p.evaluate(() => { UI.close('w-quest'); UI.close('w-dialog'); });
@@ -210,7 +211,7 @@ const COMBAT = async () => {
     await p.waitForTimeout(400);
     const cb = await p.evaluate(() => { const g = id => { const e = document.getElementById(id); return !!e && !e.hidden && e.getClientRects().length > 0 && getComputedStyle(e).display !== 'none'; };
       return { raid: g('raid-bar'), call: !!document.querySelector('#raid-bar .rb-call'), party: document.querySelectorAll('#party-hud .ph-row .hc-hp').length, pct: [...document.querySelectorAll('#party-hud .hc-hp')].map(e => e.textContent), aim: g('skill-aim'), tag: g('hc-tag'), tagT: document.getElementById('hc-tag').textContent, mvp: g('hc-mvp'), mvpT: document.getElementById('hc-mvp').textContent, target: g('target') }; });
-    ok('phone combat: raid bar (rally in party), party rows with HP%, skill-aim banner, MVP chip', cb.raid && cb.call && cb.party === 2 && cb.pct.join() === '88%,34%' && cb.aim && cb.mvp, cb);
+    ok('phone combat: raid bar (rally in party), party rows with HP%, skill-aim banner, MVP chip hidden while raid bar shows (รอบ 30b)', cb.raid && cb.call && cb.party === 2 && cb.pct.join() === '88%,34%' && cb.aim && !cb.mvp, cb);
     ok('phone combat: target name/%/element as a tag under the monster (no #target card)', cb.tag && /%/.test(cb.tagT) && !cb.target, cb);
     layoutChecks('phone combat', await p.evaluate(CONTROLS));
     const st2 = await p.evaluate(STYLE);

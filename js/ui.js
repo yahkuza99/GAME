@@ -2573,6 +2573,7 @@ const UI = {
       h('div', { class: 'bot-sec' }, 'Other'),
       chk('useBuffs', L('ใช้บัฟ / เรียกสัตว์คู่ใจอัตโนมัติ', 'Auto buff / summon companion')),
       chk('avoidMvp', L('ไม่เข้าตี MVP เอง', 'Avoid engaging MVPs')),
+      chk('useUlt', L('ใช้ ULT อัตโนมัติ (เกจเต็ม + เจอบอส/มอนรุม 3 ตัวขึ้นไป · ULT ฟื้นฟูใช้ตอน HP ≤ 40%)', 'Auto-use ULT (full gauge + boss or 3+ mobs · recovery ULT at HP ≤ 40%)')),
       chk('returnHome', L('กลับเมืองเมื่อยาหมดและ HP วิกฤต', 'Return to town when out of potions at critical HP')),
       h('label', { class: 'opt' }, h('input', { type: 'checkbox', checked: p.options.autoLoot ? 'checked' : false, onchange: e => { p.options.autoLoot = e.target.checked; saveGame(); } }), L(' เก็บไอเทมอัตโนมัติ', ' Auto Loot')),
     ].filter(Boolean));
