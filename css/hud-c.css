@@ -1,0 +1,312 @@
+/* ============================================================
+   HUD แบบ C "จอโล่ง" — มือถือแนวตั้งเท่านั้น (body.hudc ตั้งโดย js/hud-c.js เมื่อ ≤ 760px แนวตั้ง + โหมด PAD)
+   เจ้าของเลือก 2026-10-11 ("ก็ดี ลองทำเลย") • คอม/แนวนอนไม่ได้รับผลจากไฟล์นี้ (ทุกกฎขึ้นต้น body.hudc / .hc-only ซ่อนนอกโหมดนี้)
+   กติกาเจ้าของ: มุม ≤ 8px (ห้ามแคปซูล — จอยกลมได้) • ไม่มีแถบสัดส่วนนอกจาก HP • ไม่ถ่างตัวอักษรไทย • ตัวหนังสือ ≥ 14px • ปุ่ม ≥ 44px
+   ============================================================ */
+body:not(.hudc) :is(.hc-only, #hc-map, #hc-mvp, #hc-wb, #hc-qline, #hc-tag, #hc-page, .hc-net, .hc-pts) { display: none !important; }
+
+body.hudc {
+  --hc-wood: rgba(42, 26, 12, 0.88); --hc-line: #c9a25a; --hc-ink: #f3dca6;
+  --hc-t: calc(8px + var(--st, 0px)); --hc-b: var(--sb, 0px); --hc-l: var(--sl, 0px); --hc-r: var(--sr, 0px);
+}
+body.hudc .hc-btn, body.visor.hudc #hud #qt-btn, body.visor.hudc #hud #menubar .menu-fold, body.visor.hudc #hud #chat-btn {
+  box-sizing: border-box; border: 1px solid var(--hc-line) !important; border-radius: 8px !important; background: var(--hc-wood) !important;
+  color: var(--hc-ink) !important; font: 700 14px/1.15 var(--f-body, "Noto Sans Thai", sans-serif) !important; letter-spacing: 0 !important;
+  text-shadow: none !important; clip-path: none !important; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45) !important; filter: none;
+  cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; padding: 0;
+}
+body.hudc .hc-btn:active, body.visor.hudc #hud #qt-btn:active { filter: brightness(1.3); }
+
+/* ---------- ของที่ถอดบนจอนี้ ---------- */
+body.visor.hudc #hud :is(#minimap, #target, #exp-line, #combat-toggle, #wb-top, #top-pills),
+body.visor.hudc #fly-btn,
+body.visor.hudc #hud #basic-info :is(.bi-money, .bi-id, .bi-exp, #bi-rings, .fold-btn, #bi-trait) { display: none !important; }
+body.visor.hudc #hud #hud-toggle { display: none !important; }
+
+/* ---------- ซ้ายบน: ชิปตัวละคร ---------- */
+body.visor.hudc #hud #basic-info {
+  position: fixed !important; left: calc(8px + var(--hc-l)) !important; top: var(--hc-t) !important; right: auto !important; bottom: auto !important; transform: none !important;
+  width: auto !important; max-width: 190px !important; min-width: 0 !important; height: 52px !important; box-sizing: border-box; padding: 6px 10px 6px 6px !important; margin: 0 !important;
+  display: flex !important; flex-direction: row !important; align-items: center !important; gap: 10px !important;
+  border: 1px solid var(--hc-line) !important; border-image: none !important; border-radius: 8px !important; background: var(--hc-wood) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45) !important; clip-path: none !important; cursor: pointer; overflow: visible !important;
+}
+body.visor.hudc #hud #basic-info::before, body.visor.hudc #hud #basic-info::after { content: none !important; }
+body.visor.hudc #hud #basic-info .bi-side { width: 38px !important; flex: none !important; display: block !important; position: relative; }
+body.visor.hudc #hud #basic-info .bi-face { position: relative !important; inset: auto !important; width: 38px !important; height: 38px !important; margin: 0 !important; border-radius: 6px !important; overflow: visible !important; }
+body.visor.hudc #hud #basic-info .bi-face canvas { position: absolute !important; inset: 0 !important; width: 38px !important; height: 38px !important; border-radius: 6px !important; border: 1px solid #e8c071; box-sizing: border-box; }
+body.visor.hudc #hud #basic-info #bi-lvbadge {
+  position: absolute !important; right: -8px !important; bottom: -8px !important; left: auto !important; top: auto !important; transform: none !important;
+  min-width: 22px !important; height: 18px !important; padding: 0 3px !important; box-sizing: border-box; border-radius: 4px !important; clip-path: none !important;
+  font: 700 12px/16px var(--f-num, sans-serif) !important; text-align: center; color: #f6ead0 !important; background: #1d4e7a !important; border: 1px solid #e8c071 !important;
+}
+body.visor.hudc #hud #basic-info .hc-net { display: block; position: absolute; left: -4px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: #7be07b; border: 1px solid #10200f; }
+body.visor.hudc #hud #basic-info .hc-net[hidden] { display: none; }
+body.visor.hudc #hud #basic-info .hc-net:not(.ok) { background: #ff8a5a; }
+body.visor.hudc #hud #basic-info .bi-main { display: flex !important; flex-direction: column !important; gap: 1px !important; min-width: 0 !important; width: auto !important; }
+body.visor.hudc #hud #basic-info .gauge.hp, body.visor.hudc #hud #basic-info .gauge.sp {
+  height: 19px !important; width: auto !important; min-width: 108px; margin: 0 !important; padding: 0 0 3px !important; box-sizing: border-box; background: none !important; border: 0 !important; box-shadow: none !important; overflow: visible !important; position: relative;
+  display: flex !important; align-items: center !important; gap: 4px; border-radius: 0 !important; clip-path: none !important;
+}
+body.visor.hudc #hud #basic-info .gauge :is(i, span) { position: static !important; transform: none !important; font: 700 14px/16px var(--f-body, sans-serif) !important; letter-spacing: 0 !important; text-shadow: 0 1px 1px #000 !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
+body.visor.hudc #hud #basic-info .gauge::before, body.visor.hudc #hud #basic-info .gauge::after { display: none !important; }
+body.visor.hudc #hud #basic-info .gauge.hp :is(i, span) { color: #ff9a90 !important; }
+body.visor.hudc #hud #basic-info .gauge.sp :is(i, span) { color: #8ac8ff !important; }
+body.visor.hudc #hud #basic-info .gauge i { font-style: normal !important; }
+/* หลอด HP/SP บางใต้ตัวเลข (เป็นสัดส่วนของ HP/SP — อนุญาต) */
+body.visor.hudc #hud #basic-info .gauge .fill { position: absolute !important; left: 0 !important; bottom: 0 !important; top: auto !important; height: 2px !important; border-radius: 0 !important; box-shadow: none !important; }
+body.visor.hudc #hud #basic-info .gauge.hp .fill { background: #ff6b6b !important; }
+body.visor.hudc #hud #basic-info .gauge.sp .fill { background: #5aa8ff !important; }
+/* ป้ายแต้มค้าง (Status+Skill+Passive รวม) มุมขวาบนของชิป — ป้ายเดิม #bi-points ซ่อน (แตะชิป = Status) */
+body.visor.hudc #hud #basic-info .bi-foot { display: none !important; }
+body.visor.hudc #hud #basic-info .hc-pts { display: block; position: absolute; right: -6px; top: -8px; left: auto; width: auto; height: 20px; padding: 0 5px; box-sizing: border-box; border-radius: 4px;
+  font: 700 14px/18px var(--f-num, sans-serif); font-style: normal; color: #2a1802; background: #ffd34a; border: 1px solid #5a3a00; pointer-events: none; }
+body.visor.hudc #hud #basic-info .hc-pts[hidden] { display: none; }
+
+/* บัฟ: แถวไอคอนใต้ชิป (แสดงอย่างเดียว) */
+body.visor.hudc #hud #buffs {
+  position: fixed !important; left: calc(8px + var(--hc-l)) !important; right: auto !important; bottom: auto !important; top: calc(66px + var(--st, 0px)); transform: none !important;
+  width: auto !important; max-width: 190px !important; display: flex !important; flex-wrap: wrap !important; gap: 4px !important; margin: 0 !important; padding: 0 !important; pointer-events: none;
+}
+body.visor.hudc #hud #buffs .buff { width: 26px !important; height: 26px !important; min-width: 0 !important; padding: 0 !important; margin: 0 !important; border-radius: 4px !important; clip-path: none !important; position: relative; flex: none !important; }
+body.visor.hudc #hud #buffs .buff .bf-n { display: none !important; }
+body.visor.hudc #hud #buffs .buff .bf-ic img { width: 22px !important; height: 22px !important; }
+body.visor.hudc #hud #buffs .buff i { display: none !important; }
+
+/* บรรทัดเควสต์ */
+body.visor.hudc #hud #hc-qline {
+  display: flex; align-items: center; gap: 6px; position: fixed; z-index: 20; left: calc(8px + var(--hc-l)); top: calc(66px + var(--st, 0px));
+  max-width: min(190px, calc(50vw - 12px)); height: 44px; padding: 0 10px; text-align: left; font-weight: 600 !important; background: rgba(42, 26, 12, 0.72) !important;
+}
+body.visor.hudc #hud #hc-qline b { color: #ffd36a; flex: none; }
+body.visor.hudc #hud #hc-qline span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.visor.hudc #hud #hc-qline[hidden] { display: none; }
+
+/* ปาร์ตี้: แถวชื่อ + HP% */
+body.visor.hudc #hud #party-hud {
+  position: fixed !important; left: calc(8px + var(--hc-l)) !important; right: auto !important; bottom: auto !important; transform: none !important; top: calc(116px + var(--st, 0px));
+  width: 150px !important; max-width: 150px !important; padding: 0 !important; margin: 0 !important; border: 0 !important; background: none !important; box-shadow: none !important; display: block !important;
+}
+body.visor.hudc #hud #party-hud[hidden], body.visor.hudc #hud.hud-min #party-hud { display: none !important; }
+body.visor.hudc #hud #party-hud::before, body.visor.hudc #hud #party-hud::after { content: none !important; }
+body.visor.hudc #hud #party-hud .ph-head { display: none !important; }
+body.visor.hudc #hud #party-hud, body.visor.hudc #hud #party-hud div { border-radius: 8px !important; }
+body.visor.hudc #hud #party-hud .ph-list { display: flex !important; flex-direction: column !important; gap: 4px !important; padding: 0 !important; margin: 0 !important; grid-template-columns: none !important; }
+body.visor.hudc #hud #party-hud .ph-row {
+  display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; gap: 6px; width: 150px !important; height: 44px !important; min-height: 44px !important;
+  box-sizing: border-box; padding: 0 10px !important; margin: 0 !important; border: 1px solid rgba(123, 224, 123, 0.5) !important; border-radius: 8px !important; clip-path: none !important;
+  background: rgba(26, 42, 26, 0.85) !important; color: var(--hc-ink) !important; font: 600 14px/1.2 var(--f-body, sans-serif) !important;
+}
+body.visor.hudc #hud #party-hud .ph-row.off { opacity: 0.7; }
+body.visor.hudc #hud #party-hud .ph-row :is(.ph-bars, .ph-crown, small) { display: none !important; }
+body.visor.hudc #hud #party-hud .ph-row .ph-top { display: flex !important; min-width: 0; overflow: hidden; }
+body.visor.hudc #hud #party-hud .ph-row .ph-top b { font: 600 14px/1.2 var(--f-body, sans-serif) !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0 !important; }
+body.visor.hudc #hud #party-hud .ph-row .hc-hp { font: 700 14px/1 var(--f-body, sans-serif); font-style: normal; color: #ff9a90; flex: none; }
+body.visor.hudc #hud #party-hud .ph-add .ph-top svg { width: 16px; height: 16px; }
+
+/* ---------- ขวาบน: Quest / แผนที่ / เมนู ---------- */
+body.visor.hudc #hud #qt-btn, body.visor.hudc #hud #hc-map, body.visor.hudc #hud #menubar {
+  position: fixed !important; z-index: 22 !important; top: var(--hc-t) !important; bottom: auto !important; left: auto !important; width: 48px !important; height: 48px !important; transform: none !important;
+}
+body.visor.hudc #hud #qt-btn { right: calc(120px + var(--hc-r)) !important; display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 0; padding: 0 !important; }
+body.visor.hudc #hud #qt-btn .ivi, body.visor.hudc #hud #qt-btn .ico { display: none !important; }
+body.visor.hudc #hud #qt-btn > span { font: 700 14px/1 var(--f-body, sans-serif) !important; letter-spacing: 0 !important; }
+body.visor.hudc #hud #qt-btn .qt-badge { position: absolute !important; right: -6px; top: -6px; min-width: 20px; height: 20px; margin: 0 !important; border-radius: 4px !important; font: 700 14px/20px var(--f-num, sans-serif) !important; }
+body.visor.hudc #hud #qt-btn.qd-ready { border-color: #ffd34a !important; box-shadow: 0 0 0 2px rgba(255, 211, 74, 0.55), 0 0 14px rgba(255, 211, 74, 0.7) !important; animation: hc-glow 1.4s ease-in-out infinite; }
+@keyframes hc-glow { 50% { box-shadow: 0 0 0 2px rgba(255, 211, 74, 0.25), 0 0 4px rgba(255, 211, 74, 0.3); } }
+body.visor.hudc #hud #hc-map { display: block; right: calc(64px + var(--hc-r)) !important; }
+body.visor.hudc #hud #menubar, body.visor.hudc #hud #menubar:not(.folded) {
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+  right: calc(8px + var(--hc-r)) !important; display: block !important; padding: 0 !important; margin: 0 !important; max-height: none !important; overflow: visible !important;
+  border: 0 !important; border-image: none !important; background: none !important; box-shadow: none !important; grid-template-columns: none !important;
+}
+body.visor.hudc #hud #menubar .menu-fold { position: absolute !important; inset: 0 !important; width: 48px !important; height: 48px !important; display: flex !important; align-items: center !important; justify-content: center !important; padding: 0 !important; }
+body.visor.hudc #hud #menubar .menu-fold svg { display: none !important; }
+body.visor.hudc #hud #menubar .menu-fold span { display: none !important; }
+body.visor.hudc #hud #menubar .menu-fold::before { content: 'เมนู' !important; display: block !important; position: static !important; font: 700 14px/1 var(--f-body, sans-serif); color: var(--hc-ink); background: none !important; border: 0 !important; width: auto !important; height: auto !important; }
+body.visor.hudc #hud #menubar:not(.folded) .menu-fold { background: #f3e6c4 !important; }
+body.visor.hudc #hud #menubar:not(.folded) .menu-fold::before { content: '✕' !important; color: #3a2614; font-size: 18px; }
+/* ซ่อน HUD แล้ว: เหลือปุ่มแสดงกลับมุมขวาบน */
+body.visor.hudc #hud.hud-min :is(#qt-btn, #hc-map, #hc-mvp, #hc-wb, #hc-qline, #buffs, #basic-info, #menubar, #chat, #hc-tag) { display: none !important; }
+body.visor.hudc #hud.hud-min #hud-toggle {
+  display: flex !important; align-items: center; justify-content: center; position: fixed !important; left: auto !important; right: calc(8px + var(--hc-r)) !important; top: var(--hc-t) !important;
+  transform: none !important; width: auto !important; min-width: 96px; height: 44px !important; padding: 0 12px !important; border: 1px solid var(--hc-line) !important; border-radius: 8px !important;
+  background: var(--hc-wood) !important; color: var(--hc-ink) !important; font: 700 14px/1 var(--f-body, sans-serif) !important; clip-path: none !important;
+}
+body.visor.hudc #hud.hud-min #hud-toggle::before { content: none !important; }
+body.visor.hudc #hud.hud-min #hud-toggle::after { content: 'แสดงปุ่ม' !important; position: static !important; inset: auto !important; transform: none !important; display: block !important; width: auto !important; height: auto !important; background: none !important; border: 0 !important; font: 700 14px/1.2 var(--f-body, sans-serif) !important; color: var(--hc-ink) !important; opacity: 1 !important; }
+body.visor.hudc #hud.hud-min #hud-toggle > * { display: none; }
+
+/* ---------- ชิปเหตุการณ์ใต้ปุ่มขวาบน ---------- */
+body.visor.hudc #hud :is(#hc-mvp, #hc-wb) {
+  display: block; position: fixed; z-index: 20; right: calc(8px + var(--hc-r)); top: calc(64px + var(--st, 0px)); max-width: min(176px, calc(50vw - 12px)); min-height: 44px; height: auto; padding: 4px 10px;
+  text-align: left; font-weight: 600 !important; line-height: 1.3 !important; background: rgba(15, 12, 24, 0.9) !important; white-space: normal; overflow-wrap: anywhere;
+}
+body.visor.hudc #hud :is(#hc-mvp, #hc-wb).alive { border-color: #ffd34a !important; color: #ffe7a0 !important; }
+body.visor.hudc #hud :is(#hc-mvp, #hc-wb)[hidden] { display: none; }
+
+/* แถบรุมบอส: กล่องเล็กชิดขวาใต้ชิป (ปุ่มพับ/รวมพล ≥ 44px) */
+body.visor.hudc #hud #raid-bar {
+  left: auto !important; right: calc(8px + var(--hc-r)) !important; transform: none !important; top: calc(114px + var(--st, 0px)); width: min(200px, calc(100vw - 174px)) !important; max-width: 200px; padding: 4px 8px !important; gap: 2px !important;
+  font-size: 14px !important; box-sizing: border-box;
+}
+body.visor.hudc #hud #raid-bar .rb-a { align-items: center !important; gap: 6px !important; min-height: 44px; }
+body.visor.hudc #hud #raid-bar .rb-a > small { display: none !important; } /* ชิป MVP/Ancient ด้านบนบอกชนิดแล้ว — ให้ชื่อบอสมีที่ */
+body.visor.hudc #hud #raid-bar .rb-nm { font-size: 14px !important; }
+body.visor.hudc #hud #raid-bar .rb-hp b { font-size: 16px !important; }
+body.visor.hudc #hud #raid-bar .rb-hp small, body.visor.hudc #hud #raid-bar .rb-tg { display: none !important; }
+body.visor.hudc #hud #raid-bar .rb-fold { width: 44px !important; height: 44px !important; margin: 0 -6px 0 0 !important; border-radius: 8px !important; font-size: 16px !important; }
+body.visor.hudc #hud #raid-bar .rb-b { gap: 4px 8px !important; min-height: 44px; align-items: center; }
+body.visor.hudc #hud #raid-bar :is(.rb-h, .rb-bonus) { font-size: 14px !important; }
+body.visor.hudc #hud #raid-bar .rb-h b { font-size: 16px !important; }
+body.visor.hudc #hud #raid-bar .rb-call { height: 44px !important; min-height: 44px; padding: 0 12px !important; font-size: 14px !important; border-radius: 8px !important; margin-left: auto; }
+
+/* ---------- กลางบน: ป้ายนำทาง (มี ✕) • แถบเล็งสกิล ---------- */
+body.visor.hudc #hud #nav-pill {
+  left: 50% !important; right: auto !important; transform: translateX(-50%) !important; top: calc(120px + var(--st, 0px)); bottom: auto !important;
+  max-width: calc(100vw - 24px) !important; min-height: 44px !important; box-sizing: border-box; border-radius: 8px !important; clip-path: none !important; gap: 6px !important;
+  padding: 0 0 0 12px !important; display: flex !important; align-items: center !important;
+}
+body.visor.hudc #hud #nav-pill[hidden] { display: none !important; }
+body.visor.hudc #hud #nav-pill #nav-text { font-size: 14px !important; letter-spacing: 0 !important; white-space: normal !important; overflow: visible !important; text-overflow: clip !important; line-height: 1.3 !important; padding: 4px 0; max-width: none !important; }
+body.visor.hudc #hud #nav-pill #nav-cancel { width: 44px !important; height: 44px !important; min-width: 44px; flex: none; border-radius: 8px !important; font-size: 20px !important; margin: 0 !important; }
+body.visor.hudc #hud #skill-aim {
+  left: 50% !important; right: auto !important; transform: translateX(-50%) !important; top: auto !important; bottom: calc(252px + var(--hc-b)) !important;
+  max-width: calc(100vw - 24px) !important; min-height: 44px; box-sizing: border-box; border-radius: 8px !important; clip-path: none !important; padding: 0 0 0 10px !important; gap: 8px !important; align-items: center !important;
+}
+body.visor.hudc #hud #skill-aim[hidden] { display: none !important; }
+body.visor.hudc #hud #skill-aim .sa-t { font-size: 14px !important; white-space: normal !important; letter-spacing: 0 !important; line-height: 1.3; }
+body.visor.hudc #hud #skill-aim #sa-x { width: auto !important; height: 44px !important; min-width: 44px; padding: 0 10px !important; border-radius: 8px !important; font-size: 14px !important; letter-spacing: 0 !important; flex: none; }
+body.visor.hudc #hud #skill-aim .sicon { border-radius: 6px !important; }
+
+/* ป้ายเป้าหมายใต้ตัวมอน (แทนการ์ด #target) */
+body.visor.hudc #hud #hc-tag {
+  display: block; position: fixed; z-index: 15; left: 0; top: 0; pointer-events: none; white-space: nowrap; padding: 2px 8px; border-radius: 6px;
+  background: rgba(15, 12, 24, 0.86); border: 1px solid var(--hc-line); color: #f6ead0; font: 600 14px/1.35 var(--f-body, sans-serif); letter-spacing: 0;
+}
+body.visor.hudc #hud #hc-tag b { color: #ffd36a; }
+body.visor.hudc #hud #hc-tag em { font-style: normal; font-weight: 700; color: #ff9a90; }
+body.visor.hudc #hud #hc-tag.boss { border-color: #ffd34a; }
+body.visor.hudc #hud #hc-tag[hidden] { display: none; }
+
+/* ข้อความระบบ: 3 บรรทัดลอยซ้ายเหนือช่องยา หายเองใน ~3 วิ (ประวัติเต็มดูได้ตอนเปิดแชต) */
+body.visor.hudc #hud #chat, body.visor.hudc #hud:has(#chat:not([hidden])) #chat {
+  position: fixed !important; left: calc(8px + var(--hc-l)) !important; right: auto !important; top: auto !important; bottom: calc(254px + var(--hc-b)) !important; transform: none !important;
+  width: 240px !important; height: auto !important; max-height: 72px; pointer-events: none; background: none !important; padding: 0 !important; z-index: 17 !important; overflow: hidden;
+}
+body.visor.hudc #hud #chat .fold-btn { display: none !important; }
+body.visor.hudc #hud:has(#skill-aim:not([hidden])) #chat:not(.typing) { visibility: hidden !important; } /* แถบเล็งสกิลใช้ที่เดียวกัน */
+body.visor.hudc #hud #chat-log, body.visor.hudc #hud #chat.folded #chat-log {
+  height: auto !important; max-height: 72px !important; overflow: hidden !important; display: flex !important; flex-direction: column; justify-content: flex-end;
+  font-size: 14px !important; line-height: 1.3 !important; background: none !important; padding: 0 !important; visibility: visible !important;
+}
+body.visor.hudc #hud #chat-log .cl { font-size: 14px !important; letter-spacing: 0 !important; text-shadow: 0 1px 2px #000, 0 0 2px #000 !important; animation: hc-fade 3.4s forwards; flex: none; }
+@keyframes hc-fade { 0%, 85% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+body.visor.hudc #hud:has(#chat) #chat.typing { pointer-events: auto; bottom: calc(56px + var(--hc-b)) !important; width: calc(100vw - 16px) !important; max-height: 40vh; z-index: 40 !important; background: rgba(15, 12, 24, 0.92) !important; border-radius: 8px; padding: 8px !important; }
+body.visor.hudc #hud #chat.typing #chat-log { max-height: calc(40vh - 16px) !important; overflow-y: auto !important; justify-content: flex-start; }
+body.visor.hudc #hud #chat.typing #chat-log .cl { animation: none; opacity: 1; }
+body.visor.hudc #hud #chat-input { z-index: 41; left: calc(8px + var(--hc-l)) !important; width: calc(100vw - 16px) !important; bottom: calc(8px + var(--hc-b)) !important; height: 44px !important; border-radius: 8px !important; }
+
+/* ---------- ซ้ายล่าง: จอย + ยา 2×2 + แชต ---------- */
+body.visor.hudc #hud #joy-zone { left: var(--hc-l) !important; bottom: var(--hc-b) !important; width: 132px !important; height: 136px !important; }
+body.visor.hudc #hud #joy { left: 74px; top: 62px; width: 116px !important; height: 116px !important; border-radius: 50% !important; }
+body.visor.hudc #hud #joy-knob { width: 50px !important; height: 50px !important; border-radius: 50% !important; }
+body.visor.hudc #hud #potbar {
+  position: fixed !important; left: calc(16px + var(--hc-l)) !important; right: auto !important; top: auto !important; bottom: calc(138px + var(--hc-b)) !important; transform: none !important;
+  display: grid !important; grid-template-columns: repeat(2, 52px) !important; grid-auto-rows: 52px; gap: 6px !important; width: 110px !important; margin: 0 !important; padding: 0 !important;
+  border: 0 !important; background: none !important; flex-direction: unset !important;
+}
+body.visor.hudc #hud #potbar .hb { position: relative !important; inset: auto !important; width: 52px !important; height: 52px !important; margin: 0 !important; border-radius: 8px !important; clip-path: none !important; display: block !important; }
+body.visor.hudc #hud #potbar .hb .q { font-size: 14px !important; }
+body.visor.hudc #hud #potbar .hb .k { display: none !important; }
+body.visor.hudc #hud #potbar .hb.blank { opacity: 0.6; }
+body.visor.hudc #hud #potbar .hb.blank .ic::after { content: '+'; display: grid; place-items: center; width: 100%; height: 100%; font: 400 22px/1 var(--f-body, sans-serif); color: #d9c79e; }
+body.visor.hudc #hud #chat-btn { position: fixed !important; left: calc(140px + var(--hc-l)) !important; bottom: calc(146px + var(--hc-b)) !important; top: auto !important; width: 48px !important; height: 48px !important; display: flex !important; align-items: center; justify-content: center; }
+body.visor.hudc #hud #chat-btn svg { width: 22px; height: 22px; }
+
+/* ---------- ขวาล่าง: ปุ่มตีใหญ่ + สกิล 4 ช่องเป็นวง + สลับหน้า + ULT/AUTO ---------- */
+body.visor.hudc #hud #pad-atk { right: calc(12px + var(--hc-r)) !important; bottom: calc(16px + var(--hc-b)) !important; top: auto !important; left: auto !important; width: 84px !important; height: 84px !important; }
+body.visor.hudc #hud #hotbar { display: block !important; position: static !important; transform: none !important; }
+body.visor.hudc #hud #hotbar .hb { position: fixed !important; width: 56px !important; height: 56px !important; top: auto !important; left: auto !important; border-radius: 8px !important; clip-path: none !important; display: block !important; opacity: 1; transition: opacity 0.4s; }
+body.visor.hudc #hud #hotbar .hb.blank { opacity: 0.55; }
+body.visor.hudc[data-hcpage="0"] #hud #hotbar .hb:nth-child(n+5), body.visor.hudc[data-hcpage="1"] #hud #hotbar .hb:nth-child(-n+4) { display: none !important; }
+body.visor.hudc #hud #hotbar .hb:nth-child(4n+1) { right: calc(104px + var(--hc-r)) !important; bottom: calc(16px + var(--hc-b)) !important; }
+body.visor.hudc #hud #hotbar .hb:nth-child(4n+2) { right: calc(104px + var(--hc-r)) !important; bottom: calc(80px + var(--hc-b)) !important; }
+body.visor.hudc #hud #hotbar .hb:nth-child(4n+3) { right: calc(40px + var(--hc-r)) !important; bottom: calc(112px + var(--hc-b)) !important; }
+body.visor.hudc #hud #hotbar .hb:nth-child(4n) { right: calc(168px + var(--hc-r)) !important; bottom: calc(16px + var(--hc-b)) !important; }
+body.visor.hudc #hud #hotbar .hb :is(.k, .q) { display: none !important; }
+body.visor.hudc #hud #hotbar .hb .cd { font-size: 15px !important; }
+body.visor.hudc #hud #hc-page { display: block; position: fixed; z-index: 26; right: calc(172px + var(--hc-r)); bottom: calc(84px + var(--hc-b)); width: 48px; height: 48px; color: #d9c79e !important; transition: opacity 0.4s; }
+body.visor.hudc #hud :is(#auto-btn, #ult-btn) {
+  position: fixed !important; display: flex !important; top: auto !important; left: auto !important; bottom: calc(176px + var(--hc-b)) !important; width: 56px !important; height: 56px !important;
+  border-radius: 8px !important; clip-path: none !important; transition: opacity 0.4s;
+}
+body.visor.hudc #hud #auto-btn { right: calc(12px + var(--hc-r)) !important; }
+body.visor.hudc #hud #ult-btn { right: calc(76px + var(--hc-r)) !important; }
+body.visor.hudc #hud :is(#auto-btn, #ult-btn) :is(b, small) { font-size: 14px !important; letter-spacing: 0 !important; position: static !important; transform: none !important; line-height: 1.25 !important; }
+/* ULT: ตัวเลข % แทนวงเกจ (ไม่ใช้แถบ/วงสัดส่วน) • เต็ม = กรอบเขียว READY */
+body.visor.hudc #hud #ult-btn { flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 0 !important;
+  background: rgba(29, 58, 29, 0.6) !important; border: 2px solid rgba(123, 224, 123, 0.35) !important; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45) !important; }
+body.visor.hudc #hud #ult-btn i { display: none !important; }
+body.visor.hudc #hud #ult-btn :is(b, small) { color: #c8ffc8 !important; font-family: var(--f-body, sans-serif) !important; font-weight: 700 !important; opacity: 1 !important; }
+body.visor.hudc #hud #ult-btn.ready { background: #1d3a1d !important; border-color: #7be07b !important; box-shadow: 0 0 10px rgba(123, 224, 123, 0.6) !important; }
+body.visor.hudc #hud #auto-btn.hc-fly { border-color: #7be0a8 !important; box-shadow: 0 0 0 2px #2f8f6a, 0 0 10px rgba(123, 224, 168, 0.6) !important; }
+/* ไม่ได้สู้ ~5 วิ: สกิล/ULT จาง (ยังกดได้) */
+body.visor.hudc.hc-calm #hud :is(#hotbar .hb, #hc-page) { opacity: 0.4; }
+body.visor.hudc.hc-calm #hud #ult-btn:not(.ready) { opacity: 0.5; }
+
+/* ---------- แผ่นเมนู (ล่างจอ 4 คอลัมน์) ---------- */
+body.visor.hudc #hud #menubar .menu-panel {
+  position: fixed !important; left: 0 !important; right: 0 !important; top: auto !important; bottom: 0 !important; width: auto !important; max-width: none !important;
+  max-height: calc(100dvh - 72px - var(--st, 0px)) !important; box-sizing: border-box; padding: 12px calc(12px + var(--hc-r)) calc(12px + var(--hc-b)) calc(12px + var(--hc-l)) !important;
+  display: flex; flex-direction: column; gap: 10px; overflow-y: auto; border: 0 !important; border-top: 2px solid var(--hc-line) !important; border-image: none !important;
+  border-radius: 8px 8px 0 0 !important; background: #f3e6c4 !important; color: #3a2614; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.55) !important; transform-origin: bottom center; z-index: 60;
+}
+body.visor.hudc #hud #menubar.folded .menu-panel { display: none !important; }
+body.visor.hudc #hud #menubar .menu-heading { display: none !important; }
+body.visor.hudc .hc-only { display: revert; }
+body.visor.hudc #hud #menubar .menu-panel * { text-shadow: none !important; }
+body.visor.hudc #hud #menubar .hc-sheet-head { display: flex; flex-direction: column; font: 400 14px/1.45 var(--f-body, sans-serif); color: #6a5434; padding-right: 56px; }
+body.visor.hudc #hud #menubar .hc-sheet-head b { color: #3a2614; font-weight: 700; }
+body.visor.hudc #hud #menubar .menu-grid { display: grid !important; grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 8px !important; }
+body.visor.hudc #hud #menubar .menu-grid > button {
+  width: 100% !important; height: 64px !important; min-width: 0; padding: 4px 2px !important; display: flex !important; flex-direction: column; align-items: center; justify-content: center; gap: 2px !important;
+  border: 1px solid #a8864a !important; border-radius: 8px !important; background: #fbf3dc !important; color: #3a2614 !important; box-shadow: none !important; clip-path: none !important;
+}
+body.visor.hudc #hud #menubar .menu-grid > button svg { width: 22px !important; height: 22px !important; color: #7a5a2a; stroke: #7a5a2a; }
+body.visor.hudc #hud #menubar .menu-grid > button span { font: 600 14px/1.15 var(--f-body, sans-serif) !important; color: #3a2614 !important; letter-spacing: 0 !important; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+body.visor.hudc #hud #menubar .menu-grid > button small { display: none !important; }
+body.visor.hudc #hud #menubar .menu-grid > button.on { background: #f0d48a !important; border-color: #7a5a2a !important; }
+body.visor.hudc #hud #menubar .menu-grid > button[data-win="w-map"] { display: none !important; }
+body.visor.hudc #hud #menubar .menu-grid > button :is(.dl-badge, .qt-badge) { font-size: 14px !important; }
+/* ลำดับในแผ่น: ตัวละคร → ของ → เควสต์/นำทาง → สังคม → ระบบ */
+body.visor.hudc #hud #menubar .menu-grid > [data-win="w-status"] { order: 1; } body.visor.hudc #hud #menubar .menu-grid > [data-win="w-inv"] { order: 2; }
+body.visor.hudc #hud #menubar .menu-grid > [data-win="w-equip"] { order: 3; } body.visor.hudc #hud #menubar .menu-grid > [data-win="w-skills"] { order: 4; }
+body.visor.hudc #hud #menubar .menu-grid > [data-win="w-tree"] { order: 5; } body.visor.hudc #hud #menubar .menu-grid > [data-win="w-runes"] { order: 6; }
+body.visor.hudc #hud #menubar .menu-grid > [data-win="w-builds"] { order: 7; } body.visor.hudc #hud #menubar .menu-grid > [data-win="w-classbook"] { order: 8; }
+body.visor.hudc #hud #menubar .menu-grid > [data-hc="quests"] { order: 9; } body.visor.hudc #hud #menubar .menu-grid > [data-win="w-nav"] { order: 10; }
+body.visor.hudc #hud #menubar .menu-grid > [data-win="w-party"] { order: 11; } body.visor.hudc #hud #menubar .menu-grid > [data-hc="mm"] { order: 12; }
+body.visor.hudc #hud #menubar .menu-grid > [data-win="w-trade"] { order: 13; } body.visor.hudc #hud #menubar .menu-grid > [data-win="w-market"] { order: 14; }
+body.visor.hudc #hud #menubar .menu-grid > [data-win="w-gacha"] { order: 15; } body.visor.hudc #hud #menubar .menu-grid > [data-hc="emote"] { order: 16; }
+body.visor.hudc #hud #menubar .menu-grid > [data-win="w-bot"] { order: 17; background: #e4f1f8 !important; } body.visor.hudc #hud #menubar .menu-grid > [data-hc="fly"] { order: 18; background: #e4f1f8 !important; }
+body.visor.hudc #hud #menubar .menu-grid > [data-win="w-options"] { order: 19; } body.visor.hudc #hud #menubar .menu-grid > [data-win="w-help"] { order: 20; }
+body.visor.hudc #hud #menubar .menu-grid > [data-hc="fly"].on { background: #bfe8d0 !important; border-color: #2f8f6a !important; }
+body.visor.hudc #hud #menubar .hc-sheet-row { display: flex; gap: 8px; }
+body.visor.hudc #hud #menubar .hc-sheet-row button {
+  flex: 1; height: 48px; min-width: 0; padding: 0 4px; border: 1px solid #a8864a; border-radius: 8px; background: #fbf3dc; color: #3a2614;
+  font: 600 14px/1.15 var(--f-body, sans-serif); letter-spacing: 0; cursor: pointer; box-shadow: none; clip-path: none;
+}
+/* ปุ่มปิด (✕) ของแผ่น = ปุ่มเมนูเดิมมุมขวาบนจอ — ทับแผ่นไม่ได้ จึงให้หัวแผ่นมีที่ว่างขวา + ฉากหลังมืด */
+body.visor.hudc #hud:has(#menubar:not(.folded))::before { content: ''; position: fixed; inset: 0; background: rgba(10, 6, 18, 0.55); z-index: 21; pointer-events: none; }
+body.visor.hudc #hud:has(#menubar:not(.folded)) #menubar { z-index: 61 !important; }
+
+/* ---------- หน้าต่างแผนที่: ชื่อแผนที่ + ปุ่มซูมจอ/นำทางไป MVP ---------- */
+body.visor.hudc #w-map .hc-mapname { display: block; font: 700 14px/1.4 var(--f-body, sans-serif); color: inherit; margin: 0 0 6px; white-space: normal; overflow-wrap: anywhere; letter-spacing: 0; }
+body.visor.hudc #w-map .opt-btns { display: flex !important; flex-wrap: wrap; gap: 6px; }
+body.visor.hudc #w-map .opt-btns .btn { min-height: 44px; font-size: 14px !important; border-radius: 8px !important; letter-spacing: 0 !important; }
+body.visor.hudc #w-map .opt-btns .btn[hidden] { display: none !important; }
+
+/* กรอบตัวเลขแมลงวัน (ปุ่มลอยถูกถอด — js/hud-c.js วางเหนือ ULT/AUTO) */
+body.visor.hudc #fly-ov { font-size: 14px; }
+/* ป้ายชื่อแผนที่: กลางจอไม่บังปุ่มขวาบน */
+body.visor.hudc #hud #map-banner { top: calc(180px + var(--st, 0px)) !important; pointer-events: none; }
