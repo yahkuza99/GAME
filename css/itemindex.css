@@ -1,0 +1,78 @@
+/* =====================================================================
+   คลังไอเทม (js/itemindex.js) — #w-itemidx ใช้สมุดเปิดแบบเดียวกับกระเป๋า/ร้านค้า (UI.book / UI.itemRow / UI.itemDetail)
+   กติกาเจ้าของ: ไม่มีทรงแคปซูล (มุม ≤ 8px) • ไม่มีแถบสัดส่วน • ไม่ถ่างตัวอักษรไทย • บรรทัดไทยโปร่งพอ • มือถือ: ตัวหนังสือ ≥ 13px ปุ่ม ≥ 40px
+   ไฟล์นี้โหลดหลังสุด (หลัง css/hud-c.css) — ตัวเลือกขึ้นต้นด้วย #w-itemidx ให้ชนะธีมเดิม
+   ===================================================================== */
+body.visor #w-itemidx.win.book-win { height: min(720px, calc(100dvh - 40px)); }
+#w-itemidx .book-l { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+#w-itemidx .book-r { gap: 8px; }
+
+/* ---------- หมวด: ตาราง 3×3 (ป้ายเหลี่ยมมุมมนเล็ก) ---------- */
+#w-itemidx .ix-cats { flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+#w-itemidx .ix-cat { position: relative; min-height: 40px; display: flex; align-items: center; gap: 4px; padding: 4px 6px; border-radius: 6px; cursor: pointer;
+  border: 1px solid rgba(120, 82, 30, 0.45); background: linear-gradient(180deg, #fffaf0, #f0dfb8); color: #3a2410; text-align: left; letter-spacing: 0; }
+#w-itemidx .ix-cat:hover { background: linear-gradient(180deg, #fffdf6, #f6e6c2); }
+#w-itemidx .ix-cat.on { background: linear-gradient(180deg, #6b410b, #4a2b06); border-color: #2e1a04; color: #fff3cf; }
+#w-itemidx .ix-ci { display: none; }
+#w-itemidx .ix-cat b { flex: 1; min-width: 0; font: 600 13px/1.5 var(--f-body, sans-serif); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0; }
+#w-itemidx .ix-cat small { flex: none; font: 600 13px/1.4 var(--mono, monospace); opacity: 0.75; }
+
+/* ---------- แถบย่อย (ประเภทอาวุธ / ช่อง) — เลื่อนแนวนอน ---------- */
+#w-itemidx .ix-subs { flex: none; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; margin: 0; padding-bottom: 2px; }
+#w-itemidx .ix-subs .pill { flex: none; min-height: 36px; border-radius: 6px; letter-spacing: 0; }
+
+/* ---------- ตัวกรอง ---------- */
+#w-itemidx .ix-filters { flex: none; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; align-items: stretch; }
+#w-itemidx .ix-tog, #w-itemidx .ix-sel select { min-height: 36px; border-radius: 6px; border: 1px solid rgba(120, 82, 30, 0.45); background: #fff8e8; color: #3a2410;
+  font: 500 13px/1.4 var(--f-body, sans-serif); letter-spacing: 0; }
+#w-itemidx .ix-tog { display: flex; align-items: center; gap: 6px; padding: 2px 8px; cursor: pointer; text-align: left; }
+#w-itemidx .ix-tog.on { background: #f3cd78; border-color: #a77832; font-weight: 700; }
+#w-itemidx .ix-box { flex: none; width: 14px; height: 14px; border: 2px solid #6b410b; border-radius: 3px; background: #fff; }
+#w-itemidx .ix-tog.on .ix-box { background: #6b410b; box-shadow: inset 0 0 0 2px #fff; }
+#w-itemidx .ix-sel { display: flex; flex-direction: column; min-width: 0; }
+#w-itemidx .ix-sel span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+#w-itemidx .ix-sel select { width: 100%; padding: 2px 4px; cursor: pointer; }
+
+/* ---------- รายการ ---------- */
+#w-itemidx .ix-rows { flex: 1; min-height: 0; overflow-y: auto; }
+#w-itemidx .irow .iname, #w-itemidx .irow .isum { letter-spacing: 0; }
+#w-itemidx .ix-tags { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+#w-itemidx .ix-lv, #w-itemidx .ix-pct { font: 700 13px/1.4 var(--mono, monospace); color: #5a3a14; white-space: nowrap; }
+#w-itemidx .ix-own { padding: 0 5px; border-radius: 4px; background: #2f6b2a; color: #f2ffe8; font: 600 13px/1.6 var(--f-body, sans-serif); white-space: nowrap; letter-spacing: 0; }
+#w-itemidx .ix-showmore { margin: 6px auto; min-height: 40px; border-radius: 6px; }
+#w-itemidx .ix-note { flex: none; margin: 0; padding: 6px 8px; border-radius: 6px; background: rgba(120, 82, 30, 0.12); color: #4a2e10; font: 500 13px/1.6 var(--f-body, sans-serif); letter-spacing: 0; }
+#w-itemidx .ix-setic { flex: none; display: flex; gap: 2px; }
+#w-itemidx .ix-setic .plate { width: 30px; height: 30px; }
+#w-itemidx .irow.ix-setrow { grid-template-columns: auto minmax(0, 1fr) auto; cursor: pointer; }
+
+/* ---------- หน้ารายละเอียด ---------- */
+#w-itemidx .ix-more { display: flex; flex-direction: column; gap: 6px; }
+#w-itemidx .ix-where .ix-src { display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 2px 0; border-bottom: 1px dashed rgba(120, 82, 30, 0.3); font-size: 13px; line-height: 1.5; }
+#w-itemidx .ix-where .ix-src:last-child { border-bottom: 0; }
+#w-itemidx .ix-src > b { white-space: nowrap; }
+#w-itemidx .ix-src > small { flex: 1; min-width: 0; opacity: 0.85; }
+#w-itemidx .ix-src em { margin-left: auto; font: 700 13px/1.4 var(--mono, monospace); font-style: normal; white-space: nowrap; }
+#w-itemidx .ix-mob { flex: 1; min-width: 0; min-height: 36px; display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 4px; padding: 2px 6px; border: 1px solid transparent; border-radius: 6px;
+  background: none; color: inherit; text-align: left; cursor: pointer; font: inherit; letter-spacing: 0; }
+#w-itemidx .ix-mob:hover { border-color: rgba(120, 82, 30, 0.45); background: rgba(255, 255, 255, 0.35); }
+#w-itemidx .ix-mob b { text-decoration: underline; text-decoration-color: rgba(120, 82, 30, 0.45); text-underline-offset: 3px; }
+#w-itemidx .ix-go { flex: none; min-width: 44px; min-height: 36px; border-radius: 6px; }
+#w-itemidx .ix-src-more { display: block; padding-top: 4px; opacity: 0.8; }
+#w-itemidx .ix-pieces { max-height: none; overflow: visible; }
+
+/* ---------- มือถือ: หน้าเดียว • ปุ่ม ≥ 40px • ตัวหนังสือ ≥ 13px ---------- */
+@media (max-width: 760px) {
+  body.visor #w-itemidx.win.book-win { height: calc(100dvh - 16px - var(--st, 0px) - var(--sb, 0px)); }
+  #w-itemidx .ix-cat { min-height: 40px; padding: 4px 6px; }
+  #w-itemidx .ix-subs .pill, #w-itemidx .ix-tog, #w-itemidx .ix-sel select, #w-itemidx .ix-mob, #w-itemidx .ix-go { min-height: 40px; }
+  #w-itemidx .book.det .book-l { display: none; }
+  #w-itemidx .book-back { min-height: 40px; height: auto; font-size: 14px; border-radius: 6px; }
+  #w-itemidx .irow small, #w-itemidx .irow em, #w-itemidx .det-top small, #w-itemidx .kv span, #w-itemidx .kv b,
+  #w-itemidx .ix-src small, #w-itemidx .book-foot, #w-itemidx .bf-count, #w-itemidx .dchip i, #w-itemidx .dchip b, #w-itemidx .tip-set, #w-itemidx .tip-set *,
+  #w-itemidx .pill, #w-itemidx .pill small, #w-itemidx .cmp, #w-itemidx .cmp *, #w-itemidx .det-desc, #w-itemidx .dsec-h, #w-itemidx .det-warn, #w-itemidx .det-short,
+  #w-itemidx .cmp-v, #w-itemidx .cmp-row *, #w-itemidx .ix-sel span, #w-itemidx .btn { font-size: 13px; }
+}
+
+/* ---------- ปุ่มในเมนู: สีกลุ่มไอเทม (theme3) • แผ่นเมนูมือถือ: ต่อจาก Builds / Class (ลำดับใน css/hud-c.css) ---------- */
+#menubar button[data-win="w-itemidx"] { --mc: #6fe0a0; }
+body.visor.hudc #hud #menubar .menu-grid > [data-win="w-itemidx"] { order: 8; }
