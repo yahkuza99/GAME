@@ -139,10 +139,16 @@ const xp = p => p.evaluate(() => G.player.baseExp + G.player.baseLv * 1e9 + G.pl
   // ---- 4) รวมพลข้ามแผนที่ ----
   await goMap(D, 'eldheim');
   await sleep(500);
-  await tap(A, '#raid-bar .rb-call');
+  ok('ไม่มีปาร์ตี้ = ไม่มีปุ่มรวมพล และเรียกไม่ได้', await A.evaluate(() => { Party.party = null; Raid.bar(true); return !document.querySelector('#raid-bar .rb-call') && Raid.rally() === false; }));
+  // A · B · D อยู่ปาร์ตี้เดียวกัน (ปาร์ตี้จำลองในเครื่อง) · C ไม่อยู่ปาร์ตี้
+  for (const p of [A, B, D]) await p.evaluate(() => { Party.party = { id: 'pt-test', name: 'T', since: 1, members: new Map([['x', { id: 'x', name: 'x', since: 2, seen: performance.now() + 1e9 }]]) }; Raid.bar(true); });
+  await C.evaluate(() => { Party.party = null; });
+  ok('ซ่อนแถบบอสได้ (เหลือแถวชื่อ+เลือด) แล้วเปิดกลับ', await A.evaluate(() => { Raid.bar(true); document.querySelector('#raid-bar .rb-fold').click(); const f = document.getElementById('raid-bar'); const folded = f.classList.contains('fold') && !f.querySelector('.rb-b') && /%/.test(f.textContent); f.querySelector('.rb-fold').click(); return folded && !!f.querySelector('.rb-call'); }));
+  ok('มีปาร์ตี้ = รวมพลได้', await A.evaluate(() => Raid.rally() === true), await A.evaluate(() => JSON.stringify({ pid: Raid.partyId(), on: Raid.on(), left: Raid.rallyLeft() })));
   ok('Dave (อีกแผนที่) ได้โทสต์รวมพล', await until(D, () => { const e = document.querySelector('#raid-call'); return !!e && !e.hidden && /Seraph/.test(e.textContent) && /Alice/.test(e.textContent); }), await D.evaluate(() => JSON.stringify({ t: (document.querySelector('#raid-call') || {}).textContent, call: Raid.call, rch: !!Raid.rch, on: Online.online, map: G.map.id, log: document.querySelector('#chat-log').textContent.slice(-150) })));
   ok('Bobby (แผนที่เดียวกัน) ไม่เด้งโทสต์ แต่มีในแชต', await until(B, () => /\[รวมพล\] Alice/.test(document.querySelector('#chat-log').textContent)) && await B.evaluate(() => { const e = document.querySelector('#raid-call'); return !e || e.hidden; }));
   ok('ปุ่มรวมพลติดคูลดาวน์ (ตัวเลขวินาที)', await A.evaluate(() => { Raid.bar(true); const b = document.querySelector('#raid-bar .rb-call'); return b.disabled && /\d+/.test(b.textContent) && Raid.rally() === false; }), await A.evaluate(() => JSON.stringify({ left: Raid.rallyLeft(), on: Raid.on(), boss: !!Raid.boss(), btn: (document.querySelector('#raid-bar .rb-call') || {}).outerHTML })));
+  ok('Cara (ไม่อยู่ปาร์ตี้) ไม่ได้รับคำเชิญรวมพล', await C.evaluate(() => !/\[รวมพล\]/.test(document.querySelector('#chat-log').textContent) && !Raid.call));
   await shot(D, 'rally-toast-1600');
   await shot(D, 'rally-toast-390', { width: 390, height: 844 });
   await D.setViewportSize({ width: 1600, height: 900 });

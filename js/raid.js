@@ -10,7 +10,7 @@
 //  2) ยิ่งรุมยิ่งแรง: นับคนที่ตีบอสใน 10 วิล่าสุด (ผู้ช่วย) → ทุกคนดาเมจใส่บอส +10% ต่อผู้ช่วยเพิ่ม 1 คน (สูงสุด +50%) และ EXP ตอนปราบเท่ากัน
 //  3) บอสสำหรับฝูง: ความแค้นสลับไปตามผู้ช่วยทุก 8 วิ (บอสหันไปตีคนอื่น — คนเดียวโดนตีตลอด รุมกันโดนแค่ช่วงของตัวเอง)
 //     + ท่าที่มีป้ายแดงลงแรงขึ้น +25% ต่อเพื่อนที่ยืนติดกันในระยะ 1.5 ช่อง (สูงสุด ×2, ไม่เกิน 90% MaxHP) — ต้องกระจายกันยืน
-//  4) รวมพล: ปุ่มบนแถบบอส → ประกาศทุกแผนที่ (ช่อง 'rally') ผู้เล่นที่เลเวลพอได้โทสต์แตะเดียวนำทางมา • คูลดาวน์ 45 วิ
+//  4) รวมพล: ปุ่มบนแถบบอส (เฉพาะตอนมีปาร์ตี้) → ประกาศถึงเพื่อนร่วมปาร์ตี้ทุกแผนที่ (ช่อง 'rally') ผู้เล่นที่เลเวลพอได้โทสต์แตะเดียวนำทางมา • คูลดาวน์ 45 วิ
 //  5) รางวัล: ทุกคนที่ดาเมจถึงเกณฑ์ (MVP ≥ 1% / Ancient ≥ 0.5% ของเลือดบอส) ได้รางวัลเต็มของตัวเอง ไม่หารกัน
 //     + 3 อันดับดาเมจแรก (เมื่อร่วมกัน ≥ 2 คน) ได้ของเพิ่มเล็กน้อย • คนที่ปิดฉากได้รางวัลเสมอ
 //  ข้อจำกัดที่รู้: เชื่อข้อมูลจากเครื่องผู้เล่น (เหมือนแลกเปลี่ยน/ตลาด) — ส่งดาเมจปลอมได้ ไม่มีเซิร์ฟเวอร์ตัดสิน
@@ -335,14 +335,18 @@ const Raid = {
     ch.subscribe();
     this.rch = ch;
   },
+  partyId() { return typeof Party !== 'undefined' && Party.party && Party.party.members && Party.party.members.size > 0 ? Party.party.id : null; },
+  fold: (() => { try { return localStorage.getItem('iv_raid_fold') === '1'; } catch (e) { return false; } })(),
+  setFold(v) { this.fold = !!v; try { localStorage.setItem('iv_raid_fold', v ? '1' : '0'); } catch (e) { /* ignore */ } this.bar(true); },
   rallyLeft() { return Math.max(0, Math.ceil((this.rallyAt + this.RALLY_CD - Date.now()) / 1000)); },
   rally() {
     const m = this.boss();
     if (!m || !this.on()) { UI.msg(L('รวมพลได้เมื่อมีบอส MVP/Ancient อยู่ในแผนที่ (โหมดออนไลน์)', 'Rally works when an MVP/Ancient is on your map (online mode).'), 'err'); return false; }
+    if (!this.partyId()) { UI.msg(L('รวมพลได้เฉพาะตอนอยู่ในปาร์ตี้ — คำเชิญส่งถึงเพื่อนในปาร์ตี้เท่านั้น', 'Rally needs a party — the call goes to your party members only'), 'err'); return false; }
     if (this.rallyLeft() > 0) { UI.msg(L(`รวมพลได้อีกครั้งในอีก ${this.rallyLeft()} วินาที`, `You can rally again in ${this.rallyLeft()} s`), 'err'); return false; }
     this.joinRally();
     this.rallyAt = Date.now();
-    const k = this.kind(m), v = { from: this.myId(), n: this.clean(G.player.name), k, map: G.map.id, mob: k === 'wb' ? m.def.id : m.def.id, hp: Math.ceil(m.hp / m.maxHp * 100), h: Math.max(1, this.helpers(m)), lv: m.def.lv };
+    const k = this.kind(m), v = { from: this.myId(), n: this.clean(G.player.name), k, map: G.map.id, mob: k === 'wb' ? m.def.id : m.def.id, hp: Math.ceil(m.hp / m.maxHp * 100), h: Math.max(1, this.helpers(m)), lv: m.def.lv, pid: this.partyId() };
     if (this.rch) this.rch.send({ type: 'broadcast', event: 'call', payload: v });
     UI.msg(L(`📣 เรียกรวมพลแล้ว — ผู้เล่นทุกแผนที่จะเห็นคำเชิญมาช่วยตี ${m.def.name}`, `📣 Rally sent — players on every map will see your call to fight ${m.def.name}`), 'party');
     Sound.play('quest_new');
@@ -353,6 +357,7 @@ const Raid = {
     if (!v || typeof v !== 'object' || !G.started || !G.player || typeof v.from !== 'string' || v.from === this.myId()) return;
     const map = String(v.map || ''), k = v.k === 'wb' ? 'wb' : v.k === 'mvp' ? 'mvp' : '', mob = String(v.mob || '');
     if (!k || !MAP_DEFS[map] || !MOBS[mob]) return;
+    if (!this.partyId() || v.pid !== this.partyId()) return; // รวมพลถึงเพื่อนร่วมปาร์ตี้เท่านั้น (เจ้าของ 2026-10-11)
     if (k === 'mvp' && MAP_DEFS[map].mvp !== mob) return;
     if (k === 'wb' && !(typeof WB !== 'undefined' && WB.MAPS[map] && WB.id(map) === mob)) return;
     const now = Date.now(); if (now - (this.seenCall[v.from] || 0) < 15000) return;
@@ -399,21 +404,22 @@ const Raid = {
     if (!el) {
       el = document.createElement('div'); el.id = 'raid-bar'; el.hidden = true;
       (document.getElementById('hud') || document.body).append(el);
-      el.addEventListener('click', e => { if (e.target.closest('.rb-call')) this.rally(); });
+      el.addEventListener('click', e => { if (e.target.closest('.rb-call')) this.rally(); else if (e.target.closest('.rb-fold')) this.setFold(!this.fold); });
     }
     const n = Math.max(1, this.helpers(m)), b = this.bonus(m), cd = this.rallyLeft(), me = this.myId();
     const tgt = !m.aggroId ? '' : m.aggroId === me ? L('คุณ', 'You') : this.clean((Online.others.get(m.aggroId) || {}).name) || '???';
     const pct = Math.ceil(m.hp / m.maxHp * 100);
-    const key = [m.def.id, Math.round(m.hp), n, b, cd, tgt, m.phase || 0].join('|');
+    const pid = this.partyId(), key = [m.def.id, Math.round(m.hp), n, b, cd, tgt, m.phase || 0, this.fold, !!pid].join('|');
     if (!force && el.dataset.key === key && !el.hidden) return;
     el.dataset.key = key;
-    el.className = this.kind(m) === 'wb' ? 'wb' : 'mvp';
+    el.className = (this.kind(m) === 'wb' ? 'wb' : 'mvp') + (this.fold ? ' fold' : '');
     el.innerHTML = `<div class="rb-a"><small>${this.kind(m) === 'wb' ? 'ANCIENT' : 'MVP'}</small><b class="rb-nm">${U.esc(m.def.name)}</b>` +
-      `<span class="rb-hp"><b>${pct}%</b><small>${U.fmt(Math.max(0, Math.round(m.hp)))} / ${U.fmt(m.maxHp)}</small></span></div>` +
+      `<span class="rb-hp"><b>${pct}%</b><small>${U.fmt(Math.max(0, Math.round(m.hp)))} / ${U.fmt(m.maxHp)}</small></span>` +
+      `<button type="button" class="rb-fold" title="${this.fold ? L('แสดงรายละเอียดบอส', 'Show boss details') : L('ซ่อนรายละเอียดบอส', 'Hide boss details')}">${this.fold ? '▾' : '▴'}</button></div>` + (this.fold ? '' :
       `<div class="rb-b"><span class="rb-h" title="${L('คนที่ตีบอสใน 10 วินาทีล่าสุด', 'Players who hit the boss in the last 10 seconds')}"><b>${n}</b> ${L('คนรุม', 'fighting')}</span>` +
       `<span class="rb-bonus${b > 0 ? ' on' : ''}">${b > 0 ? L(`ดาเมจ/EXP +${Math.round(b * 100)}%`, `DMG/EXP +${Math.round(b * 100)}%`) : L('รุม 2 คนขึ้นไป = แรงขึ้น', '2+ helpers = bonus')}</span>` +
       (tgt ? `<span class="rb-tg">${L('บอสเล็ง', 'Boss targets')}: <b>${U.esc(tgt)}</b></span>` : '') +
-      `<button type="button" class="btn rb-call"${cd ? ' disabled' : ''}>${cd ? L(`รวมพล (${cd})`, `Rally (${cd})`) : L('รวมพล', 'Rally')}</button></div>`;
+      (pid ? `<button type="button" class="btn rb-call"${cd ? ' disabled' : ''}>${cd ? L(`รวมพล (${cd})`, `Rally (${cd})`) : L('รวมพล', 'Rally')}</button>` : '') + '</div>');
     el.hidden = false;
   },
 

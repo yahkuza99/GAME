@@ -21,6 +21,8 @@
 .rb-tg b { color: #ffb38a; }
 .rb-call { margin-left: auto; padding: 5px 12px; font-size: 13px; border-radius: 6px; }
 .rb-call[disabled] { opacity: .6; cursor: default; }
+.rb-fold { flex: none; width: 30px; height: 26px; margin-left: 2px; padding: 0; border-radius: 6px; border: 1px solid rgba(255, 255, 255, .25); background: rgba(255, 255, 255, .06); color: #e8f4ff; font-size: 13px; line-height: 1; cursor: pointer; }
+#raid-bar.fold { padding-top: 5px; padding-bottom: 5px; }
 
 /* โทสต์รวมพล (เห็นทุกแผนที่) */
 #raid-call { position: fixed; left: 50%; transform: translateX(-50%); top: calc(232px + var(--st, 0px)); z-index: 906; width: min(470px, calc(100vw - 20px));
@@ -58,7 +60,18 @@
 #raid-result .wbr-list .wbt-r { grid-template-columns: 20px minmax(0, 1fr) auto 46px; line-height: 20px; }
 
 @media (max-width: 560px) {
-  #raid-bar { top: calc(192px + var(--st, 0px)); padding: 6px 8px; } /* มือถือ: ใต้แถบสถานะ/เควสต์ ไม่ทับมินิแมพ */
+  /* มือถือ (เจ้าของ 2026-10-11 "แก้ mvp ทับจอ"): การ์ดเล็กชิดซ้ายใต้ปุ่มเควสต์ ไม่คร่อมกลางจอ
+     • ซ่อนตารางดาเมจลอย (#wb-top) กับการ์ดเลือดมอนเป้าหมายตอนแถบนี้ขึ้น (อันดับดูในการ์ดสรุปหลังปราบ) */
+  #raid-bar { left: calc(8px + var(--sl, 0px)); transform: none; top: calc(180px + var(--st, 0px)); width: min(236px, calc(100vw - 150px)); padding: 6px 8px; gap: 3px; font-size: 12px; }
+  #raid-bar .rb-a { gap: 6px; }
+  #raid-bar .rb-nm { font-size: 13px; }
+  #raid-bar .rb-hp small { display: none; }
+  #raid-bar .rb-hp b { font-size: 16px; }
+  #raid-bar .rb-b { gap: 4px 8px; }
+  #raid-bar .rb-h b { font-size: 15px; }
+  #raid-bar .rb-bonus:not(.on) { display: none; }
+  #raid-bar .rb-tg { font-size: 12px; }
   .rb-call { padding: 6px 12px; }
+  #hud:has(#raid-bar:not([hidden])) #wb-top { display: none; }
   #raid-call { top: calc(284px + var(--st, 0px)); }
 }

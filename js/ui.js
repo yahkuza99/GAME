@@ -905,7 +905,7 @@ const UI = {
     const icon = k => ivIcon(k);
     const items = [
       ['w-status', 'Status', 'A', 'status'], ['w-inv', 'Items', 'E', 'bag'], ['w-equip', 'Equip', 'Q', 'equip'],
-      ['w-skills', 'Skills', 'S', 'skill'], ['w-tree', 'Passive', 'P', 'tree'], ['w-map', 'Map', 'M', 'map'], ['w-party', 'Party', 'Y', 'party'], ['w-nav', 'Navi', 'G', 'nav'], ['w-bot', 'Bot', 'N', 'bot'], ['w-builds', 'Builds', 'D', 'builds'], ['w-help', 'Help', 'H', 'help'],
+      ['w-skills', 'Skills', 'S', 'skill'], ['w-tree', 'Passive', 'P', 'tree'], ['w-map', 'Map', 'M', 'map'], ['w-party', 'Party', 'Y', 'party'], ['w-nav', 'Navi', 'G', 'nav'], ['w-bot', 'Bot', 'N', 'bot'], ['w-builds', 'Builds', 'D', 'builds'], ['w-options', 'Settings', 'O', 'options'], ['w-help', 'Help', 'H', 'help'],
     ];
     const m = $('#menubar');
     for (const [id, label, key, ic] of items) {
