@@ -77,7 +77,7 @@ function serve() {
     ok('AUTO no ULT with no target', pl.ult === 100 && !(pl.ultBuffUntil > G.time));
 
     setup(); mob('fenrir_pup', 2, 0, true); think();
-    ok('AUTO keeps ULT for a lone weak mob', pl.ult === 100);
+    ok('AUTO fires ULT even vs a lone weak mob (owner 2026-10-11: use whenever full)', pl.ult === 0);
 
     setup(); mob('fenrir_pup', 2, 0, true); mob('fenrir_pup', -2, 0, true); mob('fenrir_pup', 0, 2, true); think();
     ok('AUTO fires ULT vs 3+ mobs', pl.ult === 0);
@@ -95,7 +95,7 @@ function serve() {
     ok('AUTO uses heal ULT at low HP', pl.ult === 0 && pl.hp > h0, `${pl.hp} vs ${h0}`);
 
     setup(); mob('seraph_pudding', 2, 0, true); pl.ultKind = 'aegis'; think();
-    ok('AUTO holds heal ULT at full HP even vs boss', pl.ult === 100);
+    ok('AUTO fires heal ULT when full even at full HP (owner: every case)', pl.ult === 0);
 
     setup('eldheim'); G.mobs = []; pl.ult = 100; think();
     ok('AUTO no ULT in town', pl.ult === 100);

@@ -512,12 +512,9 @@ const Bot = {
     if (!G.map || G.map.def.pvp || G.map.def.kind === 'town' || NPC.busy) return false;
     if (p.cast || p.atkAnim > 0 || isStunned()) return false;
     const near = G.mobs.filter(m => !m.dead && !m.def.dummy && m.state === 'chase' && U.dist(m.x, m.y, p.x, p.y) <= 8);
-    const engaged = (t.state === 'chase' && U.dist(t.x, t.y, p.x, p.y) <= 8) || near.length > 0;
+    // เจ้าของ 2026-10-11 "ULT ใช้ทุกกรณีที่เกจเต็มเลย": เกจเต็ม + กำลังสู้กับเป้า (ระยะ ≤ 8 ช่อง) = กดทันที ไม่รอบอส/มอนรุม/HP ต่ำ
+    const engaged = U.dist(t.x, t.y, p.x, p.y) <= 8 || near.length > 0;
     if (!engaged) return false;
-    const bossy = near.concat(t).some(m => m.def && (m.def.boss || m.isMvp || m.isWB) && !m.def.dummy);
-    const kind = Feel.ultKind(), heal = kind === 'aegis' || kind === 'norns';
-    const ok = heal ? (hpPct <= 40 && near.length > 0) : (bossy || near.length >= 3 || (hpPct <= 30 && near.length > 0));
-    if (!ok) return false;
     Feel.ultFire();
     this.progAt = Math.max(this.progAt, G.time - 1.5);
     return true;

@@ -953,6 +953,10 @@ const UI = {
   renderWindows(force) {
     if (!this.isDirty && !force) return;
     this.isDirty = false;
+    this._autoRender = !force; // ใช้กันวาดใหม่ระหว่างผู้เล่นกำลังเลื่อนหน้าต่าง (ดูตัวห่อท้ายไฟล์)
+    try { this.renderWindowsInner(); } finally { this._autoRender = false; }
+  },
+  renderWindowsInner() {
     this.renderHotbar();
     if (this.isOpen('w-status')) this.renderStatus();
     if (this.isOpen('w-inv')) this.renderInv();
@@ -2695,12 +2699,23 @@ const UI = {
       const v = m.get(k + '#' + i); if (v != null) el.scrollTop = v;
     }
   };
+  // กำลังเลื่อน/แตะค้างในหน้าต่าง: ไม่วาดใหม่จากรอบ dirty อัตโนมัติ (เดิมวาดใหม่กลางการปัด → iOS หยุดแรงเหวี่ยงแล้วเด้งกลับ — เจ้าของ 2026-10-11
+  //  "scroll down แล้วมันเด้งขึ้น เจอทุกหน้า") • รอให้นิ่ง 0.8 วิค่อยวาด · การกดปุ่ม/แท็บ (เรียกตรง) ยังวาดทันที
+  let touchN = 0, scrollAt = 0;
+  const inWin = e => e.target && e.target.closest && e.target.closest('.win');
+  addEventListener('touchstart', e => { if (inWin(e)) touchN++; }, { passive: true, capture: true });
+  addEventListener('touchend', e => { touchN = Math.max(0, touchN - 1); scrollAt = performance.now(); }, { passive: true, capture: true });
+  addEventListener('touchcancel', () => { touchN = 0; }, { passive: true, capture: true });
+  addEventListener('scroll', e => { if (inWin(e)) scrollAt = performance.now(); }, { passive: true, capture: true });
+  addEventListener('wheel', e => { if (inWin(e)) scrollAt = performance.now(); }, { passive: true, capture: true });
+  UI.scrollBusy = () => touchN > 0 || performance.now() - scrollAt < 800;
   for (const [fn, id] of Object.entries(WINS)) {
     const orig = UI[fn];
     if (typeof orig !== 'function') continue;
     UI[fn] = function (...a) {
       const w = document.getElementById(id);
       if (!w || w.classList.contains('hidden')) return orig.apply(this, a);
+      if (UI._autoRender && UI.scrollBusy()) { UI.isDirty = true; return; } // วาดทีหลังเมื่อเลื่อนเสร็จ
       const m = snap(w); const r = orig.apply(this, a); restore(w, m); return r;
     };
   }
