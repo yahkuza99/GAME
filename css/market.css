@@ -1,75 +1,118 @@
 /* =====================================================================
-   ตลาดผู้เล่น (แผงขายของ + บอร์ดตลาด) — js/market.js
+   ตลาดกลาง (แท็บ ซื้อ / ขายของฉัน) — js/market.js
    กติกาหน้าตา: สี่เหลี่ยมมุมมนเล็ก (≤ 8px) ไม่ใช้ทรงแคปซูล • ราคาเป็นตัวเลข ไม่มีแถบสัดส่วน • ไม่ถ่างตัวอักษร
+   ตัวหนังสือเล็กสุด 13px • ปุ่ม/ช่องกรอกสูงอย่างน้อย 40px
    ===================================================================== */
+#w-market, #w-market * { letter-spacing: 0 !important; }
 #w-market button, #w-market input, #w-market select { font: inherit; }
-#w-market .win-body { max-height: min(76vh, 640px); overflow-y: auto; }
-#w-market .mk-board, #w-market .mk-shop, #w-market .mk-mine, #w-market .mk-pick { display: flex; flex-direction: column; gap: 8px; }
+#w-market .win-body { max-height: min(78vh, 680px); overflow-y: auto; overflow-x: hidden; font-size: 14px; }
+#w-market .mk-board, #w-market .mk-mine, #w-market .mk-pick { display: flex; flex-direction: column; gap: 8px; }
 #w-market .mk-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
-#w-market .mk-tab { min-height: 38px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--edge, rgba(255, 255, 255, 0.12)); background: var(--fill, rgba(255, 255, 255, 0.04)); color: var(--ink-dim, #b8c4d8); font-size: 14px; font-weight: 600; cursor: pointer; }
+#w-market .mk-tab { min-height: 44px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--edge, rgba(255, 255, 255, 0.12)); background: var(--fill, rgba(255, 255, 255, 0.04)); color: var(--ink-dim, #b8c4d8); font-size: 15px; font-weight: 600; cursor: pointer; }
 #w-market .mk-tab.on { color: var(--exp, #ffe08a); border-color: rgba(255, 224, 138, 0.55); background: rgba(255, 224, 138, 0.09); }
+body.visor #w-market .mk-tab { color: var(--c-ink-2, #5a4630); border-color: var(--c-line-2, #d6c6a2); background: var(--c-paper-2, #f6eedb); }
+body.visor #w-market .mk-tab.on { color: var(--c-ink, #2e1f0e); border-color: #c99a3e; background: #fbe7b4; }
 #w-market .mk-filters { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px; }
-#w-market .mk-filters input, #w-market .mk-filters select { min-width: 0; min-height: 36px; border-radius: 6px; font-size: 14px; }
-#w-market .mk-sec { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--ink-dim, #b8c4d8); }
-#w-market .mk-sec small { font: 500 12px var(--mono, monospace); color: var(--ink-faint, #8a96aa); }
+#w-market .mk-filters input, #w-market .mk-filters select { min-width: 0; min-height: 40px; border-radius: 6px; font-size: 14px; }
+#w-market .mk-sec { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 14px; font-weight: 600; color: var(--ink-dim, #b8c4d8); margin-top: 2px; }
+#w-market .mk-sec small { font: 500 13px var(--mono, monospace); color: var(--ink-faint, #8a96aa); }
 #w-market .mk-list { display: flex; flex-direction: column; gap: 6px; }
 #w-market .mk-row { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 8px; background: var(--fill, rgba(255, 255, 255, 0.04)); border: 1px solid var(--edge, rgba(255, 255, 255, 0.1)); min-width: 0; }
-#w-market .mk-row.mine { border-color: rgba(255, 224, 138, 0.4); }
-#w-market .mk-row.gone { opacity: 0.5; }
+#w-market .mk-pickrow { cursor: pointer; min-height: 56px; }
+#w-market .mk-pickrow:hover, #w-market .mk-pickrow:focus-visible { border-color: rgba(255, 224, 138, 0.6); outline: none; }
+#w-market .mk-pickrow.sel { border-color: #c99a3e; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+#w-market .mk-row.mine { border-style: dashed; }
 #w-market .mk-ic { flex: none; width: 40px; height: 40px; padding: 0; position: relative; border-radius: 6px; }
 #w-market .mk-ic img { width: 76%; height: 76%; }
 #w-market .mk-holes { position: absolute; left: 0; right: 0; bottom: 3px; display: flex; justify-content: center; gap: 2px; pointer-events: none; }
 #w-market .mk-holes i { width: 4px; height: 4px; border-radius: 1px; background: rgba(255, 255, 255, 0.3); }
 #w-market .mk-holes i.on { background: var(--cy, #6ff3ff); }
-#w-market .mk-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.35; }
+#w-market .mk-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.4; }
 #w-market .mk-mid b { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#w-market .mk-mid small { font-size: 12.5px; color: var(--ink-dim, #b8c4d8); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#w-market .mk-mid small { font-size: 13px; color: var(--ink-dim, #b8c4d8); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #w-market .mk-qty { font-weight: 500; color: var(--ink-dim, #b8c4d8); }
+#w-market .mk-seller { display: flex; gap: 8px; align-items: center; min-width: 0; }
+#w-market .mk-sn { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 0 1 auto; }
+#w-market .mk-on { display: inline-flex; align-items: center; gap: 4px; flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #2f9a5a; }
+#w-market .mk-on.idle { color: var(--ink-faint, #8a96aa); }
+#w-market .mk-dot { flex: none; display: inline-block; width: 8px; height: 8px; border-radius: 2px; background: #3cc070; }
+#w-market .mk-on.idle .mk-dot { background: #9aa3b0; }
 #w-market .mk-end { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-#w-market .mk-btns { display: flex; gap: 4px; align-items: center; }
-#w-market .mk-btns .btn { min-height: 32px; padding: 4px 10px; border-radius: 6px; }
 #w-market .mk-volt { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 #w-market .mk-vi { display: inline-flex; }
-#w-market .mk-vi svg { width: 13px; height: 13px; fill: var(--exp, #ffe08a); stroke: none; }
-#w-market .mk-volt b { font: 600 14px var(--mono, monospace); color: var(--exp, #ffe08a); }
-#w-market .mk-volt small { font: 500 12px var(--mono, monospace); color: var(--ink-faint, #8a96aa); }
-#w-market .mk-n { width: 58px; min-height: 32px; text-align: center; border-radius: 6px; }
-#w-market .mk-none { padding: 14px 10px; text-align: center; font-size: 13px; color: var(--ink-dim, #b8c4d8); }
-#w-market .mk-note { padding: 8px 12px; border-radius: 6px; background: rgba(255, 224, 138, 0.08); border: 1px solid rgba(255, 224, 138, 0.3); font-size: 13px; line-height: 1.45; }
-#w-market .mk-shead { display: flex; align-items: center; gap: 8px; min-width: 0; }
-#w-market .mk-st { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.35; }
-#w-market .mk-st b { font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#w-market .mk-st small { font-size: 12.5px; color: var(--ink-dim, #b8c4d8); }
-#w-market .mk-field { display: flex; align-items: center; gap: 8px; font-size: 13px; }
-#w-market .mk-field span { flex: none; color: var(--ink-dim, #b8c4d8); }
-#w-market .mk-field input { flex: 1; min-width: 0; min-height: 36px; border-radius: 6px; }
-#w-market .mk-inv { display: grid; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap: 5px; max-height: 150px; overflow-y: auto; padding: 2px; }
-#w-market .mk-icell { padding: 0; min-width: 0; color: inherit; border-radius: 6px; }
+#w-market .mk-vi svg { width: 14px; height: 14px; fill: var(--exp, #ffe08a); stroke: none; }
+body.visor #w-market .mk-vi svg { fill: #c48a1c; }
+#w-market .mk-volt b { font: 600 15px var(--mono, monospace); color: var(--exp, #ffe08a); }
+body.visor #w-market .mk-volt b { color: #8a5a08; }
+#w-market .mk-volt small { font: 500 13px var(--mono, monospace); color: var(--ink-faint, #8a96aa); }
+#w-market .btn { min-height: 40px; padding: 0 14px; border-radius: 6px; font-size: 14px; }
+#w-market .btn.small { min-height: 40px; padding: 0 12px; font-size: 14px; border-radius: 6px; }
+#w-market input[type="number"], #w-market input[type="text"], #w-market input[type="search"], #w-market select { min-height: 40px; border-radius: 6px; font-size: 15px; }
+/* กล่องยืนยันซื้อใต้แถว */
+#w-market .mk-buybox { display: flex; flex-direction: column; gap: 6px; margin-top: -7px; padding: 10px 12px; border-radius: 0 0 8px 8px; border: 1px solid #c99a3e; border-top: 0; background: rgba(255, 224, 138, 0.08); }
+#w-market .mk-bb-line { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 14px; }
+#w-market .mk-bb-line b { font: 600 15px var(--mono, monospace); }
+#w-market .mk-bb-after.bad, #w-market .mk-bb-warn { color: #c23a2a; }
+#w-market .mk-bb-warn { font-size: 13px; }
+#w-market .mk-bb-q { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; }
+#w-market .mk-n { width: 96px; text-align: center; }
+#w-market .mk-bb-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px; }
+#w-market .mk-bb-btns .btn { min-width: 110px; }
+#w-market .mk-who { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 4px 4px 10px; border-radius: 6px; border: 1px solid var(--edge, rgba(255, 255, 255, 0.12)); font-size: 14px; }
+/* แท็บขายของฉัน */
+#w-market .mk-state { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--edge, rgba(255, 255, 255, 0.14)); background: var(--fill, rgba(255, 255, 255, 0.04)); }
+#w-market .mk-state b { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+#w-market .mk-state .mk-dot { background: #9aa3b0; }
+#w-market .mk-state.on .mk-dot { background: #3cc070; }
+#w-market .mk-state span { font-size: 13px; line-height: 1.5; color: var(--ink-dim, #b8c4d8); }
+#w-market .mk-lrow { flex-direction: column; align-items: stretch; gap: 8px; }
+#w-market .mk-ltop { display: flex; align-items: center; gap: 10px; min-width: 0; }
+#w-market .mk-ctl { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px; }
+#w-market .mk-plab { display: flex; flex-direction: column; gap: 2px; font-size: 13px; color: var(--ink-dim, #b8c4d8); flex: 1 1 120px; min-width: 0; }
+#w-market .mk-price { width: 100%; min-width: 0; }
+#w-market .mk-ctl .btn { flex: 0 0 auto; }
+#w-market .mk-none { padding: 14px 10px; text-align: center; font-size: 14px; color: var(--ink-dim, #b8c4d8); }
+#w-market .mk-note { padding: 8px 12px; border-radius: 6px; background: rgba(255, 224, 138, 0.08); border: 1px solid rgba(255, 224, 138, 0.3); font-size: 14px; line-height: 1.5; }
+#w-market .mk-inv { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 5px; max-height: 160px; overflow-y: auto; padding: 2px; }
+#w-market .mk-icell { padding: 0; min-width: 0; min-height: 44px; color: inherit; border-radius: 6px; }
 #w-market .mk-icell img { width: 74%; height: 74%; }
-#w-market .mk-icell.used { opacity: 0.28; cursor: default; }
-#w-market .mk-set { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; padding: 8px 10px; border-radius: 8px; background: var(--fill, rgba(255, 255, 255, 0.04)); border: 1px solid var(--edge, rgba(255, 255, 255, 0.1)); }
+#w-market .mk-icell.sel { outline: 2px solid #c99a3e; outline-offset: -2px; }
+#w-market .mk-icell .q, #w-market .mk-icell .rf, #w-market .mk-ic .rf { font-size: 13px; }
+#w-market .mk-set { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; padding: 10px; border-radius: 8px; background: var(--fill, rgba(255, 255, 255, 0.04)); border: 1px solid #c99a3e; }
 #w-market .mk-set-n { flex: 1 1 100%; display: flex; align-items: center; gap: 8px; min-width: 0; }
-#w-market .mk-set-n img { width: 26px; height: 26px; }
+#w-market .mk-set-n img { width: 28px; height: 28px; }
 #w-market .mk-set-n b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-#w-market .mk-set label { display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; color: var(--ink-dim, #b8c4d8); }
-#w-market .mk-set input { width: 110px; min-height: 34px; border-radius: 6px; }
-#w-market .mk-set .mk-add { min-height: 34px; min-width: 64px; border-radius: 6px; }
-#w-market .mk-log { display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--ink-dim, #b8c4d8); }
-#w-market .mk-acts { display: flex; justify-content: flex-end; gap: 8px; }
-#w-market .mk-acts .btn { min-height: 40px; min-width: 130px; border-radius: 6px; }
+#w-market .mk-set label { display: flex; flex-direction: column; gap: 2px; font-size: 13px; color: var(--ink-dim, #b8c4d8); flex: 1 1 110px; min-width: 0; }
+#w-market .mk-set input { width: 100%; min-width: 0; }
+#w-market .mk-set .mk-add { min-width: 96px; }
+#w-market .mk-log { display: flex; flex-direction: column; gap: 4px; }
+#w-market .mk-sale { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 10px; padding: 6px 8px; border-radius: 6px; background: var(--fill, rgba(255, 255, 255, 0.04)); font-size: 14px; }
+#w-market .mk-sale span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#w-market .mk-sale b { font: 600 14px var(--mono, monospace); color: #2f9a5a; text-align: right; }
+#w-market .mk-sale small { grid-column: 1 / -1; font-size: 13px; color: var(--ink-faint, #8a96aa); }
 #w-market .mk-empty { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 10px 8px; text-align: center; }
 #w-market .mk-empty b { font-size: 16px; }
-#w-market .mk-empty p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-dim, #b8c4d8); max-width: 320px; }
+#w-market .mk-empty p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink-dim, #b8c4d8); max-width: 320px; }
 #w-market .mk-empty-ic { width: 64px; height: 64px; border-radius: 8px; display: grid; place-items: center; color: var(--exp, #ffe08a); background: rgba(255, 224, 138, 0.08); border: 1px solid rgba(255, 224, 138, 0.25); }
-#w-market .mk-empty-ic svg, #menubar [data-win="w-market"] svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+#w-market .mk-empty-ic svg, #menubar [data-win="w-market"] svg, #mk-toast .mk-ti svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 #w-market .mk-empty-ic svg { width: 34px; height: 34px; }
-#w-market .btn:disabled { cursor: default; opacity: 0.5; }
-#w-market .hint { margin-top: 2px; }
+#w-market .btn:disabled { cursor: default; }
+#w-market .hint { margin-top: 2px; font-size: 13px; line-height: 1.5; }
+/* แจ้งเตือนขายได้ (ไม่บังการเล่น) */
+#mk-toast { position: fixed; left: 50%; top: 72px; z-index: 9000; transform: translate(-50%, -8px); max-width: min(440px, calc(100vw - 32px)); display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: 8px; background: #fff6dc; color: #3a2808; border: 1px solid #c99a3e; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28); font-size: 14px; line-height: 1.45;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; letter-spacing: 0; }
+#mk-toast.show { opacity: 1; transform: translate(-50%, 0); }
+#mk-toast .mk-ti { flex: none; display: inline-flex; color: #b8862e; }
+#mk-toast .mk-ti svg { width: 20px; height: 20px; }
 @media (max-width: 520px) {
   #w-market .mk-filters { grid-template-columns: 1fr 1fr; }
   #w-market .mk-filters .mk-q { grid-column: 1 / -1; }
   #w-market .mk-row { gap: 8px; padding: 6px; }
-  #w-market .mk-ic { width: 36px; height: 36px; }
-  #w-market .mk-btns .btn { padding: 4px 8px; }
-  #w-market .mk-set input { width: 90px; }
+  #w-market .mk-ic { width: 38px; height: 38px; }
+  #w-market .mk-ctl .btn { flex: 1 1 auto; }
+  #w-market .mk-plab { flex: 1 1 100%; }
 }
+/* ช่องค้นหา: ธีม visor ทาพื้นเข้มให้ input[type=search] — ทำให้อ่านง่ายเหมือนช่องตัวเลข */
+body.visor #w-market .mk-q { background: #fffdf6; color: var(--c-ink, #2e1f0e); border: 1px solid var(--c-line-2, #d6c6a2); padding: 0 10px; }
+body.visor #w-market .mk-q::placeholder { color: #8a7a60; opacity: 1; }

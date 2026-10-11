@@ -1,23 +1,26 @@
 'use strict';
 // ============================================================
-//  ตลาดผู้เล่น (แบบ RO): แผงขายของ (Vending) + บอร์ดตลาดรวมทุกแผนที่
-//  • เปิดแผงได้ในเมือง (แผนที่ kind 'town') ตั้งชื่อร้าน + ของได้สูงสุด 12 ช่อง (จำนวน + ราคา Volt ต่อชิ้น)
-//    ตัวละครนั่งลงพร้อมป้ายเหนือหัว ทิ้งไว้ AFK ได้ • เดินออก/ย้ายแผนที่/ล้ม/หลุดออนไลน์/ปิดเกม = ร้านปิด
-//  • ผู้เล่นอื่นคลิกที่แผง (หรือเปิดจากบอร์ดตลาด) เพื่อดูและซื้อ • ผู้ขายต้องออนไลน์อยู่เท่านั้น
+//  ตลาดกลาง (Central Market) — วางขาย/ซื้อของได้จากทุกแผนที่ ไม่ต้องตั้งแผง ไม่ต้องนั่ง ไม่ต้องเดินไปหาร้าน
+//  • ผู้ขาย: เลือกของในกระเป๋า + ราคา → ของย้ายไปพักไว้ (escrow) ใน p.vend (อยู่ในเซฟ) ได้สูงสุด MARKET_CFG.slots รายการ
+//    เดิน/ตีมอน/AUTO/ย้ายแผนที่ได้ตามปกติ • แก้ราคา/ยกเลิก (ของคืนเข้ากระเป๋า) ได้ทุกเมื่อ
+//  • ขายได้ขณะผู้ขายออนไลน์เท่านั้น (รอบนี้ยังไม่มีตารางบนเซิร์ฟเวอร์) — ออฟไลน์/ออกจากเกม ของยังพักอยู่ใน p.vend
+//    ไม่หาย และกลับขึ้นตลาดเองเมื่อออนไลน์ครั้งถัดไป
+//  • ผู้ซื้อ: แท็บ "ซื้อ" รวมของทุกคนจากทุกแผนที่ → ค้น/กรอง/เรียง → แตะ → ยืนยัน (ราคา + Volt หลังซื้อ) → ซื้อ
 //
 //  สื่อสารผ่านช่อง broadcast "market" ของ Supabase (ช่องเดียวทั้งเกม ไม่มีตาราง ไม่แตะฐานข้อมูล) — แบบเดียวกับ trade.js / party.js
-//    ad   ร้านประกาศรายการ (heartbeat ทุก 3 วิ + ทันทีเมื่อเปลี่ยน) • ไม่ได้ยิน 12 วิ = ร้านหายจากบอร์ด
-//    off  ร้านปิด • ask คนที่เพิ่งเข้าขอให้ทุกร้านประกาศใหม่
+//    ad   ผู้ขายประกาศรายการ (heartbeat ทุก 3 วิ + ทันทีเมื่อเปลี่ยน) • ไม่ได้ยิน 12 วิ = หายจากตลาด
+//    off  ผู้ขายเลิกขาย/ปิดเกม • ask คนที่เพิ่งเข้าขอให้ทุกคนประกาศใหม่
 //    buy  ผู้ซื้อ → ผู้ขาย { tid, ช่อง, จำนวน, ราคา, แฮชของช่อง } • res ผู้ขาย → ผู้ซื้อ { tid, ok, why }
+//    (รูปแบบข้อความเดิมของระบบแผงขายของ — เครื่องที่ยังเปิดเวอร์ชันเก่าค้างไว้ยังซื้อขายกันได้)
 //  กันของซ้ำ/โกง (เท่าที่เกมแบบเครื่องใครเครื่องมันทำได้ — ใช้แนวเดียวกับ trade.js):
-//  • ผู้ขาย: เปิดร้าน = ย้ายของออกจากกระเป๋าไปพักไว้ (escrow) ใน p.vend ซึ่งอยู่ในเซฟ → ปิดเกมกลางคัน เข้าเกมใหม่ได้ของคืน
-//  • ผู้ซื้อ: กันเงินไว้ก่อนส่งคำขอ (escrow) แล้วส่งแฮชของช่องที่เห็น • ผู้ขายตรวจ ร้าน/ช่อง/แฮช/ราคา/ของเหลือ
+//  • ผู้ขาย: ของที่วางขายอยู่นอกกระเป๋า (p.vend ในเซฟ) → ปิดเกมกลางคัน เข้าใหม่ของยังวางขายอยู่ / ยกเลิกได้ของคืน
+//  • ผู้ซื้อ: กันเงินไว้ก่อนส่งคำขอ (escrow) แล้วส่งแฮชของช่องที่เห็น • ผู้ขายตรวจ ช่อง/แฮช/ราคา/ของเหลือ
 //    → หักของ + รับเงิน + เซฟทันที → ตอบ ok → ผู้ซื้อรับของ + เซฟทันที • ไม่ผ่าน/ไม่ตอบ 8 วิ = คืนเงินที่กันไว้
 //  • ผู้ซื้อหลายคนพร้อมกัน: ผู้ขายรับทีละข้อความ ใครถึงก่อนได้ คนถัดไปได้ "หมดแล้ว" • tid ซ้ำ = ส่งคำตอบเดิม ไม่ขายซ้ำ
 //  • คำตอบ ok ที่มาช้าหลังคืนเงินไปแล้ว: ส่งของให้และหักเงินอีกครั้ง (เท่าที่มี) — ผู้ขายหักของไปแล้ว
 // ============================================================
 
-const MARKET_CFG = { slots: 12, titleMax: 30, maxPrice: 1e9, hb: 3000, expire: 12000, buyWait: 8000, moveLimit: 1.2, lateKeep: 60000 };
+const MARKET_CFG = { slots: 12, maxPrice: 1e9, hb: 3000, expire: 12000, stale: 7000, buyWait: 8000, lateKeep: 60000, salesKeep: 20 };
 // ภาษีขาย (0–1) หักจากเงินที่ผู้ขายได้ = ที่ทิ้ง Volt ออกจากเกม • ค่าเริ่มต้น 0 (ไม่หัก)
 const MARKET_TAX = 0;
 const MARKET_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9.5L5 4.5h14l1.5 5"/><path d="M3.5 9.5c0 1.5 1.2 2.5 2.7 2.5s2.7-1 2.7-2.5c0 1.5 1.2 2.5 2.8 2.5s2.8-1 2.8-2.5c0 1.5 1.2 2.5 2.7 2.5s2.7-1 2.7-2.5"/><path d="M5 12v7.5h14V12"/><path d="M10 19.5v-4.5h4v4.5"/></svg>';
@@ -25,17 +28,19 @@ const MARKET_TYPES = [['all', L('ทั้งหมด', 'All')], ['use', L('ข
 
 const Market = {
   ch: null, uiReady: false, wasOpen: false,
-  stalls: new Map(),   // id ผู้ขาย → ร้าน { id, sid, name, map, x, y, title, items:[{ i, id, qty, price, refine, cards, uid }], seen }
-  mine: null,          // ร้านของเรา (อ้างถึง G.player.vend ที่อยู่ในเซฟ) — null = ไม่ได้เปิด
-  owner: null,         // ตัวละครที่เปิดร้าน (สลับตัวละคร = ร้านปิด)
+  stalls: new Map(),   // id ผู้ขาย → { id, sid, name, map, items:[{ i, id, qty, price, refine, cards, uid }], seen }
+  mine: null,          // รายการขายของเรา (อ้างถึง G.player.vend ที่อยู่ในเซฟ) — null = ไม่มีของวางขาย
+  owner: null,         // ตัวละครเจ้าของรายการ (สลับตัวละคร = รายการตัวเดิมหายจากตลาด ของยังอยู่ในเซฟตัวนั้น)
   done: new Map(),     // tid → คำตอบที่ส่งไปแล้ว (คำขอซ้ำ = ส่งคำตอบเดิม ไม่ขายซ้ำ)
   pend: null,          // คำขอซื้อที่รอคำตอบ (เงินกันไว้แล้ว)
   late: new Map(),     // tid → คำขอที่หมดเวลา/คืนเงินแล้ว (รอรับคำตอบ ok ที่มาช้า)
-  sales: [],           // บันทึกการขายของร้านเรา (รอบนี้)
-  view: 'board', shop: null, q: '', type: 'all', sort: 'price', draft: null, pick: null, renderKey: '', lastAd: 0, lastAsk: 0, navTo: null,
+  view: 'buy', who: null, sel: null, q: '', type: 'all', sort: 'price', pick: null, renderKey: '', lastAd: 0, wasLive: false,
 
   boot() {
-    if (typeof SAVE_FIELDS !== 'undefined' && !SAVE_FIELDS.includes('vend')) SAVE_FIELDS.push('vend'); // ของที่พักไว้ในร้าน (คืนได้ถ้าปิดเกมกลางคัน)
+    if (typeof SAVE_FIELDS !== 'undefined') {
+      if (!SAVE_FIELDS.includes('vend')) SAVE_FIELDS.push('vend');       // ของที่วางขาย (escrow)
+      if (!SAVE_FIELDS.includes('mkSales')) SAVE_FIELDS.push('mkSales'); // ประวัติการขาย 20 รายการล่าสุด
+    }
     setInterval(() => { try { this.tick(); } catch (e) { console.warn('market tick', e); } }, 250);
     window.addEventListener('pagehide', () => { if (this.mine) this.send({ k: 'off', sid: this.mine.sid }); });
   },
@@ -56,6 +61,8 @@ const Market = {
     return false;
   },
   cleanText(s, n) { return String(s || '').replace(/[\u0000-\u001f<>"]/g, '').trim().slice(0, n); },
+  newId() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36); },
+  live() { return !!(this.mine && this.mine.items.some(x => x.qty > 0)); },
 
   // ---------------- ทุก 250 ms ----------------
   tick() {
@@ -63,52 +70,75 @@ const Market = {
     if (!this.uiReady) this.setupUi();
     if (Online.online) this.join();
     const p = G.player, now = Date.now();
-    // ร้านที่เปิดค้างจากรอบก่อน (ปิดเกม/หลุดกลางคัน) → คืนของให้
-    if (this.mine && this.owner !== p) this.drop();
-    if (p.vend && !this.mine) this.recover(p);
-    if (this.mine) this.guard(p);
+    if (this.owner !== p) this.adopt(p);
+    if (this.mine && this.mine !== p.vend) this.mine = p.vend || null; // เซฟถูกโหลดใหม่ทับ
     if (this.pend && now - this.pend.at > MARKET_CFG.buyWait) this.timeoutBuy();
     for (const [k, v] of this.late) if (now - v.at > MARKET_CFG.lateKeep) this.late.delete(k);
     for (const [k, v] of this.done) if (now - v.at > MARKET_CFG.lateKeep) this.done.delete(k);
     for (const [id, s] of this.stalls) if (now - s.seen > MARKET_CFG.expire) this.stalls.delete(id);
-    if (this.mine && now - this.lastAd > MARKET_CFG.hb) this.announce(false);
-    // นำทางไปร้านจากบอร์ด: ถึงแล้ว (เดินจบ) = เปิดหน้าร้านให้เลย
-    if (this.navTo && !Nav.target) {
-      const s = this.stalls.get(this.navTo);
-      if (s && s.map === G.map.id && U.dist(p.x, p.y, s.x, s.y) < 3) this.openShop(s.id);
-      this.navTo = null;
+    // ช่องที่ขายหมดเก็บไว้สักพัก (ตอบคนที่กดซื้อตามมาว่า "หมดแล้ว") แล้วค่อยลบ
+    const v = this.mine;
+    if (v && v.items.some(x => x.qty <= 0 && now - (x.soldAt || 0) > MARKET_CFG.lateKeep)) {
+      v.items = v.items.filter(x => x.qty > 0 || now - (x.soldAt || 0) <= MARKET_CFG.lateKeep);
+      if (!v.items.length) { p.vend = null; this.mine = null; }
+      UI.dirty();
     }
+    const liveNow = Online.online && this.live();
+    if (liveNow && now - this.lastAd > MARKET_CFG.hb) this.announce(false);
+    else if (!liveNow && this.wasLive && Online.online) this.send({ k: 'off', sid: v ? v.sid : '' });
+    this.wasLive = liveNow;
     if (this.isOpen()) this.refresh();
   },
-  // ร้านเราต้องอยู่ในเงื่อนไข: ออนไลน์ แผนที่เดิม ไม่ล้ม ไม่เดินออกจากจุดตั้งร้าน
-  guard(p) {
-    const v = this.mine;
-    if (!Online.online) this.close('offline');
-    else if (p.dead) this.close('dead');
-    else if (G.map.id !== v.map) this.close('map');
-    else if (U.dist(p.x, p.y, v.x, v.y) > MARKET_CFG.moveLimit) this.close('moved');
+  // ตัวละครที่กำลังเล่น (เข้าเกม/สลับตัว): รับรายการขายจากเซฟมาดูแล + แปลงร้านแบบเก่า (แผงขายของ) เป็นรายการในตลาดกลาง
+  adopt(p) {
+    if (this.mine) this.send({ k: 'off', sid: this.mine.sid });
+    this.owner = p; this.mine = null; this.pick = null; this.sel = null;
+    if (!Array.isArray(p.mkSales)) p.mkSales = [];
+    const v = p.vend;
+    if (!v) return;
+    if (typeof v !== 'object' || !Array.isArray(v.items)) { p.vend = null; return; }
+    const old = v.v !== 2, items = [], used = new Set(), extra = [];
+    for (const x of v.items) {
+      const it = x && ITEMS[x.id], qty = Math.floor(+x.qty) || 0, price = Math.floor(+x.price) || 0;
+      if (!it || qty <= 0) continue;
+      const eq = isEquipType(it);
+      const line = eq ? { id: x.id, qty: 1, price, uid: Math.floor(+x.uid) || G.uid++, refine: Math.floor(+x.refine) || 0, cards: (x.cards || []).filter(c => ITEMS[c]) } : { id: x.id, qty, price };
+      if (!(price >= 1 && price <= MARKET_CFG.maxPrice) || items.length >= MARKET_CFG.slots) { extra.push(line); continue; }
+      let i = Math.floor(+x.i);
+      if (!(i >= 0 && i < MARKET_CFG.slots) || used.has(i)) i = this.freeSlot(used);
+      used.add(i); line.i = i; items.push(line);
+    }
+    const back = extra.length ? this.restoreItems(p, { items: extra }) : '';
+    p.vend = items.length ? { v: 2, sid: typeof v.sid === 'string' && v.sid ? v.sid.slice(0, 40) : this.newId(), items, earned: Math.floor(+v.earned) || 0, at: v.at || Date.now() } : null;
+    this.mine = p.vend;
+    if (old && p.sitting) p.sitting = false; // แผงแบบเก่านั่งอยู่ — ตลาดกลางไม่ต้องนั่ง
+    if (old || back) {
+      UI.dirty();
+      saveGame(true, true);
+      if (old && items.length) UI.msg(L(`ร้านแผงขายของเดิมย้ายเข้าตลาดกลางแล้ว — วางขายอยู่ ${items.length} รายการ (ขายได้ขณะคุณออนไลน์)`, `Your old stall moved into the Central Market — ${items.length} listing${items.length === 1 ? '' : 's'} (sells while you're online)`), 'info');
+      if (back) UI.msg(L(`คืนของที่วางขายไม่ได้เข้ากระเป๋า: ${back}`, `Returned to your bag: ${back}`), 'info');
+    }
+    if (this.mine && Online.online) this.announce(true);
   },
+  freeSlot(used) { for (let i = 0; i < MARKET_CFG.slots; i++) if (!used.has(i)) return i; return -1; },
 
   // ---------------- ข้อความ ----------------
   onMsg(m) {
     if (!m || typeof m.k !== 'string' || !m.from || m.from === this.me() || !G.started) return;
     switch (m.k) {
       case 'ad': this.onAd(m); break;
-      case 'off': { const s = this.stalls.get(m.from); if (s && (!m.sid || s.sid === m.sid)) { this.stalls.delete(m.from); if (this.shop === m.from) this.refresh(true); } break; }
-      case 'ask': if (this.mine && Date.now() - this.lastAd > 800) setTimeout(() => this.announce(true), 100 + Math.random() * 400); break;
+      case 'off': { const s = this.stalls.get(m.from); if (s && (!m.sid || s.sid === m.sid)) { this.stalls.delete(m.from); this.refresh(true); } break; }
+      case 'ask': if (this.live() && Date.now() - this.lastAd > 800) setTimeout(() => this.announce(true), 100 + Math.random() * 400); break;
       case 'buy': if (m.to === this.me()) this.onBuy(m); break;
       case 'res': if (m.to === this.me()) this.onRes(m); break;
     }
   },
   onAd(m) {
-    if (!MAP_DEFS[m.map] || !Array.isArray(m.items) || m.items.length > MARKET_CFG.slots || typeof m.sid !== 'string') return;
+    if (!Array.isArray(m.items) || m.items.length > MARKET_CFG.slots || typeof m.sid !== 'string') return;
     const items = [];
     for (const x of m.items) { const c = this.cleanLine(x); if (c) items.push(c); }
-    const num = v => (Number.isFinite(+v) ? +v : 0);
-    this.stalls.set(m.from, {
-      id: m.from, sid: m.sid.slice(0, 40), name: this.cleanText(m.name, 24) || '?', title: this.cleanText(m.title, MARKET_CFG.titleMax) || 'Shop',
-      map: m.map, x: num(m.x), y: num(m.y), items, seen: Date.now(),
-    });
+    if (!items.length) { this.stalls.delete(m.from); return; }
+    this.stalls.set(m.from, { id: m.from, sid: m.sid.slice(0, 40), name: this.cleanText(m.name, 24) || '?', map: MAP_DEFS[m.map] ? m.map : '', items, seen: Date.now() });
   },
   // ช่องสินค้าจากเครือข่าย: ไอเทมต้องมีจริง จำนวน/ราคาสมเหตุสมผล (แนวเดียวกับ Trade.clean)
   cleanLine(x) {
@@ -133,70 +163,76 @@ const Market = {
     return (h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0');
   },
 
-  // ---------------- ร้านของเรา ----------------
-  inTown() { return !!G.map && G.map.def.kind === 'town'; },
-  // เปิดร้านจากร่าง: ตรวจทุกช่องว่ายังมีของจริง → ย้ายของเข้า escrow (p.vend อยู่ในเซฟ) → นั่ง → ประกาศ
-  open() {
+  // ---------------- ขายของฉัน ----------------
+  // วางขาย: ย้ายของจากกระเป๋าเข้า escrow (p.vend อยู่ในเซฟ) ทันที • ทำได้ทุกแผนที่ ระหว่างเดิน/ต่อสู้/AUTO
+  list(e, qty, price) {
     if (!this.needOnline()) return false;
-    const p = G.player, d = this.draft;
-    if (this.mine) { UI.msg(L('คุณเปิดร้านอยู่แล้ว', 'Your stall is already open.'), 'err'); return false; }
-    if (!this.inTown()) { UI.msg(L('เปิดร้านได้เฉพาะในเมือง (Neo Eldheim)', 'Stalls can only be opened in town (Neo Eldheim).'), 'err'); return false; }
-    if (p.dead) { UI.msg(L('เปิดร้านไม่ได้ขณะล้มอยู่', 'You can\'t open a stall while fallen.'), 'err'); return false; }
-    if (typeof Trade !== 'undefined' && Trade.t) { UI.msg(L('จบการแลกเปลี่ยนก่อน จึงจะเปิดร้านได้', 'Finish your trade before opening a stall.'), 'err'); return false; }
-    if (this.pend) { UI.msg(L('รอการซื้อที่ค้างอยู่ให้เสร็จก่อน', 'Wait for your pending purchase to finish first.'), 'err'); return false; }
-    if (!d || !d.lines.length) { UI.msg(L('ใส่ของอย่างน้อย 1 ช่องก่อนเปิดร้าน', 'Add at least one item before opening the stall.'), 'err'); return false; }
-    for (const x of d.lines) {
-      if (!(x.price >= 1 && x.price <= MARKET_CFG.maxPrice)) { UI.msg(L(`ตั้งราคา ${ITEMS[x.id].name} ให้ถูกต้อง (1–${U.fmt(MARKET_CFG.maxPrice)} ${CUR})`, `Set a valid price for ${ITEMS[x.id].name} (1–${U.fmt(MARKET_CFG.maxPrice)} ${CUR}).`), 'err'); return false; }
-      if (x.uid ? !this.findEquip(x) : countItem(x.id) < x.qty) { UI.msg(L(`${ITEMS[x.id].name} ในกระเป๋าไม่พอแล้ว — ปรับรายการใหม่`, `Not enough ${ITEMS[x.id].name} in your bag any more — adjust the list.`), 'err'); this.fixDraft(); this.refresh(true); return false; }
+    const p = G.player;
+    if (!e || !p.inventory.includes(e) || !ITEMS[e.id]) { UI.msg(L('ไม่พบของชิ้นนี้ในกระเป๋าแล้ว', 'That item is no longer in your bag.'), 'err'); return false; }
+    if (typeof Trade !== 'undefined' && Trade.t) { UI.msg(L('จบการแลกเปลี่ยนก่อน จึงจะวางขายได้', 'Finish your trade before listing items.'), 'err'); return false; }
+    const it = ITEMS[e.id], eq = isEquipType(it);
+    qty = eq ? 1 : Math.floor(+qty) || 0; price = Math.floor(+price) || 0;
+    if (!(price >= 1 && price <= MARKET_CFG.maxPrice)) { UI.msg(L(`ราคาต้องอยู่ระหว่าง 1–${U.fmt(MARKET_CFG.maxPrice)} ${CUR}`, `Price must be 1–${U.fmt(MARKET_CFG.maxPrice)} ${CUR}`), 'err'); return false; }
+    if (qty < 1 || (!eq && qty > countItem(e.id))) { UI.msg(L(`${it.name} ในกระเป๋าไม่พอ`, `Not enough ${it.name} in your bag.`), 'err'); return false; }
+    const v = p.vend || { v: 2, sid: this.newId(), items: [], earned: 0, at: Date.now() };
+    const same = eq ? null : v.items.find(x => x.id === e.id && !x.uid && x.qty > 0 && x.price === price);
+    if (!same && v.items.filter(x => x.qty > 0).length >= MARKET_CFG.slots) { UI.msg(L(`วางขายได้สูงสุด ${MARKET_CFG.slots} รายการ`, `You can list up to ${MARKET_CFG.slots} items.`), 'err'); return false; }
+    let i = -1;
+    if (!same) {
+      i = this.freeSlot(new Set(v.items.map(x => x.i)));
+      if (i < 0) { v.items = v.items.filter(x => x.qty > 0); i = this.freeSlot(new Set(v.items.map(x => x.i))); } // ใช้ช่องที่ขายหมดแล้วซ้ำ
     }
-    const items = [];
-    d.lines.forEach((x, i) => {
-      if (x.uid) { const e = this.findEquip(x); p.inventory.splice(p.inventory.indexOf(e), 1); items.push({ i, id: e.id, qty: 1, price: x.price, uid: e.uid, refine: e.refine || 0, cards: (e.cards || []).slice() }); return; }
-      let need = x.qty;
-      for (const e of p.inventory.filter(y => y.id === x.id)) { const k = Math.min(need, e.qty); removeEntry(e, k); need -= k; if (!need) break; }
-      items.push({ i, id: x.id, qty: x.qty, price: x.price });
-    });
-    const title = this.cleanText(d.title, MARKET_CFG.titleMax) || L(`ร้านของ ${p.name}`, `${p.name}'s Shop`);
-    p.vend = { sid: Math.random().toString(36).slice(2, 10) + Date.now().toString(36), title, map: G.map.id, x: Math.round(p.x * 100) / 100, y: Math.round(p.y * 100) / 100, items, earned: 0, at: Date.now() };
-    this.mine = p.vend; this.owner = p; this.sales = []; this.draft = null; this.pick = null;
-    p.path = []; p.target = null; p.sitting = true;
-    if (typeof Bot !== 'undefined' && Bot.on) Bot.toggle(false);
+    // ย้ายของออกจากกระเป๋า
+    let line;
+    if (eq) {
+      p.inventory.splice(p.inventory.indexOf(e), 1);
+      line = { i, id: e.id, qty: 1, price, uid: e.uid != null ? e.uid : G.uid++, refine: e.refine || 0, cards: (e.cards || []).slice() };
+    } else {
+      let need = qty;
+      for (const y of p.inventory.filter(z => z.id === e.id)) { const k = Math.min(need, y.qty); removeEntry(y, k); need -= k; if (!need) break; }
+      line = { i, id: e.id, qty, price };
+    }
+    if (same) same.qty += qty; else v.items.push(line);
+    p.vend = v; this.mine = v; this.owner = p; this.pick = null;
     UI.dirty();
     saveGame(true, true);
     this.join();
     this.announce(true);
-    UI.msg(L(`เปิดร้าน "${title}" แล้ว — ผู้เล่นอื่นคลิกที่ป้ายเพื่อซื้อ • เดินออกจากจุดนี้ = ปิดร้าน`, `Stall "${title}" is open — other players click your sign to buy • Walking away closes it`), 'info');
-    Sound.play('buff');
+    UI.msg(L(`วางขาย ${this.lineName(line, qty)} ราคา ${U.fmt(price)} ${CUR}/ชิ้น ในตลาดกลางแล้ว (ขายได้ขณะคุณออนไลน์)`, `Listed ${this.lineName(line, qty)} at ${U.fmt(price)} ${CUR} each on the Central Market (sells while you're online)`), 'info');
+    Sound.play('click');
+    this.refresh(true);
     return true;
   },
-  // ปิดร้าน: คืนของที่ยังขายไม่หมดเข้ากระเป๋า + เซฟทันที
-  close(why) {
-    const v = this.mine;
-    if (!v) return;
-    this.send({ k: 'off', sid: v.sid });
+  lineOf(i) { return this.mine ? this.mine.items.find(x => x.i === i && x.qty > 0) || null : null; },
+  // แก้ราคา (แฮชเปลี่ยน → คำขอซื้อที่เห็นราคาเดิมถูกปฏิเสธ "รายการเปลี่ยน" + คืนเงินผู้ซื้อ)
+  setPrice(i, price) {
+    const x = this.lineOf(i);
+    price = Math.floor(+price) || 0;
+    if (!x) return false;
+    if (!(price >= 1 && price <= MARKET_CFG.maxPrice)) { UI.msg(L(`ราคาต้องอยู่ระหว่าง 1–${U.fmt(MARKET_CFG.maxPrice)} ${CUR}`, `Price must be 1–${U.fmt(MARKET_CFG.maxPrice)} ${CUR}`), 'err'); return false; }
+    if (price === x.price) return true;
+    x.price = price;
+    UI.dirty(); saveGame(true, true); this.announce(true);
+    UI.msg(L(`ตั้งราคา ${this.lineName(x, 1)} เป็น ${U.fmt(price)} ${CUR}`, `${this.lineName(x, 1)} now ${U.fmt(price)} ${CUR}`), 'info');
+    this.refresh(true);
+    return true;
+  },
+  // ยกเลิกรายการ: ของที่เหลือคืนเข้ากระเป๋า + เซฟทันที
+  cancel(i) {
+    const v = this.mine, x = this.lineOf(i);
+    if (!v || !x) return false;
     const p = this.owner || G.player;
-    this.mine = null; this.owner = null;
-    const back = this.restoreItems(p, v);
-    p.vend = null;
+    v.items = v.items.filter(y => y !== x);
+    const back = this.restoreItems(p, { items: [x] });
+    if (!this.live()) { this.send({ k: 'off', sid: v.sid }); p.vend = null; this.mine = null; }
+    else this.announce(true);
     UI.dirty();
     saveGame(true, true);
-    const txt = {
-      user: L('ปิดร้านแล้ว', 'Stall closed.'), soldout: L('ขายหมดแล้ว — ปิดร้าน', 'Sold out — stall closed.'), offline: L('หลุดการเชื่อมต่อ — ปิดร้าน', 'Connection lost — stall closed.'),
-      dead: L('คุณล้มลง — ปิดร้าน', 'You fell — stall closed.'), map: L('ออกจากแผนที่ — ปิดร้าน', 'You left the map — stall closed.'), moved: L('เดินออกจากร้าน — ปิดร้าน', 'You walked away — stall closed.'),
-    }[why] || L('ปิดร้านแล้ว', 'Stall closed.');
-    UI.msg(back ? L(`${txt} ของที่เหลือคืนเข้ากระเป๋า: ${back}`, `${txt} Unsold items returned to your bag: ${back}`) : txt, why === 'user' || why === 'soldout' ? 'info' : 'err');
-    if (this.view === 'mine') this.refresh(true);
+    UI.msg(L(`ยกเลิกการขาย — คืนเข้ากระเป๋า: ${back}`, `Listing cancelled — returned to your bag: ${back}`), 'info');
+    this.refresh(true);
+    return true;
   },
-  // สลับตัวละครระหว่างเปิดร้าน: ร้านเดิมหายจากตลาด (ของยังอยู่ใน p.vend ของตัวนั้น — คืนเมื่อเล่นตัวนั้นอีกครั้ง)
-  drop() { if (this.mine) this.send({ k: 'off', sid: this.mine.sid }); this.mine = null; this.owner = null; },
-  recover(p) {
-    const v = p.vend;
-    const back = this.restoreItems(p, v);
-    p.vend = null;
-    UI.dirty();
-    saveGame(true, true);
-    if (back) UI.msg(L(`ร้านที่เปิดค้างไว้ถูกปิด — คืนของเข้ากระเป๋า: ${back}`, `Your previous stall was closed — items returned to your bag: ${back}`), 'info');
-  },
+  cancelAll() { for (const x of (this.mine ? this.mine.items.filter(y => y.qty > 0) : [])) this.cancel(x.i); },
   restoreItems(p, v) {
     const out = [];
     for (const x of (v && Array.isArray(v.items) ? v.items : [])) {
@@ -210,13 +246,14 @@ const Market = {
   },
   announce(force) {
     const v = this.mine;
-    if (!v || !this.ch) return;
+    if (!v || !this.ch || !Online.online) return;
     const now = Date.now();
     if (!force && now - this.lastAd < MARKET_CFG.hb) return;
     this.lastAd = now;
-    const p = G.player;
-    this.send({ k: 'ad', sid: v.sid, name: p.name, title: v.title, map: v.map, x: v.x, y: v.y,
-      items: v.items.filter(x => x.qty > 0).map(x => (x.uid ? { i: x.i, id: x.id, qty: 1, price: x.price, uid: x.uid, refine: x.refine, cards: x.cards.slice() } : { i: x.i, id: x.id, qty: x.qty, price: x.price })) });
+    const items = v.items.filter(x => x.qty > 0).map(x => (x.uid ? { i: x.i, id: x.id, qty: 1, price: x.price, uid: x.uid, refine: x.refine, cards: x.cards.slice() } : { i: x.i, id: x.id, qty: x.qty, price: x.price }));
+    if (!items.length) { this.send({ k: 'off', sid: v.sid }); return; }
+    // map = แผนที่ที่ผู้ขายอยู่ตอนนี้ (บอกสถานะ) • x/y/title ส่งไว้ให้เครื่องเวอร์ชันเก่ายังแสดงได้
+    this.send({ k: 'ad', sid: v.sid, name: G.player.name, title: L('ตลาดกลาง', 'Central Market'), map: G.map.id, x: 0, y: 0, items });
   },
   // คำขอซื้อ (ทำงานทีละข้อความ → ใครถึงก่อนได้ก่อน)
   onBuy(m) {
@@ -237,28 +274,41 @@ const Market = {
     if (x.qty < qty) { reply(false, x.qty <= 0 ? 'soldout' : 'stock', { left: x.qty }); return; }
     const p = this.owner || G.player, cost = x.price * qty, tax = Math.floor(cost * MARKET_TAX), gain = cost - tax;
     x.qty -= qty;
+    if (x.qty <= 0) x.soldAt = Date.now();
     p.zeny += gain;
     v.earned = (v.earned || 0) + gain;
     const who = this.cleanText(m.name, 24) || '?';
-    this.sales.unshift({ who, id: x.id, qty, gain, refine: x.refine || 0, at: Date.now() });
+    if (!Array.isArray(p.mkSales)) p.mkSales = [];
+    p.mkSales.unshift({ who, id: x.id, qty, gain, refine: x.refine || 0, at: Date.now() });
+    p.mkSales.length = Math.min(p.mkSales.length, MARKET_CFG.salesKeep);
     UI.dirty();
     saveGame(true, true); // ของออก + เงินเข้า เซฟทันที ก่อนตอบผู้ซื้อ
     reply(true, '', { i: x.i, qty, cost });
-    UI.msg(L(`ขาย ${this.lineName(x, qty)} ให้ ${who} — ได้ ${U.fmt(gain)} ${CUR}${tax ? ` (ภาษี ${U.fmt(tax)})` : ''}`, `Sold ${this.lineName(x, qty)} to ${who} — earned ${U.fmt(gain)} ${CUR}${tax ? ` (tax ${U.fmt(tax)})` : ''}`), 'item');
+    const txt = L(`ขาย ${this.lineName(x, qty)} ให้ ${who} — ได้ ${U.fmt(gain)} ${CUR}${tax ? ` (ภาษี ${U.fmt(tax)})` : ''}`, `Sold ${this.lineName(x, qty)} to ${who} — earned ${U.fmt(gain)} ${CUR}${tax ? ` (tax ${U.fmt(tax)})` : ''}`);
+    UI.msg(txt, 'item');
+    this.toast(txt);
     Sound.play('buy');
-    if (v.items.every(y => y.qty <= 0)) this.close('soldout');
-    else this.announce(true);
-    if (this.view === 'mine') this.refresh(true);
+    if (this.live()) this.announce(true);
+    else this.send({ k: 'off', sid: v.sid }); // ขายหมดทุกรายการ
+    this.refresh(true);
+  },
+  // แจ้งเตือนเล็ก ๆ บนจอ (ผู้ขายได้เงิน) — ไม่บังการเล่น หายเองใน 4 วิ
+  toast(text) {
+    let el = document.getElementById('mk-toast');
+    if (!el) { el = h('div', { id: 'mk-toast', role: 'status', 'aria-live': 'polite' }); document.body.append(el); }
+    el.innerHTML = '';
+    el.append(h('span', { class: 'mk-ti', html: MARKET_ICON }), h('span', {}, text));
+    el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+    clearTimeout(this._toastT); this._toastT = setTimeout(() => el.classList.remove('show'), 4200);
   },
 
   // ---------------- ซื้อ ----------------
-  // ซื้อจากร้าน seller ช่อง i จำนวน qty — กันเงินไว้ก่อน แล้วรอผู้ขายยืนยัน
+  // ซื้อจากผู้ขาย seller ช่อง i จำนวน qty — กันเงินไว้ก่อน แล้วรอผู้ขายยืนยัน
   buy(seller, i, qty) {
     if (!this.needOnline()) return false;
     const p = G.player, s = this.stalls.get(seller), x = s && s.items.find(y => y.i === i);
-    if (!s || !x) { UI.msg(L('ร้านนี้ปิดไปแล้ว หรือของหมดแล้ว', 'That stall has closed or the item is gone.'), 'err'); return false; }
+    if (!s || !x) { UI.msg(L('ผู้ขายออฟไลน์ไปแล้ว หรือของหมดแล้ว', 'The seller went offline or the item is gone.'), 'err'); return false; }
     if (this.pend) { UI.msg(L('กำลังรอคำตอบจากผู้ขายอยู่', 'Still waiting for the seller to respond.'), 'err'); return false; }
-    if (p.dead) { UI.msg(L('ซื้อไม่ได้ขณะล้มอยู่', 'You can\'t buy while fallen.'), 'err'); return false; }
     qty = Math.floor(+qty) || 0;
     if (qty < 1 || qty > x.qty || (x.uid && qty !== 1)) { UI.msg(L(`จำนวนไม่ถูกต้อง (มี ${x.qty} ชิ้น)`, `Invalid quantity (${x.qty} available).`), 'err'); return false; }
     const cost = x.price * qty;
@@ -266,10 +316,11 @@ const Market = {
     this.join();
     p.zeny -= cost; // กันเงิน (escrow)
     UI.dirty();
-    const tid = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+    const tid = this.newId();
     this.pend = { tid, seller, name: s.name, sid: s.sid, i, qty, cost, item: { id: x.id, refine: x.refine || 0, cards: (x.cards || []).slice(), uid: x.uid || 0 }, at: Date.now() };
     this.send({ k: 'buy', to: seller, tid, sid: s.sid, i, qty, price: x.price, hash: this.lineHash(s.sid, x), name: p.name });
     UI.msg(L(`ส่งคำขอซื้อ ${this.lineName(x, qty)} จาก ${s.name}…`, `Buying ${this.lineName(x, qty)} from ${s.name}…`), 'info');
+    this.sel = null;
     this.refresh(true);
     return true;
   },
@@ -282,7 +333,7 @@ const Market = {
         G.player.zeny += q.cost; // คืนเงินที่กันไว้
         UI.dirty();
         const why = { soldout: L('ของหมดแล้ว (มีคนซื้อตัดหน้า)', 'sold out (someone bought it first)'), stock: L(`ของเหลือไม่พอ (เหลือ ${Math.floor(+m.left) || 0})`, `not enough left (${Math.floor(+m.left) || 0} left)`),
-          closed: L('ร้านปิดไปแล้ว', 'the stall has closed'), changed: L('รายการในร้านเปลี่ยนไป', 'the listing changed'), bad: L('คำขอไม่ถูกต้อง', 'invalid request') }[m.why] || L('ผู้ขายไม่รับคำขอ', 'the seller rejected it');
+          closed: L('ผู้ขายเลิกขายแล้ว', 'the seller stopped selling'), changed: L('ผู้ขายเปลี่ยนราคาหรือยกเลิกรายการนี้', 'the seller changed or cancelled this listing'), bad: L('คำขอไม่ถูกต้อง', 'invalid request') }[m.why] || L('ผู้ขายไม่รับคำขอ', 'the seller rejected it');
         UI.msg(L(`ซื้อไม่สำเร็จ: ${why} — คืน ${U.fmt(q.cost)} ${CUR}`, `Purchase failed: ${why} — ${U.fmt(q.cost)} ${CUR} refunded`), 'err');
         if (m.why === 'soldout' || m.why === 'stock') { const s = this.stalls.get(q.seller), x = s && s.items.find(y => y.i === q.i); if (x) { x.qty = Math.floor(+m.left) || 0; if (!x.qty) s.items = s.items.filter(y => y !== x); } }
       }
@@ -306,6 +357,7 @@ const Market = {
     saveGame(true, true);
     Sound.play('buy');
     UI.msg(L(`ซื้อ ${this.lineName(q.item, q.qty)} จาก ${q.name} สำเร็จ — จ่าย ${U.fmt(q.cost)} ${CUR}`, `Bought ${this.lineName(q.item, q.qty)} from ${q.name} — paid ${U.fmt(q.cost)} ${CUR}`), 'item');
+    this.refresh(true);
   },
   timeoutBuy() {
     const q = this.pend;
@@ -313,95 +365,47 @@ const Market = {
     G.player.zeny += q.cost;
     UI.dirty();
     this.late.set(q.tid, Object.assign({}, q, { at: Date.now() }));
-    UI.msg(L(`${q.name} ไม่ตอบ — ยกเลิกการซื้อ คืน ${U.fmt(q.cost)} ${CUR}`, `${q.name} didn't respond — purchase cancelled, ${U.fmt(q.cost)} ${CUR} refunded`), 'err');
+    UI.msg(L(`${q.name} ไม่ตอบ (อาจออฟไลน์ไปแล้ว) — ยกเลิกการซื้อ คืน ${U.fmt(q.cost)} ${CUR}`, `${q.name} didn't respond (may be offline) — purchase cancelled, ${U.fmt(q.cost)} ${CUR} refunded`), 'err');
     this.refresh(true);
   },
 
   // ---------------- ข้อมูลช่วย ----------------
   lineName(x, qty) { const n = itemDisplayName({ id: x.id, refine: x.refine || 0 }); return qty > 1 ? `${n} ×${U.fmt(qty)}` : n; },
-  findEquip(x) { return G.player.inventory.find(e => e.uid === x.uid && e.id === x.id); },
   stallOf(id) { return this.stalls.get(id) || null; },
-  // ร้านทั้งหมดที่เห็น (รวมร้านเรา)
+  isLive(s) { return !!s.mine || Date.now() - s.seen < MARKET_CFG.stale; },
+  // ผู้ขายทั้งหมดที่เห็น (รวมเรา)
   all() {
     const out = [...this.stalls.values()];
     const v = this.mine;
-    if (v) out.push({ id: this.me(), sid: v.sid, name: G.player.name, title: v.title, map: v.map, x: v.x, y: v.y, items: v.items.filter(x => x.qty > 0), mine: true });
+    if (v && this.live()) out.push({ id: this.me(), sid: v.sid, name: G.player.name, map: G.map.id, items: v.items.filter(x => x.qty > 0), mine: true });
     return out;
   },
-  // แถวบนบอร์ด: ของทุกชิ้นจากทุกร้าน → ค้นชื่อ / กรองชนิด / เรียงราคา
+  // แถวในแท็บซื้อ: ของทุกชิ้นจากทุกผู้ขาย → ค้นชื่อ (ไอเทม/ผู้ขาย) / กรองชนิด / กรองผู้ขาย / เรียง
   rows() {
     const q = this.q.trim().toLowerCase(), out = [];
-    for (const s of this.all()) for (const x of s.items) {
-      const it = ITEMS[x.id];
-      if (this.type !== 'all' && it.type !== this.type) continue;
-      if (q && !(it.name.toLowerCase().includes(q) || String(EN(it.name)).toLowerCase().includes(q) || s.title.toLowerCase().includes(q))) continue;
-      out.push({ s, x });
+    for (const s of this.all()) {
+      if (this.who && s.id !== this.who) continue;
+      for (const x of s.items) {
+        const it = ITEMS[x.id];
+        if (this.type !== 'all' && it.type !== this.type) continue;
+        if (q && !(it.name.toLowerCase().includes(q) || String(EN(it.name)).toLowerCase().includes(q) || s.name.toLowerCase().includes(q))) continue;
+        out.push({ s, x });
+      }
     }
     const dir = this.sort === 'price_desc' ? -1 : 1;
-    out.sort((a, b) => (a.x.price - b.x.price) * dir || a.s.name.localeCompare(b.s.name) || a.x.i - b.x.i);
+    if (this.sort === 'name') out.sort((a, b) => ITEMS[a.x.id].name.localeCompare(ITEMS[b.x.id].name) || a.x.price - b.x.price);
+    else out.sort((a, b) => (a.x.price - b.x.price) * dir || a.s.name.localeCompare(b.s.name) || a.x.i - b.x.i);
     return out;
   },
-  mapName(id) { return MAP_DEFS[id] ? MAP_DEFS[id].name : id; },
-  goTo(s) {
-    if (!s || !G.started) return;
-    UI.close('w-market');
-    this.navTo = s.id;
-    Nav.goTo({ kind: 'tile', map: s.map, x: Math.floor(s.x), y: Math.floor(s.y), name: L(`ร้าน ${s.title}`, `Stall ${s.title}`) });
-  },
+  mapName(id) { return MAP_DEFS[id] ? MAP_DEFS[id].name : ''; },
+  // เปิดตลาดดูเฉพาะของผู้ขายคนนี้ (จากการ์ดผู้เล่น)
   openShop(id) {
-    if (!this.needOnline() && !(this.mine && id === this.me())) { this.show('board'); return; }
-    this.shop = id; this.show(id === this.me() ? 'mine' : 'shop');
+    if (this.mine && id === this.me()) { this.show('sell'); return; }
+    this.who = this.stalls.has(id) ? id : null; this.sel = null; this.show('buy');
   },
   command(arg) {
     arg = String(arg || '').trim().toLowerCase();
-    this.show(arg === 'vend' || arg === 'sell' || arg === 'mine' ? 'mine' : 'board');
-  },
-
-  // ---------------- คลิกในฉาก (เรียกจาก js/main.js handleClick) ----------------
-  // คืน true = จัดการแล้ว (เปิดหน้าร้าน / กันคนขายเดินออกจากร้านโดยไม่ตั้งใจ)
-  onClick() {
-    const p = G.player, wx = R.mouse.wx / TILE, wy = R.mouse.wy / TILE;
-    const hit = this.hit(wx, wy);
-    if (hit) { this.openShop(hit.id); return true; }
-    if (this.mine) {
-      if (U.dist(wx, wy, p.x, p.y) < 1.4) { this.show('mine'); return true; }
-      UI.msg(L('กำลังเปิดร้านอยู่ — ปิดร้านก่อนจึงจะเดินได้ (หน้าต่างตลาด → ร้านของฉัน)', 'Your stall is open — close it before walking (Market window → My Stall)'), 'info');
-      return true;
-    }
-    return false;
-  },
-  // ตำแหน่งที่คลิกโดนตัวคนขายหรือป้ายเหนือหัว
-  hit(wx, wy) {
-    let best = null, bd = Infinity;
-    for (const s of this.stalls.values()) {
-      if (s.map !== G.map.id) continue;
-      const o = Online.others.get(s.id), x = o ? o.x : s.x, y = o ? o.y : s.y;
-      // ป้ายอยู่สูงจากเท้า ~2.5 ช่อง กว้างกว่าตัว → ช่วงแนวนอนกว้างขึ้นเมื่อคลิกระดับป้าย
-      if (wy < y - 3 || wy > y + 0.6 || Math.abs(wx - x) > (wy < y - 2 ? 2.2 : 0.9)) continue;
-      const d = Math.abs(wx - x) + Math.abs(wy - (y - 1));
-      if (d < bd) { bd = d; best = s; }
-    }
-    return best;
-  },
-  // ป้ายร้านเหนือหัว (เรียกจาก js/render.js) — สี่เหลี่ยมมุมมนเล็ก ไม่ใช่แคปซูล
-  drawSign(g, x, y, title, mine) {
-    g.save();
-    g.font = `600 13px ${R.FONT}`;
-    const w = Math.min(190, g.measureText(title).width + 30), top = y - 13;
-    g.shadowColor = 'rgba(0,0,0,0.4)'; g.shadowBlur = 8; g.shadowOffsetY = 2;
-    g.fillStyle = mine ? 'rgba(255,236,170,0.97)' : 'rgba(255,246,214,0.97)';
-    rr(g, x - w / 2, top, w, 26, 4); g.fill();
-    g.shadowColor = 'transparent';
-    g.strokeStyle = '#b8862e'; g.lineWidth = 1.5; rr(g, x - w / 2, top, w, 26, 4); g.stroke();
-    g.fillStyle = '#b8862e'; g.fillRect(x - w / 2 + 7, y - 4, 9, 8); // ไอคอนกล่องร้านเล็ก ๆ
-    g.fillStyle = '#3a2808'; g.textAlign = 'left'; g.textBaseline = 'middle';
-    g.fillText(title, x - w / 2 + 21, y + 0.5, w - 28);
-    g.restore();
-  },
-  signFor(id) {
-    if (this.mine && id === this.me()) return this.mine.title;
-    const s = this.stalls.get(id);
-    return s && G.map && s.map === G.map.id ? s.title : null;
+    this.show(arg === 'vend' || arg === 'sell' || arg === 'mine' ? 'sell' : 'buy');
   },
 
   // ---------------- หน้าต่าง ----------------
@@ -409,8 +413,10 @@ const Market = {
     const w = $('#w-market'), menu = $('#menubar');
     if (!w || !menu || !menu.children.length) return;
     this.uiReady = true;
+    const t = $('.win-title span', w);
+    if (t) { t.dataset.en = 'Central Market'; t.textContent = L('ตลาดกลาง', 'Central Market'); }
     if (!$('[data-win="w-market"]', menu)) {
-      const b = h('button', { title: L('ตลาด (/market)', 'Market (/market)'), 'data-win': 'w-market', onclick: () => { UI.toggle('w-market'); if (Pad.enabled()) UI.setFold(menu, true); } });
+      const b = h('button', { title: L('ตลาดกลาง (/market)', 'Central Market (/market)'), 'data-win': 'w-market', onclick: () => { UI.toggle('w-market'); if (Pad.enabled()) UI.setFold(menu, true); } });
       b.innerHTML = L(`${MARKET_ICON}<span>ตลาด</span><small>/market</small>`, `${MARKET_ICON}<span>Market</span><small>/market</small>`);
       const after = $('[data-win="w-trade"]', menu) || $('[data-win="w-emote"]', menu);
       if (after) after.after(b); else menu.append(b);
@@ -423,15 +429,17 @@ const Market = {
   },
   isOpen() { const w = $('#w-market'); return !!w && !w.classList.contains('hidden'); },
   show(view) {
-    if (view) this.view = view;
+    if (view) this.view = view === 'board' || view === 'shop' ? 'buy' : view === 'mine' ? 'sell' : view;
     if (!this.isOpen()) UI.open('w-market');
     this.refresh(true);
   },
   // วาดใหม่เมื่อข้อมูลเปลี่ยน (กำลังพิมพ์อยู่ = คงโฟกัสและค่าเดิม)
   refresh(force) {
     if (!this.isOpen()) return;
-    const key = JSON.stringify([Online.online, this.view, this.shop, this.q, this.type, this.sort, !!this.pend, G.player.zeny, G.map.id,
-      this.all().map(s => [s.id, s.sid, s.title, s.map, s.items.map(x => [x.i, x.qty])]), this.mine && this.sales.length, this.draft, this.pick && this.pick.uid, this.pick && this.pick.id]);
+    const now = Date.now();
+    const key = JSON.stringify([Online.online, this.view, this.who, this.sel, this.q, this.type, this.sort, !!this.pend, G.player.zeny, G.map.id,
+      this.all().map(s => [s.id, s.sid, s.map, this.isLive(s), s.items.map(x => [x.i, x.qty, x.price])]), this.mine && this.mine.items.map(x => [x.i, x.qty, x.price]),
+      (G.player.mkSales || []).length && G.player.mkSales[0].at, this.pick && this.pick.uid, this.pick && this.pick.id, this.view === 'sell' ? G.player.inventory.length : 0, Math.floor(now / 60000)]);
     if (!force && key === this.renderKey) return;
     this.renderKey = key;
     this.render();
@@ -443,11 +451,10 @@ const Market = {
     const keep = a && body.contains(a) && a.dataset.focus ? { key: a.dataset.focus, value: a.value, s: a.selectionStart } : null;
     const scroll = body.scrollTop;
     body.innerHTML = '';
-    if (!Online.online) body.append(this.viewOffline());
+    if (!Online.online && !this.mine) body.append(this.viewOffline());
     else {
-      if (this.view === 'shop' && !this.stalls.has(this.shop)) this.view = 'board';
       body.append(this.tabs());
-      body.append(this.view === 'mine' ? this.viewMine() : this.view === 'shop' ? this.viewShop(this.stalls.get(this.shop)) : this.viewBoard());
+      body.append(this.view === 'sell' ? this.viewSell() : this.viewBuy());
     }
     if (keep) { const el = $(`[data-focus="${keep.key}"]`, body); if (el && !el.disabled) { el.value = keep.value; el.focus(); try { if (keep.s != null) el.setSelectionRange(keep.s, keep.s); } catch (e) { /* number input */ } } }
     body.scrollTop = scroll;
@@ -458,11 +465,12 @@ const Market = {
       h('b', {}, L('ตลาดต้องออนไลน์', 'Market Needs Online')),
       h('p', {}, Online.loggedIn ? L(`ตอนนี้คุณเล่นด้วยบัญชีในเครื่อง (${Online.username}) จึงยังซื้อขายกับผู้เล่นอื่นไม่ได้`, `You're playing with a local account (${Online.username}), so you can't trade with other players yet.`)
         : L('ตอนนี้คุณเล่นแบบไม่ล็อกอิน (เซฟในเครื่องนี้) จึงยังซื้อขายกับผู้เล่นอื่นไม่ได้', 'You\'re playing without logging in (saved on this device), so you can\'t trade with other players yet.')),
-      h('p', {}, L('ล็อกอินบัญชีออนไลน์เพื่อเปิดร้าน ดูบอร์ดตลาด และซื้อของจากผู้เล่นคนอื่น', 'Log in with an online account to open a stall, browse the market board, and buy from other players.')));
+      h('p', {}, L('ล็อกอินบัญชีออนไลน์เพื่อวางขายของและซื้อของจากผู้เล่นคนอื่นในตลาดกลาง', 'Log in with an online account to list items and buy from other players on the Central Market.')));
   },
   tabs() {
-    const tab = (k, label) => h('button', { type: 'button', class: 'mk-tab' + (this.view === k || (k === 'board' && this.view === 'shop') ? ' on' : ''), 'data-tab': k, onclick: () => { this.view = k; this.refresh(true); } }, label);
-    return h('div', { class: 'mk-tabs', role: 'tablist' }, tab('board', L('บอร์ดตลาด', 'Market Board')), tab('mine', this.mine ? L('ร้านของฉัน (เปิดอยู่)', 'My Stall (open)') : L('ร้านของฉัน', 'My Stall')));
+    const n = this.mine ? this.mine.items.filter(x => x.qty > 0).length : 0;
+    const tab = (k, label) => h('button', { type: 'button', role: 'tab', class: 'mk-tab' + (this.view === k ? ' on' : ''), 'data-tab': k, 'aria-selected': this.view === k ? 'true' : 'false', onclick: () => { this.view = k; this.sel = null; this.refresh(true); } }, label);
+    return h('div', { class: 'mk-tabs', role: 'tablist' }, tab('buy', L('ซื้อ', 'Buy')), tab('sell', n ? L(`ขายของฉัน (${n}/${MARKET_CFG.slots})`, `My Listings (${n}/${MARKET_CFG.slots})`) : L('ขายของฉัน', 'My Listings')));
   },
   volt(n) { return h('span', { class: 'mk-volt' }, h('i', { class: 'mk-vi', html: TRADE_VOLT }), h('b', {}, U.fmt(n)), h('small', {}, CUR)); },
   icon(x) {
@@ -470,138 +478,145 @@ const Market = {
     return h('span', { class: 'inv-cell mk-ic' }, h('img', { src: itemIconUrl(x.id), alt: '' }), x.refine ? h('span', { class: 'rf' }, '+' + x.refine) : null,
       it.slots ? h('span', { class: 'mk-holes' }, Array.from({ length: it.slots }, (_, k) => h('i', { class: k < (x.cards || []).length ? 'on' : '' }))) : null);
   },
-  viewBoard() {
-    const wrap = h('div', { class: 'mk-board' }), list = this.rows(), n = this.all().length;
-    const inp = h('input', { type: 'search', class: 'mk-q', placeholder: L('ค้นหาชื่อไอเทม / ชื่อร้าน', 'Search item / stall name'), value: this.q, 'data-focus': 'q', 'aria-label': L('ค้นหา', 'Search') });
+  status(s) {
+    const on = this.isLive(s), where = this.mapName(s.map);
+    return h('span', { class: 'mk-on' + (on ? '' : ' idle') }, h('i', { class: 'mk-dot' }), on ? L(`ออนไลน์${where ? ' · ' + where : ''}`, `Online${where ? ' · ' + where : ''}`) : L('ไม่ตอบสนอง', 'Not responding'));
+  },
+  viewBuy() {
+    const wrap = h('div', { class: 'mk-board' }), list = this.rows(), sellers = this.all().filter(s => !s.mine).length;
+    const inp = h('input', { type: 'search', class: 'mk-q', placeholder: L('ค้นหาชื่อไอเทม / ผู้ขาย', 'Search item / seller'), value: this.q, 'data-focus': 'q', 'aria-label': L('ค้นหา', 'Search') });
     inp.addEventListener('input', () => { this.q = inp.value; this.refresh(); });
     inp.addEventListener('keydown', e => e.stopPropagation());
     const type = h('select', { class: 'mk-type', 'aria-label': L('ชนิดไอเทม', 'Item type') }, MARKET_TYPES.map(([k, lab]) => h('option', { value: k }, lab)));
     type.value = this.type; type.addEventListener('change', () => { this.type = type.value; this.refresh(); });
-    const sort = h('select', { class: 'mk-sort', 'aria-label': L('เรียง', 'Sort') }, h('option', { value: 'price' }, L('ราคาต่ำ → สูง', 'Price: low → high')), h('option', { value: 'price_desc' }, L('ราคาสูง → ต่ำ', 'Price: high → low')));
+    const sort = h('select', { class: 'mk-sort', 'aria-label': L('เรียง', 'Sort') }, h('option', { value: 'price' }, L('ราคาต่ำ → สูง', 'Price: low → high')), h('option', { value: 'price_desc' }, L('ราคาสูง → ต่ำ', 'Price: high → low')), h('option', { value: 'name' }, L('ชื่อไอเทม', 'Item name')));
     sort.value = this.sort; sort.addEventListener('change', () => { this.sort = sort.value; this.refresh(); });
     wrap.append(h('div', { class: 'mk-filters' }, inp, type, sort));
-    wrap.append(h('div', { class: 'mk-sec' }, L(`ร้านที่เปิดอยู่ ${n} ร้าน`, `${n} open stall${n === 1 ? '' : 's'}`), h('small', {}, L(`${list.length} รายการ`, `${list.length} listing${list.length === 1 ? '' : 's'}`))));
+    if (this.who) {
+      const s = this.stalls.get(this.who);
+      wrap.append(h('div', { class: 'mk-who' }, h('span', {}, L(`เฉพาะของ ${s ? s.name : '?'}`, `Only ${s ? s.name : '?'}'s listings`)),
+        h('button', { type: 'button', class: 'btn small mk-who-x', onclick: () => { this.who = null; this.refresh(true); } }, L('ดูทั้งหมด', 'Show all'))));
+    }
+    wrap.append(h('div', { class: 'mk-sec' }, L(`ผู้ขายออนไลน์ ${sellers} คน`, `${sellers} seller${sellers === 1 ? '' : 's'} online`), h('small', {}, L(`${list.length} รายการ`, `${list.length} listing${list.length === 1 ? '' : 's'}`))));
+    if (this.pend) wrap.append(h('div', { class: 'mk-note' }, L(`กำลังรอ ${this.pend.name} ยืนยันการขาย… (เงินกันไว้ ${U.fmt(this.pend.cost)} ${CUR} — ไม่สำเร็จได้คืนทั้งหมด)`, `Waiting for ${this.pend.name} to confirm… (${U.fmt(this.pend.cost)} ${CUR} held — refunded if it fails)`)));
     const box = h('div', { class: 'mk-list' });
     for (const { s, x } of list) {
-      box.append(h('div', { class: 'mk-row' + (s.mine ? ' mine' : ''), 'data-seller': s.id, 'data-i': String(x.i), 'data-id': x.id },
+      const on = this.sel && this.sel.seller === s.id && this.sel.i === x.i;
+      const row = h('div', { class: 'mk-row mk-pickrow' + (s.mine ? ' mine' : '') + (on ? ' sel' : ''), role: 'button', tabindex: '0', 'aria-expanded': on ? 'true' : 'false', 'data-seller': s.id, 'data-i': String(x.i), 'data-id': x.id },
         this.icon(x),
         h('span', { class: 'mk-mid' },
           h('b', { class: rarCls(x.id) }, this.lineName(x, 1), x.qty > 1 ? h('small', { class: 'mk-qty' }, ` ×${U.fmt(x.qty)}`) : null),
-          h('small', {}, `${s.name}${s.mine ? L(' (คุณ)', ' (you)') : ''} · ${this.mapName(s.map)}`)),
-        h('span', { class: 'mk-end' }, this.volt(x.price),
-          h('span', { class: 'mk-btns' },
-            s.mine ? null : h('button', { type: 'button', class: 'btn small mk-go', title: L('นำทางไปที่ร้าน', 'Navigate to stall'), onclick: () => this.goTo(s) }, L('ไปที่ร้าน', 'Go')),
-            h('button', { type: 'button', class: 'btn small mk-view', onclick: () => this.openShop(s.id) }, s.mine ? L('ร้านฉัน', 'Mine') : L('ดูร้าน', 'View'))))));
+          h('small', { class: 'mk-seller' }, h('span', { class: 'mk-sn' }, `${s.name}${s.mine ? L(' (คุณ)', ' (you)') : ''}`), this.status(s))),
+        h('span', { class: 'mk-end' }, this.volt(x.price)));
+      const pickRow = () => { this.sel = on ? null : { seller: s.id, i: x.i }; this.refresh(true); };
+      row.addEventListener('click', pickRow);
+      row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickRow(); } e.stopPropagation(); });
+      box.append(row);
+      if (on) box.append(this.buyBox(s, x));
     }
-    if (!list.length) box.append(h('div', { class: 'mk-none' }, n ? L('ไม่พบรายการที่ตรงกับการค้นหา', 'No listings match your search') : L('ยังไม่มีใครเปิดร้าน — เปิดร้านของคุณเองได้ที่แท็บ "ร้านของฉัน" (ในเมือง)', 'No stalls are open yet — open your own on the "My Stall" tab (in town)')));
+    if (!list.length) box.append(h('div', { class: 'mk-none' }, sellers || this.live() ? L('ไม่พบรายการที่ตรงกับการค้นหา', 'No listings match your search') : L('ยังไม่มีใครวางขายตอนนี้ — วางขายของคุณเองได้ที่แท็บ "ขายของฉัน" (ทุกแผนที่)', 'Nobody is selling right now — list your own items on the "My Listings" tab (any map)')));
     wrap.append(box);
-    wrap.append(h('div', { class: 'hint' }, L('คลิกที่ป้ายร้านเหนือหัวผู้เล่นเพื่อดูร้าน • ผู้ขายต้องออนไลน์อยู่จึงจะซื้อได้', 'Click the sign above a player to view their stall • The seller must be online to buy')));
+    wrap.append(h('div', { class: 'hint' }, L(`ซื้อได้จากทุกแผนที่ ไม่ต้องเดินไปหาผู้ขาย • ผู้ขายต้องออนไลน์อยู่ • คุณมี ${U.fmt(G.player.zeny)} ${CUR}`, `Buy from any map — no walking needed • The seller must be online • You have ${U.fmt(G.player.zeny)} ${CUR}`)));
     return wrap;
   },
-  viewShop(s) {
-    const wrap = h('div', { class: 'mk-shop' }), p = G.player;
-    wrap.append(h('div', { class: 'mk-shead' },
-      h('button', { type: 'button', class: 'btn small mk-back', onclick: () => { this.view = 'board'; this.refresh(true); } }, L('← บอร์ด', '← Board')),
-      h('span', { class: 'mk-st' }, h('b', {}, s.title), h('small', {}, `${s.name} · ${this.mapName(s.map)}`)),
-      s.map === G.map.id && U.dist(p.x, p.y, s.x, s.y) < 4 ? null : h('button', { type: 'button', class: 'btn small mk-go', onclick: () => this.goTo(s) }, L('ไปที่ร้าน', 'Go'))));
-    if (this.pend) wrap.append(h('div', { class: 'mk-note' }, L(`กำลังรอ ${this.pend.name} ยืนยันการขาย…`, `Waiting for ${this.pend.name} to confirm the sale…`)));
-    const box = h('div', { class: 'mk-list' });
-    for (const x of s.items) {
-      const eq = !!x.uid, qn = h('input', { type: 'number', class: 'mk-n', min: 1, max: x.qty, step: 1, value: '1', 'data-focus': 'n' + x.i, inputmode: 'numeric', 'aria-label': L('จำนวน', 'Quantity') });
-      qn.addEventListener('keydown', e => e.stopPropagation());
-      box.append(h('div', { class: 'mk-row', 'data-i': String(x.i), 'data-id': x.id },
-        this.icon(x),
-        h('span', { class: 'mk-mid' }, h('b', { class: rarCls(x.id) }, this.lineName(x, 1)), h('small', {}, L(`เหลือ ${U.fmt(x.qty)} ชิ้น`, `${U.fmt(x.qty)} left`))),
-        h('span', { class: 'mk-end' }, this.volt(x.price),
-          h('span', { class: 'mk-btns' }, eq || x.qty === 1 ? null : qn,
-            h('button', { type: 'button', class: 'btn small mk-buy', disabled: this.pend ? 'disabled' : false, onclick: () => this.askBuy(s, x, eq || x.qty === 1 ? 1 : qn.value) }, L('ซื้อ', 'Buy'))))));
+  // กล่องยืนยันการซื้อใต้แถวที่แตะ: จำนวน → ราคารวม → Volt หลังซื้อ → ยืนยัน
+  buyBox(s, x) {
+    const p = G.player, box = h('div', { class: 'mk-buybox', 'data-seller': s.id, 'data-i': String(x.i) });
+    if (s.mine) {
+      box.append(h('div', { class: 'mk-bb-line' }, L('นี่คือของที่คุณวางขายเอง', 'This is your own listing')),
+        h('div', { class: 'mk-bb-btns' }, h('button', { type: 'button', class: 'btn mk-tosell', onclick: () => { this.view = 'sell'; this.sel = null; this.refresh(true); } }, L('จัดการที่ "ขายของฉัน"', 'Manage in "My Listings"'))));
+      return box;
     }
-    if (!s.items.length) box.append(h('div', { class: 'mk-none' }, L('ร้านนี้ขายหมดแล้ว', 'This stall is sold out')));
-    wrap.append(box);
-    wrap.append(h('div', { class: 'hint' }, L(`คุณมี ${U.fmt(p.zeny)} ${CUR}${MARKET_TAX ? ` • ผู้ขายเสียภาษี ${Math.round(MARKET_TAX * 100)}%` : ''}`, `You have ${U.fmt(p.zeny)} ${CUR}${MARKET_TAX ? ` • Sellers pay ${Math.round(MARKET_TAX * 100)}% tax` : ''}`)));
-    return wrap;
+    const eq = !!x.uid, multi = !eq && x.qty > 1, live = this.isLive(s);
+    const qn = h('input', { type: 'number', class: 'mk-n', min: 1, max: x.qty, step: 1, value: '1', 'data-focus': 'n' + s.id + x.i, inputmode: 'numeric', 'aria-label': L('จำนวน', 'Quantity') });
+    const total = h('b', { class: 'mk-bb-total' }), after = h('b', { class: 'mk-bb-after' }), go = h('button', { type: 'button', class: 'btn primary mk-buy' }, L('ยืนยันซื้อ', 'Confirm Buy'));
+    const qty = () => (multi ? U.clamp(Math.floor(+qn.value) || 1, 1, x.qty) : 1);
+    const upd = () => {
+      const cost = x.price * qty(), left = p.zeny - cost;
+      total.textContent = `${U.fmt(cost)} ${CUR}`;
+      after.textContent = left >= 0 ? `${U.fmt(left)} ${CUR}` : L(`ไม่พอ (ขาด ${U.fmt(-left)})`, `Not enough (short ${U.fmt(-left)})`);
+      after.classList.toggle('bad', left < 0);
+      go.disabled = !!(this.pend || left < 0 || !live || !Online.online);
+    };
+    qn.addEventListener('input', upd);
+    qn.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go.click(); } e.stopPropagation(); });
+    go.addEventListener('click', () => { if (!go.disabled) this.buy(s.id, x.i, qty()); });
+    box.append(
+      multi ? h('label', { class: 'mk-bb-q' }, h('span', {}, L(`จำนวน (มี ${U.fmt(x.qty)})`, `Quantity (${U.fmt(x.qty)} available)`)), qn) : null,
+      h('div', { class: 'mk-bb-line' }, h('span', {}, L('ราคารวม', 'Total')), total),
+      h('div', { class: 'mk-bb-line' }, h('span', {}, L(`${CUR} หลังซื้อ`, `${CUR} after`)), after),
+      live ? null : h('div', { class: 'mk-bb-warn' }, L('ผู้ขายไม่ตอบสนอง อาจออฟไลน์ไปแล้ว', 'The seller is not responding and may be offline')),
+      h('div', { class: 'mk-bb-btns' }, h('button', { type: 'button', class: 'btn mk-bb-x', onclick: () => { this.sel = null; this.refresh(true); } }, L('ยกเลิก', 'Cancel')), go));
+    upd();
+    return box;
   },
-  async askBuy(s, x, qty) {
-    qty = U.clamp(Math.floor(+qty) || 1, 1, x.qty);
-    const cost = x.price * qty;
-    if (G.player.zeny < cost) { this.buy(s.id, x.i, qty); return; } // ข้อความ "Volt ไม่พอ"
-    if (!(await UI.confirm(L(`ซื้อ ${this.lineName(x, qty)} จาก ${s.name} ราคา ${U.fmt(cost)} ${CUR}?`, `Buy ${this.lineName(x, qty)} from ${s.name} for ${U.fmt(cost)} ${CUR}?`)))) return;
-    this.buy(s.id, x.i, qty);
-  },
-  viewMine() {
+  viewSell() {
     const wrap = h('div', { class: 'mk-mine' }), p = G.player, v = this.mine;
-    if (v) {
-      wrap.append(h('div', { class: 'mk-shead' }, h('span', { class: 'mk-st' }, h('b', {}, v.title), h('small', {}, L(`เปิดอยู่ที่ ${this.mapName(v.map)} · ขายได้ ${U.fmt(v.earned || 0)} ${CUR}`, `Open in ${this.mapName(v.map)} · earned ${U.fmt(v.earned || 0)} ${CUR}`)))));
-      const box = h('div', { class: 'mk-list' });
-      for (const x of v.items) box.append(h('div', { class: 'mk-row' + (x.qty <= 0 ? ' gone' : ''), 'data-i': String(x.i), 'data-id': x.id }, this.icon(x),
-        h('span', { class: 'mk-mid' }, h('b', { class: rarCls(x.id) }, this.lineName(x, 1)), h('small', {}, x.qty > 0 ? L(`เหลือ ${U.fmt(x.qty)} ชิ้น`, `${U.fmt(x.qty)} left`) : L('ขายหมดแล้ว', 'Sold out'))),
-        h('span', { class: 'mk-end' }, this.volt(x.price))));
-      wrap.append(box);
-      if (this.sales.length) {
-        wrap.append(h('div', { class: 'mk-sec' }, L('ขายแล้ว', 'Sales'), h('small', {}, String(this.sales.length))));
-        wrap.append(h('div', { class: 'mk-log' }, this.sales.slice(0, 12).map(r => h('div', {}, L(`${r.who} ซื้อ ${this.lineName(r, r.qty)} · +${U.fmt(r.gain)} ${CUR}`, `${r.who} bought ${this.lineName(r, r.qty)} · +${U.fmt(r.gain)} ${CUR}`)))));
-      }
-      wrap.append(h('div', { class: 'mk-acts' }, h('button', { type: 'button', class: 'btn danger mk-close', onclick: () => this.close('user') }, L('ปิดร้าน', 'Close Stall'))));
-      wrap.append(h('div', { class: 'hint' }, L('ทิ้งไว้ได้ (AFK) — ร้านปิดเองเมื่อเดินออก ย้ายแผนที่ ล้ม หลุดออนไลน์ หรือปิดเกม ของที่เหลือคืนเข้ากระเป๋า', 'You can go AFK — the stall closes if you walk away, change map, fall, go offline, or close the game; unsold items return to your bag')));
-      return wrap;
-    }
-    const d = this.draft || (this.draft = { title: '', lines: [] });
-    if (!this.inTown()) wrap.append(h('div', { class: 'mk-note' }, L('เปิดร้านได้เฉพาะในเมือง (Neo Eldheim) — จัดของรอไว้ก่อนได้', 'Stalls can only be opened in town (Neo Eldheim) — you can prepare the list now')));
-    const title = h('input', { type: 'text', class: 'mk-title', maxlength: MARKET_CFG.titleMax, value: d.title, 'data-focus': 'title', placeholder: L(`ร้านของ ${p.name}`, `${p.name}'s Shop`), 'aria-label': L('ชื่อร้าน', 'Stall name') });
-    title.addEventListener('input', () => { d.title = title.value; });
-    title.addEventListener('keydown', e => e.stopPropagation());
-    wrap.append(h('label', { class: 'mk-field' }, h('span', {}, L('ชื่อร้าน', 'Stall name')), title));
-    wrap.append(h('div', { class: 'mk-sec' }, L('ของที่จะขาย', 'Items for sale'), h('small', {}, `${d.lines.length}/${MARKET_CFG.slots}`)));
+    const act = v ? v.items.filter(x => x.qty > 0) : [];
+    const on = Online.online;
+    wrap.append(h('div', { class: 'mk-state' + (on ? ' on' : '') },
+      h('b', {}, h('i', { class: 'mk-dot' }), on ? (act.length ? L('กำลังขาย — ผู้เล่นทุกแผนที่เห็นของคุณ', 'Selling — players on every map can see your items') : L('ยังไม่มีของวางขาย', 'Nothing listed yet'))
+        : L('ออฟไลน์ — หยุดขายชั่วคราว ของยังพักไว้ปลอดภัย', 'Offline — selling paused, your items are held safely')),
+      h('span', {}, L('ขายได้ขณะคุณออนไลน์ — เดิน ตีมอน เปิด AUTO หรือย้ายแผนที่ได้ตามปกติ • ออกจากเกมแล้วของไม่หาย กลับเข้ามาก็ขายต่อ (ขายตอนออฟไลน์ต้องมีตารางบนเซิร์ฟเวอร์ ยังไม่มีในรอบนี้)',
+        'Sells while you\'re online — walk, fight, use AUTO or change maps freely • Logging out keeps your items safe and they go back on sale next login (offline selling needs a server table — not in this round)'))));
+    wrap.append(h('div', { class: 'mk-sec' }, L(`วางขายอยู่ ${act.length}/${MARKET_CFG.slots}`, `Listed ${act.length}/${MARKET_CFG.slots}`), h('small', {}, L(`ขายได้รวม ${U.fmt(v ? v.earned || 0 : 0)} ${CUR}`, `Earned ${U.fmt(v ? v.earned || 0 : 0)} ${CUR}`))));
     const box = h('div', { class: 'mk-list' });
-    d.lines.forEach((x, i) => box.append(h('div', { class: 'mk-row', 'data-id': x.id }, this.icon(x),
-      h('span', { class: 'mk-mid' }, h('b', { class: rarCls(x.id) }, this.lineName(x, 1)), h('small', {}, `×${U.fmt(x.qty)}`)),
-      h('span', { class: 'mk-end' }, this.volt(x.price), h('button', { type: 'button', class: 'btn small mk-rm', onclick: () => { d.lines.splice(i, 1); this.refresh(true); } }, L('เอาออก', 'Remove'))))));
-    if (!d.lines.length) box.append(h('div', { class: 'mk-none' }, L('แตะของในกระเป๋าด้านล่าง แล้วตั้งจำนวน + ราคา', 'Tap an item in your bag below, then set quantity + price')));
+    for (const x of act) {
+      const pr = h('input', { type: 'number', class: 'mk-price', min: 1, max: MARKET_CFG.maxPrice, step: 1, value: String(x.price), 'data-focus': 'pr' + x.i, inputmode: 'numeric', 'aria-label': L(`ราคาต่อชิ้น (${CUR})`, `Price each (${CUR})`) });
+      const save = () => this.setPrice(x.i, pr.value);
+      pr.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); save(); } e.stopPropagation(); });
+      box.append(h('div', { class: 'mk-row mk-lrow', 'data-i': String(x.i), 'data-id': x.id },
+        h('div', { class: 'mk-ltop' }, this.icon(x),
+          h('span', { class: 'mk-mid' }, h('b', { class: rarCls(x.id) }, this.lineName(x, 1)), h('small', {}, L(`เหลือ ${U.fmt(x.qty)} ชิ้น`, `${U.fmt(x.qty)} left`))),
+          h('span', { class: 'mk-end' }, this.volt(x.price))),
+        h('div', { class: 'mk-ctl' },
+          h('label', { class: 'mk-plab' }, h('span', {}, L('ราคา/ชิ้น', 'Price each')), pr),
+          h('button', { type: 'button', class: 'btn mk-setp', onclick: save }, L('บันทึกราคา', 'Save price')),
+          h('button', { type: 'button', class: 'btn danger mk-cancel', onclick: () => this.cancel(x.i) }, L('ยกเลิกขาย', 'Cancel')))));
+    }
+    if (!act.length) box.append(h('div', { class: 'mk-none' }, L('แตะของในกระเป๋าด้านล่าง ตั้งจำนวน + ราคา แล้วกด "วางขาย"', 'Tap an item in your bag below, set quantity + price, then press "List"')));
     wrap.append(box);
-    if (d.lines.length < MARKET_CFG.slots) wrap.append(this.picker(d));
-    wrap.append(h('div', { class: 'mk-acts' }, h('button', { type: 'button', class: 'btn mk-open primary', disabled: d.lines.length && this.inTown() ? false : 'disabled', onclick: () => this.open() }, L('เปิดร้าน', 'Open Stall'))));
-    wrap.append(h('div', { class: 'hint' }, L('ของที่วางขายถูกพักไว้นอกกระเป๋าระหว่างเปิดร้าน • ปิดร้านเมื่อไรได้ของที่เหลือคืน', 'Listed items are held outside your bag while the stall is open • Close the stall any time to get unsold items back')));
+    if (act.length < MARKET_CFG.slots) wrap.append(this.picker());
+    const sales = (p.mkSales || []).slice(0, MARKET_CFG.salesKeep);
+    wrap.append(h('div', { class: 'mk-sec' }, L('ประวัติการขาย', 'Sales history'), h('small', {}, L(`ล่าสุด ${sales.length}/${MARKET_CFG.salesKeep}`, `last ${sales.length}/${MARKET_CFG.salesKeep}`))));
+    wrap.append(sales.length ? h('div', { class: 'mk-log' }, sales.map(r => h('div', { class: 'mk-sale' },
+      h('span', {}, L(`${r.who} ซื้อ ${this.lineName(r, r.qty)}`, `${r.who} bought ${this.lineName(r, r.qty)}`)),
+      h('b', {}, `+${U.fmt(r.gain)} ${CUR}`), h('small', {}, this.when(r.at)))))
+      : h('div', { class: 'mk-none' }, L('ยังไม่มีการขาย', 'No sales yet')));
     return wrap;
   },
-  listed(d, id) { return d.lines.filter(x => x.id === id && !x.uid).reduce((a, x) => a + x.qty, 0); },
-  fixDraft() {
-    const d = this.draft;
-    if (!d) return;
-    d.lines = d.lines.filter(x => (x.uid ? !!this.findEquip(x) : (x.qty = Math.min(x.qty, countItem(x.id))) > 0));
+  when(t) {
+    const m = Math.floor((Date.now() - t) / 60000);
+    if (m < 1) return L('เมื่อสักครู่', 'just now');
+    if (m < 60) return L(`${m} นาทีก่อน`, `${m} min ago`);
+    const d = new Date(t);
+    return `${d.getDate()}/${d.getMonth() + 1} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   },
-  // กระเป๋า: แตะเพื่อเลือก → ตั้งจำนวน/ราคา → ใส่ (ของที่สวมอยู่ไม่อยู่ในกระเป๋า จึงขายไม่ได้)
-  picker(d) {
+  // กระเป๋า: แตะเพื่อเลือก → ตั้งจำนวน/ราคา → วางขาย (ของที่สวมอยู่ไม่อยู่ในกระเป๋า จึงขายไม่ได้)
+  picker() {
     const p = G.player, wrap = h('div', { class: 'mk-pick' });
-    const left = e => (isEquipType(ITEMS[e.id]) ? (d.lines.some(x => x.uid && x.uid === e.uid) ? 0 : 1) : countItem(e.id) - this.listed(d, e.id));
-    wrap.append(h('div', { class: 'mk-sec' }, L('กระเป๋า — แตะเพื่อเลือก', 'Bag — tap to choose')));
+    wrap.append(h('div', { class: 'mk-sec' }, L('กระเป๋า — แตะของที่จะขาย', 'Bag — tap an item to sell')));
     const grid = h('div', { class: 'mk-inv' });
     for (const e of p.inventory.filter(y => ITEMS[y.id])) {
-      const n = left(e), sel = this.pick === e;
-      grid.append(h('button', { type: 'button', class: 'inv-cell mk-icell' + (n <= 0 ? ' used' : '') + (sel ? ' sel' : ''), disabled: n <= 0 ? 'disabled' : false, 'data-id': e.id,
-        title: itemDisplayName(e), onclick: () => { this.pick = sel ? null : e; this.refresh(true); } },
-      h('img', { src: itemIconUrl(e.id), alt: '' }), isEquipType(ITEMS[e.id]) ? null : h('span', { class: 'q' }, U.fmt(n)), e.refine ? h('span', { class: 'rf' }, '+' + e.refine) : null));
+      const sel = this.pick === e;
+      grid.append(h('button', { type: 'button', class: 'inv-cell mk-icell' + (sel ? ' sel' : ''), 'data-id': e.id, 'data-uid': e.uid != null ? String(e.uid) : '',
+        title: itemDisplayName(e), 'aria-label': itemDisplayName(e), onclick: () => { this.pick = sel ? null : e; this.refresh(true); } },
+      h('img', { src: itemIconUrl(e.id), alt: '' }), isEquipType(ITEMS[e.id]) ? null : h('span', { class: 'q' }, U.fmt(e.qty)), e.refine ? h('span', { class: 'rf' }, '+' + e.refine) : null));
     }
     if (!p.inventory.length) grid.append(h('div', { class: 'mk-none' }, L('กระเป๋าว่าง', 'Bag is empty')));
     wrap.append(grid);
     const e = this.pick && p.inventory.includes(this.pick) ? this.pick : null;
     if (e) {
-      const it = ITEMS[e.id], max = left(e), eq = isEquipType(it);
+      const it = ITEMS[e.id], eq = isEquipType(it), max = eq ? 1 : countItem(e.id);
       const qn = h('input', { type: 'number', class: 'mk-pq', min: 1, max, step: 1, value: String(max), 'data-focus': 'pq', inputmode: 'numeric', 'aria-label': L('จำนวน', 'Quantity') });
       const pr = h('input', { type: 'number', class: 'mk-pp', min: 1, max: MARKET_CFG.maxPrice, step: 1, value: String(Math.max(1, it.price || 1)), 'data-focus': 'pp', inputmode: 'numeric', 'aria-label': L(`ราคาต่อชิ้น (${CUR})`, `Price each (${CUR})`) });
+      const add = () => this.list(e, eq ? 1 : U.clamp(Math.floor(+qn.value) || 0, 0, max), pr.value);
       for (const el of [qn, pr]) el.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); add(); } ev.stopPropagation(); });
-      const add = () => {
-        const qty = eq ? 1 : U.clamp(Math.floor(+qn.value) || 0, 0, max), price = Math.floor(+pr.value) || 0;
-        if (qty < 1) return;
-        if (!(price >= 1 && price <= MARKET_CFG.maxPrice)) { UI.msg(L(`ราคาต้องอยู่ระหว่าง 1–${U.fmt(MARKET_CFG.maxPrice)} ${CUR}`, `Price must be 1–${U.fmt(MARKET_CFG.maxPrice)} ${CUR}`), 'err'); return; }
-        if (eq) { if (e.uid == null) e.uid = G.uid++; d.lines.push({ id: e.id, qty: 1, price, uid: e.uid, refine: e.refine || 0, cards: (e.cards || []).slice() }); }
-        else { const cur = d.lines.find(x => x.id === e.id && !x.uid); if (cur) { cur.qty += qty; cur.price = price; } else d.lines.push({ id: e.id, qty, price }); }
-        this.pick = null; Sound.play('click'); this.refresh(true);
-      };
       wrap.append(h('div', { class: 'mk-set' },
-        h('span', { class: 'mk-set-n' }, h('img', { src: itemIconUrl(e.id), alt: '' }), h('b', {}, itemDisplayName(e))),
-        eq ? null : h('label', {}, h('span', {}, L('จำนวน', 'Qty')), qn),
-        h('label', {}, h('span', {}, L(`ราคา/ชิ้น`, 'Price each')), pr),
-        h('button', { type: 'button', class: 'btn small primary mk-add', onclick: add }, L('ใส่', 'Add'))));
+        h('span', { class: 'mk-set-n' }, h('img', { src: itemIconUrl(e.id), alt: '' }), h('b', { class: rarCls(e.id) }, itemDisplayName(e))),
+        eq ? null : h('label', {}, h('span', {}, L(`จำนวน (มี ${U.fmt(max)})`, `Qty (${U.fmt(max)})`)), qn),
+        h('label', {}, h('span', {}, L(`ราคา/ชิ้น (${CUR})`, `Price each (${CUR})`)), pr),
+        h('button', { type: 'button', class: 'btn primary mk-add', disabled: Online.online ? false : 'disabled', onclick: add }, L('วางขาย', 'List'))));
     }
     return wrap;
   },
