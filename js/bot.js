@@ -446,11 +446,17 @@ const Bot = {
     const ok = m => !m.dead && !m.def.dummy && !(c.avoidMvp && m.isMvp && m.state !== 'chase' && m.def.id !== this.only) && !this.blacklist.has(m);
     // 1) ตัวที่กำลังตีเรา: ตัวที่อยู่ในระยะตีถึงก่อน — เลือกตัวที่ "ล้มเร็วเทียบกับแรงที่มันตีเรา" (ลดดาเมจที่โดนรวมได้มากสุด) ไม่งั้นตัวใกล้สุด
     const reach = Math.max(p.d.range, 1.5) + 0.5;
-    const th = threats.filter(ok);
-    if (th.length) {
-      const sc = m => { const d = U.dist(m.x, m.y, p.x, p.y); return d <= reach ? m.hp / this.dpsVs(m) / this.danger(m) - 1e4 : d; };
-      return th.sort((a, b) => sc(a) - sc(b))[0];
+    let th = threats.filter(ok);
+    const sc = m => { const d = U.dist(m.x, m.y, p.x, p.y); return d <= reach ? m.hp / this.dpsVs(m) / this.danger(m) - 1e4 : d; };
+    if (this.only && th.length) {
+      // ล่าตามเควสต์ — ลำดับ (เจ้าของ 2026-10-11 "ใช้ priority ให้ดี"):
+      // ก) มอนเควสต์ที่กำลังตีเรา (นับเควสต์ด้วย) ถ้า HP ยัง ≥ 40% · ข) ตัวอื่นที่ตีถึงตัวเราแล้ว (เอาตัวรอด)
+      // ค) ตัวอื่นที่แค่ไล่มายังไม่ถึง: ไม่วิ่งไปหา ไปล่ามอนเควสต์ต่อ (มันมาถึงเมื่อไหร่ค่อยสู้ตามข้อ ข)
+      const q = th.filter(m => m.def.id === this.only);
+      if (q.length && hpPct >= 40) return q.sort((a, b) => sc(a) - sc(b))[0];
+      th = th.filter(m => m.def.id === this.only || U.dist(m.x, m.y, p.x, p.y) <= reach);
     }
+    if (th.length) return th.sort((a, b) => sc(a) - sc(b))[0];
     // 2) ตัวใหม่ในขอบเขต
     const z = this.zone(), skip = this.only ? {} : c.skipMobs || {};
     const inRange = m => z ? U.dist(m.x, m.y, z.x, z.y) <= z.r : U.dist(m.x, m.y, p.x, p.y) <= c.radius;
