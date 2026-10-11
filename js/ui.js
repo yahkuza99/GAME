@@ -60,7 +60,7 @@ const UI = {
     $('#chat-btn').onclick = () => { const c = $('#chat'); c.classList.toggle('typing'); if (c.classList.contains('typing')) $('#chat-input').focus(); };
     $('#chat-input').addEventListener('blur', () => setTimeout(() => $('#chat').classList.remove('typing'), 150));
     $('#auto-btn').onclick = () => Bot.toggle();
-    this.altPress($('#auto-btn'), () => this.open('w-bot')); // คลิกขวา / กดค้าง = ตั้งค่าบอท (เจ้าของ 2026-10-03)
+    this.altPress($('#auto-btn'), () => this.autoAlt()); // คลิกขวา / กดค้าง = ตั้งค่าบอท (เจ้าของ 2026-10-03) • มือถือแนวตั้ง HUD C: เลือกแมลงวัน/ตั้งค่าบอท (js/hud-c.js)
     this.bindMapClick($('#minimap-cv'));
     this.bindMapClick($('#bigmap-cv'));
     $('#map-open').onclick = () => this.toggle('w-map');
@@ -111,6 +111,7 @@ const UI = {
     Sound.play('click');
   },
   toggleMenu() { const m = $('#menubar'); this.setFold(m, !m.classList.contains('folded')); },
+  autoAlt() { this.open('w-bot'); },
   toggleHud() {
     const on = !$('#hud').classList.contains('hud-min');
     $('#hud').classList.toggle('hud-min', on);
