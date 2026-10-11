@@ -10,6 +10,7 @@ const G = {
   zones: [], // พื้นที่ค้างบนพื้นจาก Rune Paths (js/runes.js) — ล้างตอนเปลี่ยนแมพ
 };
 const SAVE_KEY = 'ragnarok_web_save_v2';
+const LEECH_CHANCE = 8, LEECH_MAXCH = 40, LEECH_PCT = 25, LEECH_ICD = 1; // ดูดเลือดแบบโอกาส: ค่า leech 1 = โอกาส 8% · ดูด 25% ของดาเมจ · ห่างกันอย่างน้อย 1 วิ
 const SAVE_FIELDS = ['pvp', 'mvpAt', 'job1Lv', 'job2Lv', 'name', 'gender', 'hair', 'job', 'baseLv', 'jobLv', 'baseExp', 'jobExp', 'stats', 'statPoints', 'skillPoints',
   'skills', 'zeny', 'inventory', 'equip', 'hotbar', 'potbar', 'look', 'map', 'x', 'y', 'save', 'hp', 'sp', 'options', 'uidSeq', 'quests', 'storage', 'kills', 'passives', 'bounty', 'chips', 'mastery', 'story', 'daily', 'gacha', 'runes', 'loadouts', 'hrunes', 'hrunesOwn', 'runesOwn', 'ptV', 'ptReset', 'ultKind'];
 
@@ -752,10 +753,13 @@ function applyHit(m, r, opts = {}) {
   // ธาตุแพ้/ต้าน (em ≠ 1) ติดไปกับตัวเลขดาเมจเป็นสัญลักษณ์เล็ก ▲/▼ (js/juice.js) — ไม่มีป้าย Weak!/Resist แยกแล้ว
   damageMob(m, r.dmg, Object.assign({ crit: r.crit }, r.em != null && r.em !== 1 ? { em: r.em, emEl: r.el } : null, opts));
   if (typeof HuntRunes !== 'undefined') HuntRunes.feedback(m, r); // หินรูนกะพริบเมื่อ Hunt Rune ทำงาน
-  // ดูดเลือด (ต้นไม้พาสซีฟ): ดาเมจกายภาพส่วนหนึ่งกลับมาเป็น HP แบบเงียบ ๆ
+  // ดูดเลือด (ต้นไม้พาสซีฟ/ของ): แบบ "โอกาส" — แต่ละครั้งที่ตีกายภาพโดน มีโอกาส LEECH_CHANCE×ค่า% (สูงสุด LEECH_MAXCH) ดูด LEECH_PCT% ของดาเมจ
+  //  คูลดาวน์ภายใน LEECH_ICD วิ (เจ้าของ 2026-10-11 "ทำเป็นโอกาสดูดเลือดดีกว่า แบบนี้โกงไปถ้าตีไว" — เดิมทุกฮิตดูด ค่า% → ตีเร็ว = ฮีลไม่จำกัด)
   const p = G.player;
-  if (r.phys && p.d.leech && !p.dead && !m.def.dummy && p.hp < p.d.maxHp) {
-    const amt = Math.min(p.d.maxHp - p.hp, Math.max(1, Math.round(r.dmg * (m.isPlayer ? 0.6 : 1) * p.d.leech / 100))); // PvP: คิดจากดาเมจหลังลด
+  if (r.phys && p.d.leech && !p.dead && !m.def.dummy && p.hp < p.d.maxHp && G.time >= (p.leechAt || 0)
+    && Math.random() * 100 < Math.min(LEECH_MAXCH, p.d.leech * LEECH_CHANCE)) {
+    p.leechAt = G.time + LEECH_ICD;
+    const amt = Math.min(p.d.maxHp - p.hp, Math.max(1, Math.round(r.dmg * (m.isPlayer ? 0.6 : 1) * LEECH_PCT / 100))); // PvP: คิดจากดาเมจหลังลด
     p.hp += amt;
     addFloater(p.x + 0.35, p.y - 1.5, L(`+${amt} ดูดเลือด`, `+${amt} Drain`), '#ff8fb4');
   }
