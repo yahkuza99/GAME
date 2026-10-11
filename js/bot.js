@@ -515,6 +515,9 @@ const Bot = {
     // เจ้าของ 2026-10-11 "ULT ใช้ทุกกรณีที่เกจเต็มเลย": เกจเต็ม + กำลังสู้กับเป้า (ระยะ ≤ 8 ช่อง) = กดทันที ไม่รอบอส/มอนรุม/HP ต่ำ
     const engaged = U.dist(t.x, t.y, p.x, p.y) <= 8 || near.length > 0;
     if (!engaged) return false;
+    // ยกเว้น ULT ฟื้นฟู (AEGIS / NORNS): ใช้เมื่อ HP ≤ 40% เท่านั้น (เจ้าของ 2026-10-12 "ULT ฟื้นฟูไม่มีเงื่อนไขเรื่อง HP แก้")
+    const kind = Feel.ultKind && Feel.ultKind();
+    if ((kind === 'aegis' || kind === 'norns') && hpPct > 40) return false;
     Feel.ultFire();
     this.progAt = Math.max(this.progAt, G.time - 1.5);
     return true;

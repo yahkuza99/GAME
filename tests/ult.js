@@ -95,7 +95,7 @@ function serve() {
     ok('AUTO uses heal ULT at low HP', pl.ult === 0 && pl.hp > h0, `${pl.hp} vs ${h0}`);
 
     setup(); mob('seraph_pudding', 2, 0, true); pl.ultKind = 'aegis'; think();
-    ok('AUTO fires heal ULT when full even at full HP (owner: every case)', pl.ult === 0);
+    ok('AUTO holds heal ULT at full HP (owner 2026-10-12: recovery ULT only when HP ≤ 40%)', pl.ult === 100);
 
     setup('eldheim'); G.mobs = []; pl.ult = 100; think();
     ok('AUTO no ULT in town', pl.ult === 100);
