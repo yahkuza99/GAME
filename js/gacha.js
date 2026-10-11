@@ -48,6 +48,9 @@
 const GACHA_CONFIG = {
   token: 'valhalla_sigil',              // ไอเทมที่ใช้หมุน (สร้างในไฟล์นี้) / the roll currency item
   drop: { mvp: 1, worldBoss: 3 },       // ตราที่ได้ต่อการปราบ / Sigils per boss kill
+  // มอนทั่วไปทุกตัวดรอปตราได้ (โอกาสน้อย) — base = โอกาสต่อตัว · เต็มเมื่อเลเวลผู้เล่นห่างมอน ≤ fullGap · ลดเป็นเส้นตรงจน 0 ที่ zeroGap (สมมาตรทั้งมอนต่ำกว่า/สูงกว่า)
+  // eliteMul = คูณโอกาสให้มอน def.elite (ไม่ใช่ลูกสมุน) • ไม่ดรอป: หุ่นซ้อม / ลูกสมุนบอส / มอนที่ไม่ให้ EXP / บอส (บอสได้ drop.mvp / drop.worldBoss ตามเดิม)
+  mobDrop: { base: 0.003, fullGap: 5, zeroGap: 20, eliteMul: 3 },
   cost: 1,                              // ตราต่อการหมุน 1 ครั้ง / Sigils per single roll
   multi: { count: 10, cost: 10, guarantee: 'rare' }, // หมุนรวด 10 ครั้ง การันตี Rare+ 1 ชิ้น
   pity: { every: 50, rarity: 'epic' },  // ครบ 50 ครั้งไม่ได้ Epic+ → ครั้งที่ 50 ได้แน่นอน (null = ปิด)
@@ -85,8 +88,8 @@ const GACHA_CONFIG = {
 // ============================================================================================
 ITEMS[GACHA_CONFIG.token] = {
   id: GACHA_CONFIG.token, name: 'Valhalla Sigil', type: 'etc', price: 100, rarity: 'rare', icon: { s: 'sigil', c: '#ffd36a' },
-  desc: L(`ตราวัลฮัลลา ฉีกออกมาจากแกนของบอสที่ล้มลง — ปราบ MVP ได้ ${GACHA_CONFIG.drop.mvp} อัน, ร่วมตี World Boss ได้ ${GACHA_CONFIG.drop.worldBoss} อัน นำไปหมุนวงล้อนอร์น (Norn's Wheel) ที่นีโอเอลด์ไฮม์`,
-    `A sigil torn from a fallen champion's core — ${GACHA_CONFIG.drop.mvp} per MVP kill, ${GACHA_CONFIG.drop.worldBoss} per World Boss you helped defeat. Spend it at Norn's Wheel in Neo Eldheim.`),
+  desc: L(`ตราวัลฮัลลา ฉีกออกมาจากแกนของบอสที่ล้มลง — ปราบ MVP ได้ ${GACHA_CONFIG.drop.mvp} อัน, ร่วมตี World Boss ได้ ${GACHA_CONFIG.drop.worldBoss} อัน, มอนทุกตัวมีโอกาสน้อย ๆ (ลดลงถ้าเลเวลห่างเกิน ${GACHA_CONFIG.mobDrop.fullGap}) นำไปหมุนวงล้อนอร์น (Norn's Wheel) ที่นีโอเอลด์ไฮม์`,
+    `A sigil torn from a fallen champion's core — ${GACHA_CONFIG.drop.mvp} per MVP kill, ${GACHA_CONFIG.drop.worldBoss} per World Boss you helped defeat; any monster has a small chance (lower if the level gap exceeds ${GACHA_CONFIG.mobDrop.fullGap}). Spend it at Norn's Wheel in Neo Eldheim.`),
 };
 {
   const shape0 = drawIconShape;
@@ -220,6 +223,20 @@ const Gacha = {
     if (d.boss || m.isMvp) return this.C.drop.mvp | 0;
     return 0;
   },
+  // โอกาสดรอปตราจากมอนทั่วไป (0 = ไม่ดรอป) — lv = เลเวลผู้เล่น (baseLv)
+  mobChance(m, lv) {
+    const d = m && m.def, C = this.C.mobDrop; if (!d || !C || m.isPlayer) return 0;
+    if (d.dummy || d.boss || d.worldBoss || m.isWB || m.isMvp || m.minion || !(d.exp > 0)) return 0;
+    const gap = Math.abs(lv - d.lv);
+    const f = gap <= C.fullGap ? 1 : Math.max(0, 1 - (gap - C.fullGap) / (C.zeroGap - C.fullGap));
+    return C.base * f * (d.elite ? C.eliteMul : 1);
+  },
+  onMobKill(m) {
+    if (!G.player || !(this.mobChance(m, G.player.baseLv) > 0) || !U.chance(this.mobChance(m, G.player.baseLv))) return;
+    dropItemOnGround(this.TOKEN, m.x, m.y, 1); // ทางดรอปปกติ: เก็บอัตโนมัติถ้าเปิด autoLoot ไม่งั้นตกพื้น
+    UI.msg(L('✦ ได้ Valhalla Sigil!', '✦ Obtained a Valhalla Sigil!'), 'lvl');
+    addFloater(m.x, m.y - 1.6, `+1 ${ITEMS[this.TOKEN].name}`, '#ffd36a', true);
+  },
   onBossKill(m) {
     const n = this.bossTokens(m); if (n <= 0 || !G.player) return;
     addItem(this.TOKEN, n, true);
@@ -269,7 +286,7 @@ if (MAP_DEFS.eldheim && !MAP_DEFS.eldheim.npcs.some(n => n.id === Gacha.NPC_ID))
   killMob = function (m) {
     const was = !!(m && m.dead);
     const r = kill0.apply(this, arguments);
-    if (!was) Gacha.onBossKill(m);
+    if (!was) { Gacha.onBossKill(m); Gacha.onMobKill(m); }
     return r;
   };
   // การ์ดไอเทม "ได้จาก": ตราไม่ได้อยู่ในตารางดรอป (ให้ตรงเข้ากระเป๋า) → แสดงรายชื่อบอสแทน
@@ -281,6 +298,7 @@ if (MAP_DEFS.eldheim && !MAP_DEFS.eldheim.npcs.some(n => n.id === Gacha.NPC_ID))
     const C = Gacha.C.drop;
     return h('div', { class: 'tip-src' }, h('b', {}, 'Dropped by'),
       ...mvps.map(m => h('div', {}, `${m.name} (MVP) · Lv ${m.lv}`, h('small', {}, ` ${where(m.id)}${where(m.id) ? ' · ' : ''}×${C.mvp} (100%)`))),
+      h('div', {}, 'Any monster', h('small', {}, ` · ${+(Gacha.C.mobDrop.base * 100).toFixed(2)}% (lower if level gap > ${Gacha.C.mobDrop.fullGap})`)),
       C.worldBoss > 0 ? h('div', {}, 'Every World Boss', h('small', {}, ` · each participant ×${C.worldBoss} (100%)`)) : null); // รายละเอียดไอเทม = อังกฤษเสมอ
   };
   // หน้าต่างข้อมูลมอน: บอสแสดงตราเป็นของดรอปแถวแรก
@@ -307,8 +325,8 @@ NPC.scripts[Gacha.NPC_ID] = async n => {
   if (c === 0 || c === 1) { UI.dlgClose(); Gacha.open(c === 1 ? 'rates' : 'wheel'); }
   else if (c === 2) {
     const D = Gacha.C.drop;
-    await UI.say(nm, L(`เมื่อแชมเปียนล้มลง แกนของมันจะทิ้ง ${B(tk)} ไว้<br>• ปราบ ${B('MVP')}: ได้ ${B(D.mvp + ' อัน')} (ผู้ปราบ)<br>• ร่วมตี ${B('World Boss')} จนล้ม: ทุกคนที่ร่วมตีได้ ${B(D.worldBoss + ' อัน')}<br>หมุน 1 ครั้งใช้ ${Gacha.C.cost} อัน • หมุนรวด ${Gacha.C.multi.count} ครั้งใช้ ${Gacha.C.multi.cost} อัน`,
-      `When a champion falls, its core leaves a ${B(tk)} behind.<br>• Defeat an ${B('MVP')}: ${B(String(D.mvp))} for the killer<br>• Help bring down a ${B('World Boss')}: ${B(String(D.worldBoss))} for every participant<br>One spin costs ${Gacha.C.cost} • ${Gacha.C.multi.count} spins cost ${Gacha.C.multi.cost}`));
+    await UI.say(nm, L(`เมื่อแชมเปียนล้มลง แกนของมันจะทิ้ง ${B(tk)} ไว้<br>• ปราบ ${B('MVP')}: ได้ ${B(D.mvp + ' อัน')} (ผู้ปราบ)<br>• ร่วมตี ${B('World Boss')} จนล้ม: ทุกคนที่ร่วมตีได้ ${B(D.worldBoss + ' อัน')}<br>• ${B('มอนทุกตัว')}มีโอกาสน้อย ๆ ที่จะทิ้งตรา (ลดลงถ้าเลเวลห่างเกิน ${Gacha.C.mobDrop.fullGap})<br>หมุน 1 ครั้งใช้ ${Gacha.C.cost} อัน • หมุนรวด ${Gacha.C.multi.count} ครั้งใช้ ${Gacha.C.multi.cost} อัน`,
+      `When a champion falls, its core leaves a ${B(tk)} behind.<br>• Defeat an ${B('MVP')}: ${B(String(D.mvp))} for the killer<br>• Help bring down a ${B('World Boss')}: ${B(String(D.worldBoss))} for every participant<br>• ${B('Any monster')} has a small chance to drop one (lower if the level gap exceeds ${Gacha.C.mobDrop.fullGap})<br>One spin costs ${Gacha.C.cost} • ${Gacha.C.multi.count} spins cost ${Gacha.C.multi.cost}`));
   }
 };
 
