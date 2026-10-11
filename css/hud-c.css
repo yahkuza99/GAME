@@ -374,3 +374,41 @@ body.visor.hudc #hud #basic-info .hc-xb.job > i { background: #b98aff; }
 /* คอลัมน์ซ้าย/ขวาไม่ชนกัน: แต่ละฝั่งไม่เกินครึ่งจอ */
 body.visor.hudc #hud #raid-bar { width: min(200px, calc(50vw - 14px)) !important; }
 body.visor.hudc #hud #hc-qline { max-width: min(190px, calc(50vw - 14px)); }
+
+/* ---------- รอบ 32: ป้ายชื่อแผนที่ = ตัวหนังสือเล็กมีเงา ไม่มีแผ่นป้าย (เจ้าของ 2026-10-11 "ใหญ่ไป มีป้ายบัง") ----------
+   ชั้น CSS เดิมซ้อนกันหลายไฟล์ (style/visor/theme2/theme4) จึงสรุปที่นี่ไฟล์เดียวด้วย !important · ใช้ทุกอุปกรณ์ ไม่เฉพาะ hudc
+   ไม่ถ่างตัวอักษร · line-height พอสำหรับวรรณยุกต์ · ระยะเวลา 2 วิ (ui.js announceMap ตั้ง _bannerUntil ให้ตรงกัน) */
+body #map-banner, body #map-banner.has-img, body.visor #map-banner, body.visor #map-banner.has-img, body.visor.hudc #hud #map-banner {
+  position: fixed !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important;
+  top: calc(var(--st, 0px) + env(safe-area-inset-top, 0px) + 134px) !important; /* ใต้การ์ดตัวละคร + แถบเควสต์ (hc-qline) */
+  width: max-content !important; min-width: 0 !important; max-width: 86vw !important; height: auto !important; max-height: none !important; aspect-ratio: auto !important;
+  padding: 0 !important; margin: 0 !important; border: 0 !important; outline: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+  background: none !important; background-image: none !important; text-align: center !important; pointer-events: none !important; display: block !important;
+}
+body #map-banner::before, body #map-banner.has-img::before, body #map-banner::after { content: none !important; display: none !important; }
+body #map-banner .mb-en, body.visor #map-banner .mb-en {
+  font: 700 19px/1.35 var(--display, var(--font, sans-serif)) !important; letter-spacing: 0 !important; color: #fff !important; padding: 0 !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,.95), 0 0 10px rgba(0,0,0,.75) !important; overflow-wrap: anywhere;
+}
+body #map-banner .mb-en::after, body.visor #map-banner .mb-en::after { content: none !important; display: none !important; }
+body #map-banner .mb-th, body.visor #map-banner .mb-th {
+  font: 500 13px/1.6 var(--font, sans-serif) !important; letter-spacing: 0 !important; color: #ffe9b0 !important; margin: 0 !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,.95), 0 0 8px rgba(0,0,0,.75) !important; font-style: normal !important;
+}
+body #map-banner .mb-story, body.visor #map-banner .mb-story {
+  font: 400 13px/1.6 var(--font, sans-serif) !important; letter-spacing: 0 !important; color: rgba(255,255,255,.9) !important; max-width: min(420px, 86vw) !important; margin: 2px auto 0 !important;
+  text-shadow: 0 1px 3px rgba(0,0,0,.95), 0 0 8px rgba(0,0,0,.75) !important; font-style: normal !important;
+}
+body #map-banner.show, body #map-banner.has-img.show, body #map-banner.story.show, body #map-banner.mini.show { animation: mapName 2s ease forwards !important; }
+body #map-banner.story.show { animation-duration: 2.8s !important; }
+body #map-banner.mini { transform: translateX(-50%) !important; }
+@keyframes mapName { 0% { opacity: 0; } 12% { opacity: 1; } 78% { opacity: 1; } 100% { opacity: 0; } }
+@media (min-width: 761px) and (min-height: 521px) {
+  body #map-banner, body #map-banner.has-img, body.visor #map-banner, body.visor #map-banner.has-img { top: 15% !important; }
+  body #map-banner .mb-en, body.visor #map-banner .mb-en { font-size: 28px !important; }
+  body #map-banner .mb-th, body.visor #map-banner .mb-th { font-size: 15px !important; }
+}
+/* มือถือ (แนวตั้ง/แนวนอน): ไม่โชว์บรรทัดตำนาน — เป็นของแถม ไม่ควรกินจอ */
+@media (max-width: 760px), (max-height: 520px) { body #map-banner .mb-story { display: none !important; } }
+@media (max-height: 520px) { body #map-banner, body #map-banner.has-img, body.visor #map-banner, body.visor #map-banner.has-img { top: calc(env(safe-area-inset-top, 0px) + 46px) !important; } }
+@media (prefers-reduced-motion: reduce) { body #map-banner.show { animation-duration: 2s !important; } }

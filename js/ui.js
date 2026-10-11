@@ -270,11 +270,12 @@ const UI = {
     const art = Art.get('map_' + map.id);
     const story = typeof Story !== 'undefined' ? Story.mapLine(map.id) : ''; // บรรทัดตำนานของแผนที่ (docs/STORY.md)
     el.innerHTML = `<div class="mb-en">${U.esc(map.def.name)}</div><div class="mb-th">${U.esc(map.def.thai)}</div>${story ? `<div class="mb-story">${U.esc(story)}</div>` : ''}`;
-    el.classList.toggle('has-img', !!art && !G.edgeCross); el.classList.toggle('story', !!story && !G.edgeCross);
+    el.classList.toggle('has-img', !!art && !G.edgeCross); const longer = !!story && !G.edgeCross && innerWidth > 760 && innerHeight > 520; // มือถือไม่โชว์บรรทัดตำนาน (css/hud-c.css) → ไม่ต้องอยู่นานกว่า
+    el.classList.toggle('story', longer);
     el.classList.toggle('mini', !!G.edgeCross); // เดินข้ามขอบ = ป้ายชื่อเล็ก ไม่บังจอ
     el.style.backgroundImage = art && !G.edgeCross ? `url("${art.src}")` : '';
     el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
-    this._bannerUntil = performance.now() + (story && !G.edgeCross ? 4400 : 3300);
+    this._bannerUntil = performance.now() + (longer ? 2900 : 2100); // ตรงกับ animation mapName ใน css/hud-c.css (2 วิ / 2.8 วิ ถ้ามีบรรทัดตำนาน)
   },
   updateHud() {
     const p = G.player, d = p.d;

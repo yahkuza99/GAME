@@ -17,6 +17,7 @@ const NPC = {
     const fn = this.scripts[n.id];
     if (!fn) return;
     this.busy = true;
+    G.player.options.npcTalked = 1; // เคยคุย NPC แล้ว = ป้ายสอนปุ่มคุยใต้ชื่อ NPC ไม่ขึ้นอีก (R.talkHintOk ใน render.js)
     const sid = this.sid = (this.sid || 0) + 1;
     try {
       const q0 = Quest.current();
