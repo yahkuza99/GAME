@@ -198,10 +198,11 @@ const acct = (...c) => ({ v: 2, active: 0, chars: c });
     create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;`);
   try {
     await db2.exec(fs.readFileSync(path.join(ROOT, 'supabase', 'schema.sql'), 'utf8').replace(/-- เปิด Realtime[\s\S]*?end \$\$;/g, ''));
-    await db2.exec(MIG('20261012000100_save_verify_data.sql'));
+    for (const f of ['20261012000100_save_verify_data.sql', '20261012001100_economy_data.sql', '20261012002100_event_chain_data.sql']) await db2.exec(MIG(f));
     const r = await db2.query(`select (select count(*)::int from public.save_verify_items) as items, (select mode from public.save_verify_config) as mode,
-      (select count(*)::int from pg_trigger where tgname = 'characters_verify_save') as trg`);
-    ok('schema.sql + data: ตาราง/trigger/โหมด log ครบ', r.rows[0].items === Object.keys(DATA.items).length && r.rows[0].mode === 'log' && r.rows[0].trg === 1, JSON.stringify(r.rows[0]));
+      (select count(*)::int from pg_trigger where tgname in ('characters_verify_save', 'characters_econ_merge')) as trg,
+      (select count(*)::int from pg_proc where proname in ('submit_events', 'econ_market_buy', 'chain_head')) as fns`);
+    ok('schema.sql + data: ตาราง/trigger/โหมด log ครบ', r.rows[0].items === Object.keys(DATA.items).length && r.rows[0].mode === 'log' && r.rows[0].trg === 2 && r.rows[0].fns === 3, JSON.stringify(r.rows[0]));
   } catch (e) { ok('schema.sql + data รันได้', false, e.message); }
 
   console.log(`\n${pass} ผ่าน / ${fail} ไม่ผ่าน`);

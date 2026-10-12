@@ -85,10 +85,9 @@ const adminSync = (p, empty) => p.evaluate(async empty => {
   if (window.__qs) { Online.queueSave = window.__qs; window.__qs = null; }
   const u = Online.user.id, a = JSON.parse(JSON.stringify(Acct.data)); a.chars[a.active] = saveData();
   const now = Date.now() + (+localStorage.getItem('fake_sv:clock') || 0);
-  localStorage.setItem('fake_sv:row:' + u, JSON.stringify({ data: a, updated_ms: now }));
   if (empty) { const st = { at: now, wb: 0, held: 0, chars: {} }; localStorage.setItem('fake_sv:state:' + u, JSON.stringify(st)); }
   else localStorage.removeItem('fake_sv:state:' + u);
-  const d = JSON.parse(localStorage.getItem('fake_sb_db')); d.chars[u] = { user_id: u, name: G.player.name, data: a, updated_ms: now }; localStorage.setItem('fake_sb_db', JSON.stringify(d));
+  window.__FAKE_CH.put(u, { user_id: u, name: G.player.name, data: a, updated_ms: now });
   Online.lsSet(Online.mirrorKey(), a);
 }, !!empty);
 const pause = p => p.evaluate(() => { if (!window.__qs) { window.__qs = Online.queueSave; Online.queueSave = () => {}; } }); // ผู้ดูแลกำลังแก้ข้อมูล: ไม่ส่งเซฟจนกว่า adminSync
@@ -301,7 +300,7 @@ const playMinute = p => p.evaluate(() => {
   if (okSee) { const ia = await D.evaluate(cid => Market.stalls.get(cid).items.find(x => x.id === 'apple').i, uc); await D.evaluate(([cid, i]) => Market.buy(cid, i, 2), [uc, ia]); }
   ok('ไม่มี RPC: ตลาดซื้อขายได้ตามเดิม', okSee && await until(D, () => G.player.inventory.some(e => e.id === 'apple' && e.qty >= 2) && !Market.pend, null, 20000));
   await saveNow(C); await saveNow(D);
-  ok('ไม่มี RPC: SaveVerify.server = false + เซฟคลาวด์ได้ + ไม่มีหน้าต่าง/ข้อความปฏิเสธ', await C.evaluate(() => SaveVerify.server === false && !document.querySelector('.sv-modal') && JSON.parse(localStorage.getItem('fake_sb_db')).chars[Online.user.id].data.chars[0].zeny === G.player.zeny && G.player.zeny >= 700));
+  ok('ไม่มี RPC: SaveVerify.server = false + เซฟคลาวด์ได้ + ไม่มีหน้าต่าง/ข้อความปฏิเสธ', await C.evaluate(() => SaveVerify.server === false && !document.querySelector('.sv-modal') && window.__FAKE_CH.get(Online.user.id).data.chars[0].zeny === G.player.zeny && G.player.zeny >= 700));
   errs.push(...C.errs, ...D.errs);
   await ctx2.close();
 

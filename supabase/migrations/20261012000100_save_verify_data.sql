@@ -1,6 +1,6 @@
 -- ============================================================
 --  ข้อมูลสำหรับระบบตรวจเซฟ — สร้างอัตโนมัติด้วย tools/gen_item_ids.js (ห้ามแก้มือ)
---  ไอเทม 292 ชิ้น · Class 31 · ค่าฐานอัตรา: {"exp_per_kill":7784,"jexp_per_kill":5446,"worth_per_kill":388,"boss_exp":310000,"party_mul":1.75,"max_base_lv":99,"sigil_worth":3855,"src":{"exp":"rot_colossus","worth":"rot_colossus"}}
+--  ไอเทม 292 ชิ้น · Class 31 · ค่าฐานอัตรา: {"exp_per_kill":7784,"jexp_per_kill":5446,"worth_per_kill":573,"boss_exp":310000,"party_mul":1.75,"max_base_lv":99,"sigil_worth":3855,"src":{"exp":"rot_colossus","worth":"elite_alpha"}}
 --  รันหลัง 20261012000000_save_verify.sql • รันซ้ำได้ (upsert — ไม่ลบ id เก่า เซฟเก่าที่ยังมีของเลิกขายจะไม่ถูกตีว่าไอเทมปลอม)
 -- ============================================================
 insert into public.save_verify_items (id, worth, equip, card) values
@@ -332,4 +332,4 @@ insert into public.save_verify_jobs (id, job_max, tier, parent) values
   ('worldbreaker', 60, 3, 'jotun')
 on conflict (id) do update set job_max = excluded.job_max, tier = excluded.tier, parent = excluded.parent;
 
-update public.save_verify_config set derived = derived || '{"exp_per_kill":7784,"jexp_per_kill":5446,"worth_per_kill":388,"boss_exp":310000,"party_mul":1.75,"max_base_lv":99,"sigil_worth":3855}'::jsonb, updated_at = now() where id = 1;
+update public.save_verify_config set derived = derived || '{"exp_per_kill":7784,"jexp_per_kill":5446,"worth_per_kill":573,"boss_exp":310000,"party_mul":1.75,"max_base_lv":99,"sigil_worth":3855}'::jsonb, updated_at = now() where id = 1;

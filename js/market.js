@@ -72,7 +72,12 @@ const Market = {
     const p = G.player, now = Date.now();
     if (this.owner !== p) this.adopt(p);
     if (this.mine && this.mine !== p.vend) this.mine = p.vend || null; // เซฟถูกโหลดใหม่ทับ
-    if (this.pend && now - this.pend.at > MARKET_CFG.buyWait) this.timeoutBuy();
+    if (this.pend && !this.pend.econ && now - this.pend.at > MARKET_CFG.buyWait) this.timeoutBuy();
+    // เศรษฐกิจฝั่งเซิร์ฟเวอร์: ถามครั้งแรกว่ามีระบบไหม · มีของวางขาย = ดึงรายการขายได้ทุก 15 วิ (กันพลาดข้อความ 'sold')
+    if (typeof Econ !== 'undefined' && Online.online) {
+      if (Econ.server === null && !this.probing && Econ.usable()) { this.probing = true; Econ.probe().finally(() => { this.probing = false; }); }
+      else if (Econ.server === true && this.live() && now - (this.lastPull || 0) > 15000) { this.lastPull = now; Econ.pull(); }
+    }
     for (const [k, v] of this.late) if (now - v.at > MARKET_CFG.lateKeep) this.late.delete(k);
     for (const [k, v] of this.done) if (now - v.at > MARKET_CFG.lateKeep) this.done.delete(k);
     for (const [id, s] of this.stalls) if (now - s.seen > MARKET_CFG.expire) this.stalls.delete(id);
@@ -131,6 +136,7 @@ const Market = {
       case 'ask': if (this.live() && Date.now() - this.lastAd > 800) setTimeout(() => this.announce(true), 100 + Math.random() * 400); break;
       case 'buy': if (m.to === this.me()) this.onBuy(m); break;
       case 'res': if (m.to === this.me()) this.onRes(m); break;
+      case 'sold': if (m.to === this.me() && typeof Econ !== 'undefined') Econ.pull(); break; // ผู้ซื้อบอกว่าซื้อผ่านเซิร์ฟเวอร์แล้ว → ดึงรายการ (เงินเข้า)
     }
   },
   onAd(m) {
@@ -177,6 +183,7 @@ const Market = {
     const v = p.vend || { v: 2, sid: this.newId(), items: [], earned: 0, at: Date.now() };
     const same = eq ? null : v.items.find(x => x.id === e.id && !x.uid && x.qty > 0 && x.price === price);
     if (!same && v.items.filter(x => x.qty > 0).length >= MARKET_CFG.slots) { UI.msg(L(`วางขายได้สูงสุด ${MARKET_CFG.slots} รายการ`, `You can list up to ${MARKET_CFG.slots} items.`), 'err'); return false; }
+    if (this.econ()) { this.listServer(e, qty, price); return true; } // เซิร์ฟเวอร์ย้ายของเข้ารายการขายเอง (js/econ.js)
     let i = -1;
     if (!same) {
       i = this.freeSlot(new Set(v.items.map(x => x.i)));
@@ -211,6 +218,7 @@ const Market = {
     if (!x) return false;
     if (!(price >= 1 && price <= MARKET_CFG.maxPrice)) { UI.msg(L(`ราคาต้องอยู่ระหว่าง 1–${U.fmt(MARKET_CFG.maxPrice)} ${CUR}`, `Price must be 1–${U.fmt(MARKET_CFG.maxPrice)} ${CUR}`), 'err'); return false; }
     if (price === x.price) return true;
+    if (this.econ()) { this.serverOp('econ_market_price', { ch: G.player.name, i, price }, L(`ตั้งราคา ${this.lineName(x, 1)} เป็น ${U.fmt(price)} ${CUR}`, `${this.lineName(x, 1)} now ${U.fmt(price)} ${CUR}`)); return true; }
     x.price = price;
     UI.dirty(); saveGame(true, true); this.announce(true);
     UI.msg(L(`ตั้งราคา ${this.lineName(x, 1)} เป็น ${U.fmt(price)} ${CUR}`, `${this.lineName(x, 1)} now ${U.fmt(price)} ${CUR}`), 'info');
@@ -221,6 +229,7 @@ const Market = {
   cancel(i) {
     const v = this.mine, x = this.lineOf(i);
     if (!v || !x) return false;
+    if (this.econ()) { this.serverOp('econ_market_cancel', { ch: G.player.name, i }, L(`ยกเลิกการขาย — คืนเข้ากระเป๋า: ${this.lineName(x, x.qty)}`, `Listing cancelled — returned to your bag: ${this.lineName(x, x.qty)}`)); return true; }
     const p = this.owner || G.player;
     v.items = v.items.filter(y => y !== x);
     const back = this.restoreItems(p, { items: [x] });
@@ -267,6 +276,7 @@ const Market = {
       this.send(res);
     };
     if (!v || m.sid !== v.sid) { reply(false, 'closed'); return; }
+    if (typeof Econ !== 'undefined' && Econ.server === true) { reply(false, 'changed'); return; } // รายการขายเป็นของเซิร์ฟเวอร์แล้ว — เครื่องรุ่นเก่าที่ซื้อแบบเดิมต้องโหลดเกมใหม่
     const x = v.items.find(y => y.i === Math.floor(+m.i));
     if (!x || this.lineHash(v.sid, x) !== m.hash || Math.floor(+m.price) !== x.price) { reply(false, 'changed'); return; }
     const qty = Math.floor(+m.qty);
@@ -315,6 +325,7 @@ const Market = {
     if (qty < 1 || qty > x.qty || (x.uid && qty !== 1)) { UI.msg(L(`จำนวนไม่ถูกต้อง (มี ${x.qty} ชิ้น)`, `Invalid quantity (${x.qty} available).`), 'err'); return false; }
     const cost = x.price * qty;
     if (p.zeny < cost) { UI.msg(L(`${CUR} ไม่พอ — ต้องใช้ ${U.fmt(cost)} ${CUR} (มี ${U.fmt(p.zeny)})`, `Not enough ${CUR} — need ${U.fmt(cost)} ${CUR} (you have ${U.fmt(p.zeny)}).`), 'err'); return false; }
+    if (this.econ()) { this.buyServer(s, x, qty); return true; } // เซิร์ฟเวอร์หักเงิน+โอนของ+จ่ายผู้ขายทีเดียว ไม่ต้องรอเครื่องผู้ขาย
     this.join();
     const tid = this.newId();
     // บันทึกการซื้อบนเซิร์ฟเวอร์ก่อนกันเงิน (js/save_verify.js) — ผู้ขายบันทึกตรงกันตอนขาย = เซิร์ฟเวอร์ยอมให้ของ/เงินย้ายตามนี้
@@ -370,6 +381,66 @@ const Market = {
     UI.dirty();
     this.late.set(q.tid, Object.assign({}, q, { at: Date.now() }));
     UI.msg(L(`${q.name} ไม่ตอบ (อาจออฟไลน์ไปแล้ว) — ยกเลิกการซื้อ คืน ${U.fmt(q.cost)} ${CUR}`, `${q.name} didn't respond (may be offline) — purchase cancelled, ${U.fmt(q.cost)} ${CUR} refunded`), 'err');
+    this.refresh(true);
+  },
+
+  // ---------------- เศรษฐกิจฝั่งเซิร์ฟเวอร์ (js/econ.js · supabase/migrations/20261012001000_economy.sql) ----------------
+  econ() { return typeof Econ !== 'undefined' && Econ.usable(); },
+  async listServer(e, qty, price) {
+    const p = G.player, eq = isEquipType(ITEMS[e.id]);
+    if (eq && e.uid == null) { e.uid = G.uid++; saveGame(true, true); } // เซฟรุ่นเก่าที่อุปกรณ์ยังไม่มี uid
+    const line = eq ? { uid: e.uid } : { id: e.id, qty };
+    const r = await Econ.call('econ_market_list', { ch: p.name, line, price });
+    if (r.fallback) { this.list(e, qty, price); return; }
+    if (!r.ok) { UI.msg(L(`วางขายไม่สำเร็จ: ${Econ.errText(r.err)}`, `Listing failed: ${Econ.errText(r.err)}`), 'err'); return; }
+    await Econ.take(r.data);
+    this.mine = p.vend; this.owner = p; this.pick = null;
+    this.join(); this.announce(true);
+    UI.msg(L(`วางขาย ${this.lineName({ id: e.id, refine: e.refine || 0 }, qty)} ราคา ${U.fmt(price)} ${CUR}/ชิ้น ในตลาดกลางแล้ว — ขายได้ทันทีที่มีคนซื้อ (เซิร์ฟเวอร์จ่ายให้)`,
+      `Listed ${this.lineName({ id: e.id, refine: e.refine || 0 }, qty)} at ${U.fmt(price)} ${CUR} each — sells the moment someone buys (the server pays you)`), 'info');
+    Sound.play('click');
+    this.refresh(true);
+  },
+  // แก้ราคา / ยกเลิก ผ่านเซิร์ฟเวอร์ (ผลกลับมาเป็น p.vend ใหม่ + ของคืนกระเป๋า)
+  async serverOp(fn, args, okText) {
+    const r = await Econ.call(fn, args);
+    if (r.fallback) { UI.msg(L('ลองอีกครั้ง', 'Please try again'), 'err'); return; }
+    if (!r.ok) { UI.msg(Econ.errText(r.err), 'err'); return; }
+    await Econ.take(r.data);
+    this.mine = G.player.vend || null;
+    if (this.live()) this.announce(true); else if (r.data.delta && r.data.delta.vend === null) this.send({ k: 'off', sid: '' });
+    UI.msg(okText, 'info');
+    this.refresh(true);
+  },
+  async buyServer(s, x, qty) {
+    if (this.pend) { UI.msg(L('กำลังรอคำตอบจากผู้ขายอยู่', 'Still waiting for the seller to respond.'), 'err'); return; }
+    const tid = this.newId();
+    this.pend = { tid, seller: s.id, name: s.name, i: x.i, qty, cost: x.price * qty, item: { id: x.id, refine: x.refine || 0 }, at: Date.now(), econ: true };
+    this.sel = null; this.refresh(true);
+    UI.msg(L(`กำลังซื้อ ${this.lineName(x, qty)} จาก ${s.name}…`, `Buying ${this.lineName(x, qty)} from ${s.name}…`), 'info');
+    const r = await Econ.call('econ_market_buy', { tid, seller: s.id, seller_char: s.name, i: x.i, qty, price: x.price, buyer_char: G.player.name });
+    this.pend = null;
+    if (r.fallback) { this.buy(s.id, x.i, qty); return; }
+    if (!r.ok) {
+      UI.msg(L(`ซื้อไม่สำเร็จ: ${Econ.errText(r.err)}`, `Purchase failed: ${Econ.errText(r.err)}`), 'err');
+      if (r.err === 'econ_soldout' || r.err === 'econ_stock') { const st = this.stalls.get(s.id); if (st) st.items = st.items.filter(y => y.i !== x.i); }
+      this.refresh(true); return;
+    }
+    await Econ.take(r.data);
+    this.send({ k: 'sold', to: s.id, tid }); // ผู้ขาย (ถ้าออนไลน์) ดึงรายการทันที
+    const st = this.stalls.get(s.id), y = st && st.items.find(z => z.i === x.i);
+    if (y) { y.qty -= qty; if (y.qty <= 0) st.items = st.items.filter(z => z !== y); }
+    Sound.play('buy');
+    UI.msg(L(`ซื้อ ${this.lineName(x, qty)} จาก ${s.name} สำเร็จ — จ่าย ${U.fmt(x.price * qty)} ${CUR}`, `Bought ${this.lineName(x, qty)} from ${s.name} — paid ${U.fmt(x.price * qty)} ${CUR}`), 'item');
+    this.refresh(true);
+  },
+  // เซิร์ฟเวอร์ขายของเราได้ (มาจาก Econ.pull) — แจ้งแบบเดียวกับขายเอง
+  onServerSale(d) {
+    const s = d && d.sale; if (!s) return;
+    this.mine = G.player.vend || null;
+    const txt = L(`ขาย ${this.lineName({ id: s.id, refine: s.refine || 0 }, s.qty)} ให้ ${s.who} — ได้ ${U.fmt(s.gain)} ${CUR}`, `Sold ${this.lineName({ id: s.id, refine: s.refine || 0 }, s.qty)} to ${s.who} — earned ${U.fmt(s.gain)} ${CUR}`);
+    UI.msg(txt, 'item'); this.toast(txt); Sound.play('buy');
+    if (this.live()) this.announce(true); else this.send({ k: 'off', sid: this.mine ? this.mine.sid : '' });
     this.refresh(true);
   },
 

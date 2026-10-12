@@ -841,17 +841,21 @@ function killMob(m) {
   Quest.onKill(d.id);
   Bounty.onKill(d.id);
   p.kills = p.kills || {}; p.kills[d.id] = (p.kills[d.id] || 0) + 1; // สมุดมอนสเตอร์: จำนวนที่ล่าได้
-  grantChip(d, m);
   const em = expLevelMul(d.lv, p.baseLv);
-  Party.shareExp(Math.max(1, Math.round(d.exp * em)), Math.max(1, Math.round(d.jexp * em)), d); // ไม่มีปาร์ตี้ = gainExp ตามปกติ
-  const [z0, z1] = mobZeny(d), z = U.randi(z0, z1);
-  if (z > 0) { p.zeny += z; addFloater(m.x, m.y - 0.5, `+${z} ${CUR}`, '#ffd34a'); UI.dirty(); }
-  for (const [id, ch] of d.drops) if (U.chance(ch)) dropItemOnGround(id, m.x, m.y);
+  // ระยะ 2 (js/chain.js): เซิร์ฟเวอร์ให้ EXP/Volt/ดรอป/ชิปเอง — เกมจดการฆ่าลงโซ่ (เพื่อนปาร์ตี้ยังได้ส่วนแบ่ง EXP ตามเดิม)
+  const srv = typeof Chain !== 'undefined' && Chain.on();
+  if (srv) Chain.onKill(m, Party.shareExp(Math.max(1, Math.round(d.exp * em)), Math.max(1, Math.round(d.jexp * em)), d, true));
+  else {
+    grantChip(d, m);
+    Party.shareExp(Math.max(1, Math.round(d.exp * em)), Math.max(1, Math.round(d.jexp * em)), d); // ไม่มีปาร์ตี้ = gainExp ตามปกติ
+    const [z0, z1] = mobZeny(d), z = U.randi(z0, z1);
+    if (z > 0) { p.zeny += z; addFloater(m.x, m.y - 0.5, `+${z} ${CUR}`, '#ffd34a'); UI.dirty(); }
+    for (const [id, ch] of d.drops) if (U.chance(ch)) dropItemOnGround(id, m.x, m.y);
+  }
   if (m.isMvp) {
     UI.announce(L(`🏆 ${p.name} ได้ปราบ MVP ${d.name} สำเร็จ!`, `🏆 ${p.name} has slain the MVP ${d.name}!`));
     UI.msg(L(`[MVP] ยินดีด้วย! คุณได้รับรางวัล MVP`, `[MVP] Congratulations! You earned the MVP reward.`), 'mvp');
-    const bonus = U.pick(['white_potion', 'blue_potion', 'yellow_potion']);
-    addItem(bonus, 3);
+    if (!srv) addItem(U.pick(['white_potion', 'blue_potion', 'yellow_potion']), 3); // ระยะ 2: เซิร์ฟเวอร์ทอยยาโบนัสให้
     (p.mvpAt || (p.mvpAt = {}))[G.map.id] = Date.now() + d.respawn;
     saveGame(true);
     Sound.play('mvp');

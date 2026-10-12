@@ -286,7 +286,7 @@ if (MAP_DEFS.eldheim && !MAP_DEFS.eldheim.npcs.some(n => n.id === Gacha.NPC_ID))
   killMob = function (m) {
     const was = !!(m && m.dead);
     const r = kill0.apply(this, arguments);
-    if (!was) { Gacha.onBossKill(m); Gacha.onMobKill(m); }
+    if (!was && !(typeof Chain !== 'undefined' && Chain.on())) { Gacha.onBossKill(m); Gacha.onMobKill(m); } // ระยะ 2: ตราจากมอน/บอส เซิร์ฟเวอร์ทอยให้
     return r;
   };
   // การ์ดไอเทม "ได้จาก": ตราไม่ได้อยู่ในตารางดรอป (ให้ตรงเข้ากระเป๋า) → แสดงรายชื่อบอสแทน

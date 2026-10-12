@@ -185,9 +185,134 @@ drop table if exists public.transfer_ledger, public.cheat_flags, public.save_ver
 เกมที่มี `js/save_verify.js` ยังทำงานได้หลังถอด (เห็นว่าไม่มีฟังก์ชัน → ข้าม) · ข้อมูลเซฟผู้เล่นไม่ถูกแตะ
 (ข้อสังเกต: trigger ทำให้ `updated_at` เป็นเวลาเซิร์ฟเวอร์ — หลังถอดจะกลับไปใช้เวลาจากเครื่องผู้เล่นตามเดิม)
 
+# ระยะ 1 — เศรษฐกิจฝั่งเซิร์ฟเวอร์ (Volt/ของ ย้ายที่ฐานข้อมูล)
+
+> ไฟล์: `supabase/migrations/20261012001000_economy.sql` + `20261012001100_economy_data.sql` (ราคาร้าน/สูตรตีบวก — สร้างอัตโนมัติ) · ฝั่งเกม: `js/econ.js`
+
+## เปลี่ยนอะไร
+
+ระยะ 0 "ตรวจ" เซฟที่เครื่องผู้เล่นส่งมา · ระยะ 1 ให้ **เซิร์ฟเวอร์เป็นคนย้ายเงิน/ของเอง** สำหรับงานที่เกี่ยวกับเงินโดยตรง:
+
+| งาน | เดิม (เครื่องผู้เล่นทำ) | ตอนนี้ (เซิร์ฟเวอร์ทำ) |
+|---|---|---|
+| ซื้อของร้าน NPC | เกมหักเงินเอง | `econ_shop_buy` — ราคาจากตารางเซิร์ฟเวอร์ ร้านต้องขายของชิ้นนั้นจริง |
+| ขายของให้ร้าน NPC | เกมบวกเงินเอง | `econ_shop_sell` — ราคาขาย = ราคา ÷ 2 จากตารางเซิร์ฟเวอร์ ของต้องมีในเซฟบนเซิร์ฟเวอร์ |
+| ตีบวก | เกมสุ่มเอง | `econ_refine` — **เซิร์ฟเวอร์สุ่ม** (แก้โอกาสในเครื่องไม่มีผล) หักค่าบริการ/แร่ |
+| ตลาด: วางขาย/แก้ราคา/ยกเลิก | เกมย้ายของเข้า-ออกเอง | `econ_market_list/price/cancel` — รายการขาย (p.vend) เป็นของเซิร์ฟเวอร์ |
+| ตลาด: ซื้อ | ผู้ซื้อ-ผู้ขายคุยกันเอง (ต้องออนไลน์ทั้งคู่ ต่างคนต่างย้าย) | `econ_market_buy` — ผู้ซื้อเรียกครั้งเดียว: หักเงิน + โอนของ + จ่ายผู้ขาย **ในทรานแซกชันเดียว** (ล็อกแถวทั้งคู่) |
+| แลกเปลี่ยน | ต่างคนต่างส่งของ | `econ_trade` — ฝ่ายที่สองที่ยืนยันข้อเสนอตรงกัน = เซิร์ฟเวอร์สลับของทั้งคู่ทีเดียว |
+
+- อุปกรณ์ที่เซิร์ฟเวอร์สร้าง/โอนได้ **uid ใหม่จากเซิร์ฟเวอร์** (≥ 1,000,000,000,000) — ไม่ชนกับ uid ที่เกมสร้าง
+- อุปกรณ์ที่ออกจากตัวละครไปแล้ว (ขาย/วางตลาด/แลก) แต่โผล่กลับมาในเซฟ = **ของปั๊ม** → ธง `dup_item` (โหมด enforce: ตัดทิ้งก่อนบันทึก)
+- ทุกการเปลี่ยนแปลงจดใน `econ_events` + เลขลำดับ `econSeq` ในเซฟตัวละคร
+- **เซฟชนกันไม่ทำให้เงินหาย**: ถ้าเกมส่งเซฟที่ยังไม่รู้รายการล่าสุด (econSeq ต่ำกว่า) เซิร์ฟเวอร์เติมรายการที่ขาดให้ก่อนบันทึก (trigger `characters_econ_merge`)
+- ผู้ขายในตลาด: ขายได้ทันทีที่ผู้ซื้อกด (เซิร์ฟเวอร์จ่ายให้) — เกมผู้ขายดึงรายการ (`econ_pull`) เมื่อได้ยินว่าขายได้ หรือทุก 15 วินาที
+
+## ยังกันไม่ได้ในระยะ 1
+
+- ของ/Volt ที่ได้จากการเล่น (ดรอปมอน เงินจากมอน รางวัลเควสต์ กาชา) ยังเกิดในเครื่องผู้เล่น → คุมด้วยกติกาของระยะ 0 (`worth_rate`) จนกว่าจะถึงระยะ 2
+- ของกอง (ไม่มี uid) ที่ขายไปแล้วแต่เกมที่ถูกแก้ไม่ลบ — จับได้เมื่อมูลค่าเกินถัง (ระยะ 2 ปิดช่องนี้: ของกองเพิ่มได้จากเซิร์ฟเวอร์เท่านั้น)
+
+## ปิด/เปิด
+
+```sql
+update public.save_verify_config set econ = false;  -- RPC ตอบ econ_off → เกมกลับไปใช้วิธีเดิม (ระยะ 0)
+update public.save_verify_config set econ = true;
+select public.econ_trim(30);                          -- เก็บกวาดรายการเก่ากว่า 30 วัน (ตั้ง pg_cron วันละครั้งได้)
+```
+
+# ระยะ 2 — EXP/ดรอปจากเซิร์ฟเวอร์ + บันทึกการเล่นแบบโซ่แฮช
+
+> ไฟล์: `supabase/migrations/20261012002000_event_chain.sql` + `20261012002100_event_chain_data.sql` (มอน/แผนที่ — สร้างอัตโนมัติ) · ฝั่งเกม: `js/chain.js`
+
+## ทำงานยังไง
+
+1. ฆ่ามอนแล้ว **เกมไม่ให้รางวัลเอง** — จดเหตุการณ์ `{ seq, prev, t, k:'kill', a:[มอน, แผนที่, เลเวลเรา, จำนวนเพื่อนปาร์ตี้, บอส?] }` ต่อกันเป็นโซ่
+   แต่ละรายการมี `h = SHA-256(seq|prev|t|k|a…)` และ `prev` = แฮชของรายการก่อนหน้า (แก้ 1 รายการ = แฮชทุกตัวหลังจากนั้นเปลี่ยน)
+2. ทุก 10 ตัว / 30 วินาที / ฆ่าบอสทันที เกมส่งชุดไป `submit_events` พร้อมเลขหมุด (anchor) ล่าสุดที่เซิร์ฟเวอร์ให้ไว้
+3. เซิร์ฟเวอร์ตรวจ:
+   - **โซ่**: ต้องต่อจากหมุดล่าสุดจริง (seq ต่อเนื่อง · prev ตรง · คำนวณแฮชซ้ำตรง · เวลาไม่ย้อน) — ไม่ตรง = ปฏิเสธทั้งชุด + ธง `chain_break`
+   - **ความเป็นไปได้**: มอนต้องเกิดในแผนที่นั้น (`kill_map`) · จำนวนฆ่าต่อแผนที่ไม่เกินจำนวนที่เกิดได้ตามเวลาจริงตั้งแต่หมุดก่อน และรวมไม่เกิน 3 ตัว/วินาที (`kill_rate`) · MVP/World Boss ฆ่าซ้ำในคูลดาวน์ไม่ได้ (`boss_cooldown`)
+     — โหมด log: จดธงแต่รับ · โหมด enforce: ปฏิเสธชุดนั้น (ไม่ได้รางวัล)
+4. เซิร์ฟเวอร์ **ทอยเอง** ด้วย `random()` ของฐานข้อมูล: EXP (สูตรส่วนต่างเลเวลเดียวกับเกม + ส่วนแบ่งปาร์ตี้) · Volt · ของดรอปตามตาราง · ชิป · ตรากาชา · ยาโบนัส MVP
+   → ใส่ลงเซฟในฐานข้อมูล (ขึ้นเลเวล/แต้ม Stat/แต้มสกิล แบบเดียวกับเกม) แล้วคืนผลให้เกมแสดง
+5. ออกหมุดใหม่ = `HMAC-SHA256(ความลับ, user|ตัวละคร|seq|head)` ชุดถัดไปต้องต่อจากหมุดนี้ · ส่งชุดเดิมซ้ำ (คำตอบหาย) = `dup` ไม่ให้รางวัลซ้ำ
+6. เน็ตหลุด/ปิดเกม: คิวเก็บในเครื่อง (สูงสุด 1,000 รายการ) ส่งตามลำดับเมื่อกลับมา · ถูกปฏิเสธ = ทิ้งชุดนั้น เริ่มต่อจากหมุดล่าสุดของเซิร์ฟเวอร์
+7. เพื่อนปาร์ตี้ยังได้ส่วนแบ่ง EXP แบบเดิม (ส่งผ่านช่องปาร์ตี้ — เครื่องผู้รับเป็นคนบวก คุมด้วยกติกาของระยะ 0)
+
+**ความลับ (secret)**: สร้างตอนรัน migration ในตาราง `chain_secret` (ผู้เล่นอ่านไม่ได้ ไม่อยู่ใน repo/เกม)
+ย้ายเข้า Supabase Vault ได้ (แนะนำ): `select vault.create_secret((select secret from public.chain_secret), 'iv_chain_secret');` แล้ว `update public.chain_secret set secret = 'moved-to-vault';` —
+ฟังก์ชัน `ch_secret()` อ่าน Vault ก่อนเสมอ · **ห้ามเปลี่ยนความลับระหว่างมีผู้เล่นออนไลน์** (หมุดเก่าตรวจไม่ผ่าน — ผู้เล่นแค่เริ่มโซ่ใหม่ ไม่เสียของ)
+
+**พื้นที่ฐานข้อมูล (free tier)**: เก็บรายการดิบ 1 แถวต่อชุด (~2–6 KB) — ผู้เล่นล่าทั้งวัน ~1,000 ชุด/วัน · `select public.chain_trim(3);` เก็บ 3 วันล่าสุด
+(ตั้ง pg_cron วันละครั้ง: `select cron.schedule('chain-trim', '0 4 * * *', 'select public.chain_trim(3); select public.econ_trim(30);');`)
+
+## หลังเปิดระยะ 2 ให้ทุกคนแล้ว (ปิดช่องที่เหลือของระยะ 0)
+
+EXP/Volt/ของจากมอนไม่ได้มาจากเซฟของเกมอีกต่อไป → ลดเพดานที่ยอมให้เซฟเพิ่มเองได้มาก (เหลือรางวัลเควสต์/รายวัน/กาชา/ส่วนแบ่งปาร์ตี้):
+
+```sql
+update public.save_verify_config set params = params || '{"kps": 0.2, "worth_cap": 1500000}'::jsonb;
+```
+
+ดูธงสัก 2–3 วันในโหมด log ก่อน ถ้าคนเล่นจริงไม่โดน ค่อยเปิด enforce
+
+## ยังกันไม่ได้ในระยะ 2 (ตรง ๆ)
+
+- เกมที่ถูกแก้ "อ้างว่าฆ่า" มอนที่มีอยู่จริงในแผนที่ ในอัตราที่เป็นไปได้ ได้ — เซิร์ฟเวอร์ไม่ได้จำลองการต่อสู้ (ได้เท่าคนเล่นจริงที่เก่งที่สุด ไม่ใช่ไม่จำกัด)
+- โซ่แฮชพิสูจน์ "ลำดับและการไม่แก้ย้อนหลัง" ของสิ่งที่ส่งไปแล้ว — ไม่ได้พิสูจน์ว่าเหตุการณ์เกิดจริง (เครื่องผู้เล่นสร้างโซ่เองได้ก่อนส่ง)
+- ส่วนแบ่ง EXP ปาร์ตี้ / รางวัลเควสต์ / หีบรายวัน / กาชา ยังบวกในเครื่อง → คุมด้วยกติกาของระยะ 0
+
+# ลำดับเปิดใช้บนเซิร์ฟเวอร์จริง (ทั้ง 3 ระยะ)
+
+> ระยะ 0 เปิดแล้ว (โหมด log) — ทำต่อจากข้อ 1 · ทุกไฟล์รันซ้ำได้ · ทำใน Supabase Dashboard → SQL Editor ทีละไฟล์
+
+1. `20261012000100_save_verify_data.sql` **รันซ้ำ** (ตารางดรอปเปลี่ยนในรอบ 38 → ค่าฐาน `worth_per_kill` 388 → 573)
+2. `20261012001000_economy.sql` → `20261012001100_economy_data.sql`
+3. `20261012002000_event_chain.sql` → `20261012002100_event_chain_data.sql`
+4. ตรวจ: `select econ, chain, mode from save_verify_config;` = `true, true, log` · `select count(*) from sv_mobs;` > 0 · `select count(*) from save_verify_items where shop;` > 0
+5. ขึ้นเว็บเกมรุ่นนี้ (มี `js/econ.js` `js/chain.js`) — เกมรุ่นเก่าที่เปิดค้างยังเล่นได้ (ไม่เรียก RPC ใหม่) แต่ซื้อตลาดจากผู้ขายที่ใช้รุ่นใหม่ไม่ได้จนกว่าจะโหลดหน้าใหม่
+6. ดูธง 2–3 วัน (`cheat_flags_summary`) → ลด params ตามหัวข้อด้านบน → ค่อย enforce
+7. (ถ้ามี pg_cron) ตั้งงานเก็บกวาด `chain_trim` / `econ_trim`
+
+ถ้าต้องเปิดทีละระยะ: ข้อ 2 อย่างเดียวได้ (ระยะ 1) · ระยะ 2 ต้องมีระยะ 1 ก่อน (ใช้ `ec_commit`/`econ_uid_seq`)
+
+## ถอดระยะ 1–2 (rollback)
+
+ปิดเฉย ๆ (แนะนำ — เกมกลับไปทำแบบเดิมเองทันที ไม่ต้องขึ้นเว็บใหม่):
+
+```sql
+update public.save_verify_config set chain = false;  -- เกมกลับไปทอยดรอป/EXP เอง
+update public.save_verify_config set econ = false;   -- ร้าน/ตีบวก/ตลาด/แลกเปลี่ยน กลับไปทำในเครื่อง (+ บันทึกการโอนของระยะ 0)
+```
+
+ถอดทั้งหมด (หลังปิดแล้ว):
+
+```sql
+drop function if exists public.submit_events(text, bigint, jsonb), public.chain_head(text), public.chain_trim(int), public.ch_flag(uuid, text, jsonb),
+  public.ch_anchor_json(public.event_anchors), public.ch_last(uuid, text), public.ch_exp_mul(int, int), public.ch_secret(), public.ch_canon(jsonb),
+  public.ch_hmac(text, text), public.ch_sha(text), public.ec_exp(jsonb, numeric, numeric, int);
+drop table if exists public.boss_kills, public.event_log, public.event_anchors, public.chain_secret, public.sv_map_mobs, public.sv_mobs;
+drop trigger if exists characters_econ_merge on public.characters;
+drop function if exists public.characters_econ_merge(), public.econ_merge_save(uuid, jsonb, jsonb), public.econ_trim(int), public.econ_pull(text, int),
+  public.econ_trade_cancel(text), public.econ_trade(text, uuid, text, jsonb, jsonb), public.ec_give(jsonb, jsonb), public.ec_canon(jsonb),
+  public.econ_market_buy(text, uuid, text, int, int, bigint, text), public.econ_market_price(text, int, bigint), public.econ_market_cancel(text, int),
+  public.econ_market_list(text, jsonb, bigint), public.ec_vend(jsonb), public.econ_refine(text, text), public.econ_shop_sell(text, jsonb),
+  public.econ_shop_buy(text, text, int), public.ec_result(int, jsonb), public.ec_uid(), public.ec_begin(text), public.ec_commit(uuid, text, jsonb, text, text),
+  public.ec_apply(jsonb, jsonb, boolean), public.ec_idx(jsonb, text), public.ec_key(text);
+drop table if exists public.econ_trades, public.econ_market_buys, public.econ_events;
+drop sequence if exists public.econ_uid_seq;
+alter table public.save_verify_config drop column if exists chain, drop column if exists econ;
+alter table public.save_verify_items drop column if exists shop, drop column if exists price;
+```
+
+เซฟผู้เล่นไม่ถูกลบ (มีช่อง `econSeq` / uid เลขใหญ่ค้างอยู่ — เกมไม่ใช้ก็ไม่เป็นไร)
+
 ## ทดสอบ
 
 - `tests/saveverify_sql.js` — รัน SQL จริงบน Postgres ในเครื่อง (PGlite) แล้วเทียบผลทุกกรณีกับสำเนา JavaScript (46 ข้อ)
   `PGLITE=<โฟลเดอร์ node_modules ที่มี @electric-sql/pglite> node tests/saveverify_sql.js`
 - `tests/saveverify.js` — เกมจริงในเบราว์เซอร์ + Supabase ปลอม: เล่นสุจริต / โกง / ตลาด / แลกเปลี่ยน / enforce / เซิร์ฟเวอร์เก่า / แบน
 - แก้กติกา = แก้ทั้ง `save_verify_eval` ใน SQL และ `supabase/save_verify_rules.js` ให้ตรงกัน แล้วรันทั้งสองเทสต์
+- `tests/economy_sql.js` (ระยะ 1, PGlite 47 ข้อ) · `tests/economy.js` (ระยะ 1, เบราว์เซอร์ 23 ข้อ)
+- `tests/chain_sql.js` (ระยะ 2, PGlite 32 ข้อ) · `tests/chain.js` (ระยะ 2, เบราว์เซอร์ 15 ข้อ)

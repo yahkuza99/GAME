@@ -176,7 +176,9 @@ const mirrorHas = (p, uid, z) => p.evaluate(([u, z]) => (localStorage.getItem('n
 
   // ---- ฝั่งเซิร์ฟเวอร์: ไคลเอนต์ที่ถูกแก้ (ไม่ฟังช่องเตะ) ก็เซฟทับไม่ได้ ----
   ok('เซิร์ฟเวอร์รับ claim ของ A แล้ว (เซฟแนบ sid)', await A.evaluate(() => SessionGuard.server === true));
-  await A.evaluate(() => { SessionGuard.recv = () => {}; window.__sb = Online.sb; }); // จำลองคนแก้โค้ด: ปิดตัวฟังการเตะ
+  // จำลองคนแก้โค้ด: ปิดตัวฟังการเตะ • ปิดเซฟอัตโนมัติทุก 30 วิของ A ด้วย — ไม่งั้นถ้ามันบังเอิญเซฟระหว่าง H ล็อกอิน (~12–14 วิ)
+  // เซิร์ฟเวอร์จะปฏิเสธ stale_session แล้ว A โดนเตะ "ถูกต้อง" ก่อนข้อตรวจถัดไป = เทสต์ตกตามจังหวะ (วัดแล้ว 4/7 รอบ) • ขั้นถัดไปเซฟตรงผ่าน __sb
+  await A.evaluate(() => { SessionGuard.recv = () => {}; window.__sb = Online.sb; window.__qs = Online.queueSave; Online.queueSave = () => {}; });
   const H = await open(BASE);
   await loginAndPlay(H, user);
   await H.evaluate(() => { G.player.zeny = 616161; saveGame(true, true); });
@@ -188,7 +190,7 @@ const mirrorHas = (p, uid, z) => p.evaluate(([u, z]) => (localStorage.getItem('n
     return [a.error && a.error.message, b2.error && b2.error.message];
   }, uid);
   ok('ฐานข้อมูลปฏิเสธเซฟจากเครื่องเก่า ทั้งไม่แนบ sid และแนบ sid เก่า', raw[0] === 'stale_session' && raw[1] === 'stale_session', JSON.stringify(raw));
-  await A.evaluate(() => { G.player.zeny = 777777; saveGame(true, true); });
+  await A.evaluate(() => { Online.queueSave = window.__qs; G.player.zeny = 777777; saveGame(true, true); }); // เปิดเซฟคืนแล้วลองเซฟผ่านเกม
   ok('A เซฟผ่านเกมโดนปฏิเสธ → เด้งออกเอง', await until(A, () => SessionGuard.kicked && !!document.getElementById('dup-kick'), null, 15000));
   ok('คลาวด์ยังเป็นค่าของ H', (await dbZeny(H, uid)) === 616161, String(await dbZeny(H, uid)));
   ok('ไม่มี error ในหน้าเกม (ออนไลน์)', [A, B, H].every(p => !p.errs.length), [A, B, H].map(p => p.errs.join(' || ')).filter(Boolean).join(' ## '));
