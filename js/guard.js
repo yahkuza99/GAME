@@ -21,7 +21,9 @@
     WeakSet, WeakMap, Map, Set, random: Math.random, fetch: window.fetch && window.fetch.bind(window),
   };
   const WD = !!navigator.webdriver;          // เทสต์/บอทอัตโนมัติ: ดูอย่างเดียว (เทสต์ตั้งค่าตรง ๆ เป็นปกติ)
-  let enforce = !WD;
+  // เปิดใช้จริงช่วงแรก = ติดธงอย่างเดียว ยังไม่คืนค่า (กันจับผิดคนเล่นจริง — ดูธงสักพักก่อน แล้วค่อยตั้ง GUARD_REPAIR = true) — 2026-10-12
+  const GUARD_REPAIR = false;
+  let enforce = !WD && GUARD_REPAIR;
   const SELF = (document.currentScript && document.currentScript.src || '').split('?')[0];
 
   // ---------------- ธง ----------------
