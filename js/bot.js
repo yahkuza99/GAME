@@ -517,7 +517,10 @@ const Bot = {
     if (!engaged) return false;
     // ยกเว้น ULT ฟื้นฟู (AEGIS / NORNS): ใช้เมื่อ HP ≤ 40% เท่านั้น (เจ้าของ 2026-10-12 "ULT ฟื้นฟูไม่มีเงื่อนไขเรื่อง HP แก้")
     const kind = Feel.ultKind && Feel.ultKind();
-    if ((kind === 'aegis' || kind === 'norns') && hpPct > 40) return false;
+    // AEGIS ฟื้นทั้ง HP/SP → ใช้เมื่อ HP ≤ 40% หรือ SP ≤ 30% · NORNS ฟื้นแค่ HP → HP ≤ 40% (เจ้าของ 2026-10-12 "ULT ฟื้นฟูดู SP ด้วย")
+    const spPct = p.d.maxSp ? p.sp / p.d.maxSp * 100 : 100;
+    if (kind === 'aegis' && hpPct > 40 && spPct > 30) return false;
+    if (kind === 'norns' && hpPct > 40) return false;
     Feel.ultFire();
     this.progAt = Math.max(this.progAt, G.time - 1.5);
     return true;

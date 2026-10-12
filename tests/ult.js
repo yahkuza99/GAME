@@ -96,6 +96,8 @@ function serve() {
 
     setup(); mob('seraph_pudding', 2, 0, true); pl.ultKind = 'aegis'; think();
     ok('AUTO holds heal ULT at full HP (owner 2026-10-12: recovery ULT only when HP ≤ 40%)', pl.ult === 100);
+    setup(); mob('seraph_pudding', 2, 0, true); pl.ultKind = 'aegis'; pl.sp = Math.floor(pl.d.maxSp * 0.2); think();
+    ok('AUTO uses AEGIS when SP ≤ 30% even at full HP (owner 2026-10-12)', pl.ult === 0);
 
     setup('eldheim'); G.mobs = []; pl.ult = 100; think();
     ok('AUTO no ULT in town', pl.ult === 100);
