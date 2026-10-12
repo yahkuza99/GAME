@@ -241,8 +241,9 @@ const UI = {
       else if (cmd === 'emote' || cmd === 'e') this.toggle('w-emote');
       else if (/^trade(\s|$)/.test(cmd)) Trade.command(text.slice(6));
       else if (/^(market|vend)(\s|$)/.test(cmd) && typeof Market !== 'undefined') Market.command(cmd.startsWith('vend') ? 'vend' : text.slice(8)); // ตลาด /market • เปิดร้าน /vend
+      else if (/^(who|online|friends?)(\s|$)/.test(cmd) && typeof Social !== 'undefined') Social.command(/^friend/.test(cmd) ? text.slice(1).replace(/^\S+\s*/, '') : ''); // ผู้เล่นออนไลน์ /who • เพิ่มเพื่อน /friend ชื่อ
       else if (Emote.fromChat(cmd)) { /* อีโมต */ }
-      else this.msg(L(`คำสั่ง: /sit /where /save /autoloot /nc /ns /help /emote /trade /market /vend • ปาร์ตี้: /party create /invite ชื่อ /leave /p ข้อความ • อีโมต: ${EMOTES.map(e => '/' + e.k).join(' ')}`, `Commands: /sit /where /save /autoloot /nc /ns /help /emote /trade /market /vend • Party: /party create /invite name /leave /p message • Emotes: ${EMOTES.map(e => '/' + e.k).join(' ')}`), 'info');
+      else this.msg(L(`คำสั่ง: /sit /where /save /autoloot /nc /ns /help /emote /trade /market /vend /who /friend ชื่อ • ปาร์ตี้: /party create /invite ชื่อ /leave /p ข้อความ • อีโมต: ${EMOTES.map(e => '/' + e.k).join(' ')}`, `Commands: /sit /where /save /autoloot /nc /ns /help /emote /trade /market /vend /who /friend name • Party: /party create /invite name /leave /p message • Emotes: ${EMOTES.map(e => '/' + e.k).join(' ')}`), 'info');
       return;
     }
     this.msg(`${p.name} : ${text}`, 'say');

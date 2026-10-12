@@ -97,6 +97,10 @@ const Nav = {
       const m = G.mobs.filter(m => !m.dead && m.def.id === t.mobId).sort((a, b) => U.dist(a.x, a.y, G.player.x, G.player.y) - U.dist(b.x, b.y, G.player.x, G.player.y))[0];
       return m ? { x: Math.floor(m.x), y: Math.floor(m.y), mob: m, label: t.name } : { x: map.w >> 1, y: map.h >> 1, label: t.name, none: true };
     }
+    if (t.kind === 'player') { // ผู้เล่น (js/social.js): แผนที่เดียวกัน = ตำแหน่งสดจากช่องแผนที่ • ไม่งั้นตำแหน่งล่าสุดที่ Social.follow อัปเดตให้
+      const o = typeof Online !== 'undefined' && Online.others.get(t.uid);
+      return { x: Math.floor(o ? o.x : t.x), y: Math.floor(o ? o.y : t.y), player: true, label: t.name };
+    }
     return { x: t.x, y: t.y, label: t.name };
   },
 
@@ -113,16 +117,19 @@ const Nav = {
     if (t.hunt && wp.none) { this.target = null; QuestHunt.start(t.hunt); this.updatePill(); return; } // ถึงแผนที่แล้วแต่ยังไม่มีตัว → ไปรอที่แหล่งเกิด
     const d = U.dist(p.x, p.y, wp.x + 0.5, wp.y + 0.5);
     const npc = wp.npc ? G.npcs.find(n => n.id === t.npcId) : null;
-    const arrived = wp.npc ? npc && NPC.inTalkRange(npc, p) : d <= (wp.mob ? 4 : 0.8);
+    const arrived = wp.npc ? npc && NPC.inTalkRange(npc, p) : d <= (wp.mob ? 4 : wp.player ? 2 : 0.8);
     if (arrived && !wp.portal) {
       if (t.hunt && (wp.mob || wp.none)) { this.target = null; QuestHunt.start(t.hunt); this.updatePill(); return; } // ล่าเฉพาะมอนเควสต์จนครบ
       if (npc) { p.npcTarget = npc; p.path = []; }
       else if (wp.mob) { p.target = wp.mob; p.repathAt = 0; UI.msg(L(`ถึงตัว ${t.name} แล้ว — เริ่มโจมตี`, `Reached ${t.name} — attacking`), 'info'); }
+      else if (wp.player) { p.path = []; UI.msg(L(`ถึงตัว ${t.name} แล้ว`, `Reached ${t.name}`), 'info'); }
       else if (wp.none) UI.msg(L(`มาถึง ${MAP_DEFS[t.map].name} แล้ว แต่ยังไม่พบ ${t.name} ในตอนนี้ ลองเดินหารอบ ๆ`, `Arrived at ${MAP_DEFS[t.map].name}, but no ${t.name} is around right now — try searching nearby`), 'info');
       else UI.msg(L(`ถึง ${t.name} แล้ว`, `Arrived at ${t.name}`), 'info');
       this.target = null; this.updatePill();
       return;
     }
+    // ผู้เล่นเป้าหมายเดินไปแล้ว: ปลายทางเดิมห่างจากตัวเขาเกิน 1.5 ช่อง → หาเส้นทางใหม่ (ทุก 0.6 วิ)
+    if (wp.player && p.path.length && G.time >= this.repathAt) { const e = p.path[p.path.length - 1]; if (Math.hypot(e.x - wp.x, e.y - wp.y) > 1.5) p.path = []; }
     if (!p.path.length && G.time >= this.repathAt) {
       this.repathAt = G.time + 0.6;
       p.path = findPath(G.map, Math.floor(p.x), Math.floor(p.y), wp.x, wp.y, 20000);

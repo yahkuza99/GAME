@@ -360,6 +360,7 @@ const UnitCard = {
       onclick: () => { this.close(); Trade.request(o); } }, ivIconEl('trade'), L('แลกเปลี่ยน', 'Trade')));
     if (typeof Market !== 'undefined' && Market.stallOf(o.id)) btns.unshift(h('button', { type: 'button', class: 'btn small primary', 'data-act': 'shop',
       onclick: () => { this.close(); Market.openShop(o.id); } }, ivIconEl('trade'), L('ของที่วางขาย', 'Listings')));
+    if (typeof Social !== 'undefined') btns.push(...Social.cardButtons(o, () => this.close())); // เพิ่มเพื่อน / ไปหา (js/social.js)
     if (typeof Emote !== 'undefined') btns.push(h('button', { type: 'button', class: 'btn small', 'data-act': 'emote', onclick: () => { this.close(); UI.open('w-emote'); } }, ivIconEl('emote'), L('อีโมต', 'Emote')));
     if (pm) btns.unshift(h('button', { type: 'button', class: 'btn small primary', 'data-act': 'attack', onclick: () => this.attack(pm) }, ivIconEl('sword'), L('โจมตี', 'Attack')));
     out.push(h('div', { class: 'uc-btns' }, btns));

@@ -1,0 +1,82 @@
+/* ============================================================
+   ผู้เล่นออนไลน์ · เพื่อน (js/social.js) + กล่องนำตัวละครออฟไลน์เข้าบัญชีออนไลน์ (js/main.js csImportAsk)
+   กติกาเจ้าของ: มุมมน ≤ 8px ไม่มีทรงแคปซูล • ไม่ถ่างตัวอักษรภาษาไทย • ตัวหนังสือบนมือถือ ≥ 13px • ปุ่ม ≥ 40px • ไม่มีแถบสัดส่วน
+   ============================================================ */
+#w-social, #w-social * { letter-spacing: 0 !important; }
+#w-social button, #w-social input, #w-social select { font: inherit; }
+#w-social .win-body { max-height: min(78vh, 680px); overflow-y: auto; overflow-x: hidden; font-size: 14px; }
+#w-social .so-view { display: flex; flex-direction: column; gap: 8px; }
+#w-social .so-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+#w-social .so-tab { min-height: 44px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--edge, rgba(255, 255, 255, 0.12)); background: var(--fill, rgba(255, 255, 255, 0.04));
+  color: var(--ink-dim, #b8c4d8); font-size: 15px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+#w-social .so-tab.on { color: var(--exp, #ffe08a); border-color: rgba(255, 224, 138, 0.55); background: rgba(255, 224, 138, 0.09); }
+body.visor #w-social .so-tab { color: var(--c-ink-2, #5a4630); border-color: var(--c-line-2, #d6c6a2); background: var(--c-paper-2, #f6eedb); }
+body.visor #w-social .so-tab.on { color: var(--c-ink, #2e1f0e); border-color: #c99a3e; background: #fbe7b4; }
+#w-social .so-badge { font-style: normal; min-width: 22px; padding: 1px 6px; border-radius: 4px; background: #c23a2a; color: #fff; font-size: 13px; line-height: 1.4; }
+#w-social .so-filters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr); gap: 6px; }
+#w-social .so-filters input, #w-social .so-filters select, #w-social .so-add input { min-width: 0; min-height: 40px; border-radius: 6px; font-size: 15px; }
+body.visor #w-social :is(.so-q, .so-add-in) { background: #fffdf6; color: var(--c-ink, #2e1f0e); border: 1px solid var(--c-line-2, #d6c6a2); padding: 0 10px; }
+body.visor #w-social :is(.so-q, .so-add-in)::placeholder { color: #8a7a60; opacity: 1; }
+#w-social .so-sec { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 14px; font-weight: 600; color: var(--ink-dim, #b8c4d8); margin-top: 4px; }
+#w-social .so-sec small { font: 500 13px var(--mono, monospace); color: var(--ink-faint, #8a96aa); }
+#w-social .so-list { display: flex; flex-direction: column; gap: 6px; }
+#w-social .so-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 7px 8px; border-radius: 8px; min-width: 0;
+  background: var(--fill, rgba(255, 255, 255, 0.04)); border: 1px solid var(--edge, rgba(255, 255, 255, 0.1)); }
+#w-social .so-row.me { border-style: dashed; }
+#w-social .so-row.fr { border-color: rgba(60, 192, 112, 0.55); }
+#w-social .so-dot { flex: none; display: inline-block; width: 8px; height: 8px; border-radius: 2px; background: #3cc070; }
+#w-social .so-row.off .so-dot { background: #9aa3b0; }
+#w-social .so-main { flex: 1 1 170px; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.45; }
+#w-social .so-main b { font-size: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; overflow-wrap: anywhere; }
+#w-social .so-main small { font-size: 13px; color: var(--ink-dim, #b8c4d8); overflow-wrap: anywhere; }
+#w-social .so-tag { font-style: normal; font-weight: 600; font-size: 13px; padding: 0 6px; border-radius: 4px; border: 1px solid currentColor; color: #8a6a2a; line-height: 1.5; }
+#w-social .so-tag.fr { color: #2f9a5a; }
+#w-social .so-tag.pt { color: #3a6ea8; font-weight: 500; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#w-social .so-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; justify-content: flex-end; }
+#w-social .btn { min-height: 40px; padding: 0 12px; border-radius: 6px; font-size: 14px; }
+#w-social .btn.small { min-height: 40px; padding: 0 12px; font-size: 14px; border-radius: 6px; }
+#w-social .btn:disabled { cursor: default; opacity: 0.55; }
+#w-social .so-add { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
+#w-social .so-msg, #w-social .so-note { padding: 8px 12px; border-radius: 6px; background: rgba(255, 224, 138, 0.08); border: 1px solid rgba(255, 224, 138, 0.35); font-size: 14px; line-height: 1.5; }
+#w-social .so-none { padding: 14px 10px; text-align: center; font-size: 14px; color: var(--ink-dim, #b8c4d8); }
+#w-social .so-priv { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--edge, rgba(255, 255, 255, 0.12)); }
+#w-social .so-priv .so-switch { align-self: flex-start; text-align: left; height: auto; padding: 8px 12px; line-height: 1.4; }
+#w-social .so-priv .so-switch.on { border-color: #c99a3e; background: #fbe7b4; color: #2e1f0e; }
+#w-social .so-priv small { font-size: 13px; line-height: 1.5; color: var(--ink-dim, #b8c4d8); }
+#w-social .so-empty { display: flex; flex-direction: column; gap: 8px; padding: 18px 8px; text-align: center; }
+#w-social .so-empty b { font-size: 16px; }
+#w-social .so-empty p { margin: 0; font-size: 14px; line-height: 1.6; }
+#menubar [data-win="w-social"] svg, #so-toast .so-ti svg { fill: none; stroke: currentColor; }
+/* แผ่นเมนูมือถือ: อยู่ถัดจากปาร์ตี้ (ลำดับใน css/hud-c.css) */
+body.visor.hudc #hud #menubar .menu-grid > [data-win="w-social"] { order: 11; }
+/* แจ้งเตือนเพื่อนออนไลน์ / คำขอเป็นเพื่อน (ไม่บังการเล่น) */
+#so-toast { position: fixed; left: 50%; top: 120px; z-index: 9000; transform: translate(-50%, -8px); max-width: min(440px, calc(100vw - 32px)); display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: 8px; background: #eef8f1; color: #173a24; border: 1px solid #3c9a64; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28); font-size: 14px; line-height: 1.45;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; letter-spacing: 0; }
+#so-toast.show { opacity: 1; transform: translate(-50%, 0); }
+#so-toast .so-ti { flex: none; display: inline-flex; color: #2f8f5a; }
+#so-toast .so-ti svg { width: 20px; height: 20px; }
+@media (max-width: 520px) {
+  #w-social .so-filters { grid-template-columns: 1fr; }
+  #w-social .so-main { flex-basis: 100%; }
+  #w-social .so-row { padding: 8px; }
+  #w-social .so-btns { width: 100%; }
+  #w-social .so-btns .btn { flex: 1 1 auto; }
+}
+
+/* ---------- หน้าเลือกตัวละคร: นำตัวละครออฟไลน์เข้าบัญชีออนไลน์ ---------- */
+body.visor #title .cs-confirm.imp, #title .cs-confirm.imp { border-radius: 8px; background: #fff6dc; border: 1px solid #c99a3e; letter-spacing: 0; }
+#title .cs-confirm.imp * { letter-spacing: 0 !important; }
+body.visor #title .cs-confirm.imp .cs-cf-text, #title .cs-confirm.imp .cs-cf-text { color: #5a4630; font-size: 14px; line-height: 1.55; }
+body.visor #title .cs-confirm.imp .cs-cf-text b, #title .cs-confirm.imp .cs-cf-text b { color: #3a2808; font-size: 15px; }
+#title .cs-imp-list { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+#title .cs-imp-pick { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-height: 44px; padding: 6px 10px 6px 34px; position: relative; text-align: left;
+  border-radius: 6px; border: 1px solid #d6c6a2; background: #fffdf6; color: #2e1f0e; font: inherit; cursor: pointer; }
+#title .cs-imp-pick::before { content: ''; position: absolute; left: 10px; top: 50%; width: 14px; height: 14px; margin-top: -8px; border-radius: 3px; border: 1.5px solid #8a6a2a; background: #fff; }
+#title .cs-imp-pick[aria-pressed="true"] { border-color: #c99a3e; background: #fbe7b4; }
+#title .cs-imp-pick[aria-pressed="true"]::before { background: #c48a1c; box-shadow: inset 0 0 0 2px #fff; }
+#title .cs-imp-pick b { font-size: 15px; }
+#title .cs-imp-pick span { font-size: 13px; color: #5a4630; }
+#title .cs-confirm.imp .tbtn { min-height: 40px; border-radius: 6px; }
+/* หน้าล็อกอิน: ข้อความ "เกมออนไลน์" เป็นข้อมูลสำคัญ → 13px ฟอนต์หลัก ไม่ถ่างตัวอักษร (เดิม 10.5px mono + ถ่าง) */
+body.visor #title .au-note, #title .au-note { font: 500 13px/1.55 var(--font, inherit); letter-spacing: 0; }
