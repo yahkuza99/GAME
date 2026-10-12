@@ -282,6 +282,8 @@ const Market = {
     p.mkSales.unshift({ who, id: x.id, qty, gain, refine: x.refine || 0, at: Date.now() });
     p.mkSales.length = Math.min(p.mkSales.length, MARKET_CFG.salesKeep);
     UI.dirty();
+    // บันทึกการขายบนเซิร์ฟเวอร์ (js/save_verify.js) — ผู้ซื้อบันทึกไว้แล้วตอนกดซื้อ → จับคู่ทันที • เซฟรอให้คำขอนี้ถึงก่อน
+    if (typeof SaveVerify !== 'undefined') SaveVerify.market(tid, this.me(), m.from, x.id, qty, x.price, x.cards);
     saveGame(true, true); // ของออก + เงินเข้า เซฟทันที ก่อนตอบผู้ซื้อ
     reply(true, '', { i: x.i, qty, cost });
     const txt = L(`ขาย ${this.lineName(x, qty)} ให้ ${who} — ได้ ${U.fmt(gain)} ${CUR}${tax ? ` (ภาษี ${U.fmt(tax)})` : ''}`, `Sold ${this.lineName(x, qty)} to ${who} — earned ${U.fmt(gain)} ${CUR}${tax ? ` (tax ${U.fmt(tax)})` : ''}`);
@@ -314,9 +316,11 @@ const Market = {
     const cost = x.price * qty;
     if (p.zeny < cost) { UI.msg(L(`${CUR} ไม่พอ — ต้องใช้ ${U.fmt(cost)} ${CUR} (มี ${U.fmt(p.zeny)})`, `Not enough ${CUR} — need ${U.fmt(cost)} ${CUR} (you have ${U.fmt(p.zeny)}).`), 'err'); return false; }
     this.join();
+    const tid = this.newId();
+    // บันทึกการซื้อบนเซิร์ฟเวอร์ก่อนกันเงิน (js/save_verify.js) — ผู้ขายบันทึกตรงกันตอนขาย = เซิร์ฟเวอร์ยอมให้ของ/เงินย้ายตามนี้
+    if (typeof SaveVerify !== 'undefined') SaveVerify.market(tid, seller, this.me(), x.id, qty, x.price, x.cards);
     p.zeny -= cost; // กันเงิน (escrow)
     UI.dirty();
-    const tid = this.newId();
     this.pend = { tid, seller, name: s.name, sid: s.sid, i, qty, cost, item: { id: x.id, refine: x.refine || 0, cards: (x.cards || []).slice(), uid: x.uid || 0 }, at: Date.now() };
     this.send({ k: 'buy', to: seller, tid, sid: s.sid, i, qty, price: x.price, hash: this.lineHash(s.sid, x), name: p.name });
     UI.msg(L(`ส่งคำขอซื้อ ${this.lineName(x, qty)} จาก ${s.name}…`, `Buying ${this.lineName(x, qty)} from ${s.name}…`), 'info');
