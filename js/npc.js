@@ -298,11 +298,20 @@ NPC.refineRun = async (slot, target, auto) => {
   while ((e.refine || 0) < target) {
     const l = e.refine || 0, cost = costAt(l);
     if (p.zeny < cost || p.equip[slot] !== e || p.dead) break;
-    if (needOre(l)) { const oe = p.inventory.find(x => x.id === ore); if (!oe) break; removeEntry(oe, 1); oreUsed++; }
-    p.zeny -= cost; spent += cost; tries++;
-    if (typeof Feel !== 'undefined') await Feel.forge(auto); // ค้อน 3 จังหวะ → เงียบลุ้น (ตีอัตโนมัติ = 1 จังหวะ)
-    else await new Promise(r => setTimeout(r, auto ? 380 : 400));
-    if (U.chance(RATE[l])) {
+    if (needOre(l) && !p.inventory.some(x => x.id === ore)) break;
+    const anim = () => (typeof Feel !== 'undefined' ? Feel.forge(auto) : new Promise(r => setTimeout(r, auto ? 380 : 400))); // ค้อน 3 จังหวะ → เงียบลุ้น (ตีอัตโนมัติ = 1 จังหวะ)
+    let ok;
+    // เศรษฐกิจฝั่งเซิร์ฟเวอร์ (js/econ.js): เซิร์ฟเวอร์หักค่าบริการ/แร่และสุ่มผลเอง — ระหว่างรอคำตอบ ค้อนตีไปพร้อมกัน
+    const srv = typeof Econ !== 'undefined' && Econ.usable() ? await Promise.all([Econ.refine(slot), anim()]).then(a => a[0]) : null;
+    if (srv && srv.ok) { ok = srv.success; spent += cost; tries++; if (needOre(l)) oreUsed++; }
+    else if (srv && srv.err) { UI.msg(L(`ตีบวกไม่สำเร็จ: ${Econ.errText(srv.err)}`, `Refine failed: ${Econ.errText(srv.err)}`), 'err'); break; }
+    else {
+      if (needOre(l)) { const oe = p.inventory.find(x => x.id === ore); if (!oe) break; removeEntry(oe, 1); oreUsed++; }
+      p.zeny -= cost; spent += cost; tries++;
+      if (!srv) await anim();
+      ok = U.chance(RATE[l]);
+    }
+    if (ok) {
       e.refine = l + 1;
       Quest.onEvent('refine');
       recalc();

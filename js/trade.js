@@ -83,7 +83,11 @@ const Trade = {
     if (this.isOpen()) this.live(now);
   },
   guard(t, now) {
-    if (t.state === 'commit') { if (now - t.commitAt > TRADE_CFG.commitWait) this.abort('commit', true); return; }
+    if (t.state === 'commit') {
+      if (t.econ) { if (now - t.commitAt > TRADE_CFG.commitWait && !t.polling) this.pollServer(true); return; } // เซิร์ฟเวอร์อาจสลับเสร็จแล้ว — ถามก่อนยกเลิก
+      if (now - t.commitAt > TRADE_CFG.commitWait) this.abort('commit', true);
+      return;
+    }
     if (!Online.online) { this.abort('offline', false); return; }
     if (t.state === 'req' && now - t.reqAt > TRADE_CFG.reqTimeout + 1500) { this.abort('noreply', true); return; }
     if (t.state === 'inc' && now - t.reqAt > TRADE_CFG.reqTimeout) { this.decline('timeout'); return; }
@@ -203,7 +207,7 @@ const Trade = {
     if (!t || m.tid !== t.tid || m.from !== t.peer) return; // ข้อความเก่า/ไม่เกี่ยวกับเรา
     switch (m.k) {
       case 'res': this.onResponse(m); break;
-      case 'cancel': this.restore(t); this.end(L(`การแลกเปลี่ยนกับ ${t.name} ถูกยกเลิก: ${this.reason(m.why, true, t.name)}`, `Trade with ${t.name} was cancelled: ${this.reason(m.why, true, t.name)}`), 'err'); break;
+      case 'cancel': if (t.econ) this.econCancel(t); this.restore(t); this.end(L(`การแลกเปลี่ยนกับ ${t.name} ถูกยกเลิก: ${this.reason(m.why, true, t.name)}`, `Trade with ${t.name} was cancelled: ${this.reason(m.why, true, t.name)}`), 'err'); break;
       case 'offer': this.onOffer(m); break;
       case 'lock': this.onLock(m); break;
       case 'conf': this.onConfirm(m); break;
@@ -244,7 +248,7 @@ const Trade = {
     const t = this.t;
     if (m.mine !== t.their.hash || m.theirs !== t.my.hash || (t.state !== 'count' && t.state !== 'commit')) { this.abort('bad', true); return; }
     t.their.commit = true;
-    if (t.state === 'commit') this.finish();
+    if (t.state === 'commit') { if (t.econ) this.pollServer(); else this.finish(); }
   },
 
   // ---------------- ข้อเสนอของเรา ----------------
@@ -357,12 +361,61 @@ const Trade = {
   commit() {
     const t = this.t;
     if (!this.owns(t.my.offer) || this.hash(this.mine()) !== t.my.hash) { this.abort('missing', true); return; }
+    if (this.econOn()) { this.commitServer(); return; } // เซิร์ฟเวอร์สลับของทั้งสองฝ่ายทีเดียว (js/econ.js)
     t.escrow = this.take(t.my.offer);
     // บันทึกการแลกบนเซิร์ฟเวอร์ก่อนส่ง commit (js/save_verify.js) — อีกฝ่ายบันทึกตรงกัน = เซิร์ฟเวอร์ยอมให้ของ/เงินย้ายตามข้อตกลงนี้
     if (typeof SaveVerify !== 'undefined') SaveVerify.trade(t.tid, t.peer, t.my.offer, t.their.offer);
     t.state = 'commit'; t.commitAt = Date.now();
     this.send('commit', { mine: t.my.hash, theirs: t.their.hash });
     if (t.their.commit) this.finish(); else this.render();
+  },
+  // ---------------- เศรษฐกิจฝั่งเซิร์ฟเวอร์ (js/econ.js · econ_trade) ----------------
+  // ทั้งสองฝ่ายส่งข้อเสนอที่ตกลงกันไปที่เซิร์ฟเวอร์ · ฝ่ายที่สอง (ตรงกัน) = เซิร์ฟเวอร์ย้ายของ/Volt ทั้งคู่ในทรานแซกชันเดียว
+  // ฝ่ายแรกได้ 'pending' → รอ commit ของอีกฝ่าย แล้วถามผลซ้ำ • ไม่มีการพักของ (escrow) ในเครื่อง
+  econOn() { return typeof Econ !== 'undefined' && Econ.usable(); },
+  econOffer(o) { return { zeny: Math.floor(+o.zeny) || 0, items: o.items.map(x => (x.uid ? { uid: x.uid } : { id: x.id, qty: x.qty })) }; },
+  econArgs(t) { return { tid: t.tid, peer: t.peer, my_char: G.player.name, gave: this.econOffer(t.my.offer), got: this.econOffer(t.their.offer) }; },
+  async commitServer() {
+    const t = this.t;
+    t.state = 'commit'; t.commitAt = Date.now(); t.econ = true;
+    this.render();
+    saveGame(true, true); // uid ที่เพิ่งตั้งให้อุปกรณ์ต้องถึงเซิร์ฟเวอร์ก่อน (Econ.call ส่งเซฟค้างก่อนเรียก)
+    const r = await Econ.call('econ_trade', this.econArgs(t));
+    if (this.t !== t) return;
+    if (r.fallback) { t.econ = false; t.state = 'count'; this.commit(); return; } // เซิร์ฟเวอร์ไม่มีระบบ → วิธีเดิม
+    if (!r.ok) { UI.msg(L(`แลกเปลี่ยนไม่สำเร็จ: ${Econ.errText(r.err)}`, `Trade failed: ${Econ.errText(r.err)}`), 'err'); this.abort('bad', true); return; }
+    this.send('commit', { mine: t.my.hash, theirs: t.their.hash });
+    if (r.data.status === 'done') { await this.finishServer(t, r.data); return; }
+    if (r.data.status === 'cancelled') { this.abort('bad', true); return; }
+    if (t.their.commit) this.pollServer();
+    this.render();
+  },
+  async pollServer(final) {
+    const t = this.t;
+    if (!t || !t.econ || t.polling) return;
+    t.polling = true;
+    for (let i = 0; i < (final ? 2 : 6) && this.t === t; i++) {
+      const r = await Econ.call('econ_trade', this.econArgs(t));
+      if (this.t !== t) return;
+      if (r.ok && r.data.status === 'done') { t.polling = false; await this.finishServer(t, r.data); return; }
+      if (r.ok && r.data.status === 'cancelled') break;
+      await new Promise(res => setTimeout(res, 400));
+    }
+    t.polling = false;
+    if (this.t === t && (final || Date.now() - t.commitAt > TRADE_CFG.commitWait)) this.abort('commit', true);
+  },
+  async finishServer(t, res) {
+    await Econ.take(res);
+    t.escrow = null;
+    if (this.t !== t) return;
+    Sound.play('buy');
+    const got = t.their.offer, gave = t.my.offer;
+    this.end(L(`แลกเปลี่ยนกับ ${t.name} สำเร็จ — ได้รับ: ${this.describe(got)} • ให้: ${this.describe(gave)}`, `Trade with ${t.name} complete — received: ${this.describe(got)} • gave: ${this.describe(gave)}`), 'item');
+  },
+  // ยกเลิกฝั่งเซิร์ฟเวอร์ แล้วดึงรายการ (ถ้าเซิร์ฟเวอร์สลับไปแล้วจริง ของ/Volt จะเข้าตามจริง ไม่หาย)
+  econCancel(t) {
+    if (typeof Econ === 'undefined') return;
+    Econ.call('econ_trade_cancel', { tid: t.tid }).then(() => Econ.pull());
   },
   // ย้ายของที่เสนอออกจากกระเป๋าไปพักไว้ (อุปกรณ์ย้ายทั้งชิ้นพร้อมค่าตีบวก/ชิป)
   take(o) {
@@ -404,6 +457,7 @@ const Trade = {
     const t = this.t;
     if (!t) return;
     if (notify) this.send('cancel', { why });
+    if (t.econ) this.econCancel(t);
     this.restore(t);
     const txt = this.reason(why, false, t.name);
     if (t.state === 'req') {
