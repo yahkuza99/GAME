@@ -572,6 +572,7 @@ function addFx(f) {
   f.t = 0; f.linger = FX_LINGER[f.type] || 0; G.fx.push(f); return f;
 }
 function addFloater(x, y, text, color, big) {
+  if (typeof Battery !== 'undefined' && Battery.on() && G.floaters.length >= 10 && !big) return; // ประหยัดแบต: ตัวเลขเล็กไม่เกิน 10 ตัวพร้อมกัน
   const num = typeof text === 'number' || /^[+-]?\d+$/.test(String(text));
   // ข้อความ (ฮีล/ดูดเลือด/Volt/เลเวลอัป) ที่เด้งพร้อมกันตรงจุดเดียวกัน: เรียงซ้อนขึ้นไป ไม่ทับกัน
   if (!num) {
