@@ -57,7 +57,8 @@ const ItemIndex = {
   sources() {
     if (this._src) return this._src;
     const S = {}, add = (id, x) => { if (ITEMS[id]) (S[id] || (S[id] = [])).push(x); };
-    const mapOf = mid => Object.keys(MAP_DEFS).find(k => (MAP_DEFS[k].spawns || []).some(s => s[0] === mid) || MAP_DEFS[k].mvp === mid) || null;
+    const eliteAt = mid => { const E = typeof WorldPack !== 'undefined' && WorldPack.Elite; return E ? Object.keys(E.MAPS).find(k => E.MAPS[k] === mid && MAP_DEFS[k]) : null; }; // Elite หายาก: เกิดในทุ่งของตัวเอง (js/content_world.js)
+    const mapOf = mid => Object.keys(MAP_DEFS).find(k => (MAP_DEFS[k].spawns || []).some(s => s[0] === mid) || MAP_DEFS[k].mvp === mid) || eliteAt(mid) || null;
     for (const mid in MOBS) {
       const m = MOBS[mid]; if (m.dummy || m.worldBoss) continue;
       const map = mapOf(mid);

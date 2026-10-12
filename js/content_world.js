@@ -60,7 +60,7 @@ const WorldPack = (() => {
     'ผ้าคลุมจากขนโลหะของหัวฝูง Fenrir ใส่แล้วหมาป่าตัวอื่นหันมามอง', 'A mantle of the Fenrir alpha\'s metal fur. Other wolves turn to look when you wear it.');
 
   // ===================== Elite หายาก (1 ตัวต่อทุ่ง) =====================
-  // เลือด ×6 EXP ×6 (EXP ต่อ HP เท่าต้นแบบ) ATK ×1.4 • ไม่ตีก่อน • ดรอป 6 อย่าง: ของต้นแบบ + ของเฉพาะตัว 8%
+  // เลือด ×6 EXP ×6 (EXP ต่อ HP เท่าต้นแบบ) ATK ×1.4 • ไม่ตีก่อน • ดรอป 6–8 อย่าง: ของต้นแบบ + ของเฉพาะตัว 8% (+ ของสวมใส่ที่เลเวลตรงช่วง — รอบ 38)
   const elite = (id, base, def) => {
     const b = MOBS[base];
     MOBS[id] = variant(base, Object.assign({ lv: b.lv + def.lvAdd, hp: b.hp * 6, atk: b.atk.map(v => Math.round(v * 1.4)), def: (b.def || 0) + 4, mdef: (b.mdef || 0) + 4,
@@ -74,10 +74,10 @@ const WorldPack = (() => {
     drops: [['moon_fur', 1], ['clover', 0.6], ['carrot', 0.5], ['blink_feather', 0.25], ['orange_potion', 0.15], ['moonlit_ears', 0.08]] });
   elite('elite_sentry', 'stumpling', { name: 'Sentry Captain', lvAdd: 6, hue: -20, sat: 1.3, bri: 0.95, tint: ['#c05020', 0.3],
     lore: L('หัวหน้ายาม Rust Sentry ยังเดินตรวจแถวลูกน้องทุกคืน สนิมกินถึงแกนแล้ว แต่มันยังขานชื่อครบทุกตัว', 'The captain of the Rust Sentries still inspects its squad every night. Rust has reached its core, yet it still calls every name in full.'),
-    drops: [['living_bark', 1], ['frayed_cable', 0.6], ['orange_potion', 0.3], ['yellow_potion', 0.1], ['sentry_plate', 0.01], ['captain_crest', 0.08]] });
+    drops: [['living_bark', 1], ['frayed_cable', 0.6], ['orange_potion', 0.3], ['yellow_potion', 0.1], ['captain_crest', 0.08], ['iron_helm', 0.01], ['spring_band', 0.01], ['rune_staff', 0.01]] });
   elite('elite_alpha', 'fenrir_pup', { name: 'Fenrir Alpha Unit', lvAdd: 5, hue: 190, sat: 0.6, bri: 1.15, tint: ['#c8d8f0', 0.35],
     lore: L('เศษที่ใหญ่ที่สุดของ Fenrir หัวฝูงที่ยังจำคำสั่งล่าแรกได้ — ไม่ไล่เจ้าก่อน แต่ถ้าเจ้าท้า มันไม่ถอย', 'The largest shard of Fenrir, a pack leader that still remembers the first order to hunt. It will not chase you — but challenge it, and it will not back down.'),
-    drops: [['fenrir_fang', 1], ['meat', 0.6], ['rune_alloy', 0.08], ['yellow_potion', 0.2], ['wolfpelt_cloak', 0.01], ['alpha_mantle', 0.08]] });
+    drops: [['fenrir_fang', 1], ['meat', 0.6], ['rune_alloy', 0.08], ['yellow_potion', 0.2], ['alpha_mantle', 0.08], ['ring', 0.01], ['earring', 0.01], ['glove', 0.01]] });
 
   const Elite = W.Elite = {
     MAPS: { meadow: 'elite_moonbun', mistlake: 'elite_sentry', wolfwood: 'elite_alpha' },

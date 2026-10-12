@@ -329,46 +329,62 @@ const LOOT = {
 
   // ===================== ตารางดรอป =====================
   // [ไอเทม, โอกาส] — ของขาย 30–60% • ยา/วัตถุดิบ/แร่ 2–20% • อุปกรณ์ประจำตัว 0.5–2% • ของหายากมีช่อง 0.1–0.5%
+  // รอบ 38: ของสวมใส่ต้องอยู่ "ช่วงเลเวล" ของมอนที่ดรอป — Lv ของของ อยู่ระหว่าง Lv มอน −8 ถึง +3 (MVP ถึง +10)
+  //   ของที่ไม่มี Lv (ของเดิมยุคแรก) ใช้เลเวลเทียบจากราคา/ความแรงใน LOOT.LV_PROXY • World Boss ใช้เลเวลของ MVP ต้นแบบ
+  //   ตรวจด้วย tests/droplevel.js • รายละเอียด docs/DROP_AUDIT.md
   const DROPS = {
     // Meadow (Lv 1–6)
-    pudding:       [['jelly_drop', 0.7], ['scrap_gear', 0.3], ['apple', 0.15], ['red_potion', 0.04], ['gel_shiv', 0.02], ['gel_vest', 0.015], ['knife', 0.01], ['gelheart_mail', 0.0015]],
-    leafworm:      [['leaf_silk', 0.65], ['scrap_gear', 0.3], ['green_herb', 0.2], ['clover', 0.1], ['wire_saber', 0.02], ['crawler_treads', 0.015], ['sprout_staff', 0.002]],
-    moonbun:       [['moon_fur', 0.6], ['carrot', 0.3], ['clover', 0.2], ['moon_hatchet', 0.02], ['bunny_visor', 0.015], ['scrap_buckler', 0.01], ['moon_kris', 0.002]],
+    pudding:       [['jelly_drop', 0.7], ['scrap_gear', 0.3], ['apple', 0.15], ['red_potion', 0.04], ['gel_vest', 0.015], ['knife', 0.01]],
+    leafworm:      [['leaf_silk', 0.65], ['scrap_gear', 0.3], ['green_herb', 0.2], ['clover', 0.1], ['gel_shiv', 0.02], ['crawler_treads', 0.015]],
+    moonbun:       [['moon_fur', 0.6], ['carrot', 0.3], ['clover', 0.2], ['moon_hatchet', 0.02], ['wire_saber', 0.02], ['bunny_visor', 0.015], ['scrap_buckler', 0.01]],
     ember_pudding: [['ember_jelly', 0.5], ['scrap_gear', 0.3], ['red_herb', 0.2], ['orange_potion', 0.04], ['ember_wand', 0.02], ['ember_coil', 0.015], ['tinker_mallet', 0.01], ['hearth_coil', 0.002]],
-    buzzfly:       [['buzz_wing', 0.55], ['jelly_drop', 0.3], ['blink_feather', 0.05], ['rotor_bow', 0.02], ['rotor_cape', 0.015], ['stiletto', 0.004], ['meadow_charm', 0.002]],
+    buzzfly:       [['buzz_wing', 0.55], ['jelly_drop', 0.3], ['blink_feather', 0.05], ['rotor_bow', 0.02], ['rotor_cape', 0.015], ['meadow_charm', 0.002]],
     // Mistlake (Lv 8–16)
-    stumpling:     [['living_bark', 0.6], ['leaf_silk', 0.3], ['orange_potion', 0.06], ['sentry_saber', 0.02], ['sentry_plate', 0.012], ['bark_shield', 0.01], ['mist_mantle', 0.01], ['sentinel_core', 0.002]],
-    fiddlehopper:  [['hopper_leg', 0.55], ['frayed_cable', 0.35], ['green_herb', 0.2], ['hopper_kris', 0.02], ['spring_greaves', 0.012], ['spring_band', 0.008], ['glove', 0.003], ['mistfang', 0.002]],
-    capshroom:     [['cap_spore', 0.6], ['frayed_cable', 0.3], ['red_herb', 0.3], ['mine_breaker', 0.02], ['blastcap_helm', 0.012], ['mist_longbow', 0.01], ['battle_axe', 0.006], ['tidecaller_rod', 0.0025]],
-    moss_pudding:  [['moss_gel', 0.5], ['green_herb', 0.3], ['grape', 0.06], ['moss_scepter', 0.02], ['mist_robe', 0.012], ['rune_mallet', 0.01], ['rune_staff', 0.006], ['verdant_circlet', 0.002]],
+    stumpling:     [['living_bark', 0.6], ['leaf_silk', 0.3], ['orange_potion', 0.06], ['sentinel_core', 0.002], ['muffler', 0.008], ['sprout_staff', 0.002], ['moon_kris', 0.002], ['gelheart_mail', 0.0015]],
+    fiddlehopper:  [['hopper_leg', 0.55], ['frayed_cable', 0.35], ['green_herb', 0.2], ['hopper_kris', 0.02], ['sentry_saber', 0.02], ['spring_greaves', 0.012], ['sentry_plate', 0.012], ['bark_shield', 0.01]],
+    capshroom:     [['cap_spore', 0.6], ['frayed_cable', 0.3], ['red_herb', 0.3], ['mine_breaker', 0.02], ['blastcap_helm', 0.012], ['mist_longbow', 0.01], ['battle_axe', 0.006], ['stiletto', 0.004]],
+    moss_pudding:  [['moss_gel', 0.5], ['green_herb', 0.3], ['grape', 0.06], ['moss_scepter', 0.02], ['mist_robe', 0.012], ['rune_mallet', 0.01], ['mist_mantle', 0.01], ['verdant_circlet', 0.002]],
     // Wolfwood (Lv 18–30)
-    ashtail:       [['ash_tail', 0.5], ['moon_fur', 0.3], ['volt_ore', 0.015], ['ashtail_wrap', 0.02], ['ash_hood', 0.012], ['muffler', 0.008], ['great_bow', 0.006], ['cinder_cloak', 0.002]],
-    fenrir_pup:    [['fenrir_fang', 0.6], ['meat', 0.3], ['rune_alloy', 0.02], ['fenrir_claw', 0.02], ['wolfpelt_cloak', 0.012], ['wolfpath_boots', 0.01], ['ulfr_axe', 0.003], ['gleipnir_link', 0.002]],
+    ashtail:       [['ash_tail', 0.5], ['moon_fur', 0.3], ['volt_ore', 0.015], ['ashtail_wrap', 0.02], ['ash_hood', 0.012], ['great_bow', 0.006], ['tidecaller_rod', 0.0025], ['cinder_cloak', 0.002]],
+    fenrir_pup:    [['fenrir_fang', 0.6], ['meat', 0.3], ['rune_alloy', 0.02], ['fenrir_claw', 0.02], ['wolfpelt_cloak', 0.012], ['wolfpath_boots', 0.01], ['boots', 0.006], ['gleipnir_link', 0.002]],
     mossback:      [['moss_hide', 0.5], ['cracked_lens', 0.35], ['mead', 0.08], ['volt_ore', 0.02], ['ironhide_maul', 0.02], ['ironhide_plate', 0.012], ['chain_mail', 0.006], ['bearheart_band', 0.0025]],
-    tuskboar:      [['iron_tusk', 0.6], ['meat', 0.3], ['rune_alloy', 0.02], ['tusk_axe', 0.02], ['tusk_helm', 0.012], ['huntsman_bow', 0.01], ['ring', 0.004], ['charger_greaves', 0.002]],
+    tuskboar:      [['iron_tusk', 0.6], ['meat', 0.3], ['rune_alloy', 0.02], ['tusk_axe', 0.02], ['tusk_helm', 0.012], ['huntsman_bow', 0.01], ['charger_greaves', 0.002], ['barrowking_blade', 0.0015]],
     // Hel's Hollow (Lv 17–45)
     draugr:        [['grave_dust', 0.6], ['moss_gel', 0.3], ['volt_ore', 0.015], ['barrow_axe', 0.02], ['grave_mail', 0.012], ['round_shield', 0.006], ['flail', 0.006], ['husk_signet', 0.0025]],
-    bone_warden:   [['old_bone', 0.5], ['rune_shard', 0.35], ['yellow_potion', 0.05], ['rune_alloy', 0.02], ['warden_blade', 0.02], ['bonewall_shield', 0.012], ['morning_star', 0.008], ['barrowking_blade', 0.0015]],
-    hel_maiden:    [['hel_lantern', 0.4], ['hel_ember', 0.35], ['blue_potion', 0.03], ['soulwick_staff', 0.02], ['lantern_veil', 0.012], ['seer_staff', 0.006], ['earring', 0.004], ['helwick_robe', 0.002]],
-    hel_guard:     [['cursed_seal', 0.4], ['rune_shard', 0.3], ['volt_ore', 0.025], ['hel_axe', 0.02], ['helgate_plate', 0.012], ['iron_helm', 0.01], ['loki_fang', 0.004], ['hel_aegis', 0.002]],
+    bone_warden:   [['old_bone', 0.5], ['rune_shard', 0.35], ['yellow_potion', 0.05], ['rune_alloy', 0.02], ['warden_blade', 0.02], ['bonewall_shield', 0.012], ['morning_star', 0.008], ['mistfang', 0.002]],
+    hel_maiden:    [['hel_lantern', 0.4], ['hel_ember', 0.35], ['blue_potion', 0.03], ['soulwick_staff', 0.02], ['lantern_veil', 0.012], ['seer_staff', 0.006], ['helwick_robe', 0.002], ['emberfang', 0.002]],
+    hel_guard:     [['cursed_seal', 0.4], ['rune_shard', 0.3], ['volt_ore', 0.025], ['hel_axe', 0.02], ['helgate_plate', 0.012], ['loki_fang', 0.004], ['ullr_bow', 0.004], ['ulfr_axe', 0.003]],
     // Archive Depths (Lv 33–45)
-    rust_sap:      [['rusty_sap', 0.55], ['jelly_drop', 0.3], ['yellow_potion', 0.05], ['volt_ore', 0.03], ['sap_dirk', 0.02], ['rustbloom_staff', 0.012], ['boots', 0.006], ['rustbloom_talisman', 0.0025]],
+    rust_sap:      [['rusty_sap', 0.55], ['jelly_drop', 0.3], ['yellow_potion', 0.05], ['volt_ore', 0.03], ['sap_dirk', 0.02], ['rune_charm', 0.004], ['valhalla_blade', 0.003], ['rustbloom_talisman', 0.0025]],
     archive_warden:[['archive_seal', 0.5], ['data_crystal', 0.3], ['einherjar_medal', 0.03], ['rune_alloy', 0.03], ['archive_greatsword', 0.02], ['warden_helm', 0.012], ['plate_armor', 0.004], ['ullr_bow', 0.004]],
     rust_mine:     [['rust_fuse', 0.5], ['cap_spore', 0.3], ['white_potion', 0.03], ['volt_ore', 0.03], ['fuse_mace', 0.02], ['blast_greaves', 0.012], ['vault_cloak', 0.01], ['detonator_bow', 0.0025]],
-    archive_maiden:[['rusted_spark', 0.5], ['data_crystal', 0.3], ['blue_potion', 0.03], ['rune_alloy', 0.03], ['spark_staff', 0.02], ['maiden_shroud', 0.012], ['rune_charm', 0.004], ['yggdrasil_branch', 0.0025]],
-    rust_draugr:   [['corroded_core', 0.45], ['grave_dust', 0.3], ['einherjar_medal', 0.04], ['volt_ore', 0.035], ['husk_greatsword', 0.02], ['husk_plate', 0.012], ['valhalla_blade', 0.003], ['rustking_crown', 0.0025]],
+    archive_maiden:[['rusted_spark', 0.5], ['data_crystal', 0.3], ['blue_potion', 0.03], ['rune_alloy', 0.03], ['spark_staff', 0.02], ['maiden_shroud', 0.012], ['rustbloom_staff', 0.012], ['hel_aegis', 0.002]],
+    rust_draugr:   [['corroded_core', 0.45], ['grave_dust', 0.3], ['einherjar_medal', 0.04], ['volt_ore', 0.035], ['husk_greatsword', 0.02], ['husk_plate', 0.012], ['rootbark_plate', 0.008], ['rustking_crown', 0.0025]],
     // Gnawed Roots (Lv 45–60)
-    root_crawler:  [['root_fiber', 0.5], ['leaf_silk', 0.3], ['white_potion', 0.04], ['rune_alloy', 0.035], ['crawler_fang', 0.02], ['root_bow', 0.012], ['rootguard_shield', 0.008], ['rootrunner_boots', 0.0025]],
+    root_crawler:  [['root_fiber', 0.5], ['leaf_silk', 0.3], ['white_potion', 0.04], ['rune_alloy', 0.035], ['crawler_fang', 0.02], ['root_bow', 0.012], ['root_cloak', 0.008], ['rootrunner_boots', 0.0025]],
     gnawed_stump:  [['gnawed_bark', 0.45], ['yggdrasil_sap', 0.25], ['volt_ore', 0.04], ['sentinel_maul', 0.02], ['stump_buckler', 0.012], ['heartwood_cleaver', 0.01], ['yggdrasil_branch', 0.004], ['yggdrasil_sigil', 0.002]],
-    gnawed_brute:  [['rust_plate', 0.45], ['yggdrasil_sap', 0.3], ['volt_ore', 0.045], ['brute_greataxe', 0.02], ['brute_plate', 0.012], ['gnawhide_boots', 0.01], ['rootbark_plate', 0.008], ['jotun_knuckle', 0.002]],
-    root_gnawer:   [['gnawer_tusk', 0.45], ['iron_tusk', 0.3], ['rune_alloy', 0.045], ['gnawer_saber', 0.02], ['gnawer_hood', 0.012], ['gnawroot_bow', 0.01], ['root_cloak', 0.008], ['rootheart_rod', 0.002]],
+    gnawed_brute:  [['rust_plate', 0.45], ['yggdrasil_sap', 0.3], ['volt_ore', 0.045], ['brute_greataxe', 0.02], ['brute_plate', 0.012], ['gnawhide_boots', 0.01], ['rootguard_shield', 0.008], ['jotun_knuckle', 0.002]],
+    root_gnawer:   [['gnawer_tusk', 0.45], ['iron_tusk', 0.3], ['rune_alloy', 0.045], ['gnawer_saber', 0.02], ['gnawer_hood', 0.012], ['gnawroot_bow', 0.01], ['rootheart_rod', 0.002]],
     // MVP (ตำนาน 0.05% — บอสโลกได้มากกว่ามาก ดู patchWorldBoss)
     seraph_pudding:[['seraph_wings', 0.2], ['seraph_mantle', 0.1], ['seraph_edge', 0.08], ['seraph_staff', 0.08], ['aureole', 0.0005], ['valkyrie_plume', 0.5], ['rune_alloy', 0.5], ['yggdrasil_shard', 0.1]],
-    kitsura:       [['emberfang', 0.2], ['kitsune_tail', 0.08], ['foxfire_bow', 0.08], ['kitsura_visor', 0.08], ['ragnarok_ember', 0.0005], ['valkyrie_plume', 0.6], ['volt_ore', 0.6], ['yggdrasil_shard', 0.15]],
+    kitsura:       [['kitsune_tail', 0.12], ['foxfire_bow', 0.12], ['kitsura_visor', 0.12], ['ragnarok_ember', 0.0005], ['valkyrie_plume', 0.6], ['volt_ore', 0.6], ['yggdrasil_shard', 0.15]],
     garmr:         [['garmr_collar', 0.15], ['garmr_fang', 0.08], ['garmr_mantle', 0.08], ['gnipa_cleaver', 0.08], ['tyr_hand', 0.0005], ['mimir_well', 0.0005], ['rune_alloy', 0.7], ['yggdrasil_shard', 0.2]],
   };
   for (const id in DROPS) if (MOBS[id]) MOBS[id].drops = DROPS[id];
   LOOT.WB_EXTRA = { seraph_pudding: ['aureole'], kitsura: ['ragnarok_ember'], garmr: ['tyr_hand', 'mimir_well'] };
+
+  // ===================== ช่วงเลเวลของดรอป (รอบ 38) =====================
+  // ของเดิมที่ไม่มี Lv: แหวน/ต่างหู/ถุงมือ +2 สเตต (ราคา 20,000) ≈ Lv 24 • Rune Charm (+MDEF) ≈ 28 • Cable Scarf (DEF 2) ≈ 10
+  //   ของ MVP ไม่มี Lv: ใช้เลเวลชุดของบอสตัวนั้น (Seraph Wings ≈ 22 • Garmr Collar ≈ 55)
+  LOOT.LV_PROXY = { ring: 24, earring: 24, glove: 24, rune_charm: 28, muffler: 10, seraph_wings: 22, garmr_collar: 55 };
+  LOOT.gearLv = id => (ITEMS[id] && ITEMS[id].lv) || LOOT.LV_PROXY[id] || 1;
+  LOOT.BAND = { below: 8, above: 3, bossAbove: 10 };
+  // ช่วง Lv ของอุปกรณ์ที่มอนตัวนี้ควรดรอป [ต่ำสุด, สูงสุด] — World Boss (wb_*) ใช้ MVP ต้นแบบ
+  LOOT.dropBand = mobId => {
+    const m = MOBS[mobId]; if (!m) return null;
+    const base = /^wb_/.test(mobId) && MOBS[mobId.slice(3)] ? MOBS[mobId.slice(3)] : m;
+    return [base.lv - LOOT.BAND.below, base.lv + (m.boss ? LOOT.BAND.bossAbove : LOOT.BAND.above)];
+  };
 
   // ===================== ร้านค้า: เหลือแค่ของพื้นฐาน =====================
   // ของดี ๆ ต้องล่าเอง • อาวุธเริ่มต้นของทุก Class (JOB_STARTER) ยังซื้อได้เสมอ
