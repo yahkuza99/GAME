@@ -2197,6 +2197,8 @@ const UI = {
         h('div', { class: 'opt-lbl' }, 'ภาษา / Language'),
         h('div', { class: 'seg' }, ...[['th', 'ไทย'], ['en', 'English']].map(([v, l]) =>
           h('button', { type: 'button', class: LANG === v ? 'on' : '', onclick: () => setLang(v) }, l))),
+        h('label', { class: 'opt' }, h('input', { id: 'opt-saver', type: 'checkbox', checked: o.saver ? 'checked' : false, onchange: e => Battery.set(e.target.checked) }), L(' โหมดประหยัดแบต', ' Battery saver')),
+        h('div', { class: 'hint' }, L('จำกัด 30 เฟรม/วิ (AUTO ที่ไม่แตะจอ 10 วิ → 15) • กราฟิกประหยัด ความละเอียด 1x • HUD อัปเดตช้าลง • ปิดวาดภาพเมื่อสลับแท็บ (AUTO ยังทำงาน)', 'Caps at 30 fps (15 when AUTO is untouched for 10 s) • low graphics at 1x • slower HUD • no drawing when the tab is hidden (AUTO keeps running)')),
         h('div', { class: 'opt-lbl' }, L('คุณภาพกราฟิก', 'Graphics quality')),
         h('div', { class: 'seg' }, ...[['high', L('สวย (ค่าเริ่มต้น)', 'High (default)')], ['low', L('ประหยัด (มือถือรุ่นเก่า)', 'Low (older phones)')]].map(([v, l]) =>
           h('button', { type: 'button', class: (o.gfx || 'high') === v ? 'on' : '', onclick: () => { o.gfx = v; R.setQuality(v); saveGame(); this.renderOptions(true); } }, l))),

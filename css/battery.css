@@ -1,0 +1,9 @@
+/* โหมดประหยัดแบต: ป้ายชวนเปิด (มุมมน ≤8px · ตัวอักษร ≥13px · ปุ่ม ≥40px) */
+#bat-toast { position: fixed; left: 50%; bottom: 96px; z-index: 9000; transform: translateX(-50%); width: min(420px, calc(100vw - 32px));
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 8px;
+  background: #fffaf0; color: #2a1d0e; border: 1px solid #b98a3e; box-shadow: 0 4px 16px rgba(0,0,0,.35); font-size: 14px; line-height: 1.5; }
+#bat-toast span { flex: 1 1 100%; }
+#bat-toast button { flex: 1 1 0; min-height: 44px; border-radius: 8px; border: 1px solid #8a6a2f; background: #f3e6c8; color: #2a1d0e; font-size: 14px; cursor: pointer; }
+#bat-toast button.bat-on { background: #bfe8d0; border-color: #2f8f6a; font-weight: 700; }
+body.visor.hudc #hud #menubar .menu-grid > [data-hc="saver"] { order: 19; background: #e4f1f8 !important; }
+body.visor.hudc #hud #menubar .menu-grid > [data-hc="saver"].on { background: #bfe8d0 !important; border-color: #2f8f6a !important; }

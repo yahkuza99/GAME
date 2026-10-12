@@ -32,7 +32,7 @@ R.init = () => {
   setInterval(R.fitCheck, 500);
 };
 // คุณภาพกราฟิก: 'low' = ความละเอียด 1x ไม่มีหญ้าพลิ้ว/หมอก/ฝุ่นลอย (มือถือรุ่นเก่าลื่นขึ้นมาก)
-R.setQuality = q => { R.quality = q === 'low' ? 'low' : 'high'; R.resize(); };
+R.setQuality = q => { R.quality = q === 'low' || (typeof Battery !== 'undefined' && Battery.on()) ? 'low' : 'high'; R.resize(); }; // โหมดประหยัดแบตบังคับ low (DPR 1)
 R.fitCheck = () => { if (window.innerWidth !== R.W || window.innerHeight !== R.H) R.resize(); };
 R.resize = () => {
   R.dpr = Math.min(window.devicePixelRatio || 1, R.quality === 'low' ? 1 : 2);

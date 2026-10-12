@@ -55,8 +55,8 @@ const HudC = {
     this.mq.addEventListener('change', () => this.sync());
     addEventListener('resize', () => this.sync());
     try { this.setPage(+(localStorage.getItem('nm_hcpage') || 0)); } catch (e) { this.setPage(0); }
-    setInterval(() => this.tick(), 250);
-    const raf = () => { this.frame(); requestAnimationFrame(raf); }; requestAnimationFrame(raf);
+    setInterval(() => { if (typeof Battery !== 'undefined' && Battery.on() && (document.hidden || (this._bt = !this._bt))) return; this.tick(); }, 250); // ประหยัดแบต: 500ms
+    const raf = () => { if (typeof Battery === 'undefined' || !Battery.on() || Battery.n !== this._bn) { this._bn = Battery && Battery.n; this.frame(); } requestAnimationFrame(raf); }; requestAnimationFrame(raf);
     this.sync();
   },
 
@@ -89,6 +89,7 @@ const HudC = {
     add('quests', 'Quest', 'quest', () => UI.toggle('w-quest'));
     add('mm', L('หาปาร์ตี้', 'Find Party'), 'party', () => { if (typeof MM !== 'undefined') MM.open(); });
     add('emote', L('อีโมต', 'Emote'), 'emote', () => UI.toggle('w-emote'));
+    this.els.saverItem = add('saver', L('ประหยัดแบต', 'Battery'), 'bell', () => Battery.toggle());
     this.els.flyItem = add('fly', L('แมลงวัน', 'Fly'), 'leaf', () => { if (typeof FlyPilot !== 'undefined') FlyPilot.toggle(); });
     // หัวแผ่น: ชื่อ · Class · Lv + เงิน / Job / EXP (ย้ายมาจากการ์ดตัวละครเต็ม)
     this.els.head = h('div', { class: 'hc-only hc-sheet-head' });
@@ -112,6 +113,7 @@ const HudC = {
     this.els.head.innerHTML = '';
     this.els.head.append(h('b', {}, `${p.name} · ${JOBS[p.job].name} · Lv ${p.baseLv}`),
       h('span', {}, `${U.fmt(p.zeny)} ${CUR} · Job ${p.jobLv} · EXP ${bk.toFixed(1)}% · Job ${jk.toFixed(1)}%`));
+    if (this.els.saverItem) this.els.saverItem.classList.toggle('on', Battery.on());
     if (this.els.flyItem && typeof FlyPilot !== 'undefined') this.els.flyItem.classList.toggle('on', !!FlyPilot.on);
   },
   openChat() {

@@ -181,7 +181,7 @@ const COMBAT = async () => {
       await p.evaluate(() => { document.querySelectorAll('.win:not(.hidden)').forEach(x => UI.close(x.id)); const m = document.getElementById('menubar'); if (m.classList.contains('folded')) document.querySelector('#menubar .menu-fold').click(); });
       await p.waitForTimeout(120);
       const sel = it.win ? `#menu-panel [data-win="${it.win}"]` : `#menu-panel [data-hc="${it.hc}"]`;
-      const before = await p.evaluate(() => ({ sit: G.player.sitting, hud: document.getElementById('hud').classList.contains('hud-min'), fly: FlyPilot.on }));
+      const before = await p.evaluate(() => ({ sit: G.player.sitting, hud: document.getElementById('hud').classList.contains('hud-min'), fly: FlyPilot.on, saver: !!G.player.options.saver }));
       await p.evaluate(() => { window.__fs = 0; document.documentElement.requestFullscreen = () => { window.__fs++; return Promise.resolve(); }; });
       await p.click(sel, { timeout: 3000 }).catch(e => bad.push(`${it.t}: click ${e.message.split('\n')[0]}`));
       await p.waitForTimeout(250);
@@ -190,12 +190,12 @@ const COMBAT = async () => {
         const folded = document.getElementById('menubar').classList.contains('folded');
         let okk;
         if (it.win) okk = open(it.win) || (it.win === 'w-trade' || it.win === 'w-market') && /ออนไลน์|online|เปิดร้าน|market|ตลาด|แลก/i.test(document.querySelector('#chat-log').textContent.slice(-300));
-        else okk = { quests: open('w-quest'), mm: open('w-mm'), emote: open('w-emote'), fly: FlyPilot.on !== before.fly, hide: document.getElementById('hud').classList.contains('hud-min') !== before.hud,
+        else okk = { quests: open('w-quest'), mm: open('w-mm'), emote: open('w-emote'), fly: FlyPilot.on !== before.fly, saver: !!G.player.options.saver !== before.saver, hide: document.getElementById('hud').classList.contains('hud-min') !== before.hud,
           chat: document.getElementById('chat').classList.contains('typing'), sit: G.player.sitting !== before.sit, fs: window.__fs === 1 }[it.hc];
         return { okk, folded };
       }, { it, before });
       if (!r.okk || !r.folded) bad.push(`${it.t}(${it.win || it.hc}) ok=${r.okk} folded=${r.folded}`);
-      await p.evaluate(({ hc }) => { if (hc === 'hide') UI.toggleHud(); if (hc === 'fly' && FlyPilot.on) FlyPilot.toggle(false); if (hc === 'sit') G.player.sitting = false; if (hc === 'chat') { document.getElementById('chat').classList.remove('typing'); document.getElementById('chat-input').blur(); } }, it);
+      await p.evaluate(({ hc }) => { if (hc === 'hide') UI.toggleHud(); if (hc === 'fly' && FlyPilot.on) FlyPilot.toggle(false); if (hc === 'saver') Battery.set(false); if (hc === 'sit') G.player.sitting = false; if (hc === 'chat') { document.getElementById('chat').classList.remove('typing'); document.getElementById('chat-input').blur(); } }, it);
     }
     ok(`phone: every menu-sheet button opens its window / toggles (${items.length})`, items.length >= 23 && !bad.length, bad.join(' | '));
     await p.evaluate(() => { document.querySelectorAll('.win:not(.hidden)').forEach(x => UI.close(x.id)); UI.dlgClose(); });

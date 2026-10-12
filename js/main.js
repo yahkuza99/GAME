@@ -264,12 +264,14 @@ function advanceSim() {
   lastSimReal = now;
   if (!G.started) return;
   if (real > 0.25 && Bot.on) catchUp(real);
+  else if (real > 0.05 && Battery.on()) { for (let l = Math.min(real, 0.25); l > 0; l -= 0.05) updateGame(Math.min(0.05, l)); } // ประหยัดแบตเฟรมห่าง (15–30fps): จำลองให้ทันเวลาจริง
   else updateGame(Math.min(0.05, real));
 }
 
 // เฟรมหนึ่งพังต้องไม่ทำให้ทั้งเกมค้าง: จับ error แล้ววนเฟรมต่อ (แจ้งในแชทครั้งเดียวต่อชนิด เพื่อแคปส่งมาแก้)
 const loopErrs = new Set();
 function loop(ts) {
+  if (Battery.skip(ts)) { requestAnimationFrame(loop); return; } // โหมดประหยัดแบต: คุมเฟรมเรต / แท็บซ่อนไม่วาด
   try { frame(ts); } catch (e) {
     const key = String(e && e.message || e);
     if (!loopErrs.has(key)) {
@@ -303,7 +305,7 @@ function frame(ts) {
     R.render();
     UI.renderWindows();
     hudAcc += dt;
-    if (hudAcc > 0.08) { hudAcc = 0; UI.updateHud(); }
+    if (hudAcc > (Battery.on() ? 0.2 : 0.08)) { hudAcc = 0; UI.updateHud(); }
   } else {
     if (GpuFX.active || GpuFX.pending) GpuFX.release();
     lastSimReal = performance.now();
@@ -793,7 +795,8 @@ function startGame(p, isNew) {
   setTimeout(() => { $('#title').classList.add('hidden'); $('#title').classList.remove('leaving', 'creating'); }, 650);
   $('#hud').classList.remove('hidden');
   R.setQuality(p.options.gfx);
-  fpsWatch = { t0: performance.now() + 4000, n: 0, done: !!p.options.gfx };
+  fpsWatch = { t0: performance.now() + 4000, n: 0, done: !!p.options.gfx || !!p.options.saver };
+  Battery.suggest(); // แบตต่ำ → ชวนเปิดโหมดประหยัดแบต (ครั้งเดียวต่อเซสชัน)
   recalc();
   if (isNew) { p.hp = p.d.maxHp; p.sp = p.d.maxSp; }
   changeMap(p.map, p.x, p.y);
