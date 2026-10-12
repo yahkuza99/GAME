@@ -131,13 +131,31 @@ const flags = (p, u) => p.evaluate(u => JSON.parse(localStorage.getItem('fake_sv
   const both = await A.evaluate(u => { const r = window.__FAKE_CH.get(u), p = G.player; return { srv: r.data.chars[r.data.active], cli: { lv: p.baseLv, exp: p.baseExp, zeny: p.zeny } }; }, ua);
   const srvC = both.srv; last = Object.assign({}, last, both.cli);
   ok(`AUTO ${SIM_MIN} นาที: ฆ่า ${s1.kills - s0.kills} ตัว ทุกตัวอยู่ในโซ่ + คิวว่าง`, s1.kills > s0.kills && s1.seq >= s1.kills - s0.kills && await until(A, () => { if (Chain.queue.length && !Chain.busy) Chain.flush(true); return !Chain.queue.length && !Chain.busy; }, null, 15000), `seq ${s1.seq} q ${last.q} นอกโซ่ ${await A.evaluate(() => window.__off || 0)}`);
-  ok('EXP/Volt/ของ มาจากเซิร์ฟเวอร์ (เพิ่มขึ้น) · ไม่มีของตกพื้น', s1.cum > s0.cum && s1.zeny > s0.zeny && s1.inv > s0.inv && maxDrops === 0, `exp +${Math.round(s1.cum - s0.cum)} zeny +${s1.zeny - s0.zeny} items +${s1.inv - s0.inv}`);
+  ok('EXP (เกมบวกเองตอนฆ่า) + Volt/ของ (จากเซิร์ฟเวอร์) เพิ่มขึ้น · ไม่มีของตกพื้น', s1.cum > s0.cum && s1.zeny > s0.zeny && s1.inv > s0.inv && maxDrops === 0, `exp +${Math.round(s1.cum - s0.cum)} zeny +${s1.zeny - s0.zeny} items +${s1.inv - s0.inv}`);
   ok('เซฟบนเซิร์ฟเวอร์ตรงกับเกม (เลเวล/EXP/Volt)', srvC.baseLv === last.lv && srvC.baseExp === last.exp && srvC.zeny === last.zeny, `${srvC.baseLv}/${srvC.baseExp}/${srvC.zeny} vs ${last.lv}/${last.exp}/${last.zeny}`);
   ok('เล่นสุจริต: ไม่มีธงเลย (โซ่ + ตรวจเซฟ)', (await flags(A, ua)).length === 0, (await flags(A, ua)).join());
 
-  // ---------- แก้กลางโซ่ ----------
   const map = await A.evaluate(() => G.map.id);
-  const kill = async n => A.evaluate(([n, map]) => { for (let i = 0; i < n; i++) Chain.append('kill', ['moss_pudding', map, G.player.baseLv, 0, 0]); return Chain.p; }, [n, map]);
+  // จดการฆ่าแบบที่เกมจด (EXP ตามสูตรจริง) — x = ตัวคูณ EXP ที่อ้าง (จำลองเกมที่ถูกแก้)
+  const kill = async (n, x = 1) => A.evaluate(([n, map, x]) => { const m = MOBS.moss_pudding, em = expLevelMul(m.lv, G.player.baseLv);
+    for (let i = 0; i < n; i++) Chain.append('kill', ['moss_pudding', map, G.player.baseLv, 0, 0, Math.max(1, Math.round(m.exp * em)) * x, Math.max(1, Math.round(m.jexp * em))]); return Chain.p; }, [n, map, x]);
+  // ---------- EXP ทันที / ของเป็นชุด / ไม่ซ้ำ ----------
+  await advance(A, 30);
+  const k1 = await A.evaluate(() => { Bot.toggle(false); const p = G.player, e0 = SaveVerifyRules.cumBase(p.baseLv, p.baseExp), z0 = p.zeny, i0 = p.inventory.reduce((s, e) => s + e.qty, 0), q0 = Chain.queue.length;
+    const m = spawnMob('moss_pudding', { x: Math.floor(p.x) + 1, y: Math.floor(p.y) }); killMob(m);
+    return { de: SaveVerifyRules.cumBase(p.baseLv, p.baseExp) - e0, dz: p.zeny - z0, di: p.inventory.reduce((s, e) => s + e.qty, 0) - i0, dq: Chain.queue.length >= q0, drops: G.drops.length }; });
+  await A.evaluate(() => Chain.p);
+  ok('ฆ่ามอน: EXP ขึ้นทันทีในเฟรมเดียวกัน · Volt/ของยังไม่มา (รอชุด) · ไม่มีของตกพื้น', k1.de > 0 && k1.dz === 0 && k1.di === 0 && k1.drops === 0, JSON.stringify(k1));
+  const e1 = await A.evaluate(() => SaveVerifyRules.cumBase(G.player.baseLv, G.player.baseExp));
+  const f1 = await A.evaluate(async () => { const z = G.player.zeny; await Chain.flush(true); return { dz: G.player.zeny - z, q: Chain.queue.length }; });
+  ok('ส่งชุด: ได้ Volt จากเซิร์ฟเวอร์ · EXP ไม่ถูกบวกซ้ำ', f1.dz > 0 && f1.q === 0 && await A.evaluate(e => SaveVerifyRules.cumBase(G.player.baseLv, G.player.baseExp) === e, e1), JSON.stringify(f1));
+  ok('EXP ที่ตรวจแล้วเป็นเครดิตให้ตัวตรวจเซฟ (vb)', await A.evaluate(u => { const st = JSON.parse(localStorage.getItem('fake_sv:state:' + u) || '{}'); const c = st.chars && st.chars[G.player.name.toLowerCase()]; return !!c && c.vb > 0; }, ua));
+  await advance(A, 30); await kill(2, 40);
+  await A.evaluate(() => Chain.flush(true));
+  ok('อ้าง EXP เกินสูตร (×40) → ธง exp_mismatch', (await flags(A, ua)).includes('exp_mismatch'), (await flags(A, ua)).join());
+  await A.evaluate(u => { const k = 'fake_sv:flags:' + u; localStorage.setItem(k, JSON.stringify(JSON.parse(localStorage.getItem(k) || '[]').filter(f => f.rule !== 'exp_mismatch'))); }, ua);
+
+  // ---------- แก้กลางโซ่ ----------
   await advance(A, 30);
   await kill(5);
   const z0 = await A.evaluate(() => G.player.zeny);

@@ -1222,6 +1222,8 @@ create table if not exists public.event_anchors (
   n        int not null default 0,
   at       timestamptz not null default now()
 );
+-- lv = เลเวลสูงสุดที่โซ่อ้างถึงแล้ว (หมุดเริ่มต้น = เลเวลในเซฟตอนเริ่ม) — เลเวลในเกมไม่มีวันลด การฆ่าถัดไปจึงอ้างต่ำกว่านี้ไม่ได้
+alter table public.event_anchors add column if not exists lv int not null default 0;
 create index if not exists event_anchors_last_idx on public.event_anchors (user_id, char_key, id desc);
 alter table public.event_anchors enable row level security;
 
@@ -1377,7 +1379,8 @@ begin
   select * into a from public.event_anchors where user_id = u and char_key = k order by id desc limit 1;
   if a.id is null then
     h := public.ch_hmac(public.ch_secret(), concat_ws('|', 'genesis', u, k));
-    insert into public.event_anchors (user_id, char_key, seq, head, mac) values (u, k, 0, h, public.ch_hmac(public.ch_secret(), concat_ws('|', u, k, 0, h)))
+    insert into public.event_anchors (user_id, char_key, seq, head, mac, lv) values (u, k, 0, h, public.ch_hmac(public.ch_secret(), concat_ws('|', u, k, 0, h)),
+      coalesce((select greatest(1, trunc(public.sv_num(d -> 'chars' -> public.ec_idx(d, k) -> 'baseLv')))::int from (select data as d from public.characters where user_id = u) s), 1))
     returning * into a;
   end if;
   return a;
@@ -1416,7 +1419,7 @@ declare
   e jsonb; prev text; s int; lastt numeric := 0; bn int; firstt numeric; spant numeric; elapsed numeric; nk int := 0;
   m public.sv_mobs; lv int; bexp numeric := 0; jexp numeric := 0; zeny bigint := 0; add jsonb := '[]'::jsonb; chips jsonb := '[]'::jsonb; got jsonb := '[]'::jsonb;
   dr jsonb; party int; em numeric; kf numeric; jmax int; bad text; badd jsonb; cnt record; seq int; na public.event_anchors; delta jsonb; lid bigint;
-  g jsonb; chance numeric; gap int; sigw int := 0;
+  g jsonb; chance numeric; gap int; sigw int := 0; slv int; cl int; flv int; mlv int; eb_ numeric; ej_ numeric; vb numeric := 0; vj numeric := 0; mm int := 0; mmd jsonb := null;
 begin
   if u is null then raise exception 'not signed in'; end if;
   if not coalesce((select chain from public.save_verify_config where id = 1), true) then raise exception 'chain_off' using errcode = 'P0001'; end if;
@@ -1477,6 +1480,31 @@ begin
       end if;
     end loop;
   end if;
+  -- 2b) EXP ที่เกมบวกเองตอนฆ่า (a[5] base, a[6] job) ต้องตรงกับสูตรของเซิร์ฟเวอร์
+  --     เลเวลที่อ้าง (a[2]) ไม่ลดลง: ไม่ต่ำกว่าเลเวลสูงสุดที่โซ่อ้างแล้ว (หมุด) และไม่ลดภายในชุด
+  --     (ไม่เทียบกับเลเวลในเซฟตรง ๆ — เซฟหลังเลเวลอัปอาจถึงก่อนชุดที่มีการฆ่าก่อนเลเวลอัป)
+  slv := greatest(1, coalesce(trunc(public.sv_num(c -> 'baseLv')), 1))::int;
+  flv := coalesce(a.lv, 0); mlv := flv;
+  for e in select x from jsonb_array_elements(entries) x where x ->> 'k' = 'kill' loop
+    select * into m from public.sv_mobs where id = e -> 'a' ->> 0;
+    if m.id is null then continue; end if;
+    cl := greatest(1, least(99, coalesce(trunc(public.sv_num(e -> 'a' -> 2)), 1)))::int;
+    party := least(5, greatest(0, coalesce(trunc(public.sv_num(e -> 'a' -> 3)), 0)))::int;
+    kf := (1 + 0.15 * party) / (party + 1);
+    em := public.ch_exp_mul(m.lv, cl);
+    eb_ := round(greatest(1, round(m.exp * em)) * kf); ej_ := round(greatest(1, round(m.jexp * em)) * kf);
+    if cl < mlv or abs(public.sv_num(e -> 'a' -> 5) - eb_) > 1 or abs(public.sv_num(e -> 'a' -> 6) - ej_) > 1 then
+      mm := mm + 1;
+      if mmd is null then mmd := jsonb_build_object('mob', m.id, 'lv', cl, 'saved_lv', slv, 'claimed', jsonb_build_array(e -> 'a' -> 5, e -> 'a' -> 6), 'expected', jsonb_build_array(eb_, ej_), 'floor_lv', mlv); end if;
+    end if;
+    mlv := greatest(mlv, cl);
+    -- เครดิตเฉพาะส่วนที่ตรวจได้ (ไม่เกินที่สูตรให้) → ตรวจเซฟใช้ก่อนถังอัตรา
+    vb := vb + least(greatest(0, public.sv_num(e -> 'a' -> 5)), eb_); vj := vj + least(greatest(0, public.sv_num(e -> 'a' -> 6)), ej_);
+  end loop;
+  if mm > 0 then
+    perform public.ch_flag(u, 'exp_mismatch', mmd || jsonb_build_object('count', mm));
+    if bad is null then bad := 'exp_mismatch'; badd := mmd; end if;
+  end if;
   if bad is not null then
     perform public.ch_flag(u, bad, badd);
     if mode = 'enforce' then
@@ -1485,17 +1513,12 @@ begin
     end if;
   end if;
 
-  -- 3) เซิร์ฟเวอร์ทอยรางวัลเอง (ตามลำดับเหตุการณ์ — เลเวลเปลี่ยนระหว่างทางได้)
-  lv := greatest(1, coalesce(trunc(public.sv_num(c -> 'baseLv')), 1))::int;
+  -- 3) เซิร์ฟเวอร์ทอยของ/Volt เอง (EXP เกมบวกเองตอนฆ่าแล้ว — ไม่ให้ซ้ำ)
   g := coalesce((select derived -> 'gacha' from public.save_verify_config where id = 1), '{}'::jsonb);
   for e in select x from jsonb_array_elements(entries) x where x ->> 'k' = 'kill' loop
     select * into m from public.sv_mobs where id = e -> 'a' ->> 0;
     if m.id is null then continue; end if;
-    party := least(5, greatest(0, coalesce(trunc(public.sv_num(e -> 'a' -> 3)), 0)))::int;
-    kf := (1 + 0.15 * party) / (party + 1);
-    em := public.ch_exp_mul(m.lv, lv);
-    bexp := bexp + round(greatest(1, round(m.exp * em)) * kf);
-    jexp := jexp + round(greatest(1, round(m.jexp * em)) * kf);
+    lv := greatest(1, least(99, coalesce(trunc(public.sv_num(e -> 'a' -> 2)), 1)))::int; -- เลเวลตอนฆ่า (ตรวจแล้วข้างบน) — ใช้คิดโอกาสตรากาชา
     if m.zmax > 0 then zeny := zeny + m.zmin + floor(random() * (m.zmax - m.zmin + 1))::bigint; end if;
     for dr in select x from jsonb_array_elements(m.drops) x loop
       if random() < (dr ->> 1)::numeric then
@@ -1528,16 +1551,18 @@ begin
       insert into public.boss_kills (user_id, char_key, mob) values (u, k, m.id);
     elsif m.wb then insert into public.boss_kills (user_id, char_key, mob) values (u, k, m.id);
     end if;
-    -- เลเวลระหว่างชุด (ประมาณจาก EXP ที่ได้ — ให้ตัวคูณส่วนต่างเลเวลถูกต้องในชุดยาว)
-    lv := (public.ec_exp(c, bexp, 0, 0) ->> 'baseLv')::int;
   end loop;
-  select job_max into jmax from public.save_verify_jobs where id = c ->> 'job';
-  delta := jsonb_build_object('zeny', zeny, 'add', add, 'exp', jsonb_build_object('b', bexp, 'j', jexp, 'jmax', coalesce(jmax, 0)), 'chips', chips, 'kills', nk);
+  delta := jsonb_build_object('zeny', zeny, 'add', add, 'chips', chips, 'kills', nk, 'verified', jsonb_build_object('b', vb, 'j', vj));
+  -- เครดิต EXP ที่ตรวจแล้วให้ตัวตรวจเซฟ (save_verify_state.chars.<ตัว>.vb / vj)
+  insert into public.save_verify_state (user_id, at, wb, held, chars)
+    values (u, coalesce((select updated_at from public.characters where user_id = u), now()), (P ->> 'worth_cap')::numeric, 0, jsonb_build_object(k, jsonb_build_object('vb', vb, 'vj', vj)))
+  on conflict (user_id) do update set chars = public.save_verify_state.chars || jsonb_build_object(k, coalesce(public.save_verify_state.chars -> k, '{}'::jsonb)
+    || jsonb_build_object('vb', coalesce((public.save_verify_state.chars -> k ->> 'vb')::numeric, 0) + vb, 'vj', coalesce((public.save_verify_state.chars -> k ->> 'vj')::numeric, 0) + vj));
 
   -- 4) บันทึก + หมุดใหม่
   insert into public.event_log (user_id, char_key, anchor_id, from_seq, to_seq, entries, status) values (u, k, a.id, a.seq + 1, s, entries, 'ok') returning id into lid; -- โหมด log: รับไว้แม้มีธง
-  insert into public.event_anchors (user_id, char_key, seq, head, mac, n)
-    values (u, k, s, prev, public.ch_hmac(public.ch_secret(), concat_ws('|', u, k, s, prev)), bn) returning * into na;
+  insert into public.event_anchors (user_id, char_key, seq, head, mac, n, lv)
+    values (u, k, s, prev, public.ch_hmac(public.ch_secret(), concat_ws('|', u, k, s, prev)), bn, greatest(mlv, flv)) returning * into na;
   seq := public.ec_commit(u, k, delta, 'kills', na.id::text);
   return jsonb_build_object('status', 'ok', 'anchor', public.ch_anchor_json(na), 'seq', seq, 'delta', delta, 'got', got);
 end $$;
@@ -1550,6 +1575,194 @@ begin
     execute format('grant execute on function public.%s to authenticated', f);
   end loop;
 end $$;
+
+-- ---------- ตรวจเซฟ (แทนฉบับระยะ 0): EXP ที่ submit_events ตรวจกับการฆ่าแล้ว (chars.<ตัว>.vb / vj) ใช้ก่อนถังอัตรา ----------
+-- ระยะ 2: เกมบวก EXP เองทันทีตอนฆ่า (ไม่หน่วง) แต่ทุกการฆ่าในโซ่บอก EXP ที่ได้ → เซิร์ฟเวอร์คำนวณซ้ำ ตรงกัน = เครดิต vb/vj
+-- เซฟที่ EXP เพิ่มตามการฆ่าที่ตรวจแล้วจึงไม่กินถัง · ส่วนที่เกิน (เควสต์/รายวัน/ส่วนแบ่งปาร์ตี้) ยังคุมด้วยถังอัตราเดิม
+create or replace function public.save_verify_eval(u uuid, od jsonb, nd jsonb, old_at timestamptz)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  cfg public.save_verify_config; st public.save_verify_state; P jsonb; soft text[]; mode text;
+  nowt timestamptz := now(); t numeric; fl jsonb := '[]'::jsonb;
+  nc jsonb := public.sv_chars(nd); oc jsonb := public.sv_chars(od);
+  c jsonb; o jsonb; k text; nm text; slot int := -1; jb_row public.save_verify_jobs; ojb public.save_verify_jobs;
+  lv int; ol int; jl int; L int; pts numeric; spent int; have int;
+  en record; it public.save_verify_items; unk jsonb; qbad jsonb; rbad jsonb; cbad jsonb; dupu jsonb; uids bigint[]; q numeric; cd text;
+  exp_rate numeric; jexp_rate numeric; worth_rate numeric; capE numeric; capJ numeric;
+  prev jsonb; eb numeric; jbk numeric; vb numeric; vj numeric; uv numeric; lb numeric; dE numeric; dJ numeric; dL int; schars jsonb := '{}'::jsonb;
+  fresh int := 0; impw numeric := 0; acct_imp boolean; imported boolean;
+  w0 numeric := 0; w1 numeric := 0; dW numeric; credit numeric := 0; pend numeric := 0; consume bigint[] := '{}';
+  r record; bucket numeric; total numeric; use_ numeric; held numeric; wb numeric; f jsonb; hard text;
+begin
+  -- เรียกได้จาก trigger บนตาราง characters เท่านั้น (ไม่ใช่ RPC ตรง) และเฉพาะบัญชีของตัวเอง
+  if pg_trigger_depth() < 1 then raise exception 'save_verify_eval is internal'; end if;
+  if auth.uid() is not null and u is distinct from auth.uid() then raise exception 'not your account'; end if;
+  select * into cfg from public.save_verify_config where id = 1;
+  mode := coalesce(cfg.mode, 'log');
+  if mode = 'off' then return null; end if;
+  soft := coalesce(cfg.soft_rules, '{unknown_item,unknown_job,dup_uid,import_offline}');
+  P := public.sv_defaults() || coalesce(cfg.derived, '{}'::jsonb) || coalesce(cfg.params, '{}'::jsonb);
+  select * into st from public.save_verify_state where user_id = u for update;
+  t := least((P ->> 'max_elapsed')::numeric, greatest(0, extract(epoch from nowt - coalesce(st.at, old_at, nowt))));
+  exp_rate := (P ->> 'exp_per_kill')::numeric * (P ->> 'kps')::numeric * (P ->> 'party_mul')::numeric * (P ->> 'safety')::numeric;
+  jexp_rate := (P ->> 'jexp_per_kill')::numeric * (P ->> 'kps')::numeric * (P ->> 'party_mul')::numeric * (P ->> 'safety')::numeric;
+  worth_rate := (P ->> 'worth_per_kill')::numeric * (P ->> 'kps')::numeric * (P ->> 'safety')::numeric;
+  acct_imp := coalesce(nd ->> 'importedOffline', '') <> '' and (od is null or (od ->> 'importedOffline') is distinct from (nd ->> 'importedOffline'));
+
+  for c in select x from jsonb_array_elements(nc) x loop
+    slot := slot + 1;
+    k := lower(trim(c ->> 'name')); nm := left(c ->> 'name', 24);
+    select x into o from jsonb_array_elements(oc) x where lower(trim(x ->> 'name')) = k limit 1;
+    imported := (coalesce(c ->> 'importedOffline', '') <> '' and (o is null or (o ->> 'importedOffline') is distinct from (c ->> 'importedOffline'))) or (acct_imp and o is null);
+    if o is null and not imported then fresh := fresh + 1; end if;
+    if imported then
+      fl := public.sv_flag(fl, 'import_offline', slot, jsonb_build_object('name', nm, 'at', coalesce(c -> 'importedOffline', nd -> 'importedOffline'), 'baseLv', c -> 'baseLv', 'job', c -> 'job', 'zeny', c -> 'zeny'), soft);
+      impw := impw + public.sv_char_worth(c) - coalesce(public.sv_char_worth(o), 0);
+    end if;
+
+    -- ค่าที่เป็นไปไม่ได้
+    lv := case when public.sv_is_int(c -> 'baseLv') then least(100000, greatest(-1, (c ->> 'baseLv')::numeric))::int else null end;
+    if lv is null or lv < 1 or lv > (P ->> 'max_base_lv')::int then fl := public.sv_flag(fl, 'level_cap', slot, jsonb_build_object('name', nm, 'baseLv', c -> 'baseLv'), soft); end if;
+    if (c -> 'job1Lv') is not null and jsonb_typeof(c -> 'job1Lv') <> 'null' and (not public.sv_is_int(c -> 'job1Lv') or public.sv_num(c -> 'job1Lv') < 1 or public.sv_num(c -> 'job1Lv') > 99) then
+      fl := public.sv_flag(fl, 'level_cap', slot, jsonb_build_object('name', nm, 'job1Lv', c -> 'job1Lv'), soft); end if;
+    if (c -> 'job2Lv') is not null and jsonb_typeof(c -> 'job2Lv') <> 'null' and (not public.sv_is_int(c -> 'job2Lv') or public.sv_num(c -> 'job2Lv') < 1 or public.sv_num(c -> 'job2Lv') > 99) then
+      fl := public.sv_flag(fl, 'level_cap', slot, jsonb_build_object('name', nm, 'job2Lv', c -> 'job2Lv'), soft); end if;
+    select * into jb_row from public.save_verify_jobs where id = c ->> 'job';
+    jl := greatest(1, least(100000, trunc(public.sv_num(c -> 'jobLv'))))::int;
+    if jb_row.id is null then fl := public.sv_flag(fl, 'unknown_job', slot, jsonb_build_object('name', nm, 'job', c -> 'job'), soft);
+    elsif not public.sv_is_int(c -> 'jobLv') or public.sv_num(c -> 'jobLv') < 1 or public.sv_num(c -> 'jobLv') > jb_row.job_max then
+      fl := public.sv_flag(fl, 'job_level_cap', slot, jsonb_build_object('name', nm, 'job', c -> 'job', 'jobLv', c -> 'jobLv', 'max', jb_row.job_max), soft); end if;
+    L := case when lv is null then 1 else greatest(1, least((P ->> 'max_base_lv')::int, lv)) end;
+    if public.sv_num(c -> 'baseExp') < 0 or (L < (P ->> 'max_base_lv')::int and public.sv_num(c -> 'baseExp') >= 2 * public.sv_need_base(L)) then
+      fl := public.sv_flag(fl, 'exp_range', slot, jsonb_build_object('name', nm, 'baseExp', c -> 'baseExp'), soft); end if;
+    if jb_row.id is not null and (public.sv_num(c -> 'jobExp') < 0 or public.sv_num(c -> 'jobExp') >= 2 * public.sv_need_job(jb_row.tier, jl)) then
+      fl := public.sv_flag(fl, 'exp_range', slot, jsonb_build_object('name', nm, 'jobExp', c -> 'jobExp'), soft); end if;
+    if exists (select 1 from unnest(array['str','agi','vit','int','dex','luk']) s
+               where not coalesce(public.sv_is_int(c -> 'stats' -> s), false) or public.sv_num(c -> 'stats' -> s) < 1 or public.sv_num(c -> 'stats' -> s) > (P ->> 'stat_max')::numeric) then
+      fl := public.sv_flag(fl, 'stat_cap', slot, jsonb_build_object('name', nm, 'stats', c -> 'stats'), soft); end if;
+    spent := public.sv_stat_spent(case when jsonb_typeof(c -> 'stats') = 'object' then c -> 'stats' else '{}'::jsonb end);
+    pts := public.sv_num(c -> 'statPoints'); have := public.sv_stat_total(L);
+    if pts < 0 or spent + pts > have + (P ->> 'stat_slack')::numeric then
+      fl := public.sv_flag(fl, 'stat_points', slot, jsonb_build_object('name', nm, 'spent', spent, 'points', pts, 'allowed', have), soft); end if;
+    if (c -> 'zeny') is not null and jsonb_typeof(c -> 'zeny') <> 'null' and (not public.sv_is_int(c -> 'zeny') or public.sv_num(c -> 'zeny') < 0 or public.sv_num(c -> 'zeny') > (P ->> 'zeny_max')::numeric) then
+      fl := public.sv_flag(fl, 'zeny_range', slot, jsonb_build_object('name', nm, 'zeny', c -> 'zeny'), soft); end if;
+    unk := null; qbad := null; rbad := null; cbad := null; dupu := null; uids := '{}';
+    for en in select * from public.sv_entries(c) loop
+      if jsonb_typeof(en.e) <> 'object' then qbad := coalesce(qbad, jsonb_build_object('where', en.w)); continue; end if;
+      select * into it from public.save_verify_items where id = en.e ->> 'id';
+      if it.id is null then unk := coalesce(unk, jsonb_build_object('where', en.w, 'id', left(coalesce(en.e ->> 'id', ''), 40))); continue; end if;
+      q := public.sv_num(en.e -> 'qty');
+      if not public.sv_is_int(en.e -> 'qty') or q < (case when en.w = 'vend' then 0 else 1 end) or q > (case when it.equip then 1 else (P ->> 'stack_max')::numeric end) then
+        qbad := coalesce(qbad, jsonb_build_object('where', en.w, 'id', it.id, 'qty', en.e -> 'qty')); end if;
+      if (en.e -> 'refine') is not null and jsonb_typeof(en.e -> 'refine') <> 'null' and (not public.sv_is_int(en.e -> 'refine') or public.sv_num(en.e -> 'refine') < 0 or public.sv_num(en.e -> 'refine') > (P ->> 'refine_max')::numeric) then
+        rbad := coalesce(rbad, jsonb_build_object('where', en.w, 'id', it.id, 'refine', en.e -> 'refine')); end if;
+      if (en.e -> 'cards') is not null and jsonb_typeof(en.e -> 'cards') <> 'null' then
+        if jsonb_typeof(en.e -> 'cards') <> 'array' or jsonb_array_length(en.e -> 'cards') > (P ->> 'cards_max')::int then
+          cbad := coalesce(cbad, jsonb_build_object('where', en.w, 'id', it.id));
+        else
+          for cd in select jsonb_array_elements(en.e -> 'cards') #>> '{}' loop
+            if not exists (select 1 from public.save_verify_items where id = cd) then unk := coalesce(unk, jsonb_build_object('where', en.w, 'id', left(coalesce(cd, ''), 40)));
+            elsif not exists (select 1 from public.save_verify_items where id = cd and card) then cbad := coalesce(cbad, jsonb_build_object('where', en.w, 'id', it.id, 'card', cd)); end if;
+          end loop;
+        end if;
+      end if;
+      if it.equip and public.sv_is_int(en.e -> 'uid') and public.sv_num(en.e -> 'uid') > 0 and en.w <> 'vend' and public.sv_num(en.e -> 'uid') < 9e18 then
+        if (en.e ->> 'uid')::numeric::bigint = any(uids) then dupu := coalesce(dupu, jsonb_build_object('where', en.w, 'id', it.id, 'uid', en.e -> 'uid')); end if;
+        uids := uids || (en.e ->> 'uid')::numeric::bigint;
+      end if;
+    end loop;
+    if unk is not null then fl := public.sv_flag(fl, 'unknown_item', slot, jsonb_build_object('name', nm) || unk, soft); end if;
+    if qbad is not null then fl := public.sv_flag(fl, 'qty_range', slot, jsonb_build_object('name', nm) || qbad, soft); end if;
+    if rbad is not null then fl := public.sv_flag(fl, 'refine_cap', slot, jsonb_build_object('name', nm) || rbad, soft); end if;
+    if cbad is not null then fl := public.sv_flag(fl, 'card_range', slot, jsonb_build_object('name', nm) || cbad, soft); end if;
+    if dupu is not null then fl := public.sv_flag(fl, 'dup_uid', slot, jsonb_build_object('name', nm) || dupu, soft); end if;
+    -- เปลี่ยน Class ได้ทีละขั้นตามสาย • ตัวละครใหม่เริ่มที่ Novice (เผื่อ Class 1 ก่อนเซฟแรก)
+    if jb_row.id is not null and o is not null and (o ->> 'job') is distinct from (c ->> 'job')
+       and (not public.sv_descends(o ->> 'job', c ->> 'job')
+            or jb_row.tier - coalesce((select tier from public.save_verify_jobs where id = o ->> 'job'), jb_row.tier) > 1) then
+      fl := public.sv_flag(fl, 'job_path', slot, jsonb_build_object('name', nm, 'from', o -> 'job', 'to', c -> 'job'), soft); end if;
+    if jb_row.id is not null and o is null and not imported and jb_row.tier > 1 then
+      fl := public.sv_flag(fl, 'job_path', slot, jsonb_build_object('name', nm, 'from', null, 'to', c -> 'job'), soft); end if;
+
+    -- อัตราเทียบเวลา (ถังโทเคน)
+    if imported then
+      schars := schars || jsonb_build_object(k, jsonb_build_object('eb', round(3 * (P ->> 'boss_exp')::numeric * (P ->> 'party_mul')::numeric),
+        'jb', round(3 * (P ->> 'boss_exp')::numeric * 0.7 * (P ->> 'party_mul')::numeric), 'lb', (P ->> 'lv_cap')::numeric));
+      continue;
+    end if;
+    ol := case when o is not null and public.sv_is_int(o -> 'baseLv') then greatest(1, least((P ->> 'max_base_lv')::int, greatest(-1, least(100000, (o ->> 'baseLv')::numeric))::int)) else 1 end;
+    prev := case when st.user_id is not null then st.chars -> k else null end;
+    select * into ojb from public.save_verify_jobs where o is not null and id = o ->> 'job';
+    capE := 3 * (P ->> 'boss_exp')::numeric * (P ->> 'party_mul')::numeric + (P ->> 'need_frac')::numeric * public.sv_need_base(ol);
+    capJ := 3 * (P ->> 'boss_exp')::numeric * 0.7 * (P ->> 'party_mul')::numeric
+            + case when ojb.id is not null then (P ->> 'need_frac')::numeric * public.sv_need_job(ojb.tier, greatest(1, least(100000, trunc(public.sv_num(o -> 'jobLv'))))::int) else 0 end;
+    dE := public.sv_cum_base(L, public.sv_num(c -> 'baseExp')) - case when o is not null then public.sv_cum_base(ol, public.sv_num(o -> 'baseExp')) else 0 end;
+    -- EXP จากการฆ่าที่ submit_events ตรวจแล้ว (vb) ใช้ก่อน ไม่กินถังอัตรา
+    vb := coalesce((prev ->> 'vb')::numeric, 0); uv := least(vb, greatest(0, dE)); vb := vb - uv;
+    eb := least(capE, coalesce((prev ->> 'eb')::numeric, capE) + exp_rate * t) - (greatest(0, dE) - uv);
+    if eb < 0 then
+      fl := public.sv_flag(fl, 'exp_rate', slot, jsonb_build_object('name', nm, 'gained', round(dE), 'allowed', round(eb + greatest(0, dE)), 'seconds', round(t)), soft); eb := 0; end if;
+    dJ := 0;
+    if jb_row.id is not null then
+      if o is not null and (o ->> 'job') = (c ->> 'job') and ojb.id is not null then
+        dJ := public.sv_cum_job(jb_row.tier, jl, public.sv_num(c -> 'jobExp')) - public.sv_cum_job(ojb.tier, greatest(1, least(100000, trunc(public.sv_num(o -> 'jobLv'))))::int, public.sv_num(o -> 'jobExp'));
+      else dJ := public.sv_cum_job(jb_row.tier, jl, public.sv_num(c -> 'jobExp')); end if;
+    end if;
+    vj := coalesce((prev ->> 'vj')::numeric, 0); uv := least(vj, greatest(0, dJ)); vj := vj - uv;
+    jbk := least(capJ, coalesce((prev ->> 'jb')::numeric, capJ) + jexp_rate * t) - (greatest(0, dJ) - uv);
+    if jbk < 0 then
+      fl := public.sv_flag(fl, 'jexp_rate', slot, jsonb_build_object('name', nm, 'gained', round(dJ), 'allowed', round(jbk + greatest(0, dJ)), 'seconds', round(t)), soft); jbk := 0; end if;
+    dL := L - ol;
+    lb := least((P ->> 'lv_cap')::numeric, coalesce((prev ->> 'lb')::numeric, (P ->> 'lv_cap')::numeric) + (P ->> 'lv_per_min')::numeric * t / 60) - greatest(0, dL);
+    if lb < 0 then
+      fl := public.sv_flag(fl, 'level_rate', slot, jsonb_build_object('name', nm, 'from', ol, 'to', L, 'seconds', round(t)), soft); lb := 0; end if;
+    schars := schars || jsonb_build_object(k, jsonb_build_object('eb', round(eb), 'jb', round(jbk), 'lb', round(lb, 2), 'vb', round(vb), 'vj', round(vj)));
+  end loop;
+
+  -- มูลค่ารวมทั้งบัญชี
+  select coalesce(sum(public.sv_char_worth(x)), 0) into w0 from jsonb_array_elements(oc) x;
+  select coalesce(sum(public.sv_char_worth(x)), 0) into w1 from jsonb_array_elements(nc) x;
+  dW := w1 - w0 - (P ->> 'new_char_worth')::numeric * fresh - impw;
+  for r in
+    select l.id, l.at, l.zin, l.zout, l.win, l.wout,
+           exists (select 1 from public.transfer_ledger pl where pl.kind = l.kind and pl.tid = l.tid and pl.user_id = l.peer_id and pl.peer_id = l.user_id and pl.sig = l.sig) as paired
+    from public.transfer_ledger l where l.user_id = u and l.consumed_at is null order by l.id
+  loop
+    if r.paired then credit := credit + r.zin + r.win - r.zout - r.wout; consume := consume || r.id;
+    elsif extract(epoch from nowt - r.at) > (P ->> 'pair_wait')::numeric then consume := consume || r.id;
+    else pend := pend + r.zout + r.wout; end if;
+  end loop;
+  bucket := least((P ->> 'worth_cap')::numeric, coalesce(st.wb, (P ->> 'worth_cap')::numeric) + worth_rate * t);
+  use_ := dW - credit;
+  total := bucket + coalesce(st.held, 0) - use_;
+  if total < 0 then
+    fl := public.sv_flag(fl, 'worth_rate', case when jsonb_array_length(nc) = 0 then 0 else greatest(0, least(jsonb_array_length(nc) - 1, coalesce(trunc(public.sv_num(nd -> 'active')), 0)::int)) end,
+      jsonb_build_object('gained', round(dW), 'credit', round(credit), 'allowed', round(total + use_), 'seconds', round(t)), soft);
+    total := 0;
+  end if;
+  held := round(least(pend, total));
+  wb := round(least((P ->> 'worth_cap')::numeric, total - held));
+
+  select f2 ->> 'rule' into hard from jsonb_array_elements(fl) f2 where not (f2 ->> 'soft')::boolean limit 1;
+  if mode = 'enforce' and hard is not null then return hard; end if; -- ทรานแซกชันถูกยกเลิกทั้งก้อน (ไม่อัปเดตถัง/รายการโอน)
+
+  insert into public.save_verify_state (user_id, at, wb, held, chars) values (u, nowt, wb, held, schars)
+  on conflict (user_id) do update set at = excluded.at, wb = excluded.wb, held = excluded.held, chars = excluded.chars;
+  if array_length(consume, 1) > 0 then update public.transfer_ledger set consumed_at = nowt where id = any(consume); end if;
+  for f in select x from jsonb_array_elements(fl) x loop
+    -- ธงเดิมซ้ำภายใน 10 นาที (กติกาเดียวกัน ช่องเดียวกัน) ไม่จดซ้ำ — กันตารางบวมจากเซฟทุก 4 วิ
+    if not exists (select 1 from public.cheat_flags cf where cf.user_id = u and cf.rule = f ->> 'rule' and cf.slot is not distinct from (f ->> 'slot')::int and cf.at > nowt - interval '10 minutes') then
+      insert into public.cheat_flags (user_id, slot, rule, detail, mode) values (u, (f ->> 'slot')::int, f ->> 'rule', coalesce(f -> 'detail', '{}'::jsonb), mode);
+    end if;
+  end loop;
+  return null;
+end $$;
+revoke all on function public.save_verify_eval(uuid, jsonb, jsonb, timestamptz) from public, anon;
+grant execute on function public.save_verify_eval(uuid, jsonb, jsonb, timestamptz) to authenticated; -- trigger ทำงานในสิทธิ์ผู้เล่น (ฟังก์ชันกันเรียกตรงเอง)
 
 -- เก็บกวาด: รายการดิบเก่ากว่า keep_days วัน (ค่าเริ่ม 3 — ประหยัดพื้นที่) • หมุดเก็บตัวล่าสุดของทุกตัวละครเสมอ
 create or replace function public.chain_trim(keep_days int default 3) returns int

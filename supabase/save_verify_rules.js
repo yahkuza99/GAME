@@ -136,19 +136,22 @@
       const ojob = o ? jobs[o.job] : null;
       const capJ = 3 * P.boss_exp * 0.7 * P.party_mul + (ojob ? P.need_frac * needJob(ojob.tier, Math.max(1, o.jobLv | 0)) : 0);
       const dE = cumBase(L, c.baseExp) - (o ? cumBase(oL, o.baseExp) : 0);
-      let eb = Math.min(capE, (prev ? prev.eb : capE) + expRate * t) - Math.max(0, dE);
+      // EXP จากการฆ่าที่ submit_events ตรวจแล้ว (vb/vj — ระยะ 2) ใช้ก่อน ไม่กินถังอัตรา
+      let vb = prev && prev.vb > 0 ? prev.vb : 0; const ub = Math.min(vb, Math.max(0, dE)); vb -= ub;
+      let eb = Math.min(capE, (prev && prev.eb != null ? prev.eb : capE) + expRate * t) - (Math.max(0, dE) - ub);
       if (eb < 0) { flag('exp_rate', slot, { name, gained: Math.round(dE), allowed: Math.round(eb + Math.max(0, dE)), seconds: Math.round(t) }); eb = 0; }
       let dJ = 0;
       if (job) {
         const jl = Math.max(1, c.jobLv | 0);
         dJ = o && o.job === c.job && ojob ? cumJob(job.tier, jl, c.jobExp) - cumJob(ojob.tier, Math.max(1, o.jobLv | 0), o.jobExp) : cumJob(job.tier, jl, c.jobExp);
       }
-      let jb = Math.min(capJ, (prev ? prev.jb : capJ) + jexpRate * t) - Math.max(0, dJ);
+      let vj = prev && prev.vj > 0 ? prev.vj : 0; const uj = Math.min(vj, Math.max(0, dJ)); vj -= uj;
+      let jb = Math.min(capJ, (prev && prev.jb != null ? prev.jb : capJ) + jexpRate * t) - (Math.max(0, dJ) - uj);
       if (jb < 0) { flag('jexp_rate', slot, { name, gained: Math.round(dJ), allowed: Math.round(jb + Math.max(0, dJ)), seconds: Math.round(t) }); jb = 0; }
       const dL = L - oL;
-      let lb = Math.min(P.lv_cap, (prev ? prev.lb : P.lv_cap) + P.lv_per_min * t / 60) - Math.max(0, dL);
+      let lb = Math.min(P.lv_cap, (prev && prev.lb != null ? prev.lb : P.lv_cap) + P.lv_per_min * t / 60) - Math.max(0, dL);
       if (lb < 0) { flag('level_rate', slot, { name, from: oL, to: L, seconds: Math.round(t) }); lb = 0; }
-      state.chars[k] = { eb: Math.round(eb), jb: Math.round(jb), lb: Math.round(lb * 100) / 100 };
+      state.chars[k] = { eb: Math.round(eb), jb: Math.round(jb), lb: Math.round(lb * 100) / 100, vb: Math.round(vb), vj: Math.round(vj) };
     });
 
     // ---------- มูลค่ารวมทั้งบัญชี (Volt + ของทุกชิ้น ตามราคาขายร้าน) ----------

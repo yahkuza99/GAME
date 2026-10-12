@@ -384,7 +384,8 @@
       let a = this.get(`a:${u}:${k}`, null);
       if (!a) {
         const h = await this.hmac(this.secret(), ['genesis', u, k].join('|'));
-        a = { id: (this.get('id', 0) + 1), seq: 0, head: h, mac: await this.hmac(this.secret(), [u, k, 0, h].join('|')), at: this.now() };
+        const r0 = CH.get(u), c0 = r0 && r0.data && r0.data.chars ? r0.data.chars[EC.idx(r0.data, k)] : null;
+        a = { id: (this.get('id', 0) + 1), seq: 0, head: h, mac: await this.hmac(this.secret(), [u, k, 0, h].join('|')), at: this.now(), lv: (c0 && c0.baseLv) || 1 };
         this.set('id', a.id); this.set(`a:${u}:${k}`, a);
       }
       return a;
@@ -429,14 +430,24 @@
         if (m.boss || m.wb) { if (by[key] > 1 || (bk[mob] && now - bk[mob] < Math.max(60000, m.respawn * 0.8))) bad = 'boss_cooldown'; }
         else if (by[key] > sp[2] * (1 + Math.max(span, Math.min(elapsed, 21600)) / 4) * 1.5 + 2) bad = 'kill_rate';
       }
-      if (bad) { this.flag(u, bad, { kills: kills.length }); if (mode === 'enforce') return rej(bad); }
-      // ทอยรางวัล
-      const row = CH.get(u), c = row.data.chars[EC.idx(row.data, k)];
-      let lv = c.baseLv || 1, b = 0, j = 0, zeny = 0; const add = [], chips = [], got = [], G2 = D.gacha || {};
+      // EXP ที่เกมบวกเองตอนฆ่า (a[5], a[6]) ต้องตรงสูตร · เลเวลที่อ้างต่ำกว่าเซฟไม่ได้ → ธง exp_mismatch · เครดิตส่วนที่ตรวจได้ให้ตัวตรวจเซฟ
+      const row = CH.get(u), c = row.data.chars[EC.idx(row.data, k)], slv = c.baseLv || 1;
+      let vb = 0, vj = 0, mm = 0, mmd = null, mlv = A.lv || 0; // เลเวลที่อ้างไม่ลดลง (เทียบหมุด ไม่เทียบเซฟ)
       for (const e of kills) {
         const m = D.mobs[e.a[0]]; if (!m) continue;
-        const party = Math.min(5, Math.max(0, e.a[3] | 0)), kf = (1 + 0.15 * party) / (party + 1), em = this.expMul(m.lv, lv);
-        b += Math.round(Math.max(1, Math.round(m.exp * em)) * kf); j += Math.round(Math.max(1, Math.round(m.jexp * em)) * kf);
+        const cl = Math.max(1, Math.min(99, e.a[2] | 0)), party = Math.min(5, Math.max(0, e.a[3] | 0)), kf = (1 + 0.15 * party) / (party + 1), em = this.expMul(m.lv, cl);
+        const eb = Math.round(Math.max(1, Math.round(m.exp * em)) * kf), ej = Math.round(Math.max(1, Math.round(m.jexp * em)) * kf), cb = +e.a[5] || 0, cj = +e.a[6] || 0;
+        if (cl < mlv || Math.abs(cb - eb) > 1 || Math.abs(cj - ej) > 1) { mm++; if (!mmd) mmd = { mob: e.a[0], lv: cl, floor_lv: mlv, claimed: [cb, cj], expected: [eb, ej] }; }
+        mlv = Math.max(mlv, cl);
+        vb += Math.min(Math.max(0, cb), eb); vj += Math.min(Math.max(0, cj), ej);
+      }
+      if (mm) { this.flag(u, 'exp_mismatch', Object.assign({ count: mm }, mmd)); if (!bad) bad = 'exp_mismatch'; }
+      if (bad) { this.flag(u, bad, { kills: kills.length }); if (mode === 'enforce') return rej(bad); }
+      // ทอยของ/Volt (EXP ไม่ให้ซ้ำ — เกมบวกไปแล้ว)
+      let lv = slv, zeny = 0; const add = [], chips = [], got = [], G2 = D.gacha || {};
+      for (const e of kills) {
+        const m = D.mobs[e.a[0]]; if (!m) continue;
+        lv = Math.max(1, Math.min(99, e.a[2] | 0));
         if (m.zmax > 0) zeny += m.zmin + Math.floor(Math.random() * (m.zmax - m.zmin + 1));
         for (const [id, ch] of m.drops) if (Math.random() < ch) { add.push(D.items[id] && D.items[id].eq ? { id, qty: 1, uid: EC.uid(), refine: 0, cards: [] } : { id, qty: 1 }); got.push({ id, mob: e.a[0] }); }
         if (m.chip && Math.random() < (m.boss ? D.chip.boss : D.chip.drop)) { add.push({ id: m.chip, qty: 1 }); chips.push(e.a[0]); got.push({ id: m.chip, mob: e.a[0], chip: true }); }
@@ -448,10 +459,11 @@
         if (m.boss || m.wb) bk[e.a[0]] = now;
       }
       this.set(`boss:${u}:${k}`, bk);
-      const jm = D.jobs[c.job] ? D.jobs[c.job].max : 0;
-      const delta = { zeny, add, exp: { b, j, jmax: jm }, chips, kills: kills.length };
+      const delta = { zeny, add, chips, kills: kills.length, verified: { b: vb, j: vj } };
+      const SVS = window.__FAKE_SV, st = SVS.get('state:' + u, null) || { at: (row.updated_ms || now), wb: SVS.cfg().params.worth_cap || 3000000, held: 0, chars: {} };
+      const sc = st.chars[k] || {}; st.chars[k] = Object.assign({}, sc, { vb: (sc.vb || 0) + vb, vj: (sc.vj || 0) + vj }); SVS.set('state:' + u, st);
       log.push({ to_seq: s, h: prev, n, at: now }); this.set(`log:${u}:${k}`, log.slice(-500));
-      const na = { id: this.get('id', 0) + 1, seq: s, head: prev, mac: await this.hmac(this.secret(), [u, k, s, prev].join('|')), at: now };
+      const na = { id: this.get('id', 0) + 1, seq: s, head: prev, mac: await this.hmac(this.secret(), [u, k, s, prev].join('|')), at: now, lv: Math.max(mlv, A.lv || 0) };
       this.set('id', na.id); this.set(`a:${u}:${k}`, na);
       const seq = EC.commit(u, k, delta, 'kills', String(na.id));
       return { data: { status: 'ok', anchor: this.pub(na), seq, delta, got }, error: null };

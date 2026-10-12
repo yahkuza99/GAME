@@ -304,16 +304,16 @@ const Party = {
     return out;
   },
   // ใช้แทน gainExp ตอนล่ามอน: n คน → EXP รวม = ฐาน × (1 + 0.15 × (n−1)) แล้วหารเท่ากัน
-  // skipSelf = เซิร์ฟเวอร์ให้ EXP ส่วนของเราเอง (js/chain.js) — ส่งส่วนแบ่งให้เพื่อนตามเดิม • คืนจำนวนเพื่อนที่ได้ส่วนแบ่ง
-  shareExp(b, j, d, skipSelf) {
+  // คืน { n: เพื่อนที่ได้ส่วนแบ่ง, b, j: EXP ที่เราได้จริง } — js/chain.js จดลงโซ่ให้เซิร์ฟเวอร์ตรวจ
+  shareExp(b, j, d) {
     const el = (b > 0 || j > 0) && Online.online ? this.eligible() : [];
-    if (!el.length) { if (!skipSelf) gainExp(b, j); return 0; }
+    if (!el.length) { gainExp(b, j); return { n: 0, b, j }; }
     const n = el.length + 1, k = (1 + PARTY_BONUS * (n - 1)) / n;
     const sb = Math.round(b * k), sj = Math.round(j * k);
-    if (!skipSelf) gainExp(sb, sj);
+    gainExp(sb, sj);
     const pkt = { to: el.map(m => m.id), b: sb, j: sj, mob: d ? d.id : null, map: G.map.id, from: this.me() };
     if (G.fastSim) this.queue.push(pkt); else this.send('pexp', pkt);
-    return el.length;
+    return { n: el.length, b: sb, j: sj };
   },
   flushQueue() {
     if (!this.queue.length) return;

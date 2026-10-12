@@ -842,9 +842,10 @@ function killMob(m) {
   Bounty.onKill(d.id);
   p.kills = p.kills || {}; p.kills[d.id] = (p.kills[d.id] || 0) + 1; // สมุดมอนสเตอร์: จำนวนที่ล่าได้
   const em = expLevelMul(d.lv, p.baseLv);
-  // ระยะ 2 (js/chain.js): เซิร์ฟเวอร์ให้ EXP/Volt/ดรอป/ชิปเอง — เกมจดการฆ่าลงโซ่ (เพื่อนปาร์ตี้ยังได้ส่วนแบ่ง EXP ตามเดิม)
+  // ระยะ 2 (js/chain.js): EXP บวกทันทีตอนฆ่าเหมือนเดิม (+ ส่วนแบ่งปาร์ตี้) แล้วจด EXP ที่ได้ลงโซ่ให้เซิร์ฟเวอร์ตรวจ
+  // · Volt/ดรอป/ชิป/ตรา/ยา MVP เซิร์ฟเวอร์ทอยเองแล้วส่งมาเป็นชุด
   const srv = typeof Chain !== 'undefined' && Chain.on();
-  if (srv) Chain.onKill(m, Party.shareExp(Math.max(1, Math.round(d.exp * em)), Math.max(1, Math.round(d.jexp * em)), d, true));
+  if (srv) { const lv0 = p.baseLv, r = Party.shareExp(Math.max(1, Math.round(d.exp * em)), Math.max(1, Math.round(d.jexp * em)), d); Chain.onKill(m, r.n, r.b, r.j, lv0); }
   else {
     grantChip(d, m);
     Party.shareExp(Math.max(1, Math.round(d.exp * em)), Math.max(1, Math.round(d.jexp * em)), d); // ไม่มีปาร์ตี้ = gainExp ตามปกติ

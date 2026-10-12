@@ -51,6 +51,12 @@ const mk = (head, list, t0) => { let h = head.head, s = head.seq, t = t0; const 
   const C = async u => (await q(`select data from public.characters where user_id = $1`, [u])).rows[0].data.chars[0];
   const flags = async u => (await q(`select rule from public.cheat_flags where user_id = $1 order by id`, [u])).rows.map(r => r.rule);
   const back = async (u, sec) => q(`update public.event_anchors set at = at - make_interval(secs => $2) where user_id = $1`, [u, sec]); // แทนการรอจริง
+  // EXP ที่เกมบวกเองตอนฆ่า (สูตรเดียวกับ js/game.js expLevelMul + ส่วนแบ่งปาร์ตี้) → ใส่ใน a[5], a[6]
+  const MOBS = Object.fromEntries((await q(`select id, lv, exp, jexp from public.sv_mobs`)).rows.map(r => [r.id, r]));
+  const mul = (ml, l) => { const d = ml - l; return d >= 16 ? 0.4 : d >= 10 ? 1.4 - (d - 10) * 0.05 : d >= 3 ? 1 + (d - 2) * 0.05 : d >= -5 ? 1 : d >= -10 ? 0.95 : d >= -15 ? 0.9 : d >= -20 ? 0.85 : d >= -25 ? 0.6 : d >= -30 ? 0.35 : 0.1; };
+  const K = (mob, map, lv, party, boss) => { const m = MOBS[mob], kf = (1 + 0.15 * party) / (party + 1), em = mul(m.lv, lv);
+    return [mob, map, lv, party, boss, Math.round(Math.max(1, Math.round(m.exp * em)) * kf), Math.round(Math.max(1, Math.round(m.jexp * em)) * kf)]; };
+  const state = async (u, k) => ((await q(`select chars from public.save_verify_state where user_id = $1`, [u])).rows[0] || { chars: {} }).chars[k] || {};
   const meadow = (await q(`select map, mob from public.sv_map_mobs m join public.sv_mobs s on s.id = m.mob where not s.boss and not s.wb and s.exp > 0 order by s.lv limit 1`)).rows[0];
 
   // ---------- หมุดเริ่มต้น ----------
@@ -64,20 +70,47 @@ const mk = (head, list, t0) => { let h = head.head, s = head.seq, t = t0; const 
   // ---------- ชุดแรก: ฆ่ามอน 10 ตัว ----------
   await back(U1, 60);
   const c0 = await C(U1);
-  let b1 = mk(a, Array.from({ length: 10 }, () => ['kill', [meadow.mob, meadow.map, 20, 0, 0], 3000]), Date.now() - 40000);
+  let b1 = mk(a, Array.from({ length: 10 }, () => ['kill', K(meadow.mob, meadow.map, 20, 0, 0), 3000]), Date.now() - 40000);
   let r = await submit(U1, a, b1);
   let c1 = await C(U1);
-  ok('ชุด 10 ตัว: รับ + ได้ EXP/Volt จากเซิร์ฟเวอร์ + หมุดใหม่ seq 10', r.r && r.r.status === 'ok' && r.r.anchor.seq === 10 && (c1.baseExp > c0.baseExp || c1.baseLv > c0.baseLv) && c1.zeny > c0.zeny, JSON.stringify(r.r || r.err).slice(0, 160));
-  ok('หมุดใหม่ = HMAC(ความลับ, user|ตัวละคร|seq|head)', r.r && r.r.anchor.mac === hmac(secret, [U1, 'aria', 10, b1[9].h].join('|')) && r.r.anchor.head === b1[9].h);
-  ok('econSeq เดินตาม (เซฟที่ตามไม่ทันจะถูกเติม)', c1.econSeq === r.r.seq);
+  ok('ชุด 10 ตัว: รับ + Volt จากเซิร์ฟเวอร์ + หมุดใหม่ seq 10', r.r && r.r.status === 'ok' && r.r.anchor.seq === 10 && c1.zeny > c0.zeny, JSON.stringify(r.r || r.err).slice(0, 160));
+  const r1 = r;
+  const expect10 = b1.reduce((x, e) => x + e.a[5], 0);
+  ok('ไม่ให้ EXP ซ้ำ: เซิร์ฟเวอร์ไม่บวก EXP (เกมบวกเองตอนฆ่าแล้ว) · ไม่มี delta.exp', c1.baseExp === c0.baseExp && c1.baseLv === c0.baseLv && r.r && !r.r.delta.exp);
+  ok('EXP ที่ตรวจแล้วเป็นเครดิตให้ตัวตรวจเซฟ (vb)', (await state(U1, 'aria')).vb === expect10 && r.r.delta.verified.b === expect10, `${(await state(U1, 'aria')).vb} vs ${expect10}`);
+  // เซฟของเกมที่ EXP เพิ่มตามการฆ่าที่ตรวจแล้ว ไม่กินถังอัตรา (ตั้งอัตราเกือบศูนย์ให้เห็นชัด)
+  await q(`update public.save_verify_config set params = '{"kps": 0.0001, "boss_exp": 1, "need_frac": 0}'::jsonb`);
+  await q(`update public.save_verify_state set chars = jsonb_set(chars, '{aria,eb}', '0') where user_id = $1`, [U1]);
+  const cs = JSON.parse(JSON.stringify(c1)); cs.baseExp += expect10;
+  await asUser(U1, () => q(`update public.characters set data = $2 where user_id = $1`, [U1, JSON.stringify({ v: 2, active: 0, chars: [cs] })]));
+  ok('เซฟ EXP +ตามการฆ่าที่ตรวจแล้ว (ถังว่าง อัตรา ~0) → ไม่มีธง exp_rate + ใช้เครดิตหมด', !(await flags(U1)).includes('exp_rate') && (await state(U1, 'aria')).vb === 0, (await flags(U1)).join());
+  const cs2 = JSON.parse(JSON.stringify(cs)); cs2.baseExp += 500;
+  await asUser(U1, () => q(`update public.characters set data = $2 where user_id = $1`, [U1, JSON.stringify({ v: 2, active: 0, chars: [cs2] })]));
+  ok('เซฟ EXP เกินการฆ่าที่ตรวจได้ → ธง exp_rate', (await flags(U1)).includes('exp_rate'));
+  await q(`update public.save_verify_config set params = '{}'::jsonb`); await q(`delete from public.cheat_flags`);
   a = r.r.anchor;
-  // ส่งชุดเดิมซ้ำ (คำตอบหายระหว่างทาง) → dup ไม่ให้รางวัลซ้ำ
-  r = await rpc(U1, `select public.submit_events('Aria', $1, $2) as r`, [a.id - 1, JSON.stringify(b1)]);
-  ok('ส่งชุดเดิมซ้ำ = dup (ไม่ให้รางวัลซ้ำ)', r.r && r.r.status === 'dup' && (await C(U1)).zeny === c1.zeny, JSON.stringify(r.r || r.err).slice(0, 100));
+  // EXP ที่อ้างผิด / อ้างเลเวลต่ำกว่าเซฟ (ได้ตัวคูณมากขึ้น)
+  await back(U1, 60);
+  const bx = mk(a, [['kill', K(meadow.mob, meadow.map, 20, 0, 0)], ['kill', K(meadow.mob, meadow.map, 20, 0, 0).map((x, i) => (i === 5 ? x * 50 : x))]], Date.now() - 5000);
+  r = await submit(U1, a, bx);
+  ok('EXP ที่อ้างเกินสูตร (×50) → ธง exp_mismatch (log = รับไว้ เครดิตแค่ที่สูตรให้)', (await flags(U1)).includes('exp_mismatch') && r.r && r.r.status === 'ok' && r.r.delta.verified.b === 2 * K(meadow.mob, meadow.map, 20, 0, 0)[5], JSON.stringify(r.r || r.err).slice(0, 120));
+  a = r.r.anchor;
+  await q(`update public.save_verify_config set mode = 'enforce'`); await q(`delete from public.cheat_flags`);
+  await back(U1, 60);
+  r = await submit(U1, a, mk(a, [['kill', K(meadow.mob, meadow.map, 5, 0, 0)]], Date.now() - 3000));
+  ok('อ้างเลเวลต่ำกว่าที่โซ่อ้างไปแล้ว (enforce) → ปฏิเสธ exp_mismatch', r.r && r.r.status === 'rejected' && r.r.rule === 'exp_mismatch', JSON.stringify(r.r || r.err).slice(0, 120));
+  await q(`update public.save_verify_config set mode = 'log'`); await q(`delete from public.cheat_flags`);
+  r = { r: { anchor: a } };
+  ok('หมุดใหม่ = HMAC(ความลับ, user|ตัวละคร|seq|head)', r1.r && r1.r.anchor.mac === hmac(secret, [U1, 'aria', 10, b1[9].h].join('|')) && r1.r.anchor.head === b1[9].h);
+  ok('econSeq เดินตาม (เซฟที่ตามไม่ทันจะถูกเติม)', c1.econSeq === r1.r.seq);
+  a = r.r.anchor;
+  // ส่งชุดแรกซ้ำ (คำตอบหายระหว่างทาง) → dup ไม่ให้รางวัลซ้ำ
+  r = await rpc(U1, `select public.submit_events('Aria', $1, $2) as r`, [a.id - 2, JSON.stringify(b1)]);
+  ok('ส่งชุดเดิมซ้ำ = dup (ไม่ให้รางวัลซ้ำ)', r.r && r.r.status === 'dup', JSON.stringify(r.r || r.err).slice(0, 100));
 
   // ---------- แก้กลางชุด / สลับลำดับ / ชุดซ้ำในหมุดใหม่ / หมุดเก่า ----------
   await back(U1, 60);
-  const b2 = mk(a, Array.from({ length: 6 }, () => ['kill', [meadow.mob, meadow.map, 20, 0, 0], 2000]), Date.now() - 20000);
+  const b2 = mk(a, Array.from({ length: 6 }, () => ['kill', K(meadow.mob, meadow.map, 20, 0, 0), 2000]), Date.now() - 20000);
   const tam = JSON.parse(JSON.stringify(b2)); tam[3].a[0] = 'rot_colossus'; // แก้มอนกลางชุด (แฮชเดิม)
   r = await submit(U1, a, tam);
   ok('แก้รายการกลางชุด (แฮชไม่ตรง) → ปฏิเสธ chain_break', r.r && r.r.status === 'rejected' && r.r.rule === 'chain_break' && r.r.anchor.id === a.id, JSON.stringify(r.r || r.err).slice(0, 100));
@@ -87,14 +120,14 @@ const mk = (head, list, t0) => { let h = head.head, s = head.seq, t = t0; const 
   ok('แก้แล้วคำนวณแฮชใหม่ทั้งหาง: มอนผิดแผนที่ → ธง kill_map', (await flags(U1)).includes('kill_map'), JSON.stringify(r.r || r.err).slice(0, 100));
   if (r.r && r.r.status === 'ok') a = r.r.anchor;
   await back(U1, 60);
-  const b3 = mk(a, Array.from({ length: 4 }, () => ['kill', [meadow.mob, meadow.map, 20, 0, 0], 2000]), Date.now() - 10000);
+  const b3 = mk(a, Array.from({ length: 4 }, () => ['kill', K(meadow.mob, meadow.map, 20, 0, 0), 2000]), Date.now() - 10000);
   const swap = [b3[0], b3[2], b3[1], b3[3]];
   r = await submit(U1, a, swap);
   ok('สลับลำดับในชุด → ปฏิเสธ chain_break', r.r && r.r.status === 'rejected' && r.r.rule === 'chain_break');
   r = await submit(U1, a, b3);
   ok('ชุดถูกต้องหลังโดนปฏิเสธ = รับ (ต่อจากหมุดเดิม)', r.r && r.r.status === 'ok', JSON.stringify(r.r || r.err).slice(0, 100));
   const aOld = a; a = r.r.anchor;
-  r = await submit(U1, aOld, mk(aOld, [['kill', [meadow.mob, meadow.map, 20, 0, 0]]], Date.now()));
+  r = await submit(U1, aOld, mk(aOld, [['kill', K(meadow.mob, meadow.map, 20, 0, 0)]], Date.now()));
   ok('ส่งต่อจากหมุดเก่า (แตกกิ่ง) → ปฏิเสธ chain_break', r.r && r.r.status === 'rejected' && r.r.rule === 'chain_break');
   r = await submit(U1, a, b3.map(e => Object.assign({}, e)));
   ok('ส่งชุดเดิมซ้ำบนหมุดใหม่ (replay) → ปฏิเสธ', r.r && r.r.status === 'rejected');
@@ -103,17 +136,17 @@ const mk = (head, list, t0) => { let h = head.head, s = head.seq, t = t0; const 
   // ---------- ความเป็นไปได้ ----------
   await q(`update public.save_verify_config set mode = 'enforce'`);
   await back(U1, 5);
-  const many = mk(a, Array.from({ length: 150 }, () => ['kill', [meadow.mob, meadow.map, 20, 0, 0], 20]), Date.now() - 4000);
+  const many = mk(a, Array.from({ length: 150 }, () => ['kill', K(meadow.mob, meadow.map, 20, 0, 0), 20]), Date.now() - 4000);
   const z = (await C(U1)).zeny;
   r = await submit(U1, a, many);
   ok('150 ตัวใน 3 วินาที (enforce) → ปฏิเสธ kill_rate ไม่ได้รางวัล', r.r && r.r.status === 'rejected' && r.r.rule === 'kill_rate' && (await C(U1)).zeny === z, JSON.stringify(r.r || r.err).slice(0, 100));
   const boss = (await q(`select m.map, m.mob from public.sv_map_mobs m join public.sv_mobs s on s.id = m.mob where s.boss and not s.wb limit 1`)).rows[0];
   await back(U1, 120);
-  r = await submit(U1, a, mk(a, [['kill', [boss.mob, boss.map, 30, 0, 1]]], Date.now() - 1000));
+  r = await submit(U1, a, mk(a, [['kill', K(boss.mob, boss.map, 30, 0, 1)]], Date.now() - 1000));
   ok('ฆ่า MVP: รับ + ได้ตรากาชา/ยาโบนัส', r.r && r.r.status === 'ok' && r.r.delta.add.some(x => /sigil/.test(x.id)), JSON.stringify(r.r || r.err).slice(0, 160));
   a = r.r.anchor;
   await back(U1, 30);
-  r = await submit(U1, a, mk(a, [['kill', [boss.mob, boss.map, 30, 0, 1]]], Date.now() - 1000));
+  r = await submit(U1, a, mk(a, [['kill', K(boss.mob, boss.map, 30, 0, 1)]], Date.now() - 1000));
   ok('MVP ตัวเดิมซ้ำในคูลดาวน์ (enforce) → ปฏิเสธ boss_cooldown', r.r && r.r.status === 'rejected' && r.r.rule === 'boss_cooldown');
   await q(`update public.save_verify_config set mode = 'log'`);
 
@@ -122,13 +155,13 @@ const mk = (head, list, t0) => { let h = head.head, s = head.seq, t = t0; const 
   const zz = (await C(U2)).zeny; let okAll = true, kills = 0, t = Date.now() - 3600 * 1000;
   for (let i = 0; i < 60; i++) {
     await back(U2, 35);
-    const b = mk(a2, Array.from({ length: 10 }, () => ['kill', [meadow.mob, meadow.map, 20, 0, 0], 3000]), t); t += 30000;
+    const b = mk(a2, Array.from({ length: 10 }, () => ['kill', K(meadow.mob, meadow.map, 20, 0, 0), 3000]), t); t += 30000;
     const x = await submit(U2, a2, b, 'Bryn');
     if (!x.r || x.r.status !== 'ok') { okAll = false; console.log('  ', i, JSON.stringify(x.r || x.err).slice(0, 120)); break; }
     a2 = x.r.anchor; kills += 10;
   }
   const c2 = await C(U2);
-  ok(`เล่นสุจริต 60 ชุด (${kills} ตัว ~30 นาที): ทุกชุดรับ + ไม่มีธง + เลเวล/เงินขึ้น`, okAll && (await flags(U2)).length === 0 && c2.zeny > zz && (c2.baseLv > 20 || c2.baseExp > 5000), `lv ${c2.baseLv} exp ${c2.baseExp} zeny +${c2.zeny - zz} flags ${(await flags(U2)).join()}`);
+  ok(`เล่นสุจริต 60 ชุด (${kills} ตัว ~30 นาที): ทุกชุดรับ + ไม่มีธง + เลเวล/เงินขึ้น`, okAll && (await flags(U2)).length === 0 && c2.zeny > zz && (await state(U2, 'bryn')).vb > 5000, `vb ${(await state(U2, 'bryn')).vb} zeny +${c2.zeny - zz} flags ${(await flags(U2)).join()}`);
   // เซฟของเกม (ที่ได้ EXP ตามผลเซิร์ฟเวอร์) ไม่ถูกตรวจเซฟจับ
   await asUser(U2, () => q(`update public.characters set data = data where user_id = $1`, [U2]));
   ok('เซฟหลังได้รางวัลจากเซิร์ฟเวอร์: ตรวจเซฟไม่ขึ้นธง', (await flags(U2)).length === 0, (await flags(U2)).join());

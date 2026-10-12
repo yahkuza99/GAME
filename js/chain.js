@@ -1,14 +1,14 @@
 'use strict';
 // ============================================================
 //  บันทึกการเล่นแบบโซ่แฮช + EXP/ดรอปจากเซิร์ฟเวอร์ (ระยะ 2) • เซิร์ฟเวอร์: supabase/migrations/20261012002000_event_chain.sql
-//  ฆ่ามอนแล้วเกม "ไม่ให้รางวัลเอง" — จดเหตุการณ์ต่อกันเป็นโซ่ { seq, prev, t, k, a } + h = SHA-256(seq|prev|t|k|a…)
-//  แล้วส่งเป็นชุด (ทุก 10 ตัว / 30 วิ / ฆ่าบอสทันที) → เซิร์ฟเวอร์ตรวจโซ่ + ความเป็นไปได้ → ทอยรางวัลเอง → เกมใส่ผล (Econ.take) แล้วแสดง
+//  ฆ่ามอน: EXP บวกทันทีในเครื่อง (ไม่หน่วง) แต่ Volt/ของ "ไม่ให้เอง" — จดเหตุการณ์ (พร้อม EXP ที่ได้)ต่อกันเป็นโซ่ { seq, prev, t, k, a } + h = SHA-256(seq|prev|t|k|a…)
+//  แล้วส่งเป็นชุด (ทุก 10 ตัว / 60 วิ / ฆ่าบอสทันที) → เซิร์ฟเวอร์ตรวจโซ่ + ความเป็นไปได้ + EXP ที่อ้างตรงสูตร → ทอยของ/Volt เอง → เกมใส่ผล (Econ.take) แล้วแสดง
 //  หมุด (anchor) จากเซิร์ฟเวอร์ = จุดต่อของชุดถัดไป • ถูกปฏิเสธ = ทิ้งชุดนั้น เริ่มต่อจากหมุดล่าสุดของเซิร์ฟเวอร์
 //  เน็ตหลุด: เก็บคิวในเครื่อง (สูงสุด QMAX) ส่งตามลำดับเมื่อกลับมา • เซิร์ฟเวอร์ไม่มีระบบ (PGRST202) / ปิด (chain_off) = เกมให้รางวัลเองแบบเดิม
 // ============================================================
 const Chain = {
   server: null, anchor: null, head: null, queue: [], key: null, p: Promise.resolve(), busy: false, sinceSend: 0, lastSend: 0, owner: null,
-  QMAX: 1000, BATCH: 200, EVERY_MS: 30000, KILLS: 10,
+  QMAX: 1000, BATCH: 200, EVERY_MS: 60000, KILLS: 10,
 
   on() { return this.server === true && !!this.anchor && this.owner === (typeof G !== 'undefined' && G.player) && typeof Online !== 'undefined' && Online.online && !Online.local && !Online.kicked; },
   storeKey() { return `iv_chain_${Online.user && Online.user.id}_${String(G.player.name).trim().toLowerCase()}`; },
@@ -54,10 +54,11 @@ const Chain = {
     }).catch(err => console.warn('chain append', err));
     return this.p;
   },
-  // ฆ่ามอน (แทนรางวัลในเครื่อง): [มอน, แผนที่, เลเวลเรา, จำนวนเพื่อนปาร์ตี้ที่แบ่ง EXP, บอส?]
-  onKill(m, party) {
+  // ฆ่ามอน: [มอน, แผนที่, เลเวลตอนฆ่า, จำนวนเพื่อนปาร์ตี้ที่แบ่ง EXP, บอส?, Base EXP ที่ได้, Job EXP ที่ได้]
+  // EXP เกมบวกไปแล้วตอนฆ่า — เซิร์ฟเวอร์ตรวจว่าตรงสูตร (ไม่ให้ซ้ำ) · Volt/ของ เซิร์ฟเวอร์ทอยแล้วส่งกลับมาเป็นชุด
+  onKill(m, party, b, j, lv) {
     const d = m.def, boss = !!(d.boss || m.isMvp || m.isWB);
-    this.append('kill', [d.id, G.map.id, G.player.baseLv, party | 0, boss ? 1 : 0]);
+    this.append('kill', [d.id, G.map.id, lv || G.player.baseLv, party | 0, boss ? 1 : 0, b | 0, j | 0]);
     this.sinceSend++;
     if (boss || this.sinceSend >= this.KILLS) this.p.then(() => this.flush(true));
   },
