@@ -532,7 +532,7 @@
         const fr = { friends: (() => { try { return JSON.parse(localStorage.getItem(FK)) || []; } catch (e) { return []; } })() };
         const saveF = () => localStorage.setItem(FK, JSON.stringify(fr.friends));
         const F = fr.friends, rel = (a, b) => F.find(r => r.user_id === a && r.friend_id === b);
-        const nameOf = id => (d.chars[id] || {}).name || null;
+        const nameOf = id => (CH.get(id) || {}).name || null;
         if (fn === 'friend_list') return ok(F.filter(r => r.user_id === me || r.friend_id === me).map(r => {
           const id = r.user_id === me ? r.friend_id : r.user_id;
           return { id, name: nameOf(id), status: r.status, dir: r.status === 'accepted' ? 'both' : r.user_id === me ? 'out' : 'in', created_at: r.created_at };
@@ -541,7 +541,7 @@
         if (fn === 'friend_remove') { const n = F.length; fr.friends = F.filter(r => !((r.user_id === me && r.friend_id === args.id) || (r.user_id === args.id && r.friend_id === me))); saveF(); return ok(fr.friends.length < n); }
         if (fn === 'friend_request') {
           const q = lc(args.n); if (!q || q.length > 24) return ok({ ok: false, why: 'bad_name' });
-          const row = Object.values(d.chars).find(c => names(c).includes(q)); if (!row) return ok({ ok: false, why: 'not_found' });
+          const row = CH.all().find(c => names(c).includes(q)); if (!row) return ok({ ok: false, why: 'not_found' });
           const other = row.user_id, shown = [row.name, ...((row.data && Array.isArray(row.data.chars)) ? row.data.chars.map(x => x && x.name) : [])].find(x => lc(x) === q) || row.name;
           if (other === me) return ok({ ok: false, why: 'self' });
           const back = rel(other, me);

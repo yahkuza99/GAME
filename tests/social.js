@@ -221,7 +221,8 @@ const GUEST = { name: 'Guesty', gender: 'm', hair: '#ccc', job: 'novice', baseLv
     await tap(A, '#w-social [data-act="accept"]');
     const acc = await until(B, id => Social.isFriend(id), ids.A, 10000) && await until(A, id => Social.isFriend(id), ids.B, 5000);
     ok('ตอบรับ: เป็นเพื่อนกันทั้งสองฝั่ง', acc);
-    ok('แท็บเพื่อน (B): Alice ออนไลน์ + แผนที่ + ปุ่ม ไปหา/เชิญเข้าปาร์ตี้/ลบ', await B.evaluate(id => { const r = document.querySelector(`#w-social .so-row[data-id="${id}"]`); return !!r && /ออนไลน์/.test(r.textContent) && !!r.querySelector('[data-act="goto"]:not([disabled])') && !!r.querySelector('[data-act="party"]:not([disabled])') && !!r.querySelector('[data-act="remove"]'); }, ids.A));
+    // รอหน้าต่างวาดใหม่หลังตอบรับ (เดิมเช็กทันที = ตกบ้างตามจังหวะ ทั้งก่อนและหลังรอบนี้)
+    ok('แท็บเพื่อน (B): Alice ออนไลน์ + แผนที่ + ปุ่ม ไปหา/เชิญเข้าปาร์ตี้/ลบ', await until(B, id => { const r = document.querySelector(`#w-social .so-row[data-id="${id}"]`); return !!r && /ออนไลน์/.test(r.textContent) && !!r.querySelector('[data-act="goto"]:not([disabled])') && !!r.querySelector('[data-act="party"]:not([disabled])') && !!r.querySelector('[data-act="remove"]'); }, ids.A, 8000));
     await shot(B, 'social-06-friends-1100');
 
     // ---- ซ่อนตำแหน่ง: A ซ่อน → C (ไม่ใช่เพื่อน) ไม่เห็นแผนที่/ไปหาไม่ได้ • B (เพื่อน) ยังไปหาได้ ----
