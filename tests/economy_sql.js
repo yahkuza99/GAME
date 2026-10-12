@@ -32,7 +32,7 @@ const acct = (...c) => ({ v: 2, active: 0, chars: c });
     alter default privileges in schema public grant all on tables to anon, authenticated;
   `);
   for (const f of ['20261001000000_online_init.sql', '20261001120000_multi_char_names.sql', '20261011000000_single_session.sql', '20261012000000_save_verify.sql',
-    '20261012000100_save_verify_data.sql', '20261012001000_economy.sql', '20261012001100_economy_data.sql']) {
+    '20261012000100_save_verify_data.sql', '20261012001000_economy.sql', '20261012001100_economy_data.sql', '20261012002000_event_chain.sql', '20261012002100_event_chain_data.sql']) {
     try { await db.exec(MIG(f).replace(/-- เปิด Realtime[\s\S]*?end \$\$;/g, '')); ok('รัน ' + f, true); } catch (e) { ok('รัน ' + f, false, e.message); throw e; }
   }
   try { await db.exec(MIG('20261012001000_economy.sql')); await db.exec(MIG('20261012001100_economy_data.sql')); ok('รันซ้ำได้ (idempotent)', true); } catch (e) { ok('รันซ้ำได้', false, e.message); }
