@@ -40,7 +40,7 @@ const ok = (name, cond, info = '') => checks.push([name, !!cond, typeof info ===
   await p.waitForFunction(() => typeof LOOT !== 'undefined' && MOBS.wb_kitsura && MOBS.wb_kitsura.wbTuned, null, { timeout: 120000 });
 
   const r = await p.evaluate(() => {
-    const out = { api: typeof LOOT.dropBand === 'function' && typeof LOOT.gearLv === 'function', bad: [], n: 0, proxyBad: [], noSource: [], bandMiss: [], prog: {}, idx: {} };
+    const out = { api: typeof LOOT.dropBand === 'function' && typeof LOOT.gearLv === 'function', bad: [], n: 0, proxyBad: [], noSource: [], bandMiss: [], prog: {}, idx: {}, gaps: [], gapLines: {} };
     const isEq = id => ITEMS[id] && (ITEMS[id].type === 'weapon' || ITEMS[id].type === 'armor');
     for (const id in LOOT.LV_PROXY) if (!ITEMS[id] || ITEMS[id].lv) out.proxyBad.push(id); // proxy ใช้เฉพาะของที่ไม่มี Lv จริง
     const src = {};
@@ -69,6 +69,25 @@ const ok = (name, cond, info = '') => checks.push([name, !!cond, typeof info ===
       out.prog[w] = list.map(id => ({ id, lv: LOOT.gearLv(id), r: ITEMS[id].rarity, from: src[id].map(m => `${MOBS[m].name} Lv ${MOBS[m].lv}${MOBS[m].boss ? ' MVP' : ''} · ${mapOf(m)}`) }));
       for (let b = 0; b < 7; b++) if (!list.some(id => { const l = LOOT.gearLv(id); return l > b * 10 && l <= b * 10 + 10; })) out.bandMiss.push(`${w} ${b * 10 + 1}-${b * 10 + 10}`);
     }
+    // ช่องว่างเลเวล (รอบ 42): ของอัปเกรดที่ "ทุก Class ของประเภทนั้นใช้ได้" ต้องห่างกันไม่เกิน 8 เลเวลตั้งแต่ชิ้นแรกจนถึง Lv 70
+    //   อาวุธ: สายสีเขียว (uncommon) เดี่ยว ๆ และสาย common+uncommon+rare รวม • เกราะ: ทุกช่อง × ทุก Job (uncommon+rare)
+    const dropped = id => !!src[id], MAXGAP = 8, END = 70;
+    const gapOf = (name, ids) => {
+      const lvs = ids.map(id => LOOT.gearLv(id)).sort((a, b) => a - b); out.gapLines[name] = lvs;
+      for (let i = 1; i < lvs.length; i++) if (lvs[i] - lvs[i - 1] > MAXGAP) out.gaps.push(`${name}: Lv ${lvs[i - 1]} → ${lvs[i]}`);
+      if (lvs.length && END - lvs[lvs.length - 1] > MAXGAP) out.gaps.push(`${name}: Lv ${lvs[lvs.length - 1]} → ${END}`);
+      if (!lvs.length) out.gaps.push(name + ': none');
+    };
+    const allJobs = (it, n) => it.jobs === 'all' || it.jobs.length === n;
+    for (const w of ['dagger', 'sword', 'axe', 'rod', 'bow', 'mace']) {
+      const base = Object.keys(ITEMS).filter(id => ITEMS[id].type === 'weapon' && ITEMS[id].wtype === w && dropped(id) && allJobs(ITEMS[id], J[w].length));
+      gapOf(w + ' uncommon', base.filter(id => ITEMS[id].rarity === 'uncommon'));
+      gapOf(w + ' common+uncommon+rare', base.filter(id => ['common', 'uncommon', 'rare'].includes(ITEMS[id].rarity)));
+    }
+    const JOBS7 = ['novice', 'einherjar', 'runecaster', 'wildhunter', 'volva', 'trickster', 'berserker'];
+    for (const s of ['armor', 'head', 'shield', 'garment', 'shoes']) for (const j of JOBS7) {
+      gapOf(`${s} [${j}] uncommon+rare`, Object.keys(ITEMS).filter(id => ITEMS[id].type === 'armor' && ITEMS[id].slot === s && dropped(id) && ['uncommon', 'rare'].includes(ITEMS[id].rarity) && (ITEMS[id].jobs === 'all' || ITEMS[id].jobs.includes(j))));
+    }
     // คลังไอเทมอ่านแหล่งดรอปจาก MOBS สด ๆ
     ItemIndex._src = null;
     const S = ItemIndex.sources();
@@ -82,10 +101,12 @@ const ok = (name, cond, info = '') => checks.push([name, !!cond, typeof info ===
   ok(`every equipment drop is inside its monster's level band (${r.n} entries)`, r.n > 150 && !r.bad.length, r.bad.slice(0, 8).join(' | '));
   ok('every non-shop equipment item still drops from a monster (not only World Bosses)', !r.noSource.length, r.noSource.join(', '));
   ok('every weapon type has a drop in every 10-level band (1–70)', !r.bandMiss.length, r.bandMiss.join(', '));
+  ok('no upgrade gap > 8 levels: every weapon type (uncommon line, and common+uncommon+rare) and every armor slot per Job, up to Lv 70', !r.gaps.length, r.gaps.slice(0, 10).join(' | '));
   ok('Item Index: Emberfang now comes from Hel Maiden (helcave), not Kitsura', r.idx.emberfang.some(s => s === 'hel_maiden@helcave') && !r.idx.emberfang.some(s => /kitsura/.test(s)), r.idx.emberfang.join(' '));
   ok('Item Index: Power Ring source is the Wolfwood Elite with its map', r.idx.ring.includes('elite_alpha@wolfwood'), r.idx.ring.join(' '));
   ok('Item Index: Stiletto (Lv 12) comes from Capshroom, not Buzzfly (Lv 4)', r.idx.stiletto.includes('capshroom@mistlake') && !r.idx.stiletto.some(s => /buzzfly/.test(s)), r.idx.stiletto.join(' '));
 
+  if (process.env.GAPS) for (const [k, v] of Object.entries(r.gapLines)) console.log(k.padEnd(40), v.join(','));
   if (process.env.PROG) {
     for (const [w, list] of Object.entries(r.prog)) {
       console.log(`\n== ${w}`);
