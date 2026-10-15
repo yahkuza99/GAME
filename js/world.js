@@ -177,10 +177,13 @@ WORLD.art = function () {
     g.drawImage(img, R0.x + (b.x + b.w / 2) * P - bw / 2, R0.y + (b.y + b.h) * P - bh, bw, bh);
   }
   // ---------- ปากถ้ำ (ทางลงใต้ดิน) ----------
-  let caveIcon = null;
+  // ปากถ้ำละ 1 ป้าย: ids = ถ้ำที่เดินต่อกันได้จากปากนี้ (ถ้ำ→ถ้ำ) — ภาค 2 มีปากที่สองริมเหนือของ Mistlake (Severed Bough → Belly of the Wolf)
+  const caveGroup = id0 => { const out = [id0]; for (let i = 0; i < out.length; i++) for (const nx of Object.values(MAP_DEFS[out[i]].links || {})) if (MAP_DEFS[nx] && MAP_DEFS[nx].kind === 'cave' && caves.includes(nx) && !out.includes(nx)) out.push(nx); return out; };
+  let caveIcon = null; const caveIcons = [];
   for (const m of maps) for (const pt of m.portals) if (MAP_DEFS[pt.to] && MAP_DEFS[pt.to].kind === 'cave') {
-    const R0 = regions[m.id], x = R0.x + (pt.x + 0.5) * P, y = R0.y + (pt.y + 0.5) * P + P * 1.5;
-    caveIcon = { x, y, ids: caves };
+    const R0 = regions[m.id], x = R0.x + (pt.x + 0.5) * P, y = R0.y + (pt.y + 0.5) * P + P * 1.5, ids = caveGroup(pt.to);
+    const ic = { x, y, ids, main: !caveIcon || ids.length > caveIcon.ids.length };
+    caveIcons.push(ic); if (ic.main) caveIcon = ic;
     g.fillStyle = '#6e6656'; g.beginPath(); g.moveTo(x - 30, y + 14); g.quadraticCurveTo(x - 26, y - 22, x, y - 26); g.quadraticCurveTo(x + 26, y - 22, x + 30, y + 14); g.closePath(); g.fill();
     g.strokeStyle = 'rgba(40,30,20,0.8)'; g.lineWidth = 2; g.stroke();
     const cg = g.createRadialGradient(x, y + 4, 2, x, y + 4, 18); cg.addColorStop(0, '#05030a'); cg.addColorStop(1, '#2a2030');
@@ -284,5 +287,6 @@ WORLD.art = function () {
   g.font = '800 20px Cinzel, serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#3a2408';
   for (const [t, a] of [['N', -Math.PI / 2], ['E', 0], ['S', Math.PI / 2], ['W', Math.PI]]) g.fillText(t, Math.cos(a) * (R0 + 26), Math.sin(a) * (R0 + 26));
   g.restore();
-  return (this._art = { c, P, regions, caveIcon, missing, at: Date.now() });
+  for (const ic of caveIcons) ic.main = ic === caveIcon;
+  return (this._art = { c, P, regions, caveIcon, caveIcons, missing, at: Date.now() });
 };

@@ -194,6 +194,8 @@ const AmbientLife = (() => {
     archive: { steps: 'cave', drips: '230,215,180', glyphs: 7, glints: '255,200,110', beams: 1 },
     roots: { steps: 'cave', drips: '255,150,80', bats: 1, glints: '255,140,90', beams: 1, crumbs: 7 },
     abyss: { steps: 'cave', drips: '150,230,120', bats: 1, glints: '120,255,170', ash: 18, bubbles: 4, embers: 6 },
+    bough: { steps: 'cave', drips: '200,235,255', glints: '190,240,255', beams: 1 },                       // ภาค 2: กิ่งที่ขาด (น้ำแข็ง)
+    wolfbelly: { steps: 'cave', drips: '150,230,140', glints: '130,255,150', bubbles: 5, embers: 4 },     // ภาค 2: ท้องของหมาป่า (แสงเขียวของหัว Nidhogg)
   };
   const defCfg = m => m.def.kind === 'cave' ? { steps: 'cave', drips: '190,200,230', glints: '200,180,255', bats: 1 }
     : m.def.kind === 'field' ? { steps: 'field', butterflies: 4, leaves: 4 } : { steps: 'town' };

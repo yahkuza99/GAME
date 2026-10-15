@@ -1,13 +1,15 @@
-# DROP_AUDIT — ไล่ระดับอุปกรณ์ที่ดรอป (รอบ 38 + เติมช่องว่างรอบ 42)
+# DROP_AUDIT — ไล่ระดับอุปกรณ์ที่ดรอป (รอบ 38 + เติมช่องว่างรอบ 42 + ภาค 2 รอบ 43)
 
 สร้างจากเกมจริง (`LOOT.gearLv` + ตารางดรอปหลัง balance.js) — ตรวจโดย `tests/droplevel.js` (`PROG=1` พิมพ์รายการอาวุธ • `GAPS=1` พิมพ์เลเวลของแต่ละสาย)
 
 ## กติกา
 
 - ของสวมใส่ที่มอนดรอปต้องมี Lv อยู่ใน `LOOT.dropBand(มอน)` = Lv มอน −8 … +3 (MVP ถึง +10 • World Boss ใช้ MVP ต้นแบบ)
-- รอบ 42: ทุกประเภทอาวุธและทุกช่องเกราะ × ทุก Job ต้องมีของอัปเกรด **ห่างกันไม่เกิน 8 เลเวล** ตั้งแต่ชิ้นแรกถึง Lv 70 — อาวุธนับเฉพาะของที่ทุก Class ของประเภทนั้นใช้ได้ (สาย uncommon เดี่ยว ๆ และสาย common+uncommon+rare รวม) • เกราะนับ uncommon+rare
+- รอบ 42 → 43: ทุกประเภทอาวุธและทุกช่องเกราะ × ทุก Job ต้องมีของอัปเกรด **ห่างกันไม่เกิน 8 เลเวล** ตั้งแต่ชิ้นแรกถึง **Lv 99** (เลเวลตัน `MAX_BASE_LV`) — อาวุธนับเฉพาะของที่ทุก Class ของประเภทนั้นใช้ได้ (สาย uncommon เดี่ยว ๆ และสาย common+uncommon+rare รวม) • เกราะนับ uncommon+rare • เครื่องประดับ (รอบ 43) uncommon+rare ทุก Job ตั้งแต่ Lv 63
+- อาวุธทุกประเภทมีของดรอปในทุกช่วง 10 เลเวล 1–100
 - ของใหม่ 56 ชิ้นอยู่ใน `js/content_gaps.js` (ทำเครื่องหมาย **ใหม่** ในตารางข้างล่าง) • ดรอปชิ้นละ 1 มอนปกติ • ตารางอุปกรณ์ของมอนนั้นถูกย่อให้ผลรวมถ่วงน้ำหนักเท่าเดิม → อุปกรณ์/ชม. ต่อแมพคงเดิม (meadow 2.703 · mistlake 3.143 · wolfwood 2.877 · helcave 2.966→2.971 · archive 2.712→2.711 · roots 3.126→3.127 · abyss 2.397→2.399)
-- **ข้อจำกัดที่รู้**: มอนปกติสูงสุด Lv 70 (World Boss ต้นแบบ Lv 70 → ถึง 80) จึงยังไม่มีของดรอป Lv 74–99 • ชั้น common มีแต่ของร้าน Lv 1 • สาย rare ห่างกัน 10–16 เลเวลโดยตั้งใจ
+- รอบ 43 (ภาค 2): ของใหม่ **78 ชิ้น** Lv 71–99 ใน `js/content_ch8.js` / `js/content_ch9.js` (ทำเครื่องหมาย **ภาค 2**) — uncommon 48 · rare 19 · epic 8 (MVP: ชุด Stormwing จาก Hræsvelgr, ชุด Fenrisúlfr จาก Fenrir) · legend 3 (Gjallarhorn · Gungnir · Draupnir) • มอนปกติ Lv 72–98 ดรอปของในช่วงเลเวลของตัวเอง ชิ้นละ 1 มอน (Epic 2 ชิ้นดรอปจากมอนปกติด้วยที่โอกาส 0.15% เหมือน Rotroot of Nidhogg) • อุปกรณ์/ชม. ต่อแมพใหม่อยู่ในช่วงเดียวกับแมพเดิม: bough 2.789 · wolfbelly 2.694
+- **ข้อจำกัดที่รู้**: ชั้น common มีแต่ของร้าน Lv 1 • สาย rare ห่างกัน 10–16 เลเวลโดยตั้งใจ • เครื่องประดับก่อน Lv 63 ยังไม่ได้ไล่เส้น ≤ 8 เลเวล (ของร้าน/LV_PROXY Lv 24–33 แล้วกระโดดถึง 45–58) • ของ Lv 99 เป็นเพดาน — World Boss ภาค 2 (Ancient Lv 95 / 109) ใช้ช่วงของ MVP ต้นแบบ ไม่มีของเกิน Lv 99
 
 ## มีดสั้น (dagger)
 
@@ -32,6 +34,13 @@
 | 58 | **Bloomthorn Kris** (ใหม่) `bloomthorn_kris` | uncommon | 6 Job | ATK 157 | Nidhogg Spawn Lv 63 (Nidhogg's Hollow) |
 | 61 | **Rotvein Kris** (ใหม่) `rotvein_kris` | rare | 6 Job | ATK 160 | Rot Colossus Lv 69 (Nidhogg's Hollow) |
 | 63 | Wyrmfang Kris `wyrmfang_kris` | uncommon | 6 Job | ATK 170 | Nidhogg Spawn Lv 63 (Nidhogg's Hollow) |
+| 71 | **Rimeleaf Dirk** (ภาค 2) `rimeleaf_dirk` | uncommon | 6 Job | ATK 178 | Frostbud Unit Lv 72 (Severed Bough) |
+| 75 | **Mothsilk Kris** (ภาค 2) `mothsilk_kris` | rare | 6 Job | ATK 183 | Rime Moth Unit Lv 75 (Severed Bough) |
+| 79 | **Hrimhusk Fang** (ภาค 2) `husk_fang` | uncommon | 6 Job | ATK 197 | Hrimhusk Unit Lv 81 (Severed Bough) |
+| 83 | **Quill of Hræsvelgr** (ภาค 2) `hrae_quill` | epic | 6 Job | ATK 232 | Frostmane Unit Lv 84 (Severed Bough) / Hræsvelgr Lv 85 (Severed Bough) |
+| 87 | **Gullet Kris** (ภาค 2) `gullet_kris` | uncommon | 6 Job | ATK 216 | Bile Unit Lv 86 (Belly of the Wolf) |
+| 91 | **Coilfang Kris** (ภาค 2) `coilfang_kris` | rare | 6 Job | ATK 222 | Gleipnir Coil Lv 89 (Belly of the Wolf) |
+| 95 | **Remnant Dirk** (ภาค 2) `remnant_dirk` | uncommon | 6 Job | ATK 235 | Einherjar Remnant Lv 95 (Belly of the Wolf) |
 
 ## ดาบ (sword)
 
@@ -55,6 +64,13 @@
 | 61 | Hollowshell Greatsword `shell_greatsword` | uncommon | 4 Job | ATK 192 | Hollow Shell Lv 61 (Nidhogg's Hollow) |
 | 66 | **Hollowguard Sword** (ใหม่) `hollowguard_sword` | uncommon | 4 Job | ATK 204 | Rot Colossus Lv 69 (Nidhogg's Hollow) |
 | 68 | Fang of Nidhogg `nid_fang` | epic | 4 Job | ATK 226 | Nidhogg Lv 70 (Nidhogg's Hollow) |
+| 74 | **Frostwing Saber** (ภาค 2) `frostwing_saber` | uncommon | 4 Job | ATK 222 | Rime Moth Unit Lv 75 (Severed Bough) |
+| 78 | **Heimdall's Watchblade** (ภาค 2) `heimdall_blade` | rare | 4 Job | ATK 230 | Gjallar Sentinel Lv 78 (Severed Bough) |
+| 82 | **Maneglass Sword** (ภาค 2) `maneglass_sword` | uncommon | 4 Job | ATK 241 | Frostmane Unit Lv 84 (Severed Bough) |
+| 90 | **Gleipnir Edge** (ภาค 2) `gleipnir_edge` | uncommon | 4 Job | ATK 260 | Gleipnir Coil Lv 89 (Belly of the Wolf) |
+| 94 | **Fangsplit Blade** (ภาค 2) `fangsplit_blade` | rare | 4 Job | ATK 265 | Fangborn Unit Lv 92 (Belly of the Wolf) |
+| 98 | **Wyrmspine Sword** (ภาค 2) `wyrmspine_sword` | uncommon | 4 Job | ATK 279 | Rustfang Wyrm Lv 98 (Belly of the Wolf) |
+| 99 | **Gungnir** (ภาค 2) `gungnir` | legend | 4 Job | ATK 312 | Fenrir Lv 99 (Belly of the Wolf) |
 
 ## ขวาน (axe)
 
@@ -77,6 +93,13 @@
 | 60 | **Gnarlroot Axe** (ใหม่) `gnarlroot_axe` | uncommon | 3 Job | ATK 194 | Nidhogg Spawn Lv 63 (Nidhogg's Hollow) |
 | 62 | **Wyrmcleft Axe** (ใหม่) `wyrmcleft_axe` | rare | 3 Job | ATK 200 | Rootbound Guard Lv 66 (Nidhogg's Hollow) |
 | 66 | Rootbound Axe `rootbound_axe` | uncommon | 3 Job | ATK 206 | Rootbound Guard Lv 66 (Nidhogg's Hollow) |
+| 73 | **Rimehorn Axe** (ภาค 2) `rimehorn_axe` | uncommon | 3 Job | ATK 222 | Rime Moth Unit Lv 75 (Severed Bough) |
+| 77 | **Bridgewarden Axe** (ภาค 2) `bridgewarden_axe` | rare | 3 Job | ATK 232 | Gjallar Sentinel Lv 78 (Severed Bough) |
+| 81 | **Frostmane Cleaver** (ภาค 2) `frostmane_cleaver` | uncommon | 3 Job | ATK 240 | Frostmane Unit Lv 84 (Severed Bough) |
+| 89 | **Chainbite Axe** (ภาค 2) `chainbite_axe` | uncommon | 3 Job | ATK 258 | Gleipnir Coil Lv 89 (Belly of the Wolf) |
+| 93 | **Moonbite Axe** (ภาค 2) `moonbite_axe` | rare | 3 Job | ATK 266 | Fangborn Unit Lv 92 (Belly of the Wolf) |
+| 97 | **Jaw of Fenrir** (ภาค 2) `fen_jaw` | epic | 3 Job | ATK 290 | Fenrir Lv 99 (Belly of the Wolf) |
+| 97 | **Wyrmjaw Axe** (ภาค 2) `wyrmjaw_axe` | uncommon | 3 Job | ATK 276 | Rustfang Wyrm Lv 98 (Belly of the Wolf) |
 
 ## คทา (rod)
 
@@ -103,6 +126,13 @@
 | 64 | **Wyrmspine Rod** (ใหม่) `wyrmspine_rod` | rare | 3 Job | ATK 78 / MATK 150 | Rot Colossus Lv 69 (Nidhogg's Hollow) |
 | 65 | **Hollowbloom Scepter** (ใหม่) `hollowbloom_scepter` | uncommon | 3 Job | ATK 74 / MATK 143 | Rot Colossus Lv 69 (Nidhogg's Hollow) |
 | 68 | Rotroot of Nidhogg `nid_rotstaff` | epic | 3 Job | ATK 84 / MATK 160 | Rot Colossus Lv 69 (Nidhogg's Hollow) / Nidhogg Lv 70 (Nidhogg's Hollow) |
+| 72 | **Frostbud Wand** (ภาค 2) `frostbud_wand` | uncommon | 3 Job | ATK 78 / MATK 158 | Frostbud Unit Lv 72 (Severed Bough) |
+| 76 | **Horncall Staff** (ภาค 2) `horncall_staff` | rare | 3 Job | ATK 82 / MATK 170 | Gjallar Sentinel Lv 78 (Severed Bough) |
+| 80 | **Rimeglass Rod** (ภาค 2) `rimeglass_rod` | uncommon | 3 Job | ATK 82 / MATK 175 | Hrimhusk Unit Lv 81 (Severed Bough) |
+| 88 | **Bilelight Staff** (ภาค 2) `bilelight_staff` | uncommon | 3 Job | ATK 86 / MATK 192 | Bile Unit Lv 86 (Belly of the Wolf) |
+| 92 | **Moonfang Rod** (ภาค 2) `moonfang_rod` | rare | 3 Job | ATK 88 / MATK 200 | Fangborn Unit Lv 92 (Belly of the Wolf) |
+| 96 | **Valkyrie Rod** (ภาค 2) `valkyrie_rod` | uncommon | 3 Job | ATK 90 / MATK 209 | Einherjar Remnant Lv 95 (Belly of the Wolf) |
+| 97 | **Moonhowl of Fenrir** (ภาค 2) `fen_moonrod` | epic | 3 Job | ATK 96 / MATK 228 | Rustfang Wyrm Lv 98 (Belly of the Wolf) / Fenrir Lv 99 (Belly of the Wolf) |
 
 ## ธนู (bow)
 
@@ -125,6 +155,13 @@
 | 55 | Gnawroot Warbow `gnawroot_bow` | uncommon | 2 Job | ATK 174 | Root Gnawer Lv 57 (Gnawed Roots) |
 | 60 | **Gnarlwood Warbow** (ใหม่) `gnarlwood_warbow` | uncommon | 2 Job | ATK 185 | Rootbound Guard Lv 66 (Nidhogg's Hollow) |
 | 66 | Rotroot Longbow `rotroot_bow` | uncommon | 2 Job | ATK 196 | Nidhogg Spawn Lv 63 (Nidhogg's Hollow) / Rot Colossus Lv 69 (Nidhogg's Hollow) |
+| 74 | **Rimestring Bow** (ภาค 2) `rimestring_bow` | uncommon | 2 Job | ATK 212 | Rime Moth Unit Lv 75 (Severed Bough) |
+| 78 | **Bifrost Longbow** (ภาค 2) `bifrost_bow` | rare | 2 Job | ATK 219 | Gjallar Sentinel Lv 78 (Severed Bough) |
+| 82 | **Maneline Bow** (ภาค 2) `maneline_bow` | uncommon | 2 Job | ATK 228 | Frostmane Unit Lv 84 (Severed Bough) |
+| 84 | **Talon of Hræsvelgr** (ภาค 2) `hrae_talon` | epic | 2 Job | ATK 252 | Hræsvelgr Lv 85 (Severed Bough) |
+| 90 | **Chainstring Bow** (ภาค 2) `chainstring_bow` | uncommon | 2 Job | ATK 245 | Gleipnir Coil Lv 89 (Belly of the Wolf) |
+| 94 | **Howlstring Bow** (ภาค 2) `howlstring_bow` | rare | 2 Job | ATK 250 | Fangborn Unit Lv 92 (Belly of the Wolf) |
+| 98 | **Wyrmgut Bow** (ภาค 2) `wyrmgut_bow` | uncommon | 2 Job | ATK 262 | Rustfang Wyrm Lv 98 (Belly of the Wolf) |
 
 ## กระบอง (mace)
 
@@ -145,6 +182,12 @@
 | 62 | **Rotbark Warhammer** (ใหม่) `rotbark_warhammer` | rare | 4 Job | ATK 188 | Nidhogg Spawn Lv 63 (Nidhogg's Hollow) |
 | 65 | **Shellsplitter Mace** (ใหม่) `shellsplitter_mace` | uncommon | 4 Job | ATK 184 | Rot Colossus Lv 69 (Nidhogg's Hollow) |
 | 69 | Colossus Maul `colossus_maul` | uncommon | 4 Job | ATK 196 | Rot Colossus Lv 69 (Nidhogg's Hollow) |
+| 76 | **Gjallar Mace** (ภาค 2) `gjallar_mace` | uncommon | 4 Job | ATK 212 | Gjallar Sentinel Lv 78 (Severed Bough) |
+| 80 | **Hrim Hammer** (ภาค 2) `hrim_hammer` | rare | 4 Job | ATK 222 | Hrimhusk Unit Lv 81 (Severed Bough) |
+| 84 | **Hoofbreaker Maul** (ภาค 2) `hoofbreaker_maul` | uncommon | 4 Job | ATK 229 | Frostmane Unit Lv 84 (Severed Bough) |
+| 91 | **Linkbreaker Mace** (ภาค 2) `linkbreaker_mace` | uncommon | 4 Job | ATK 245 | Gleipnir Coil Lv 89 (Belly of the Wolf) |
+| 95 | **Einherjar Hammer** (ภาค 2) `einherjar_hammer` | rare | 4 Job | ATK 252 | Einherjar Remnant Lv 95 (Belly of the Wolf) |
+| 98 | **Wyrmskull Maul** (ภาค 2) `wyrmskull_maul` | uncommon | 4 Job | ATK 260 | Rustfang Wyrm Lv 98 (Belly of the Wolf) |
 
 ## เกราะตัว (armor)
 
@@ -171,6 +214,15 @@
 | 62 | **Hollowhide Vest** (ใหม่) `hollowhide_vest` | uncommon | ทุก Job | DEF 11 · MDEF 6 | Rootbound Guard Lv 66 (Nidhogg's Hollow) |
 | 64 | Abyssal Robe `abyssal_robe` | rare | ทุก Job | DEF 5 · MDEF 15 | Hollow Shell Lv 61 (Nidhogg's Hollow) / Rootbound Guard Lv 66 (Nidhogg's Hollow) |
 | 69 | Colossus Plating `colossus_plate` | uncommon | 3 Job | DEF 15 | Rot Colossus Lv 69 (Nidhogg's Hollow) |
+| 71 | **Rimebark Coat** (ภาค 2) `rimebark_coat` | uncommon | ทุก Job | DEF 12 · MDEF 7 | Frostbud Unit Lv 72 (Severed Bough) |
+| 76 | **Bridge Sentinel Plate** (ภาค 2) `sentinel_plate` | uncommon | 3 Job | DEF 17 | Gjallar Sentinel Lv 78 (Severed Bough) |
+| 79 | **Hrimhusk Mail** (ภาค 2) `hrimhusk_mail` | uncommon | ทุก Job | DEF 13 · MDEF 8 | Hrimhusk Unit Lv 81 (Severed Bough) |
+| 83 | **Aurora Vestment** (ภาค 2) `aurora_vestment` | rare | ทุก Job | DEF 6 · MDEF 17 | Frostmane Unit Lv 84 (Severed Bough) |
+| 87 | **Wolfgut Coat** (ภาค 2) `wolfgut_coat` | uncommon | ทุก Job | DEF 14 · MDEF 9 | Bile Unit Lv 86 (Belly of the Wolf) |
+| 90 | **Coilbound Plate** (ภาค 2) `coilbound_plate` | uncommon | 3 Job | DEF 19 | Gleipnir Coil Lv 89 (Belly of the Wolf) |
+| 95 | **Remnant Hauberk** (ภาค 2) `remnant_hauberk` | uncommon | ทุก Job | DEF 15 · MDEF 10 | Einherjar Remnant Lv 95 (Belly of the Wolf) |
+| 96 | **Pelt of Fenrir** (ภาค 2) `fen_pelt` | epic | ทุก Job | DEF 16 · MDEF 11 | Fenrir Lv 99 (Belly of the Wolf) |
+| 97 | **Nightmoon Robe** (ภาค 2) `nightmoon_robe` | rare | ทุก Job | DEF 7 · MDEF 19 | Rustfang Wyrm Lv 98 (Belly of the Wolf) |
 
 ## หมวก (head)
 
@@ -194,6 +246,12 @@
 | 57 | Gnawer Hide Hood `gnawer_hood` | uncommon | ทุก Job | DEF 7 | Root Gnawer Lv 57 (Gnawed Roots) |
 | 61 | Hollowshell Helm `shell_helm` | uncommon | ทุก Job | DEF 8 | Hollow Shell Lv 61 (Nidhogg's Hollow) |
 | 66 | **Hollowplate Helm** (ใหม่) `hollowplate_helm` | uncommon | ทุก Job | DEF 9 | Rootbound Guard Lv 66 (Nidhogg's Hollow) |
+| 73 | **Mothwing Hood** (ภาค 2) `mothwing_hood` | uncommon | ทุก Job | DEF 10 | Rime Moth Unit Lv 75 (Severed Bough) |
+| 81 | **Frostmane Helm** (ภาค 2) `frostmane_helm` | uncommon | ทุก Job | DEF 11 | Frostmane Unit Lv 84 (Severed Bough) |
+| 84 | **Stormcrown of Hræsvelgr** (ภาค 2) `hrae_crown` | epic | ทุก Job | DEF 12 · MDEF 6 | Hræsvelgr Lv 85 (Severed Bough) |
+| 85 | **Bilecrest Circlet** (ภาค 2) `bilecrest_circlet` | rare | ทุก Job | DEF 7 · MDEF 7 | Bile Unit Lv 86 (Belly of the Wolf) |
+| 89 | **Chainlink Helm** (ภาค 2) `chainlink_helm` | uncommon | ทุก Job | DEF 12 | Gleipnir Coil Lv 89 (Belly of the Wolf) |
+| 97 | **Wyrmscale Helm** (ภาค 2) `wyrmscale_helm` | uncommon | ทุก Job | DEF 13 | Rustfang Wyrm Lv 98 (Belly of the Wolf) |
 
 ## โล่ (shield)
 
@@ -213,6 +271,10 @@
 | 65 | **Shellback Shield** (ใหม่) `shellback_shield` | uncommon | ทุก Job | DEF 10 · MDEF 3 | Rootbound Guard Lv 66 (Nidhogg's Hollow) |
 | 66 | Rootbound Shield `rootbound_shield` | uncommon | 3 Job | DEF 10 · MDEF 3 | Rootbound Guard Lv 66 (Nidhogg's Hollow) |
 | 68 | Scale of Nidhogg `nid_scale` | epic | 3 Job | DEF 12 · MDEF 6 | Nidhogg Lv 70 (Nidhogg's Hollow) |
+| 72 | **Frostbark Shield** (ภาค 2) `frostbark_shield` | uncommon | ทุก Job | DEF 11 · MDEF 3 | Frostbud Unit Lv 72 (Severed Bough) |
+| 80 | **Frozen Kite Shield** (ภาค 2) `frozen_kite` | uncommon | ทุก Job | DEF 12 · MDEF 4 | Hrimhusk Unit Lv 81 (Severed Bough) |
+| 88 | **Gutwall Shield** (ภาค 2) `gutwall_shield` | uncommon | ทุก Job | DEF 13 · MDEF 4 | Bile Unit Lv 86 (Belly of the Wolf) |
+| 96 | **Remnant Aegis** (ภาค 2) `remnant_aegis` | uncommon | ทุก Job | DEF 14 · MDEF 5 | Einherjar Remnant Lv 95 (Belly of the Wolf) |
 
 ## ผ้าคลุม (garment)
 
@@ -235,6 +297,11 @@
 | 56 | **Verdigris Cape** (ใหม่) `verdigris_cape` | rare | ทุก Job | DEF 4 · MDEF 4 | Hollow Shell Lv 61 (Nidhogg's Hollow) |
 | 64 | **Hollowshade Cloak** (ใหม่) `hollowshade_cloak` | uncommon | ทุก Job | DEF 5 · MDEF 5 | Nidhogg Spawn Lv 63 (Nidhogg's Hollow) |
 | 66 | Wings of Nidhogg `nid_wings` | epic | ทุก Job | DEF 6 · MDEF 6 | Nidhogg Lv 70 (Nidhogg's Hollow) |
+| 72 | **Rimepetal Mantle** (ภาค 2) `rimepetal_mantle` | uncommon | ทุก Job | DEF 5 · MDEF 5 | Frostbud Unit Lv 72 (Severed Bough) |
+| 80 | **Hoarfrost Cloak** (ภาค 2) `hoarfrost_cloak` | uncommon | ทุก Job | DEF 6 · MDEF 6 | Hrimhusk Unit Lv 81 (Severed Bough) |
+| 82 | **Pinions of Hræsvelgr** (ภาค 2) `hrae_pinions` | epic | ทุก Job | DEF 7 · MDEF 7 | Hræsvelgr Lv 85 (Severed Bough) |
+| 88 | **Bilemist Shroud** (ภาค 2) `bilemist_shroud` | uncommon | ทุก Job | DEF 6 · MDEF 6 | Bile Unit Lv 86 (Belly of the Wolf) |
+| 96 | **Remnant Cape** (ภาค 2) `remnant_cape` | uncommon | ทุก Job | DEF 7 · MDEF 7 | Einherjar Remnant Lv 95 (Belly of the Wolf) |
 
 ## รองเท้า (shoes)
 
@@ -251,6 +318,12 @@
 | 53 | Gnawhide Boots `gnawhide_boots` | uncommon | ทุก Job | DEF 5 | Gnawed Brute Lv 53 (Gnawed Roots) |
 | 58 | **Rootwalker Boots** (ใหม่) `rootwalker_boots` | uncommon | ทุก Job | DEF 5 | Hollow Shell Lv 61 (Nidhogg's Hollow) |
 | 63 | Wyrmhide Boots `wyrmhide_boots` | uncommon | ทุก Job | DEF 6 | Nidhogg Spawn Lv 63 (Nidhogg's Hollow) |
+| 71 | **Frostroot Boots** (ภาค 2) `frostroot_boots` | uncommon | ทุก Job | DEF 6 | Frostbud Unit Lv 72 (Severed Bough) |
+| 79 | **Frozenstep Boots** (ภาค 2) `frozenstep_boots` | uncommon | ทุก Job | DEF 7 | Hrimhusk Unit Lv 81 (Severed Bough) |
+| 83 | **Skyrunner Boots** (ภาค 2) `skyrunner_boots` | rare | ทุก Job | DEF 7 | Frostmane Unit Lv 84 (Severed Bough) |
+| 87 | **Bilewalker Boots** (ภาค 2) `bilewalker_boots` | uncommon | ทุก Job | DEF 7 | Bile Unit Lv 86 (Belly of the Wolf) |
+| 95 | **Stride of Fenrir** (ภาค 2) `fen_stride` | epic | ทุก Job | DEF 9 | Fenrir Lv 99 (Belly of the Wolf) |
+| 95 | **Remnant Greaves** (ภาค 2) `remnant_greaves` | uncommon | ทุก Job | DEF 8 | Einherjar Remnant Lv 95 (Belly of the Wolf) |
 
 ## เครื่องประดับ (acc)
 
@@ -276,4 +349,10 @@
 | 58 | Bloomheart Charm `bloomheart_charm` | rare | ทุก Job |  | Rust Bloom Lv 58 (Nidhogg's Hollow) / Rootbound Guard Lv 66 (Nidhogg's Hollow) |
 | 63 | Venomcoil Band `venomcoil_band` | rare | ทุก Job |  | Hollow Shell Lv 61 (Nidhogg's Hollow) / Nidhogg Spawn Lv 63 (Nidhogg's Hollow) |
 | 70 | Heart of the Gnawer `nid_heart` | legend | ทุก Job |  | Nidhogg Lv 70 (Nidhogg's Hollow) |
-
+| 71 | **Frostdust Charm** (ภาค 2) `frostdust_charm` | rare | ทุก Job |  | Rime Moth Unit Lv 75 (Severed Bough) |
+| 78 | **Sentinel Signet** (ภาค 2) `sentinel_signet` | uncommon | ทุก Job |  | Gjallar Sentinel Lv 78 (Severed Bough) |
+| 84 | **Frostmane Band** (ภาค 2) `frostmane_band` | rare | ทุก Job |  | Frostmane Unit Lv 84 (Severed Bough) |
+| 85 | **Gjallarhorn** (ภาค 2) `gjallarhorn` | legend | ทุก Job |  | Hræsvelgr Lv 85 (Severed Bough) |
+| 89 | **Silkchain Ring** (ภาค 2) `silkchain_ring` | uncommon | ทุก Job |  | Gleipnir Coil Lv 89 (Belly of the Wolf) |
+| 92 | **Fangborn Charm** (ภาค 2) `fangborn_charm` | rare | ทุก Job |  | Fangborn Unit Lv 92 (Belly of the Wolf) |
+| 99 | **Draupnir** (ภาค 2) `draupnir` | legend | ทุก Job |  | Fenrir Lv 99 (Belly of the Wolf) |

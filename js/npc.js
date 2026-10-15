@@ -57,7 +57,9 @@ NPC.scripts.bifrost = async n => {
     } else await UI.say(nm, L(`ข้าจดจำ ${B(G.map.def.name)} ไว้ให้เจ้าแล้ว<br>เมื่อใช้ Return Beacon หรือล้มลงในการต่อสู้ ใบไม้จะพาเจ้ากลับมาที่นี่`, `I remember ${B(G.map.def.name)} for you.<br>When you use a Return Beacon or fall in battle, the leaves will carry you back here.`));
   } else if (c === 1) {
     // [แผนที่, ค่าผ่านทาง, Base Lv ขั้นต่ำ] • บทที่ 6 (ใต้ Hel's Hollow) เปิดเมื่อเลเวลถึงช่วงของแผนที่
-    const dests = [['meadow', 300], ['mistlake', 600], ['wolfwood', 800], ['helcave', 1200], ['archive', 1800, 33], ['roots', 2500, 45], ['arena', 0]].filter(([id]) => MAP_DEFS[id]);
+    // ภาค 2: Severed Bough เปิดเมื่อลมที่ปลายกิ่งหยุด (ผ่านเควสต์ ch8_storm — สายรุ้งไปถึงแล้ว js/content_ch8.js) • Belly of the Wolf ต้องเดินเข้าเอง
+    const dests = [['meadow', 300], ['mistlake', 600], ['wolfwood', 800], ['helcave', 1200], ['archive', 1800, 33], ['roots', 2500, 45], ['abyss', 3200, 58],
+      ...(Quest.passed('ch8_storm') ? [['bough', 4200, 71]] : []), ['arena', 0]].filter(([id]) => MAP_DEFS[id]);
     const i = await UI.menu(nm, L('ข้าจดจำปลายทางเหล่านี้ — จะให้สายรุ้งพาเจ้าไปที่ใด?', 'I remember these destinations — where shall the rainbow take you?'),
       [...dests.map(([id, z, lv]) => MAP_DEFS[id].pvp ? L(`${MAP_DEFS[id].name} — ลานประลอง PvP (ฟรี)`, `${MAP_DEFS[id].name} — PvP Arena (Free)`)
         : `${MAP_DEFS[id].name} (Lv ${MAP_DEFS[id].level.split(' ')[0]}) — ${U.fmt(z)} ${CUR}${lv && p.baseLv < lv ? L(` · 🔒 ต้อง Base Lv ${lv}`, ` · 🔒 Base Lv ${lv}+`) : ''}`), 'Cancel']);

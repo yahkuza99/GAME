@@ -1572,8 +1572,8 @@ const UI = {
         e.preventDefault(); e.stopPropagation();
         const A = WORLD.art(), r = cv.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * A.c.width, py = (e.clientY - r.top) / r.height * A.c.height;
         const go = id => { if (id !== G.map.id) { Nav.goTo({ kind: 'map', map: id, name: MAP_DEFS[id].name }); this.close('w-world'); } };
-        const ci = A.caveIcon;
-        if (ci && Math.hypot(px - ci.x, py - ci.y) < 40) { // ปากถ้ำ: เลือกชั้นใต้ดิน
+        const ci = (A.caveIcons || [A.caveIcon]).find(c => c && Math.hypot(px - c.x, py - c.y) < 40);
+        if (ci) { // ปากถ้ำ: เลือกชั้นใต้ดิน (ปากละกลุ่ม — js/world.js caveIcons)
           this.menu(L('ใต้ดิน — เลือกชั้น', 'Underground — choose a level'), L('ถ้ำทั้งหมดลงจากปากถ้ำนี้', 'Every cavern descends from this entrance'),
             [...ci.ids.map(id => `${MAP_DEFS[id].name} — Lv ${String(MAP_DEFS[id].level || '').replace(/\s*\(.*\)/, '')}`), 'Cancel']).then(i => { if (i >= 0 && i < ci.ids.length) go(ci.ids[i]); }).catch(() => {});
           return;
@@ -1611,18 +1611,18 @@ const UI = {
       const sub = [town ? L('เมือง • ปลอดภัย', 'Town • Safe') : `Lv ${String(d.level || '').replace(/\s*\(.*\)/, '')}`, d.mvp ? '☠ MVP' : '', qt && qt.map === id ? L('📜 เควสต์', '📜 Quest') : ''].filter(Boolean).join('  ·  ');
       ink(sub, cx, cy + fs(15 * sm) + (two ? lh / 2 : 0), 9.5, d.mvp ? '#6a1a10' : '#4a3214', 'Kanit, sans-serif', 600);
     }
-    const ci = A.caveIcon;
-    if (ci) {
+    const icons = (A.caveIcons || [A.caveIcon]).filter(Boolean);
+    for (const ci of icons) {
       const glow = 0.5 + Math.sin(t * 2.4) * 0.25, gr = g.createRadialGradient(ci.x, ci.y, 4, ci.x, ci.y, 44);
       gr.addColorStop(0, `rgba(170,120,255,${glow})`); gr.addColorStop(1, 'rgba(170,120,255,0)'); g.fillStyle = gr; g.beginPath(); g.arc(ci.x, ci.y, 44, 0, 7); g.fill();
-      ink(L('ทางลงใต้ดิน', 'THE UNDERDARK'), ci.x, ci.y + fs(30), 11, '#3a1660', 'Cinzel, "Kanit", serif', 800, 1);
+      ink(ci.main ? L('ทางลงใต้ดิน', 'THE UNDERDARK') : MAP_DEFS[ci.ids[0]].name.toUpperCase(), ci.x, ci.y + fs(30), 11, '#3a1660', 'Cinzel, "Kanit", serif', 800, ci.main && LANG !== 'en' ? 0 : 1); // ภาษาไทยไม่ถ่างตัวอักษร
       ink(ci.ids.map(id => MAP_DEFS[id].name).join(' › '), ci.x, ci.y + fs(44), 8.5, '#4a2a6a', 'Kanit, sans-serif', 600);
     }
-    // ตัวเรา: หมุดทองเต้น (อยู่ในถ้ำ = ที่ปากถ้ำ)
-    const here = A.regions[G.map.id];
+    // ตัวเรา: หมุดทองเต้น (อยู่ในถ้ำ = ที่ปากถ้ำของกลุ่มนั้น)
+    const here = A.regions[G.map.id], ci = icons.find(c => c.ids.includes(G.map.id));
     let mx = null, my = null;
     if (here) { mx = here.x + G.player.x * P; my = here.y + G.player.y * P; }
-    else if (ci && ci.ids.includes(G.map.id)) { mx = ci.x; my = ci.y - 6; }
+    else if (ci) { mx = ci.x; my = ci.y - 6; }
     if (mx != null) {
       const k = (t % 1.5) / 1.5, bob = Math.abs(Math.sin(t * 3)) * fs(3);
       g.strokeStyle = `rgba(200,40,20,${0.9 * (1 - k)})`; g.lineWidth = fs(2.5); g.beginPath(); g.ellipse(mx, my, fs(6) + k * fs(22), (fs(6) + k * fs(22)) * 0.5, 0, 0, 7); g.stroke();

@@ -89,6 +89,9 @@ const StoryHooks = (() => {
     kitsura: L('ต้นแบบหน่วยเผาผลาญรุ่นที่ Odin สั่งปิด เพราะมันไม่รู้จักคำว่า "ดับ"', 'The prototype incinerator Odin ordered shut down — because it never learned the word "extinguish."'),
     garmr: L('สุนัขตัวแรกที่ Hel ล่ามไว้ที่ประตูราก ก่อนจะมี Garmr ตัวไหน ๆ — โซ่ของมันหนากว่า และมันจำได้ว่าเฝ้าอะไร', 'The first hound Hel ever chained at the root gate, before any other Garmr — its chain is thicker, and it remembers what it guards.'),
     nidhogg: L('สนิมทุกเม็ดที่ยังไม่ถูกแทะออกจากราก รวมตัวกันขึ้นมาเป็นร่างเดียว — ไม่มีหัว แต่ไม่เคยลืมว่าหิว', 'Every grain of rust not yet gnawed from the roots, gathered into a single body — headless, but it never forgets its hunger.'),
+    // ภาค 2 (js/content_ch8.js / content_ch9.js)
+    hraesvelgr: L('หน่วยคุมลมรุ่นแรกที่ Odin ตั้งไว้ก่อน Hræsvelgr ตัวไหน ๆ — ลมของมันพัดตั้งแต่ก่อนมีคำว่า Fimbulwinter', 'The first wind-keeper Odin ever set, before any other Hræsvelgr — its wind was blowing before the word Fimbulwinter existed.'),
+    fenrir: L('ร่างของ Fenrir ในความทรงจำของหัวมังกร — ใหญ่กว่าตัวจริง และไม่มีโซ่เส้นไหนคล้องอยู่เลย', "Fenrir as the dragon's head remembers it — larger than the real one, and with no chain on it at all."),
   };
   H.ancientLine = map => { const w = typeof WB !== 'undefined' && WB.MAPS[map]; return w ? H.ANCIENT[w.mvp] || '' : ''; };
   if (typeof WB !== 'undefined') {

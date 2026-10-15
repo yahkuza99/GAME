@@ -847,7 +847,8 @@ const Class3 = (() => {
       Quest.renderTracker = function () {
         const r = qt0.apply(this, arguments);
         const el = document.getElementById('quest-track'), tr = G.player && C.trial();
-        if (!el || !tr || (!el.hidden && Quest.current())) return r;
+        // บททดสอบ Class 3 ที่เริ่มแล้วขึ้นก่อนเควสต์หลัก (รอบ 43: หลังจบภาค 1 มีเควสต์ภาค 2 ต่อทันที — เดิมแถบนี้ขึ้นเฉพาะตอนไม่มีเควสต์หลัก)
+        if (!el || !tr) return r;
         const T = C.TRIAL[tr.job], key = `c3|${tr.job}|${tr.stage}`;
         el.hidden = false;
         if (el.dataset.key === key) return r;

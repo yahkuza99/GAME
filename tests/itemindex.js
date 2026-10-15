@@ -105,6 +105,8 @@ const STYLE = phone => {
       for (const c of ItemIndex.cats()) {
         document.querySelector(`#w-itemidx .ix-cat[data-cat="${c.k}"]`).click();
         await new Promise(r => setTimeout(r, 60));
+        // หมวดที่เกิน 1 หน้า (ItemIndex.PAGE = 120 — อาวุธ/เกราะหลังภาค 2): กด "แสดงเพิ่ม" จนครบ
+        for (let g = 0; g < 10 && document.querySelector('#w-itemidx .ix-showmore'); g++) { document.querySelector('#w-itemidx .ix-showmore').click(); await new Promise(r => setTimeout(r, 60)); }
         const rows = [...document.querySelectorAll('#w-itemidx .ix-rows > .irow')];
         out[c.k] = { rows: rows.length, on: document.querySelector('#w-itemidx .ix-cat.on').dataset.cat, right: !!document.querySelector('#w-itemidx .book-r .det-top, #w-itemidx .book-r .ix-sethead') };
         if (!c.ref) for (const r of rows) drawn[r.dataset.id] = (drawn[r.dataset.id] || 0) + 1;

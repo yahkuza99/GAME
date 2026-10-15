@@ -390,8 +390,8 @@
   const partEnd = () => {
     UI.dlgClose();
     if (!G.fastSim) Sound.play('mvp');
-    UI.splash(null, L('จบภาคที่ 1 — ใบแรก', 'End of Part I — The First Leaf'), L('ภาคที่ 2 — กิ่งที่เหลือ (เร็ว ๆ นี้) • IRON VALHALLA', 'Part II — The Remaining Branches (Coming Soon) • IRON VALHALLA'), 'upgrade');
-    UI.msg(L('📖 จบภาคที่ 1 — ใบแรก • ต้นไม้งอกประกายใหม่อีกดวงทางเหนือ... ภาคที่ 2 เร็ว ๆ นี้', '📖 End of Part I — The First Leaf • The Tree has grown another new spark in the north... Part II coming soon.'), 'lvl');
+    UI.splash(null, L('จบภาคที่ 1 — ใบแรก', 'End of Part I — The First Leaf'), L('ภาคที่ 2 — กิ่งที่เหลือ เริ่มแล้ว • IRON VALHALLA', 'Part II — The Remaining Branches begins • IRON VALHALLA'), 'upgrade');
+    UI.msg(L('📖 จบภาคที่ 1 — ใบแรก • ต้นไม้งอกประกายใหม่อีกดวงทางเหนือ... ภาคที่ 2 เริ่มแล้ว','📖 End of Part I — The First Leaf • The Tree has grown another new spark in the north... Part II begins.'), 'lvl');
     setTimeout(() => { if (G.started) UI.announce(L('ขอบคุณที่เล่นภาคที่ 1 ของ IRON VALHALLA — ใบแรกยังไปต่อ', 'Thank you for playing Part I of IRON VALHALLA — the First Leaf goes on.')); }, 4200);
   };
   // การ์ดเปิดบท 7 (ครั้งแรกที่รับเควสต์แรกของบท)

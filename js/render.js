@@ -612,9 +612,11 @@ R.spawnPart = (kind, anywhere) => {
   const p = { kind, x: Math.random() * R.W, y: anywhere ? Math.random() * R.H : -10, s: 0.6 + Math.random() * 0.8, ph: Math.random() * 6.28, life: 0 };
   if (kind === 'petal' || kind === 'leaf') { p.vx = 18 + Math.random() * 22; p.vy = 22 + Math.random() * 18; p.x -= R.W * 0.3; }
   else if (kind === 'firefly') { p.y = Math.random() * R.H; p.vx = 0; p.vy = 0; }
+  else if (kind === 'snow') { p.vx = 8 + Math.random() * 14; p.vy = 18 + Math.random() * 20; p.x -= R.W * 0.25; } // หิมะปลิวตามลม (Severed Bough — js/content_ch8.js)
   else { p.y = anywhere ? Math.random() * R.H : R.H + 10; p.vx = (Math.random() - 0.5) * 6; p.vy = -6 - Math.random() * 8; }
   p.col = kind === 'petal' ? U.pick(['#ffd6e6', '#ffffff', '#ffe9a8', '#f7b6cf']) : kind === 'leaf' ? U.pick(['#d98a2b', '#b8c23c', '#8fb03a', '#c0552a'])
-    : kind === 'data' ? '255,214,130' : kind === 'spore' ? '255,140,95' : kind === 'ember' ? '255,150,60' : '210,190,255';
+    : kind === 'data' ? '255,214,130' : kind === 'spore' ? '255,140,95' : kind === 'ember' ? '255,150,60' : kind === 'snow' ? '235,246,255' : '210,190,255';
+  const A = ATMOS[R.partMap]; if (A && A.col && A.kind === kind) p.col = A.col; // สีอนุภาคเฉพาะแมพ (ATMOS.col)
   return p;
 };
 // จุดเรืองกลม: ไล่สีจากกลาง (ทึบ) ถึงขอบ (ใส) ของสี col — ภาพแคชขนาดพอดีความละเอียดจอ วาดย่อ/ขยายตามรัศมีจริง

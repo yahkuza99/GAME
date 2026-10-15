@@ -127,8 +127,9 @@ async function curve(p) {
     // ฟาร์ม: [เลเวลเรา, แผนที่]
     FARM: (process.env.FARMPTS || '15:mistlake,30:wolfwood,45:helcave,45:archive,50:roots,55:roots,58:roots,58:abyss,64:abyss,70:abyss').split(',').map(s => { const [l, m] = s.split(':'); return [+l, m]; }),
     // ดวลมอนเลเวลเท่าเรา (เส้นเดิม → บทที่ 7)
-    CURVE_MOBS: ['archive_warden', 'archive_maiden', 'rust_draugr', 'root_crawler', 'gnawed_stump', 'gnawed_brute', 'root_gnawer', 'rust_bloom', 'hollow_shell', 'nid_spawn', 'rootbound_guard', 'rot_colossus'],
-    CH7_LVS: [58, 64, 70], CH7_MOBS: ['rust_bloom', 'hollow_shell', 'nid_spawn', 'rootbound_guard', 'rot_colossus'],
+    // CURVEMOBS=id,id ใช้แทนรายการนี้ได้ (เช่น ภาค 2: frostbud,rime_moth,...,rustfang_wyrm — js/content_ch8.js / content_ch9.js)
+    CURVE_MOBS: process.env.CURVEMOBS ? process.env.CURVEMOBS.split(',') : ['archive_warden', 'archive_maiden', 'rust_draugr', 'root_crawler', 'gnawed_stump', 'gnawed_brute', 'root_gnawer', 'rust_bloom', 'hollow_shell', 'nid_spawn', 'rootbound_guard', 'rot_colossus'],
+    CH7_LVS: process.env.CH7LV != null ? process.env.CH7LV.split(',').filter(Boolean).map(Number) : [58, 64, 70], CH7_MOBS: ['rust_bloom', 'hollow_shell', 'nid_spawn', 'rootbound_guard', 'rot_colossus'], // CH7LV= (ว่าง) = ข้าม
   };
   const out = [];
   for (const job of jobs) {

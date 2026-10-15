@@ -17,10 +17,12 @@ const WB = {
   //   เป้า: ปาร์ตี้ 5 คนคละ Class ใส่ของตามเลเวล (Lv ของ MVP) ล้มได้ ~10–15 นาที • ปาร์ตี้ Lv +10 เร็วกว่านั้น (~5–10 นาที)
   //   ATK ×1.5–2 = ยังแรงกว่า MVP ชัด (+ ช่วงคลั่ง ×1.2/×1.35 ป้ายใหญ่ ร่ายถี่ ลูกสมุน) — เดิม ATK ×3 ตีตายวนจนยาหมด (ปาร์ตี้ส่วนใหญ่ล้ม Kitsura/Garmr/Nidhogg ไม่ได้ใน 30 นาที)
   //   HP ต่างกันมากต่อบอส เพราะ MVP เดิมไม่ได้ไล่เส้นเดียวกัน (Seraph HP ×5 ปาร์ตี้ Lv 27 ล้มได้ในไม่ถึงนาที)
-  TUNE: { mistlake: { hp: 100, atk: 1.6 }, helcave: { hp: 14, atk: 1.5 }, roots: { hp: 6, atk: 1.5 }, abyss: { hp: 8, atk: 2 } },
+  //   ภาค 2 (js/content_ch8.js / content_ch9.js): ตัวคูณเดียวกับ Ancient Nidhogg (MVP ไล่เส้นเดียวกันต่อจากบท 7)
+  TUNE: { mistlake: { hp: 100, atk: 1.6 }, helcave: { hp: 14, atk: 1.5 }, roots: { hp: 6, atk: 1.5 }, abyss: { hp: 8, atk: 2 }, bough: { hp: 8, atk: 2 }, wolfbelly: { hp: 8, atk: 2 } },
   hpMul(map) { return (this.TUNE[map] || {}).hp || this.MULT; },
   atkMul(map) { return (this.TUNE[map] || {}).atk || 3; },
-  MAPS: { mistlake: { mvp: 'seraph_pudding', off: 0 }, helcave: { mvp: 'kitsura', off: 20 }, roots: { mvp: 'garmr', off: 40 }, abyss: { mvp: 'nidhogg', off: 50 } }, // abyss = js/content_ch7.js (ไม่มี MOBS.nidhogg = ถูกลบใน init)
+  MAPS: { mistlake: { mvp: 'seraph_pudding', off: 0 }, helcave: { mvp: 'kitsura', off: 20 }, roots: { mvp: 'garmr', off: 40 }, abyss: { mvp: 'nidhogg', off: 50 }, // abyss = js/content_ch7.js (ไม่มี MOBS.nidhogg = ถูกลบใน init)
+    bough: { mvp: 'hraesvelgr', off: 10 }, wolfbelly: { mvp: 'fenrir', off: 30 } }, // ภาค 2 — รอบตื่นเหลื่อมกับตัวเดิม (ทุก 60 นาที: :00 :10 :20 :30 :40 :50)
   st: {}, saveAt: 0, nextTick: 0,
 
   id(map) { return 'wb_' + this.MAPS[map].mvp; },
