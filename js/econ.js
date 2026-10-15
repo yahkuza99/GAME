@@ -75,6 +75,7 @@ const Econ = {
     // รางวัลจากการล่าที่เซิร์ฟเวอร์ทอย (ระยะ 2 — js/chain.js): EXP ผ่าน gainExp (ขึ้นเลเวลแบบเดียวกับเซิร์ฟเวอร์ + เอฟเฟกต์) · สมุดมอนที่ได้ชิป
     if (d.exp && (d.exp.b > 0 || d.exp.j > 0) && p === G.player) gainExp(d.exp.b || 0, d.exp.j || 0);
     if (Array.isArray(d.chips)) { if (!Array.isArray(p.chips)) p.chips = []; for (const id of d.chips) if (!p.chips.includes(id)) p.chips.push(id); }
+    if (typeof SaveVerify !== 'undefined' && SaveVerify.fixDups) SaveVerify.fixDups(p, 'econ'); // อุปกรณ์ uid ที่มีอยู่แล้วถูกเพิ่มซ้ำ (เช่นรายการเดียวกันถูกใส่สองรอบ) = ซ่อมทันที
     if (p === G.player) { recalc(); UI.dirty(); }
   },
   // ผลจาก RPC ของเรา ({ seq, delta }) — ถ้ามีรายการที่เรายังไม่ได้รับคั่นอยู่ ดึงมาก่อนตามลำดับ

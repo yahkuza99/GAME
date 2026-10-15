@@ -49,6 +49,23 @@ const OUT_CHAIN = path.join(ROOT, 'supabase', 'migrations', '20261012002100_even
     }
     let boss = 0;
     for (const m of Object.values(MOBS)) if (m.boss) boss = Math.max(boss, m.exp || 0);
+    // มอนที่เกิดนอกตาราง spawns ของแผนที่ (รอบ 41 — kill_map ผิดตัว: elite_alpha ที่ wolfwood)
+    //  • Elite หายาก (js/content_world.js WorldPack.Elite.MAPS) ครั้งละ 1 ตัว
+    //  • ลูกสมุนบอส (js/bosskit.js: MVP + Ancient/World Boss → รุ่น _a / ชั้นยอด _e) — ไม่มี EXP/ดรอป และเกมไม่จดลงโซ่ (killMob ออกก่อน) ใส่ไว้กันธงผิด
+    //    เรียก BossKit.kit ก่อนสร้างตารางมอน: บอสที่ไม่มีชุดท่าได้ลูกสมุนอัตโนมัติ (mn_auto_*) ตอนนี้ → อยู่ในตาราง sv_mobs ด้วย
+    const extra = [];
+    const EL = typeof WorldPack !== 'undefined' && WorldPack.Elite && WorldPack.Elite.MAPS;
+    if (EL) for (const [mid, id] of Object.entries(EL)) if (MOBS[id] && MAP_DEFS[mid]) extra.push([mid, id, 1]);
+    if (typeof BossKit !== 'undefined' && BossKit.kit) {
+      const bossMaps = [];
+      for (const [mid, md] of Object.entries(MAP_DEFS)) if (md.mvp && MOBS[md.mvp]) bossMaps.push([mid, md.mvp]);
+      if (typeof WB !== 'undefined' && WB.MAPS) for (const [mid, w] of Object.entries(WB.MAPS)) if (MOBS['wb_' + w.mvp] && MAP_DEFS[mid]) bossMaps.push([mid, 'wb_' + w.mvp]);
+      for (const [mid, bid] of bossMaps) {
+        let k = null; try { k = BossKit.kit({ def: MOBS[bid] }); } catch (e) { k = null; }
+        if (!k) continue;
+        for (const base of [...(k.minions || []), k.elite].filter(Boolean)) for (const id of [base, base + '_a', base + '_e']) if (MOBS[id]) extra.push([mid, id, 6]); // ค้างได้สูงสุด 6 ตัว (Ancient)
+      }
+    }
     // ระยะ 2 (เซิร์ฟเวอร์ทอยดรอป/EXP): ตารางมอน + มอนที่เกิดในแต่ละแผนที่ + ค่าตรากาชา/ชิป
     const mobs = {};
     for (const [id, m] of Object.entries(MOBS)) {
@@ -62,6 +79,7 @@ const OUT_CHAIN = path.join(ROOT, 'supabase', 'migrations', '20261012002100_even
       if (md.mvp && MOBS[md.mvp]) spawns.push([mid, md.mvp, 1]);
     }
     if (typeof WB !== 'undefined' && WB.MAPS) for (const [mid, w] of Object.entries(WB.MAPS)) { const wid = 'wb_' + w.mvp; if (MOBS[wid] && MAP_DEFS[mid]) spawns.push([mid, wid, 1]); }
+    spawns.push(...extra);
     const gacha = { token: C.token, base: C.mobDrop.base, fullGap: C.mobDrop.fullGap, zeroGap: C.mobDrop.zeroGap, eliteMul: C.mobDrop.eliteMul, mvp: C.drop.mvp, wb: C.drop.worldBoss };
     return {
       mobs, spawns, gacha, chip: { drop: CHIP_DROP, boss: CHIP_DROP_BOSS },

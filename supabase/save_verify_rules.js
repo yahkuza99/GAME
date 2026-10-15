@@ -4,11 +4,13 @@
 //  supabase/migrations/20261012000000_save_verify.sql) ใช้ในเทสต์ (tests/saveverify.js ผ่าน tests/fake_supabase.js) และเป็นสเปกอ่านง่าย
 //  แก้กติกาที่นี่ → แก้ SQL ให้ตรงกันด้วยเสมอ (ชื่อกติกา/ค่าคงที่/ลำดับการคำนวณเหมือนกัน)
 //
-//  evaluate({ oldData, newData, oldAt, now, state, rows, cfg, items, jobs })
+//  evaluate({ oldData, newData, oldAt, now, state, rows, cfg, items, jobs, anchorLv })
 //    oldData/newData = ก้อนบัญชี characters.data ({ v:2, active, chars:[...] } หรือเซฟรุ่นเก่าตัวเดียว)
 //    oldAt = updated_at เดิม (ms) • now = เวลาเซิร์ฟเวอร์ (ms) • state = แถว save_verify_state เดิม (หรือ null)
 //    rows = รายการโอน (transfer_ledger) ของผู้เล่นนี้ที่ยังไม่ใช้ [{ id, at, paired, zin, zout, win, wout }]
 //    cfg = { mode, soft_rules, params, derived } • items = { id: { w, eq, card } } • jobs = { id: { max, tier, parent } }
+//    anchorLv = { ชื่อตัวเล็ก: เลเวลที่หมุดโซ่ล่าสุดอ้าง (event_anchors.lv) } (ไม่ใส่ = 0)
+//  รอบ 41 (20261015000000_sv_tuning.sql): state.chars.<ตัว> เพิ่ม ml (เลเวลสูงสุดที่เชื่อได้) · hb/hj/hjj (EXP สะสมสูงสุดที่เคยเห็น) · du (uid ซ้ำที่จดธงแล้ว)
 //  คืน { flags:[{ rule, slot, detail, soft }], reject: rule|null, state, consume:[id] }
 // ============================================================
 (function (root) {
@@ -86,7 +88,7 @@
     const acctImp = I.newData && I.newData.importedOffline && (!I.oldData || I.oldData.importedOffline !== I.newData.importedOffline);
 
     NC.forEach((c, slot) => {
-      const k = key(c), o = oldBy.get(k) || null, name = String(c.name).slice(0, 24);
+      const k = key(c), o = oldBy.get(k) || null, name = String(c.name).slice(0, 24), nf = flags.length;
       const imported = (c.importedOffline && (!o || o.importedOffline !== c.importedOffline)) || (acctImp && !o);
       if (!o && !imported) fresh++;
       if (imported) { flag('import_offline', slot, { name, at: c.importedOffline || I.newData.importedOffline, baseLv: c.baseLv, job: c.job, zeny: c.zeny }); importedW += worthOf(c, items) - (o ? worthOf(o, items) : 0); }
@@ -101,8 +103,14 @@
       if (job && (num(c.jobExp) < 0 || num(c.jobExp) >= 2 * needJob(job.tier, Math.max(1, c.jobLv | 0)))) flag('exp_range', slot, { name, jobExp: c.jobExp });
       const sv = c.stats && typeof c.stats === 'object' ? c.stats : {};
       for (const s of STATS) if (!isInt(sv[s]) || sv[s] < 1 || sv[s] > P.stat_max) { flag('stat_cap', slot, { name, stat: s, v: sv[s] }); break; }
-      const spent = statSpent(sv), pts = num(c.statPoints), have = statTotal(L);
-      if (pts < 0 || spent + pts > have + P.stat_slack) flag('stat_points', slot, { name, spent, points: pts, allowed: have });
+      // เลเวลสูงสุดที่ตัวละครนี้เคยมี (เซฟเดิม / ml) + หมุดโซ่ (ไม่เกิน anchor_lv_slack ขั้น) — เซฟที่มาช้าไม่ถูกจับผิด
+      const oL = o && isInt(o.baseLv) ? Math.max(1, Math.min(P.max_base_lv, o.baseLv)) : 1;
+      const prev = (st0 && st0.chars && st0.chars[k]) || null;
+      const ml = o ? Math.max(oL, Math.trunc(num(prev && prev.ml))) : 0;
+      const alv = (I.anchorLv && I.anchorLv[k]) || 0, slackLv = P.anchor_lv_slack != null ? P.anchor_lv_slack : 3;
+      let mlv = Math.max(L, ml); mlv = Math.min(P.max_base_lv, Math.max(mlv, Math.min(alv, mlv + slackLv)));
+      const spent = statSpent(sv), pts = num(c.statPoints), have = statTotal(mlv);
+      if (pts < 0 || spent + pts > have + P.stat_slack) flag('stat_points', slot, { name, spent, points: pts, allowed: have, lv: L, max_lv: mlv });
       if (c.zeny != null && (!isInt(c.zeny) || c.zeny < 0 || c.zeny > P.zeny_max)) flag('zeny_range', slot, { name, zeny: c.zeny });
       const uids = new Set();
       let unknown = null, qtyBad = null, refBad = null, cardBad = null, dupUid = null;
@@ -123,35 +131,42 @@
       if (qtyBad) flag('qty_range', slot, Object.assign({ name }, qtyBad));
       if (refBad) flag('refine_cap', slot, Object.assign({ name }, refBad));
       if (cardBad) flag('card_range', slot, Object.assign({ name }, cardBad));
-      if (dupUid) flag('dup_uid', slot, Object.assign({ name }, dupUid));
+      // uid ซ้ำตัวเดิม = จดครั้งเดียวต่อ uid จนกว่าจะเปลี่ยน
+      const du = dupUid ? String(dupUid.uid) : null;
+      if (dupUid && (prev && prev.du != null ? prev.du : null) !== du) flag('dup_uid', slot, Object.assign({ name }, dupUid));
       // เปลี่ยน Class ได้ทีละขั้นตามสาย (ข้ามขั้นในเซฟเดียวไม่ได้) • ตัวละครใหม่เริ่มที่ Novice (เผื่อเปลี่ยน Class 1 ก่อนเซฟแรก)
       if (job && o && o.job !== c.job && (!descends(jobs, o.job, c.job) || (jobs[o.job] && job.tier - jobs[o.job].tier > 1))) flag('job_path', slot, { name, from: o.job, to: c.job });
       if (job && !o && !imported && job.tier > 1) flag('job_path', slot, { name, from: null, to: c.job });
 
       // ---------- อัตราเทียบเวลา (ถังโทเคน: เติมตามเวลา จุได้ไม่เกินเพดาน) ----------
-      if (imported) { state.chars[k] = { eb: Math.round(3 * P.boss_exp * P.party_mul), jb: Math.round(3 * P.boss_exp * 0.7 * P.party_mul), lb: P.lv_cap }; return; }
-      const oL = o && isInt(o.baseLv) ? Math.max(1, Math.min(P.max_base_lv, o.baseLv)) : 1;
-      const prev = (st0 && st0.chars && st0.chars[k]) || null;
+      if (imported) { state.chars[k] = { eb: Math.round(3 * P.boss_exp * P.party_mul), jb: Math.round(3 * P.boss_exp * 0.7 * P.party_mul), lb: P.lv_cap, ml: Math.max(ml, L), du }; return; }
       const capE = 3 * P.boss_exp * P.party_mul + P.need_frac * needBase(oL);
       const ojob = o ? jobs[o.job] : null;
       const capJ = 3 * P.boss_exp * 0.7 * P.party_mul + (ojob ? P.need_frac * needJob(ojob.tier, Math.max(1, o.jobLv | 0)) : 0);
-      const dE = cumBase(L, c.baseExp) - (o ? cumBase(oL, o.baseExp) : 0);
+      // เทียบกับ EXP สะสมสูงสุดที่เคยเห็น (hb) — เซฟมาช้าแล้วกลับมาที่เดิม ไม่นับซ้ำ
+      const cumN = cumBase(L, c.baseExp), cumO = o ? cumBase(oL, o.baseExp) : 0;
+      const hb = o ? Math.max(cumO, num(prev && prev.hb)) : 0;
+      const dE = cumN - hb;
       // EXP จากการฆ่าที่ submit_events ตรวจแล้ว (vb/vj — ระยะ 2) ใช้ก่อน ไม่กินถังอัตรา
       let vb = prev && prev.vb > 0 ? prev.vb : 0; const ub = Math.min(vb, Math.max(0, dE)); vb -= ub;
       let eb = Math.min(capE, (prev && prev.eb != null ? prev.eb : capE) + expRate * t) - (Math.max(0, dE) - ub);
       if (eb < 0) { flag('exp_rate', slot, { name, gained: Math.round(dE), allowed: Math.round(eb + Math.max(0, dE)), seconds: Math.round(t) }); eb = 0; }
-      let dJ = 0;
+      let dJ = 0, jcN = 0, hj = 0;
       if (job) {
         const jl = Math.max(1, c.jobLv | 0);
-        dJ = o && o.job === c.job && ojob ? cumJob(job.tier, jl, c.jobExp) - cumJob(ojob.tier, Math.max(1, o.jobLv | 0), o.jobExp) : cumJob(job.tier, jl, c.jobExp);
+        jcN = cumJob(job.tier, jl, c.jobExp);
+        if (o && o.job === c.job && ojob) { hj = Math.max(cumJob(ojob.tier, Math.max(1, o.jobLv | 0), o.jobExp), prev && prev.hjj === c.job ? num(prev.hj) : 0); dJ = jcN - hj; }
+        else dJ = jcN;
       }
       let vj = prev && prev.vj > 0 ? prev.vj : 0; const uj = Math.min(vj, Math.max(0, dJ)); vj -= uj;
       let jb = Math.min(capJ, (prev && prev.jb != null ? prev.jb : capJ) + jexpRate * t) - (Math.max(0, dJ) - uj);
       if (jb < 0) { flag('jexp_rate', slot, { name, gained: Math.round(dJ), allowed: Math.round(jb + Math.max(0, dJ)), seconds: Math.round(t) }); jb = 0; }
-      const dL = L - oL;
+      const dL = L - Math.max(oL, ml);
       let lb = Math.min(P.lv_cap, (prev && prev.lb != null ? prev.lb : P.lv_cap) + P.lv_per_min * t / 60) - Math.max(0, dL);
       if (lb < 0) { flag('level_rate', slot, { name, from: oL, to: L, seconds: Math.round(t) }); lb = 0; }
-      state.chars[k] = { eb: Math.round(eb), jb: Math.round(jb), lb: Math.round(lb * 100) / 100, vb: Math.round(vb), vj: Math.round(vj) };
+      const lvbad = flags.slice(nf).some(f => f.rule === 'level_cap' || f.rule === 'level_rate' || f.rule === 'exp_rate' || f.rule === 'exp_range');
+      state.chars[k] = { eb: Math.round(eb), jb: Math.round(jb), lb: Math.round(lb * 100) / 100, vb: Math.round(vb), vj: Math.round(vj),
+        ml: Math.max(ml, lvbad ? 0 : L), hb: Math.round(Math.max(hb, cumN)), hj: Math.round(Math.max(hj, jcN)), hjj: c.job != null ? c.job : null, du };
     });
 
     // ---------- มูลค่ารวมทั้งบัญชี (Volt + ของทุกชิ้น ตามราคาขายร้าน) ----------

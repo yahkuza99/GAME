@@ -428,7 +428,7 @@
         const [map, mob] = key.split('|'), m = D.mobs[mob], sp = (D.spawns || []).find(x => x[0] === map && x[1] === mob);
         if (!m || !sp) { bad = 'kill_map'; break; }
         if (m.boss || m.wb) { if (by[key] > 1 || (bk[mob] && now - bk[mob] < Math.max(60000, m.respawn * 0.8))) bad = 'boss_cooldown'; }
-        else if (by[key] > sp[2] * (1 + Math.max(span, Math.min(elapsed, 21600)) / 4) * 1.5 + 2) bad = 'kill_rate';
+        else if (by[key] > sp[2] * (1 + Math.max(span, Math.min(elapsed, 21600), Math.min(kills.length / 3, 30)) / 4) * 1.5 + 2) bad = 'kill_rate'; // รอบ 41: ขั้นต่ำ = ทั้งชุด ÷ kps_max (≤ 30 วิ)
       }
       // EXP ที่เกมบวกเองตอนฆ่า (a[5], a[6]) ต้องตรงสูตร · เลเวลที่อ้างต่ำกว่าเซฟไม่ได้ → ธง exp_mismatch · เครดิตส่วนที่ตรวจได้ให้ตัวตรวจเซฟ
       const row = CH.get(u), c = row.data.chars[EC.idx(row.data, k)], slv = c.baseLv || 1;

@@ -164,6 +164,48 @@ const SaveVerify = {
     const el = document.getElementById('sv-status');
     if (el) el.textContent = this.status();
   },
+
+  // ---------- 5) อุปกรณ์ uid ซ้ำ (เซิร์ฟเวอร์ติดธง dup_uid) — ซ่อมในเครื่อง: ตอนโหลด / หลังรายการจากเซิร์ฟเวอร์ (Econ.applyDelta) / ก่อนเซฟ ----------
+  //  • อ็อบเจกต์เดียวกันอยู่ 2 ที่ (ช่องสวม 2 ช่อง / ช่องสวม + กระเป๋า) = ชิ้นเดียว → เอาออกจากที่หลัง (เก็บชิ้นที่สวมไว้)
+  //  • คนละอ็อบเจกต์แต่เหมือนกันทุกอย่าง (id + uid + ตีบวก + ชิป) = สำเนา → ทิ้งสำเนา (เก็บชิ้นที่สวม)
+  //  • uid ชนแต่ของไม่เหมือนกัน = ของจริงสองชิ้น → ชิ้นหลังได้ uid ใหม่ (G.uid++) ไม่มีของหาย
+  //  ลำดับที่ดู: ช่องสวม → กระเป๋า → คลัง (ไม่แตะรายการวางขาย p.vend — เป็นของเซิร์ฟเวอร์) • จดธง dup_repaired ไปกับเซฟถัดไป (js/guard.js)
+  fixDups(p, why) {
+    if (!p || typeof p !== 'object' || typeof ITEMS === 'undefined') return 0;
+    const eq = p.equip && typeof p.equip === 'object' ? p.equip : null;
+    const lists = [['inv', Array.isArray(p.inventory) ? p.inventory : null], ['sto', Array.isArray(p.storage) ? p.storage : null]];
+    const isEq = e => !!(e && typeof e === 'object' && e.uid != null && ITEMS[e.id] && (ITEMS[e.id].type === 'weapon' || ITEMS[e.id].type === 'armor'));
+    const used = new Set(), objs = new Set(), seen = new Map(), fixes = [];
+    for (const e of [...(eq ? Object.values(eq) : []), ...(lists[0][1] || []), ...(lists[1][1] || []), ...((p.vend && Array.isArray(p.vend.items)) ? p.vend.items : [])]) if (e && e.uid != null) used.add(+e.uid);
+    const sig = e => JSON.stringify([e.id, +e.uid, e.refine || 0, Array.isArray(e.cards) ? e.cards : []]);
+    // คืน false = ทิ้งชิ้นนี้ออกจากที่ที่มันอยู่
+    const visit = (e, where) => {
+      if (!e || typeof e !== 'object') return true;
+      if (objs.has(e)) { fixes.push(['alias', e.id, e.uid, where]); return false; }
+      objs.add(e);
+      if (!isEq(e)) return true;
+      const k = +e.uid, prev = seen.get(k);
+      if (!prev) { seen.set(k, e); return true; }
+      if (sig(prev) === sig(e)) { fixes.push(['same', e.id, e.uid, where]); return false; }
+      let nu = Math.max(1, Math.floor(+G.uid) || 1);
+      while (used.has(nu)) nu++;
+      G.uid = nu + 1; used.add(nu);
+      fixes.push(['renumber', e.id, e.uid, where, nu]);
+      e.uid = nu; seen.set(nu, e);
+      return true;
+    };
+    if (eq) for (const s of EQUIP_SLOTS) if (eq[s] && !visit(eq[s], s)) eq[s] = null;
+    for (const [w, arr] of lists) {
+      if (!arr) continue;
+      for (let i = 0; i < arr.length; i++) if (!visit(arr[i], w)) { arr.splice(i, 1); i--; }
+    }
+    if (!fixes.length) return 0;
+    const detail = `${why || '?'} ${p.name || ''}: ` + fixes.slice(0, 6).map(f => `${f[0]} ${f[1]}#${f[2]}@${f[3]}${f[4] ? '→' + f[4] : ''}`).join(', ') + (fixes.length > 6 ? ` +${fixes.length - 6}` : '');
+    console.warn('อุปกรณ์ uid ซ้ำ — ซ่อมแล้ว', detail);
+    try { if (typeof window.__ivgNote === 'function') window.__ivgNote('dup_repaired', detail); } catch (e) { /* ธงห้ามทำเกมพัง */ }
+    if (typeof G !== 'undefined' && p === G.player && G.started) { recalc(); if (typeof UI !== 'undefined') UI.dirty(); }
+    return fixes.length;
+  },
   boot() {
     if (typeof UI === 'undefined' || !UI.renderOptions || UI.renderOptions.__sv) return;
     const orig = UI.renderOptions;

@@ -14,7 +14,7 @@ catch (e) { console.log('SKIP: ไม่พบ @electric-sql/pglite (ตั้�
 let pass = 0, fail = 0;
 const ok = (name, cond, info) => { if (cond) { pass++; console.log('✔', name, info ? ` (${info})` : ''); } else { fail++; console.log('✘', name, info ? ` (${info})` : ''); } };
 const MIG = f => fs.readFileSync(path.join(ROOT, 'supabase', 'migrations', f), 'utf8');
-const U1 = '11111111-1111-1111-1111-111111111111', U2 = '22222222-2222-2222-2222-222222222222';
+const U1 = '11111111-1111-1111-1111-111111111111', U2 = '22222222-2222-2222-2222-222222222222', U3 = '33333333-3333-3333-3333-333333333333';
 // เหมือน Chain.canon / Chain.sha ใน js/chain.js
 const canon = e => [e.seq, e.prev, e.t, e.k, e.a.join('|')].join('|');
 const sha = s => crypto.createHash('sha256').update(s, 'utf8').digest('hex');
@@ -33,10 +33,11 @@ const mk = (head, list, t0) => { let h = head.head, s = head.seq, t = t0; const 
     alter default privileges in schema public grant all on tables to anon, authenticated;
   `);
   for (const f of ['20261001000000_online_init.sql', '20261001120000_multi_char_names.sql', '20261011000000_single_session.sql', '20261012000000_save_verify.sql',
-    '20261012000100_save_verify_data.sql', '20261012001000_economy.sql', '20261012001100_economy_data.sql', '20261012002000_event_chain.sql', '20261012002100_event_chain_data.sql']) {
+    '20261012000100_save_verify_data.sql', '20261012001000_economy.sql', '20261012001100_economy_data.sql', '20261012002000_event_chain.sql', '20261012002100_event_chain_data.sql',
+    '20261015000000_sv_tuning.sql']) { // รอบ 41: submit_events / save_verify_eval ฉบับจูน
     try { await db.exec(MIG(f).replace(/-- เปิด Realtime[\s\S]*?end \$\$;/g, '')); ok('รัน ' + f, true); } catch (e) { ok('รัน ' + f, false, e.message); throw e; }
   }
-  try { await db.exec(MIG('20261012002000_event_chain.sql')); await db.exec(MIG('20261012002100_event_chain_data.sql')); ok('รันซ้ำได้ (idempotent)', true); } catch (e) { ok('รันซ้ำได้', false, e.message); }
+  try { await db.exec(MIG('20261012002000_event_chain.sql')); await db.exec(MIG('20261012002100_event_chain_data.sql')); await db.exec(MIG('20261015000000_sv_tuning.sql')); ok('รันซ้ำได้ (idempotent)', true); } catch (e) { ok('รันซ้ำได้', false, e.message); }
   await db.exec(`insert into auth.users values ('${U1}'), ('${U2}');`);
   const ch = (name, o) => ({ v: 2, active: 0, chars: [Object.assign({ name, job: 'einherjar', baseLv: 20, jobLv: 10, baseExp: 0, jobExp: 0, statPoints: 0, skillPoints: 0, zeny: 1000,
     stats: { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 }, inventory: [], equip: {}, storage: [] }, o || {})] });
@@ -168,6 +169,33 @@ const mk = (head, list, t0) => { let h = head.head, s = head.seq, t = t0; const 
   const logRows = (await q(`select count(*)::int n from public.event_log where user_id = $1`, [U2])).rows[0].n;
   ok('เก็บรายการดิบเป็นชุด (1 แถว/ชุด)', logRows === 60, String(logRows));
   ok('chain_trim เก็บกวาดได้', (await q(`select public.chain_trim(0) as n`)).rows[0].n >= 60 && (await q(`select count(*)::int n from public.event_anchors where user_id = $1`, [U2])).rows[0].n === 1);
+
+  // ---------- รอบ 41: ธงผิดตัวจากข้อมูลจริง (ผู้เล่นที่ 3 · หมุดเพิ่งออก = elapsed ~0) ----------
+  await q(`update public.save_verify_config set mode = 'log'`); await q(`delete from public.cheat_flags`);
+  await q(`insert into auth.users values ($1)`, [U3]);
+  await q(`insert into public.characters (user_id, name, data) values ($1, 'Cara', $2)`, [U3, JSON.stringify(ch('Cara', { baseLv: 60 }))]);
+  let a3 = await rpc(U3, `select public.chain_head('Cara') as r`).then(x => x.r);
+  const sub3 = (anc, list) => submit(U3, anc, mk(anc, list, Date.now() - 500), 'Cara');
+  // ฆ่าหมู่ (AoE) 26 ตัวเวลาเดียวกัน ทันทีหลังหมุดออก — ข้อมูลจริง {"map":"roots","mob":"root_gnawer","span":0,"kills":26}
+  r = await sub3(a3, Array.from({ length: 26 }, () => ['kill', K('root_gnawer', 'roots', 60, 0, 0), 1]));
+  ok('AoE 26 root_gnawer ใน 0 วิ ทันทีหลังหมุด → รับ + ไม่มีธง kill_rate', r.r && r.r.status === 'ok' && !(await flags(U3)).includes('kill_rate'), `${JSON.stringify(r.r || r.err).slice(0, 80)} flags=${(await flags(U3)).join()}`);
+  a3 = r.r.anchor;
+  // Elite หายากที่เกิดนอกตาราง spawns — ข้อมูลจริง {"map":"wolfwood","mob":"elite_alpha"}
+  r = await sub3(a3, [['kill', K('elite_alpha', 'wolfwood', 60, 0, 0)]]);
+  ok('ฆ่า Elite (elite_alpha ที่ wolfwood) → รับ + ไม่มีธง kill_map', r.r && r.r.status === 'ok' && !(await flags(U3)).includes('kill_map'), `${JSON.stringify(r.r || r.err).slice(0, 80)} flags=${(await flags(U3)).join()}`);
+  a3 = r.r.anchor;
+  ok('ตาราง sv_map_mobs มี Elite 3 แผนที่ + ลูกสมุนบอส', (await q(`select count(*) filter (where mob like 'elite_%')::int e, count(*) filter (where mob like 'mn_%')::int m from public.sv_map_mobs`)).rows[0].e === 3
+    && (await q(`select count(*)::int n from public.sv_map_mobs where mob like 'mn_%'`)).rows[0].n >= 12);
+  // โกงจริงยังติด (enforce = ปฏิเสธ ไม่ได้รางวัล)
+  await q(`update public.save_verify_config set mode = 'enforce'`);
+  const z3 = (await C(U3)).zeny;
+  r = await sub3(a3, Array.from({ length: 200 }, () => ['kill', K('root_gnawer', 'roots', 60, 0, 0), 1]));
+  ok('อ้าง 200 ตัวใน 0 วิ (enforce) → ยังปฏิเสธ kill_rate ไม่ได้รางวัล', r.r && r.r.status === 'rejected' && r.r.rule === 'kill_rate' && (await C(U3)).zeny === z3, JSON.stringify(r.r || r.err).slice(0, 100));
+  r = await sub3(a3, Array.from({ length: 8 }, () => ['kill', K('elite_alpha', 'wolfwood', 60, 0, 0), 1]));
+  ok('อ้างฆ่า Elite 8 ตัวใน 0 วิ (มีครั้งละ 1 ตัว) → ปฏิเสธ kill_rate', r.r && r.r.status === 'rejected' && r.r.rule === 'kill_rate', JSON.stringify(r.r || r.err).slice(0, 100));
+  r = await sub3(a3, [['kill', K('elite_alpha', 'roots', 60, 0, 0)]]);
+  ok('Elite ผิดแผนที่ (elite_alpha ที่ roots) → ปฏิเสธ kill_map', r.r && r.r.status === 'rejected' && r.r.rule === 'kill_map', JSON.stringify(r.r || r.err).slice(0, 100));
+  await q(`update public.save_verify_config set mode = 'log'`);
   await q(`update public.save_verify_config set chain = false`);
   r = await rpc(U2, `select public.chain_head('Bryn') as r`);
   ok('ปิดระบบ (chain=false) → chain_off', /chain_off/.test(r.err || ''), r.err);

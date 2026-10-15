@@ -178,7 +178,7 @@ const Loadouts = {
       if (!canEquip(it, false)) { failed.push({ slot, id: t.id }); continue; }
       equipItem(at.e, true);
       // เครื่องประดับ: equipSlotFor ใส่ช่องว่างแรก → ถ้าชุดเก็บไว้ช่อง 2 แต่ช่อง 1 ว่าง ให้ย้ายกลับช่องเดิม
-      if (slot === 'acc2' && p.equip.acc === at.e && !p.equip.acc2) { p.equip.acc2 = at.e; p.equip.acc = null; }
+      if (slot === 'acc2' && p.equip.acc === at.e && !p.equip.acc2) { p.equip.acc = null; p.equip.acc2 = at.e; } // ว่างช่องเดิมก่อน (ไม่ให้ชิ้นเดียวอยู่ 2 ช่องแม้ชั่วขณะ — สายสะดุดใน js/guard.js)
       if (p.equip[slot] !== at.e) failed.push({ slot, id: t.id });
     }
     return { missing, failed };

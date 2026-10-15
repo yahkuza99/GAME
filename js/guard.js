@@ -29,8 +29,8 @@
   // ---------------- ธง ----------------
   const CAP = 40, flags = [], seen = new N.Map(), forSave = [], forRpc = [];
   let repairs = 0, lastRepairMsg = 0;
-  function flag(rule, detail, conf) {
-    detail = String(detail || '').slice(0, 140);
+  function flag(rule, detail, conf, max) {
+    detail = String(detail || '').slice(0, max || 140);
     const key = rule + '|' + detail, now = Date.now(), old = seen.get(key);
     if (old) { old.n++; if (now - old.t < 60000) return; old.t = now; }
     const f = { rule, detail, confidence: conf || 'high', t: now, n: 1 };
@@ -85,6 +85,39 @@
     try { s = new E().stack; } catch (e) { s = ''; }
     try { E.stackTraceLimit = lim; if (pst !== undefined) E.prepareStackTrace = pst; } catch (e) { /* */ }
     return typeof s === 'string' && s ? s.split('\n') : null;
+  }
+  // ---------------- สายสะดุด: อุปกรณ์ที่ uid มีอยู่แล้วถูกใส่ซ้ำ (กระเป๋า/คลัง/ช่องสวม) — จดที่มา (stack 6 บรรทัด) ไปกับเซฟถัดไป ----------------
+  //  ธงอย่างเดียว ไม่ห้าม ไม่คืนค่า (ซ่อมเป็นงานของ SaveVerify.fixDups) • ใช้หาต้นทางของ dup_uid ที่เซิร์ฟเวอร์เห็น
+  function tripStack() {
+    const L = stackLines() || [];
+    const out = [];
+    for (let k = 0; k < L.length && out.length < 6; k++) {
+      const line = L[k].trim();
+      if (k === 0 && !/@|^at /.test(line)) continue; // หัวข้อ "Error"
+      if (SELF && line.includes(SELF)) continue;       // เฟรมของตัวเฝ้าเอง
+      out.push(line.replace(/\?v=[0-9a-z]+/i, '').slice(0, 160));
+    }
+    return out;
+  }
+  function tripped(where, e, why) {
+    try {
+      const st = tripStack();
+      if (st.some(l => /previewEquip/.test(l))) return; // ลองสวมชั่วคราวเพื่อเทียบค่า (คืนค่าเดิมทันที)
+      flag('dup_push', `${where} ${e.id}#${e.uid} ${why} | ` + st.join(' | '), 'info', 900);
+    } catch (x) { /* ตัวเฝ้าห้ามทำเกมพัง */ }
+  }
+  // e (มี uid) อยู่ที่อื่นของตัวละครแล้วไหม • skip = ของที่กำลังถูกแทนที่ (splice ช่วงที่ลบ) / ช่องสวมที่กำลังเขียน
+  function holder(e, skipArr, skipSet, skipSlot) {
+    const p = G.player;
+    if (!p || !e || typeof e !== 'object' || e.uid == null) return null;
+    const u = +e.uid, same = x => x && typeof x === 'object' && x.uid != null && +x.uid === u;
+    const eq = p.equip;
+    if (eq && typeof eq === 'object') for (const s of SLOTS) if (s !== skipSlot && same(eq[s])) return eq[s] === e ? 'same-object@' + s : 'uid@' + s;
+    for (const [nm, arr] of [['inventory', p.inventory], ['storage', p.storage]]) {
+      if (!Array.isArray(arr)) continue;
+      for (let i = 0; i < arr.length; i++) { const x = arr[i]; if (same(x) && !(arr === skipArr && skipSet && skipSet.has(i))) return (x === e ? 'same-object@' : 'uid@') + nm; }
+    }
+    return null;
   }
   const perf = { checks: 0, checkMs: 0, checkMax: 0, writes: 0, verdicts: 0, verdictMs: 0, ext: 0 };
   // null = โค้ดของเกม • string = รายละเอียดเฟรมที่มาจากนอกเกม
@@ -173,6 +206,7 @@
           if (shouldBlock(vd)) { repaired(); return; }
         }
       }
+      if (spec.trip) spec.trip(v, key);
       put(h, v);
       if (spec.after) spec.after(v);
     };
@@ -205,6 +239,18 @@
     if (!Array.isArray(arr) || HOOKED.has(arr)) return;
     HOOKED.add(arr);
     const mk = (nat, name, minArgs) => function () {
+      if (entries && arguments.length > minArgs && G.player && (this === G.player.inventory || this === G.player.storage)) {
+        try { // สายสะดุด: ใส่อุปกรณ์ที่ uid มีอยู่แล้ว (splice: ของในช่วงที่ถูกลบไม่นับ — เช่น จัดเรียง)
+          let skip = null, from = 0;
+          if (name === 'splice') {
+            const n = this.length, st0 = Math.trunc(+arguments[0]) || 0, st = st0 < 0 ? Math.max(0, n + st0) : Math.min(st0, n);
+            const dc = arguments.length < 2 ? n - st : Math.max(0, Math.min(n - st, Math.trunc(+arguments[1]) || 0));
+            skip = new N.Set(); for (let i = st; i < st + dc; i++) skip.add(i);
+            from = 2;
+          }
+          for (let i = from; i < arguments.length; i++) { const e = arguments[i]; const w = e && typeof e === 'object' && e.uid != null ? holder(e, this, skip, null) : null; if (w) tripped(label + '.' + name, e, w); }
+        } catch (x) { /* */ }
+      }
       if (arguments.length > minArgs) {
         const vd = verdict();
         if (vd) {
@@ -224,7 +270,8 @@
     if (entries) for (const e of arr) installEntry(e);
   }
   const S_STATS = { need: always, rule: 'stats', after: o => { if (o && typeof o === 'object') for (const k of STATS) guardProp(o, k, S_NUM, 'stats.' + k); } };
-  const S_SLOT = { need: always, rule: 'equip', after: installEntry };
+  const S_SLOT = { need: always, rule: 'equip', after: installEntry,
+    trip(v, slot) { const w = v && typeof v === 'object' && v.uid != null ? holder(v, null, null, slot) : null; if (w) tripped('equip.' + slot, v, w); } };
   const S_EQUIP = { need: always, rule: 'equip', after: o => { if (o && typeof o === 'object') for (const k of SLOTS) guardProp(o, k, S_SLOT, 'equip.' + k); } };
   const S_SKILLS = { need: always, rule: 'skills', after: o => { if (o && typeof o === 'object') for (const k of N.keys(o)) guardProp(o, k, S_KEY, 'skill.' + k); } };
   const S_DOBJ = { need: always, rule: 'derived', after: o => { if (o && typeof o === 'object') for (const k of DKEYS) guardProp(o, k, S_D, 'd.' + k); } };
@@ -476,6 +523,9 @@
     C() { const g = ++genC; const f = () => { if (g !== genC) return; tick('C'); N.setTimeout(f, 2400 + N.random() * 1200); }; N.setTimeout(f, 2600); },
   };
   START.A(); START.B(); START.C();
+
+  // ช่องจดธงจากโมดูลอื่นของเกม (รับเฉพาะชื่อในรายการ — เช่น SaveVerify.fixDups ซ่อมอุปกรณ์ uid ซ้ำ) → ไปกับเซฟถัดไป
+  N.defProp(window, '__ivgNote', { value: function (rule, detail) { if (rule === 'dup_repaired') flag(rule, detail, 'info', 600); }, enumerable: false, configurable: false, writable: false });
 
   // ---------------- สำหรับเทสต์อัตโนมัติเท่านั้น (navigator.webdriver) ----------------
   if (WD) {

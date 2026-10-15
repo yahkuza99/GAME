@@ -35,13 +35,16 @@ const acct = (...c) => ({ v: 2, active: 0, chars: c });
     grant usage on schema public to authenticated, anon;
     alter default privileges in schema public grant all on tables to anon, authenticated; -- ค่าเริ่มต้นของ Supabase (RLS คุม)
   `);
-  for (const f of ['20261001000000_online_init.sql', '20261001120000_multi_char_names.sql', '20261011000000_single_session.sql', '20261012000000_save_verify.sql', '20261012000100_save_verify_data.sql']) {
+  // ตัวตรวจเซฟฉบับล่าสุด = ทุกระยะ + จูนรอบ 41 (20261015000000_sv_tuning.sql แทน save_verify_eval) — สำเนา JS (save_verify_rules.js) ตรงกับฉบับนี้
+  const ALL = ['20261001000000_online_init.sql', '20261001120000_multi_char_names.sql', '20261011000000_single_session.sql', '20261012000000_save_verify.sql', '20261012000100_save_verify_data.sql',
+    '20261012001000_economy.sql', '20261012001100_economy_data.sql', '20261012002000_event_chain.sql', '20261012002100_event_chain_data.sql', '20261015000000_sv_tuning.sql'];
+  for (const f of ALL) {
     let sql = MIG(f);
     sql = sql.replace(/-- เปิด Realtime[\s\S]*?end \$\$;/g, ''); // PGlite ไม่มี publication ของ Realtime
     try { await db.exec(sql); ok('รัน ' + f, true); } catch (e) { ok('รัน ' + f, false, e.message); throw e; }
   }
   // รันซ้ำได้ (idempotent)
-  try { await db.exec(MIG('20261012000000_save_verify.sql')); await db.exec(MIG('20261012000100_save_verify_data.sql')); ok('รันซ้ำได้ (idempotent)', true); } catch (e) { ok('รันซ้ำได้', false, e.message); }
+  try { await db.exec(MIG('20261012000000_save_verify.sql')); await db.exec(MIG('20261012000100_save_verify_data.sql')); for (const f of ALL.slice(5)) await db.exec(MIG(f)); ok('รันซ้ำได้ (idempotent)', true); } catch (e) { ok('รันซ้ำได้', false, e.message); }
   await db.exec(`insert into auth.users values ('${U1}'), ('${U2}'), ('${U3}');`);
 
   const asUser = async (u, fn) => {
@@ -67,7 +70,8 @@ const acct = (...c) => ({ v: 2, active: 0, chars: c });
   const jsEval = async (u, oldData, newData, dtSec) => {
     const st = (await q(`select extract(epoch from at) * 1000 as at, wb::float8 as wb, held::float8 as held, chars from public.save_verify_state where user_id = $1`, [u])).rows[0];
     const state = st ? { at: Date.now() - dtSec * 1000, wb: st.wb, held: st.held, chars: st.chars } : null;
-    return R.evaluate({ oldData, newData, oldAt: Date.now() - dtSec * 1000, now: Date.now(), state, rows: [], cfg: await cfg(), items: DATA.items, jobs: DATA.jobs });
+    const anchorLv = Object.fromEntries((await q(`select distinct on (char_key) char_key, lv from public.event_anchors where user_id = $1 order by char_key, id desc`, [u])).rows.map(r => [r.char_key, r.lv]));
+    return R.evaluate({ oldData, newData, oldAt: Date.now() - dtSec * 1000, now: Date.now(), state, rows: [], cfg: await cfg(), items: DATA.items, jobs: DATA.jobs, anchorLv });
   };
   const same = (a, b) => JSON.stringify([...new Set(a)].sort()) === JSON.stringify([...new Set(b)].sort());
 
@@ -106,6 +110,62 @@ const acct = (...c) => ({ v: 2, active: 0, chars: c });
     const err = await save(U2, d);
     const got = await flagsOf(U2);
     ok(`โกง: ${name} → ${want.join('+')}`, err === null && same(got, want) && same(j.flags.map(f => f.rule), want), `sql=${got.join()} js=${j.flags.map(f => f.rule).join()}`);
+  }
+
+
+  // ---------- 2b) รอบ 41: ธงผิดตัวจากข้อมูลจริง (เล่นสุจริต = ไม่มีธง · โกงจริง = ยังติด) — เทียบสำเนา JS ทุกเซฟ ----------
+  {
+  const reset = async u => { await clear(); await q(`delete from public.save_verify_state where user_id = $1`, [u]); await q(`delete from public.characters where user_id = $1`, [u]); await q(`delete from public.event_anchors where user_id = $1`, [u]); };
+  const adminRow = (u, d) => q(`insert into public.characters (user_id, name, data) values ($1, $2, $3)`, [u, d.chars[0].name, JSON.stringify(d)]); // ตั้งต้นแบบผู้ดูแล (trigger ไม่ตรวจ)
+  const step = async (u, prevData, d, sec = 20) => { await ago(u, sec); const j = await jsEval(u, prevData, d, sec); const err = await save(u, d); return { err, js: j.flags.map(f => f.rule) }; };
+  const count = async (u, rule) => (await flagsOf(u)).filter(r => r === rule).length;
+  const knife = (uid, refine = 0) => ({ id: 'knife', qty: 1, uid, refine, cards: [] });
+  // 1) dup_uid: uid เดิมที่ยังไม่แก้ = ธงครั้งเดียว (เดิม: ทุก 10 นาทีตลอดไป — RT ×266)
+  await reset(U2);
+  const d0 = acct(ch({ name: 'Bryn' })); await save(U2, d0);
+  const d1 = acct(ch({ name: 'Bryn', inventory: [knife(3), knife(3)] })), r1 = await step(U2, d0, d1);
+  ok('dup_uid: เจอครั้งแรก = ธง (SQL = JS)', r1.err === null && (await count(U2, 'dup_uid')) === 1 && r1.js.includes('dup_uid'), `${(await flagsOf(U2)).join()} js=${r1.js}`);
+  await q(`update public.cheat_flags set at = at - interval '11 minutes' where user_id = $1`, [U2]); // พ้นหน้าต่าง 10 นาทีของตัวกันจดซ้ำเดิม
+  const d2 = acct(ch({ name: 'Bryn', zeny: 499, inventory: [knife(3), knife(3)] })), r2 = await step(U2, d1, d2);
+  ok('dup_uid: uid เดิมยังซ้ำอยู่ (เกิน 10 นาที) = ไม่จดซ้ำ (SQL = JS)', r2.err === null && (await count(U2, 'dup_uid')) === 1 && !r2.js.includes('dup_uid'), `${(await flagsOf(U2)).join()} js=${r2.js}`);
+  await q(`update public.cheat_flags set at = at - interval '11 minutes' where user_id = $1`, [U2]);
+  const d3 = acct(ch({ name: 'Bryn', zeny: 498, inventory: [knife(3), knife(9), knife(9)] })), r3 = await step(U2, d2, d3);
+  ok('dup_uid: uid อื่นซ้ำ = ธงใหม่ (SQL = JS)', (await count(U2, 'dup_uid')) === 2 && r3.js.includes('dup_uid'), `${(await flagsOf(U2)).join()} js=${r3.js}`);
+  const d4 = acct(ch({ name: 'Bryn', zeny: 497, inventory: [knife(3), knife(9)] })), r4 = await step(U2, d3, d4);
+  await q(`update public.cheat_flags set at = at - interval '11 minutes' where user_id = $1`, [U2]);
+  const d5 = acct(ch({ name: 'Bryn', zeny: 496, inventory: [knife(3), knife(9), knife(9)] })), r5 = await step(U2, d4, d5);
+  ok('dup_uid: แก้แล้ว (เซฟสะอาด) แล้วกลับมาซ้ำอีก = ธงอีกครั้ง (SQL = JS)', r4.js.length === 0 && (await count(U2, 'dup_uid')) === 3 && r5.js.includes('dup_uid'), `${(await flagsOf(U2)).join()} js=${r4.js}/${r5.js}`);
+
+  // 2) stat_points: เซฟที่มาช้า (เลเวลเก่า แต่ Stat/แต้มตามเลเวลใหม่) ไม่ติดธง · แต้มเกินเลเวลสูงสุดที่เคยมี = ยังติด
+  await reset(U2);
+  const T50 = R.statTotal(50), T52 = R.statTotal(52), T55 = R.statTotal(55);
+  const lvd = (n, pts, o) => acct(ch(Object.assign({ name: 'Bryn', baseLv: n, statPoints: pts }, o || {})));
+  const s0 = lvd(50, T50); await adminRow(U2, s0);
+  const s1 = lvd(48, T50), x1 = await step(U2, s0, s1);
+  ok('stat_points: เซฟมาช้า Lv 48 แต่แต้มของ Lv 50 (เซฟเดิม Lv 50) = ไม่มีธง (SQL = JS)', x1.err === null && (await flagsOf(U2)).length === 0 && x1.js.length === 0, `${(await flagsOf(U2)).join()} js=${x1.js}`);
+  const s2 = lvd(48, T50, { zeny: 499 }), x2 = await step(U2, s1, s2);
+  const ml = (await q(`select chars from public.save_verify_state where user_id = $1`, [U2])).rows[0].chars.bryn.ml;
+  ok('stat_points: เซฟมาช้าติดกัน 2 ครั้ง (เซฟเดิมก็ Lv 48) — จำเลเวลสูงสุด ml = 50 → ไม่มีธง (SQL = JS)', (await flagsOf(U2)).length === 0 && x2.js.length === 0 && ml === 50, `ml=${ml} ${(await flagsOf(U2)).join()} js=${x2.js}`);
+  const s3 = lvd(50, T50 + 30), x3 = await step(U2, s2, s3);
+  ok('stat_points: แต้มเกิน Lv สูงสุดที่เคยมี (+30) = ยังติดธง (SQL = JS)', (await flagsOf(U2)).includes('stat_points') && x3.js.includes('stat_points'), `${(await flagsOf(U2)).join()} js=${x3.js}`);
+  await clear();
+  await q(`insert into public.event_anchors (user_id, char_key, seq, head, mac, lv) values ($1, 'bryn', 0, 'h', 'm', 52)`, [U2]); // โซ่อ้าง Lv 52 (เซฟยังไม่ถึง)
+  const s4 = lvd(50, T52), x4 = await step(U2, s3, s4);
+  ok('stat_points: แต้มของ Lv 52 ที่โซ่อ้างแล้ว (เซฟ Lv 50) = ไม่มีธง (SQL = JS)', !(await flagsOf(U2)).includes('stat_points') && !x4.js.includes('stat_points'), `${(await flagsOf(U2)).join()} js=${x4.js}`);
+  await q(`update public.event_anchors set lv = 70 where user_id = $1`, [U2]);
+  const s5 = lvd(50, T55, { zeny: 499 }), x5 = await step(U2, s4, s5);
+  ok('stat_points: โซ่อ้าง Lv 70 นับได้ไม่เกิน +3 ขั้น → แต้มของ Lv 55 ตอน Lv 50 = ยังติดธง (SQL = JS)', (await flagsOf(U2)).includes('stat_points') && x5.js.includes('stat_points'), `${(await flagsOf(U2)).join()} js=${x5.js}`);
+
+  // 3) EXP/เลเวล: เซฟมาช้าแล้วเซฟถัดไปกลับมาที่เดิม ไม่นับซ้ำ (ถังเล็กจนการนับซ้ำต้องติดธง)
+  await reset(U2);
+  await q(`update public.save_verify_config set params = '{"kps": 0.0001, "boss_exp": 100, "need_frac": 0, "lv_cap": 1, "lv_per_min": 0.001}'::jsonb`);
+  const e0 = lvd(30, R.statTotal(30), { baseExp: 0 }); await adminRow(U2, e0);
+  const e1 = lvd(28, R.statTotal(30), { baseExp: 0 }), y1 = await step(U2, e0, e1);
+  const e2 = lvd(30, R.statTotal(30), { baseExp: 100 }), y2 = await step(U2, e1, e2);
+  ok('EXP/เลเวล: Lv 30 → (เซฟมาช้า Lv 28) → Lv 30 +100 EXP = ไม่มีธง exp_rate/level_rate (SQL = JS)', (await flagsOf(U2)).length === 0 && y1.js.length === 0 && y2.js.length === 0, `${(await flagsOf(U2)).join()} js=${y1.js}/${y2.js}`);
+  const e3 = lvd(33, R.statTotal(33), { baseExp: 0 }), y3 = await step(U2, e2, e3);
+  ok('EXP/เลเวล: กระโดดเกินที่ถังให้จริง = ยังติด exp_rate + level_rate (SQL = JS)', same(await flagsOf(U2), ['exp_rate', 'level_rate']) && same(y3.js, ['exp_rate', 'level_rate']), `${(await flagsOf(U2)).join()} js=${y3.js}`);
+  await q(`update public.save_verify_config set params = '{}'::jsonb`);
   }
 
   // ---------- 3) enforce: ปฏิเสธ + ไม่เปลี่ยนเซฟ/ถัง ----------
@@ -201,8 +261,10 @@ const acct = (...c) => ({ v: 2, active: 0, chars: c });
     for (const f of ['20261012000100_save_verify_data.sql', '20261012001100_economy_data.sql', '20261012002100_event_chain_data.sql']) await db2.exec(MIG(f));
     const r = await db2.query(`select (select count(*)::int from public.save_verify_items) as items, (select mode from public.save_verify_config) as mode,
       (select count(*)::int from pg_trigger where tgname in ('characters_verify_save', 'characters_econ_merge')) as trg,
-      (select count(*)::int from pg_proc where proname in ('submit_events', 'econ_market_buy', 'chain_head')) as fns`);
-    ok('schema.sql + data: ตาราง/trigger/โหมด log ครบ', r.rows[0].items === Object.keys(DATA.items).length && r.rows[0].mode === 'log' && r.rows[0].trg === 2 && r.rows[0].fns === 3, JSON.stringify(r.rows[0]));
+      (select count(*)::int from pg_proc where proname in ('submit_events', 'econ_market_buy', 'chain_head')) as fns,
+      (select bool_and(prosrc like '%anchor_lv_slack%' or prosrc like '%kill_burst_s%') from pg_proc where proname in ('save_verify_eval', 'submit_events')) as tuned,
+      (select count(*)::int from public.sv_map_mobs where mob like 'elite_%') as elites`);
+    ok('schema.sql + data: ตาราง/trigger/โหมด log ครบ + ฉบับจูนรอบ 41 + Elite ในตารางแผนที่', r.rows[0].items === Object.keys(DATA.items).length && r.rows[0].mode === 'log' && r.rows[0].trg === 2 && r.rows[0].fns === 3 && r.rows[0].tuned === true && r.rows[0].elites === 3, JSON.stringify(r.rows[0]));
   } catch (e) { ok('schema.sql + data รันได้', false, e.message); }
 
   console.log(`\n${pass} ผ่าน / ${fail} ไม่ผ่าน`);

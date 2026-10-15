@@ -56,6 +56,7 @@ function initRuntime(p) {
 
 function saveData() {
   const p = G.player, data = {};
+  if (typeof SaveVerify !== 'undefined' && SaveVerify.fixDups) SaveVerify.fixDups(p, 'save'); // อุปกรณ์ uid ซ้ำ = ซ่อมก่อนส่ง (js/save_verify.js)
   for (const k of SAVE_FIELDS) data[k] = p[k];
   data.uidSeq = G.uid;
   data.savedAt = Date.now();
@@ -195,6 +196,7 @@ function loadGameFrom(data) {
   if (!p.options.musicSet) p.options.music = false;
   p.look = Object.assign({ head: p.gender === 'f' ? 'long' : 'spiky', color: '#e6e9ef', glow: '#7ad8ff', visor: 'band' }, p.look && typeof p.look === 'object' ? p.look : {});
   G.uid = Math.max(G.uid, data.uidSeq || 1);
+  if (typeof SaveVerify !== 'undefined' && SaveVerify.fixDups) SaveVerify.fixDups(p, 'load'); // เซฟที่มีอุปกรณ์ uid ซ้ำอยู่แล้ว (js/save_verify.js)
   initRuntime(p);
   recalc();
   return p;
@@ -432,6 +434,9 @@ function canEquip(it, verbose) {
 function equipItem(entry, silent) {
   const p = G.player;
   if (!entry) return;
+  // สวมได้เฉพาะของที่อยู่ในกระเป๋า — แตะ/คลิกซ้ำที่แถวเดิมก่อนหน้าต่างวาดใหม่ (มือถือ: หน้าต่างรอ 800 ms หลังแตะ — UI.scrollBusy)
+  // เดิมสวมชิ้นที่สวมอยู่แล้วลงช่องแหวนที่ 2 ซ้ำ → อ็อบเจกต์เดียวอยู่ 2 ช่อง → ถอดช่องหนึ่ง = ของงอกในกระเป๋า uid ซ้ำ (dup_uid ของ RT 12/10/2026)
+  if (p.inventory.indexOf(entry) < 0) return;
   const it = ITEMS[entry.id];
   if (!isEquipType(it) || !canEquip(it, !silent)) return;
   if (it.wtype === 'bow' && p.equip.shield) unequip('shield', true);
@@ -469,7 +474,7 @@ function unequip(slot, silent) {
   const p = G.player, e = p.equip[slot];
   if (!e) return;
   p.equip[slot] = null;
-  p.inventory.push(e);
+  if (!p.inventory.includes(e) && !EQUIP_SLOTS.some(s => p.equip[s] === e)) p.inventory.push(e); // ชิ้นเดียวกันยังอยู่อีกช่อง/อยู่ในกระเป๋าแล้ว = ไม่เพิ่มซ้ำ
   recalc();
   if (!silent) UI.msg(L(`ถอด ${itemDisplayName(e)}`, `Unequipped ${itemDisplayName(e)}`), 'sys');
 }
