@@ -156,7 +156,7 @@
   MAP_DEFS.abyss = {
     name: "Nidhogg's Hollow", thai: L('โพรงของนิดฮ็อกก์ ใต้ประตูราก', 'The Hollow of Nidhogg, beneath the root gate'), w: 84, h: 80, kind: 'cave', seed: 818, dark: true,
     links: {}, level: '58-70 (MVP: Nidhogg)',
-    spawns: [['rust_bloom', 26], ['hollow_shell', 14], ['nid_spawn', 14], ['rootbound_guard', 17], ['rot_colossus', 16]], // รอบ 44: 59→87 (hollow_shell/nid_spawn ตีก่อน +27%) mvp: 'nidhogg',
+    spawns: [['rust_bloom', 26], ['hollow_shell', 14], ['nid_spawn', 14], ['rootbound_guard', 17], ['rot_colossus', 16]], mvp: 'nidhogg', // รอบ 44: 59→87 (hollow_shell/nid_spawn ตีก่อน +27%)
     mvpAt: [56.5, 72.5], // รังของ Nidhogg: ลานกว้างทางใต้สุด (ไกลจากทางลง) • ใช้กับ Ancient Nidhogg ด้วย
     npcs: [{ id: 'loki', name: 'Loki', x: 46, y: 7, look: 'loki' }], // หน้ากาก Lopt ที่ถอดแล้ว — รอที่ปากทางลง
   };

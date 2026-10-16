@@ -36,7 +36,7 @@ const MAP_DEFS = {
   mistlake: {
     name: 'Mistlake Plains', thai: L('ที่ราบทะเลสาบหมอก', 'Plains of the Misty Lake'), w: 96, h: 80, kind: 'field', seed: 303, // ที่ราบปลายทางตะวันออก (+9% พื้นที่ มอน +9%)
     links: { W: 'meadow' }, level: '8-16 (MVP: Seraph Core)',
-    spawns: [['fiddlehopper', 33], ['stumpling', 28], ['capshroom', 28], ['moss_pudding', 28]], // รอบ 44: 101→117 mvp: 'seraph_pudding',
+    spawns: [['fiddlehopper', 33], ['stumpling', 28], ['capshroom', 28], ['moss_pudding', 28]], mvp: 'seraph_pudding', // รอบ 44: 101→117
     npcs: [{ id: 'lopt', name: 'Lopt', x: 6, y: 37, look: 'merchant' }], // พ่อค้าเร่ที่ปากทางจากทุ่ง (หน้ากากของ Loki — docs/STORY.md) เหนือถนนดิน ไม่ทับน้ำ/ซาก 3D (hash ผังน้ำไม่เปลี่ยน)
     grass: '#86b04a', trees: 0.8, ponds: 8, flowers: 0.08, treeHue: '#5f9a3a', flora: 'lake', ground: 'lake',
   },
@@ -60,7 +60,7 @@ const MAP_DEFS = {
     name: "Hel's Hollow", thai: L('โพรงถ้ำแห่งเฮล', 'Cavern of Hel'), w: 75, h: 75, kind: 'cave', seed: 505, dark: true,
     links: { N: 'wolfwood' }, level: '17-45 (MVP: Kitsura EX)',
     npcs: [{ id: 'hel', name: 'Hel', x: 37, y: 40, look: 'hel' }], // ราชินีแห่งโพรง (บทที่ 5) นั่งกลางชั้นวางประกาย
-    spawns: [['draugr', 23], ['bone_warden', 18], ['hel_maiden', 24], ['hel_guard', 14]], // รอบ 44: 56→79 (ตัวตีก่อน +28% • hel_maiden ไม่ตีก่อน เพิ่มมากกว่า) mvp: 'kitsura',
+    spawns: [['draugr', 23], ['bone_warden', 18], ['hel_maiden', 24], ['hel_guard', 14]], mvp: 'kitsura', // รอบ 44: 56→79 (ตัวตีก่อน +28% • hel_maiden ไม่ตีก่อน เพิ่มมากกว่า)
   },
 };
 const HOME_MAP = 'eldheim';

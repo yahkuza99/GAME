@@ -1,5 +1,16 @@
 # CHANGELOG — NEO MIDGARD
 
+## 2026-10-16 (รอบ 44) — เพิ่มความหนาแน่นมอนบนแมพสนาม (เจ้าของรู้สึกว่ามอนน้อย)
+
+- **ที่มา**: เจ้าของบอกแมพมีมอนน้อย • วัดจริงต่อช่องเดินได้ (`GameMap.walkable`): meadow 1.66 · mistlake 1.50 · wolfwood 1.49 · helcave 1.60 · archive 1.78 · roots 1.33 · abyss 1.44 · bough 1.44 · wolfbelly 1.23 ตัว/100 ช่อง — ต่อพื้นที่ทั้งแมพ แมพหลังบางกว่าเกือบครึ่ง (meadow 14.9 vs roots 7.8 ตัว/1000 ช่อง)
+- **เปลี่ยน** จำนวนมอนใน `spawns` (เวลาเกิดใหม่ไม่แตะ): meadow 105→118 · mistlake 101→117 · wolfwood 86→101 · helcave 56→79 · archive 69→98 · roots 56→81 · abyss 59→87 · bough 59→87 · wolfbelly 59→89 → ตัว/100 ช่องเดินได้ 1.87 / 1.73 / 1.75 / 2.26 / 2.53 / 1.92 / 2.12 / 2.13 / 1.85 • มอนตีก่อน (`aggro: true`) เพิ่มไม่เกิน +30% (buzzfly +23% · tuskboar +21% · helcave +28% · archive +25% · roots +27% · abyss/bough/wolfbelly +27–30%) • สัดส่วนต่อชนิดใกล้เดิม ยกเว้นตัวไม่ตีก่อนในแมพที่ตีก่อนเยอะ (hel_maiden 13→24) ที่เพิ่มมากกว่า
+- **เพิ่ม** `tests/balance_sim.js`: `OLDSPAWNS=1` ใช้จำนวนมอนก่อนรอบ 44 (เทียบก่อน-หลัง) • ใช้ `CHROME=` ได้บน Windows
+- **รัน** `tools/stamp.sh` + `tools/gen_item_ids.js` ใหม่ → `20261012002100_event_chain_data.sql` · `tests/save_verify_data.json` (จำนวนมอนต่อแมพที่กฎ kill_rate ใช้) — ยังไม่ apply บน Supabase จริง
+- **วัด** (บอทฟาร์ม `CURVE=1 ONLY=farm FARM=900` 3 Class einherjar/wildhunter/berserker เฉลี่ย ก่อน→หลัง): kills/ชม. meadow +19% · mistlake +12% · wolfwood +17% · helcave +10% · archive +23% · roots +19% · abyss +32% · bough −24% · wolfbelly −14% • EXP/ชม. +22% / +9% / −2% / +7% / 0% / +5% / +18% / −17% / −7% (ไม่เกิน +25% ทุกแมพ จึงไม่ต้องลดจำนวน) • bough/wolfbelly ลดลง: สาเหตุที่น่าจะเป็นคือบอท Lv 80/92 โดนมอนตีก่อนรุมแล้วต้องพัก (ยังไม่พิสูจน์ ตัวเลขแกว่งระหว่างรอบ) • อุปกรณ์/ชม. จากตารางดรอป (600 kill/ชม.) แทบไม่ขยับ เพราะสัดส่วนชนิดเกือบเท่าเดิม (ดู docs/DROP_AUDIT.md) — จริงขยับตามอัตราฆ่า
+- **วัดความลื่น** (`tests/perf.js`, headless, เทียบกันเอง): PC 1280x720 และมือถือ 390x844 dpr 3 (cpu ช้า 4 เท่า) meadow/archive ก่อน-หลังต่างกันในระดับสัญญาณรบกวน เพราะวาดเฉพาะมอนในจอ • `tests/battery.js` ผ่าน
+- **พลาดระหว่างทาง**: (0) ใส่คอมเมนต์ท้ายบรรทัด `spawns: [...], mvp: 'x'` ด้วย sed → คอมเมนต์กลืน `mvp:` ทิ้ง 6 แมพ (MVP ไม่เกิด) — `tests/ch8.js` กับ `tests/raid.js` จับได้ (baseline ผ่าน) ย้ายคอมเมนต์ไว้หลัง `mvp` แล้ว gen ข้อมูลใหม่ (1) วัด perf "ก่อน" รอบแรกพลาด (คำสั่งสลับไฟล์ถูกปฏิเสธ จึงวัดโค้ดใหม่ทั้งสองรอบ) → วัดใหม่
+- **พิสูจน์**: smoke · ch8 · droplevel · loot_audit · saveverify · economy · chain · raid · battery · questui · saveverify_sql · economy_sql · chain_sql ผ่านทั้งหมด
+
 ## 2026-10-15 (รอบ 43) — ภาคที่ 2 "กิ่งที่เหลือ": บทที่ 8–9 แมพใหม่ 2 แมพ Lv 71–99 + MVP Hræsvelgr / Fenrir + อุปกรณ์ Lv 71–99 78 ชิ้น
 
 - **ที่มา**: มอนปกติสูงสุด Lv 70 (Nidhogg's Hollow) แต่เลเวลตัน 99 — ตัวละครหลักของเจ้าของ Base Lv 77 ไม่มีที่เก็บเลเวล และไม่มีของดรอป Lv 74–99 (`docs/DROP_AUDIT.md` "ข้อจำกัดที่รู้" รอบ 42) · เรื่องต่อจากตะขอภาค 2 ใน `docs/STORY.md` §5 (ประกายดวงใหม่ทางเหนือ + Fenrir Unit หอนพร้อมกัน — หัวของ Nidhogg ในท้อง Fenrir ยังไม่ดับ)

@@ -132,7 +132,7 @@
   MAP_DEFS.roots = {
     name: 'Gnawed Roots', thai: L('รากที่ถูกแทะ ใต้คลังของเฮล', "Gnawed roots beneath Hel's archive"), w: 100, h: 72, kind: 'cave', seed: 707, dark: true,
     links: {}, level: '45-60 (MVP: Garmr)',
-    spawns: [['root_crawler', 27], ['gnawed_stump', 21], ['gnawed_brute', 19], ['root_gnawer', 14]], // รอบ 44: 56→81 (root_gnawer ตีก่อน +27%) mvp: 'garmr',
+    spawns: [['root_crawler', 27], ['gnawed_stump', 21], ['gnawed_brute', 19], ['root_gnawer', 14]], mvp: 'garmr', // รอบ 44: 56→81 (root_gnawer ตีก่อน +27%)
     // Garmr เกิดหน้าประตูราก (ซุ้มใน js/bake_data_roots.js ฐานที่ ~87.6, 38) — เริ่มในซุ้มแล้วเดินออกมา (BossKit.onSpawn) • ใช้กับ Ancient Garmr ด้วย
     mvpAt: [87.5, 41.5], mvpGate: [87.6, 38.2],
   };
