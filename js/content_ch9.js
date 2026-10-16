@@ -163,7 +163,7 @@
   MAP_DEFS.wolfbelly = {
     name: 'Belly of the Wolf', thai: L('ท้องของหมาป่า — ข้างในร่างของ Fenrir ที่ปลายกิ่งที่ขาด', 'The Belly of the Wolf — inside the body of Fenrir, at the tip of the Severed Bough'), w: 84, h: 92, kind: 'cave', seed: 929, dark: true,
     links: { S: 'bough' }, level: '85-98 (MVP: Fenrir)',
-    spawns: [['bile_unit', 16], ['gleipnir_coil', 11], ['fangborn', 11], ['einherjar_remnant', 11], ['rustfang_wyrm', 10]], mvp: 'fenrir',
+    spawns: [['bile_unit', 26], ['gleipnir_coil', 18], ['fangborn', 14], ['einherjar_remnant', 18], ['rustfang_wyrm', 13]], // รอบ 44: 59→89 (fangborn/rustfang_wyrm ตีก่อน +27-30%) mvp: 'fenrir',
     mvpAt: [70.5, 9.5], // ลานลึกสุดทางเหนือ (ไกลจากปากทางทางใต้) — ที่ซึ่งหัวของ Nidhogg เรืองแสง • ใช้กับ Ancient Fenrir ด้วย
     npcs: [{ id: 'loki_maw', name: 'Loki', x: 46, y: 86, look: 'loki' }], // Loki ตามขึ้นมาก่อน — รอที่ปากทางเข้า
   };

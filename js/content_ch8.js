@@ -221,7 +221,7 @@
   MAP_DEFS.bough = {
     name: 'Severed Bough', thai: L('กิ่งที่ขาด — โพรงในกิ่งหักที่น้ำแข็งกัด ทางเหนือ', 'The Severed Bough — a frozen hollow inside the broken branch, far to the north'), w: 88, h: 84, kind: 'cave', seed: 919, dark: true,
     links: { S: 'mistlake' }, level: '71-84 (MVP: Hræsvelgr)',
-    spawns: [['frostbud', 16], ['rime_moth', 11], ['gjallar_sentinel', 11], ['hrimhusk', 11], ['frostmane', 10]], mvp: 'hraesvelgr',
+    spawns: [['frostbud', 26], ['rime_moth', 14], ['gjallar_sentinel', 17], ['hrimhusk', 17], ['frostmane', 13]], // รอบ 44: 59→87 (rime_moth/frostmane ตีก่อน +27-30%) mvp: 'hraesvelgr',
     mvpAt: [75.5, 7.5], // ปลายกิ่ง: ลานกว้างมุมตะวันออกเฉียงเหนือ (ไกลจากทางขึ้นทางใต้) • ใช้กับ Ancient Hræsvelgr ด้วย
     npcs: [{ id: 'huginn', name: 'Huginn Raven-Courier', x: 47, y: 77, look: 'keeper' }], // กาของ Mimir — รอที่ปากทางขึ้น
     arrive: { bifrost: [44.5, 77.5] },

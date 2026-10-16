@@ -32,7 +32,7 @@ const serve = () => new Promise(res => {
 (async () => {
   const srv = process.env.BASE ? null : await serve();
   const url = process.env.BASE || `http://localhost:${srv.address().port}/index.html`;
-  const b = await chromium.launch({ channel: process.platform === 'win32' ? 'chrome' : undefined, executablePath: fs.existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined });
+  const b = await chromium.launch({ channel: process.platform === 'win32' && !process.env.CHROME ? 'chrome' : undefined, executablePath: process.env.CHROME || (fs.existsSync('/opt/pw-browsers/chromium') ? '/opt/pw-browsers/chromium' : undefined) });
   const p = await b.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.route('https://**/*', r => r.abort());
   await p.goto(url); await p.waitForTimeout(1000);
@@ -120,6 +120,12 @@ async function keystones(p) {
 //  โหมดเส้นเลเวล (CURVE=1)
 // ------------------------------------------------------------
 async function curve(p) {
+  // OLDSPAWNS=1: ใช้จำนวนมอนก่อนรอบ 44 (เทียบ EXP/ชม. ก่อน-หลังเพิ่มความหนาแน่น)
+  if (process.env.OLDSPAWNS) await p.evaluate(() => {
+    const old = { meadow: [36, 20, 20, 16, 13], mistlake: [29, 24, 24, 24], wolfwood: [29, 25, 18, 14], helcave: [18, 14, 13, 11], archive: [18, 13, 14, 13, 11], roots: [18, 14, 13, 11],
+      abyss: [16, 11, 11, 11, 10], bough: [16, 11, 11, 11, 10], wolfbelly: [16, 11, 11, 11, 10] };
+    for (const id in old) MAP_DEFS[id].spawns.forEach((s, i) => { s[1] = old[id][i]; });
+  });
   const C1 = ['einherjar', 'runecaster', 'wildhunter', 'volva', 'trickster', 'berserker'];
   const jobs = process.argv[4] ? process.argv[4].split(',') : process.env.C2 ? C1.concat(['valkyrie', 'hersir', 'galdr', 'seidr', 'skadi', 'ullr', 'norn', 'gythja', 'phantom', 'skald', 'warlord', 'jotun']) : C1;
   const cfg = {

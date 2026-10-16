@@ -127,12 +127,12 @@
   MAP_DEFS.archive = {
     name: 'Archive Depths', thai: L('คลังประกายชั้นล่าง ใต้โพรงแห่งเฮล', "The lower spark archive, beneath Hel's Hollow"), w: 72, h: 92, kind: 'cave', seed: 606, dark: true,
     links: {}, level: '33-45',
-    spawns: [['rust_sap', 18], ['archive_warden', 13], ['rust_mine', 14], ['archive_maiden', 13], ['rust_draugr', 11]],
+    spawns: [['rust_sap', 27], ['archive_warden', 16], ['rust_mine', 21], ['archive_maiden', 20], ['rust_draugr', 14]], // รอบ 44: 69→98 (ตัวตีก่อน warden/draugr +23-27%)
   };
   MAP_DEFS.roots = {
     name: 'Gnawed Roots', thai: L('รากที่ถูกแทะ ใต้คลังของเฮล', "Gnawed roots beneath Hel's archive"), w: 100, h: 72, kind: 'cave', seed: 707, dark: true,
     links: {}, level: '45-60 (MVP: Garmr)',
-    spawns: [['root_crawler', 18], ['gnawed_stump', 14], ['gnawed_brute', 13], ['root_gnawer', 11]], mvp: 'garmr',
+    spawns: [['root_crawler', 27], ['gnawed_stump', 21], ['gnawed_brute', 19], ['root_gnawer', 14]], // รอบ 44: 56→81 (root_gnawer ตีก่อน +27%) mvp: 'garmr',
     // Garmr เกิดหน้าประตูราก (ซุ้มใน js/bake_data_roots.js ฐานที่ ~87.6, 38) — เริ่มในซุ้มแล้วเดินออกมา (BossKit.onSpawn) • ใช้กับ Ancient Garmr ด้วย
     mvpAt: [87.5, 41.5], mvpGate: [87.6, 38.2],
   };

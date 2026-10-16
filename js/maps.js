@@ -30,20 +30,20 @@ const MAP_DEFS = {
   meadow: {
     name: 'Emerald Meadow', thai: L('ทุ่งหญ้ามรกต', 'Emerald Grasslands'), w: 104, h: 68, kind: 'field', seed: 202, // ทุ่งกว้างแนวตะวันออก-ตก (ทางผ่านเมือง → ทะเลสาบ) พื้นที่เท่าเดิม
     links: { W: 'eldheim', E: 'mistlake' }, level: '1-6', gate: { W: 0.78 }, // ประตูเมืองค่อนลงใต้ → ทุ่งอยู่เหนือป่า Wolfwood ไม่ซ้อนกัน
-    spawns: [['pudding', 36], ['leafworm', 20], ['moonbun', 20], ['ember_pudding', 16], ['buzzfly', 13]],
+    spawns: [['pudding', 40], ['leafworm', 22], ['moonbun', 22], ['ember_pudding', 18], ['buzzfly', 16]], // รอบ 44: 105→118 (buzzfly ตีก่อน +23%)
     grass: '#6fae4a', trees: 0.9, ponds: 4, flowers: 0.05, ground: 'meadow',
   },
   mistlake: {
     name: 'Mistlake Plains', thai: L('ที่ราบทะเลสาบหมอก', 'Plains of the Misty Lake'), w: 96, h: 80, kind: 'field', seed: 303, // ที่ราบปลายทางตะวันออก (+9% พื้นที่ มอน +9%)
     links: { W: 'meadow' }, level: '8-16 (MVP: Seraph Core)',
-    spawns: [['fiddlehopper', 29], ['stumpling', 24], ['capshroom', 24], ['moss_pudding', 24]], mvp: 'seraph_pudding',
+    spawns: [['fiddlehopper', 33], ['stumpling', 28], ['capshroom', 28], ['moss_pudding', 28]], // รอบ 44: 101→117 mvp: 'seraph_pudding',
     npcs: [{ id: 'lopt', name: 'Lopt', x: 6, y: 37, look: 'merchant' }], // พ่อค้าเร่ที่ปากทางจากทุ่ง (หน้ากากของ Loki — docs/STORY.md) เหนือถนนดิน ไม่ทับน้ำ/ซาก 3D (hash ผังน้ำไม่เปลี่ยน)
     grass: '#86b04a', trees: 0.8, ponds: 8, flowers: 0.08, treeHue: '#5f9a3a', flora: 'lake', ground: 'lake',
   },
   wolfwood: {
     name: 'Wolfwood Forest', thai: L('ป่าหมาป่า', 'Forest of the Wolves'), w: 68, h: 104, kind: 'field', seed: 404, // ป่ายาวเหนือ-ใต้ (เมือง → ปากถ้ำ) พื้นที่เท่าเดิม
     links: { N: 'eldheim', S: 'helcave' }, level: '18-30',
-    spawns: [['ashtail', 29], ['fenrir_pup', 25], ['mossback', 18], ['tuskboar', 14]], // tuskboar ตีก่อน: เพิ่มน้อย กันโดนรุม
+    spawns: [['ashtail', 34], ['fenrir_pup', 29], ['mossback', 21], ['tuskboar', 17]], // tuskboar ตีก่อน: เพิ่มน้อย กันโดนรุม (รอบ 44: 86→101, tuskboar +21%)
     // บทที่ 4: Sigrún ริมถนนดินช่วงเหนือ • Lopt ปากป่าด้านใต้ (เหนือแถบสันหิน RIDGE_BAKE y0=92) — นอกกรอบต้นหมาป่าเก่า [20,44,39,64]
     // NPC ไม่แก้ชนิดช่อง (แค่ช่องชน) → hash ผังของภาพอบไม่เปลี่ยน
     npcs: [{ id: 'sigrun', name: 'Sigrún', x: 38, y: 22, look: 'guide' }, { id: 'lopt_wood', name: 'Lopt', x: 38, y: 89, look: 'merchant' }],
@@ -60,7 +60,7 @@ const MAP_DEFS = {
     name: "Hel's Hollow", thai: L('โพรงถ้ำแห่งเฮล', 'Cavern of Hel'), w: 75, h: 75, kind: 'cave', seed: 505, dark: true,
     links: { N: 'wolfwood' }, level: '17-45 (MVP: Kitsura EX)',
     npcs: [{ id: 'hel', name: 'Hel', x: 37, y: 40, look: 'hel' }], // ราชินีแห่งโพรง (บทที่ 5) นั่งกลางชั้นวางประกาย
-    spawns: [['draugr', 18], ['bone_warden', 14], ['hel_maiden', 13], ['hel_guard', 11]], mvp: 'kitsura',
+    spawns: [['draugr', 23], ['bone_warden', 18], ['hel_maiden', 24], ['hel_guard', 14]], // รอบ 44: 56→79 (ตัวตีก่อน +28% • hel_maiden ไม่ตีก่อน เพิ่มมากกว่า) mvp: 'kitsura',
   },
 };
 const HOME_MAP = 'eldheim';
