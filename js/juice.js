@@ -409,7 +409,7 @@ const Juice = (() => {
     }
 
     let sx = 1, sy = 1, rot = 0, dx = 0, dy = 0, lift = 0;
-    const motion = d.wings ? 'fly' : (typeof MOB_MOTION !== 'undefined' && MOB_MOTION[d.sprite]) || 'walk';
+    const motion = d.motion || (d.wings ? 'fly' : (typeof MOB_MOTION !== 'undefined' && MOB_MOTION[d.sprite]) || 'walk');
     const heavy = boss ? 1.5 : 1;
     // หายใจ / ลอยตัวตอนยืน
     const ph = clk * (2.3 / heavy) + (m.seed || 0) * 10;

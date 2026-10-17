@@ -175,27 +175,27 @@
   // เส้น EXP ต่อจากบทที่ 7: exp ≈ 3460 × (lv/57)^2.5 (เส้นเดียวกับ js/content_ch6.js / content_ch7.js) • HP ≈ 4000 × (lv/58)^1.9 • ATK ≈ 206 × (lv/58)^1.25
   // HIT +2.3/เลเวล • ตีก่อน 2 จาก 5 ชนิด • เผ่า: พืช 1 • แมลง 1 • เทวดา 1 • อมตะ 1 • สัตว์กลไก 1 (Slayer ทุกเผ่าในร้าน Hunt Rune มีเป้า)
   Object.assign(MOBS, {
-    frostbud: variant('stumpling', { name: 'Frostbud Unit', lv: 72, hp: 6000, atk: [270, 337], def: 30, mdef: 35, vit: 70, flee: 74, hit: 169, exp: 6200, jexp: 4340, speed: 1.1,
+    frostbud: variant('stumpling', { ownArt: true, motion: 'walk', name: 'Frostbud Unit', lv: 72, hp: 6000, atk: [270, 337], def: 30, mdef: 35, vit: 70, flee: 74, hit: 169, exp: 6200, jexp: 4340, speed: 1.1,
       aggro: false, element: 'water', race: 'plant', hue: -150, sat: 0.7, bri: 1.1, tint: ['#a8d8f0', 0.45],
       lore: L('ตาของกิ่งที่ถูกน้ำแข็งกัดก่อนจะทันผลิ สามสิบปีที่มันหันหน้าเข้าหาความอุ่นที่ไม่เคยมาถึง', 'A branch-bud frozen before it could open. For thirty years it has turned toward a warmth that never came.'),
       drops: [['frost_bud', 0.5], ['leaf_silk', 0.3], ['white_potion', 0.04], ['volt_ore', 0.05],
         ['rimeleaf_dirk', 0.0075], ['frostroot_boots', 0.0075], ['rimebark_coat', 0.0075], ['frostbud_wand', 0.0075], ['frostbark_shield', 0.0075], ['rimepetal_mantle', 0.0075]] }),
-    rime_moth: variant('buzzfly', { name: 'Rime Moth Unit', lv: 75, hp: 6200, atk: [284, 355], def: 15, mdef: 30, vit: 66, flee: 104, hit: 176, exp: 6870, jexp: 4810, speed: 2.3,
-      aggro: true, element: 'wind', race: 'insect', scale: 1.45, hue: -170, sat: 0.55, bri: 1.2, tint: ['#d0f0ff', 0.5],
+    rime_moth: variant('buzzfly', { ownArt: true, motion: 'float', name: 'Rime Moth Unit', lv: 75, hp: 6200, atk: [284, 355], def: 15, mdef: 30, vit: 66, flee: 104, hit: 176, exp: 6870, jexp: 4810, speed: 2.3,
+      aggro: true, element: 'wind', race: 'insect', scale: 1.0, hue: -170, sat: 0.55, bri: 1.2, tint: ['#d0f0ff', 0.5],
       lore: L('โดรนผสมเกสรของกิ่งเหนือ ปีกจับน้ำแข็งจนหนัก แต่ยังบินเข้าหาประกายทุกดวงที่อุ่นกว่ามัน', 'Pollinator drones of the northern branch, wings heavy with rime — they still fly at any spark warmer than themselves.'),
       drops: [['rime_wing', 0.45], ['buzz_wing', 0.3], ['white_potion', 0.04], ['rune_alloy', 0.05],
         ['rimehorn_axe', 0.009], ['mothwing_hood', 0.009], ['frostwing_saber', 0.009], ['rimestring_bow', 0.009], ['mothsilk_kris', 0.0025], ['frostdust_charm', 0.0025]] }),
-    gjallar_sentinel: variant('hel_guard', { name: 'Gjallar Sentinel', lv: 78, hp: 7000, atk: [298, 373], def: 45, mdef: 30, vit: 76, flee: 80, hit: 183, exp: 7580, jexp: 5300, speed: 1.5,
+    gjallar_sentinel: variant('hel_guard', { ownArt: true, motion: 'walk', name: 'Gjallar Sentinel', lv: 78, hp: 7000, atk: [298, 373], def: 45, mdef: 30, vit: 76, flee: 80, hit: 183, exp: 7580, jexp: 5300, speed: 1.5,
       aggro: false, stun: [10, 2], element: 'neutral', race: 'angel', hue: 35, sat: 0.6, bri: 1.15, tint: ['#f0e0a0', 0.35],
       lore: L('ยามปลายสะพานสายรุ้งของ Heimdall ถือแตรที่เป่าไม่ออกเสียงมาสามสิบปี ยังรอสัญญาณว่าให้ใครผ่าน', "Sentinels of Heimdall's bridge-end, holding horns that have made no sound in thirty years. They still wait for the signal to let someone pass."),
       drops: [['gjallar_shard', 0.45], ['rune_shard', 0.3], ['white_potion', 0.04], ['volt_ore', 0.05],
         ['gjallar_mace', 0.009], ['sentinel_plate', 0.009], ['sentinel_signet', 0.009], ['horncall_staff', 0.0025], ['bridgewarden_axe', 0.0025], ['heimdall_blade', 0.0025], ['bifrost_bow', 0.0025]] }),
-    hrimhusk: variant('rust_draugr', { name: 'Hrimhusk Unit', lv: 81, hp: 7600, atk: [313, 391], def: 40, mdef: 25, vit: 80, flee: 72, hit: 190, exp: 8330, jexp: 5830, speed: 1.1,
+    hrimhusk: variant('rust_draugr', { ownArt: true, motion: 'walk', name: 'Hrimhusk Unit', lv: 81, hp: 7600, atk: [313, 391], def: 40, mdef: 25, vit: 80, flee: 72, hit: 190, exp: 8330, jexp: 5830, speed: 1.1,
       aggro: false, stun: [12, 2], element: 'undead', race: 'undead', hue: -160, sat: 0.5, bri: 1.1, tint: ['#8ab8d8', 0.45],
       lore: L('ร่างของหน่วยที่ล้มลงนอกรัศมีรากในคืนที่กิ่งหัก ใบไม้มาไม่ถึง ร่างจึงยืนแข็งอยู่ตรงนั้น — ยังเดินยามแทนเจ้าของ', "Frames of units who fell beyond the roots on the night the branches broke. No leaf came; the frames froze where they stood — still walking their owners' rounds."),
       drops: [['rime_frame', 0.45], ['grave_dust', 0.3], ['white_potion', 0.04], ['rune_alloy', 0.05],
         ['husk_fang', 0.0065], ['hrimhusk_mail', 0.0065], ['frozenstep_boots', 0.0065], ['rimeglass_rod', 0.0065], ['frozen_kite', 0.0065], ['hoarfrost_cloak', 0.0065], ['hrim_hammer', 0.003]] }),
-    frostmane: variant('tuskboar', { name: 'Frostmane Unit', lv: 84, hp: 8100, atk: [327, 409], def: 40, mdef: 30, vit: 84, flee: 86, hit: 197, exp: 9120, jexp: 6380, speed: 1.9,
+    frostmane: variant('tuskboar', { ownArt: true, motion: 'walk', name: 'Frostmane Unit', lv: 84, hp: 8100, atk: [327, 409], def: 40, mdef: 30, vit: 84, flee: 86, hit: 197, exp: 9120, jexp: 6380, speed: 1.9,
       aggro: true, element: 'water', race: 'brute', scale: 1.2, hue: -165, sat: 0.6, bri: 1.2, tint: ['#e0f4ff', 0.45],
       lore: L('ม้าเหล็กแผงคอน้ำแข็งที่เคยลากเลื่อนขนน้ำเลี้ยงขึ้นปลายกิ่ง เส้นทางขาดไปแล้ว แต่มันยังวิ่งเต็มฝีเท้าทุกครั้งที่เห็นใคร', "Frost-maned iron horses that once hauled sap-sleds to the bough's tip. The road is long gone, but they still charge full tilt at anyone they see."),
       drops: [['frost_mane', 0.45], ['iron_tusk', 0.3], ['volt_ore', 0.055], // ไม่มียา: เพดาน 12 ดรอป/มอน (tests/loot_audit.js)
@@ -204,7 +204,7 @@
         ['aurora_vestment', 0.0025], ['skyrunner_boots', 0.0025], ['frostmane_band', 0.0025], ['hrae_quill', 0.0015]] }),
 
     // --- MVP: Hræsvelgr (Lv 85) — หน่วยคุมลมที่ปลายกิ่งเหนือ ต้นลม Fimbulwinter ---
-    hraesvelgr: variant('seraph_pudding', { name: 'Hræsvelgr', lv: 85, hp: 100000, atk: [370, 470], def: 50, mdef: 55, vit: 85, flee: 140, hit: 225, exp: 100000, jexp: 70000, speed: 2.0,
+    hraesvelgr: variant('seraph_pudding', { ownArt: true, motion: 'float', name: 'Hræsvelgr', lv: 85, hp: 100000, atk: [370, 470], def: 50, mdef: 55, vit: 85, flee: 140, hit: 225, exp: 100000, jexp: 70000, speed: 2.0,
       aggro: true, stun: [12, 2], element: 'wind', race: 'angel', scale: 2.6, boss: true, respawn: 900000, bossSkill: 'galeburst',
       hue: -160, sat: 0.55, bri: 1.15, tint: ['#9ad8ff', 0.45],
       lore: L('หน่วยคุมลมที่ Odin ตั้งไว้ปลายกิ่งเหนือ ปีกของมันคือต้นลม Fimbulwinter — คำสั่งสุดท้าย: ดับทุกประกายนอกรัศมีราก', 'The wind-keeper Odin set at the tip of the northern branch; its wings are where the Fimbulwinter wind is born. Its last order: snuff out every spark beyond the roots.'),

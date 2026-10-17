@@ -824,7 +824,7 @@ Sprites.drawImageActor = (g, x, y, m, t, img, H, motion, flipSrc) => {
 };
 Sprites.mobImage = (g, x, y, m, t, img) => {
   const d = m.def, s = (d.scale || 1) * (d.size || 1);
-  const motion = d.wings ? 'fly' : d.id === 'hel_maiden' ? 'float' : (MOB_MOTION[d.sprite] || 'walk');
+  const motion = d.motion || (d.wings ? 'fly' : d.id === 'hel_maiden' ? 'float' : (MOB_MOTION[d.sprite] || 'walk'));
   const base = { hop: 40, fly: 40, crawl: 34, sway: 50, float: 52, walk: d.sprite === 'quad' ? 44 : 60 }[motion];
   Sprites.drawImageActor(g, x, y, m, t, img, base * s, motion, true);
 };

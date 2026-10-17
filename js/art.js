@@ -129,6 +129,7 @@ const Art = {
     if (!m) return null;
     const anim = k.startsWith('anim_'), d = MOBS[anim ? m[1] : m[2]];
     if (!d || !d.base || !MOBS[d.base]) return null;
+    if (anim && d.ownArt) return null; // มีภาพตัวเอง (mobsprite_<id>) แล้ว: ไม่ย้อมแอนิเมชันต้นแบบมาทับ — วาดภาพนิ่งพร้อมท่าขยับจากโค้ด
     if (!anim && m[1] === 'mvp' && !d.boss) return null; // ภาพเปิดตัวบอส: เฉพาะบอสสีต่าง
     return { from: anim ? `anim_mob_${d.base}_${m[2]}` : `${m[1]}_${d.base}`, hue: d.hue, sat: d.sat, bri: d.bri, tint: d.tint };
   },
