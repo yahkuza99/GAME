@@ -232,7 +232,7 @@
   Object.assign(MAP_DEFS.bough, { caveTheme: { tint: '#7ab8e8', tintA: 0.62, colorA: 0.42, roots: '#a8c8dc' }, crystalImg: 'prop_crystal_frost', crystalGlow: '170,230,255' });
   Art.alias('prop_crystal_frost', 'prop_crystal', { hue: -40, sat: 0.6, bri: 1.2 });
   Art.alias('map_bough', 'map_helcave', { hue: -140, sat: 0.55, bri: 1.05, tint: ['#9ad0f0', 0.35], w: 960 });
-  // ฉากเปิดตัว MVP (mvp_hraesvelgr): ย้อมจากภาพ Seraph Core เองอัตโนมัติ (Art.variantSource — base = seraph_pudding)
+  // ฉากเปิดตัว MVP: assets/mvp_hraesvelgr.webp (ป้อมเครื่องยนต์พายุในป่าน้ำแข็ง — วาดด้วยโมเดลในเครื่อง)
   // Huginn: ภาพเดินของ Trickster ย้อมโทนกาดำเย็น (แบบเดียวกับ Muninn ใน js/content_world.js) — ภาพในกล่องคุยใช้ภาพเดียวกัน
   const RAVEN = { hue: 230, sat: 0.35, bri: 0.6 };
   Art.alias('anim_npc_huginn_walk', 'anim_trickster_m_walk', RAVEN);

@@ -163,7 +163,7 @@ const CH8 = ['frostbud', 'rime_moth', 'gjallar_sentinel', 'hrimhusk', 'frostmane
       const pl = G.player; pl.mvpAt = {}; pl.hp = pl.d.maxHp; pl.dead = false;
       changeMap(map, MAP_DEFS[map].w >> 1, MAP_DEFS[map].h - 5, { quiet: true });
       const m = G.mobs.find(x => x.def.id === mvp), k = BossKit.kit(m);
-      const r = { spawned: !!m && m.isMvp, at: m && [Math.floor(m.x), Math.floor(m.y)], kit: k === BossKit.KITS[mvp], rot: BossKit.rotation(m), wbRot: k.wbRot, ult: k.ult, sub: Story.mvpSub(mvp), art: !!Art.variantSource('mvp_' + mvp) || !!Art.aliases['mvp_' + mvp] };
+      const r = { spawned: !!m && m.isMvp, at: m && [Math.floor(m.x), Math.floor(m.y)], kit: k === BossKit.KITS[mvp], rot: BossKit.rotation(m), wbRot: k.wbRot, ult: k.ult, sub: Story.mvpSub(mvp), art: !!Art.variantSource('mvp_' + mvp) || !!Art.aliases['mvp_' + mvp] || Art.lazy.has('mvp_' + mvp) || !!Art.imgs['mvp_' + mvp] }; // ภาพย้อม หรือไฟล์ภาพของตัวเอง (assets/mvp_<id>.webp)
       teleportPlayer(m.x + 3, m.y); m.state = 'chase'; m.engaged = true; m.nextSummon = 1e12; m.stunUntil = 1e12; m.nextBossSkill = 1e12;
       for (let i = 0; i < 3; i++) { BossKit.summon(m); for (let j = 0; j < 25; j++) updateGame(0.05); }
       const ms = G.mobs.filter(x => x.minion && !x.dead); r.minions = ms.length; r.minIds = [...new Set(ms.map(x => x.def.id))];

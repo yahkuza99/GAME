@@ -171,7 +171,7 @@
   ATMOS.wolfbelly = { kind: 'spore', n: 44, fog: true, grade: 'rgba(40,110,60,0.16)', col: '140,255,150' }; // ละอองสนิมเขียวเรือง (สีของหัว Nidhogg)
   Object.assign(MAP_DEFS.wolfbelly, { caveTheme: { tint: '#4a6a7a', tintA: 0.6, colorA: 0.45, glyph: '#7aff9a' }, crystalImg: 'prop_crystal_venom', crystalGlow: '140,255,90' });
   Art.alias('map_wolfbelly', 'map_helcave', { hue: 160, sat: 0.5, bri: 0.75, tint: ['#2a4a3a', 0.35], w: 960 });
-  Art.alias('mvp_fenrir', 'map_wolfwood', { hue: 40, sat: 0.6, bri: 0.6, tint: ['#1a5a2a', 0.35], w: 1280 }); // ยังไม่มีภาพของ Fenrir: ป่าหมาป่ายามค่ำ โทนสนิมเขียว
+  // ฉากเปิดตัว MVP: assets/mvp_fenrir.webp (รถถังโซ่ใต้รากไม้ — วาดด้วยโมเดลในเครื่อง)
   if (typeof NPC_LOOKS !== 'undefined' && NPC_LOOKS.loki) NPC_LOOKS.loki_maw = NPC_LOOKS.loki;
 
   // ===================== ชุดท่าบอส Fenrir =====================
